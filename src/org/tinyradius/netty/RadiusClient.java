@@ -12,18 +12,17 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.PriorityQueue;
 
 /**
  * This object represents a simple Radius client which communicates with
@@ -42,7 +41,7 @@ public class RadiusClient<T extends DatagramChannel> {
 	private ChannelFactory<T> factory;
 	private T channel = null;
 	private EventLoopGroup eventGroup;
-	private RadiusQueue queue;
+	private RadiusQueue queue = new RadiusQueueImpl();
 	private Dictionary dictionary;
 
 	/**
@@ -55,7 +54,7 @@ public class RadiusClient<T extends DatagramChannel> {
 	public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory) {
 		setChannelFactory(factory);
 		setEventGroup(eventGroup);
-		this.queue = new RadiusQueueImpl(dictionary);
+		this.dictionary = dictionary;
 	}
 
 
@@ -67,26 +66,6 @@ public class RadiusClient<T extends DatagramChannel> {
 	 */
 	public RadiusClient(EventLoopGroup eventGroup, ChannelFactory<T> factory) {
 		this(DefaultDictionary.getDefaultDictionary(), eventGroup, factory);
-	}
-
-	/**
-	 * Authenticates a user.
-	 *
-	 * @param userName user name
-	 * @param password password
-	 * @throws RadiusException malformed packet
-	 * @throws IOException     communication error (after getRetryCount()
-	 *                         retries)
-	 */
-	public synchronized RadiusRequestContext authenticate(String userName, String password, RadiusEndpoint endpoint)
-			throws IOException, RadiusException {
-
-		AccessRequest request = new AccessRequest(userName, password);
-
-		if (logger.isInfoEnabled())
-			logger.info("send Access-Request packet: " + request);
-
-		return communicate(request, endpoint);
 	}
 
 	/**
@@ -160,29 +139,35 @@ public class RadiusClient<T extends DatagramChannel> {
 	 * @exception IOException communication error (after getRetryCount()
 	 * retries)
 	 */
-	public RadiusRequestContext communicate(RadiusPacket request, RadiusEndpoint endpoint)
+	public RadiusRequestPromise communicate(RadiusPacket request, RadiusEndpoint endpoint)
 			throws IOException, RadiusException {
 
-		RadiusRequestContext context = null;
+		RadiusQueueEntry queued = null;
+		RadiusRequestPromise promise = null;
 
 		try {
-			context = queue.queue(request, endpoint);
+			RadiusRequestContextImpl context =
+					new RadiusRequestContextImpl(request, endpoint);
 
-			DatagramPacket packetOut = makeDatagramPacket(request, endpoint);
+			queued = queue.queue(context);
+			promise = new DefaultRadiusRequestPromise(context, eventGroup.next());
+			context.setPromise(promise);
 
-			System.out.println(request + "\n");
-
+			DatagramPacket packetOut = makeDatagramPacket(context.request(),
+					context.endpoint());
 			T channel = getChannel(); /* XXX: find available channel to send request */
 			ChannelFuture f = channel.writeAndFlush(packetOut);
 
+			if (logger.isInfoEnabled())
+				logger.info(context.request().toString());
+
 		} catch (Exception e) {
-			if (context != null)
-				queue.dequeue(context);
-			/* XXX: better way of rethrowing exception and cleaning up queue?? */
-			e.printStackTrace();
+			if (queued != null)
+				queue.dequeue(queued);
+			promise.setFailure(e);
 		}
 
-		return context;
+		return promise;
 	}
 
 	/**
@@ -202,13 +187,29 @@ public class RadiusClient<T extends DatagramChannel> {
 			channel.pipeline().addLast(new SimpleChannelInboundHandler<DatagramPacket>() {
 
 				public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-
-					RadiusRequestContext context = queue.lookup(packet);
-					if (context == null) {
-						System.out.println("Request context not found for recieved packet, ignoring...");
+					RadiusQueueEntry queued = queue.lookup(packet);
+					if (queued == null) {
+						logger.info("Request context not found for received packet, ignoring...");
 					} else {
-						System.out.println("Recevied response: " + context.response().toString());
-						System.out.println("\nFor request: " + context.request().toString() + "\n\n");
+						RadiusRequestContextImpl context =
+								(RadiusRequestContextImpl)queued.context();
+						try {
+							context.setResponse(RadiusPacket.decodeResponsePacket(dictionary,
+									new ByteBufInputStream(packet.content()),
+									context.endpoint().getSharedSecret(), context.request()));
+
+							if (logger.isInfoEnabled())
+								logger.info(String.format("Received response: %s\nFor request: %s",
+										context.response().toString(),
+										context.request().toString()));
+
+							context.promise().setSuccess(null);
+
+						} catch (IOException ioe) {
+							context.promise().setFailure(ioe);
+						} catch (RadiusException re) {
+							context.promise().setFailure(re);
+						}
 					}
 				}
 
@@ -239,24 +240,44 @@ public class RadiusClient<T extends DatagramChannel> {
 		return new DatagramPacket(bos.buffer(), endpoint.getEndpointAddress());
 	}
 
-	/**
-	 *
-	 */
-	public interface CallbackHandler {
-		/**
-		 *
-		 * @param response
-		 */
-		public void response(RadiusPacket response);
+	private class RadiusRequestContextImpl implements RadiusRequestContext {
 
-		/**
-		 *
-		 * @param e
-		 */
-		public void error(Exception e);
-	}
+		private RadiusPacket request;
+		private RadiusPacket response;
+		private RadiusEndpoint endpoint;
+		private RadiusRequestPromise promise;
 
-	abstract class AbstractRequestContext implements RadiusRequestContext {
+		public RadiusRequestContextImpl(RadiusPacket request, RadiusEndpoint endpoint) {
+			if (request == null)
+				throw new NullPointerException("request cannot be null");
+			if (endpoint == null)
+				throw new NullPointerException("endpoint cannot be null");
+			this.request = request;
+			this.endpoint = endpoint;
+		}
 
+		public RadiusPacket request() {
+			return request;
+		}
+
+		public RadiusPacket response() {
+			return response;
+		}
+
+		public void setResponse(RadiusPacket response) {
+			this.response = response;
+		}
+
+		public void setPromise(RadiusRequestPromise promise) {
+			this.promise = promise;
+		}
+
+		public RadiusEndpoint endpoint() {
+			return endpoint;
+		}
+
+		public RadiusRequestPromise promise() {
+			return promise;
+		}
 	}
 }

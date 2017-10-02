@@ -4,8 +4,6 @@ import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 
-import java.net.InetSocketAddress;
-
 /**
  *
  */
@@ -14,22 +12,21 @@ public interface RadiusQueue {
     /**
      *
      * @param request
-     * @param endpoint
      * @return
      */
-    public RadiusRequestContext queue(RadiusPacket request, RadiusEndpoint endpoint);
+    public RadiusQueueEntry queue(RadiusRequestContext request);
 
     /**
      *
      * @param context
      * @return
      */
-    public void dequeue(RadiusRequestContext context);
+    public void dequeue(RadiusQueueEntry context);
 
     /**
      *
      * @param response
      * @return
      */
-    public RadiusRequestContext lookup(DatagramPacket response);
+    public RadiusQueueEntry lookup(DatagramPacket response);
 }

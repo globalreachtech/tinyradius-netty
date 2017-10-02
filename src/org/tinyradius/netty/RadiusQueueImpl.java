@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
@@ -20,78 +22,75 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class RadiusQueueImpl implements RadiusQueue {
 
-    private Dictionary dictionary;
+    private static Log logger = LogFactory.getLog(RadiusClient.class);
 
     private AtomicInteger identifier =
             new AtomicInteger();
 
-    private PriorityQueue<RadiusRequestContextImpl> queue =
-            new PriorityQueue<RadiusRequestContextImpl>(10, new Comparator<RadiusRequestContextImpl>() {
-                public int compare(RadiusRequestContextImpl o1, RadiusRequestContextImpl o2) {
+    private PriorityQueue<RadiusQueueEntryImpl> queue =
+            new PriorityQueue<RadiusQueueEntryImpl>(10, new Comparator<RadiusQueueEntryImpl>() {
+                public int compare(RadiusQueueEntryImpl o1, RadiusQueueEntryImpl o2) {
                     if (o2 == null)
                         return 1;
                     if (o1 == null)
                         return -1;
-                    if (o1.request.getPacketIdentifier() > o2.request.getPacketIdentifier())
+
+                    RadiusRequestContext ctx1 = o1.context;
+                    RadiusRequestContext ctx2 = o2.context;
+
+                    if (ctx1.request().getPacketIdentifier() > ctx2.request().getPacketIdentifier())
                         return 1;
-                    if (o2.request.getPacketIdentifier() > o1.request.getPacketIdentifier())
+                    if (ctx2.request().getPacketIdentifier() > ctx1.request().getPacketIdentifier())
                         return -1;
+
                     return 0;
                 }
             });
 
-    private LinkedHashSet<RadiusRequestContext> pending =
-            new LinkedHashSet<RadiusRequestContext>();
-
-    public RadiusQueueImpl(Dictionary dictionary) {
-        if (dictionary == null)
-            throw new NullPointerException("dictionary cannot be null");
-        this.dictionary = dictionary;
-    }
+    private LinkedHashSet<RadiusQueueEntry> pending =
+            new LinkedHashSet<RadiusQueueEntry>();
 
     /**
      *
-     * @param request
-     * @param endpoint
+     * @param context
      * @return
      */
-    public RadiusRequestContext queue(RadiusPacket request, RadiusEndpoint endpoint) {
-        if (request == null)
-            throw new NullPointerException("request cannot be null");
-        if (endpoint == null)
-            throw new NullPointerException("request cannot be null");
+    public RadiusQueueEntry queue(RadiusRequestContext context) {
+        if (context == null)
+            throw new NullPointerException("context cannot be null");
 
-        try {
-            RadiusPacket queued = (RadiusPacket) request.clone();
-            RadiusRequestContextImpl context =
-                    new RadiusRequestContextImpl(identifier.getAndIncrement(), queued, endpoint);
+        RadiusPacket request = context.request();
+        RadiusQueueEntryImpl entry =
+                new RadiusQueueEntryImpl(identifier.getAndIncrement(), context);
 
-            /* override the identifier based on the current seed */
-            queued.setDictionary(dictionary);
-            queued.setPacketIdentifier(context.identifier() & 0xf);
+        /* override the identifier based on the current seed */
+        request.setPacketIdentifier(entry.identifier() & 0xf);
 
-            System.out.println("Queued request " + context.identifier() +
-                    " identifier => " + queued.getPacketIdentifier());
+        if (logger.isInfoEnabled())
+            logger.info(String.format("Queued request %d identifier => %d",
+                entry.identifier(), request.getPacketIdentifier()));
 
-            for (RadiusRequestContextImpl ctx : queue) {
-                System.out.println("Context(" + ctx.identifier() + ") => " +
-                        ctx.request().getPacketIdentifier());
-            }
+        /* TODO: Check request hasn't already been queued */
+        queue.add(entry);
 
-            /* TODO: Check request hasn't already been queued */
-            queue.add(context);
-
-            return context;
-
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
+        return entry;
     }
 
-    public void dequeue(RadiusRequestContext context) {
+    public void dequeue(RadiusQueueEntry context) {
         if (context == null)
             throw new NullPointerException("context cannot be null");
         queue.remove(context);
+    }
+
+    public void doit() {
+
+        RadiusQueueEntryImpl entry;
+
+        while ((entry = queue.poll()) != null)
+        {
+            RadiusRequestContext ctx = entry.context();
+            System.out.println("Context(" + entry + ") identifier => " + ctx.request().getPacketIdentifier());
+        }
     }
 
     /**
@@ -99,7 +98,7 @@ public class RadiusQueueImpl implements RadiusQueue {
      * @param response
      * @return
      */
-    public RadiusRequestContext lookup(DatagramPacket response) {
+    public RadiusQueueEntry lookup(DatagramPacket response) {
         if (response == null)
             throw new NullPointerException("response cannot be null");
 
@@ -110,30 +109,25 @@ public class RadiusQueueImpl implements RadiusQueue {
         buf.skipBytes(2); /* length */
         ByteBuf authenticator = buf.readBytes(16);
 
-        for (RadiusRequestContextImpl context : queue) {
+        for (RadiusQueueEntryImpl entry : queue) {
+            RadiusRequestContext context = entry.context();
             if (identifier != context.request().getPacketIdentifier())
                 continue;
             if (!(response.sender().equals(context.endpoint().getEndpointAddress())))
                 continue;
             try {
-                /* Avoid uncessary lookups for already processed responses */
-                if (context.response != null &&
-                        authenticator.equals(Unpooled.wrappedBuffer(
-                                context.response.getAuthenticator()))) {
+                /* XXX: Will find a better way of determining if the response authenticator
+                   matches the request but for now attempt to parse the packet which will
+                   also check the authenticator */
 
-                    System.out.println("Found processed context " + context.identifier() + " for response " +
-                            "identifier => " + context.response.getPacketIdentifier());
+                RadiusPacket resp = RadiusPacket.decodeResponsePacket(
+                        new ByteBufInputStream(buf.resetReaderIndex()),
+                        context.endpoint().getSharedSecret(), context.request());
 
-                    return context;
-                }
+                logger.info(String.format("Found context %d for response identifier => %d",
+                        entry.identifier(), resp.getPacketIdentifier()));
 
-                context.setResponse(RadiusPacket.decodeResponsePacket(dictionary,
-                    new ByteBufInputStream(buf.resetReaderIndex()), context.endpoint.getSharedSecret(), context.request()));
-
-                System.out.println("Found context " + context.identifier() + " for response " +
-                        "identifier => " + context.response.getPacketIdentifier());
-
-                return context;
+                return entry;
 
             } catch (IOException ioe) {
                 ioe.printStackTrace();
@@ -144,45 +138,60 @@ public class RadiusQueueImpl implements RadiusQueue {
         return null;
     }
 
-    private class RadiusRequestContextImpl implements RadiusRequestContext {
+    private class RadiusQueueEntryImpl implements RadiusQueueEntry {
 
         private int identifier;
+        private RadiusRequestContext context;
+
+        public RadiusQueueEntryImpl(int identifier, RadiusRequestContext context) {
+            if (context == null)
+                throw new NullPointerException("context cannot be null");
+            this.identifier = identifier;
+            this.context = context;
+        }
+
+        public int identifier() {
+            return identifier;
+        }
+        public RadiusRequestContext context() {
+            return context;
+        }
+        public String toString() {
+            return Integer.valueOf(identifier).toString();
+        }
+    }
+
+    /*
+    private class RadiusRequestContextImpl implements RadiusRequestContext {
+
         private RadiusPacket request;
         private RadiusPacket response;
         private RadiusEndpoint endpoint;
 
-        public RadiusRequestContextImpl(int identifier, RadiusPacket request, RadiusEndpoint endpoint) {
+        public RadiusRequestContextImpl(RadiusPacket request, RadiusEndpoint endpoint) {
             if (request == null)
                 throw new NullPointerException("request cannot be null");
             if (endpoint == null)
                 throw new NullPointerException("endpoint cannot be null");
-            this.identifier = identifier;
             this.request = request;
             this.endpoint = endpoint;
         }
 
         public RadiusPacket request() {
-           return request;
-        }
-
-        public RadiusEndpoint endpoint() {
-            return endpoint;
-        }
-
-        void setResponse(RadiusPacket response) {
-            this.response = response;
+            return request;
         }
 
         public RadiusPacket response() {
             return response;
         }
 
-        public int identifier() {
-            return identifier;
+        public void setResponse(RadiusPacket response) {
+            this.response = response;
         }
 
-        public String toString() {
-            return Integer.valueOf(identifier).toString();
+        public RadiusEndpoint endpoint() {
+            return endpoint;
         }
     }
+    */
 }

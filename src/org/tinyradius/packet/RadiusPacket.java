@@ -649,7 +649,7 @@ public class RadiusPacket implements Cloneable {
 		return createRadiusPacket(type, DefaultDictionary.getDefaultDictionary());
 	}
 	
-	/**
+	/**§§
 	 * String representation of this packet, for debugging purposes.
 	 * @see java.lang.Object#toString()
 	 */

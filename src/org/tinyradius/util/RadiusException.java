@@ -13,11 +13,32 @@ package org.tinyradius.util;
 public class RadiusException extends Exception {
 
 	/**
-	 * Constructs a RadiusException with a message.
-	 * @param message error message
+	 *
+	 */
+	public RadiusException() {
+		super();
+	}
+
+	/**
+	 * @param message
 	 */
 	public RadiusException(String message) {
 		super(message);
+	}
+
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public RadiusException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	/**
+	 * @param cause
+	 */
+	public RadiusException(Throwable cause) {
+		super(cause);
 	}
 
 	private static final long serialVersionUID = 2201204523946051388L;
