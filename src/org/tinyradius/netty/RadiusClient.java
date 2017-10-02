@@ -14,6 +14,8 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
@@ -21,6 +23,7 @@ import org.tinyradius.util.RadiusException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.PriorityQueue;
 
 /**
  * This object represents a simple Radius client which communicates with
@@ -33,9 +36,28 @@ import java.net.InetSocketAddress;
  */
 public class RadiusClient<T extends DatagramChannel> {
 
+	private int retryCount = 3;
+	private static Log logger = LogFactory.getLog(RadiusClient.class);
+
 	private ChannelFactory<T> factory;
 	private T channel = null;
 	private EventLoopGroup eventGroup;
+	private RadiusQueue queue;
+	private Dictionary dictionary;
+
+	/**
+	 * Creates a new Radius client object for a special Radius server.
+	 *
+	 * @param dictionary
+	 * @param eventGroup
+	 * @param factory
+	 */
+	public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory) {
+		setChannelFactory(factory);
+		setEventGroup(eventGroup);
+		this.queue = new RadiusQueueImpl(dictionary);
+	}
+
 
 	/**
 	 * Creates a new Radius client object for a special Radius server.
@@ -44,8 +66,7 @@ public class RadiusClient<T extends DatagramChannel> {
 	 * @param factory
 	 */
 	public RadiusClient(EventLoopGroup eventGroup, ChannelFactory<T> factory) {
-		setChannelFactory(factory);
-		setEventGroup(eventGroup);
+		this(DefaultDictionary.getDefaultDictionary(), eventGroup, factory);
 	}
 
 	/**
@@ -57,7 +78,7 @@ public class RadiusClient<T extends DatagramChannel> {
 	 * @throws IOException     communication error (after getRetryCount()
 	 *                         retries)
 	 */
-	public synchronized void authenticate(String userName, String password, RadiusEndpoint endpoint, CallbackHandler handler)
+	public synchronized RadiusRequestContext authenticate(String userName, String password, RadiusEndpoint endpoint)
 			throws IOException, RadiusException {
 
 		AccessRequest request = new AccessRequest(userName, password);
@@ -65,9 +86,7 @@ public class RadiusClient<T extends DatagramChannel> {
 		if (logger.isInfoEnabled())
 			logger.info("send Access-Request packet: " + request);
 
-		RadiusPacket response = communicate(request, endpoint, handler);
-		if (logger.isInfoEnabled())
-			logger.info("received packet: " + response);
+		return communicate(request, endpoint);
 	}
 
 	/**
@@ -141,44 +160,29 @@ public class RadiusClient<T extends DatagramChannel> {
 	 * @exception IOException communication error (after getRetryCount()
 	 * retries)
 	 */
-	public RadiusPacket communicate(RadiusPacket request, RadiusEndpoint endpoint, CallbackHandler handler)
+	public RadiusRequestContext communicate(RadiusPacket request, RadiusEndpoint endpoint)
 			throws IOException, RadiusException {
 
-		DatagramPacket packetOut = makeDatagramPacket(request, endpoint);
+		RadiusRequestContext context = null;
 
-		System.out.println(request.toString());
+		try {
+			context = queue.queue(request, endpoint);
 
-		T channel = getChannel(); /* XXX: find available channel to send request */
-		ChannelFuture f = channel.writeAndFlush(packetOut);
+			DatagramPacket packetOut = makeDatagramPacket(request, endpoint);
 
-		//f.syncUninterruptibly();
+			System.out.println(request + "\n");
 
-		/*
-		for (int i = 1; i <= getRetryCount(); i++) {
-			try {
-				channel.write(packetOut);
-				socket.receive(packetIn);
-				return makeRadiusPacket(packetIn, request);
-			} catch (IOException ioex) {
-				if (i == getRetryCount()) {
-					if (logger.isErrorEnabled()) {
-						if (ioex instanceof SocketTimeoutException)
-							logger.error("communication failure (timeout), no more retries");
-						else
-							logger.error("communication failure, no more retries", ioex);
-					}
-					throw ioex;
-				}
-				if (logger.isInfoEnabled())
-					logger.info("communication failure, retry " + i);
-				// TODO increase Acct-Delay-Time by getSocketTimeout()/1000
-				// this changes the packet authenticator and requires packetOut to be
-				// calculated again (call makeDatagramPacket)
-            }
-        }
-        */
-		
-		return null;
+			T channel = getChannel(); /* XXX: find available channel to send request */
+			ChannelFuture f = channel.writeAndFlush(packetOut);
+
+		} catch (Exception e) {
+			if (context != null)
+				queue.dequeue(context);
+			/* XXX: better way of rethrowing exception and cleaning up queue?? */
+			e.printStackTrace();
+		}
+
+		return context;
 	}
 
 	/**
@@ -198,17 +202,13 @@ public class RadiusClient<T extends DatagramChannel> {
 			channel.pipeline().addLast(new SimpleChannelInboundHandler<DatagramPacket>() {
 
 				public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-					try {
 
-						/* XXX: lookup shared secret for received packet */
-
-						RadiusPacket recevied = makeRadiusPacket(packet, "testing123"); /* XXX: Change hard coded */
-						System.out.println(recevied.toString());
-
-					} catch (RadiusException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
+					RadiusRequestContext context = queue.lookup(packet);
+					if (context == null) {
+						System.out.println("Request context not found for recieved packet, ignoring...");
+					} else {
+						System.out.println("Recevied response: " + context.response().toString());
+						System.out.println("\nFor request: " + context.request().toString() + "\n\n");
 					}
 				}
 
@@ -238,32 +238,6 @@ public class RadiusClient<T extends DatagramChannel> {
 
 		return new DatagramPacket(bos.buffer(), endpoint.getEndpointAddress());
 	}
-	
-	/**
-	 * Creates a RadiusPacket from a received datagram packet.
-	 * @param packet received datagram
-	 * @param request Radius request packet
-	 * @return RadiusPacket object
-	 */
-	protected RadiusPacket makeRadiusPacket(DatagramPacket packet, RadiusPacket request, String sharedSecret)
-			throws IOException, RadiusException {
-		return RadiusPacket.decodeResponsePacket(
-				new ByteBufInputStream(packet.content()), sharedSecret, request);
-	}
-
-	/**
-	 * Creates a RadiusPacket from a received datagram packet.
-	 * @param packet received datagram
-	 * @return RadiusPacket object
-	 */
-	protected RadiusPacket makeRadiusPacket(DatagramPacket packet, String sharedSecret)
-			throws IOException, RadiusException {
-		return RadiusPacket.decodeRequestPacket(
-				new ByteBufInputStream(packet.content()), sharedSecret);
-	}
-
-	private int retryCount = 3;
-	private static Log logger = LogFactory.getLog(RadiusClient.class);
 
 	/**
 	 *
@@ -280,5 +254,9 @@ public class RadiusClient<T extends DatagramChannel> {
 		 * @param e
 		 */
 		public void error(Exception e);
+	}
+
+	abstract class AbstractRequestContext implements RadiusRequestContext {
+
 	}
 }

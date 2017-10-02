@@ -32,7 +32,7 @@ import org.tinyradius.util.RadiusUtil;
  * This class represents a Radius packet. Subclasses provide convenience methods
  * for special packet types.
  */
-public class RadiusPacket {
+public class RadiusPacket implements Cloneable {
 	
     /**
      * Packet type codes.
@@ -604,7 +604,40 @@ public class RadiusPacket {
 			nextPacketId = 0;
 		return nextPacketId;
 	}
-	
+
+	/**
+	 * Creates a RadiusPacket object. Depending on the passed type, the
+	 * appropiate successor is chosen. Sets the type, but does not touch
+	 * the packet identifier.
+	 * @param type packet type
+	 * @return RadiusPacket object
+	 */
+	public static RadiusPacket createRadiusPacket(final int type, Dictionary dictionary) {
+		if (dictionary == null)
+			throw new NullPointerException("dictionary cannot be null");
+
+		RadiusPacket rp;
+		switch (type) {
+			case ACCESS_REQUEST:
+				rp = new AccessRequest();
+				break;
+
+			case ACCOUNTING_REQUEST:
+				rp = new AccountingRequest();
+				break;
+
+			case ACCESS_ACCEPT:
+			case ACCESS_REJECT:
+			case ACCOUNTING_RESPONSE:
+			default:
+				rp = new RadiusPacket();
+		}
+
+		rp.setDictionary(dictionary);
+		rp.setPacketType(type);
+		return rp;
+	}
+
 	/**
 	 * Creates a RadiusPacket object. Depending on the passed type, the
 	 * appropiate successor is chosen. Sets the type, but does not touch
@@ -613,25 +646,7 @@ public class RadiusPacket {
 	 * @return RadiusPacket object
 	 */
 	public static RadiusPacket createRadiusPacket(final int type) {
-		RadiusPacket rp;
-		switch (type) {
-		case ACCESS_REQUEST:
-			rp = new AccessRequest();
-			break;
-		
-		case ACCOUNTING_REQUEST:
-			rp = new AccountingRequest();
-			break;
-		
-		case ACCESS_ACCEPT:
-		case ACCESS_REJECT:
-		case ACCOUNTING_RESPONSE:
-		default:
-			rp = new RadiusPacket();
-		}
-		
-		rp.setPacketType(type);
-		return rp;
+		return createRadiusPacket(type, DefaultDictionary.getDefaultDictionary());
 	}
 	
 	/**
@@ -867,7 +882,7 @@ public class RadiusPacket {
 			throw new RadiusException("bad packet: attribute length mismatch");
 	
 		// create RadiusPacket object; set properties
-		RadiusPacket rp = createRadiusPacket(type);
+		RadiusPacket rp = createRadiusPacket(type, dictionary);
 		rp.setPacketType(type);
 		rp.setPacketIdentifier(identifier);
 		rp.authenticator = authenticator;
@@ -965,6 +980,15 @@ public class RadiusPacket {
 		}
 		bos.flush();
 		return bos.toByteArray();
+	}
+
+	/**
+	 *
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
+	public Object clone() throws CloneNotSupportedException{
+		return super.clone();
 	}
 
 	/**

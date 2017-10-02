@@ -41,7 +41,23 @@ public class RadiusEndpoint {
 		return sharedSecret;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o == null)
+			return false;
+		if (!(o instanceof RadiusEndpoint))
+			return false;
+
+		RadiusEndpoint e = (RadiusEndpoint)o;
+
+		if (e.endpointAddress.equals(endpointAddress))
+			return true;
+		if (e.sharedSecret.equals(sharedSecret))
+			return true;
+
+		return false;
+	}
+
 	private InetSocketAddress endpointAddress;
     private String sharedSecret;
-
 }

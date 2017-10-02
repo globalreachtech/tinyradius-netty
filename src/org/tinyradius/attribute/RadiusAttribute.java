@@ -210,6 +210,7 @@ public class RadiusAttribute {
 				attribute = (RadiusAttribute)at.getAttributeClass().newInstance();
 			} catch (Exception e) {
 				// error instantiating class - should not occur
+				e.printStackTrace();
 			}
 		}
 		
