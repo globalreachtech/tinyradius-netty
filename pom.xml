@@ -5,7 +5,7 @@
     <groupId>org.tinyradius</groupId>
     <artifactId>tinyradius-netty</artifactId>
     <name>TinyRadius Java Radius Library</name>
-    <version>0.9.9</version>
+    <version>1.0</version>
     <url>http://sourceforge.net/projects/tinyradius</url>
     <developers>
         <developer>
@@ -52,9 +52,6 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.2.1</version>
-                <configuration>
-                    <mainClass>org.tinyradius.app.Main</mainClass>
-                </configuration>
             </plugin>
         </plugins>
     </build>
