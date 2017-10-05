@@ -115,6 +115,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 			type = RadiusPacket.ACCESS_ACCEPT;
 
 		RadiusPacket answer = new RadiusPacket(type, accessRequest.getPacketIdentifier());
+		answer.setDictionary(dictionary);
 		copyProxyState(accessRequest, answer);
 		return answer;
 	}
@@ -307,20 +308,36 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 * @param channel to listen on
 	 * @param listenAddress the address to bind to
 	 */
-	protected ChannelFuture listen(final T channel, InetSocketAddress listenAddress) {
+	protected ChannelFuture listen(final T channel, final InetSocketAddress listenAddress) {
 		if (channel == null)
 			throw new NullPointerException("channel cannot be null");
 		if (listenAddress == null)
 			throw new NullPointerException("listenAddress cannot be null");
 
-		ChannelFuture future = channel.bind(listenAddress);
+		final ChannelPromise promise = new DefaultChannelPromise(channel);
+
+		ChannelFuture future = eventGroup.register(channel);
 		future.addListeners(new ChannelFutureListener() {
 			public void operationComplete(ChannelFuture channelFuture) throws Exception {
-				channel.pipeline().addLast(new RadiusChannelHandler());
+				if (!channelFuture.isSuccess()) {
+					promise.setFailure(channelFuture.cause());
+				} else {
+					ChannelFuture future = channel.bind(listenAddress);
+					future.addListeners(new ChannelFutureListener() {
+						public void operationComplete(ChannelFuture channelFuture) throws Exception {
+							if (!channelFuture.isSuccess()) {
+								promise.setFailure(channelFuture.cause());
+							} else {
+								channel.pipeline().addLast(new RadiusChannelHandler());
+								promise.setSuccess();
+							}
+						}
+					});
+				}
 			}
 		});
 
-		return future;
+		return promise;
 	}
 
 	/**
@@ -424,7 +441,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	protected RadiusPacket makeRadiusPacket(DatagramPacket packet, String sharedSecret)
 			throws IOException, RadiusException {
 		ByteBufInputStream in = new ByteBufInputStream(packet.content());
-		return RadiusPacket.decodeRequestPacket(in, sharedSecret);
+		return RadiusPacket.decodeRequestPacket(dictionary, in, sharedSecret);
 	}
 
 	/**
@@ -496,6 +513,8 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 				// handle packet
 				logger.trace("about to call RadiusServer.handlePacket()");
 				RadiusPacket response = handlePacket(localAddress, remoteAddress, request, secret);
+
+				response.setDictionary(dictionary);
 
 				// send response
 				if (response != null) {

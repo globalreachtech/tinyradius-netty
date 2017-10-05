@@ -13,6 +13,10 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.netty.RadiusProxy;
 import org.tinyradius.netty.RadiusServer;
@@ -77,6 +81,9 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
 	public static void main(String[] args) throws IOException, Exception {
 
+		BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.INFO);
+
 		final NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
 
 		final TestProxy<NioDatagramChannel> proxy = new TestProxy<NioDatagramChannel>(
@@ -85,18 +92,22 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
 		Future<RadiusServer<NioDatagramChannel>> future =
 				proxy.start(eventGroup, true, true, true);
+		future.addListener(new GenericFutureListener<Future<? super RadiusServer<NioDatagramChannel>>>() {
+		   public void operationComplete(Future<? super RadiusServer<NioDatagramChannel>> future) throws Exception {
+			   if (future.isSuccess()) {
+				   System.out.println("Server started.");
+			   } else {
+				   System.out.println("Failed to start server: " + future.cause());
+			   }
+		   	}
+		});
 
-		future.sync();
+		System.in.read();
 
-		System.out.println("Server started.");
+		proxy.stop();
 
-		eventGroup.schedule(new Runnable() {
-			public void run() {
-				System.out.println("Stop server");
-				proxy.stop();
-				eventGroup.shutdownGracefully();
-			}
-		}, 30, TimeUnit.MINUTES);
+		eventGroup.shutdownGracefully()
+				.awaitUninterruptibly();
 	}
 
 	private static class NioDatagramChannelFactory implements ChannelFactory<NioDatagramChannel> {

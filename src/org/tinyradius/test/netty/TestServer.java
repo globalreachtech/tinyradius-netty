@@ -10,13 +10,24 @@ import io.netty.channel.ChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.dictionary.DictionaryParser;
+import org.tinyradius.dictionary.MemoryDictionary;
+import org.tinyradius.dictionary.WritableDictionary;
 import org.tinyradius.netty.RadiusServer;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusException;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test server which terminates after 30 s.
@@ -29,9 +40,16 @@ public class TestServer {
 	public static void main(String[] args) 
 	throws IOException, Exception {
 
-		NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
+		BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.INFO);
 
-		RadiusServer server = new RadiusServer(new NioDatagramChannelFactory(), new HashedWheelTimer()) {
+		Dictionary dictionary = new MemoryDictionary();
+		DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"),
+				(WritableDictionary) dictionary);
+
+		final NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
+
+		final RadiusServer server = new RadiusServer(dictionary, new NioDatagramChannelFactory(), new HashedWheelTimer()) {
 			// Authorize localhost/testing123
 			public String getSharedSecret(InetSocketAddress client) {
 				if (client.getAddress().getHostAddress().equals("127.0.0.1"))
@@ -42,7 +60,7 @@ public class TestServer {
 			
 			// Authenticate mw
 			public String getUserPassword(String userName) {
-				if (userName.equals("mw"))
+				if (userName.equals("test"))
 					return "test";
 				else
 					return null;
@@ -67,14 +85,25 @@ public class TestServer {
 		if (args.length >= 2)
 			server.setAcctPort(Integer.parseInt(args[1]));
 		
-		server.start(eventGroup, true, true);
-		
-		System.out.println("Server started.");
-		
-		Thread.sleep(1000*60*30);
-		System.out.println("Stop server");
+		Future<NioDatagramChannel> future = server.start(eventGroup, true, true);
+		future.addListener(new GenericFutureListener<Future<? super NioDatagramChannel>>() {
+			public void operationComplete(Future<? super NioDatagramChannel> future) throws Exception {
+				if (future.isSuccess()) {
+					System.out.println("Server started");
+				} else {
+					System.out.println("Failed to start server: " + future.cause());
+					server.stop();
+					eventGroup.shutdownGracefully();
+				}
+			}
+		});
+
+		System.in.read();
+
 		server.stop();
-		eventGroup.shutdownGracefully();
+
+		eventGroup.shutdownGracefully()
+				.awaitUninterruptibly();
 	}
 
 	private static class NioDatagramChannelFactory implements ChannelFactory<NioDatagramChannel> {
