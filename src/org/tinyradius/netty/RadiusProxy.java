@@ -16,10 +16,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timer;
-import io.netty.util.concurrent.DefaultPromise;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
-import io.netty.util.concurrent.Promise;
+import io.netty.util.concurrent.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.tinyradius.attribute.RadiusAttribute;
@@ -65,7 +62,7 @@ public abstract class RadiusProxy<T extends DatagramChannel>
 	public Future<RadiusServer<T>> start(EventLoopGroup eventGroup, boolean listenAuth, boolean listenAcct, boolean listenProxy) {
 
 		final Promise<RadiusServer<T>> promise =
-				new DefaultPromise<RadiusServer<T>>(eventGroup.next());
+				new DefaultPromise<RadiusServer<T>>(GlobalEventExecutor.INSTANCE);
 
 		Future<RadiusServer<T>> future = super.start(eventGroup, listenAuth, listenAcct);
 		future.addListener(new GenericFutureListener<Future<? super RadiusServer<T>>>() {

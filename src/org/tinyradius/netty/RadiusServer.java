@@ -151,7 +151,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 		this.eventGroup = eventGroup;
 
 		final Promise<RadiusServer<T>> promise =
-				new DefaultPromise<RadiusServer<T>>(eventGroup.next());
+				new DefaultPromise<RadiusServer<T>>(GlobalEventExecutor.INSTANCE);
 
 		listenAuth().addListener(new ChannelFutureListener() {
 			public void operationComplete(ChannelFuture future) throws Exception {

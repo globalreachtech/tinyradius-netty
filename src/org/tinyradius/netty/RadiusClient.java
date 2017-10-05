@@ -222,7 +222,7 @@ public class RadiusClient<T extends DatagramChannel> {
                 queue[context.identifier() & 0xff];
 
         final RadiusRequestPromise promise =
-            new DefaultRadiusRequestPromise(context, eventGroup.next()) {
+            new DefaultRadiusRequestPromise(context, eventGroup.next() /* XXX: use a dedicated executor? */) {
                 public boolean cancel(boolean mayInterruptIfRunning) {
                     RadiusRequestContextImpl context =
                             (RadiusRequestContextImpl)this.context();
