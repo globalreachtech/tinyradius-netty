@@ -55,9 +55,9 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 		// always proxy
 		try {
 			InetAddress address = InetAddress.getByAddress(new byte[]{127,0,0,1});
-			int port = 10000;
+			int port = 1812;
 			if (packet instanceof AccountingRequest)
-				port = 10001;
+				port = 1813;
 			return new RadiusEndpoint(new InetSocketAddress(address, port), "testing123");
 		} catch (UnknownHostException uhe) {
 			uhe.printStackTrace();
@@ -90,6 +90,10 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 				new NioDatagramChannelFactory(),
 				new HashedWheelTimer());
 
+		proxy.setAuthPort(11812);
+		proxy.setAcctPort(11813);
+		proxy.setProxyPort(11814);
+
 		Future<RadiusServer<NioDatagramChannel>> future =
 				proxy.start(eventGroup, true, true, true);
 		future.addListener(new GenericFutureListener<Future<? super RadiusServer<NioDatagramChannel>>>() {
@@ -97,7 +101,8 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 			   if (future.isSuccess()) {
 				   System.out.println("Server started.");
 			   } else {
-				   System.out.println("Failed to start server: " + future.cause());
+				   System.out.println("Failed to start server");
+				   future.cause().printStackTrace();
 			   }
 		   	}
 		});

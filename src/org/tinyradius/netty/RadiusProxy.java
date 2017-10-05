@@ -107,7 +107,7 @@ public abstract class RadiusProxy<T extends DatagramChannel>
 	 */
 	protected ChannelFuture listenProxy() {
 		logger.info("starting RadiusProxyListener on port " + getProxyPort());
-		return listen(getProxySocket(), new InetSocketAddress(getListenAddress(), getAuthPort()));
+		return listen(getProxySocket(), new InetSocketAddress(getListenAddress(), getProxyPort()));
 	}
 
     /**
