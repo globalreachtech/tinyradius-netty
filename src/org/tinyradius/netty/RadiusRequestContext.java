@@ -22,6 +22,11 @@ public interface RadiusRequestContext {
 
     /**
      *
+     */
+    public long responseTime();
+
+    /**
+     *
      * @return
      */
     public RadiusEndpoint endpoint();

@@ -6,13 +6,17 @@
  */
 package org.tinyradius.netty;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.concurrent.GlobalEventExecutor;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
+import io.netty.util.internal.ConcurrentSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -23,6 +27,10 @@ import org.tinyradius.util.RadiusException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.*;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This object represents a simple Radius client which communicates with
@@ -38,11 +46,13 @@ public class RadiusClient<T extends DatagramChannel> {
 	private int retryCount = 3;
 	private static Log logger = LogFactory.getLog(RadiusClient.class);
 
+	private AtomicInteger identifier = new AtomicInteger();
 	private ChannelFactory<T> factory;
 	private T channel = null;
 	private EventLoopGroup eventGroup;
-	private RadiusQueue queue = new RadiusQueueImpl();
 	private Dictionary dictionary;
+	private Timer timer;
+	private Set<?>[] queue = new Set<?>[256];
 
 	/**
 	 * Creates a new Radius client object for a special Radius server.
@@ -51,10 +61,19 @@ public class RadiusClient<T extends DatagramChannel> {
 	 * @param eventGroup
 	 * @param factory
 	 */
-	public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory) {
+	public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory, Timer timer) {
+		if (eventGroup == null)
+			throw new NullPointerException("eventGroup cannot be null");
+		if (factory == null)
+			throw new NullPointerException("factory cannot be null");
+		if (timer == null)
+			throw new NullPointerException("timer cannot be null");
 		setChannelFactory(factory);
 		setEventGroup(eventGroup);
+		this.timer = timer;
 		this.dictionary = dictionary;
+		for (int i = 0; i < queue.length; i++)
+			queue[i] = new ConcurrentSet<RadiusRequestPromise>();
 	}
 
 
@@ -64,8 +83,8 @@ public class RadiusClient<T extends DatagramChannel> {
 	 * @param eventGroup
 	 * @param factory
 	 */
-	public RadiusClient(EventLoopGroup eventGroup, ChannelFactory<T> factory) {
-		this(DefaultDictionary.getDefaultDictionary(), eventGroup, factory);
+	public RadiusClient(EventLoopGroup eventGroup, ChannelFactory<T> factory, Timer timer) {
+		this(DefaultDictionary.getDefaultDictionary(), eventGroup, factory, timer);
 	}
 
 	/**
@@ -77,7 +96,6 @@ public class RadiusClient<T extends DatagramChannel> {
 	}
 
 	/**
-	 *
 	 * @param factory
 	 */
 	public void setChannelFactory(ChannelFactory<T> factory) {
@@ -87,7 +105,6 @@ public class RadiusClient<T extends DatagramChannel> {
 	}
 
 	/**
-	 *
 	 * @param eventGroup
 	 */
 	public void setEventGroup(EventLoopGroup eventGroup) {
@@ -97,31 +114,17 @@ public class RadiusClient<T extends DatagramChannel> {
 	}
 
 	/**
-	 *
-	 * @return
-	 */
-	public EventLoopGroup getEventGroup() {
-		return eventGroup;
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	public ChannelFactory<T> getChannelFactory() {
-		return this.factory;
-	}
-
-	/**
 	 * Returns the retry count for failed transmissions.
+	 *
 	 * @return retry count
 	 */
 	public int getRetryCount() {
 		return retryCount;
 	}
-	
+
 	/**
 	 * Sets the retry count for failed transmissions.
+	 *
 	 * @param retryCount retry count, >0
 	 */
 	public void setRetryCount(int retryCount) {
@@ -130,44 +133,191 @@ public class RadiusClient<T extends DatagramChannel> {
 		this.retryCount = retryCount;
 	}
 
-	/**
-	 * Sends a Radius packet to the server and awaits an answer.
-	 * @param request packet to be sent
-	 * @param endpoint server endpoint
-	 * @return response Radius packet
-	 * @exception RadiusException malformed packet
-	 * @exception IOException communication error (after getRetryCount()
-	 * retries)
-	 */
-	public RadiusRequestPromise communicate(RadiusPacket request, RadiusEndpoint endpoint)
-			throws IOException, RadiusException {
+	public void doit() {
+	//	RadiusRequestContextImpl ctx;
+	//	while ((ctx = queue.poll()) != null) {
+	//		System.out.println("Context(" + ctx.identifier() + ") identifier => " + ctx.request().getPacketIdentifier());
+	//	}
+	}
 
-		RadiusQueueEntry queued = null;
-		RadiusRequestPromise promise = null;
+	/**
+	 * @param request
+	 * @param endpoint
+	 * @return
+	 * @throws IOException
+	 * @throws RadiusException
+	 */
+	public RadiusRequestFuture communicate(RadiusPacket request, RadiusEndpoint endpoint) {
+		if (request == null)
+			throw new NullPointerException("request cannot be null");
+		if (endpoint == null)
+			throw new NullPointerException("endpoint cannot be null");
+
+		return this.communicate(request, endpoint, 3, TimeUnit.SECONDS);
+	}
+
+	private void sendRequest(RadiusRequestContextImpl context)
+			throws IOException {
+		if (context == null)
+			throw new NullPointerException("context cannot be null");
+
+		DatagramPacket packetOut = makeDatagramPacket(
+				context.request(), context.endpoint());
+		T channel = getChannel();
+		ChannelFuture f = channel.writeAndFlush(packetOut);
+
+		context.attempts().incrementAndGet();
+
+		if (logger.isInfoEnabled())
+			logger.info(context.request().toString());
+	}
+
+	/**
+	 *
+	 * @param request
+	 * @param endpoint
+	 * @return
+	 * @throws IOException
+	 * @throws RadiusException
+	 */
+	@SuppressWarnings("unchecked")
+	public RadiusRequestFuture communicate(RadiusPacket request, RadiusEndpoint endpoint, long timeout, TimeUnit unit) {
+		if (request == null)
+			throw new NullPointerException("request cannot be null");
+		if (endpoint == null)
+			throw new NullPointerException("endpoint cannot be null");
+		if (timeout < 0)
+			throw new IllegalArgumentException("timeout is invalid");
+		if (unit == null)
+			throw new NullPointerException("unit cannot be null");
 
 		try {
-			RadiusRequestContextImpl context =
-					new RadiusRequestContextImpl(request, endpoint);
+			request = (RadiusPacket)request.clone();
+		} catch (CloneNotSupportedException e) {
+		}
 
-			queued = queue.queue(context);
-			promise = new DefaultRadiusRequestPromise(context, eventGroup.next());
-			context.setPromise(promise);
+		RadiusRequestContextImpl context =
+				new RadiusRequestContextImpl(
+						identifier.getAndIncrement(), request,
+						endpoint, unit.toNanos(timeout));
 
-			DatagramPacket packetOut = makeDatagramPacket(context.request(),
-					context.endpoint());
-			T channel = getChannel(); /* XXX: find available channel to send request */
-			ChannelFuture f = channel.writeAndFlush(packetOut);
+		RadiusRequestPromise promise = queue(context);
 
-			if (logger.isInfoEnabled())
-				logger.info(context.request().toString());
-
+		try {
+			sendRequest((RadiusRequestContextImpl)promise.context());
 		} catch (Exception e) {
-			if (queued != null)
-				queue.dequeue(queued);
 			promise.setFailure(e);
+			dequeue(promise);
 		}
 
 		return promise;
+	}
+
+	@SuppressWarnings("unchecked")
+	private RadiusRequestPromise queue(RadiusRequestContextImpl context) {
+		if (context == null)
+			throw new NullPointerException("context cannot be null");
+
+		Set<RadiusRequestFuture> set = (Set<RadiusRequestFuture>)
+				queue[context.identifier() & 0xff];
+
+		final RadiusRequestPromise promise =
+			new DefaultRadiusRequestPromise(context, eventGroup.next()) {
+				public boolean cancel(boolean mayInterruptIfRunning) {
+
+					RadiusRequestContextImpl context =
+							(RadiusRequestContextImpl)this.context();
+					RadiusClient.this.dequeue(this);
+
+					return super.cancel(mayInterruptIfRunning);
+				}
+			};
+
+		set.add(promise);
+
+
+		Timeout to = context.newTimeout(timer, new TimerTask() {
+			public void run(Timeout timeout) throws Exception {
+				RadiusRequestContextImpl ctx =
+						(RadiusRequestContextImpl)promise.context();
+				if (ctx.attempts().intValue() < 3) {
+					RadiusClient.this.sendRequest(ctx);
+					ctx.newTimeout(RadiusClient.this.timer, timeout.task());
+				} else {
+					if (!promise.isDone()) {
+						promise.setFailure(new RadiusException("Timeout occurred"));
+						RadiusClient.this.dequeue(promise);
+					}
+				}
+			}
+		});
+
+		if (logger.isInfoEnabled())
+			logger.info(String.format("Queued request %d identifier => %d",
+					context.identifier(), context.request().getPacketIdentifier()));
+
+		return promise;
+	}
+
+	@SuppressWarnings("unchecked")
+	private boolean dequeue(RadiusRequestPromise promise) {
+		if (promise == null)
+			throw new NullPointerException("promise cannot be null");
+
+		RadiusRequestContextImpl context =
+				(RadiusRequestContextImpl)promise.context();
+
+		Set<RadiusRequestPromise> set = (Set<RadiusRequestPromise>)
+				queue[context.identifier() & 0xff];
+
+		boolean success = set.remove(promise);
+		if (success) {
+			if (!context.timeout.isExpired())
+				 context.timeout.cancel();
+		}
+		return success;
+	}
+
+	@SuppressWarnings("unchecked")
+	private RadiusRequestPromise lookup(DatagramPacket response) {
+		if (response == null)
+			throw new NullPointerException("response cannot be null");
+
+		ByteBuf buf = response.content()
+				.duplicate().skipBytes(1);
+
+		int identifier = buf.readByte() & 0xff;
+
+		Set<RadiusRequestPromise> set =
+				(Set<RadiusRequestPromise>)queue[identifier & 0xff];
+
+		for (RadiusRequestPromise promise : set) {
+			RadiusRequestContextImpl context =
+					(RadiusRequestContextImpl)promise.context();
+			if (identifier != context.request().getPacketIdentifier())
+				continue;
+			if (!(response.sender().equals(
+					context.endpoint().getEndpointAddress())))
+				continue;
+			try {
+				RadiusPacket resp = RadiusPacket.decodeResponsePacket(dictionary,
+						new ByteBufInputStream(response.content().duplicate()),
+						context.endpoint().getSharedSecret(), context.request());
+
+				if (logger.isInfoEnabled())
+					logger.info(String.format("Found context %d for response identifier => %d",
+						context.identifier(), resp.getPacketIdentifier()));
+
+				context.setResponse(resp);
+
+				return promise;
+
+			} catch (IOException ioe) {
+			} catch (RadiusException e) {
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -176,6 +326,7 @@ public class RadiusClient<T extends DatagramChannel> {
 	 * @return local socket
 	 * @throws ChannelException
 	 */
+	@SuppressWarnings("unchecked")
 	protected T getChannel() throws ChannelException {
 		if (channel == null) {
 			channel = factory.newChannel();
@@ -185,31 +336,25 @@ public class RadiusClient<T extends DatagramChannel> {
 			future.syncUninterruptibly();
 			channel.bind(new InetSocketAddress(0));
 			channel.pipeline().addLast(new SimpleChannelInboundHandler<DatagramPacket>() {
-
 				public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-					RadiusQueueEntry queued = queue.lookup(packet);
-					if (queued == null) {
+					RadiusRequestPromise promise = lookup(packet);
+					if (promise == null) {
 						logger.info("Request context not found for received packet, ignoring...");
 					} else {
 						RadiusRequestContextImpl context =
-								(RadiusRequestContextImpl)queued.context();
-						try {
-							context.setResponse(RadiusPacket.decodeResponsePacket(dictionary,
-									new ByteBufInputStream(packet.content()),
-									context.endpoint().getSharedSecret(), context.request()));
+								(RadiusRequestContextImpl)promise.context();
 
-							if (logger.isInfoEnabled())
-								logger.info(String.format("Received response: %s\nFor request: %s",
-										context.response().toString(),
-										context.request().toString()));
+						context.calculateResponseTime();
 
-							context.promise().setSuccess(null);
+						if (logger.isInfoEnabled())
+							logger.info(String.format("Received response in %d.%dms: %s\nFor request: %s",
+									context.responseTime() / 1000000,
+									context.responseTime() % 1000000 / 10000,
+									context.response().toString(),
+									context.request().toString()));
 
-						} catch (IOException ioe) {
-							context.promise().setFailure(ioe);
-						} catch (RadiusException re) {
-							context.promise().setFailure(re);
-						}
+						promise.trySuccess(null);
+						dequeue(promise);
 					}
 				}
 
@@ -242,18 +387,41 @@ public class RadiusClient<T extends DatagramChannel> {
 
 	private class RadiusRequestContextImpl implements RadiusRequestContext {
 
+		private long requestTime;
+		private long responseTime;
+		private int identifier;
+		private Timeout timeout;
+		private long timeoutNS;
+		private AtomicInteger attempts;
 		private RadiusPacket request;
 		private RadiusPacket response;
 		private RadiusEndpoint endpoint;
-		private RadiusRequestPromise promise;
 
-		public RadiusRequestContextImpl(RadiusPacket request, RadiusEndpoint endpoint) {
+		public RadiusRequestContextImpl(int identifier, RadiusPacket request, RadiusEndpoint endpoint, long timeoutNS) {
 			if (request == null)
 				throw new NullPointerException("request cannot be null");
 			if (endpoint == null)
 				throw new NullPointerException("endpoint cannot be null");
+			this.identifier = identifier;
+			this.attempts = new AtomicInteger(0);
 			this.request = request;
+			this.request.setPacketIdentifier(identifier & 0xff);
 			this.endpoint = endpoint;
+			this.requestTime = System.nanoTime();
+			this.timeoutNS = timeoutNS;
+		}
+
+		public Timeout newTimeout(Timer timeout, TimerTask task) {
+			if (this.timeout != null) {
+				if (!this.timeout.isExpired())
+					 this.timeout.cancel();
+			}
+			this.timeout = timer.newTimeout(task, timeoutNS, TimeUnit.NANOSECONDS);
+			return this.timeout;
+		}
+
+		public int identifier() {
+			return identifier;
 		}
 
 		public RadiusPacket request() {
@@ -264,20 +432,34 @@ public class RadiusClient<T extends DatagramChannel> {
 			return response;
 		}
 
-		public void setResponse(RadiusPacket response) {
-			this.response = response;
+		public long calculateResponseTime() {
+			if (responseTime == 0)
+				responseTime = System.nanoTime() - requestTime;
+			return responseTime;
 		}
 
-		public void setPromise(RadiusRequestPromise promise) {
-			this.promise = promise;
+		private AtomicInteger attempts() {
+			return this.attempts;
+		}
+
+		public long requestTime() {
+			return requestTime;
+		}
+
+		public long responseTime() {
+			return responseTime;
+		}
+
+		public void setResponse(RadiusPacket response) {
+			this.response = response;
 		}
 
 		public RadiusEndpoint endpoint() {
 			return endpoint;
 		}
 
-		public RadiusRequestPromise promise() {
-			return promise;
+		public String toString() {
+			return Long.toString(this.identifier);
 		}
 	}
 }

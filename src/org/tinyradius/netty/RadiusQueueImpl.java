@@ -14,7 +14,7 @@ import org.tinyradius.util.RadiusException;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
-import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -24,11 +24,10 @@ public class RadiusQueueImpl implements RadiusQueue {
 
     private static Log logger = LogFactory.getLog(RadiusClient.class);
 
-    private AtomicInteger identifier =
-            new AtomicInteger();
+    private AtomicInteger identifier = new AtomicInteger();
 
-    private PriorityQueue<RadiusQueueEntryImpl> queue =
-            new PriorityQueue<RadiusQueueEntryImpl>(10, new Comparator<RadiusQueueEntryImpl>() {
+    private PriorityBlockingQueue<RadiusQueueEntryImpl> queue =
+            new PriorityBlockingQueue<RadiusQueueEntryImpl>(10, new Comparator<RadiusQueueEntryImpl>() {
                 public int compare(RadiusQueueEntryImpl o1, RadiusQueueEntryImpl o2) {
                     if (o2 == null)
                         return 1;
@@ -63,7 +62,6 @@ public class RadiusQueueImpl implements RadiusQueue {
         RadiusQueueEntryImpl entry =
                 new RadiusQueueEntryImpl(identifier.getAndIncrement(), context);
 
-        /* override the identifier based on the current seed */
         request.setPacketIdentifier(entry.identifier() & 0xf);
 
         if (logger.isInfoEnabled())
@@ -106,8 +104,6 @@ public class RadiusQueueImpl implements RadiusQueue {
                 .duplicate().skipBytes(1);
 
         int identifier = buf.readByte() & 0xff;
-        buf.skipBytes(2); /* length */
-        ByteBuf authenticator = buf.readBytes(16);
 
         for (RadiusQueueEntryImpl entry : queue) {
             RadiusRequestContext context = entry.context();
@@ -130,7 +126,6 @@ public class RadiusQueueImpl implements RadiusQueue {
                 return entry;
 
             } catch (IOException ioe) {
-                ioe.printStackTrace();
             } catch (RadiusException e) {
             }
         }
@@ -160,38 +155,4 @@ public class RadiusQueueImpl implements RadiusQueue {
             return Integer.valueOf(identifier).toString();
         }
     }
-
-    /*
-    private class RadiusRequestContextImpl implements RadiusRequestContext {
-
-        private RadiusPacket request;
-        private RadiusPacket response;
-        private RadiusEndpoint endpoint;
-
-        public RadiusRequestContextImpl(RadiusPacket request, RadiusEndpoint endpoint) {
-            if (request == null)
-                throw new NullPointerException("request cannot be null");
-            if (endpoint == null)
-                throw new NullPointerException("endpoint cannot be null");
-            this.request = request;
-            this.endpoint = endpoint;
-        }
-
-        public RadiusPacket request() {
-            return request;
-        }
-
-        public RadiusPacket response() {
-            return response;
-        }
-
-        public void setResponse(RadiusPacket response) {
-            this.response = response;
-        }
-
-        public RadiusEndpoint endpoint() {
-            return endpoint;
-        }
-    }
-    */
 }
