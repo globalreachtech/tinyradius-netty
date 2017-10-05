@@ -170,7 +170,7 @@ public abstract class RadiusProxy<T extends DatagramChannel>
 		if (radiusServer != null) {
 			// proxy incoming packet to other radius server
 			RadiusProxyConnection proxyConnection = new RadiusProxyConnection(radiusServer, radiusClient, request, localAddress.getPort());
-			logger.info("proxy packet to " + proxyConnection);
+			logger.info("proxy packet to " + proxyConnection.getRadiusServer().getEndpointAddress());
 			proxyPacket(request, proxyConnection);
 			return null;
 		} else
@@ -214,7 +214,6 @@ public abstract class RadiusProxy<T extends DatagramChannel>
 
        	// re-encode answer packet with authenticator of the original packet
        	RadiusPacket answer = new RadiusPacket(packet.getPacketType(), packet.getPacketIdentifier(), packet.getAttributes());
-       	//DatagramPacket datagram = makeDatagramPacket(answer, client.getSharedSecret(), client.getEndpointAddress().getAddress(), client.getEndpointAddress().getPort(), proxyConnection.getPacket());
 
 		DatagramPacket datagram = makeDatagramPacket(answer, client.getSharedSecret(), client.getEndpointAddress(), proxyConnection.getPacket());
         

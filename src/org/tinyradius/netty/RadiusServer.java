@@ -424,6 +424,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 				RadiusPacket.MAX_PACKET_LENGTH);
 
 		ByteBufOutputStream bos = new ByteBufOutputStream(buf);
+		packet.setDictionary(dictionary);
 		packet.encodeResponsePacket(bos, secret, request);
 
 		return new DatagramPacket(buf, address);
@@ -513,11 +514,9 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 				// handle packet
 				logger.trace("about to call RadiusServer.handlePacket()");
 				RadiusPacket response = handlePacket(localAddress, remoteAddress, request, secret);
-
-				response.setDictionary(dictionary);
-
 				// send response
 				if (response != null) {
+					response.setDictionary(dictionary);
 					if (logger.isInfoEnabled())
 						logger.info("send response: " + response);
 					DatagramPacket packetOut = makeDatagramPacket(response, secret, remoteAddress, request);

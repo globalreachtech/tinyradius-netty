@@ -18,12 +18,16 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.dictionary.DictionaryParser;
+import org.tinyradius.dictionary.MemoryDictionary;
+import org.tinyradius.dictionary.WritableDictionary;
 import org.tinyradius.netty.RadiusProxy;
 import org.tinyradius.netty.RadiusServer;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -66,7 +70,7 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 	}
 	
 	public String getSharedSecret(InetSocketAddress client) {
-		if (client.getPort() == 10000 || client.getPort() == 10001)
+		if (client.getPort() == 1812 || client.getPort() == 1813)
 			return "testing123";
 		else if (client.getAddress().getHostAddress().equals("127.0.0.1"))
 			return "proxytest";
@@ -86,7 +90,11 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
 		final NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
 
-		final TestProxy<NioDatagramChannel> proxy = new TestProxy<NioDatagramChannel>(
+		Dictionary dictionary = new MemoryDictionary();
+		DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"),
+				(WritableDictionary) dictionary);
+
+		final TestProxy<NioDatagramChannel> proxy = new TestProxy<NioDatagramChannel>(dictionary,
 				new NioDatagramChannelFactory(),
 				new HashedWheelTimer());
 

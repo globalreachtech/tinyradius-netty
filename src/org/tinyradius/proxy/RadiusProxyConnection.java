@@ -62,6 +62,7 @@ public class RadiusProxyConnection {
 	public int getPort() {
 		return port;
 	}
+
 	
 	private RadiusEndpoint radiusServer;
 	private RadiusEndpoint radiusClient;
