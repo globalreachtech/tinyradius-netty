@@ -515,33 +515,34 @@ public abstract class RadiusServer {
 	private long duplicateInterval = 30000; // 30 s
 	private boolean closing = false;
 	private static Log logger = LogFactory.getLog(RadiusServer.class);
-	
+
+	/**
+	 * This internal class represents a packet that has been received by
+	 * the server.
+	 */
+	class ReceivedPacket {
+
+		/**
+		 * The identifier of the packet.
+		 */
+		public int packetIdentifier;
+
+		/**
+		 * The time the packet was received.
+		 */
+		public long receiveTime;
+
+		/**
+		 * The address of the host who sent the packet.
+		 */
+		public InetSocketAddress address;
+
+		/**
+		 * Authenticator of the received packet.
+		 */
+		public byte[] authenticator;
+
+	}
 }
 
-/**
- * This internal class represents a packet that has been received by 
- * the server.
- */
-class ReceivedPacket {
-	
-	/**
-	 * The identifier of the packet.
-	 */
-	public int packetIdentifier;
-	
-	/**
-	 * The time the packet was received.
-	 */
-	public long receiveTime;
-	
-	/**
-	 * The address of the host who sent the packet.
-	 */
-	public InetSocketAddress address;
-	
-	/**
-	 * Authenticator of the received packet.
-	 */
-	public byte[] authenticator;
-	
-}
+
