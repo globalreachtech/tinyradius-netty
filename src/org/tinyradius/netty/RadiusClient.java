@@ -224,19 +224,16 @@ public class RadiusClient<T extends DatagramChannel> {
         final RadiusRequestPromise promise =
             new DefaultRadiusRequestPromise(context, eventGroup.next()) {
                 public boolean cancel(boolean mayInterruptIfRunning) {
-
                     RadiusRequestContextImpl context =
                             (RadiusRequestContextImpl)this.context();
                     RadiusClient.this.dequeue(this);
-
                     return super.cancel(mayInterruptIfRunning);
                 }
             };
 
         set.add(promise);
 
-
-        Timeout to = context.newTimeout(timer, new TimerTask() {
+        context.newTimeout(timer, new TimerTask() {
             public void run(Timeout timeout) throws Exception {
                 RadiusRequestContextImpl ctx =
                         (RadiusRequestContextImpl)promise.context();

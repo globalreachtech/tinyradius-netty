@@ -54,7 +54,7 @@ public class Main {
         client.doit();
     }
 
-    public static void main1231234(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         BasicConfigurator.configure();
 
@@ -103,7 +103,7 @@ public class Main {
         RadiusEndpoint endpoint2 = new RadiusEndpoint(
                 new InetSocketAddress("127.0.0.1", 1813), "testing123");
 
-        RadiusRequestFuture future2 =
+        final RadiusRequestFuture future2 =
                 client.communicate(request2, endpoint2, 1000, TimeUnit.MILLISECONDS);
 
         future2.addListener(new GenericFutureListener<RadiusRequestFuture>() {
@@ -155,7 +155,7 @@ public class Main {
         System.out.println("Took " + (System.currentTimeMillis() - start) + " ms");
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main123123989(String[] args) throws Exception {
 
         BasicConfigurator.configure();
 
@@ -169,9 +169,18 @@ public class Main {
         final RadiusClient<NioDatagramChannel> client = new RadiusClient<NioDatagramChannel>(dictionary,
                 eventGroup, new NioDatagramChannelFactory(), new HashedWheelTimer());
 
+        final RadiusEndpoint[] endpoints = new RadiusEndpoint[5];
+
+        endpoints[0] = new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1812), "testing123");
+        endpoints[1] = new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1812), "testing123");
+        endpoints[2] = new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1812), "testing123");
+        endpoints[3] = new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1812), "testing123");
+        endpoints[4] = new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1813), "testing123");
+
         final RadiusEndpoint endpoint =
                 new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1812), "testing123");
-        final AtomicInteger requests  = new AtomicInteger(0);
+
+        final AtomicInteger requests = new AtomicInteger(0);
 
         final ScheduledFuture<?> scheduledFuture =
                 eventGroup.next().scheduleAtFixedRate(new Runnable() {
@@ -182,7 +191,7 @@ public class Main {
                 request.addAttribute(new IntegerAttribute(6, 1));
 
                 RadiusRequestFuture future =
-                        client.communicate(request, endpoint);
+                        client.communicate(request, endpoints[requests.getAndIncrement() % endpoints.length]);
 
                 future.addListener(new GenericFutureListener<RadiusRequestFuture>() {
                     public void operationComplete(RadiusRequestFuture future) throws Exception {
@@ -204,12 +213,11 @@ public class Main {
             }
         }, 0, 2, TimeUnit.MILLISECONDS);
 
-
         eventGroup.next().schedule(new Runnable() {
             public void run() {
                 scheduledFuture.cancel(false);
             }
-        }, 10, TimeUnit.SECONDS);
+        }, 30, TimeUnit.SECONDS);
 
 
         scheduledFuture.wait();
