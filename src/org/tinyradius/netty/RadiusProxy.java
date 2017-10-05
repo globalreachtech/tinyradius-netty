@@ -29,9 +29,10 @@ import org.tinyradius.util.RadiusException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class implements a Radius proxy that receives Radius packets
@@ -232,16 +233,13 @@ public abstract class RadiusProxy<T extends DatagramChannel>
      * @throws IOException
      */
     protected void proxyPacket(RadiusPacket packet, RadiusProxyConnection proxyConnection)
-    throws IOException {    	
-    	synchronized(RadiusProxy.class) {
-        	// add Proxy-State attribute
-    		proxyIndex++;
-    		String proxyIndexStr = Integer.toString(proxyIndex);
-    		packet.addAttribute(new RadiusAttribute(33, proxyIndexStr.getBytes()));
-        
-    		// store RadiusProxyConnection object
-    		proxyConnections.put(proxyIndexStr, proxyConnection);
-    	}
+    throws IOException {
+		// add Proxy-State attribute
+		String proxyIndexStr = Integer.toString(proxyIndex.getAndIncrement());
+		packet.addAttribute(new RadiusAttribute(33, proxyIndexStr.getBytes()));
+
+		// store RadiusProxyConnection object
+		proxyConnections.put(proxyIndexStr, proxyConnection);
 
         // get server address
         InetAddress serverAddress = proxyConnection.getRadiusServer().getEndpointAddress().getAddress();
@@ -270,14 +268,15 @@ public abstract class RadiusProxy<T extends DatagramChannel>
 	/**
 	 * Index for Proxy-State attribute.
 	 */
-	private int proxyIndex = 1;
+	private AtomicInteger proxyIndex = new AtomicInteger(1);
 	
 	/**
 	 * Cache for Radius proxy connections belonging to sent packets
 	 * without a received response.
 	 * Key: Proxy Index (String), Value: RadiusProxyConnection
 	 */ 
-	private Map proxyConnections = new HashMap();
+	private Map<String, RadiusProxyConnection> proxyConnections =
+			new ConcurrentHashMap<String, RadiusProxyConnection>();
 
 	private int proxyPort = 1814;
 	private T proxySocket = null;
