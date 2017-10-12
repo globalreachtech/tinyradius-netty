@@ -16,6 +16,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.internal.ConcurrentSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +53,8 @@ public class RadiusClient<T extends DatagramChannel> {
     private EventLoopGroup eventGroup;
     private Dictionary dictionary;
     private Timer timer;
-    private Set<?>[] queue = new Set<?>[256];
+    private RadiusQueue<RadiusRequestPromise> queue =
+            new RadiusQueue<RadiusRequestPromise>();
 
     /**
      * Creates a new Radius client object for a special Radius server.
@@ -72,8 +74,6 @@ public class RadiusClient<T extends DatagramChannel> {
         setEventGroup(eventGroup);
         this.timer = timer;
         this.dictionary = dictionary;
-        for (int i = 0; i < queue.length; i++)
-            queue[i] = new ConcurrentSet<RadiusRequestPromise>();
     }
 
 
@@ -218,11 +218,8 @@ public class RadiusClient<T extends DatagramChannel> {
         if (context == null)
             throw new NullPointerException("context cannot be null");
 
-        Set<RadiusRequestFuture> set = (Set<RadiusRequestFuture>)
-                queue[context.identifier() & 0xff];
-
         final RadiusRequestPromise promise =
-            new DefaultRadiusRequestPromise(context, eventGroup.next() /* XXX: use a dedicated executor? */) {
+            new DefaultRadiusRequestPromise(context, GlobalEventExecutor.INSTANCE /* XXX: use a dedicated executor? */) {
                 public boolean cancel(boolean mayInterruptIfRunning) {
                     RadiusRequestContextImpl context =
                             (RadiusRequestContextImpl)this.context();
@@ -231,7 +228,7 @@ public class RadiusClient<T extends DatagramChannel> {
                 }
             };
 
-        set.add(promise);
+        queue.add(promise, context.identifier());
 
         context.newTimeout(timer, new TimerTask() {
             public void run(Timeout timeout) throws Exception {
@@ -264,10 +261,7 @@ public class RadiusClient<T extends DatagramChannel> {
         RadiusRequestContextImpl context =
                 (RadiusRequestContextImpl)promise.context();
 
-        Set<RadiusRequestPromise> set = (Set<RadiusRequestPromise>)
-                queue[context.identifier() & 0xff];
-
-        boolean success = set.remove(promise);
+        boolean success = queue.remove(promise, context.identifier());
         if (success) {
             if (!context.timeout.isExpired())
                  context.timeout.cancel();
@@ -285,10 +279,7 @@ public class RadiusClient<T extends DatagramChannel> {
 
         int identifier = buf.readByte() & 0xff;
 
-        Set<RadiusRequestPromise> set =
-                (Set<RadiusRequestPromise>)queue[identifier & 0xff];
-
-        for (RadiusRequestPromise promise : set) {
+        for (RadiusRequestPromise promise : queue.get(identifier)) {
             RadiusRequestContextImpl context =
                     (RadiusRequestContextImpl)promise.context();
             if (identifier != context.request().getPacketIdentifier())

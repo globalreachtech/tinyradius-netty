@@ -44,10 +44,9 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	private int acctPort = 1813;
 	private T authSocket = null;
 	private T acctSocket = null;
-	private int socketTimeout = 3000;
-	private List receivedPackets = new LinkedList();
+	private RadiusQueue<ReceivedPacket> receivedPackets = new
+			RadiusQueue<ReceivedPacket>();
 	private long duplicateInterval = 30000; // 30 s
-	private boolean closing = false;
 	private static Log logger = LogFactory.getLog(RadiusServer.class);
 
 	private ChannelFactory<T> factory;
@@ -179,7 +178,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 */
 	public void stop() {
 		logger.info("stopping Radius server");
-		closing = true;
 		if (authSocket != null)
 			authSocket.close();
 		if (acctSocket != null)
@@ -458,35 +456,31 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 		long intervalStart = now - getDuplicateInterval();
 
 		byte[] authenticator = packet.getAuthenticator();
-
-		synchronized(receivedPackets) {
-			for (Iterator i = receivedPackets.iterator(); i.hasNext();) {
-				ReceivedPacket p = (ReceivedPacket)i.next();
-				if (p.receiveTime < intervalStart) {
-					// packet is older than duplicate interval
-					i.remove();
-				} else {
-					if (p.address.equals(address) && p.packetIdentifier == packet.getPacketIdentifier()) {
-						if (authenticator != null && p.authenticator != null) {
-							// packet is duplicate if stored authenticator is equal
-							// to the packet authenticator
-							return Arrays.equals(p.authenticator, authenticator);
-						} else {
-							// should not happen, packet is duplicate
-							return true;
-						}
+		for (ReceivedPacket p : receivedPackets.get(packet.getPacketIdentifier())) {
+			if (p.receiveTime < intervalStart) {
+				// packet is older than duplicate interval
+				receivedPackets.remove(p, p.packetIdentifier);
+			} else {
+				if (p.address.equals(address)) {
+					if (authenticator != null && p.authenticator != null) {
+						// packet is duplicate if stored authenticator is equal
+						// to the packet authenticator
+						return Arrays.equals(p.authenticator, authenticator);
+					} else {
+						// should not happen, packet is duplicate
+						return true;
 					}
 				}
 			}
-
-			// add packet to receive list
-			ReceivedPacket rp = new ReceivedPacket();
-			rp.address = address;
-			rp.packetIdentifier = packet.getPacketIdentifier();
-			rp.receiveTime = now;
-			rp.authenticator = authenticator;
-			receivedPackets.add(rp);
 		}
+
+		// add packet to receive list
+		ReceivedPacket rp = new ReceivedPacket();
+		rp.address = address;
+		rp.packetIdentifier = packet.getPacketIdentifier();
+		rp.receiveTime = now;
+		rp.authenticator = authenticator;
+		receivedPackets.add(rp, rp.packetIdentifier);
 
 		return false;
 	}
