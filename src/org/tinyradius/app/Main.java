@@ -28,33 +28,7 @@ public class Main {
 
     private static Log logger = LogFactory.getLog(Main.class);
 
-    public static void main123123(String[] args) throws Exception {
-
-        Logger.getRootLogger().setLevel(Level.DEBUG);
-
-        NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
-
-        Dictionary dictionary = new MemoryDictionary();
-        DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"),
-                (WritableDictionary) dictionary);
-
-        RadiusClient<NioDatagramChannel> client = new RadiusClient<NioDatagramChannel>(dictionary,
-                eventGroup, new NioDatagramChannelFactory(), new HashedWheelTimer());
-
-        RadiusEndpoint endpoint = new RadiusEndpoint(
-                new InetSocketAddress("127.0.0.1", 1812), "testing123");
-
-        for (int i = 0; i < 100; i++) {
-            RadiusPacket packet = RadiusPacket.createRadiusPacket(RadiusPacket.ACCESS_REQUEST);
-            RadiusRequestFuture future = client.communicate(packet, endpoint);
-        }
-
-        client.doit();
-        System.out.println("======================================");
-        client.doit();
-    }
-
-    public static void main(String[] args) throws Exception {
+    public static void main12312399(String[] args) throws Exception {
 
         BasicConfigurator.configure();
 
@@ -124,7 +98,7 @@ public class Main {
         });
     }
 
-    public static void main12312399(String[] args) throws Exception {
+    public static void main1231232388(String[] args) throws Exception {
 
         BasicConfigurator.configure();
 
@@ -155,11 +129,10 @@ public class Main {
         System.out.println("Took " + (System.currentTimeMillis() - start) + " ms");
     }
 
-    public static void main123123989(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-        BasicConfigurator.configure();
-
-        Logger.getRootLogger().setLevel(Level.DEBUG);
+        //BasicConfigurator.configure();
+        //Logger.getRootLogger().setLevel(Level.DEBUG);
 
         final Dictionary dictionary = new MemoryDictionary();
         DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"),
@@ -175,52 +148,105 @@ public class Main {
         endpoints[1] = new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1812), "testing123");
         endpoints[2] = new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1812), "testing123");
         endpoints[3] = new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1812), "testing123");
-        endpoints[4] = new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1813), "testing123");
+        endpoints[4] = new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1812), "testing123");
 
         final RadiusEndpoint endpoint =
                 new RadiusEndpoint(new InetSocketAddress("127.0.0.1", 1812), "testing123");
 
         final AtomicInteger requests = new AtomicInteger(0);
+        final AtomicInteger completed = new AtomicInteger(0);
+        final AtomicInteger failed = new AtomicInteger(0);
 
+/*
         final ScheduledFuture<?> scheduledFuture =
                 eventGroup.next().scheduleAtFixedRate(new Runnable() {
             public void run() {
 
-                AccessRequest request = new AccessRequest("test", "password");
-                request.setDictionary(dictionary);
-                request.addAttribute(new IntegerAttribute(6, 1));
+                //for (int i = 0; i < 6; i++) {
 
-                RadiusRequestFuture future =
-                        client.communicate(request, endpoints[requests.getAndIncrement() % endpoints.length]);
+                    AccessRequest request = new AccessRequest("test", "password");
+                    request.setDictionary(dictionary);
+                    request.addAttribute(new IntegerAttribute(6, 1));
 
-                future.addListener(new GenericFutureListener<RadiusRequestFuture>() {
-                    public void operationComplete(RadiusRequestFuture future) throws Exception {
-                        RadiusRequestContext ctx = future.context();
-                        if (future.isSuccess()) {
-                            logger.info(String.format("Request(%s) %s succeeded, took %d.%d ms: %s",
-                                    ctx.toString(),
-                                    ctx.request().getPacketIdentifier(),
-                                    ctx.responseTime() / 1000000,
-                                    ctx.responseTime() % 1000000 / 10000, ctx.response().toString()));
-                        } else {
-                            logger.info(String.format("Request(%s) %s failed: %s",
-                                    ctx.toString(),
-                                    ctx.request().getPacketIdentifier(),
-                                    future.cause().toString()));
+                    RadiusRequestFuture future =
+                            client.communicate(request, endpoints[requests.getAndIncrement() % endpoints.length]);
+
+                    future.addListener(new GenericFutureListener<RadiusRequestFuture>() {
+                        public void operationComplete(RadiusRequestFuture future) throws Exception {
+                            RadiusRequestContext ctx = future.context();
+                            if (future.isSuccess()) {
+                                logger.info(String.format("Request(%s) %s succeeded, took %d.%d ms: %s",
+                                        ctx.toString(),
+                                        ctx.request().getPacketIdentifier(),
+                                        ctx.responseTime() / 1000000,
+                                        ctx.responseTime() % 1000000 / 10000, ctx.response().toString()));
+                            } else {
+                                logger.info(String.format("Request(%s) %s failed: %s",
+                                        ctx.toString(),
+                                        ctx.request().getPacketIdentifier(),
+                                        future.cause().toString()));
+                            }
                         }
-                    }
-                });
-            }
-        }, 0, 2, TimeUnit.MILLISECONDS);
+                    });
 
+                    Thread.yield();
+                //}
+            }
+        }, 0, 1000, TimeUnit.MILLISECONDS);
+        */
+
+/*
         eventGroup.next().schedule(new Runnable() {
             public void run() {
                 scheduledFuture.cancel(false);
             }
         }, 30, TimeUnit.SECONDS);
 
-
         scheduledFuture.wait();
+        */
+
+        final long start = System.currentTimeMillis();
+
+        final long numberOfRequests = 100000;
+
+        for (int i = 0; i < numberOfRequests; i++) {
+            AccessRequest request = new AccessRequest("test", "password");
+            request.setDictionary(dictionary);
+            request.addAttribute(new IntegerAttribute(6, 1));
+
+            RadiusRequestFuture future =
+                    client.communicate(request, endpoints[requests.getAndIncrement() % endpoints.length]);
+
+            future.addListener(new GenericFutureListener<RadiusRequestFuture>() {
+                public void operationComplete(RadiusRequestFuture future) throws Exception {
+
+                    RadiusRequestContext ctx = future.context();
+                    if (future.isSuccess()) {
+                        logger.info(String.format("Request(%s) %s succeeded, took %d.%d ms: %s",
+                                ctx.toString(),
+                                ctx.request().getPacketIdentifier(),
+                                ctx.responseTime() / 1000000,
+                                ctx.responseTime() % 1000000 / 10000, ctx.response().toString()));
+                    } else {
+                        failed.incrementAndGet();
+                        logger.info(String.format("Request(%s) %s failed: %s",
+                                ctx.toString(),
+                                ctx.request().getPacketIdentifier(),
+                                future.cause().toString()));
+                    }
+
+                    if (completed.incrementAndGet() >= numberOfRequests)
+                        System.out.println( completed.get() + " Completed in " + (System.currentTimeMillis() - start) + "ms => " + future.context() + " failed => " + failed.get());
+
+                }
+
+
+            });
+
+            Thread.yield();
+        }
+
+        System.in.read();
 
         eventGroup.shutdownGracefully();
     }

@@ -61,7 +61,7 @@ public class TestServer {
 			// Authenticate mw
 			public String getUserPassword(String userName) {
 				if (userName.equals("test"))
-					return "test";
+					return "password";
 				else
 					return null;
 			}
@@ -80,11 +80,10 @@ public class TestServer {
 				return packet;
 			}
 		};
-		if (args.length >= 1)
-			server.setAuthPort(Integer.parseInt(args[0]));
-		if (args.length >= 2)
-			server.setAcctPort(Integer.parseInt(args[1]));
-		
+
+		server.setAuthPort(11812);
+		server.setAcctPort(11813);
+
 		Future<NioDatagramChannel> future = server.start(eventGroup, true, true);
 		future.addListener(new GenericFutureListener<Future<? super NioDatagramChannel>>() {
 			public void operationComplete(Future<? super NioDatagramChannel> future) throws Exception {

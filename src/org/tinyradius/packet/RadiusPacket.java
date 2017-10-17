@@ -734,9 +734,10 @@ public class RadiusPacket implements Cloneable {
 
 		// request packet authenticator
 		if (request == null) {
-			// first create authenticator, then encode attributes
+			// first create authenticator if needed, then encode attributes
 			// (User-Password attribute needs the authenticator)
-			authenticator = createRequestAuthenticator(sharedSecret);
+			if (authenticator == null)
+				authenticator = createRequestAuthenticator(sharedSecret);
 			encodeRequestAttributes(sharedSecret);
 		}
 
