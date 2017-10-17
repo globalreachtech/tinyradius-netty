@@ -70,8 +70,8 @@ public class RadiusClient<T extends DatagramChannel> {
             throw new NullPointerException("factory cannot be null");
         if (timer == null)
             throw new NullPointerException("timer cannot be null");
-        setChannelFactory(factory);
-        setEventGroup(eventGroup);
+        this.factory = factory;
+        this.eventGroup = eventGroup;
         this.timer = timer;
         this.dictionary = dictionary;
     }
@@ -93,51 +93,6 @@ public class RadiusClient<T extends DatagramChannel> {
     public void close() {
         if (channel != null)
             channel.close();
-    }
-
-    /**
-     * @param factory
-     */
-    public void setChannelFactory(ChannelFactory<T> factory) {
-        if (factory == null)
-            throw new NullPointerException("factory cannot be null");
-        this.factory = factory;
-    }
-
-    /**
-     * @param eventGroup
-     */
-    public void setEventGroup(EventLoopGroup eventGroup) {
-        if (eventGroup == null)
-            throw new NullPointerException("group cannot be null");
-        this.eventGroup = eventGroup;
-    }
-
-    /**
-     * Returns the retry count for failed transmissions.
-     *
-     * @return retry count
-     */
-    public int getRetryCount() {
-        return retryCount;
-    }
-
-    /**
-     * Sets the retry count for failed transmissions.
-     *
-     * @param retryCount retry count, >0
-     */
-    public void setRetryCount(int retryCount) {
-        if (retryCount < 1)
-            throw new IllegalArgumentException("retry count must be positive");
-        this.retryCount = retryCount;
-    }
-
-    public void doit() {
-    //    RadiusRequestContextImpl ctx;
-    //    while ((ctx = queue.poll()) != null) {
-    //        System.out.println("Context(" + ctx.identifier() + ") identifier => " + ctx.request().getPacketIdentifier());
-    //    }
     }
 
     /**
@@ -191,11 +146,6 @@ public class RadiusClient<T extends DatagramChannel> {
         if (unit == null)
             throw new NullPointerException("unit cannot be null");
 
-        try {
-            request = (RadiusPacket)request.clone();
-        } catch (CloneNotSupportedException e) {
-        }
-
         RadiusRequestContextImpl context =
                 new RadiusRequestContextImpl(
                         identifier.getAndIncrement(), request,
@@ -221,24 +171,24 @@ public class RadiusClient<T extends DatagramChannel> {
         final RadiusRequestPromise promise =
             new DefaultRadiusRequestPromise(context, GlobalEventExecutor.INSTANCE /* XXX: use a dedicated executor? */) {
                 public boolean cancel(boolean mayInterruptIfRunning) {
-                    RadiusRequestContextImpl context =
-                            (RadiusRequestContextImpl)this.context();
                     RadiusClient.this.dequeue(this);
                     return super.cancel(mayInterruptIfRunning);
                 }
             };
 
-        queue.add(promise, context.identifier());
+        queue.add(promise, context.request().getPacketIdentifier());
 
         context.newTimeout(timer, new TimerTask() {
             public void run(Timeout timeout) throws Exception {
                 RadiusRequestContextImpl ctx =
                         (RadiusRequestContextImpl)promise.context();
                 if (ctx.attempts().intValue() < 3) {
+                    logger.info(String.format("Retransmitting request for context %d", ctx.identifier()));
                     RadiusClient.this.sendRequest(ctx);
                     ctx.newTimeout(RadiusClient.this.timer, timeout.task());
                 } else {
                     if (!promise.isDone()) {
+                        logger.info("");
                         promise.setFailure(new RadiusException("Timeout occurred"));
                         RadiusClient.this.dequeue(promise);
                     }
@@ -261,7 +211,7 @@ public class RadiusClient<T extends DatagramChannel> {
         RadiusRequestContextImpl context =
                 (RadiusRequestContextImpl)promise.context();
 
-        boolean success = queue.remove(promise, context.identifier());
+        boolean success = queue.remove(promise, context.request().getPacketIdentifier());
         if (success) {
             if (!context.timeout.isExpired())
                  context.timeout.cancel();
@@ -334,12 +284,13 @@ public class RadiusClient<T extends DatagramChannel> {
 
                         context.calculateResponseTime();
 
-                        if (logger.isInfoEnabled())
+                        if (logger.isInfoEnabled()) {
                             logger.info(String.format("Received response in %d.%dms: %s\nFor request: %s",
                                     context.responseTime() / 1000000,
                                     context.responseTime() % 1000000 / 10000,
                                     context.response().toString(),
                                     context.request().toString()));
+                        }
 
                         promise.trySuccess(null);
                         dequeue(promise);
@@ -393,7 +344,7 @@ public class RadiusClient<T extends DatagramChannel> {
             this.identifier = identifier;
             this.attempts = new AtomicInteger(0);
             this.request = request;
-            this.request.setPacketIdentifier(identifier & 0xff);
+            //this.request.setPacketIdentifier(identifier & 0xff);
             this.endpoint = endpoint;
             this.requestTime = System.nanoTime();
             this.timeoutNS = timeoutNS;
