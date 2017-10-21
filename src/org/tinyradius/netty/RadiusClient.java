@@ -12,10 +12,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.*;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
@@ -44,7 +41,6 @@ import org.tinyradius.util.RadiusException;
  */
 public class RadiusClient<T extends DatagramChannel> {
 
-    private int retryCount = 3;
     private static Log logger = LogFactory.getLog(RadiusClient.class);
 
     private AtomicInteger identifier = new AtomicInteger();
@@ -151,6 +147,13 @@ public class RadiusClient<T extends DatagramChannel> {
 
         DatagramPacket packetOut = makeDatagramPacket(
                 context.request(), context.endpoint());
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("Sending packet to %s", context.
+                    endpoint.getEndpointAddress()));
+            logger.debug("\n" + ByteBufUtil.prettyHexDump(packetOut.content()));
+        }
+
         T channel = getChannel();
         ChannelFuture f = channel.writeAndFlush(packetOut);
 
