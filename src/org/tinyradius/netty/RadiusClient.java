@@ -75,6 +75,8 @@ public class RadiusClient<T extends DatagramChannel> {
             throw new NullPointerException("factory cannot be null");
         if (timer == null)
             throw new NullPointerException("timer cannot be null");
+        if (properties == null)
+            throw new NullPointerException("properties cannot be null");
         this.factory = factory;
         this.eventGroup = eventGroup;
         this.timer = timer;
