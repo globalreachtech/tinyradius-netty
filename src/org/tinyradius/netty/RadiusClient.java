@@ -6,6 +6,12 @@
  */
 package org.tinyradius.netty;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -17,21 +23,15 @@ import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import io.netty.util.internal.ConcurrentSet;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.*;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This object represents a simple Radius client which communicates with
@@ -68,7 +68,7 @@ public class RadiusClient<T extends DatagramChannel> {
      * @param properties
      */
     public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory,
-                        Timer timer, Properties properties) {
+                        Timer timer, Map<String, ?> properties) {
         if (eventGroup == null)
             throw new NullPointerException("eventGroup cannot be null");
         if (factory == null)
@@ -94,7 +94,19 @@ public class RadiusClient<T extends DatagramChannel> {
      */
     public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory,
                         Timer timer) {
-        this(dictionary, eventGroup, factory, timer, new Properties());
+        this(dictionary, eventGroup, factory, timer, Collections.<String, Object>emptyMap());
+    }
+
+    /**
+     * Creates a new Radius client object for a special Radius server.
+     *
+     * @param eventGroup
+     * @param factory
+     * @param timer
+     * @param configs
+     */
+    public RadiusClient(EventLoopGroup eventGroup, ChannelFactory<T> factory, Timer timer, Map<String, ?> configs) {
+        this(DefaultDictionary.getDefaultDictionary(), eventGroup, factory, timer, configs);
     }
 
     /**
@@ -105,7 +117,7 @@ public class RadiusClient<T extends DatagramChannel> {
      * @param timer
      */
     public RadiusClient(EventLoopGroup eventGroup, ChannelFactory<T> factory, Timer timer) {
-        this(DefaultDictionary.getDefaultDictionary(), eventGroup, factory, timer);
+        this(eventGroup, factory, timer, Collections.<String, Object>emptyMap());
     }
 
     /**
