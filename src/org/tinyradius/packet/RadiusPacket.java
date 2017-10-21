@@ -621,7 +621,9 @@ public class RadiusPacket implements Cloneable {
 			case ACCESS_REQUEST:
 				rp = new AccessRequest();
 				break;
-
+			case COA_REQUEST:
+				rp = new CoaRequest();
+				break;
 			case ACCOUNTING_REQUEST:
 				rp = new AccountingRequest();
 				break;
@@ -944,7 +946,7 @@ public class RadiusPacket implements Cloneable {
 	 * @param requestAuthenticator 16 bytes authenticator of the request packet belonging
 	 * to this response packet
 	 */
-	protected void checkResponseAuthenticator(String sharedSecret, int packetLength, byte[] attributes, byte[] requestAuthenticator) 
+	protected void checkResponseAuthenticator(String sharedSecret, int packetLength, byte[] attributes, byte[] requestAuthenticator)
 	throws RadiusException {
 		byte[] authenticator = createResponseAuthenticator(sharedSecret, packetLength, attributes, requestAuthenticator);
 		byte[] receivedAuth = getAuthenticator();

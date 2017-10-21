@@ -56,14 +56,19 @@ public class RadiusClient<T extends DatagramChannel> {
     private RadiusQueue<RadiusRequestPromise> queue =
             new RadiusQueue<RadiusRequestPromise>();
 
+    private int retransmits = 3;
+
     /**
      * Creates a new Radius client object for a special Radius server.
      *
      * @param dictionary
      * @param eventGroup
      * @param factory
+     * @param timer
+     * @param properties
      */
-    public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory, Timer timer) {
+    public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory,
+                        Timer timer, Properties properties) {
         if (eventGroup == null)
             throw new NullPointerException("eventGroup cannot be null");
         if (factory == null)
@@ -76,12 +81,26 @@ public class RadiusClient<T extends DatagramChannel> {
         this.dictionary = dictionary;
     }
 
+    /**
+     * Creates a new Radius client object for a special Radius server.
+     *
+     * @param dictionary
+     * @param eventGroup
+     * @param factory
+     * @param timer
+     *
+     */
+    public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory,
+                        Timer timer) {
+        this(dictionary, eventGroup, factory, timer, new Properties());
+    }
 
     /**
      * Creates a new Radius client object for a special Radius server.
      *
      * @param eventGroup
      * @param factory
+     * @param timer
      */
     public RadiusClient(EventLoopGroup eventGroup, ChannelFactory<T> factory, Timer timer) {
         this(DefaultDictionary.getDefaultDictionary(), eventGroup, factory, timer);
@@ -182,13 +201,12 @@ public class RadiusClient<T extends DatagramChannel> {
             public void run(Timeout timeout) throws Exception {
                 RadiusRequestContextImpl ctx =
                         (RadiusRequestContextImpl)promise.context();
-                if (ctx.attempts().intValue() < 3) {
+                if (ctx.attempts().intValue() < retransmits) {
                     logger.info(String.format("Retransmitting request for context %d", ctx.identifier()));
                     RadiusClient.this.sendRequest(ctx);
                     ctx.newTimeout(RadiusClient.this.timer, timeout.task());
                 } else {
                     if (!promise.isDone()) {
-                        logger.info("");
                         promise.setFailure(new RadiusException("Timeout occurred"));
                         RadiusClient.this.dequeue(promise);
                     }
@@ -355,7 +373,7 @@ public class RadiusClient<T extends DatagramChannel> {
                 if (!this.timeout.isExpired())
                      this.timeout.cancel();
             }
-            this.timeout = timer.newTimeout(task, timeoutNS, TimeUnit.NANOSECONDS);
+            this.timeout = timer.newTimeout(task, timeoutNS / retransmits, TimeUnit.NANOSECONDS);
             return this.timeout;
         }
 
