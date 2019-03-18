@@ -6,6 +6,7 @@
  */
 package org.tinyradius.packet;
 
+import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.List;
@@ -164,7 +165,7 @@ public class AccessRequest extends RadiusPacket {
 	 * Sets and encrypts the User-Password attribute.
 	 * @see org.tinyradius.packet.RadiusPacket#encodeRequestAttributes(java.lang.String)
 	 */
-	protected void encodeRequestAttributes(String sharedSecret) {
+	protected void encodeRequestAttributes(String sharedSecret) throws RadiusException {
 		if (password == null || password.length() == 0)
 			return;
 			// ok for proxied packets whose CHAP password is already encrypted
@@ -190,58 +191,31 @@ public class AccessRequest extends RadiusPacket {
 	 * @param sharedSecret shared secret
 	 * @return the byte array containing the encrypted password
 	 */
-	private byte[] encodePapPassword(final byte[] userPass, byte[] sharedSecret) {
-	    // the password must be a multiple of 16 bytes and less than or equal
-	    // to 128 bytes. If it isn't a multiple of 16 bytes fill it out with zeroes
-	    // to make it a multiple of 16 bytes. If it is greater than 128 bytes
-	    // truncate it at 128.
-	    byte[] userPassBytes = null;
-	    if (userPass.length > 128){
-	        userPassBytes = new byte[128];
-	        System.arraycopy(userPass, 0, userPassBytes, 0, 128);
-	    } else {
-	        userPassBytes = userPass;
-	    }
-	    
-	    // declare the byte array to hold the final product
-	    byte[] encryptedPass = null;
-	    if (userPassBytes.length < 128) {
-	        if (userPassBytes.length % 16 == 0) {
-	            // tt is already a multiple of 16 bytes
-	            encryptedPass = new byte[userPassBytes.length];
-	        } else {
-	            // make it a multiple of 16 bytes
-	            encryptedPass = new byte[((userPassBytes.length / 16) * 16) + 16];
-	        }
-	    } else {
-	        // the encrypted password must be between 16 and 128 bytes
-	        encryptedPass = new byte[128];
-	    }
-	
-	    // copy the userPass into the encrypted pass and then fill it out with zeroes
-	    System.arraycopy(userPassBytes, 0, encryptedPass, 0, userPassBytes.length);
-	    for (int i = userPassBytes.length; i < encryptedPass.length; i++) {
-	        encryptedPass[i] = 0;
-	    }
-	
-	    // digest shared secret and authenticator
-	    MessageDigest md5 = getMd5Digest();
-		byte[] lastBlock = new byte[16];
-		
-		for (int i = 0; i < encryptedPass.length; i+=16) {
-			md5.reset();
-			md5.update(sharedSecret);
-			md5.update(i == 0 ? getAuthenticator() : lastBlock);
-			byte bn[] = md5.digest();
-				
-			System.arraycopy(encryptedPass, i, lastBlock, 0, 16);
-		
-			// perform the XOR as specified by RFC 2865.
-			for (int j = 0; j < 16; j++)
-				encryptedPass[i + j] = (byte)(bn[j] ^ encryptedPass[i + j]);
+	private byte[] encodePapPassword(final byte[] userPass, byte[] sharedSecret)
+			throws RadiusException {
+
+		if (userPass == null)
+			throw new NullPointerException("userPass cannot be null");
+		if (sharedSecret == null)
+			throw new NullPointerException("sharedSecret cannot be null");
+
+		try {
+			byte[] S = sharedSecret;
+			byte[] C = this.getAuthenticator();
+			byte[] P = RadiusUtil.pad(userPass, C.length);
+			byte[] result = new byte[P.length];
+
+			for (int i = 0; i < P.length; i += C.length) {
+				C = RadiusUtil.compute(S, C);
+				C = RadiusUtil.xor(P, i, C.length, C, 0, C.length);
+				System.arraycopy(C, 0, result, i, C.length);
+			}
+
+			return result;
+
+		} catch (GeneralSecurityException e) {
+			throw new RadiusException(e);
 		}
-	    
-	    return encryptedPass;
 	}
 
 	/**
@@ -258,32 +232,25 @@ public class AccessRequest extends RadiusPacket {
 					encryptedPass.length + ", but length must be greater than 15");
 			throw new RadiusException("malformed User-Password attribute");
 		}
-		
-		MessageDigest md5 = getMd5Digest();
-		byte[] lastBlock = new byte[16];
-		
-		for (int i = 0; i < encryptedPass.length; i+=16) {
-			md5.reset();
-			md5.update(sharedSecret);
-			md5.update(i == 0 ? getAuthenticator() : lastBlock);
-			byte bn[] = md5.digest();
-				
-			System.arraycopy(encryptedPass, i, lastBlock, 0, 16);
-		
-			// perform the XOR as specified by RFC 2865.
-			for (int j = 0; j < 16; j++)
-				encryptedPass[i + j] = (byte)(bn[j] ^ encryptedPass[i + j]);
+
+		try {
+			byte[] S = sharedSecret;
+			byte[] P = encryptedPass;
+			byte[] result = new byte[P.length];
+			byte[] C = this.getAuthenticator();
+
+			for (int i = 0; i < P.length; i += C.length) {
+				C = RadiusUtil.compute(S, C);
+				C = RadiusUtil.xor(P, i, C.length, C, 0, C.length);
+				System.arraycopy(C, 0, result, i, C.length);
+				System.arraycopy(P, i, C, 0, C.length);
+			}
+
+			return RadiusUtil.getStringFromUtf8(result);
+
+		} catch (GeneralSecurityException e) {
+			throw new RadiusException(e);
 		}
-		
-	    // remove trailing zeros
-	    int len = encryptedPass.length;
-	    while (len > 0 && encryptedPass[len - 1] == 0)
-	    	len--;
-	    byte[] passtrunc = new byte[len];
-	    System.arraycopy(encryptedPass, 0, passtrunc, 0, len);
-	    
-	    // convert to string
-	   return RadiusUtil.getStringFromUtf8(passtrunc);
 	}
 	
 	/**
