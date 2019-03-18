@@ -51,6 +51,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 
 	private ChannelFactory<T> factory;
 	private EventLoopGroup eventGroup;
+	private EventExecutorGroup executorGroup;
 	private Dictionary dictionary;
 	private Timer timer;
 
@@ -59,8 +60,8 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 * @param factory
 	 * @param timer
 	 */
-	public RadiusServer(ChannelFactory<T> factory, Timer timer) {
-		this(DefaultDictionary.getDefaultDictionary(), factory, timer);
+	public RadiusServer(EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
+		this(DefaultDictionary.getDefaultDictionary(), executorGroup, factory, timer);
 	}
 
 	/**
@@ -69,14 +70,17 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 * @param factory
 	 * @param timer
 	 */
-	public RadiusServer(Dictionary dictionary, ChannelFactory<T> factory, Timer timer) {
+	public RadiusServer(Dictionary dictionary, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
 		if (dictionary == null)
 			throw new NullPointerException("dictionary cannot be null");
+		if (executorGroup == null)
+			throw new NullPointerException("executorGroup cannot be null");
 		if (factory == null)
 			throw new NullPointerException("factory cannot be null");
 		if (timer == null)
 			throw new NullPointerException("timer cannot be null");
 		this.dictionary = dictionary;
+		this.executorGroup = executorGroup;
 		this.factory = factory;
 		this.timer = timer;
 	}
@@ -143,11 +147,15 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 */
 	public Future<RadiusServer<T>> start(EventLoopGroup eventGroup, boolean listenAuth, boolean listenAcct) {
 
+		if (eventGroup == null)
+			throw new NullPointerException("eventGroup cannot be null");
+
 		if (this.eventGroup != null)
 			return new DefaultPromise<RadiusServer<T>>(GlobalEventExecutor.INSTANCE)
 					.setFailure(new IllegalStateException("Server already started"));
 
 		this.eventGroup = eventGroup;
+		this.executorGroup = executorGroup;
 
 		final Promise<RadiusServer<T>> promise =
 				new DefaultPromise<RadiusServer<T>>(GlobalEventExecutor.INSTANCE);
@@ -416,7 +424,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 */
 	protected DatagramPacket makeDatagramPacket(RadiusPacket packet, String secret, InetSocketAddress address,
 												RadiusPacket request)
-			throws IOException {
+			throws IOException, RadiusException {
 
 		ByteBuf buf = Unpooled.buffer(RadiusPacket.MAX_PACKET_LENGTH,
 				RadiusPacket.MAX_PACKET_LENGTH);
