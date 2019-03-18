@@ -504,7 +504,7 @@ public class RadiusPacket implements Cloneable {
 	 * @exception IOException communication error
 	 */
 	public void encodeRequestPacket(OutputStream out, String sharedSecret) 
-	throws IOException {
+	throws IOException, RadiusException {
 		encodePacket(out, sharedSecret, null);
 	}
 	
@@ -517,7 +517,7 @@ public class RadiusPacket implements Cloneable {
 	 * @exception IOException communication error
 	 */
 	public void encodeResponsePacket(OutputStream out, String sharedSecret, RadiusPacket request) 
-	throws IOException {
+	throws IOException, RadiusException {
 		if (request == null)
 			throw new NullPointerException("request cannot be null");
 		encodePacket(out, sharedSecret, request);
@@ -624,6 +624,9 @@ public class RadiusPacket implements Cloneable {
 			case COA_REQUEST:
 				rp = new CoaRequest();
 				break;
+			case DISCONNECT_REQUEST:
+				rp = new DisconnectRequest();
+				break;
 			case ACCOUNTING_REQUEST:
 				rp = new AccountingRequest();
 				break;
@@ -725,7 +728,7 @@ public class RadiusPacket implements Cloneable {
 	 * @exception RuntimeException if required packet data has not been set 
 	 */
 	protected void encodePacket(OutputStream out, String sharedSecret, RadiusPacket request) 
-	throws IOException {
+	throws IOException, RadiusException {
 		// check shared secret
 		if (sharedSecret == null || sharedSecret.length() == 0)
 			throw new RuntimeException("no shared secret has been set");
@@ -773,7 +776,7 @@ public class RadiusPacket implements Cloneable {
 	 * authenticator.
 	 * @param sharedSecret
 	 */
-	protected void encodeRequestAttributes(String sharedSecret) {
+	protected void encodeRequestAttributes(String sharedSecret) throws RadiusException {
 	}
 	
 	/**

@@ -435,7 +435,7 @@ public abstract class RadiusServer {
 	 */
 	protected DatagramPacket makeDatagramPacket(RadiusPacket packet, String secret, InetAddress address, int port,
 			RadiusPacket request) 
-	throws IOException {
+	throws IOException, RadiusException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		packet.encodeResponsePacket(bos, secret, request);
 		byte[] data = bos.toByteArray();

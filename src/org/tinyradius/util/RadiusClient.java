@@ -307,7 +307,7 @@ public class RadiusClient {
 	 * @throws IOException
 	 */
 	protected DatagramPacket makeDatagramPacket(RadiusPacket packet, int port) 
-	throws IOException {
+	throws IOException, RadiusException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		packet.encodeRequestPacket(bos, getSharedSecret());
 		byte[] data = bos.toByteArray();
