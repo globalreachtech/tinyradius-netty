@@ -10,6 +10,8 @@ import io.netty.channel.ChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.apache.log4j.BasicConfigurator;
@@ -49,7 +51,11 @@ public class TestServer {
 
 		final NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
 
-		final RadiusServer server = new RadiusServer(dictionary, new NioDatagramChannelFactory(), new HashedWheelTimer()) {
+		final RadiusServer server = new RadiusServer(dictionary,
+				new DefaultEventExecutorGroup(4),
+				new NioDatagramChannelFactory(),
+				new HashedWheelTimer()) {
+
 			// Authorize localhost/testing123
 			public String getSharedSecret(InetSocketAddress client) {
 				if (client.getAddress().getHostAddress().equals("127.0.0.1"))

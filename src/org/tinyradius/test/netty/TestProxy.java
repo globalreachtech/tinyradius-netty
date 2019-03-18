@@ -12,6 +12,8 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.apache.log4j.BasicConfigurator;
@@ -46,12 +48,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
-	public TestProxy(ChannelFactory<T> factory, Timer timer) {
-		super(factory, timer);
+	public TestProxy(EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
+		super(executorGroup, factory, timer);
 	}
 
-	public TestProxy(Dictionary dictionary, ChannelFactory<T> factory, Timer timer) {
-		super(dictionary, factory, timer);
+	public TestProxy(Dictionary dictionary, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
+		super(dictionary, executorGroup, factory, timer);
 	}
 
 	public RadiusEndpoint getProxyServer(RadiusPacket packet,
@@ -95,6 +97,7 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 				(WritableDictionary) dictionary);
 
 		final TestProxy<NioDatagramChannel> proxy = new TestProxy<NioDatagramChannel>(dictionary,
+				new DefaultEventExecutorGroup(4),
 				new NioDatagramChannelFactory(),
 				new HashedWheelTimer());
 
