@@ -19,6 +19,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
+import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import org.apache.commons.logging.Log;
@@ -51,6 +52,7 @@ public class RadiusClient<T extends DatagramChannel> {
     private Timer timer;
     private RadiusQueue<RadiusRequestPromise> queue =
             new RadiusQueue<RadiusRequestPromise>();
+    private EventExecutorGroup executorGroup;
 
     private int retransmits = 3;
 
@@ -59,14 +61,17 @@ public class RadiusClient<T extends DatagramChannel> {
      *
      * @param dictionary
      * @param eventGroup
+     * @param executorGroup
      * @param factory
      * @param timer
      * @param properties
      */
-    public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory,
-                        Timer timer, Map<String, ?> properties) {
+    public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup executorGroup,
+                        ChannelFactory<T> factory, Timer timer, Map<String, ?> properties) {
         if (eventGroup == null)
             throw new NullPointerException("eventGroup cannot be null");
+        if (executorGroup == null)
+            throw new NullPointerException("executorGroup cannot be null");
         if (factory == null)
             throw new NullPointerException("factory cannot be null");
         if (timer == null)
@@ -77,6 +82,7 @@ public class RadiusClient<T extends DatagramChannel> {
         this.eventGroup = eventGroup;
         this.timer = timer;
         this.dictionary = dictionary;
+        this.executorGroup = executorGroup;
     }
 
     /**
@@ -84,36 +90,39 @@ public class RadiusClient<T extends DatagramChannel> {
      *
      * @param dictionary
      * @param eventGroup
+     * @param executorGroup
      * @param factory
      * @param timer
      *
      */
-    public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory,
+    public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory,
                         Timer timer) {
-        this(dictionary, eventGroup, factory, timer, Collections.<String, Object>emptyMap());
+        this(dictionary, eventGroup, executorGroup, factory, timer, Collections.<String, Object>emptyMap());
     }
 
     /**
      * Creates a new Radius client object for a special Radius server.
      *
      * @param eventGroup
+     * @param executorGroup
      * @param factory
      * @param timer
      * @param configs
      */
-    public RadiusClient(EventLoopGroup eventGroup, ChannelFactory<T> factory, Timer timer, Map<String, ?> configs) {
-        this(DefaultDictionary.getDefaultDictionary(), eventGroup, factory, timer, configs);
+    public RadiusClient(EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer, Map<String, ?> configs) {
+        this(DefaultDictionary.getDefaultDictionary(), eventGroup, executorGroup, factory, timer, configs);
     }
 
-    /**
-     * Creates a new Radius client object for a special Radius server.
+    /**ates a new Radius client object for a special Radius
+     * Creserver.
      *
      * @param eventGroup
+     * @param executorGroup
      * @param factory
      * @param timer
      */
-    public RadiusClient(EventLoopGroup eventGroup, ChannelFactory<T> factory, Timer timer) {
-        this(eventGroup, factory, timer, Collections.<String, Object>emptyMap());
+    public RadiusClient(EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
+        this(eventGroup, executorGroup, factory, timer, Collections.<String, Object>emptyMap());
     }
 
     /**
@@ -141,7 +150,7 @@ public class RadiusClient<T extends DatagramChannel> {
     }
 
     private void sendRequest(RadiusRequestContextImpl context)
-            throws IOException {
+            throws IOException, RadiusException {
         if (context == null)
             throw new NullPointerException("context cannot be null");
 
@@ -205,7 +214,7 @@ public class RadiusClient<T extends DatagramChannel> {
             throw new NullPointerException("context cannot be null");
 
         final RadiusRequestPromise promise =
-            new DefaultRadiusRequestPromise(context, GlobalEventExecutor.INSTANCE /* XXX: use a dedicated executor? */) {
+            new DefaultRadiusRequestPromise(context, executorGroup.next()) {
                 public boolean cancel(boolean mayInterruptIfRunning) {
                     RadiusClient.this.dequeue(this);
                     return super.cancel(mayInterruptIfRunning);
@@ -350,7 +359,7 @@ public class RadiusClient<T extends DatagramChannel> {
      * @throws IOException
      */
     protected DatagramPacket makeDatagramPacket(RadiusPacket packet, RadiusEndpoint endpoint)
-    throws IOException {
+    throws IOException, RadiusException {
 
         ByteBufOutputStream bos = new ByteBufOutputStream(Unpooled.buffer(
                 RadiusPacket.MAX_PACKET_LENGTH, RadiusPacket.MAX_PACKET_LENGTH));
