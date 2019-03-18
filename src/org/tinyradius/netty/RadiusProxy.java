@@ -46,15 +46,15 @@ public abstract class RadiusProxy<T extends DatagramChannel>
     /**
      * {@inheritDoc}
 	 */
-	public RadiusProxy(ChannelFactory<T> factory, Timer timer) {
-		super(factory, timer);
+	public RadiusProxy(EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
+		super(executorGroup, factory, timer);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public RadiusProxy(Dictionary dictionary, ChannelFactory<T> factory, Timer timer) {
-		super(dictionary, factory, timer);
+	public RadiusProxy(Dictionary dictionary, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
+		super(dictionary, executorGroup, factory, timer);
 	}
 
 	/**
@@ -233,7 +233,7 @@ public abstract class RadiusProxy<T extends DatagramChannel>
      * @throws IOException
      */
     protected void proxyPacket(RadiusPacket packet, RadiusProxyConnection proxyConnection)
-    throws IOException {
+    throws IOException, RadiusException {
 		// add Proxy-State attribute
 		String proxyIndexStr = Integer.toString(proxyIndex.getAndIncrement());
 		packet.addAttribute(new RadiusAttribute(33, proxyIndexStr.getBytes()));
