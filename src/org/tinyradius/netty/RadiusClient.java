@@ -303,6 +303,15 @@ public class RadiusClient<T extends DatagramChannel> {
     }
 
     /**
+     * Binds the channel to a specific InetSocketAddress
+     * @param channel
+     * @return
+     */
+    protected ChannelFuture doBind(Channel channel) {
+        return channel.bind(new InetSocketAddress(0));
+    }
+
+    /**
      * Returns the socket used for the server communication. It is
      * bound to an arbitrary free local port number.
      * @return local socket
@@ -316,7 +325,8 @@ public class RadiusClient<T extends DatagramChannel> {
             if (future.cause() != null)
                 throw new ChannelException(future.cause());
             future.syncUninterruptibly();
-            channel.bind(new InetSocketAddress(0));
+            future = doBind(channel);
+            future.syncUninterruptibly();
             channel.pipeline().addLast(new SimpleChannelInboundHandler<DatagramPacket>() {
                 public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
                     RadiusRequestPromise promise = lookup(packet);
