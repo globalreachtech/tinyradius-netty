@@ -5,8 +5,12 @@
     <groupId>org.tinyradius</groupId>
     <artifactId>tinyradius-netty</artifactId>
     <name>TinyRadius Java Radius Library</name>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <url>http://sourceforge.net/projects/tinyradius</url>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
     <developers>
         <developer>
             <id>wuttke</id>
@@ -33,26 +37,10 @@
             <artifactId>netty-all</artifactId>
             <version>4.1.5.Final</version>
         </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.5.Final</version>
-        </dependency>
     </dependencies>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
-                <configuration>
-                    <compilerArgs>
-                        <!--arg>-verbose</arg-->
-                        <!--arg>-Xlint:unchecked</arg-->
-                    </compilerArgs>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
