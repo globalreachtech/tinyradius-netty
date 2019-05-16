@@ -1,11 +1,9 @@
 package org.tinyradius.netty;
 
-import io.netty.util.internal.ConcurrentSet;
-
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * RadiusQueue class
@@ -29,7 +27,7 @@ public class RadiusQueue<T> {
             throw new NullPointerException("comparator cannot be null");
         q = new Set<?>[1 << hashSize];
         for (int i = 0; i < q.length; i++)
-            q[i] = new ConcurrentSet<T>();
+            q[i] = ConcurrentHashMap.newKeySet();
     }
 
     /**
@@ -92,7 +90,7 @@ public class RadiusQueue<T> {
     @SuppressWarnings("unchecked")
     public Set<T> get(int hash) {
         int mask = q.length - 1;
-        return Collections.<T>unmodifiableSet((Set<T>)q[hash & mask]);
+        return Collections.unmodifiableSet((Set<T>)q[hash & mask]);
     }
 
     @SuppressWarnings("unchecked")
