@@ -11,6 +11,13 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+    <developers>
+        <developer>
+            <id>wuttke</id>
+            <name>Matthias Wuttke</name>
+            <email>mw@teuto.net</email>
+        </developer>
+    </developers>
     <dependencies>
         <dependency>
             <groupId>commons-logging</groupId>
