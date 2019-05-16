@@ -1,9 +1,3 @@
-/**
- * $Id: IntegerAttribute.java,v 1.4 2005/09/04 22:11:03 wuttke Exp $
- * Created on 08.04.2005
- * @author Matthias Wuttke
- * @version $Revision: 1.4 $
- */
 package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.AttributeType;

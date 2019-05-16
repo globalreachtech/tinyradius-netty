@@ -1,9 +1,3 @@
-/**
- * $Id: IpAttribute.java,v 1.3 2005/09/06 16:38:41 wuttke Exp $
- * Created on 10.04.2005
- * @author Matthias Wuttke
- * @version $Revision: 1.3 $
- */
 package org.tinyradius.attribute;
 
 import java.util.StringTokenizer;

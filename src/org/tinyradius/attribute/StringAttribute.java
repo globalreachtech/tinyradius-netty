@@ -9,13 +9,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class StringAttribute extends RadiusAttribute {
 
 	/**
-	 * Constructs an empty string attribute.
-	 */
-	public StringAttribute() {
-		super();
-	}
-	
-	/**
 	 * Constructs a string attribute with the given value.
 	 * @param type attribute type
 	 * @param value attribute value
