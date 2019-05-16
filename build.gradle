@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'org.tinyradius'
+version = '1.0.2-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+dependencies {
+    implementation group: 'commons-logging', name: 'commons-logging', version:'1.1'
+    implementation group: 'io.netty', name: 'netty-all', version:'4.1.36.Final'
+}
