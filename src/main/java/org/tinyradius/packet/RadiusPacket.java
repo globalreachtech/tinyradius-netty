@@ -841,7 +841,6 @@ public class RadiusPacket implements Cloneable {
 	
 		// check and count attributes
 		int pos = 0;
-		int attributeCount = 0;
 		while (pos < attributeData.length) {
 			if (pos + 1 >= attributeData.length)
 				throw new RadiusException("bad packet: attribute length mismatch");
@@ -849,7 +848,6 @@ public class RadiusPacket implements Cloneable {
 			if (attributeLength < 2)
 				throw new RadiusException("bad packet: invalid attribute length");
 			pos += attributeLength;
-			attributeCount++;
 		}
 		if (pos != attributeData.length)
 			throw new RadiusException("bad packet: attribute length mismatch");

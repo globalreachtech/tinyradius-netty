@@ -2,6 +2,8 @@ package org.tinyradius.netty;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -12,52 +14,24 @@ public class RadiusQueue<T extends Comparable<T>> {
 
     private final List<Set<T>> q;
 
-    /**
-     * @param initialCapacity
-     * @param hashSize
-     * @param comparator
-     */
-    public RadiusQueue(int initialCapacity, int hashSize, Comparator<T> comparator) {
-        if (initialCapacity < 1)
-            throw new IllegalArgumentException();
+    public RadiusQueue(int hashSize, Comparator<T> comparator) {
         if (hashSize < 1)
             throw new IllegalArgumentException();
         requireNonNull(comparator, "comparator cannot be null");
 
-        q = new ArrayList<>(1 << hashSize);
-        for (int i = 0; i < 1 << hashSize; i++)
-            q.add(new ConcurrentSkipListSet<>(comparator));
+        q = Stream.generate(() -> new ConcurrentSkipListSet<>(comparator))
+                .limit(1 << hashSize)
+                .collect(Collectors.toList());
     }
 
-    /**
-     * @param initialCapacity the initial capacity for this queue
-     * @param hashSize
-     * @throws IllegalArgumentException if initialCapacity is less than 1
-     */
-    public RadiusQueue(int initialCapacity, int hashSize) {
-        this(initialCapacity, hashSize, new SimpleRadiusQueueComparator<>());
+    public RadiusQueue(int hashSize) {
+        this( hashSize, new SimpleRadiusQueueComparator<>());
     }
 
-    /**
-     * @param initialCapacity the initial capacity for this queue
-     * @throws IllegalArgumentException if initialCapacity is less than 1
-     */
-    public RadiusQueue(int initialCapacity) {
-        this(initialCapacity, 8);
-    }
-
-    /**
-     *
-     */
     public RadiusQueue() {
-        this(1024);
+        this(8);
     }
 
-    /**
-     * @param value
-     * @param hash
-     * @return
-     */
     public T add(T value, int hash) {
         requireNonNull(value, "value cannot be null");
 
@@ -67,10 +41,6 @@ public class RadiusQueue<T extends Comparable<T>> {
         return value;
     }
 
-    /**
-     * @param value
-     * @return
-     */
     public boolean remove(T value, int hash) {
         requireNonNull(value, "value cannot be null");
 
@@ -79,10 +49,6 @@ public class RadiusQueue<T extends Comparable<T>> {
         return set.remove(value);
     }
 
-    /**
-     * @param hash
-     * @return
-     */
     public Set<T> get(int hash) {
         int mask = q.size() - 1;
         return Collections.unmodifiableSet(q.get(hash & mask));
