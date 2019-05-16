@@ -1,9 +1,3 @@
-/**
- * $Id: RadiusServer.java,v 1.11 2008/04/24 05:22:50 wuttke Exp $
- * Created on 09.04.2005
- * @author Matthias Wuttke
- * @version $Revision: 1.11 $
- */
 package org.tinyradius.netty;
 
 import java.io.IOException;
@@ -531,7 +525,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 * This internal class represents a packet that has been received by
 	 * the server.
 	 */
-	class ReceivedPacket {
+	class ReceivedPacket implements Comparable<ReceivedPacket> {
 
 		/**
 		 * The identifier of the packet.
@@ -553,5 +547,9 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 		 */
 		public byte[] authenticator;
 
+		@Override
+		public int compareTo(ReceivedPacket o) {
+			return 0;
+		}
 	}
 }

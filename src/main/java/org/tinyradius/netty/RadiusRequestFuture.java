@@ -6,9 +6,6 @@ import io.netty.util.concurrent.Future;
  * RadiusRequestFuture interface
  */
 public interface RadiusRequestFuture extends Future<Void> {
-    /**
-     *
-     * @return
-     */
+
     RadiusRequestContext context();
 }

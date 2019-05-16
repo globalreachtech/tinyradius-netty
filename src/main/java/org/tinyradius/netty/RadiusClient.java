@@ -42,8 +42,7 @@ public class RadiusClient<T extends DatagramChannel> {
     private EventLoopGroup eventGroup;
     private Dictionary dictionary;
     private Timer timer;
-    private RadiusQueue<RadiusRequestPromise> queue =
-            new RadiusQueue<RadiusRequestPromise>();
+    private RadiusQueue<RadiusRequestPromise> queue = new RadiusQueue<>();
     private EventExecutorGroup executorGroup;
 
     private int retransmits = 3;

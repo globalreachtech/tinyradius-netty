@@ -6,5 +6,5 @@ import io.netty.util.concurrent.Promise;
  * RadiusRequestFuture interface
  */
 public interface RadiusRequestPromise
-        extends RadiusRequestFuture, Promise<Void> {
+        extends RadiusRequestFuture, Promise<Void>, Comparable<RadiusRequestPromise> {
 }

@@ -1,19 +1,16 @@
 package org.tinyradius.netty;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * RadiusQueue class
  */
-public class RadiusQueue<T> {
+public class RadiusQueue<T extends Comparable<T>> {
 
-    private Set<?>[] q;
+    private final List<Set<T>> q;
 
     /**
-     *
      * @param initialCapacity
      * @param hashSize
      * @param comparator
@@ -25,9 +22,9 @@ public class RadiusQueue<T> {
             throw new IllegalArgumentException();
         if (comparator == null)
             throw new NullPointerException("comparator cannot be null");
-        q = new Set<?>[1 << hashSize];
-        for (int i = 0; i < q.length; i++)
-            q[i] = ConcurrentHashMap.newKeySet();
+        q = new ArrayList<>(1 << hashSize);
+        for (int i = 0; i < 1 << hashSize; i++)
+            q.add(new ConcurrentSkipListSet<>(comparator));
     }
 
     /**
@@ -36,7 +33,7 @@ public class RadiusQueue<T> {
      * @throws IllegalArgumentException if initialCapacity is less than 1
      */
     public RadiusQueue(int initialCapacity, int hashSize) {
-        this(initialCapacity, hashSize, new SimpleRadiusQueueComparator<T>());
+        this(initialCapacity, hashSize, new SimpleRadiusQueueComparator<>());
     }
 
     /**
@@ -59,12 +56,11 @@ public class RadiusQueue<T> {
      * @param hash
      * @return
      */
-    @SuppressWarnings("unchecked")
     public T add(T value, int hash) {
         if (value == null)
             throw new NullPointerException("value cannot be null");
-        int mask = q.length - 1;
-        Set<T> set = (Set<T>)q[hash & mask];
+        int mask = q.size() - 1;
+        Set<T> set = q.get(hash & mask);
         set.add(value);
         return value;
     }
@@ -73,41 +69,31 @@ public class RadiusQueue<T> {
      * @param value
      * @return
      */
-    @SuppressWarnings("unchecked")
     public boolean remove(T value, int hash) {
         if (value == null)
             throw new NullPointerException("value cannot be null");
-        int mask = q.length - 1;
-        Set<T> set = (Set<T>) q[hash & mask];
+        int mask = q.size() - 1;
+        Set<T> set = q.get(hash & mask);
         return set.remove(value);
     }
 
     /**
-     *
      * @param hash
      * @return
      */
-    @SuppressWarnings("unchecked")
     public Set<T> get(int hash) {
-        int mask = q.length - 1;
-        return Collections.unmodifiableSet((Set<T>)q[hash & mask]);
+        int mask = q.size() - 1;
+        return Collections.unmodifiableSet(q.get(hash & mask));
     }
 
-    @SuppressWarnings("unchecked")
-    private static class SimpleRadiusQueueComparator<T>
-            implements Comparator<T> {
+    private static class SimpleRadiusQueueComparator<T extends Comparable<T>> implements Comparator<T> {
         public int compare(T o1, T o2) {
             if (o1 == null)
                 return -1;
             if (o2 == null)
                 return 1;
 
-            if (!(o1 instanceof Comparable))
-                throw new IllegalArgumentException();
-            if (!(o2 instanceof Comparable))
-                throw new IllegalArgumentException();
-
-            return ((Comparable)o1).compareTo(o2);
+            return o1.compareTo(o2);
         }
     }
 

@@ -1,9 +1,3 @@
-/**
- * $Id: DictionaryParser.java,v 1.2 2005/09/06 16:38:40 wuttke Exp $
- * Created on 28.08.2005
- * @author mw
- * @version $Revision: 1.2 $
- */
 package org.tinyradius.dictionary;
 
 import java.io.BufferedReader;

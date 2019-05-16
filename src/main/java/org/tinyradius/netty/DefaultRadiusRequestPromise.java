@@ -12,9 +12,6 @@ public class DefaultRadiusRequestPromise extends DefaultPromise<Void>
 
     private RadiusRequestContext context;
 
-    /**
-     *
-     */
     public DefaultRadiusRequestPromise(RadiusRequestContext context, EventExecutor executor) {
         super(executor);
         if (context == null)
@@ -22,11 +19,12 @@ public class DefaultRadiusRequestPromise extends DefaultPromise<Void>
         this.context = context;
     }
 
-    /**
-     *
-     * @return
-     */
     public RadiusRequestContext context() {
         return context;
+    }
+
+    @Override
+    public int compareTo(RadiusRequestPromise o) {
+        return 0;
     }
 }
