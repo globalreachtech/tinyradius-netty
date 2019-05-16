@@ -52,7 +52,7 @@ public class DictionaryParser {
 			// ignore comments
 			lineNum++;
 			line = line.trim();
-			if (line.startsWith("#") || line.length() == 0)
+			if (line.startsWith("#") || line.isEmpty())
 				continue;
 			
 			// tokenize line by whitespace

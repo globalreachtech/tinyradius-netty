@@ -147,7 +147,7 @@ public class RadiusClient {
 	 * @param hostName host name
 	 */
 	public void setHostName(String hostName) {
-		if (hostName == null || hostName.length() == 0)
+		if (hostName == null || hostName.isEmpty())
 			throw new IllegalArgumentException("host name must not be empty");
 		this.hostName = hostName;
 	}
@@ -183,7 +183,7 @@ public class RadiusClient {
 	 * @param sharedSecret shared secret
 	 */
 	public void setSharedSecret(String sharedSecret) {
-		if (sharedSecret == null || sharedSecret.length() == 0)
+		if (sharedSecret == null || sharedSecret.isEmpty())
 			throw new IllegalArgumentException("shared secret must not be empty");
 		this.sharedSecret = sharedSecret;
 	}

@@ -3,6 +3,8 @@ package org.tinyradius.netty;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * RadiusQueue class
  */
@@ -20,8 +22,8 @@ public class RadiusQueue<T extends Comparable<T>> {
             throw new IllegalArgumentException();
         if (hashSize < 1)
             throw new IllegalArgumentException();
-        if (comparator == null)
-            throw new NullPointerException("comparator cannot be null");
+        requireNonNull(comparator, "comparator cannot be null");
+
         q = new ArrayList<>(1 << hashSize);
         for (int i = 0; i < 1 << hashSize; i++)
             q.add(new ConcurrentSkipListSet<>(comparator));
@@ -57,8 +59,8 @@ public class RadiusQueue<T extends Comparable<T>> {
      * @return
      */
     public T add(T value, int hash) {
-        if (value == null)
-            throw new NullPointerException("value cannot be null");
+        requireNonNull(value, "value cannot be null");
+
         int mask = q.size() - 1;
         Set<T> set = q.get(hash & mask);
         set.add(value);
@@ -70,8 +72,8 @@ public class RadiusQueue<T extends Comparable<T>> {
      * @return
      */
     public boolean remove(T value, int hash) {
-        if (value == null)
-            throw new NullPointerException("value cannot be null");
+        requireNonNull(value, "value cannot be null");
+
         int mask = q.size() - 1;
         Set<T> set = q.get(hash & mask);
         return set.remove(value);

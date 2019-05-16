@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 
 /**
  * This class represents a Radius packet. Subclasses provide convenience methods
@@ -174,10 +175,7 @@ public class RadiusPacket implements Cloneable {
 	 * @param attributes list of RadiusAttribute objects
 	 */
 	public void setAttributes(List<RadiusAttribute> attributes) {
-		if (attributes == null)
-			throw new NullPointerException("attributes list is null");
-
-		this.attributes = attributes;
+		this.attributes = requireNonNull(attributes, "attributes list is null");
 	}
 	
 	/**
@@ -188,8 +186,8 @@ public class RadiusPacket implements Cloneable {
 	 * @param attribute RadiusAttribute object
 	 */
 	public void addAttribute(RadiusAttribute attribute) {
-		if (attribute == null)
-			throw new NullPointerException("attribute is null");
+		requireNonNull(attributes, "attribute is null");
+
 		attribute.setDictionary(getDictionary());
 		if (attribute.getVendorId() == -1)
 			this.attributes.add(attribute);
@@ -210,9 +208,9 @@ public class RadiusPacket implements Cloneable {
 	 * @throws IllegalArgumentException if type name is unknown
 	 */
 	public void addAttribute(String typeName, String value) {
-		if (typeName == null || typeName.length() == 0)
+		if (typeName == null || typeName.isEmpty())
 			throw new IllegalArgumentException("type name is empty");
-		if (value == null || value.length() == 0)
+		if (value == null || value.isEmpty())
 			throw new IllegalArgumentException("value is empty");
 		
 		AttributeType type = dictionary.getAttributeTypeByName(typeName);
@@ -412,7 +410,7 @@ public class RadiusPacket implements Cloneable {
 	 * @throws RuntimeException if the attribute occurs multiple times
 	 */
 	public RadiusAttribute getAttribute(String type) {
-		if (type == null || type.length() == 0)
+		if (type == null || type.isEmpty())
 			throw new IllegalArgumentException("type name is empty");
 		
 		AttributeType t = dictionary.getAttributeTypeByName(type);
@@ -483,8 +481,7 @@ public class RadiusPacket implements Cloneable {
 	 * @param sharedSecret shared secret to be used to encode this packet
 	 * @exception IOException communication error
 	 */
-	public void encodeRequestPacket(OutputStream out, String sharedSecret) 
-	throws IOException, RadiusException {
+	public void encodeRequestPacket(OutputStream out, String sharedSecret) throws IOException, RadiusException {
 		encodePacket(out, sharedSecret, null);
 	}
 	
@@ -496,11 +493,8 @@ public class RadiusPacket implements Cloneable {
 	 * @param request Radius request packet
 	 * @exception IOException communication error
 	 */
-	public void encodeResponsePacket(OutputStream out, String sharedSecret, RadiusPacket request) 
-	throws IOException, RadiusException {
-		if (request == null)
-			throw new NullPointerException("request cannot be null");
-		encodePacket(out, sharedSecret, request);
+	public void encodeResponsePacket(OutputStream out, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
+		encodePacket(out, sharedSecret, requireNonNull(request, "request cannot be null"));
 	}
 	
 	/**
@@ -529,11 +523,9 @@ public class RadiusPacket implements Cloneable {
 	 * @exception IOException IO error
 	 * @exception RadiusException malformed packet
 	 */
-	public static RadiusPacket decodeResponsePacket(InputStream in, String sharedSecret, RadiusPacket request) 
-	throws IOException, RadiusException {
-		if (request == null)
-			throw new NullPointerException("request may not be null");
-		return decodePacket(DefaultDictionary.getDefaultDictionary(), in, sharedSecret, request);
+	public static RadiusPacket decodeResponsePacket(InputStream in, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
+		return decodePacket(DefaultDictionary.getDefaultDictionary(), in, sharedSecret,
+				requireNonNull(request, "request may not be null"));
 	}
 
 	/**
@@ -566,13 +558,12 @@ public class RadiusPacket implements Cloneable {
 	 * @exception IOException IO error
 	 * @exception RadiusException malformed packet
 	 */
-	public static RadiusPacket decodeResponsePacket(Dictionary dictionary, InputStream in, String sharedSecret, RadiusPacket request) 
+	public static RadiusPacket decodeResponsePacket(Dictionary dictionary, InputStream in, String sharedSecret, RadiusPacket request)
 	throws IOException, RadiusException {
-		if (request == null)
-			throw new NullPointerException("request may not be null");
-		return decodePacket(dictionary, in, sharedSecret, request);
+		return decodePacket(dictionary, in, sharedSecret,
+				requireNonNull(request, "request may not be null"));
 	}
-	
+
 	/**
 	 * Retrieves the next packet identifier to use and increments the static
 	 * storage.
@@ -593,8 +584,7 @@ public class RadiusPacket implements Cloneable {
 	 * @return RadiusPacket object
 	 */
 	public static RadiusPacket createRadiusPacket(final int type, Dictionary dictionary) {
-		if (dictionary == null)
-			throw new NullPointerException("dictionary cannot be null");
+		requireNonNull(dictionary, "dictionary cannot be null");
 
 		RadiusPacket rp;
 		switch (type) {
@@ -705,10 +695,9 @@ public class RadiusPacket implements Cloneable {
 	 * @exception IOException communication error
 	 * @exception RuntimeException if required packet data has not been set 
 	 */
-	protected void encodePacket(OutputStream out, String sharedSecret, RadiusPacket request) 
-	throws IOException, RadiusException {
+	protected void encodePacket(OutputStream out, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
 		// check shared secret
-		if (sharedSecret == null || sharedSecret.length() == 0)
+		if (sharedSecret == null || sharedSecret.isEmpty())
 			throw new RuntimeException("no shared secret has been set");
 		
 		// check request authenticator
@@ -825,7 +814,7 @@ public class RadiusPacket implements Cloneable {
 	protected static RadiusPacket decodePacket(Dictionary dictionary, InputStream in, String sharedSecret, RadiusPacket request) 
 	throws IOException, RadiusException {
 		// check shared secret
-		if (sharedSecret == null || sharedSecret.length() == 0)
+		if (sharedSecret == null || sharedSecret.isEmpty())
 			throw new RuntimeException("no shared secret has been set");
 	
 		// check request authenticator

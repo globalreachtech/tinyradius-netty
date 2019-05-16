@@ -1,10 +1,3 @@
-/**
- * $Id: RadiusAttribute.java,v 1.4 2006/02/20 23:37:38 wuttke Exp $
- * Created on 07.04.2005
- * Released under the terms of the LGPL
- * @author Matthias Wuttke
- * @version $Revision: 1.4 $
- */
 package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.AttributeType;
@@ -12,6 +5,8 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.RadiusUtil;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * This class represents a generic Radius attribute. Subclasses implement
@@ -49,9 +44,7 @@ public class RadiusAttribute {
 	 * @param attributeData attribute data
 	 */
 	public void setAttributeData(byte[] attributeData) {
-		if (attributeData == null)
-			throw new NullPointerException("attribute data is null");
-		this.attributeData = attributeData;
+		this.attributeData = requireNonNull(attributeData, "attribute data is null");
 	}
 
 	/**
@@ -134,9 +127,8 @@ public class RadiusAttribute {
 	public byte[] writeAttribute() {
 		if (getAttributeType() == -1)
 			throw new IllegalArgumentException("attribute type not set");
-		if (attributeData == null)
-			throw new NullPointerException("attribute data not set");
-		
+		requireNonNull(attributeData, "attribute data not set");
+
 		byte[] attr = new byte[2 + attributeData.length];
 		attr[0] = (byte)getAttributeType();
 		attr[1] = (byte)(2 + attributeData.length);

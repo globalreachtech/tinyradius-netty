@@ -91,9 +91,9 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 	 * @exception IllegalArgumentException invalid sub-attribute name or value
 	 */
 	public void addSubAttribute(String name, String value) {
-		if (name == null || name.length() == 0)
+		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("type name is empty");
-		if (value == null || value.length() == 0)
+		if (value == null || value.isEmpty())
 			throw new IllegalArgumentException("value is empty");
 
 		AttributeType type = getDictionary().getAttributeTypeByName(name);
@@ -174,7 +174,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 	 * @throws RuntimeException if the attribute occurs multiple times
 	 */
 	public RadiusAttribute getSubAttribute(String type) {
-		if (type == null || type.length() == 0)
+		if (type == null || type.isEmpty())
 			throw new IllegalArgumentException("type name is empty");
 
 		AttributeType t = getDictionary().getAttributeTypeByName(type);

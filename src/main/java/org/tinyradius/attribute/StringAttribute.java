@@ -1,6 +1,7 @@
 package org.tinyradius.attribute;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 
 /**
  * This class represents a Radius attribute which only
@@ -31,8 +32,7 @@ public class StringAttribute extends RadiusAttribute {
 	 * @param value string, not null
 	 */
 	public void setAttributeValue(String value) {
-		if (value == null)
-			throw new NullPointerException("string value not set");
+		requireNonNull(value, "string value not set");
 		setAttributeData(value.getBytes(UTF_8));
 	}
 	

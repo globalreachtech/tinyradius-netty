@@ -5,6 +5,8 @@ import org.tinyradius.attribute.RadiusAttribute;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Represents a Radius attribute type.
  */
@@ -67,7 +69,7 @@ public class AttributeType {
 	 * @param name type name
 	 */
 	public void setName(String name) {
-		if (name == null || name.length() == 0)
+		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("name is empty");
 		this.name = name;
 	}
@@ -86,8 +88,7 @@ public class AttributeType {
 	 * attributes of this type.
 	 */
 	public void setAttributeClass(Class type) {
-		if (type == null)
-			throw new NullPointerException("type is null");
+		requireNonNull(type, "type is null");
 		if (!RadiusAttribute.class.isAssignableFrom(type))
 			throw new IllegalArgumentException("type is not a RadiusAttribute descendant");
 		this.attributeClass = type;
@@ -130,7 +131,7 @@ public class AttributeType {
 	 * @return Integer or null
 	 */
 	public Integer getEnumeration(String value) {
-		if (value == null || value.length() == 0)
+		if (value == null || value.isEmpty())
 			throw new IllegalArgumentException("value is empty");
 		if (enumeration == null)
 			return null;
@@ -147,7 +148,7 @@ public class AttributeType {
 	 * @param name the name for this number
 	 */
 	public void addEnumerationValue(int num, String name) {
-		if (name == null || name.length() == 0)
+		if (name == null || name.isEmpty())
 			throw new IllegalArgumentException("name is empty");
 		if (enumeration == null)
 			enumeration = new HashMap<>();

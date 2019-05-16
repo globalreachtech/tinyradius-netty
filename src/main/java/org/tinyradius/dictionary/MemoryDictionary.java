@@ -89,7 +89,7 @@ implements WritableDictionary {
 			throw new IllegalArgumentException("vendor ID must be positive");
 		if (getVendorName(vendorId) != null)
 			throw new IllegalArgumentException("duplicate vendor code");
-		if (vendorName == null || vendorName.length() == 0)
+		if (vendorName == null || vendorName.isEmpty())
 			throw new IllegalArgumentException("vendor name empty");
 		vendorsByCode.put(vendorId, vendorName);
 	}

@@ -9,6 +9,7 @@ import java.security.MessageDigest;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 
 /**
  * This class represents a Radius packet of the type
@@ -65,9 +66,8 @@ public class AccountingRequest extends RadiusPacket {
 	 * @param userName user name to set
 	 */
 	public void setUserName(String userName) {
-		if (userName == null)
-			throw new NullPointerException("user name not set");
-		if (userName.length() == 0)
+		requireNonNull(userName, "user name not set");
+		if (userName.isEmpty())
 			throw new IllegalArgumentException("empty user name not allowed");
 		
 		removeAttributes(USER_NAME);

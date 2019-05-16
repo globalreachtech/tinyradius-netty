@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * This object represents a simple Radius client which communicates with
  * a specified Radius server. You can use a single instance of this object
@@ -59,21 +61,11 @@ public class RadiusClient<T extends DatagramChannel> {
      */
     public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup executorGroup,
                         ChannelFactory<T> factory, Timer timer, Map<String, ?> properties) {
-        if (eventGroup == null)
-            throw new NullPointerException("eventGroup cannot be null");
-        if (executorGroup == null)
-            throw new NullPointerException("executorGroup cannot be null");
-        if (factory == null)
-            throw new NullPointerException("factory cannot be null");
-        if (timer == null)
-            throw new NullPointerException("timer cannot be null");
-        if (properties == null)
-            throw new NullPointerException("properties cannot be null");
-        this.factory = factory;
-        this.eventGroup = eventGroup;
-        this.timer = timer;
+        this.factory = requireNonNull(factory, "factory cannot be null");
+        this.eventGroup = requireNonNull(eventGroup, "eventGroup cannot be null");
+        this.timer = requireNonNull(timer, "timer cannot be null");
         this.dictionary = dictionary;
-        this.executorGroup = executorGroup;
+        this.executorGroup = requireNonNull(executorGroup, "executorGroup cannot be null");
     }
 
     /**
@@ -88,7 +80,7 @@ public class RadiusClient<T extends DatagramChannel> {
      */
     public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory,
                         Timer timer) {
-        this(dictionary, eventGroup, executorGroup, factory, timer, Collections.<String, Object>emptyMap());
+        this(dictionary, eventGroup, executorGroup, factory, timer, Collections.emptyMap());
     }
 
     /**
@@ -113,7 +105,7 @@ public class RadiusClient<T extends DatagramChannel> {
      * @param timer
      */
     public RadiusClient(EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
-        this(eventGroup, executorGroup, factory, timer, Collections.<String, Object>emptyMap());
+        this(eventGroup, executorGroup, factory, timer, Collections.emptyMap());
     }
 
     /**
@@ -132,18 +124,14 @@ public class RadiusClient<T extends DatagramChannel> {
      * @throws RadiusException
      */
     public RadiusRequestFuture communicate(RadiusPacket request, RadiusEndpoint endpoint) {
-        if (request == null)
-            throw new NullPointerException("request cannot be null");
-        if (endpoint == null)
-            throw new NullPointerException("endpoint cannot be null");
+        requireNonNull(request, "request cannot be null");
+        requireNonNull(endpoint, "endpoint cannot be null");
 
         return this.communicate(request, endpoint, 3, TimeUnit.SECONDS);
     }
 
-    private void sendRequest(RadiusRequestContextImpl context)
-            throws IOException, RadiusException {
-        if (context == null)
-            throw new NullPointerException("context cannot be null");
+    private void sendRequest(RadiusRequestContextImpl context) throws IOException, RadiusException {
+        requireNonNull(context, "context cannot be null");
 
         DatagramPacket packetOut = makeDatagramPacket(
                 context.request(), context.endpoint());
@@ -172,19 +160,15 @@ public class RadiusClient<T extends DatagramChannel> {
      * @throws RadiusException
      */
     public RadiusRequestFuture communicate(RadiusPacket request, RadiusEndpoint endpoint, long timeout, TimeUnit unit) {
-        if (request == null)
-            throw new NullPointerException("request cannot be null");
-        if (endpoint == null)
-            throw new NullPointerException("endpoint cannot be null");
+        requireNonNull(request, "request cannot be null");
+        requireNonNull(endpoint, "endpoint cannot be null");
+        requireNonNull(unit, "unit cannot be null");
+
         if (timeout < 0)
             throw new IllegalArgumentException("timeout is invalid");
-        if (unit == null)
-            throw new NullPointerException("unit cannot be null");
 
-        RadiusRequestContextImpl context =
-                new RadiusRequestContextImpl(
-                        identifier.getAndIncrement(), request,
-                        endpoint, unit.toNanos(timeout));
+        RadiusRequestContextImpl context = new RadiusRequestContextImpl(
+                identifier.getAndIncrement(), request, endpoint, unit.toNanos(timeout));
 
         RadiusRequestPromise promise = queue(context);
 
@@ -198,10 +182,8 @@ public class RadiusClient<T extends DatagramChannel> {
         return promise;
     }
 
-    @SuppressWarnings("unchecked")
     private RadiusRequestPromise queue(RadiusRequestContextImpl context) {
-        if (context == null)
-            throw new NullPointerException("context cannot be null");
+        requireNonNull(context, "context cannot be null");
 
         final RadiusRequestPromise promise =
             new DefaultRadiusRequestPromise(context, executorGroup.next()) {
@@ -237,8 +219,7 @@ public class RadiusClient<T extends DatagramChannel> {
 
     @SuppressWarnings("unchecked")
     private boolean dequeue(RadiusRequestPromise promise) {
-        if (promise == null)
-            throw new NullPointerException("promise cannot be null");
+        requireNonNull(promise, "promise cannot be null");
 
         RadiusRequestContextImpl context =
                 (RadiusRequestContextImpl)promise.context();
@@ -253,8 +234,7 @@ public class RadiusClient<T extends DatagramChannel> {
 
     @SuppressWarnings("unchecked")
     private RadiusRequestPromise lookup(DatagramPacket response) {
-        if (response == null)
-            throw new NullPointerException("response cannot be null");
+        requireNonNull(response, "response cannot be null");
 
         ByteBuf buf = response.content()
                 .duplicate().skipBytes(1);
@@ -377,20 +357,16 @@ public class RadiusClient<T extends DatagramChannel> {
         private RadiusEndpoint endpoint;
 
         public RadiusRequestContextImpl(int identifier, RadiusPacket request, RadiusEndpoint endpoint, long timeoutNS) {
-            if (request == null)
-                throw new NullPointerException("request cannot be null");
-            if (endpoint == null)
-                throw new NullPointerException("endpoint cannot be null");
             this.identifier = identifier;
             this.attempts = new AtomicInteger(0);
-            this.request = request;
-            //this.request.setPacketIdentifier(identifier & 0xff);
-            this.endpoint = endpoint;
+            this.request = requireNonNull(request, "request cannot be null");
+            this.endpoint = requireNonNull(endpoint, "endpoint cannot be null");
             this.requestTime = System.nanoTime();
             this.timeoutNS = timeoutNS;
+            //this.request.setPacketIdentifier(identifier & 0xff);
         }
 
-        public Timeout newTimeout(Timer timeout, TimerTask task) {
+        public Timeout newTimeout(Timer timer, TimerTask task) {
             if (this.timeout != null) {
                 if (!this.timeout.isExpired())
                      this.timeout.cancel();

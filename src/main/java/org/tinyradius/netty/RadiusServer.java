@@ -1,11 +1,5 @@
 package org.tinyradius.netty;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.util.*;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -24,6 +18,15 @@ import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusException;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
+import java.util.Arrays;
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Implements a simple Radius server. This class must be subclassed to
@@ -57,26 +60,17 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 		this(DefaultDictionary.getDefaultDictionary(), executorGroup, factory, timer);
 	}
 
-	/**
-	 *
-	 * @param dictionary
-	 * @param factory
-	 * @param timer
-	 */
-	public RadiusServer(Dictionary dictionary, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
-		if (dictionary == null)
-			throw new NullPointerException("dictionary cannot be null");
-		if (executorGroup == null)
-			throw new NullPointerException("executorGroup cannot be null");
-		if (factory == null)
-			throw new NullPointerException("factory cannot be null");
-		if (timer == null)
-			throw new NullPointerException("timer cannot be null");
-		this.dictionary = dictionary;
-		this.executorGroup = executorGroup;
-		this.factory = factory;
-		this.timer = timer;
-	}
+    /**
+     * @param dictionary
+     * @param factory
+     * @param timer
+     */
+    public RadiusServer(Dictionary dictionary, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
+        this.dictionary = requireNonNull(dictionary, "dictionary cannot be null");
+        this.executorGroup = requireNonNull(executorGroup, "executorGroup cannot be null");
+        this.factory = requireNonNull(factory, "factory cannot be null");
+        this.timer = requireNonNull(timer, "timer cannot be null");
+    }
 
 	/**
 	 * Returns the shared secret used to communicate with the client with the
@@ -135,9 +129,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 * @param eventGroup
 	 */
 	public Future<RadiusServer<T>> start(EventLoopGroup eventGroup) {
-
-		if (eventGroup == null)
-			throw new NullPointerException("eventGroup cannot be null");
+		requireNonNull(eventGroup, "eventGroup cannot be null");
 
 		if (this.eventGroup != null)
 			return new DefaultPromise<RadiusServer<T>>(GlobalEventExecutor.INSTANCE)
@@ -298,10 +290,8 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 * @param listenAddress the address to bind to
 	 */
 	protected ChannelFuture listen(final T channel, final InetSocketAddress listenAddress) {
-		if (channel == null)
-			throw new NullPointerException("channel cannot be null");
-		if (listenAddress == null)
-			throw new NullPointerException("listenAddress cannot be null");
+		requireNonNull(channel, "channel cannot be null");
+		requireNonNull(listenAddress, "listenAddress cannot be null");
 
 		final ChannelPromise promise = new DefaultChannelPromise(channel);
 

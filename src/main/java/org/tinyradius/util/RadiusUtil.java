@@ -3,7 +3,9 @@ package org.tinyradius.util;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 
+import static java.lang.Math.max;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 
 /**
  * This class contains miscellaneous static utility functions.
@@ -42,25 +44,7 @@ public class RadiusUtil {
 
 	public static byte[] xor(byte[] src1, int src1offset, int src1length,
 							  byte[] src2, int src2offset, int src2length) {
-		if (src1 == null)
-			throw new NullPointerException("src1 is null");
-		if (src1offset < 0)
-			throw new IndexOutOfBoundsException("src1offset is less than 0");
-		if (src1length < 0)
-			throw new IndexOutOfBoundsException("src1length is less than 0");
-		if ((src1offset + src1length) > src1.length)
-			throw new IndexOutOfBoundsException("bytes in src1 is less than src1offset plus src1length");
-		if (src2 == null)
-			throw new NullPointerException("src2 is null");
-		if (src2offset < 0)
-			throw new IndexOutOfBoundsException("src2offset is less than 0");
-		if (src2length < 0)
-			throw new IndexOutOfBoundsException("src2length is less than 0");
-		if ((src2offset + src2length) > src2.length)
-			throw new IndexOutOfBoundsException("bytes in src2 is less than src2offset plus src2length");
-
-		int length = Math.max(src1length, src2length);
-		byte[] dst = new byte[length];
+		byte[] dst = new byte[max(max(src1length, src2length), 0)];
 
 		return xor(src1, src1offset, src1length, src2, src2offset, src2length, dst, 0);
 	}
@@ -68,24 +52,22 @@ public class RadiusUtil {
 	public static byte[] xor(byte[] src1, int src1offset, int src1length,
 							  byte[] src2, int src2offset, int src2length, byte[] dst, int dstoffset) {
 
-		if (src1 == null)
-			throw new NullPointerException("src1 is null");
+		requireNonNull(src1, "src1 is null");
+		requireNonNull(src2, "src2 is null");
+		requireNonNull(dst, "dst is null");
+
 		if (src1offset < 0)
 			throw new IndexOutOfBoundsException("src1offset is less than 0");
 		if (src1length < 0)
 			throw new IndexOutOfBoundsException("src1length is less than 0");
 		if ((src1offset + src1length) > src1.length)
 			throw new IndexOutOfBoundsException("bytes in src1 is less than src1offset plus src1length");
-		if (src2 == null)
-			throw new NullPointerException("src2 is null");
 		if (src2offset < 0)
 			throw new IndexOutOfBoundsException("src2offset is less than 0");
 		if (src2length < 0)
 			throw new IndexOutOfBoundsException("src2length is less than 0");
 		if ((src2offset + src2length) > src2.length)
 			throw new IndexOutOfBoundsException("bytes in src2 is less than src2offset plus src2length");
-		if (dst == null)
-			throw new NullPointerException("dst is null");
 		if ((dstoffset + src1length) > dst.length)
 			throw new IndexOutOfBoundsException("bytes in dst is less than dstoffset plus src1length");
 		if ((dstoffset + src2length) > dst.length)
@@ -117,8 +99,7 @@ public class RadiusUtil {
 	}
 
 	public static byte[] pad(byte[] value, int length) {
-		if (value == null)
-			throw new NullPointerException("value cannot be null");
+		requireNonNull(value, "value cannot be null");
 		if (length < 0)
 			throw new IllegalArgumentException("length cannot be less than 0");
 
