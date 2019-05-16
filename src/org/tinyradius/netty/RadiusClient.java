@@ -1,16 +1,4 @@
-/**
- * $Id: RadiusClient.java,v 1.7 2005/11/10 10:20:21 wuttke Exp $
- * Created on 09.04.2005
- * @author Matthias Wuttke
- * @version $Revision: 1.7 $
- */
 package org.tinyradius.netty;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.buffer.*;
 import io.netty.channel.*;
@@ -20,16 +8,20 @@ import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import io.netty.util.concurrent.EventExecutorGroup;
-import io.netty.util.concurrent.GlobalEventExecutor;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This object represents a simple Radius client which communicates with
@@ -180,7 +172,6 @@ public class RadiusClient<T extends DatagramChannel> {
      * @throws IOException
      * @throws RadiusException
      */
-    @SuppressWarnings("unchecked")
     public RadiusRequestFuture communicate(RadiusPacket request, RadiusEndpoint endpoint, long timeout, TimeUnit unit) {
         if (request == null)
             throw new NullPointerException("request cannot be null");
@@ -223,19 +214,17 @@ public class RadiusClient<T extends DatagramChannel> {
 
         queue.add(promise, context.request().getPacketIdentifier());
 
-        context.newTimeout(timer, new TimerTask() {
-            public void run(Timeout timeout) throws Exception {
-                RadiusRequestContextImpl ctx =
-                        (RadiusRequestContextImpl)promise.context();
-                if (ctx.attempts().intValue() < retransmits) {
-                    logger.info(String.format("Retransmitting request for context %d", ctx.identifier()));
-                    RadiusClient.this.sendRequest(ctx);
-                    ctx.newTimeout(RadiusClient.this.timer, timeout.task());
-                } else {
-                    if (!promise.isDone()) {
-                        promise.setFailure(new RadiusException("Timeout occurred"));
-                        RadiusClient.this.dequeue(promise);
-                    }
+        context.newTimeout(timer, timeout -> {
+            RadiusRequestContextImpl ctx =
+                    (RadiusRequestContextImpl)promise.context();
+            if (ctx.attempts().intValue() < retransmits) {
+                logger.info(String.format("Retransmitting request for context %d", ctx.identifier()));
+                RadiusClient.this.sendRequest(ctx);
+                ctx.newTimeout(RadiusClient.this.timer, timeout.task());
+            } else {
+                if (!promise.isDone()) {
+                    promise.setFailure(new RadiusException("Timeout occurred"));
+                    RadiusClient.this.dequeue(promise);
                 }
             }
         });
@@ -294,8 +283,7 @@ public class RadiusClient<T extends DatagramChannel> {
 
                 return promise;
 
-            } catch (IOException ioe) {
-            } catch (RadiusException e) {
+            } catch (IOException | RadiusException e) {
             }
         }
 
@@ -317,7 +305,6 @@ public class RadiusClient<T extends DatagramChannel> {
      * @return local socket
      * @throws ChannelException
      */
-    @SuppressWarnings("unchecked")
     protected T getChannel() throws ChannelException {
         if (channel == null) {
             channel = factory.newChannel();

@@ -10,5 +10,5 @@ public interface RadiusRequestFuture extends Future<Void> {
      *
      * @return
      */
-    public RadiusRequestContext context();
+    RadiusRequestContext context();
 }

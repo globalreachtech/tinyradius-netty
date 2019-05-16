@@ -40,8 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * You have to override the method getRadiusProxyConnection() which
  * identifies the Radius proxy connection a Radius packet belongs to.
  */
-public abstract class RadiusProxy<T extends DatagramChannel>
-	extends RadiusServer<T> {
+public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
 
     /**
      * {@inheritDoc}
@@ -60,27 +59,23 @@ public abstract class RadiusProxy<T extends DatagramChannel>
 	/**
 	 * Starts the Radius proxy. Listens on the proxy port.
 	 */
-	public Future<RadiusServer<T>> start(EventLoopGroup eventGroup, boolean listenAuth, boolean listenAcct, boolean listenProxy) {
+	public Future<RadiusServer<T>> start(EventLoopGroup eventGroup, boolean listenProxy) {
 
 		final Promise<RadiusServer<T>> promise =
-				new DefaultPromise<RadiusServer<T>>(GlobalEventExecutor.INSTANCE);
+				new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
 
-		Future<RadiusServer<T>> future = super.start(eventGroup, listenAuth, listenAcct);
-		future.addListener(new GenericFutureListener<Future<? super RadiusServer<T>>>() {
-			public void operationComplete(Future<? super RadiusServer<T>> future) throws Exception {
-				if (!future.isSuccess()) {
-					promise.setFailure(future.cause());
-				} else {
-					listenProxy().addListeners(new ChannelFutureListener() {
-						public void operationComplete(ChannelFuture channelFuture) throws Exception {
-							if (!channelFuture.isSuccess()) {
-								promise.setFailure(channelFuture.cause());
-							} else {
-								promise.setSuccess(RadiusProxy.this);
-							}
-						}
-					});
-				}
+		Future<RadiusServer<T>> future = super.start(eventGroup);
+		future.addListener(future1 -> {
+			if (!future1.isSuccess()) {
+				promise.setFailure(future1.cause());
+			} else {
+				listenProxy().addListeners((ChannelFutureListener) channelFuture -> {
+					if (!channelFuture.isSuccess()) {
+						promise.setFailure(channelFuture.cause());
+					} else {
+						promise.setSuccess(RadiusProxy.this);
+					}
+				});
 			}
 		});
 
@@ -184,17 +179,16 @@ public abstract class RadiusProxy<T extends DatagramChannel>
      * @param remote the server the packet arrived from
      * @throws IOException
      */
-    protected void proxyPacketReceived(RadiusPacket packet, InetSocketAddress remote)
-    throws IOException, RadiusException {
+    protected void proxyPacketReceived(RadiusPacket packet, InetSocketAddress remote) throws IOException, RadiusException {
     	// retrieve my Proxy-State attribute (the last)
-    	List proxyStates = packet.getAttributes(33);
+    	List<RadiusAttribute> proxyStates = packet.getAttributes(33);
     	if (proxyStates == null || proxyStates.size() == 0)
     		throw new RadiusException("proxy packet without Proxy-State attribute");
-    	RadiusAttribute proxyState = (RadiusAttribute)proxyStates.get(proxyStates.size() - 1);
+    	RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
     	
     	// retrieve proxy connection from cache 
     	String state = new String(proxyState.getAttributeData());
-        RadiusProxyConnection proxyConnection = (RadiusProxyConnection)proxyConnections.remove(state);
+        RadiusProxyConnection proxyConnection = proxyConnections.remove(state);
     	if (proxyConnection == null) {
     		logger.warn("received packet on proxy port without saved proxy connection - duplicate?");
     		return;
@@ -276,7 +270,7 @@ public abstract class RadiusProxy<T extends DatagramChannel>
 	 * Key: Proxy Index (String), Value: RadiusProxyConnection
 	 */ 
 	private Map<String, RadiusProxyConnection> proxyConnections =
-			new ConcurrentHashMap<String, RadiusProxyConnection>();
+			new ConcurrentHashMap<>();
 
 	private int proxyPort = 1814;
 	private T proxySocket = null;

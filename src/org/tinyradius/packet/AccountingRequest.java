@@ -1,19 +1,14 @@
-/**
- * $Id: AccountingRequest.java,v 1.2 2006/02/17 18:14:54 wuttke Exp $
- * Created on 09.04.2005
- * @author Matthias Wuttke
- * @version $Revision: 1.2 $
- */
 package org.tinyradius.packet;
-
-import java.security.MessageDigest;
-import java.util.List;
 
 import org.tinyradius.attribute.IntegerAttribute;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.util.RadiusException;
-import org.tinyradius.util.RadiusUtil;
+
+import java.security.MessageDigest;
+import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This class represents a Radius packet of the type
@@ -83,14 +78,12 @@ public class AccountingRequest extends RadiusPacket {
 	 * Retrieves the user name from the User-Name attribute.
 	 * @return user name
 	 */
-	public String getUserName() 
-	throws RadiusException {
-		List attrs = getAttributes(USER_NAME);
-		if (attrs.size() < 1 || attrs.size() > 1)
+	public String getUserName() {
+		List<RadiusAttribute> attrs = getAttributes(USER_NAME);
+		if (attrs.size() != 1)
 			throw new RuntimeException("exactly one User-Name attribute required");
 		
-		RadiusAttribute ra = (RadiusAttribute)attrs.get(0);
-		return ((StringAttribute)ra).getAttributeValue();
+		return attrs.get(0).getAttributeValue();
 	}
 
 	/**
@@ -108,8 +101,7 @@ public class AccountingRequest extends RadiusPacket {
 	 * Retrieves the user name from the User-Name attribute.
 	 * @return user name
 	 */
-	public int getAcctStatusType() 
-	throws RadiusException {
+	public int getAcctStatusType() {
 		RadiusAttribute ra = getAttribute(ACCT_STATUS_TYPE);
 		if (ra == null)
 			return -1;
@@ -134,7 +126,7 @@ public class AccountingRequest extends RadiusPacket {
         md5.update((byte)(packetLength & 0xff));
         md5.update(authenticator, 0, authenticator.length);
         md5.update(attributes, 0, attributes.length);
-        md5.update(RadiusUtil.getUtf8Bytes(sharedSecret));
+        md5.update(sharedSecret.getBytes(UTF_8));
         return md5.digest();
 	}
 	

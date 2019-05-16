@@ -1,17 +1,13 @@
-/**
- * $Id: RadiusPacket.java,v 1.12 2008/06/16 22:20:34 wuttke Exp $
- * Created on 07.04.2005
- * Released under the LGPL
- * @author Matthias Wuttke
- * @version $Revision: 1.12 $
- */
 package org.tinyradius.packet;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.VendorSpecificAttribute;
+import org.tinyradius.dictionary.AttributeType;
+import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.util.RadiusException;
+
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -20,13 +16,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.VendorSpecificAttribute;
-import org.tinyradius.dictionary.AttributeType;
-import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
-import org.tinyradius.util.RadiusUtil;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This class represents a Radius packet. Subclasses provide convenience methods
@@ -77,7 +67,7 @@ public class RadiusPacket implements Cloneable {
 	 * @param type packet type 
 	 */
 	public RadiusPacket(final int type) {
-	    this(type, getNextPacketIdentifier(), new ArrayList());
+	    this(type, getNextPacketIdentifier());
 	}
 	
 	/**
@@ -87,7 +77,7 @@ public class RadiusPacket implements Cloneable {
 	 * @param identifier packet identifier
 	 */
 	public RadiusPacket(final int type, final int identifier) {
-	    this(type, identifier, new ArrayList());
+	    this(type, identifier, new ArrayList<>());
 	}
 	
 	/**
@@ -97,7 +87,7 @@ public class RadiusPacket implements Cloneable {
 	 * @param identifier packet identifier
 	 * @param attributes list of RadiusAttribute objects
 	 */
-	public RadiusPacket(final int type, final int identifier, final List attributes) {
+	public RadiusPacket(final int type, final int identifier, final List<RadiusAttribute> attributes) {
 		setPacketType(type);
 	    setPacketIdentifier(identifier);
 	    setAttributes(attributes);
@@ -183,16 +173,10 @@ public class RadiusPacket implements Cloneable {
 	 * Sets the list of attributes for this Radius packet.
 	 * @param attributes list of RadiusAttribute objects
 	 */
-	public void setAttributes(List attributes) {
+	public void setAttributes(List<RadiusAttribute> attributes) {
 		if (attributes == null)
 			throw new NullPointerException("attributes list is null");
-		
-		for (Iterator i = attributes.iterator(); i.hasNext();) {
-			Object element = i.next();
-			if (!(element instanceof RadiusAttribute))
-				throw new IllegalArgumentException("attribute not an instance of RadiusAttribute");
-		}
-		
+
 		this.attributes = attributes;
 	}
 	
@@ -250,10 +234,10 @@ public class RadiusPacket implements Cloneable {
 				throw new IllegalArgumentException("no such attribute");
 		} else {
 			// remove Vendor-Specific sub-attribute
-			List vsas = getVendorAttributes(attribute.getVendorId());
-			for (Iterator i = vsas.iterator(); i.hasNext();) {
-				VendorSpecificAttribute vsa = (VendorSpecificAttribute)i.next();
-				List sas = vsa.getSubAttributes(); 
+			List<RadiusAttribute> vsas = getVendorAttributes(attribute.getVendorId());
+			for (RadiusAttribute o : vsas) {
+				VendorSpecificAttribute vsa = (VendorSpecificAttribute) o;
+				List<RadiusAttribute> sas = vsa.getSubAttributes();
 				if (sas.contains(attribute)) {
 					vsa.removeSubAttribute(attribute);
 					if (sas.size() == 1)
@@ -288,12 +272,11 @@ public class RadiusPacket implements Cloneable {
 	 * @param type attribute type code
 	 */
 	public void removeLastAttribute(int type) {
-		List attrs = getAttributes(type);
+		List<RadiusAttribute> attrs = getAttributes(type);
 		if (attrs == null || attrs.size() == 0)
 			return;
 		
-		RadiusAttribute lastAttribute =
-			(RadiusAttribute)attrs.get(attrs.size() - 1);
+		RadiusAttribute lastAttribute = attrs.get(attrs.size() - 1);
 		removeAttribute(lastAttribute);
 	}
 	
@@ -309,15 +292,15 @@ public class RadiusPacket implements Cloneable {
 			return;
 		}
 		
-		List vsas = getVendorAttributes(vendorId);
-		for (Iterator i = vsas.iterator(); i.hasNext();) {
-			VendorSpecificAttribute vsa = (VendorSpecificAttribute)i.next();
-			
-			List sas = vsa.getSubAttributes();
-			for (Iterator j = sas.iterator(); j.hasNext();) {
-				RadiusAttribute attr = (RadiusAttribute)j.next();
+		List<RadiusAttribute> vsas = getVendorAttributes(vendorId);
+		for (RadiusAttribute o : vsas) {
+			VendorSpecificAttribute vsa = (VendorSpecificAttribute) o;
+
+			List<RadiusAttribute> sas = vsa.getSubAttributes();
+			for (Iterator j = sas.iterator(); j.hasNext(); ) {
+				RadiusAttribute attr = (RadiusAttribute) j.next();
 				if (attr.getAttributeType() == typeCode &&
-					attr.getVendorId() == vendorId)
+						attr.getVendorId() == vendorId)
 					j.remove();
 			}
 			if (sas.size() == 0)
@@ -333,15 +316,14 @@ public class RadiusPacket implements Cloneable {
 	 * @param attributeType type of attributes to get 
 	 * @return list of RadiusAttribute objects, does not return null
 	 */
-	public List getAttributes(int attributeType) {
+	public List<RadiusAttribute> getAttributes(int attributeType) {
 		if (attributeType < 1 || attributeType > 255)
 			throw new IllegalArgumentException("attribute type out of bounds");
 
-		LinkedList result = new LinkedList();
-		for (Iterator i = attributes.iterator(); i.hasNext();) {
-			RadiusAttribute a = (RadiusAttribute)i.next();
-			if (attributeType == a.getAttributeType())
-				result.add(a);
+		LinkedList<RadiusAttribute> result = new LinkedList<>();
+		for (RadiusAttribute attribute : attributes) {
+			if (attributeType == attribute.getAttributeType())
+				result.add(attribute);
 		}
 		return result;
 	}
@@ -354,20 +336,19 @@ public class RadiusPacket implements Cloneable {
 	 * @param attributeType attribute type code
 	 * @return list of RadiusAttribute objects, never null
 	 */
-	public List getAttributes(int vendorId, int attributeType) {
+	public List<RadiusAttribute> getAttributes(int vendorId, int attributeType) {
 		if (vendorId == -1)
 			return getAttributes(attributeType);
 		
-		LinkedList result = new LinkedList();
-		List vsas = getVendorAttributes(vendorId);
-		for (Iterator i = vsas.iterator(); i.hasNext();) {
-			VendorSpecificAttribute vsa = (VendorSpecificAttribute)i.next();
-			List sas = vsa.getSubAttributes();
-			for (Iterator j = sas.iterator(); j.hasNext();) {
-				RadiusAttribute attr = (RadiusAttribute)j.next();
-				if (attr.getAttributeType() == attributeType &&
-					attr.getVendorId() == vendorId)
-					result.add(attr);
+		LinkedList<RadiusAttribute> result = new LinkedList<>();
+		List<RadiusAttribute> vsas = getVendorAttributes(vendorId);
+		for (RadiusAttribute o : vsas) {
+			VendorSpecificAttribute vsa = (VendorSpecificAttribute) o;
+			List<RadiusAttribute> sas = vsa.getSubAttributes();
+			for (RadiusAttribute sa : sas) {
+				if (sa.getAttributeType() == attributeType &&
+						sa.getVendorId() == vendorId)
+					result.add(sa);
 			}
 		}
 		
@@ -392,13 +373,13 @@ public class RadiusPacket implements Cloneable {
 	 * requested attribute type
 	 */
 	public RadiusAttribute getAttribute(int type) {
-		List attrs = getAttributes(type);
+		List<RadiusAttribute> attrs = getAttributes(type);
 		if (attrs.size() > 1)
 			throw new RuntimeException("multiple attributes of requested type " + type);
 		else if (attrs.size() == 0)
 			return null;
 		else
-			return (RadiusAttribute)attrs.get(0);
+			return attrs.get(0);
 	}
 
 	/**
@@ -464,12 +445,11 @@ public class RadiusPacket implements Cloneable {
 	 * @param vendorId vendor ID of the attribute(s)
 	 * @return List with VendorSpecificAttribute objects, never null
 	 */
-	public List getVendorAttributes(int vendorId) {
-		LinkedList result = new LinkedList();
-		for (Iterator i = attributes.iterator(); i.hasNext();) {
-			RadiusAttribute a = (RadiusAttribute)i.next();
+	public List<RadiusAttribute> getVendorAttributes(int vendorId) {
+		LinkedList<RadiusAttribute> result = new LinkedList<>();
+		for (RadiusAttribute a : attributes) {
 			if (a instanceof VendorSpecificAttribute) {
-				VendorSpecificAttribute vsa = (VendorSpecificAttribute)a;
+				VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
 				if (vsa.getChildVendorId() == vendorId)
 					result.add(vsa);
 			}
@@ -488,8 +468,8 @@ public class RadiusPacket implements Cloneable {
 	 * @see #getVendorAttributes(int)
 	 */
 	public VendorSpecificAttribute getVendorAttribute(int vendorId) {
-		for (Iterator i = getAttributes(VendorSpecificAttribute.VENDOR_SPECIFIC).iterator(); i.hasNext();) {
-			VendorSpecificAttribute vsa = (VendorSpecificAttribute)i.next();
+		for (RadiusAttribute o : getAttributes(VendorSpecificAttribute.VENDOR_SPECIFIC)) {
+			VendorSpecificAttribute vsa = (VendorSpecificAttribute) o;
 			if (vsa.getChildVendorId() == vendorId)
 				return vsa;
 		}
@@ -659,12 +639,11 @@ public class RadiusPacket implements Cloneable {
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		StringBuffer s = new StringBuffer();
+		StringBuilder s = new StringBuilder();
 		s.append(getPacketTypeName());
 		s.append(", ID ");
 		s.append(packetIdentifier);
-		for (Iterator i = attributes.iterator(); i.hasNext();) {
-			RadiusAttribute attr = (RadiusAttribute)i.next();
+		for (RadiusAttribute attr : attributes) {
 			s.append("\n");
 			s.append(attr.toString());
 		}
@@ -711,8 +690,7 @@ public class RadiusPacket implements Cloneable {
 	 */
 	public void setDictionary(Dictionary dictionary) {
 		this.dictionary = dictionary;
-		for (Iterator i = attributes.iterator(); i.hasNext();) {
-			RadiusAttribute attr = (RadiusAttribute)i.next();
+		for (RadiusAttribute attr : attributes) {
 			attr.setDictionary(dictionary);
 		}
 	}
@@ -787,7 +765,7 @@ public class RadiusPacket implements Cloneable {
 	 * @return request authenticator, 16 bytes
 	 */
 	protected byte[] createRequestAuthenticator(String sharedSecret) {
-		byte[] secretBytes = RadiusUtil.getUtf8Bytes(sharedSecret);
+		byte[] secretBytes = sharedSecret.getBytes(UTF_8);
 		byte[] randomBytes = new byte[16];
 		random.nextBytes(randomBytes);    	
 
@@ -827,7 +805,7 @@ public class RadiusPacket implements Cloneable {
         md5.update((byte)(packetLength & 0x0ff));
         md5.update(requestAuthenticator, 0, requestAuthenticator.length);
         md5.update(attributes, 0, attributes.length);
-        md5.update(RadiusUtil.getUtf8Bytes(sharedSecret));
+        md5.update(sharedSecret.getBytes(UTF_8));
         return md5.digest();		
 	}
 
@@ -980,8 +958,7 @@ public class RadiusPacket implements Cloneable {
 	protected byte[] getAttributeBytes() 
 	throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_PACKET_LENGTH);
-		for (Iterator i = attributes.iterator(); i.hasNext();) {
-			RadiusAttribute a = (RadiusAttribute)i.next();
+		for (RadiusAttribute a : attributes) {
 			bos.write(a.writeAttribute());
 		}
 		bos.flush();
@@ -1010,7 +987,7 @@ public class RadiusPacket implements Cloneable {
 	/**
 	 * Attributes for this packet.
 	 */
-	private List attributes = new ArrayList();
+	private List<RadiusAttribute> attributes = new ArrayList<>();
 	
 	/**
 	 * MD5 digest.

@@ -1,20 +1,9 @@
-/**
- * $Id: AttributeType.java,v 1.3 2005/09/06 18:06:33 wuttke Exp $
- * Copyright by teuto.net Netzdienste GmbH 2005. All rights reserved.
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation. Commercial licenses also available.
- * See the accompanying file LICENSE for details.
- * @author Matthias Wuttke
- * @version $Revision: 1.3 $
- */
 package org.tinyradius.dictionary;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.tinyradius.attribute.RadiusAttribute;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a Radius attribute type.
@@ -130,7 +119,7 @@ public class AttributeType {
 	 */
 	public String getEnumeration(int value) {
 		if (enumeration != null)
-			return (String)enumeration.get(new Integer(value));
+			return enumeration.get(value);
 		else
 			return null;
 	}
@@ -146,10 +135,9 @@ public class AttributeType {
 			throw new IllegalArgumentException("value is empty");
 		if (enumeration == null)
 			return null;
-		for (Iterator i = enumeration.entrySet().iterator(); i.hasNext();) {
-			Map.Entry e = (Map.Entry)i.next();
-			if (e.getValue().equals(value))
-				return (Integer)e.getKey();
+		for (Map.Entry<Integer, String> o : enumeration.entrySet()) {
+			if (o.getValue().equals(value))
+				return o.getKey();
 		}
 		return null;
 	}
@@ -163,8 +151,8 @@ public class AttributeType {
 		if (name == null || name.length() == 0)
 			throw new IllegalArgumentException("name is empty");
 		if (enumeration == null)
-			enumeration = new HashMap();
-		enumeration.put(new Integer(num), name);
+			enumeration = new HashMap<>();
+		enumeration.put(num, name);
 	}
 	
 	/**
@@ -186,6 +174,6 @@ public class AttributeType {
 	private int typeCode;
 	private String name;
 	private Class attributeClass;
-	private Map enumeration = null;
+	private Map<Integer, String> enumeration = null;
 	
 }

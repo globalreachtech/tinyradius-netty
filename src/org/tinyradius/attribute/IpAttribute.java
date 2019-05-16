@@ -48,7 +48,7 @@ public class IpAttribute extends RadiusAttribute {
 	 * @see org.tinyradius.attribute.RadiusAttribute#getAttributeValue()
 	 */
 	public String getAttributeValue() {
-		StringBuffer ip = new StringBuffer();
+		StringBuilder ip = new StringBuilder();
 		byte[] data = getAttributeData();
 		if (data == null || data.length != 4)
 			throw new RuntimeException("ip attribute: expected 4 bytes attribute data");

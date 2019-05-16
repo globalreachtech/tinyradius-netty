@@ -1,15 +1,4 @@
-/**
- * $Id: AccessRequest.java,v 1.4 2009/10/09 14:57:39 wuttke Exp $
- * Created on 08.04.2005
- * @author Matthias Wuttke
- * @version $Revision: 1.4 $
- */
 package org.tinyradius.packet;
-
-import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +6,13 @@ import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.RadiusUtil;
+
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This class represents an Access-Request Radius packet.
@@ -92,12 +88,12 @@ public class AccessRequest extends RadiusPacket {
 	 * @return user name
 	 */
 	public String getUserName() {
-		List attrs = getAttributes(USER_NAME);
-		if (attrs.size() < 1 || attrs.size() > 1)
+		List<RadiusAttribute> attrs = getAttributes(USER_NAME);
+		if (attrs.size() != 1)
 			throw new RuntimeException("exactly one User-Name attribute required");
 		
-		RadiusAttribute ra = (RadiusAttribute)attrs.get(0);
-		return ((StringAttribute)ra).getAttributeValue();
+		RadiusAttribute ra = attrs.get(0);
+		return ra.getAttributeValue();
 	}
 	
 	/**
@@ -150,9 +146,9 @@ public class AccessRequest extends RadiusPacket {
 		
 		if (userPassword != null) {
 			setAuthProtocol(AUTH_PAP);
-			this.password = decodePapPassword(userPassword.getAttributeData(), RadiusUtil.getUtf8Bytes(sharedSecret));
+			this.password = decodePapPassword(userPassword.getAttributeData(), sharedSecret.getBytes(UTF_8));
 			// copy truncated data
-			userPassword.setAttributeData(RadiusUtil.getUtf8Bytes(this.password));
+			userPassword.setAttributeData(this.password.getBytes(UTF_8));
 		} else if (chapPassword != null && chapChallenge != null) {
 			setAuthProtocol(AUTH_CHAP);
 			this.chapPassword = chapPassword.getAttributeData();
@@ -172,7 +168,7 @@ public class AccessRequest extends RadiusPacket {
 			//throw new RuntimeException("no password set");
 		
 		if (getAuthProtocol().equals(AUTH_PAP)) {
-			byte[] pass = encodePapPassword(RadiusUtil.getUtf8Bytes(this.password), RadiusUtil.getUtf8Bytes(sharedSecret));
+			byte[] pass = encodePapPassword(this.password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8));
 			removeAttributes(USER_PASSWORD);
 			addAttribute(new RadiusAttribute(USER_PASSWORD, pass));
 		} else if (getAuthProtocol().equals(AUTH_CHAP)) {
@@ -278,7 +274,7 @@ public class AccessRequest extends RadiusPacket {
         MessageDigest md5 = getMd5Digest();
         md5.reset();
         md5.update(chapIdentifier);
-        md5.update(RadiusUtil.getUtf8Bytes(plaintext));
+        md5.update(plaintext.getBytes(UTF_8));
         byte[] chapHash = md5.digest(chapChallenge);
 
         System.arraycopy(chapHash, 0, chapPassword, 1, 16);
@@ -302,7 +298,7 @@ public class AccessRequest extends RadiusPacket {
 		MessageDigest md5 = getMd5Digest();
 	    md5.reset();
 	    md5.update(chapIdentifier);
-	    md5.update(RadiusUtil.getUtf8Bytes(plaintext));
+	    md5.update(plaintext.getBytes(UTF_8));
 	    byte[] chapHash = md5.digest(chapChallenge);
 	    
 	    // compare

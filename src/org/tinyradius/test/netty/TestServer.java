@@ -11,7 +11,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.apache.log4j.BasicConfigurator;
@@ -27,9 +26,7 @@ import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusException;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Test server which terminates after 30 s.
@@ -39,8 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class TestServer {
 
 	@SuppressWarnings("unchecked")
-	public static void main(String[] args) 
-	throws IOException, Exception {
+	public static void main(String[] args) throws Exception {
 
 		BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
@@ -90,16 +86,14 @@ public class TestServer {
 		server.setAuthPort(11812);
 		server.setAcctPort(11813);
 
-		Future<NioDatagramChannel> future = server.start(eventGroup, true, true);
-		future.addListener(new GenericFutureListener<Future<? super NioDatagramChannel>>() {
-			public void operationComplete(Future<? super NioDatagramChannel> future) throws Exception {
-				if (future.isSuccess()) {
-					System.out.println("Server started");
-				} else {
-					System.out.println("Failed to start server: " + future.cause());
-					server.stop();
-					eventGroup.shutdownGracefully();
-				}
+		Future<NioDatagramChannel> future = server.start(eventGroup);
+		future.addListener(future1 -> {
+			if (future1.isSuccess()) {
+				System.out.println("Server started");
+			} else {
+				System.out.println("Failed to start server: " + future1.cause());
+				server.stop();
+				eventGroup.shutdownGracefully();
 			}
 		});
 

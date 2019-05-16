@@ -12,22 +12,22 @@ public interface RadiusRequestContext {
      *
      * @return
      */
-    public RadiusPacket request();
+    RadiusPacket request();
 
     /**
      *
      * @return
      */
-    public RadiusPacket response();
+    RadiusPacket response();
 
     /**
      *
      */
-    public long responseTime();
+    long responseTime();
 
     /**
      *
      * @return
      */
-    public RadiusEndpoint endpoint();
+    RadiusEndpoint endpoint();
 }

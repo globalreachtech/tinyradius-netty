@@ -1,12 +1,6 @@
-/**
- * $Id: StringAttribute.java,v 1.1.1.1 2005/04/17 14:51:33 wuttke Exp $
- * Created on 08.04.2005
- * @author Matthias Wuttke
- * @version $Revision: 1.1.1.1 $
- */
 package org.tinyradius.attribute;
 
-import java.io.UnsupportedEncodingException;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This class represents a Radius attribute which only
@@ -36,11 +30,7 @@ public class StringAttribute extends RadiusAttribute {
 	 * @return a string
 	 */
 	public String getAttributeValue() {
-		try {
-			return new String(getAttributeData(), "UTF-8");
-		} catch (UnsupportedEncodingException uee) {
-			return new String(getAttributeData());
-		}
+		return new String(getAttributeData(), UTF_8);
 	}
 	
 	/**
@@ -50,11 +40,7 @@ public class StringAttribute extends RadiusAttribute {
 	public void setAttributeValue(String value) {
 		if (value == null)
 			throw new NullPointerException("string value not set");
-		try {
-			setAttributeData(value.getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException uee) {
-			setAttributeData(value.getBytes());
-		}
+		setAttributeData(value.getBytes(UTF_8));
 	}
 	
 }

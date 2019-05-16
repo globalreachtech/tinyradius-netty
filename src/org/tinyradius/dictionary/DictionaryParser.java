@@ -100,7 +100,7 @@ public class DictionaryParser {
 		if (code == VendorSpecificAttribute.VENDOR_SPECIFIC)
 			type = VendorSpecificAttribute.class;
 		else
-			type = getAttributeTypeClass(code, typeStr);
+			type = getAttributeTypeClass(typeStr);
 		
 		// create and cache object
 		dictionary.addAttributeType(new AttributeType(code, name, type));
@@ -138,7 +138,7 @@ public class DictionaryParser {
 		int code = Integer.parseInt(tok.nextToken().trim());
 		String typeStr = tok.nextToken().trim();
 
-		Class type = getAttributeTypeClass(code, typeStr);
+		Class type = getAttributeTypeClass(typeStr);
 		AttributeType at = new AttributeType(Integer.parseInt(vendor), code, name, type);
 		dictionary.addAttributeType(at);
 	}
@@ -185,17 +185,16 @@ public class DictionaryParser {
      * @param typeStr string|octets|integer|date|ipaddr
      * @return RadiusAttribute class or descendant
      */
-    private static Class getAttributeTypeClass(int attributeType, String typeStr) {
-		Class type = RadiusAttribute.class;
+    private static Class getAttributeTypeClass(String typeStr) {
 		if (typeStr.equalsIgnoreCase("string"))
-			type = StringAttribute.class;
+			return StringAttribute.class;
 		else if (typeStr.equalsIgnoreCase("octets"))
-			type = RadiusAttribute.class;
+			return RadiusAttribute.class;
 		else if (typeStr.equalsIgnoreCase("integer") || typeStr.equalsIgnoreCase("date"))
-			type = IntegerAttribute.class;
+			return IntegerAttribute.class;
 		else if (typeStr.equalsIgnoreCase("ipaddr"))
-			type = IpAttribute.class;
-		return type;
+			return IpAttribute.class;
+		return RadiusAttribute.class;
     }    
 	
 }

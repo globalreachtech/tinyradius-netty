@@ -2,7 +2,7 @@ package org.tinyradius.packet;
 
 import java.security.MessageDigest;
 
-import org.tinyradius.util.RadiusUtil;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * DisconnectRequest packet
@@ -29,7 +29,7 @@ public class DisconnectRequest extends RadiusPacket {
 		md5.update((byte) (packetLength & 0xff));
 		md5.update(authenticator, 0, authenticator.length);
 		md5.update(attributes, 0, attributes.length);
-		md5.update(RadiusUtil.getUtf8Bytes(sharedSecret));
+		md5.update(sharedSecret.getBytes(UTF_8));
 		return md5.digest();
 	}
 	

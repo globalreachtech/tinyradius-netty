@@ -44,8 +44,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	private int acctPort = 1813;
 	private T authSocket = null;
 	private T acctSocket = null;
-	private RadiusQueue<ReceivedPacket> receivedPackets = new
-			RadiusQueue<ReceivedPacket>();
+	private RadiusQueue<ReceivedPacket> receivedPackets = new RadiusQueue<>();
 	private long duplicateInterval = 30000; // 30 s
 	private static Log logger = LogFactory.getLog(RadiusServer.class);
 
@@ -127,13 +126,11 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 * Constructs an answer for an Accounting-Request packet. This method
 	 * should be overriden if accounting is supported.
 	 * @param accountingRequest Radius request packet
-	 * @param client address of Radius client
 	 * @return response packet or null if no packet shall be sent
 	 * @exception RadiusException malformed request packet; if this
 	 * exception is thrown, no answer will be sent
 	 */
-	public RadiusPacket accountingRequestReceived(AccountingRequest accountingRequest, InetSocketAddress client)
-			throws RadiusException {
+	public RadiusPacket accountingRequestReceived(AccountingRequest accountingRequest) {
 		RadiusPacket answer = new RadiusPacket(RadiusPacket.ACCOUNTING_RESPONSE, accountingRequest.getPacketIdentifier());
 		copyProxyState(accountingRequest, answer);
 		return answer;
@@ -142,10 +139,8 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	/**
 	 * Starts the Radius server.
 	 * @param eventGroup
-	 * @param listenAuth open auth port?
-	 * @param listenAcct open acct port?
 	 */
-	public Future<RadiusServer<T>> start(EventLoopGroup eventGroup, boolean listenAuth, boolean listenAcct) {
+	public Future<RadiusServer<T>> start(EventLoopGroup eventGroup) {
 
 		if (eventGroup == null)
 			throw new NullPointerException("eventGroup cannot be null");
@@ -155,26 +150,21 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 					.setFailure(new IllegalStateException("Server already started"));
 
 		this.eventGroup = eventGroup;
-		this.executorGroup = executorGroup;
 
 		final Promise<RadiusServer<T>> promise =
-				new DefaultPromise<RadiusServer<T>>(GlobalEventExecutor.INSTANCE);
+				new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
 
-		listenAuth().addListener(new ChannelFutureListener() {
-			public void operationComplete(ChannelFuture future) throws Exception {
-				if (!future.isSuccess()) {
-					promise.setFailure(future.cause());
-				} else {
-					listenAcct().addListener(new ChannelFutureListener() {
-						public void operationComplete(ChannelFuture future) throws Exception {
-							if (future.isSuccess()) {
-								promise.setSuccess(RadiusServer.this);
-							} else {
-								promise.setFailure(future.cause());
-							}
-						}
-					});
-				}
+		listenAuth().addListener((ChannelFutureListener) future -> {
+			if (!future.isSuccess()) {
+				promise.setFailure(future.cause());
+			} else {
+				listenAcct().addListener((ChannelFutureListener) future1 -> {
+					if (future1.isSuccess()) {
+						promise.setSuccess(RadiusServer.this);
+					} else {
+						promise.setFailure(future1.cause());
+					}
+				});
 			}
 		});
 
@@ -281,10 +271,9 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 * @param answer response packet
 	 */
 	protected void copyProxyState(RadiusPacket request, RadiusPacket answer) {
-		List proxyStateAttrs = request.getAttributes(33);
-		for (Iterator i = proxyStateAttrs.iterator(); i.hasNext();) {
-			RadiusAttribute proxyStateAttr = (RadiusAttribute)i.next();
-			answer.addAttribute(proxyStateAttr);
+		List<RadiusAttribute> proxyStateAttrs = request.getAttributes(33);
+		for (RadiusAttribute stateAttr : proxyStateAttrs) {
+			answer.addAttribute(stateAttr);
 		}
 	}
 
@@ -323,23 +312,19 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 		final ChannelPromise promise = new DefaultChannelPromise(channel);
 
 		ChannelFuture future = eventGroup.register(channel);
-		future.addListeners(new ChannelFutureListener() {
-			public void operationComplete(ChannelFuture channelFuture) throws Exception {
-				if (!channelFuture.isSuccess()) {
-					promise.setFailure(channelFuture.cause());
-				} else {
-					ChannelFuture future = channel.bind(listenAddress);
-					future.addListeners(new ChannelFutureListener() {
-						public void operationComplete(ChannelFuture channelFuture) throws Exception {
-							if (!channelFuture.isSuccess()) {
-								promise.setFailure(channelFuture.cause());
-							} else {
-								channel.pipeline().addLast(new RadiusChannelHandler());
-								promise.setSuccess();
-							}
-						}
-					});
-				}
+		future.addListeners((ChannelFutureListener) channelFuture -> {
+			if (!channelFuture.isSuccess()) {
+				promise.setFailure(channelFuture.cause());
+			} else {
+				ChannelFuture future1 = channel.bind(listenAddress);
+				future1.addListeners((ChannelFutureListener) channelFuture1 -> {
+					if (!channelFuture1.isSuccess()) {
+						promise.setFailure(channelFuture1.cause());
+					} else {
+						channel.pipeline().addLast(new RadiusChannelHandler());
+						promise.setSuccess();
+					}
+				});
 			}
 		});
 
@@ -369,7 +354,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 			} else if (localAddress.getPort() == getAcctPort()) {
 				// handle packets on acct port
 				if (request instanceof AccountingRequest)
-					response = accountingRequestReceived((AccountingRequest)request, remoteAddress);
+					response = accountingRequestReceived((AccountingRequest)request);
 				else
 					logger.error("unknown Radius packet type: " + request.getPacketType());
 			} else {

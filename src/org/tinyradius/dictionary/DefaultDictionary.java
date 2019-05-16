@@ -1,9 +1,3 @@
-/**
- * $Id: DefaultDictionary.java,v 1.1 2005/09/04 22:11:00 wuttke Exp $
- * Created on 28.08.2005
- * @author mw
- * @version $Revision: 1.1 $
- */
 package org.tinyradius.dictionary;
 
 import java.io.IOException;
@@ -35,7 +29,7 @@ extends MemoryDictionary{
 	}
 	
 	private static final String DICTIONARY_RESOURCE = "org/tinyradius/dictionary/default_dictionary";
-	private static DefaultDictionary instance = null;
+	private static DefaultDictionary instance = new DefaultDictionary();
 	
 	/**
 	 * Creates the singleton instance of this object
@@ -43,7 +37,6 @@ extends MemoryDictionary{
 	 */
 	static {
 		try {
-			instance = new DefaultDictionary();
     		InputStream source = DefaultDictionary.class.getClassLoader().getResourceAsStream(DICTIONARY_RESOURCE);
 			if (source != null)
 				DictionaryParser.parseDictionary(source, instance);
