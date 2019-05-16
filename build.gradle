@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'org.tinyradius'
+group = 'com.globalreach'
 version = '1.0.2-SNAPSHOT'
 
 sourceCompatibility = 1.8
