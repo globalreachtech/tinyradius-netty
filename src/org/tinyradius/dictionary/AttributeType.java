@@ -14,8 +14,7 @@ public class AttributeType {
 	 * Create a new attribute type.
 	 * @param code Radius attribute type code
 	 * @param name Attribute type name
-	 * @param type RadiusAttribute descendant who handles
-	 * attributes of this type
+	 * @param type RadiusAttribute descendant who handles attributes of this type
 	 */
 	public AttributeType(int code, String name, Class type) {
 		setTypeCode(code);
