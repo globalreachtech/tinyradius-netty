@@ -9,8 +9,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * DefaultRadiusRequestFuture class
  */
-public class DefaultRadiusRequestPromise extends DefaultPromise<Void>
-        implements RadiusRequestPromise {
+public class DefaultRadiusRequestPromise extends DefaultPromise<Void> implements RadiusRequestPromise {
 
     private RadiusRequestContext context;
 

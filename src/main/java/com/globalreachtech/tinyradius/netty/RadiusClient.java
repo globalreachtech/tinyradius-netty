@@ -2,6 +2,9 @@ package com.globalreachtech.tinyradius.netty;
 
 import com.globalreachtech.tinyradius.dictionary.DefaultDictionary;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
+import com.globalreachtech.tinyradius.packet.RadiusPacket;
+import com.globalreachtech.tinyradius.util.RadiusEndpoint;
+import com.globalreachtech.tinyradius.util.RadiusException;
 import io.netty.buffer.*;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
@@ -12,14 +15,9 @@ import io.netty.util.TimerTask;
 import io.netty.util.concurrent.EventExecutorGroup;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.util.RadiusEndpoint;
-import com.globalreachtech.tinyradius.util.RadiusException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -57,10 +55,9 @@ public class RadiusClient<T extends DatagramChannel> {
      * @param executorGroup
      * @param factory
      * @param timer
-     * @param properties
      */
     public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup executorGroup,
-                        ChannelFactory<T> factory, Timer timer, Map<String, ?> properties) {
+                        ChannelFactory<T> factory, Timer timer) {
         this.factory = requireNonNull(factory, "factory cannot be null");
         this.eventGroup = requireNonNull(eventGroup, "eventGroup cannot be null");
         this.timer = requireNonNull(timer, "timer cannot be null");
@@ -71,41 +68,13 @@ public class RadiusClient<T extends DatagramChannel> {
     /**
      * Creates a new Radius client object for a special Radius server.
      *
-     * @param dictionary
-     * @param eventGroup
-     * @param executorGroup
-     * @param factory
-     * @param timer
-     *
-     */
-    public RadiusClient(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory,
-                        Timer timer) {
-        this(dictionary, eventGroup, executorGroup, factory, timer, Collections.emptyMap());
-    }
-
-    /**
-     * Creates a new Radius client object for a special Radius server.
-     *
-     * @param eventGroup
-     * @param executorGroup
-     * @param factory
-     * @param timer
-     * @param configs
-     */
-    public RadiusClient(EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer, Map<String, ?> configs) {
-        this(DefaultDictionary.getDefaultDictionary(), eventGroup, executorGroup, factory, timer, configs);
-    }
-
-    /**ates a new Radius client object for a special Radius
-     * Creserver.
-     *
      * @param eventGroup
      * @param executorGroup
      * @param factory
      * @param timer
      */
     public RadiusClient(EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
-        this(eventGroup, executorGroup, factory, timer, Collections.emptyMap());
+        this(DefaultDictionary.getDefaultDictionary(), eventGroup, executorGroup, factory, timer);
     }
 
     /**
@@ -120,8 +89,6 @@ public class RadiusClient<T extends DatagramChannel> {
      * @param request
      * @param endpoint
      * @return
-     * @throws IOException
-     * @throws RadiusException
      */
     public RadiusRequestFuture communicate(RadiusPacket request, RadiusEndpoint endpoint) {
         requireNonNull(request, "request cannot be null");
@@ -156,8 +123,6 @@ public class RadiusClient<T extends DatagramChannel> {
      * @param request
      * @param endpoint
      * @return
-     * @throws IOException
-     * @throws RadiusException
      */
     public RadiusRequestFuture communicate(RadiusPacket request, RadiusEndpoint endpoint, long timeout, TimeUnit unit) {
         requireNonNull(request, "request cannot be null");
@@ -217,7 +182,6 @@ public class RadiusClient<T extends DatagramChannel> {
         return promise;
     }
 
-    @SuppressWarnings("unchecked")
     private boolean dequeue(RadiusRequestPromise promise) {
         requireNonNull(promise, "promise cannot be null");
 

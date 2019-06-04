@@ -323,8 +323,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 	 * @return response packet or null for no response
 	 * @throws RadiusException
 	 */
-	protected RadiusPacket handlePacket(InetSocketAddress localAddress, InetSocketAddress remoteAddress, RadiusPacket request, String sharedSecret)
-			throws RadiusException, IOException {
+	protected RadiusPacket handlePacket(InetSocketAddress localAddress, InetSocketAddress remoteAddress, RadiusPacket request, String sharedSecret) throws RadiusException, IOException {
 		RadiusPacket response = null;
 
 		// check for duplicates
