@@ -146,7 +146,10 @@ public class RadiusUtil {
 		if (length < 0)
 			throw new IllegalArgumentException("length cannot be less than 0");
 
-		byte[] padded = new byte[(int)(Math.ceil(value.length / length) * length)];
+		int length1 = Math.max((int)(Math.ceil((double)
+			value.length / length) * length), length);
+
+		byte[] padded = new byte[length1];
 
 		System.arraycopy(value, 0, padded, 0, value.length);
 
