@@ -1,9 +1,3 @@
-/**
- * $Id: RadiusEndpoint.java,v 1.1 2005/09/07 22:19:01 wuttke Exp $
- * Created on 07.09.2005
- * @author glanz, Matthias Wuttke
- * @version $Revision: 1.1 $
- */
 package com.globalreachtech.tinyradius.util;
 
 import java.net.InetSocketAddress;
@@ -15,49 +9,46 @@ import java.net.InetSocketAddress;
  */
 public class RadiusEndpoint {
 
-	/**
-	 * Constructs a RadiusEndpoint object.
-	 * @param remoteAddress remote address (ip and port number)
-	 * @param sharedSecret shared secret
-	 */
-	public RadiusEndpoint(InetSocketAddress remoteAddress, String sharedSecret) {
-		this.endpointAddress = remoteAddress;
-		this.sharedSecret = sharedSecret;
-	}
-	
-	/**
-	 * Returns the remote address.
-	 * @return remote address
-	 */
-	public InetSocketAddress getEndpointAddress() {
-		return endpointAddress;
-	}
-	
-	/**
-	 * Returns the shared secret.
-	 * @return shared secret
-	 */
-	public String getSharedSecret() {
-		return sharedSecret;
-	}
+    /**
+     * Constructs a RadiusEndpoint object.
+     * @param remoteAddress remote address (ip and port number)
+     * @param sharedSecret shared secret
+     */
+    public RadiusEndpoint(InetSocketAddress remoteAddress, String sharedSecret) {
+        this.endpointAddress = remoteAddress;
+        this.sharedSecret = sharedSecret;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == null)
-			return false;
-		if (!(o instanceof RadiusEndpoint))
-			return false;
+    /**
+     * Returns the remote address.
+     * @return remote address
+     */
+    public InetSocketAddress getEndpointAddress() {
+        return endpointAddress;
+    }
 
-		RadiusEndpoint e = (RadiusEndpoint)o;
+    /**
+     * Returns the shared secret.
+     * @return shared secret
+     */
+    public String getSharedSecret() {
+        return sharedSecret;
+    }
 
-		if (e.endpointAddress.equals(endpointAddress))
-			return true;
-		if (e.sharedSecret.equals(sharedSecret))
-			return true;
+    @Override
+    public boolean equals(Object o) {
+        if (o == null)
+            return false;
+        if (!(o instanceof RadiusEndpoint))
+            return false;
 
-		return false;
-	}
+        RadiusEndpoint e = (RadiusEndpoint) o;
 
-	private InetSocketAddress endpointAddress;
+        if (e.endpointAddress.equals(endpointAddress))
+            return true;
+        return e.sharedSecret.equals(sharedSecret);
+    }
+
+    private InetSocketAddress endpointAddress;
     private String sharedSecret;
 }

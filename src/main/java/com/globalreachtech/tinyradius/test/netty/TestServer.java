@@ -1,12 +1,12 @@
 /**
  * $Id: TestServer.java,v 1.6 2006/02/17 18:14:54 wuttke Exp $
  * Created on 08.04.2005
+ *
  * @author Matthias Wuttke
  * @version $Revision: 1.6 $
  */
 package com.globalreachtech.tinyradius.test.netty;
 
-import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
@@ -34,79 +34,79 @@ import java.net.InetSocketAddress;
  */
 public class TestServer {
 
-	@SuppressWarnings("unchecked")
-	public static void main(String[] args) throws Exception {
+    @SuppressWarnings("unchecked")
+    public static void main(String[] args) throws Exception {
 
-		BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.INFO);
+        BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
 
-		Dictionary dictionary = new MemoryDictionary();
-		DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"),
-				(WritableDictionary) dictionary);
+        WritableDictionary dictionary = new MemoryDictionary();
+        DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
 
-		final NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
+        final NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
 
-		final RadiusServer server = new RadiusServer(dictionary,
-				new DefaultEventExecutorGroup(4),
-				new NioDatagramChannelFactory(),
-				new HashedWheelTimer()) {
+        final RadiusServer server = new RadiusServer(dictionary,
+                eventGroup,
+                new DefaultEventExecutorGroup(4),
+                new NioDatagramChannelFactory(),
+                new HashedWheelTimer()) {
 
-			// Authorize localhost/testing123
-			public String getSharedSecret(InetSocketAddress client) {
-				if (client.getAddress().getHostAddress().equals("127.0.0.1"))
-					return "testing123";
-				else
-					return null;
-			}
-			
-			// Authenticate mw
-			public String getUserPassword(String userName) {
-				if (userName.equals("test"))
-					return "password";
-				else
-					return null;
-			}
-			
-			// Adds an attribute to the Access-Accept packet
-			public RadiusPacket accessRequestReceived(AccessRequest accessRequest, InetSocketAddress client)
-			throws RadiusException {
-				System.out.println("Received Access-Request:\n" + accessRequest);
-				RadiusPacket packet = super.accessRequestReceived(accessRequest, client);
-				if (packet.getPacketType() == RadiusPacket.ACCESS_ACCEPT)
-					packet.addAttribute("Reply-Message", "Welcome " + accessRequest.getUserName() + "!");
-				if (packet == null)
-					System.out.println("Ignore packet.");
-				else
-					System.out.println("Answer:\n" + packet);
-				return packet;
-			}
-		};
+            // Authorize localhost/testing123
+            public String getSharedSecret(InetSocketAddress client) {
+                if (client.getAddress().getHostAddress().equals("127.0.0.1"))
+                    return "testing123";
+                else
+                    return null;
+            }
 
-		server.setAuthPort(11812);
-		server.setAcctPort(11813);
+            // Authenticate mw
+            public String getUserPassword(String userName) {
+                if (userName.equals("test"))
+                    return "password";
+                else
+                    return null;
+            }
 
-		Future<NioDatagramChannel> future = server.start(eventGroup);
-		future.addListener(future1 -> {
-			if (future1.isSuccess()) {
-				System.out.println("Server started");
-			} else {
-				System.out.println("Failed to start server: " + future1.cause());
-				server.stop();
-				eventGroup.shutdownGracefully();
-			}
-		});
+            // Adds an attribute to the Access-Accept packet
+            public RadiusPacket accessRequestReceived(AccessRequest accessRequest, InetSocketAddress client)
+                    throws RadiusException {
+                System.out.println("Received Access-Request:\n" + accessRequest);
+                RadiusPacket packet = super.accessRequestReceived(accessRequest, client);
+                if (packet.getPacketType() == RadiusPacket.ACCESS_ACCEPT)
+                    packet.addAttribute("Reply-Message", "Welcome " + accessRequest.getUserName() + "!");
+                if (packet == null)
+                    System.out.println("Ignore packet.");
+                else
+                    System.out.println("Answer:\n" + packet);
+                return packet;
+            }
+        };
 
-		System.in.read();
+        server.setAuthPort(11812);
+        server.setAcctPort(11813);
 
-		server.stop();
+        Future<NioDatagramChannel> future = server.start();
+        future.addListener(future1 -> {
+            if (future1.isSuccess()) {
+                System.out.println("Server started");
+            } else {
+                System.out.println("Failed to start server: " + future1.cause());
+                server.stop();
+                eventGroup.shutdownGracefully();
+            }
+        });
 
-		eventGroup.shutdownGracefully()
-				.awaitUninterruptibly();
-	}
+        System.in.read();
 
-	private static class NioDatagramChannelFactory implements ChannelFactory<NioDatagramChannel> {
-		public NioDatagramChannel newChannel() {
-			return new NioDatagramChannel();
-		}
-	}
+        server.stop();
+
+        eventGroup.shutdownGracefully()
+                .awaitUninterruptibly();
+    }
+
+    private static class NioDatagramChannelFactory implements ChannelFactory<NioDatagramChannel> {
+        public NioDatagramChannel newChannel() {
+            return new NioDatagramChannel();
+        }
+    }
 }

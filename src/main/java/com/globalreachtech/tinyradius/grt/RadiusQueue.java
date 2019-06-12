@@ -1,7 +1,9 @@
-package com.globalreachtech.tinyradius.netty;
+package com.globalreachtech.tinyradius.grt;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -10,22 +12,19 @@ import static java.util.Objects.requireNonNull;
 /**
  * RadiusQueue class
  */
-public class RadiusQueue<T extends Comparable<T>> {
+public class RadiusQueue<T> {
 
     private final List<Set<T>> q;
-
-    public RadiusQueue(int hashSize, Comparator<T> comparator) {
-        if (hashSize < 1)
-            throw new IllegalArgumentException();
-        requireNonNull(comparator, "comparator cannot be null");
-
-        q = Stream.generate(() -> new ConcurrentSkipListSet<>(comparator))
-                .limit(1 << hashSize)
-                .collect(Collectors.toList());
-    }
+    private final int mask;
 
     public RadiusQueue(int hashSize) {
-        this( hashSize, new SimpleRadiusQueueComparator<>());
+        if (hashSize < 1)
+            throw new IllegalArgumentException();
+
+        q = Stream.generate(ConcurrentHashMap::<T>newKeySet)
+                .limit(1 << hashSize)
+                .collect(Collectors.toList());
+        mask = q.size() - 1;
     }
 
     public RadiusQueue() {
@@ -35,7 +34,6 @@ public class RadiusQueue<T extends Comparable<T>> {
     public T add(T value, int hash) {
         requireNonNull(value, "value cannot be null");
 
-        int mask = q.size() - 1;
         Set<T> set = q.get(hash & mask);
         set.add(value);
         return value;
@@ -44,7 +42,6 @@ public class RadiusQueue<T extends Comparable<T>> {
     public boolean remove(T value, int hash) {
         requireNonNull(value, "value cannot be null");
 
-        int mask = q.size() - 1;
         Set<T> set = q.get(hash & mask);
         return set.remove(value);
     }
@@ -53,16 +50,4 @@ public class RadiusQueue<T extends Comparable<T>> {
         int mask = q.size() - 1;
         return Collections.unmodifiableSet(q.get(hash & mask));
     }
-
-    private static class SimpleRadiusQueueComparator<T extends Comparable<T>> implements Comparator<T> {
-        public int compare(T o1, T o2) {
-            if (o1 == null)
-                return -1;
-            if (o2 == null)
-                return 1;
-
-            return o1.compareTo(o2);
-        }
-    }
-
 }

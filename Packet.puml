@@ -1,0 +1,26 @@
+@startuml
+scale 100
+hide empty description
+skinparam state {
+  StartColor DarkGreen
+  EndColor DarkRed
+  BorderColor Graygradle
+  ArrowColor Black
+}
+
+skinparam titleBorderRoundCorner 5
+skinparam titleBorderColor Gray
+title Packet State Diagram during Proxying
+
+[*] --> QUEUED : RECEIVED_FROM_CLIENT
+QUEUED -> AWAITING_SERVER_RESPONSE : PROXY_REQUEST
+QUEUED -> RESOLVED : TARGET_BLACKLISTED | CACHE_HIT
+AWAITING_SERVER_RESPONSE -> QUEUED : TIME_OUT
+AWAITING_SERVER_RESPONSE -> RESOLVED : SERVER_RESPONDED
+AWAITING_SERVER_RESPONSE -> RESOLVED : ALL_RETRIES_FAILED
+RESOLVED --> CACHED : DISPATCH_TO_CLIENT
+CACHED --> EXPIRED : TIME_OUT
+CACHED --> [*] : DEQUEUE
+EXPIRED --> [*] : DEQUEUE
+
+@enduml
