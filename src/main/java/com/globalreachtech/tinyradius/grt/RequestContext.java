@@ -26,7 +26,7 @@ public class RequestContext {
 
     private long requestTime;
     private long responseTime;
-    private int identifier;
+    private int identifier; //id
     private Timeout timeout;
     private long timeoutNS;
     private AtomicInteger attempts;
@@ -55,7 +55,7 @@ public class RequestContext {
         newTimeout(timer, timeout -> {
             if (this.attempts().intValue() < retransmits) {
                 logger.info(String.format("Retransmitting clientRequest for context %d", this.identifier()));
-                RadiusClient.this.sendRequest(this);
+                sendRequest(this);
                 this.newTimeout(RadiusClient.this.timer, timeout.task());
             } else {
                 if (!promise.isDone()) {
@@ -65,6 +65,8 @@ public class RequestContext {
             }
         });
     }
+
+    public void sendPacket()
 
     public void newTimeout(Timer timer, TimerTask task) {
         if (this.timeout != null) {

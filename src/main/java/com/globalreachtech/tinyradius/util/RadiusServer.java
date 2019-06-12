@@ -1,10 +1,3 @@
-/**
- * $Id: RadiusServer.java,v 1.11 2008/04/24 05:22:50 wuttke Exp $
- * Created on 09.04.2005
- *
- * @author Matthias Wuttke
- * @version $Revision: 1.11 $
- */
 package com.globalreachtech.tinyradius.util;
 
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
@@ -22,6 +15,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.globalreachtech.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
 
 /**
  * Implements a simple Radius server. This class must be subclassed to
@@ -253,8 +248,8 @@ public abstract class RadiusServer {
      */
     protected void copyProxyState(RadiusPacket request, RadiusPacket answer) {
         List proxyStateAttrs = request.getAttributes(33);
-        for (Iterator i = proxyStateAttrs.iterator(); i.hasNext(); ) {
-            RadiusAttribute proxyStateAttr = (RadiusAttribute) i.next();
+        for (Object stateAttr : proxyStateAttrs) {
+            RadiusAttribute proxyStateAttr = (RadiusAttribute) stateAttr;
             answer.addAttribute(proxyStateAttr);
         }
     }
@@ -287,7 +282,7 @@ public abstract class RadiusServer {
      * @param s socket to listen on
      */
     protected void listen(DatagramSocket s) {
-        DatagramPacket packetIn = new DatagramPacket(new byte[RadiusPacket.MAX_PACKET_LENGTH], RadiusPacket.MAX_PACKET_LENGTH);
+        DatagramPacket packetIn = new DatagramPacket(new byte[MAX_PACKET_LENGTH], MAX_PACKET_LENGTH);
         while (true) {
             try {
                 // receive packet
@@ -434,8 +429,7 @@ public abstract class RadiusServer {
         packet.encodeResponsePacket(bos, secret, request);
         byte[] data = bos.toByteArray();
 
-        DatagramPacket datagram = new DatagramPacket(data, data.length, address, port);
-        return datagram;
+        return new DatagramPacket(data, data.length, address, port);
     }
 
     /**

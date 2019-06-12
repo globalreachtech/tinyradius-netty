@@ -14,10 +14,9 @@ import com.globalreachtech.tinyradius.netty.RadiusServer;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusException;
-import io.netty.channel.ChannelFactory;
+import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.Future;
 import org.apache.log4j.BasicConfigurator;
@@ -34,7 +33,6 @@ import java.net.InetSocketAddress;
  */
 public class TestServer {
 
-    @SuppressWarnings("unchecked")
     public static void main(String[] args) throws Exception {
 
         BasicConfigurator.configure();
@@ -45,11 +43,14 @@ public class TestServer {
 
         final NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
 
-        final RadiusServer server = new RadiusServer(dictionary,
+
+//                        new DefaultEventExecutorGroup(4),
+
+        final RadiusServer<NioDatagramChannel> server = new RadiusServer<NioDatagramChannel>(
+                dictionary,
                 eventGroup,
-                new DefaultEventExecutorGroup(4),
-                new NioDatagramChannelFactory(),
-                new HashedWheelTimer()) {
+                new ReflectiveChannelFactory<>(NioDatagramChannel.class),
+                11812, 11813) {
 
             // Authorize localhost/testing123
             public String getSharedSecret(InetSocketAddress client) {
@@ -82,10 +83,7 @@ public class TestServer {
             }
         };
 
-        server.setAuthPort(11812);
-        server.setAcctPort(11813);
-
-        Future<NioDatagramChannel> future = server.start();
+        final Future<RadiusServer<NioDatagramChannel>> future = server.start();
         future.addListener(future1 -> {
             if (future1.isSuccess()) {
                 System.out.println("Server started");
@@ -104,9 +102,4 @@ public class TestServer {
                 .awaitUninterruptibly();
     }
 
-    private static class NioDatagramChannelFactory implements ChannelFactory<NioDatagramChannel> {
-        public NioDatagramChannel newChannel() {
-            return new NioDatagramChannel();
-        }
-    }
 }

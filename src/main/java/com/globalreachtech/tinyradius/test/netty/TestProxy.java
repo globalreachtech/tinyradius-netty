@@ -11,13 +11,10 @@ import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -40,12 +37,16 @@ import java.net.UnknownHostException;
  */
 public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
-    public TestProxy(EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
-        super(eventGroup, executorGroup, factory, timer);
+    public TestProxy(EventLoopGroup eventGroup, ChannelFactory<T> factory) {
+        super(eventGroup, factory);
     }
 
-    public TestProxy(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
-        super(dictionary, eventGroup, executorGroup, factory, timer);
+    public TestProxy(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory) {
+        super(dictionary, eventGroup, factory);
+    }
+
+    public TestProxy(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory, int authPort, int acctPort, int proxyPort) {
+        super(dictionary, eventGroup, factory, authPort, acctPort, proxyPort);
     }
 
     public RadiusEndpoint getProxyServer(RadiusPacket packet,
@@ -53,9 +54,7 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
         // always proxy
         try {
             InetAddress address = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
-            int port = 1812;
-            if (packet instanceof AccountingRequest)
-                port = 1813;
+            int port = packet instanceof AccountingRequest ? 1813 : 1812;
             return new RadiusEndpoint(new InetSocketAddress(address, port), "testing123");
         } catch (UnknownHostException uhe) {
             uhe.printStackTrace();
@@ -88,15 +87,12 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
         WritableDictionary dictionary = new MemoryDictionary();
         DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
 
-        final TestProxy<NioDatagramChannel> proxy = new TestProxy<>(dictionary,
+        final TestProxy<NioDatagramChannel> proxy = new TestProxy<>(
+                dictionary,
                 eventGroup,
-                new DefaultEventExecutorGroup(4),
-                new NioDatagramChannelFactory(),
-                new HashedWheelTimer());
+                new ReflectiveChannelFactory<>(NioDatagramChannel.class), 11812, 11813, 11814);
 
-        proxy.setAuthPort(11812);
-        proxy.setAcctPort(11813);
-        proxy.setProxyPort(11814);
+        //                new DefaultEventExecutorGroup(4),
 
         Future<RadiusServer<NioDatagramChannel>> future = proxy.start();
         future.addListener(future1 -> {
@@ -114,11 +110,5 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
         eventGroup.shutdownGracefully()
                 .awaitUninterruptibly();
-    }
-
-    private static class NioDatagramChannelFactory implements ChannelFactory<NioDatagramChannel> {
-        public NioDatagramChannel newChannel() {
-            return new NioDatagramChannel();
-        }
     }
 }

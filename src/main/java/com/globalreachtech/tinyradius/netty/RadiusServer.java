@@ -15,8 +15,11 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.Timer;
-import io.netty.util.concurrent.*;
+import io.netty.resolver.dns.DefaultDnsServerAddressStreamProvider;
+import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GlobalEventExecutor;
+import io.netty.util.concurrent.Promise;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -39,35 +42,33 @@ import static java.util.Objects.requireNonNull;
 public abstract class RadiusServer<T extends DatagramChannel> {
 
     private InetAddress listenAddress = null;
-    private int authPort = 1812;
-    private int acctPort = 1813;
     private T authSocket = null;
     private T acctSocket = null;
     private RadiusQueue<ReceivedPacket> receivedPackets = new RadiusQueue<>();
-    private long duplicateInterval = 30000; // 30 s
+    private long duplicateInterval = 30000; // 30 s  todo setters
     private static Log logger = LogFactory.getLog(RadiusServer.class);
 
-    private final ChannelFactory<T> factory;
+    protected final ChannelFactory<T> factory;
     private final EventLoopGroup eventGroup;
-    private final EventExecutorGroup executorGroup;
     private final Dictionary dictionary;
-    private final Timer timer;
 
-    public RadiusServer(EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
-        this(DefaultDictionary.getDefaultDictionary(), eventGroup, executorGroup, factory, timer);
+    private final int authPort;
+    private final int acctPort;
+
+    public RadiusServer(EventLoopGroup eventGroup, ChannelFactory<T> factory) {
+        this(DefaultDictionary.getDefaultDictionary(), eventGroup, factory);
     }
 
-    /**
-     * @param dictionary
-     * @param factory
-     * @param timer
-     */
-    public RadiusServer(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
+    public RadiusServer(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory) {
+        this(dictionary, eventGroup, factory, 1812, 1813);
+    }
+
+    public RadiusServer(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory, int authPort, int acctPort) {
         this.dictionary = requireNonNull(dictionary, "dictionary cannot be null");
         this.eventGroup = requireNonNull(eventGroup, "eventGroup cannot be null");
-        this.executorGroup = requireNonNull(executorGroup, "executorGroup cannot be null");
         this.factory = requireNonNull(factory, "factory cannot be null");
-        this.timer = requireNonNull(timer, "timer cannot be null");
+        this.authPort = validPort(authPort);
+        this.acctPort = validPort(acctPort);
     }
 
     /**
@@ -100,7 +101,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
      */
     public RadiusPacket accessRequestReceived(AccessRequest accessRequest, InetSocketAddress client) throws RadiusException {
         String plaintext = getUserPassword(accessRequest.getUserName());
-        int type = (plaintext != null && accessRequest.verifyPassword(plaintext)) ? ACCESS_ACCEPT : ACCESS_REJECT;
+        int type = plaintext != null && accessRequest.verifyPassword(plaintext) ? ACCESS_ACCEPT : ACCESS_REJECT;
 
         RadiusPacket answer = new RadiusPacket(type, accessRequest.getPacketIdentifier());
         answer.setDictionary(dictionary);
@@ -118,7 +119,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
      *                         exception is thrown, no answer will be sent
      */
     public RadiusPacket accountingRequestReceived(AccountingRequest accountingRequest) {
-        RadiusPacket answer = new RadiusPacket(RadiusPacket.ACCOUNTING_RESPONSE, accountingRequest.getPacketIdentifier());
+        RadiusPacket answer = new RadiusPacket(ACCOUNTING_RESPONSE, accountingRequest.getPacketIdentifier());
         copyProxyState(accountingRequest, answer);
         return answer;
     }
@@ -128,11 +129,12 @@ public abstract class RadiusServer<T extends DatagramChannel> {
      */
     public Future<RadiusServer<T>> start() {
         if (this.eventGroup != null)
-            return new DefaultPromise<RadiusServer<T>>(GlobalEventExecutor.INSTANCE)
+            return new DefaultPromise<RadiusServer<T>>(eventGroup)
                     .setFailure(new IllegalStateException("Server already started"));
 
-        final Promise<RadiusServer<T>> promise =
-                new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
+
+
+        final Promise<RadiusServer<T>> promise = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
 
         listenAuth().addListener(future -> {
             if (!future.isSuccess()) {
@@ -162,72 +164,14 @@ public abstract class RadiusServer<T extends DatagramChannel> {
             acctSocket.close();
     }
 
-    /**
-     * Returns the auth port the server will listen on.
-     *
-     * @return auth port
-     */
-    public int getAuthPort() {
+    int getAuthPort() {
         return authPort;
     }
 
-    /**
-     * Sets the auth port the server will listen on.
-     *
-     * @param authPort auth port, 1-65535
-     */
-    public void setAuthPort(int authPort) {
-        if (authPort < 1 || authPort > 65535)
+    protected int validPort(int port) {
+        if (port < 1 || port > 65535)
             throw new IllegalArgumentException("bad port number");
-        this.authPort = authPort;
-        this.authSocket = null;
-    }
-
-    /**
-     * Sets the acct port the server will listen on.
-     *
-     * @param acctPort acct port 1-65535
-     */
-    public void setAcctPort(int acctPort) {
-        if (acctPort < 1 || acctPort > 65535)
-            throw new IllegalArgumentException("bad port number");
-        this.acctPort = acctPort;
-        this.acctSocket = null;
-    }
-
-    /**
-     * Returns the acct port the server will listen on.
-     *
-     * @return acct port
-     */
-    public int getAcctPort() {
-        return acctPort;
-    }
-
-    /**
-     * Returns the duplicate interval in ms.
-     * A packet is discarded as a duplicate if in the duplicate interval
-     * there was another packet with the same identifier originating from the
-     * same address.
-     *
-     * @return duplicate interval (ms)
-     */
-    public long getDuplicateInterval() {
-        return duplicateInterval;
-    }
-
-    /**
-     * Sets the duplicate interval in ms.
-     * A packet is discarded as a duplicate if in the duplicate interval
-     * there was another packet with the same identifier originating from the
-     * same address.
-     *
-     * @param duplicateInterval duplicate interval (ms), >0
-     */
-    public void setDuplicateInterval(long duplicateInterval) {
-        if (duplicateInterval <= 0)
-            throw new IllegalArgumentException("duplicate interval must be positive");
-        this.duplicateInterval = duplicateInterval;
+        return port;
     }
 
     /**
@@ -273,8 +217,8 @@ public abstract class RadiusServer<T extends DatagramChannel> {
      * @return ChannelFuture
      */
     protected ChannelFuture listenAuth() {
-        logger.info("starting RadiusAuthListener on port " + getAuthPort());
-        return listen(getAuthSocket(), new InetSocketAddress(getListenAddress(), getAuthPort()));
+        logger.info("starting RadiusAuthListener on port " + authPort);
+        return listen(getAuthSocket(), new InetSocketAddress(getListenAddress(), authPort));
     }
 
     /**
@@ -284,8 +228,8 @@ public abstract class RadiusServer<T extends DatagramChannel> {
      * @return ChannelFuture
      */
     protected ChannelFuture listenAcct() {
-        logger.info("starting RadiusAcctListener on port " + getAcctPort());
-        return listen(getAcctSocket(), new InetSocketAddress(getListenAddress(), getAcctPort()));
+        logger.info("starting RadiusAcctListener on port " + acctPort);
+        return listen(getAcctSocket(), new InetSocketAddress(getListenAddress(), acctPort));
     }
 
     /**
@@ -334,21 +278,19 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 
         // check for duplicates
         if (!isPacketDuplicate(request, remoteAddress)) {
-            if (localAddress.getPort() == getAuthPort()) {
+            if (localAddress.getPort() == authPort) {
                 // handle packets on auth port
                 if (request instanceof AccessRequest)
                     response = accessRequestReceived((AccessRequest) request, remoteAddress);
                 else
                     logger.error("unknown Radius packet type: " + request.getPacketType());
-            } else if (localAddress.getPort() == getAcctPort()) {
+            } else if (localAddress.getPort() == acctPort) {
                 // handle packets on acct port
                 if (request instanceof AccountingRequest)
                     response = accountingRequestReceived((AccountingRequest) request);
                 else
                     logger.error("unknown Radius packet type: " + request.getPacketType());
-            } else {
-                // ignore packet on unknown port
-            }
+            }  // ignore packet on unknown port
         } else
             logger.info("ignore duplicate packet");
 
@@ -356,17 +298,9 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     }
 
     /**
-     * @return
-     */
-    protected ChannelFactory<T> factory() {
-        return factory;
-    }
-
-    /**
      * Returns a socket bound to the auth port.
      *
      * @return socket
-     * @throws SocketException
      */
     protected T getAuthSocket() {
         if (authSocket == null) {
@@ -379,7 +313,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
      * Returns a socket bound to the acct port.
      *
      * @return socket
-     * @throws SocketException
      */
     protected T getAcctSocket() {
         if (acctSocket == null) {
@@ -436,7 +369,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
      */
     protected boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
         long now = System.currentTimeMillis();
-        long intervalStart = now - getDuplicateInterval();
+        long intervalStart = now - duplicateInterval;
 
         byte[] authenticator = packet.getAuthenticator();
         for (ReceivedPacket p : receivedPackets.get(packet.getPacketIdentifier())) {
@@ -469,7 +402,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     }
 
     class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
-        @Override
         public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
             try {
                 // check client
@@ -497,7 +429,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
                     if (logger.isInfoEnabled())
                         logger.info("send clientResponse: " + response);
                     DatagramPacket packetOut = makeDatagramPacket(response, secret, remoteAddress, request);
-                    ctx.write(packetOut);
+                    ctx.writeAndFlush(packetOut);
                 } else {
                     logger.info("no clientResponse sent");
                 }
@@ -509,11 +441,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
                 // malformed packet
                 logger.error("malformed Radius packet", re);
             }
-        }
-
-        @Override
-        public void channelReadComplete(ChannelHandlerContext ctx) {
-            ctx.flush();
         }
     }
 

@@ -130,6 +130,10 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
             public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
                 consumer.accept(packet);
             }
+            @Override
+            public void channelReadComplete(ChannelHandlerContext ctx) {
+                ctx.flush();
+            }
         });
         return channel;
     }

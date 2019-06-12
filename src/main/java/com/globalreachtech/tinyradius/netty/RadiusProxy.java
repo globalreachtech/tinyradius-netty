@@ -15,8 +15,10 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.Timer;
-import io.netty.util.concurrent.*;
+import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GlobalEventExecutor;
+import io.netty.util.concurrent.Promise;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -37,17 +39,43 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
 
     /**
+     * Index for Proxy-State attribute.
+     */
+    private AtomicInteger proxyIndex = new AtomicInteger(1);
+
+    /**
+     * Cache for Radius proxy connections belonging to sent packets
+     * without a received clientResponse.
+     * Key: Proxy Index (String), Value: RadiusProxyConnection
+     */
+    private Map<String, RadiusProxyConnection> proxyConnections = new ConcurrentHashMap<>();
+
+    private final int proxyPort;
+    private T proxySocket = null;
+    private static Log logger = LogFactory.getLog(RadiusProxy.class);
+
+    /**
      * {@inheritDoc}
      */
-    public RadiusProxy(EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
-        super(eventGroup, executorGroup, factory, timer);
+    public RadiusProxy(EventLoopGroup eventGroup, ChannelFactory<T> factory) {
+        super(eventGroup, factory);
+        this.proxyPort = 1814;
     }
 
     /**
      * {@inheritDoc}
      */
-    public RadiusProxy(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup executorGroup, ChannelFactory<T> factory, Timer timer) {
-        super(dictionary, eventGroup, executorGroup, factory, timer);
+    public RadiusProxy(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory) {
+        super(dictionary, eventGroup, factory);
+        this.proxyPort = 1814;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public RadiusProxy(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory, int authPort, int acctPort, int proxyPort) {
+        super(dictionary, eventGroup, factory, authPort, acctPort);
+        this.proxyPort = validPort(proxyPort);
     }
 
     /**
@@ -121,24 +149,13 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
     }
 
     /**
-     * Sets the proxy port this server listens to.
-     * Please call before start().
-     *
-     * @param proxyPort proxy port
-     */
-    public void setProxyPort(int proxyPort) {
-        this.proxyPort = proxyPort;
-        this.proxySocket = null;
-    }
-
-    /**
      * Returns a socket bound to the proxy port.
      *
      * @return socket
      */
     protected T getProxySocket() {
         if (proxySocket == null) {
-            proxySocket = factory().newChannel();
+            proxySocket = factory.newChannel();
         }
         return proxySocket;
     }
@@ -258,21 +275,6 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
         proxySocket.writeAndFlush(datagram);
     }
 
-    /**
-     * Index for Proxy-State attribute.
-     */
-    private AtomicInteger proxyIndex = new AtomicInteger(1);
 
-    /**
-     * Cache for Radius proxy connections belonging to sent packets
-     * without a received clientResponse.
-     * Key: Proxy Index (String), Value: RadiusProxyConnection
-     */
-    private Map<String, RadiusProxyConnection> proxyConnections =
-            new ConcurrentHashMap<>();
-
-    private int proxyPort = 1814;
-    private T proxySocket = null;
-    private static Log logger = LogFactory.getLog(RadiusProxy.class);
 
 }
