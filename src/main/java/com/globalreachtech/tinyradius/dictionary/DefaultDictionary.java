@@ -12,34 +12,21 @@ import java.io.InputStream;
  */
 public class DefaultDictionary extends MemoryDictionary {
 
-    /**
-     * Returns the singleton instance of this object.
-     *
-     * @return DefaultDictionary instance
-     */
-    public static Dictionary getDefaultDictionary() {
-        return instance;
-    }
-
-    /**
-     * Make constructor private so that a DefaultDictionary
-     * cannot be constructed by other classes.
-     */
     private DefaultDictionary() {
     }
 
     private static final String DICTIONARY_RESOURCE = "com/globalreachtech/tinyradius/dictionary/default_dictionary";
-    private static DefaultDictionary instance = new DefaultDictionary();
+    public static final DefaultDictionary INSTANCE = new DefaultDictionary();
 
     /**
-     * Creates the singleton instance of this object
+     * Creates the singleton INSTANCE of this object
      * and parses the classpath ressource.
      */
     static {
         try {
             InputStream source = DefaultDictionary.class.getClassLoader().getResourceAsStream(DICTIONARY_RESOURCE);
             if (source != null)
-                DictionaryParser.parseDictionary(source, instance);
+                DictionaryParser.parseDictionary(source, INSTANCE);
         } catch (IOException e) {
             throw new RuntimeException("default dictionary unavailable", e);
         }

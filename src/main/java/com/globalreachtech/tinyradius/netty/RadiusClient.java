@@ -9,6 +9,7 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.concurrent.PromiseCombiner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -17,7 +18,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
 import static io.netty.buffer.Unpooled.buffer;
@@ -25,7 +25,7 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * This object represents a simple Radius client which communicates with
- * a specified Radius server. You can use a single instance of this object
+ * a specified Radius server. You can use a single INSTANCE of this object
  * to authenticate or account different users with the same Radius server
  * as long as you authenticate/account one user after the other. This object
  * is thread safe, but only opens a single socket so operations using this
@@ -38,26 +38,24 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
 
     private final AtomicInteger identifier = new AtomicInteger();
     private final ChannelFactory<T> factory;
-    private final EventLoopGroup eventGroup;
-    private final Consumer<DatagramPacket> consumer;
+    private final EventLoopGroup eventLoopGroup;
+    private final PacketManager packetManager;
 
     private T channel = null;
 
     /**
      * Creates a new Radius client object for a special Radius server.
      *
-     * @param eventGroup
+     * @param eventLoopGroup
      * @param factory
+     * @param packetManager
      */
-    public RadiusClient(EventLoopGroup eventGroup, ChannelFactory<T> factory, Consumer<DatagramPacket> consumer) {
+    public RadiusClient(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, PacketManager packetManager) {
         this.factory = requireNonNull(factory, "factory cannot be null");
-        this.eventGroup = requireNonNull(eventGroup, "eventGroup cannot be null");
-        this.consumer = consumer;
+        this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
+        this.packetManager = packetManager;
     }
 
-    /**
-     * Closes the socket of this client.
-     */
     @Override
     public void close() {
         if (channel != null)
@@ -96,16 +94,6 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
     }
 
     /**
-     * Binds the channel to a specific InetSocketAddress
-     *
-     * @param channel
-     * @return
-     */
-    protected ChannelFuture doBind(Channel channel) {
-        return channel.bind(new InetSocketAddress(0));
-    }
-
-    /**
      * Returns the socket used for the server communication. It is
      * bound to an arbitrary free local port number.
      *
@@ -120,21 +108,18 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
 
     private T createChannel() {
         final T channel = factory.newChannel();
-        ChannelFuture future = eventGroup.register(channel).syncUninterruptibly();
+
+        final ChannelPromise promise = channel.newPromise()
+                .addListener(f -> channel.pipeline().addLast(new RadiusChannelHandler()));
+
+        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
+        promiseCombiner.addAll(eventLoopGroup.register(channel), channel.bind(new InetSocketAddress(0)));
+        promiseCombiner.finish(promise);
+
+        final ChannelPromise future = promise.syncUninterruptibly();
         if (future.cause() != null)
             throw new ChannelException(future.cause());
 
-        doBind(channel).syncUninterruptibly();
-
-        channel.pipeline().addLast(new SimpleChannelInboundHandler<DatagramPacket>() {
-            public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-                consumer.accept(packet);
-            }
-            @Override
-            public void channelReadComplete(ChannelHandlerContext ctx) {
-                ctx.flush();
-            }
-        });
         return channel;
     }
 
@@ -154,4 +139,26 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
         return new DatagramPacket(bos.buffer(), endpoint.getEndpointAddress());
     }
 
+    private class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+        public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
+            packetManager.process(packet);
+        }
+
+        @Override
+        public void channelReadComplete(ChannelHandlerContext ctx) {
+            ctx.flush();
+        }
+    }
+
+    public interface PacketManager {
+
+        /**
+         * Process packet received
+         * @param packet
+         */
+        void process(DatagramPacket packet);
+
+
+
+    }
 }

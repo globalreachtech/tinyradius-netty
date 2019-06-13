@@ -11,23 +11,44 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class DefaultDeduplicator implements RadiusServer.PacketDeduplicator {
+public class ServerPacketManager implements RadiusServer.PacketDeduplicator {
 
-    private static long TTL = 30000;
+    private final long ttl;
     private final Timer timer;
 
     private final Set<Packet> packets = ConcurrentHashMap.newKeySet();
 
-    DefaultDeduplicator(Timer timer) {
+    /**
+     * @param timer used to set timeouts that clean up packets after predefined TTL
+     * @param ttl time in milliseconds to keep packets in cache and ignore duplicates
+     */
+    public ServerPacketManager(Timer timer, long ttl) {
         this.timer = timer;
+        this.ttl = ttl;
     }
 
+    /**
+     * Checks whether the passed packet is a duplicate.
+     * A packet is duplicate if another packet with the same identifier
+     * has been sent from the same host in the last time.
+     *
+     * If duplicate is received, TTL of the packet will not rebased to
+     * the most recent hit.
+     *
+     * @param packet  packet in question
+     * @param address client address
+     * @return true if it is duplicate
+     */
     @Override
     public boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
         Packet p = new Packet(packet.getPacketIdentifier(), address, packet.getAuthenticator());
-        final boolean packetAdded = packets.add(p);
-        timer.newTimeout(t -> packets.remove(p), TTL, MILLISECONDS);
-        return !packetAdded;
+
+        if (packets.contains(p))
+            return true;
+
+        packets.add(p);
+        timer.newTimeout(t -> packets.remove(p), ttl, MILLISECONDS);
+        return false;
     }
 
     private class Packet {

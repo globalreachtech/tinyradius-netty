@@ -26,7 +26,7 @@ public class RequestContext {
 
     private long requestTime;
     private long responseTime;
-    private int identifier; //id
+    private int id;
     private Timeout timeout;
     private long timeoutNS;
     private AtomicInteger attempts;
@@ -41,14 +41,14 @@ public class RequestContext {
 
     private RadiusEndpoint endpoint;
 
-    public RequestContext(int identifier, RadiusPacket clientRequest, RadiusEndpoint endpoint, long timeoutNS) {
-        this.identifier = identifier;
+    public RequestContext(int id, RadiusPacket clientRequest, RadiusEndpoint endpoint, long timeoutNS) {
+        this.id = id;
         this.attempts = new AtomicInteger(0);
         this.clientRequest = requireNonNull(clientRequest, "clientRequest cannot be null");
         this.endpoint = requireNonNull(endpoint, "endpoint cannot be null");
         this.requestTime = System.nanoTime();
         this.timeoutNS = timeoutNS;
-        this.clientRequest.setPacketIdentifier(identifier & 0xff);
+        this.clientRequest.setPacketIdentifier(id & 0xff);
     }
 
     public void newTimeout(Timer timer) {
@@ -77,7 +77,6 @@ public class RequestContext {
     }
 
 
-
     private RequestContext queue(RequestContext context) {
         requireNonNull(context, "context cannot be null");
 
@@ -86,7 +85,7 @@ public class RequestContext {
         context.newTimeout(timer);
 
         if (logger.isInfoEnabled())
-            logger.info(String.format("Queued clientRequest %d identifier => %d",
+            logger.info(String.format("Queued clientRequest %d id => %d",
                     context.identifier(), context.clientRequest().getPacketIdentifier()));
 
         return context;
@@ -104,7 +103,7 @@ public class RequestContext {
     }
 
     public int identifier() {
-        return identifier;
+        return id;
     }
 
     public RadiusPacket clientRequest() {
@@ -142,6 +141,6 @@ public class RequestContext {
     }
 
     public String toString() {
-        return Long.toString(this.identifier);
+        return Long.toString(this.id);
     }
 }

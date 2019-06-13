@@ -10,6 +10,7 @@ package com.globalreachtech.tinyradius.test.netty;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
+import com.globalreachtech.tinyradius.netty.ServerPacketManager;
 import com.globalreachtech.tinyradius.netty.RadiusServer;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
@@ -17,6 +18,7 @@ import com.globalreachtech.tinyradius.util.RadiusException;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.Future;
 import org.apache.log4j.BasicConfigurator;
@@ -49,6 +51,7 @@ public class TestServer {
                 eventGroup,
                 eventExecutorGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
+                new ServerPacketManager(new HashedWheelTimer()),
                 11812, 11813) {
 
             // Authorize localhost/testing123

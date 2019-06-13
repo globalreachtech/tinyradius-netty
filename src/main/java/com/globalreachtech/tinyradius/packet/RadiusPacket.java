@@ -560,7 +560,7 @@ public class RadiusPacket implements Cloneable {
      */
     public static RadiusPacket decodeRequestPacket(InputStream in, String sharedSecret)
             throws IOException, RadiusException {
-        return decodePacket(DefaultDictionary.getDefaultDictionary(), in, sharedSecret, null);
+        return decodePacket(DefaultDictionary.INSTANCE, in, sharedSecret, null);
     }
 
     /**
@@ -576,7 +576,7 @@ public class RadiusPacket implements Cloneable {
      * @throws RadiusException malformed packet
      */
     public static RadiusPacket decodeResponsePacket(InputStream in, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
-        return decodePacket(DefaultDictionary.getDefaultDictionary(), in, sharedSecret,
+        return decodePacket(DefaultDictionary.INSTANCE, in, sharedSecret,
                 requireNonNull(request, "clientRequest may not be null"));
     }
 
@@ -678,7 +678,7 @@ public class RadiusPacket implements Cloneable {
      * @return RadiusPacket object
      */
     public static RadiusPacket createRadiusPacket(final int type) {
-        return createRadiusPacket(type, DefaultDictionary.getDefaultDictionary());
+        return createRadiusPacket(type, DefaultDictionary.INSTANCE);
     }
 
     /**
@@ -727,7 +727,7 @@ public class RadiusPacket implements Cloneable {
     /**
      * Returns the dictionary this Radius packet uses.
      *
-     * @return Dictionary instance
+     * @return Dictionary INSTANCE
      */
     public Dictionary getDictionary() {
         return dictionary;
@@ -1062,7 +1062,7 @@ public class RadiusPacket implements Cloneable {
     /**
      * Dictionary to look up attribute names.
      */
-    private Dictionary dictionary = DefaultDictionary.getDefaultDictionary();
+    private Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     /**
      * Next packet identifier.

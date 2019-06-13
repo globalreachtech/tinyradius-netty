@@ -1,26 +1,35 @@
-package com.globalreachtech.tinyradius.grt;
+package com.globalreachtech.tinyradius.netty;
 
-import com.globalreachtech.tinyradius.dictionary.Dictionary;
+import com.globalreachtech.tinyradius.grt.RequestContext;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.socket.DatagramPacket;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import io.netty.util.Timer;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.requireNonNull;
 
-public class RadiusOrchestrator {
+public class ClientPacketManager implements RadiusClient.PacketManager {
 
-    private static Log logger = LogFactory.getLog(RadiusOrchestrator.class);
+    private final Timer timer;
+    private final Set<PacketContext> packets = ConcurrentHashMap.newKeySet();
 
-    private Dictionary dictionary;
+    public ClientPacketManager(Timer timer) {
 
+        this.timer = timer;
+    }
 
-    private void handlePacket(DatagramPacket packet) {
+    @Override
+    public void process(DatagramPacket packet) {
+
+        PacketContext p = new PacketContext(packet.getPacketIdentifier(), address, packet.getAuthenticator());
+
         RequestContext context = lookup(packet);
         if (context == null) {
             logger.info("Request context not found for received packet, ignoring...");
@@ -38,6 +47,7 @@ public class RadiusOrchestrator {
             dequeue(context);
         }
     }
+
 
 
     private RequestContext lookup(DatagramPacket response) {
@@ -73,4 +83,12 @@ public class RadiusOrchestrator {
         return null;
     }
 
+
+    private class PacketContext {
+
+        private final int packetIdentifier;
+        private final InetSocketAddress address;
+        private final String sharedSecret;
+
+    }
 }

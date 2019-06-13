@@ -20,7 +20,7 @@ import java.net.*;
 
 /**
  * This object represents a simple Radius client which communicates with
- * a specified Radius server. You can use a single instance of this object
+ * a specified Radius server. You can use a single INSTANCE of this object
  * to authenticate or account different users with the same Radius server
  * as long as you authenticate/account one user after the other. This object
  * is thread safe, but only opens a single socket so operations using this

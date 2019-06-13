@@ -55,11 +55,11 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     private Future<Void> startStatus = null;
 
     public RadiusServer(EventLoopGroup eventLoopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory) {
-        this(DefaultDictionary.getDefaultDictionary(), eventLoopGroup, eventExecutorGroup, factory);
+        this(DefaultDictionary.INSTANCE, eventLoopGroup, eventExecutorGroup, factory);
     }
 
     public RadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory) {
-        this(dictionary, eventLoopGroup, eventExecutorGroup, factory, new DefaultDeduplicator(new HashedWheelTimer()), 1812, 1813);
+        this(dictionary, eventLoopGroup, eventExecutorGroup, factory, new ServerPacketManager(new HashedWheelTimer(), 30000), 1812, 1813);
     }
 
     public RadiusServer(Dictionary dictionary,
@@ -96,8 +96,8 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     public abstract String getUserPassword(String userName);
 
     /**
-     * Constructs an answer for an Access-Request packet. Either this
-     * method or isUserAuthenticated should be overriden.
+     * Constructs an answer for an Access-Request packet. This
+     * method should be overridden.
      *
      * @param accessRequest Radius clientRequest packet
      * @param client        address of Radius client
@@ -117,7 +117,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 
     /**
      * Constructs an answer for an Accounting-Request packet. This method
-     * should be overriden if accounting is supported.
+     * should be overridden.
      *
      * @param accountingRequest Radius clientRequest packet
      * @return clientResponse packet or null if no packet shall be sent
@@ -137,9 +137,9 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         if (this.startStatus != null)
             return this.startStatus;
 
-        final DefaultPromise<Void> status = new DefaultPromise<>(eventExecutorGroup.next());
+        final DefaultPromise<Void> status = new DefaultPromise<>(eventLoopGroup.next());
 
-        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventExecutorGroup.next());
+        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
         promiseCombiner.addAll(listenAuth(), listenAcct());
         promiseCombiner.finish(status);
 
@@ -162,7 +162,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         return authPort;
     }
 
-    protected int validPort(int port) {
+    int validPort(int port) {
         if (port < 1 || port > 65535)
             throw new IllegalArgumentException("bad port number");
         return port;
@@ -230,24 +230,12 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         requireNonNull(channel, "channel cannot be null");
         requireNonNull(listenAddress, "listenAddress cannot be null");
 
-        final ChannelPromise promise = new DefaultChannelPromise(channel);
+        final ChannelPromise promise = channel.newPromise()
+                .addListener(f -> channel.pipeline().addLast(new RadiusChannelHandler()));
 
-        ChannelFuture future = eventLoopGroup.register(channel);
-        future.addListeners((ChannelFutureListener) channelFuture -> {
-            if (!channelFuture.isSuccess()) {
-                promise.setFailure(channelFuture.cause());
-            } else {
-                ChannelFuture future1 = channel.bind(listenAddress);
-                future1.addListeners((ChannelFutureListener) channelFuture1 -> {
-                    if (!channelFuture1.isSuccess()) {
-                        promise.setFailure(channelFuture1.cause());
-                    } else {
-                        channel.pipeline().addLast(new RadiusChannelHandler());
-                        promise.setSuccess();
-                    }
-                });
-            }
-        });
+        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
+        promiseCombiner.addAll(eventLoopGroup.register(channel), channel.bind(listenAddress));
+        promiseCombiner.finish(promise);
 
         return promise;
     }
@@ -262,27 +250,25 @@ public abstract class RadiusServer<T extends DatagramChannel> {
      * @throws RadiusException
      */
     protected RadiusPacket handlePacket(InetSocketAddress localAddress, InetSocketAddress remoteAddress, RadiusPacket request, String sharedSecret) throws RadiusException, IOException {
-        RadiusPacket response = null;
-
         // check for duplicates
         if (!packetDeduplicator.isPacketDuplicate(request, remoteAddress)) {
             if (localAddress.getPort() == authPort) {
                 // handle packets on auth port
                 if (request instanceof AccessRequest)
-                    response = accessRequestReceived((AccessRequest) request, remoteAddress);
+                    return accessRequestReceived((AccessRequest) request, remoteAddress);
                 else
                     logger.error("unknown Radius packet type: " + request.getPacketType());
             } else if (localAddress.getPort() == acctPort) {
                 // handle packets on acct port
                 if (request instanceof AccountingRequest)
-                    response = accountingRequestReceived((AccountingRequest) request);
+                    return accountingRequestReceived((AccountingRequest) request);
                 else
                     logger.error("unknown Radius packet type: " + request.getPacketType());
             }  // ignore packet on unknown port
         } else
             logger.info("ignore duplicate packet");
 
-        return response;
+        return null;
     }
 
     /**
@@ -360,7 +346,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address);
     }
 
-    class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+    private class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
             try {
                 // check client

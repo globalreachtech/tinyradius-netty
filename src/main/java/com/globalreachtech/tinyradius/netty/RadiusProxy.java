@@ -51,7 +51,7 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
     private final int proxyPort;
     private T proxySocket = null;
 
-    private Future<Void> startStatus = null;
+    private Future<Void> proxyStatus = null;
 
     /**
      * {@inheritDoc}
@@ -82,16 +82,16 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
      */
     @Override
     public Future<Void> start() {
-        if (this.startStatus != null)
-            return this.startStatus;
+        if (this.proxyStatus != null)
+            return this.proxyStatus;
 
-        final Promise<Void> status = new DefaultPromise<>(eventExecutorGroup.next());
+        final Promise<Void> status = new DefaultPromise<>(eventLoopGroup.next());
 
-        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventExecutorGroup.next());
+        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
         promiseCombiner.addAll(super.start(), listenProxy());
         promiseCombiner.finish(status);
 
-        this.startStatus = status;
+        this.proxyStatus = status;
         return status;
     }
 

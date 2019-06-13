@@ -1,27 +1,16 @@
 package com.globalreachtech.tinyradius.grt;
 
-import com.globalreachtech.tinyradius.netty.DefaultDeduplicator;
 import com.globalreachtech.tinyradius.netty.RadiusServer;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 
-public class GrtPacketDedup implements RadiusServer.PacketDeduplicator {
+public class GrtServerPacketManager implements RadiusServer.PacketDeduplicator {
 
     private RadiusQueue<ReceivedPacket> receivedPackets = new RadiusQueue<>();
     private long duplicateInterval = 30000; // 30 s  todo setters
 
-
-    /**
-     * Checks whether the passed packet is a duplicate.
-     * A packet is duplicate if another packet with the same identifier
-     * has been sent from the same host in the last time.
-     *
-     * @param packet  packet in question
-     * @param address client address
-     * @return true if it is duplicate
-     */
     @Override
     public boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
         long now = System.currentTimeMillis();
