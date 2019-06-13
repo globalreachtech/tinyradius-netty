@@ -15,6 +15,9 @@ import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -37,20 +40,11 @@ import java.net.UnknownHostException;
  */
 public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
-    public TestProxy(EventLoopGroup eventGroup, ChannelFactory<T> factory) {
-        super(eventGroup, factory);
+    public TestProxy(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, int authPort, int acctPort, int proxyPort) {
+        super(dictionary, eventGroup, eventExecutorGroup, factory, authPort, acctPort, proxyPort);
     }
 
-    public TestProxy(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory) {
-        super(dictionary, eventGroup, factory);
-    }
-
-    public TestProxy(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory, int authPort, int acctPort, int proxyPort) {
-        super(dictionary, eventGroup, factory, authPort, acctPort, proxyPort);
-    }
-
-    public RadiusEndpoint getProxyServer(RadiusPacket packet,
-                                         RadiusEndpoint client) {
+    public RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
         // always proxy
         try {
             InetAddress address = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
@@ -82,19 +76,21 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
         BasicConfigurator.configure();
         Logger.getRootLogger().setLevel(Level.INFO);
 
-        final NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
+        final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+        final DefaultEventExecutorGroup eventExecutorGroup = new DefaultEventExecutorGroup(4);
 
         WritableDictionary dictionary = new MemoryDictionary();
         DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
 
         final TestProxy<NioDatagramChannel> proxy = new TestProxy<>(
                 dictionary,
-                eventGroup,
-                new ReflectiveChannelFactory<>(NioDatagramChannel.class), 11812, 11813, 11814);
+                eventLoopGroup,
+                eventExecutorGroup,
+                new ReflectiveChannelFactory<>(NioDatagramChannel.class),
+                11812, 11813, 11814);
 
-        //                new DefaultEventExecutorGroup(4),
 
-        Future<RadiusServer<NioDatagramChannel>> future = proxy.start();
+        Future<Void> future = proxy.start();
         future.addListener(future1 -> {
             if (future1.isSuccess()) {
                 System.out.println("Server started.");
@@ -108,7 +104,9 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
         proxy.stop();
 
-        eventGroup.shutdownGracefully()
+        eventLoopGroup.shutdownGracefully()
                 .awaitUninterruptibly();
+        eventExecutorGroup.shutdownGracefully().awaitUninterruptibly();
+
     }
 }

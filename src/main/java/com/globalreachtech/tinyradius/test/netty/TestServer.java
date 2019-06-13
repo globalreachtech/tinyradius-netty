@@ -42,13 +42,12 @@ public class TestServer {
         DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
 
         final NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
-
-
-//                        new DefaultEventExecutorGroup(4),
+        final DefaultEventExecutorGroup eventExecutorGroup = new DefaultEventExecutorGroup(4);
 
         final RadiusServer<NioDatagramChannel> server = new RadiusServer<NioDatagramChannel>(
                 dictionary,
                 eventGroup,
+                eventExecutorGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 11812, 11813) {
 
@@ -83,7 +82,7 @@ public class TestServer {
             }
         };
 
-        final Future<RadiusServer<NioDatagramChannel>> future = server.start();
+        final Future<Void> future = server.start();
         future.addListener(future1 -> {
             if (future1.isSuccess()) {
                 System.out.println("Server started");

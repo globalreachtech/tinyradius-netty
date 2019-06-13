@@ -3,7 +3,6 @@ package com.globalreachtech.tinyradius.netty;
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
 import com.globalreachtech.tinyradius.dictionary.DefaultDictionary;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
-import com.globalreachtech.tinyradius.grt.RadiusQueue;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
@@ -15,19 +14,17 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.resolver.dns.DefaultDnsServerAddressStreamProvider;
+import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GlobalEventExecutor;
-import io.netty.util.concurrent.Promise;
+import io.netty.util.concurrent.PromiseCombiner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.*;
@@ -41,32 +38,41 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class RadiusServer<T extends DatagramChannel> {
 
-    private InetAddress listenAddress = null;
-    private T authSocket = null;
-    private T acctSocket = null;
-    private RadiusQueue<ReceivedPacket> receivedPackets = new RadiusQueue<>();
-    private long duplicateInterval = 30000; // 30 s  todo setters
     private static Log logger = LogFactory.getLog(RadiusServer.class);
 
-    protected final ChannelFactory<T> factory;
-    private final EventLoopGroup eventGroup;
+    final ChannelFactory<T> factory;
+    final EventLoopGroup eventLoopGroup;
+    final EventExecutorGroup eventExecutorGroup;
     private final Dictionary dictionary;
-
+    private final PacketDeduplicator packetDeduplicator;
     private final int authPort;
     private final int acctPort;
 
-    public RadiusServer(EventLoopGroup eventGroup, ChannelFactory<T> factory) {
-        this(DefaultDictionary.getDefaultDictionary(), eventGroup, factory);
+    private InetAddress listenAddress = null;
+    private T authSocket = null;
+    private T acctSocket = null;
+
+    private Future<Void> startStatus = null;
+
+    public RadiusServer(EventLoopGroup eventLoopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory) {
+        this(DefaultDictionary.getDefaultDictionary(), eventLoopGroup, eventExecutorGroup, factory);
     }
 
-    public RadiusServer(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory) {
-        this(dictionary, eventGroup, factory, 1812, 1813);
+    public RadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory) {
+        this(dictionary, eventLoopGroup, eventExecutorGroup, factory, new DefaultDeduplicator(new HashedWheelTimer()), 1812, 1813);
     }
 
-    public RadiusServer(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory, int authPort, int acctPort) {
+    public RadiusServer(Dictionary dictionary,
+                        EventLoopGroup eventLoopGroup,
+                        EventExecutorGroup eventExecutorGroup,
+                        ChannelFactory<T> factory,
+                        PacketDeduplicator packetDeduplicator,
+                        int authPort, int acctPort) {
         this.dictionary = requireNonNull(dictionary, "dictionary cannot be null");
-        this.eventGroup = requireNonNull(eventGroup, "eventGroup cannot be null");
+        this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
+        this.eventExecutorGroup = requireNonNull(eventExecutorGroup, "eventExecutorGroup cannot be null");
         this.factory = requireNonNull(factory, "factory cannot be null");
+        this.packetDeduplicator = packetDeduplicator;
         this.authPort = validPort(authPort);
         this.acctPort = validPort(acctPort);
     }
@@ -127,30 +133,18 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     /**
      * Starts the Radius server.
      */
-    public Future<RadiusServer<T>> start() {
-        if (this.eventGroup != null)
-            return new DefaultPromise<RadiusServer<T>>(eventGroup)
-                    .setFailure(new IllegalStateException("Server already started"));
+    public Future<Void> start() {
+        if (this.startStatus != null)
+            return this.startStatus;
 
+        final DefaultPromise<Void> status = new DefaultPromise<>(eventExecutorGroup.next());
 
+        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventExecutorGroup.next());
+        promiseCombiner.addAll(listenAuth(), listenAcct());
+        promiseCombiner.finish(status);
 
-        final Promise<RadiusServer<T>> promise = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
-
-        listenAuth().addListener(future -> {
-            if (!future.isSuccess()) {
-                promise.setFailure(future.cause());
-            } else {
-                listenAcct().addListener((ChannelFutureListener) future1 -> {
-                    if (future1.isSuccess()) {
-                        promise.setSuccess(RadiusServer.this);
-                    } else {
-                        promise.setFailure(future1.cause());
-                    }
-                });
-            }
-        });
-
-        return promise;
+        this.startStatus = status;
+        return status;
     }
 
     /**
@@ -211,9 +205,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     }
 
     /**
-     * Listens on the auth port (blocks the current thread).
-     * Returns when stop() is called.
-     *
      * @return ChannelFuture
      */
     protected ChannelFuture listenAuth() {
@@ -222,9 +213,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     }
 
     /**
-     * Listens on the acct port (blocks the current thread).
-     * Returns when stop() is called.
-     *
      * @return ChannelFuture
      */
     protected ChannelFuture listenAcct() {
@@ -244,7 +232,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 
         final ChannelPromise promise = new DefaultChannelPromise(channel);
 
-        ChannelFuture future = eventGroup.register(channel);
+        ChannelFuture future = eventLoopGroup.register(channel);
         future.addListeners((ChannelFutureListener) channelFuture -> {
             if (!channelFuture.isSuccess()) {
                 promise.setFailure(channelFuture.cause());
@@ -277,7 +265,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         RadiusPacket response = null;
 
         // check for duplicates
-        if (!isPacketDuplicate(request, remoteAddress)) {
+        if (!packetDeduplicator.isPacketDuplicate(request, remoteAddress)) {
             if (localAddress.getPort() == authPort) {
                 // handle packets on auth port
                 if (request instanceof AccessRequest)
@@ -358,47 +346,18 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         return RadiusPacket.decodeRequestPacket(dictionary, in, sharedSecret);
     }
 
-    /**
-     * Checks whether the passed packet is a duplicate.
-     * A packet is duplicate if another packet with the same identifier
-     * has been sent from the same host in the last time.
-     *
-     * @param packet  packet in question
-     * @param address client address
-     * @return true if it is duplicate
-     */
-    protected boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
-        long now = System.currentTimeMillis();
-        long intervalStart = now - duplicateInterval;
+    public interface PacketDeduplicator {
 
-        byte[] authenticator = packet.getAuthenticator();
-        for (ReceivedPacket p : receivedPackets.get(packet.getPacketIdentifier())) {
-            if (p.receiveTime < intervalStart) {
-                // packet is older than duplicate interval
-                receivedPackets.remove(p, p.packetIdentifier);
-            } else {
-                if (p.address.equals(address)) {
-                    if (authenticator != null && p.authenticator != null) {
-                        // packet is duplicate if stored authenticator is equal
-                        // to the packet authenticator
-                        return Arrays.equals(p.authenticator, authenticator);
-                    } else {
-                        // should not happen, packet is duplicate
-                        return true;
-                    }
-                }
-            }
-        }
-
-        // add packet to receive list
-        ReceivedPacket rp = new ReceivedPacket();
-        rp.address = address;
-        rp.packetIdentifier = packet.getPacketIdentifier();
-        rp.receiveTime = now;
-        rp.authenticator = authenticator;
-        receivedPackets.add(rp, rp.packetIdentifier);
-
-        return false;
+        /**
+         * Checks whether the passed packet is a duplicate.
+         * A packet is duplicate if another packet with the same identifier
+         * has been sent from the same host in the last time.
+         *
+         * @param packet  packet in question
+         * @param address client address
+         * @return true if it is duplicate
+         */
+        boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address);
     }
 
     class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
@@ -444,30 +403,4 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         }
     }
 
-    /**
-     * This internal class represents a packet that has been received by
-     * the server.
-     */
-    class ReceivedPacket {
-
-        /**
-         * The identifier of the packet.
-         */
-        public int packetIdentifier;
-
-        /**
-         * The time the packet was received.
-         */
-        public long receiveTime;
-
-        /**
-         * The address of the host who sent the packet.
-         */
-        public InetSocketAddress address;
-
-        /**
-         * Authenticator of the received packet.
-         */
-        public byte[] authenticator;
-    }
 }

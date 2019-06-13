@@ -11,14 +11,10 @@ import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.concurrent.DefaultPromise;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GlobalEventExecutor;
-import io.netty.util.concurrent.Promise;
+import io.netty.util.concurrent.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -38,6 +34,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
 
+    private static Log logger = LogFactory.getLog(RadiusProxy.class);
+
     /**
      * Index for Proxy-State attribute.
      */
@@ -52,29 +50,30 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
 
     private final int proxyPort;
     private T proxySocket = null;
-    private static Log logger = LogFactory.getLog(RadiusProxy.class);
+
+    private Future<Void> startStatus = null;
 
     /**
      * {@inheritDoc}
      */
-    public RadiusProxy(EventLoopGroup eventGroup, ChannelFactory<T> factory) {
-        super(eventGroup, factory);
+    public RadiusProxy(EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory) {
+        super(eventGroup, eventExecutorGroup, factory);
         this.proxyPort = 1814;
     }
 
     /**
      * {@inheritDoc}
      */
-    public RadiusProxy(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory) {
-        super(dictionary, eventGroup, factory);
+    public RadiusProxy(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory) {
+        super(dictionary, eventGroup, eventExecutorGroup, factory);
         this.proxyPort = 1814;
     }
 
     /**
      * {@inheritDoc}
      */
-    public RadiusProxy(Dictionary dictionary, EventLoopGroup eventGroup, ChannelFactory<T> factory, int authPort, int acctPort, int proxyPort) {
-        super(dictionary, eventGroup, factory, authPort, acctPort);
+    public RadiusProxy(Dictionary dictionary, EventLoopGroup loopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, PacketDeduplicator deduplicator, int authPort, int acctPort, int proxyPort) {
+        super(dictionary, loopGroup, eventExecutorGroup, factory, deduplicator, authPort, acctPort);
         this.proxyPort = validPort(proxyPort);
     }
 
@@ -82,26 +81,18 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
      * Starts the Radius proxy. Listens on the proxy port.
      */
     @Override
-    public Future<RadiusServer<T>> start() {
+    public Future<Void> start() {
+        if (this.startStatus != null)
+            return this.startStatus;
 
-        final Promise<RadiusServer<T>> promise = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
+        final Promise<Void> status = new DefaultPromise<>(eventExecutorGroup.next());
 
-        Future<RadiusServer<T>> future = super.start();
-        future.addListener(future1 -> {
-            if (!future1.isSuccess()) {
-                promise.setFailure(future1.cause());
-            } else {
-                listenProxy().addListeners((ChannelFutureListener) channelFuture -> {
-                    if (!channelFuture.isSuccess()) {
-                        promise.setFailure(channelFuture.cause());
-                    } else {
-                        promise.setSuccess(RadiusProxy.this);
-                    }
-                });
-            }
-        });
+        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventExecutorGroup.next());
+        promiseCombiner.addAll(super.start(), listenProxy());
+        promiseCombiner.finish(status);
 
-        return promise;
+        this.startStatus = status;
+        return status;
     }
 
     /**
@@ -274,7 +265,6 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
         T proxySocket = getProxySocket();
         proxySocket.writeAndFlush(datagram);
     }
-
 
 
 }
