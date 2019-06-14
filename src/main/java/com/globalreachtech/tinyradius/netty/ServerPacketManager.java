@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class ServerPacketManager implements RadiusServer.PacketDeduplicator {
+public class ServerPacketManager implements RadiusServer.PacketManager {
 
     private final long ttlMs;
     private final Timer timer;

@@ -1,17 +1,12 @@
 package com.globalreachtech.tinyradius.grt;
 
-import com.globalreachtech.tinyradius.netty.RadiusClient;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
-import com.globalreachtech.tinyradius.util.RadiusException;
 import io.netty.util.Timeout;
-import io.netty.util.Timer;
-import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Future;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.requireNonNull;
@@ -22,13 +17,10 @@ public class RequestContext {
 
     private RequestState state;
 
-    private int retransmits = 3;
-
     private long requestTime;
     private long responseTime;
     private int id;
     private Timeout timeout;
-    private long timeoutNS;
     private AtomicInteger attempts;
 
     Future<Void> requestFuture;
@@ -47,7 +39,6 @@ public class RequestContext {
         this.clientRequest = requireNonNull(clientRequest, "clientRequest cannot be null");
         this.endpoint = requireNonNull(endpoint, "endpoint cannot be null");
         this.requestTime = System.nanoTime();
-        this.timeoutNS = timeoutNS;
         this.clientRequest.setPacketIdentifier(id & 0xff);
     }
 

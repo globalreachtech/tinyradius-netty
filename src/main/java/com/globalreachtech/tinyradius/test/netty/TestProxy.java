@@ -4,7 +4,7 @@ import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
-import com.globalreachtech.tinyradius.netty.ServerPacketManager;
+import com.globalreachtech.tinyradius.netty.ProxyPacketManager;
 import com.globalreachtech.tinyradius.netty.RadiusProxy;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
@@ -40,7 +40,7 @@ import java.net.UnknownHostException;
  */
 public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
-    public TestProxy(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, PacketDeduplicator deduplicator,int authPort, int acctPort, int proxyPort) {
+    public TestProxy(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, RadiusProxy.PacketManager deduplicator, int authPort, int acctPort, int proxyPort) {
         super(dictionary, eventGroup, eventExecutorGroup, factory, deduplicator, authPort, acctPort, proxyPort);
     }
 
@@ -87,7 +87,7 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
                 eventLoopGroup,
                 eventExecutorGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new ServerPacketManager(new HashedWheelTimer(), 30000),
+                new ProxyPacketManager(new HashedWheelTimer(), 30000),
                 11812, 11813, 11814);
 
 

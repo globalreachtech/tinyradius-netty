@@ -203,13 +203,12 @@ public class AccessRequest extends RadiusPacket {
         requireNonNull(sharedSecret, "sharedSecret cannot be null");
 
         try {
-            byte[] S = sharedSecret;
             byte[] C = this.getAuthenticator();
             byte[] P = RadiusUtil.pad(userPass, C.length);
             byte[] result = new byte[P.length];
 
             for (int i = 0; i < P.length; i += C.length) {
-                C = RadiusUtil.compute(S, C);
+                C = RadiusUtil.compute(sharedSecret, C);
                 C = RadiusUtil.xor(P, i, C.length, C, 0, C.length);
                 System.arraycopy(C, 0, result, i, C.length);
             }
@@ -237,13 +236,12 @@ public class AccessRequest extends RadiusPacket {
         }
 
         try {
-            byte[] S = sharedSecret;
             byte[] P = encryptedPass;
             byte[] result = new byte[P.length];
             byte[] C = this.getAuthenticator();
 
             for (int i = 0; i < P.length; i += C.length) {
-                C = RadiusUtil.compute(S, C);
+                C = RadiusUtil.compute(sharedSecret, C);
                 C = RadiusUtil.xor(P, i, C.length, C, 0, C.length);
                 System.arraycopy(C, 0, result, i, C.length);
                 System.arraycopy(P, i, C, 0, C.length);

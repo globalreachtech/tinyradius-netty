@@ -4,11 +4,6 @@ import java.security.MessageDigest;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-/**
- * CoA packet. Thanks to Michael Krastev.
- *
- * @author Michael Krastev <mkrastev@gmail.com>
- */
 public class CoaRequest extends RadiusPacket {
 
     public CoaRequest() {

@@ -8,7 +8,6 @@ import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -19,12 +18,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.globalreachtech.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
+import static io.netty.buffer.Unpooled.buffer;
 
 /**
  * This class implements a Radius proxy that receives Radius packets
@@ -41,40 +40,30 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
      */
     private AtomicInteger proxyIndex = new AtomicInteger(1);
 
-    /**
-     * Cache for Radius proxy connections belonging to sent packets
-     * without a received clientResponse.
-     * Key: Proxy Index (String), Value: RadiusProxyConnection
-     */
-    private Map<String, RadiusProxyConnection> proxyConnections = new ConcurrentHashMap<>();
-
+    private final IProxyPacketManager proxyPacketManager;
     private final int proxyPort;
     private T proxySocket = null;
 
     private Future<Void> proxyStatus = null;
 
-    /**
-     * {@inheritDoc}
-     */
-    public RadiusProxy(EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory) {
+    public RadiusProxy(EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, IProxyPacketManager proxyPacketManager) {
         super(eventGroup, eventExecutorGroup, factory);
         this.proxyPort = 1814;
+        this.proxyPacketManager = proxyPacketManager;
+
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public RadiusProxy(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory) {
+    public RadiusProxy(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, IProxyPacketManager proxyPacketManager) {
         super(dictionary, eventGroup, eventExecutorGroup, factory);
         this.proxyPort = 1814;
+        this.proxyPacketManager = proxyPacketManager;
+
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public RadiusProxy(Dictionary dictionary, EventLoopGroup loopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, PacketDeduplicator deduplicator, int authPort, int acctPort, int proxyPort) {
-        super(dictionary, loopGroup, eventExecutorGroup, factory, deduplicator, authPort, acctPort);
+    public RadiusProxy(Dictionary dictionary, EventLoopGroup loopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, IProxyPacketManager proxyPacketManager, int authPort, int acctPort, int proxyPort) {
+        super(dictionary, loopGroup, eventExecutorGroup, factory, proxyPacketManager, authPort, acctPort);
         this.proxyPort = validPort(proxyPort);
+        this.proxyPacketManager = proxyPacketManager;
     }
 
     /**
@@ -98,6 +87,7 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
     /**
      * Stops the proxy and closes the socket.
      */
+    @Override
     public void stop() {
         logger.info("stopping Radius proxy");
         if (proxySocket != null)
@@ -105,15 +95,9 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
         super.stop();
     }
 
-    /**
-     * Listens on the proxy port (blocks the current thread).
-     * Returns when stop() is called.
-     *
-     * @return ChannelFuture
-     */
     protected ChannelFuture listenProxy() {
-        logger.info("starting RadiusProxyListener on port " + getProxyPort());
-        return listen(getProxySocket(), new InetSocketAddress(getListenAddress(), getProxyPort()));
+        logger.info("starting RadiusProxyListener on port " + proxyPort);
+        return listen(getProxySocket(), new InetSocketAddress(getListenAddress(), proxyPort));
     }
 
     /**
@@ -128,16 +112,6 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
      * proxied
      */
     public abstract RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client);
-
-    /**
-     * Returns the proxy port this server listens to.
-     * Defaults to 1814.
-     *
-     * @return proxy port
-     */
-    public int getProxyPort() {
-        return proxyPort;
-    }
 
     /**
      * Returns a socket bound to the proxy port.
@@ -155,26 +129,26 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
      * Handles packets coming in on the proxy port. Decides whether
      * packets coming in on Auth/Acct ports should be proxied.
      */
+    @Override
     protected RadiusPacket handlePacket(InetSocketAddress localAddress, InetSocketAddress remoteAddress, RadiusPacket request, String sharedSecret)
             throws RadiusException, IOException {
         // handle incoming proxy packet
-        if (localAddress.getPort() == getProxyPort()) {
-            proxyPacketReceived(request);
+        if (localAddress.getPort() == proxyPort) {
+            upstreamResponseReceived(request);
             return null;
         }
 
         // handle auth/acct packet
         RadiusEndpoint radiusClient = new RadiusEndpoint(remoteAddress, sharedSecret);
         RadiusEndpoint radiusServer = getProxyServer(request, radiusClient);
-        if (radiusServer != null) {
-            // proxy incoming packet to other radius server
-            RadiusProxyConnection proxyConnection = new RadiusProxyConnection(radiusServer, radiusClient, request, localAddress.getPort());
-            logger.info("proxy packet to " + proxyConnection.getRadiusServer().getEndpointAddress());
-            proxyPacket(request, proxyConnection);
-            return null;
-        } else
-            // normal processing
+
+        if (radiusServer == null)
             return super.handlePacket(localAddress, remoteAddress, request, sharedSecret);
+
+        RadiusProxyConnection proxyConnection = new RadiusProxyConnection(radiusServer, radiusClient, request, localAddress.getPort());
+        logger.info("proxy packet to " + proxyConnection.getRadiusServer().getEndpointAddress());
+        proxyPacket(request, proxyConnection);
+        return null;
     }
 
     /**
@@ -185,7 +159,7 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
      * @param packet packet to be sent back
      * @throws IOException
      */
-    protected void proxyPacketReceived(RadiusPacket packet) throws IOException, RadiusException {
+    protected void upstreamResponseReceived(RadiusPacket packet) throws IOException, RadiusException {
         // retrieve my Proxy-State attribute (the last)
         List<RadiusAttribute> proxyStates = packet.getAttributes(33);
         if (proxyStates == null || proxyStates.size() == 0)
@@ -194,7 +168,7 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
 
         // retrieve proxy connection from cache
         String state = new String(proxyState.getAttributeData());
-        RadiusProxyConnection proxyConnection = proxyConnections.remove(state);
+        RadiusProxyConnection proxyConnection = proxyPacketManager.remove(state);
         if (proxyConnection == null) {
             logger.warn("received packet on proxy port without saved proxy connection - duplicate?");
             return;
@@ -216,11 +190,7 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
         DatagramPacket datagram = makeDatagramPacket(answer, client.getSharedSecret(), client.getEndpointAddress(), proxyConnection.getPacket());
 
         // send back using correct socket
-        T socket;
-        if (proxyConnection.getPort() == getAuthPort())
-            socket = getAuthSocket();
-        else
-            socket = getAcctSocket();
+        T socket = proxyConnection.getPort() == authPort ? getAuthSocket() : getAcctSocket();
         socket.writeAndFlush(datagram);
     }
 
@@ -233,38 +203,35 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
      * @param proxyConnection the RadiusProxyConnection for this packet
      * @throws IOException
      */
-    protected void proxyPacket(RadiusPacket packet, RadiusProxyConnection proxyConnection)
-            throws IOException, RadiusException {
+    protected void proxyPacket(RadiusPacket packet, RadiusProxyConnection proxyConnection) throws IOException, RadiusException {
         // add Proxy-State attribute
         String proxyIndexStr = Integer.toString(proxyIndex.getAndIncrement());
         packet.addAttribute(new RadiusAttribute(33, proxyIndexStr.getBytes()));
 
         // store RadiusProxyConnection object
-        proxyConnections.put(proxyIndexStr, proxyConnection);
+        proxyPacketManager.put(proxyIndexStr, proxyConnection);
 
-        // get server address
-        InetAddress serverAddress = proxyConnection.getRadiusServer().getEndpointAddress().getAddress();
-        int serverPort = proxyConnection.getRadiusServer().getEndpointAddress().getPort();
-        String serverSecret = proxyConnection.getRadiusServer().getSharedSecret();
+        final RadiusEndpoint radiusServer = proxyConnection.getRadiusServer();
 
         // save clientRequest authenticator (will be calculated new)
         byte[] auth = packet.getAuthenticator();
 
         // encode new packet (with new authenticator)
-        ByteBuf buf = Unpooled.buffer(RadiusPacket.MAX_PACKET_LENGTH,
-                RadiusPacket.MAX_PACKET_LENGTH);
+        ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
         ByteBufOutputStream bos = new ByteBufOutputStream(buf);
-        packet.encodeRequestPacket(bos, serverSecret);
+        packet.encodeRequestPacket(bos, radiusServer.getSharedSecret());
 
-        DatagramPacket datagram = new DatagramPacket(buf, new InetSocketAddress(serverAddress, serverPort));
+        DatagramPacket datagram = new DatagramPacket(buf, radiusServer.getEndpointAddress());
 
         // restore original authenticator
         packet.setAuthenticator(auth);
 
-        // send packet
-        T proxySocket = getProxySocket();
-        proxySocket.writeAndFlush(datagram);
+        getProxySocket().writeAndFlush(datagram);
     }
 
+    public interface IProxyPacketManager extends RadiusServer.PacketManager {
+        RadiusProxyConnection put(String proxyIndex, RadiusProxyConnection proxyConnection);
 
+        RadiusProxyConnection remove(String proxyIndex);
+    }
 }

@@ -123,7 +123,6 @@ public class AccountingRequest extends RadiusPacket {
         byte[] authenticator = new byte[16];
         for (int i = 0; i < 16; i++)
             authenticator[i] = 0;
-
         MessageDigest md5 = getMd5Digest();
         md5.reset();
         md5.update((byte) getPacketType());

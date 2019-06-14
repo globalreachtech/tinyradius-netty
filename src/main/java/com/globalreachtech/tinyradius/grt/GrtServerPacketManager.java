@@ -6,7 +6,7 @@ import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 
-public class GrtServerPacketManager implements RadiusServer.PacketDeduplicator {
+public class GrtServerPacketManager implements RadiusServer.PacketManager {
 
     private RadiusQueue<ReceivedPacket> receivedPackets = new RadiusQueue<>();
     private long duplicateInterval = 30000; // 30 s  todo setters

@@ -12,6 +12,12 @@ import static java.util.Objects.requireNonNull;
  */
 public class AttributeType {
 
+    private int vendorId = -1;
+    private int typeCode;
+    private String name;
+    private Class attributeClass;
+    private Map<Integer, String> enumeration = null;
+
     /**
      * Create a new attribute type.
      *
@@ -182,11 +188,4 @@ public class AttributeType {
             s += " (vendor " + getVendorId() + ")";
         return s;
     }
-
-    private int vendorId = -1;
-    private int typeCode;
-    private String name;
-    private Class attributeClass;
-    private Map<Integer, String> enumeration = null;
-
 }

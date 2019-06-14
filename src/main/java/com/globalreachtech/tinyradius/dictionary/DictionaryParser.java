@@ -19,8 +19,7 @@ public class DictionaryParser {
      * @return dictionary object
      * @throws IOException
      */
-    public static Dictionary parseDictionary(InputStream source)
-            throws IOException {
+    public static Dictionary parseDictionary(InputStream source) throws IOException {
         WritableDictionary d = new MemoryDictionary();
         parseDictionary(source, d);
         return d;

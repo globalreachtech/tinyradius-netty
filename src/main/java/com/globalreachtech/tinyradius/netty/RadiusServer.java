@@ -44,9 +44,9 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     final EventLoopGroup eventLoopGroup;
     final EventExecutorGroup eventExecutorGroup;
     private final Dictionary dictionary;
-    private final PacketDeduplicator packetDeduplicator;
-    private final int authPort;
-    private final int acctPort;
+    final PacketManager packetManager;
+    final int authPort;
+    final int acctPort;
 
     private InetAddress listenAddress = null;
     private T authSocket = null;
@@ -66,13 +66,13 @@ public abstract class RadiusServer<T extends DatagramChannel> {
                         EventLoopGroup eventLoopGroup,
                         EventExecutorGroup eventExecutorGroup,
                         ChannelFactory<T> factory,
-                        PacketDeduplicator packetDeduplicator,
+                        PacketManager packetManager,
                         int authPort, int acctPort) {
         this.dictionary = requireNonNull(dictionary, "dictionary cannot be null");
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
         this.eventExecutorGroup = requireNonNull(eventExecutorGroup, "eventExecutorGroup cannot be null");
         this.factory = requireNonNull(factory, "factory cannot be null");
-        this.packetDeduplicator = packetDeduplicator;
+        this.packetManager = packetManager;
         this.authPort = validPort(authPort);
         this.acctPort = validPort(acctPort);
     }
@@ -158,10 +158,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
             acctSocket.close();
     }
 
-    int getAuthPort() {
-        return authPort;
-    }
-
     int validPort(int port) {
         if (port < 1 || port > 65535)
             throw new IllegalArgumentException("bad port number");
@@ -204,25 +200,17 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         }
     }
 
-    /**
-     * @return ChannelFuture
-     */
     protected ChannelFuture listenAuth() {
         logger.info("starting RadiusAuthListener on port " + authPort);
-        return listen(getAuthSocket(), new InetSocketAddress(getListenAddress(), authPort));
+        return listen(getAuthSocket(), new InetSocketAddress(listenAddress, authPort));
     }
 
-    /**
-     * @return ChannelFuture
-     */
     protected ChannelFuture listenAcct() {
         logger.info("starting RadiusAcctListener on port " + acctPort);
-        return listen(getAcctSocket(), new InetSocketAddress(getListenAddress(), acctPort));
+        return listen(getAcctSocket(), new InetSocketAddress(listenAddress, acctPort));
     }
 
     /**
-     * Listens on the passed socket, blocks until stop() is called.
-     *
      * @param channel       to listen on
      * @param listenAddress the address to bind to
      */
@@ -251,7 +239,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
      */
     protected RadiusPacket handlePacket(InetSocketAddress localAddress, InetSocketAddress remoteAddress, RadiusPacket request, String sharedSecret) throws RadiusException, IOException {
         // check for duplicates
-        if (!packetDeduplicator.isPacketDuplicate(request, remoteAddress)) {
+        if (!packetManager.isPacketDuplicate(request, remoteAddress)) {
             if (localAddress.getPort() == authPort) {
                 // handle packets on auth port
                 if (request instanceof AccessRequest)
@@ -271,11 +259,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         return null;
     }
 
-    /**
-     * Returns a socket bound to the auth port.
-     *
-     * @return socket
-     */
     protected T getAuthSocket() {
         if (authSocket == null) {
             authSocket = factory.newChannel();
@@ -283,11 +266,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         return authSocket;
     }
 
-    /**
-     * Returns a socket bound to the acct port.
-     *
-     * @return socket
-     */
     protected T getAcctSocket() {
         if (acctSocket == null) {
             acctSocket = factory.newChannel();
@@ -332,7 +310,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         return RadiusPacket.decodeRequestPacket(dictionary, in, sharedSecret);
     }
 
-    public interface PacketDeduplicator {
+    public interface PacketManager {
 
         /**
          * Checks whether the passed packet is a duplicate.
