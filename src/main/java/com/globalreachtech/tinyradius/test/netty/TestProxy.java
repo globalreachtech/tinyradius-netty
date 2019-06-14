@@ -87,7 +87,7 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
                 eventLoopGroup,
                 eventExecutorGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new ServerPacketManager(new HashedWheelTimer()),
+                new ServerPacketManager(new HashedWheelTimer(), 30000),
                 11812, 11813, 11814);
 
 

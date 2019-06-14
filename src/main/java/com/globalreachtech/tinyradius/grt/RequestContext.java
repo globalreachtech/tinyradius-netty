@@ -51,56 +51,6 @@ public class RequestContext {
         this.clientRequest.setPacketIdentifier(id & 0xff);
     }
 
-    public void newTimeout(Timer timer) {
-        newTimeout(timer, timeout -> {
-            if (this.attempts().intValue() < retransmits) {
-                logger.info(String.format("Retransmitting clientRequest for context %d", this.identifier()));
-                sendRequest(this);
-                this.newTimeout(RadiusClient.this.timer, timeout.task());
-            } else {
-                if (!promise.isDone()) {
-                    promise.setFailure(new RadiusException("Timeout occurred"));
-                    RadiusClient.this.dequeue(this);
-                }
-            }
-        });
-    }
-
-
-    public void newTimeout(Timer timer, TimerTask task) {
-        if (this.timeout != null) {
-            if (!this.timeout.isExpired())
-                this.timeout.cancel();
-        }
-        this.timeout = timer.newTimeout(task, timeoutNS / retransmits, TimeUnit.NANOSECONDS);
-    }
-
-
-    private RequestContext queue(RequestContext context) {
-        requireNonNull(context, "context cannot be null");
-
-        queue.add(context, context.clientRequest().getPacketIdentifier());
-
-        context.newTimeout(timer);
-
-        if (logger.isInfoEnabled())
-            logger.info(String.format("Queued clientRequest %d id => %d",
-                    context.identifier(), context.clientRequest().getPacketIdentifier()));
-
-        return context;
-    }
-
-    private boolean dequeue(RequestContext context) {
-        requireNonNull(context, "promise cannot be null");
-
-        boolean success = queue.remove(context, context.clientRequest().getPacketIdentifier());
-        if (success) {
-            if (!context.timeout.isExpired())
-                context.timeout.cancel();
-        }
-        return success;
-    }
-
     public int identifier() {
         return id;
     }

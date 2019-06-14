@@ -13,18 +13,18 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class ServerPacketManager implements RadiusServer.PacketDeduplicator {
 
-    private final long ttl;
+    private final long ttlMs;
     private final Timer timer;
 
     private final Set<Packet> packets = ConcurrentHashMap.newKeySet();
 
     /**
      * @param timer used to set timeouts that clean up packets after predefined TTL
-     * @param ttl time in milliseconds to keep packets in cache and ignore duplicates
+     * @param ttlMs time in ms to keep packets in cache and ignore duplicates
      */
-    public ServerPacketManager(Timer timer, long ttl) {
+    public ServerPacketManager(Timer timer, long ttlMs) {
         this.timer = timer;
-        this.ttl = ttl;
+        this.ttlMs = ttlMs;
     }
 
     /**
@@ -47,7 +47,7 @@ public class ServerPacketManager implements RadiusServer.PacketDeduplicator {
             return true;
 
         packets.add(p);
-        timer.newTimeout(t -> packets.remove(p), ttl, MILLISECONDS);
+        timer.newTimeout(t -> packets.remove(p), ttlMs, MILLISECONDS);
         return false;
     }
 

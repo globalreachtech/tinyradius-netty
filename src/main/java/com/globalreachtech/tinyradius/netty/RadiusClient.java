@@ -1,6 +1,5 @@
 package com.globalreachtech.tinyradius.netty;
 
-import com.globalreachtech.tinyradius.grt.RequestContext;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
@@ -9,6 +8,9 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,8 +18,6 @@ import org.apache.commons.logging.LogFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
 import static io.netty.buffer.Unpooled.buffer;
@@ -36,7 +36,6 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
 
     private static Log logger = LogFactory.getLog(RadiusClient.class);
 
-    private final AtomicInteger identifier = new AtomicInteger();
     private final ChannelFactory<T> factory;
     private final EventLoopGroup eventLoopGroup;
     private final PacketManager packetManager;
@@ -62,35 +61,47 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
             channel.close();
     }
 
-    public RequestContext communicate(RadiusPacket request, RadiusEndpoint endpoint, long timeout, TimeUnit unit) {
-        if (timeout < 0)
-            throw new IllegalArgumentException("timeout is invalid");
-
-        RequestContext context = new RequestContext(
-                identifier.getAndIncrement(), request, endpoint, unit.toNanos(timeout));
-
-        try {
-            sendRequest(context.clientRequest(), context.endpoint());
-        } catch (Exception e) {
-        }
-
-        return context;
+    public Future<RadiusPacket> communicate(RadiusPacket packet, RadiusEndpoint endpoint, int maxAttempts) {
+        return send(packet, endpoint, 1, maxAttempts);
     }
 
-    public void sendRequest(RadiusPacket packet, RadiusEndpoint endpoint) throws IOException, RadiusException {
+    private Future<RadiusPacket> send(RadiusPacket packet, RadiusEndpoint endpoint, int attempts, int maxAttempts) {
+        Promise<RadiusPacket> promise = new DefaultPromise<>();
 
-        DatagramPacket packetOut = makeDatagramPacket(packet, endpoint);
+        // because netty promises don't support chaining
+        sendOnce(packet, endpoint).addListener((Future<RadiusPacket> attempt) -> {
+            if (attempt.isSuccess())
+                promise.trySuccess(attempt.getNow());
+            if (attempts >= maxAttempts)
+                promise.tryFailure(new RadiusException("Max retries reached: " + maxAttempts)); //todo check obo error
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Sending packet to %s", endpoint.getEndpointAddress()));
-            logger.debug("\n" + ByteBufUtil.prettyHexDump(packetOut.content()));
+            logger.info(String.format("Retransmitting clientRequest for context %d", packet.getPacketIdentifier()));
+            send(packet, endpoint, attempts + 1, maxAttempts);
+        });
+
+        return promise;
+    }
+
+    private Future<RadiusPacket> sendOnce(RadiusPacket packet, RadiusEndpoint endpoint) {
+        Promise<RadiusPacket> promise = packetManager.logOutbound(packet, endpoint);
+
+        try {
+            DatagramPacket packetOut = makeDatagramPacket(packet, endpoint);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Sending packet to %s", endpoint.getEndpointAddress()));
+                logger.debug("\n" + ByteBufUtil.prettyHexDump(packetOut.content()));
+            }
+
+            T channel = getChannel();
+            channel.writeAndFlush(packetOut);
+
+            if (logger.isInfoEnabled())
+                logger.info(packet.toString());
+        } catch (Exception e) {
+            promise.tryFailure(e);
         }
-
-        T channel = getChannel();
-        channel.writeAndFlush(packetOut);
-
-        if (logger.isInfoEnabled())
-            logger.info(packet.toString());
+        return promise;
     }
 
     /**
@@ -100,7 +111,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
      * @return local socket
      * @throws ChannelException
      */
-    protected T getChannel() throws ChannelException {
+    private T getChannel() throws ChannelException {
         if (channel == null)
             channel = createChannel();
         return channel;
@@ -141,7 +152,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
 
     private class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-            packetManager.processInbound(packet);
+            packetManager.logInbound(packet);
         }
 
         @Override
@@ -152,12 +163,14 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
 
     public interface PacketManager {
 
+        Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint);
+
         /**
          * Process packet received
+         *
          * @param packet
          */
-        void processInbound(DatagramPacket packet);
-
+        void logInbound(DatagramPacket packet);
 
 
     }

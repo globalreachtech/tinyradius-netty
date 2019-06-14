@@ -43,15 +43,15 @@ public class TestServer {
         WritableDictionary dictionary = new MemoryDictionary();
         DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
 
-        final NioEventLoopGroup eventGroup = new NioEventLoopGroup(4);
+        final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         final DefaultEventExecutorGroup eventExecutorGroup = new DefaultEventExecutorGroup(4);
 
         final RadiusServer<NioDatagramChannel> server = new RadiusServer<NioDatagramChannel>(
                 dictionary,
-                eventGroup,
+                eventLoopGroup,
                 eventExecutorGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new ServerPacketManager(new HashedWheelTimer()),
+                new ServerPacketManager(new HashedWheelTimer(), 30000),
                 11812, 11813) {
 
             // Authorize localhost/testing123
@@ -92,7 +92,7 @@ public class TestServer {
             } else {
                 System.out.println("Failed to start server: " + future1.cause());
                 server.stop();
-                eventGroup.shutdownGracefully();
+                eventLoopGroup.shutdownGracefully();
             }
         });
 
@@ -100,7 +100,7 @@ public class TestServer {
 
         server.stop();
 
-        eventGroup.shutdownGracefully()
+        eventLoopGroup.shutdownGracefully()
                 .awaitUninterruptibly();
     }
 

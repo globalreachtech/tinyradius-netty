@@ -3,11 +3,13 @@ package com.globalreachtech.tinyradius.grt;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.netty.RadiusClient;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
+import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timer;
+import io.netty.util.concurrent.Promise;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,7 +31,12 @@ public class GrtClientPacketManager implements RadiusClient.PacketManager {
     }
 
     @Override
-    public void processInbound(DatagramPacket packet) {
+    public Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint) {
+        return null;
+    }
+
+    @Override
+    public void logInbound(DatagramPacket packet) {
         RequestContext context = lookup(packet);
         if (context == null) {
             logger.info("Request context not found for received packet, ignoring...");
@@ -44,7 +51,6 @@ public class GrtClientPacketManager implements RadiusClient.PacketManager {
                         context.clientRequest().toString()));
             }
 
-            dequeue(context);
         }
     }
 

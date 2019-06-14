@@ -1,15 +1,14 @@
 package com.globalreachtech.tinyradius.netty;
 
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
-import com.globalreachtech.tinyradius.grt.RequestContext;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
+import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.DefaultPromise;
-import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,68 +19,73 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 public class ClientPacketManager implements RadiusClient.PacketManager {
 
     private static Log logger = LogFactory.getLog(ClientPacketManager.class);
 
     private final Timer timer;
     private final Dictionary dictionary;
+    private final int timeoutMs;
 
-    private final Map<PacketContextKey, PacketContext> contexts = new ConcurrentHashMap<>();
+    private final Map<ContextKey, Context> contexts = new ConcurrentHashMap<>();
 
-    public ClientPacketManager(Timer timer, Dictionary dictionary) {
+    public ClientPacketManager(Timer timer, Dictionary dictionary, int timeoutMs) {
         this.timer = timer;
         this.dictionary = dictionary;
-    }
-
-    public Future<RadiusPacket> queue(DatagramPacket request) {
-
+        this.timeoutMs = timeoutMs;
     }
 
     @Override
-    public void processInbound(DatagramPacket response) {
+    public Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint) {
 
-        PacketContext context = lookup(response.sender(), response.content());
-        if (context == null) {
-            logger.info("Request context not found for received packet, ignoring...");
-        } else {
+        final ContextKey key = new ContextKey(packet.getPacketIdentifier(), endpoint.getEndpointAddress());
+        final Context context = new Context(endpoint.getSharedSecret(), packet);
+        contexts.put(key, context);
 
-            contexts.remove(context);
-        }
+        final Timeout timeout = timer.newTimeout(
+                t -> context.response.tryFailure(new RadiusException("Timeout occurred")), timeoutMs, MILLISECONDS);
+
+        context.response.addListener(f -> {
+            contexts.remove(key);
+            timeout.cancel();
+        });
+
+        return context.response;
     }
 
-    private PacketContext lookup(InetSocketAddress address, ByteBuf content) {
-        ByteBuf buf = content.duplicate().skipBytes(1);
-        int identifier = buf.readByte() & 0xff;
+    @Override
+    public void logInbound(DatagramPacket packet) {
+        int identifier = packet.content().duplicate().skipBytes(1).readByte() & 0xff;
+        final ContextKey key = new ContextKey(identifier, packet.sender());
 
-        final PacketContext pc = contexts.get(new PacketContextKey(identifier, address));
-        if (pc == null)
-            return null;
+        final Context context = contexts.get(key);
+        if (context == null) {
+            logger.info("Request context not found for received packet, ignoring...");
+            return;
+        }
 
         try {
             RadiusPacket resp = RadiusPacket.decodeResponsePacket(dictionary,
-                    new ByteBufInputStream(content.duplicate()),
-                    pc.sharedSecret, pc.request);
+                    new ByteBufInputStream(packet.content().duplicate()),
+                    context.sharedSecret, context.request);
 
             if (logger.isInfoEnabled())
                 logger.info(String.format("Found context %d for clientResponse identifier => %d",
-                        identifier, resp.getPacketIdentifier()));
+                        key.packetIdentifier, resp.getPacketIdentifier()));
 
-            pc.response.setSuccess(resp);
-            return pc;
-
+            context.response.trySuccess(resp);
         } catch (IOException | RadiusException ignored) {
-            return null;
         }
     }
 
-
-    private class PacketContextKey {
+    private class ContextKey {
         // todo can all packets be uniquely identified by this?
         private final int packetIdentifier;
         private final InetSocketAddress address;
 
-        PacketContextKey(int packetIdentifier, InetSocketAddress address) {
+        ContextKey(int packetIdentifier, InetSocketAddress address) {
             this.packetIdentifier = packetIdentifier;
             this.address = address;
         }
@@ -90,7 +94,7 @@ public class ClientPacketManager implements RadiusClient.PacketManager {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            PacketContextKey that = (PacketContextKey) o;
+            ContextKey that = (ContextKey) o;
             return packetIdentifier == that.packetIdentifier &&
                     address.equals(that.address);
         }
@@ -101,13 +105,13 @@ public class ClientPacketManager implements RadiusClient.PacketManager {
         }
     }
 
-    private class PacketContext {
+    private class Context {
 
         private final String sharedSecret;
         private final RadiusPacket request;
         private final Promise<RadiusPacket> response = new DefaultPromise<>();
 
-        public PacketContext(String sharedSecret, RadiusPacket request) {
+        Context(String sharedSecret, RadiusPacket request) {
             this.sharedSecret = sharedSecret;
             this.request = request;
         }

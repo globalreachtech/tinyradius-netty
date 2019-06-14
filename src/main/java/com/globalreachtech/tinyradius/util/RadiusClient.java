@@ -310,8 +310,7 @@ public class RadiusClient {
         byte[] data = bos.toByteArray();
 
         InetAddress address = InetAddress.getByName(getHostName());
-        DatagramPacket datagram = new DatagramPacket(data, data.length, address, port);
-        return datagram;
+        return new DatagramPacket(data, data.length, address, port);
     }
 
     /**
