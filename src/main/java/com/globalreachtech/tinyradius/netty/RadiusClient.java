@@ -141,7 +141,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
 
     private class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-            packetManager.process(packet);
+            packetManager.processInbound(packet);
         }
 
         @Override
@@ -156,7 +156,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
          * Process packet received
          * @param packet
          */
-        void process(DatagramPacket packet);
+        void processInbound(DatagramPacket packet);
 
 
 

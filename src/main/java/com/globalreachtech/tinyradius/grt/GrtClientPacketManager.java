@@ -29,7 +29,7 @@ public class GrtClientPacketManager implements RadiusClient.PacketManager {
     }
 
     @Override
-    public void process(DatagramPacket packet) {
+    public void processInbound(DatagramPacket packet) {
         RequestContext context = lookup(packet);
         if (context == null) {
             logger.info("Request context not found for received packet, ignoring...");

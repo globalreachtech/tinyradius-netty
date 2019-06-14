@@ -66,7 +66,6 @@ public class RequestContext {
         });
     }
 
-    public void sendPacket()
 
     public void newTimeout(Timer timer, TimerTask task) {
         if (this.timeout != null) {
