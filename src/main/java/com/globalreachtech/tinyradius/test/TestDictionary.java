@@ -1,10 +1,3 @@
-/**
- * $Id: TestDictionary.java,v 1.1 2005/09/06 16:38:41 wuttke Exp $
- * Created on 06.09.2005
- *
- * @author mw
- * @version $Revision: 1.1 $
- */
 package com.globalreachtech.tinyradius.test;
 
 import com.globalreachtech.tinyradius.attribute.IpAttribute;

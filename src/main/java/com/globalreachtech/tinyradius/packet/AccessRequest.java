@@ -3,7 +3,6 @@ package com.globalreachtech.tinyradius.packet;
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
 import com.globalreachtech.tinyradius.attribute.StringAttribute;
 import com.globalreachtech.tinyradius.util.RadiusException;
-import com.globalreachtech.tinyradius.util.RadiusUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,6 +28,58 @@ public class AccessRequest extends RadiusPacket {
      * Challenged Handshake Authentication Protocol
      */
     public static final String AUTH_CHAP = "chap";
+
+
+    /**
+     * Temporary storage for the unencrypted User-Password
+     * attribute.
+     */
+    private String password;
+
+    /**
+     * Authentication protocol for this access clientRequest.
+     */
+    private String authProtocol = AUTH_PAP;
+
+    /**
+     * CHAP password from a decoded CHAP Access-Request.
+     */
+    private byte[] chapPassword;
+
+    /**
+     * CHAP challenge from a decoded CHAP Access-Request.
+     */
+    private byte[] chapChallenge;
+
+    /**
+     * Random generator
+     */
+    private static SecureRandom random = new SecureRandom();
+
+    /**
+     * Radius type code for Radius attribute User-Name
+     */
+    private static final int USER_NAME = 1;
+
+    /**
+     * Radius attribute type for User-Password attribute.
+     */
+    private static final int USER_PASSWORD = 2;
+
+    /**
+     * Radius attribute type for CHAP-Password attribute.
+     */
+    private static final int CHAP_PASSWORD = 3;
+
+    /**
+     * Radius attribute type for CHAP-Challenge attribute.
+     */
+    private static final int CHAP_CHALLENGE = 60;
+
+    /**
+     * Logger for logging information about malformed packets
+     */
+    private static Log logger = LogFactory.getLog(AccessRequest.class);
 
     /**
      * Constructs an empty Access-Request packet.
@@ -204,12 +255,12 @@ public class AccessRequest extends RadiusPacket {
 
         try {
             byte[] C = this.getAuthenticator();
-            byte[] P = RadiusUtil.pad(userPass, C.length);
+            byte[] P = Util.pad(userPass, C.length);
             byte[] result = new byte[P.length];
 
             for (int i = 0; i < P.length; i += C.length) {
-                C = RadiusUtil.compute(sharedSecret, C);
-                C = RadiusUtil.xor(P, i, C.length, C, 0, C.length);
+                C = Util.compute(sharedSecret, C);
+                C = Util.xor(P, i, C.length, C, 0, C.length);
                 System.arraycopy(C, 0, result, i, C.length);
             }
 
@@ -241,13 +292,13 @@ public class AccessRequest extends RadiusPacket {
             byte[] C = this.getAuthenticator();
 
             for (int i = 0; i < P.length; i += C.length) {
-                C = RadiusUtil.compute(sharedSecret, C);
-                C = RadiusUtil.xor(P, i, C.length, C, 0, C.length);
+                C = Util.compute(sharedSecret, C);
+                C = Util.xor(P, i, C.length, C, 0, C.length);
                 System.arraycopy(C, 0, result, i, C.length);
                 System.arraycopy(P, i, C, 0, C.length);
             }
 
-            return RadiusUtil.getStringFromUtf8(result);
+            return Util.getStringFromUtf8(result);
 
         } catch (GeneralSecurityException e) {
             throw new RadiusException(e);
@@ -315,56 +366,4 @@ public class AccessRequest extends RadiusPacket {
                 return false;
         return true;
     }
-
-    /**
-     * Temporary storage for the unencrypted User-Password
-     * attribute.
-     */
-    private String password;
-
-    /**
-     * Authentication protocol for this access clientRequest.
-     */
-    private String authProtocol = AUTH_PAP;
-
-    /**
-     * CHAP password from a decoded CHAP Access-Request.
-     */
-    private byte[] chapPassword;
-
-    /**
-     * CHAP challenge from a decoded CHAP Access-Request.
-     */
-    private byte[] chapChallenge;
-
-    /**
-     * Random generator
-     */
-    private static SecureRandom random = new SecureRandom();
-
-    /**
-     * Radius type code for Radius attribute User-Name
-     */
-    private static final int USER_NAME = 1;
-
-    /**
-     * Radius attribute type for User-Password attribute.
-     */
-    private static final int USER_PASSWORD = 2;
-
-    /**
-     * Radius attribute type for CHAP-Password attribute.
-     */
-    private static final int CHAP_PASSWORD = 3;
-
-    /**
-     * Radius attribute type for CHAP-Challenge attribute.
-     */
-    private static final int CHAP_CHALLENGE = 60;
-
-    /**
-     * Logger for logging information about malformed packets
-     */
-    private static Log logger = LogFactory.getLog(AccessRequest.class);
-
 }

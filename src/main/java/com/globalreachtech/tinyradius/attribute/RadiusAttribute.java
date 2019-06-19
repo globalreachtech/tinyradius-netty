@@ -4,7 +4,6 @@ import com.globalreachtech.tinyradius.dictionary.AttributeType;
 import com.globalreachtech.tinyradius.dictionary.DefaultDictionary;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.util.RadiusException;
-import com.globalreachtech.tinyradius.util.RadiusUtil;
 
 import static java.util.Objects.requireNonNull;
 
@@ -13,6 +12,26 @@ import static java.util.Objects.requireNonNull;
  * methods to access the fields of special attributes.
  */
 public class RadiusAttribute {
+
+    /**
+     * Dictionary to look up attribute names.
+     */
+    private Dictionary dictionary = DefaultDictionary.INSTANCE;
+
+    /**
+     * Attribute type
+     */
+    private int attributeType = -1;
+
+    /**
+     * Vendor ID, only for sub-attributes of Vendor-Specific attributes.
+     */
+    private int vendorId = -1;
+
+    /**
+     * Attribute data
+     */
+    private byte[] attributeData = null;
 
     /**
      * Constructs an empty Radius attribute.
@@ -81,20 +100,15 @@ public class RadiusAttribute {
 
     /**
      * Gets the value of this attribute as a string.
-     *
-     * @return value
-     * @throws RadiusException if the value is invalid
      */
     public String getAttributeValue() {
-        return RadiusUtil.getHexString(getAttributeData());
+        return getHexString(getAttributeData());
     }
 
     /**
      * Gets the Vendor-Id of the Vendor-Specific attribute this
      * attribute belongs to. Returns -1 if this attribute is not
      * a sub attribute of a Vendor-Specific attribute.
-     *
-     * @return vendor ID
      */
     public int getVendorId() {
         return vendorId;
@@ -104,8 +118,6 @@ public class RadiusAttribute {
      * Sets the Vendor-Id of the Vendor-Specific attribute this
      * attribute belongs to. The default value of -1 means this attribute
      * is not a sub attribute of a Vendor-Specific attribute.
-     *
-     * @param vendorId vendor ID
      */
     public void setVendorId(int vendorId) {
         this.vendorId = vendorId;
@@ -150,8 +162,6 @@ public class RadiusAttribute {
 
     /**
      * Reads in this attribute from the passed byte array.
-     *
-     * @param data
      */
     public void readAttribute(byte[] data, int offset, int length)
             throws RadiusException {
@@ -165,11 +175,6 @@ public class RadiusAttribute {
         setAttributeData(attrData);
     }
 
-    /**
-     * String representation for debugging purposes.
-     *
-     * @see java.lang.Object#toString()
-     */
     public String toString() {
         String name;
 
@@ -254,23 +259,21 @@ public class RadiusAttribute {
     }
 
     /**
-     * Dictionary to look up attribute names.
+     * Returns the byte array as a hex string in the format
+     * "0x1234".
+     *
+     * @param data byte array
+     * @return hex string
      */
-    private Dictionary dictionary = DefaultDictionary.INSTANCE;
-
-    /**
-     * Attribute type
-     */
-    private int attributeType = -1;
-
-    /**
-     * Vendor ID, only for sub-attributes of Vendor-Specific attributes.
-     */
-    private int vendorId = -1;
-
-    /**
-     * Attribute data
-     */
-    private byte[] attributeData = null;
-
+    private static String getHexString(byte[] data) {
+        StringBuilder hex = new StringBuilder("0x");
+        if (data != null)
+            for (byte datum : data) {
+                String digit = Integer.toString(datum & 0x0ff, 16);
+                if (digit.length() < 2)
+                    hex.append('0');
+                hex.append(digit);
+            }
+        return hex.toString();
+    }
 }

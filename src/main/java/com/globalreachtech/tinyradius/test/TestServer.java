@@ -1,17 +1,10 @@
-/**
- * $Id: TestServer.java,v 1.6 2006/02/17 18:14:54 wuttke Exp $
- * Created on 08.04.2005
- *
- * @author Matthias Wuttke
- * @version $Revision: 1.6 $
- */
 package com.globalreachtech.tinyradius.test;
 
+import com.globalreachtech.tinyradius.RadiusServer;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
 import com.globalreachtech.tinyradius.netty.ServerPacketManager;
-import com.globalreachtech.tinyradius.RadiusServer;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusException;
@@ -19,7 +12,6 @@ import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.Future;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -44,12 +36,10 @@ public class TestServer {
         DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-        final DefaultEventExecutorGroup eventExecutorGroup = new DefaultEventExecutorGroup(4);
 
         final RadiusServer<NioDatagramChannel> server = new RadiusServer<NioDatagramChannel>(
                 dictionary,
                 eventLoopGroup,
-                eventExecutorGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new ServerPacketManager(new HashedWheelTimer(), 30000),
                 11812, 11813) {

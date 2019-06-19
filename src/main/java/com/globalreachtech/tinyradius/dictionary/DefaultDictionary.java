@@ -20,7 +20,7 @@ public class DefaultDictionary extends MemoryDictionary {
 
     /**
      * Creates the singleton INSTANCE of this object
-     * and parses the classpath ressource.
+     * and parses the classpath resource.
      */
     static {
         try {

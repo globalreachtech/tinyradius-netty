@@ -8,7 +8,6 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
@@ -65,7 +64,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
     }
 
     private Future<RadiusPacket> send(RadiusPacket packet, RadiusEndpoint endpoint, int attempts, int maxAttempts) {
-        Promise<RadiusPacket> promise = new DefaultPromise<>();
+        Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
         // because netty promises don't support chaining
         sendOnce(packet, endpoint).addListener((Future<RadiusPacket> attempt) -> {
@@ -164,13 +163,6 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
 
         Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint);
 
-        /**
-         * Process packet received
-         *
-         * @param packet
-         */
         void logInbound(DatagramPacket packet);
-
-
     }
 }

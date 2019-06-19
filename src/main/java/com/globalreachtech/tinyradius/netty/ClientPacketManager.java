@@ -81,7 +81,7 @@ public class ClientPacketManager implements RadiusClient.PacketManager {
         }
     }
 
-    private class ContextKey {
+    private static class ContextKey {
         // todo can all packets be uniquely identified by this?
         private final int packetIdentifier;
         private final InetSocketAddress address;
@@ -106,7 +106,7 @@ public class ClientPacketManager implements RadiusClient.PacketManager {
         }
     }
 
-    private class Context {
+    private static class Context {
 
         private final String sharedSecret;
         private final RadiusPacket request;

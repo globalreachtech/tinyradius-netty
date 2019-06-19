@@ -1,10 +1,3 @@
-/**
- * $Id: TestServer.java,v 1.6 2006/02/17 18:14:54 wuttke Exp $
- * Created on 08.04.2005
- *
- * @author Matthias Wuttke
- * @version $Revision: 1.6 $
- */
 package com.globalreachtech.tinyradius.legacy;
 
 import com.globalreachtech.tinyradius.packet.AccessRequest;

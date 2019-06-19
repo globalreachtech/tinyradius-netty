@@ -46,22 +46,21 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
 
     private Future<Void> proxyStatus = null;
 
-    public RadiusProxy(EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, IProxyPacketManager proxyPacketManager) {
-        super(eventGroup, eventExecutorGroup, factory);
+    public RadiusProxy(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, IProxyPacketManager proxyPacketManager) {
+        super(eventLoopGroup, factory);
         this.proxyPort = 1814;
         this.proxyPacketManager = proxyPacketManager;
 
     }
 
-    public RadiusProxy(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, IProxyPacketManager proxyPacketManager) {
-        super(dictionary, eventGroup, eventExecutorGroup, factory);
+    public RadiusProxy(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, IProxyPacketManager proxyPacketManager) {
+        super(dictionary, eventLoopGroup, factory);
         this.proxyPort = 1814;
         this.proxyPacketManager = proxyPacketManager;
-
     }
 
-    public RadiusProxy(Dictionary dictionary, EventLoopGroup loopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, IProxyPacketManager proxyPacketManager, int authPort, int acctPort, int proxyPort) {
-        super(dictionary, loopGroup, eventExecutorGroup, factory, proxyPacketManager, authPort, acctPort);
+    public RadiusProxy(Dictionary dictionary, EventLoopGroup loopGroup, ChannelFactory<T> factory, IProxyPacketManager proxyPacketManager, int authPort, int acctPort, int proxyPort) {
+        super(dictionary, loopGroup, factory, proxyPacketManager, authPort, acctPort);
         this.proxyPort = validPort(proxyPort);
         this.proxyPacketManager = proxyPacketManager;
     }
@@ -74,7 +73,7 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
         if (this.proxyStatus != null)
             return this.proxyStatus;
 
-        final Promise<Void> status = new DefaultPromise<>(eventLoopGroup.next());
+        final Promise<Void> status = eventLoopGroup.next().newPromise();
 
         final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
         promiseCombiner.addAll(super.start(), listenProxy());

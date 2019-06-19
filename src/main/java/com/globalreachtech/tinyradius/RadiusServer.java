@@ -16,10 +16,7 @@ import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.HashedWheelTimer;
-import io.netty.util.concurrent.DefaultPromise;
-import io.netty.util.concurrent.EventExecutorGroup;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.PromiseCombiner;
+import io.netty.util.concurrent.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,7 +40,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 
     final ChannelFactory<T> factory;
     final EventLoopGroup eventLoopGroup;
-    final EventExecutorGroup eventExecutorGroup;
     private final Dictionary dictionary;
     final PacketManager packetManager;
     final int authPort;
@@ -55,23 +51,17 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 
     private Future<Void> startStatus = null;
 
-    public RadiusServer(EventLoopGroup eventLoopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory) {
-        this(DefaultDictionary.INSTANCE, eventLoopGroup, eventExecutorGroup, factory);
+    public RadiusServer(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory) {
+        this(DefaultDictionary.INSTANCE, eventLoopGroup, factory);
     }
 
-    public RadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory) {
-        this(dictionary, eventLoopGroup, eventExecutorGroup, factory, new ServerPacketManager(new HashedWheelTimer(), 30000), 1812, 1813);
+    public RadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<T> factory) {
+        this(dictionary, eventLoopGroup, factory, new ServerPacketManager(new HashedWheelTimer(), 30000), 1812, 1813);
     }
 
-    public RadiusServer(Dictionary dictionary,
-                        EventLoopGroup eventLoopGroup,
-                        EventExecutorGroup eventExecutorGroup,
-                        ChannelFactory<T> factory,
-                        PacketManager packetManager,
-                        int authPort, int acctPort) {
+    public RadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, PacketManager packetManager, int authPort, int acctPort) {
         this.dictionary = requireNonNull(dictionary, "dictionary cannot be null");
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
-        this.eventExecutorGroup = requireNonNull(eventExecutorGroup, "eventExecutorGroup cannot be null");
         this.factory = requireNonNull(factory, "factory cannot be null");
         this.packetManager = packetManager;
         this.authPort = validPort(authPort);
@@ -138,7 +128,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         if (this.startStatus != null)
             return this.startStatus;
 
-        final DefaultPromise<Void> status = new DefaultPromise<>(eventLoopGroup.next());
+        final Promise<Void> status = eventLoopGroup.next().newPromise();
 
         final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
         promiseCombiner.addAll(listenAuth(), listenAcct());

@@ -1,10 +1,3 @@
-/**
- * $Id: RadiusClient.java,v 1.7 2005/11/10 10:20:21 wuttke Exp $
- * Created on 09.04.2005
- *
- * @author Matthias Wuttke
- * @version $Revision: 1.7 $
- */
 package com.globalreachtech.tinyradius.legacy;
 
 import com.globalreachtech.tinyradius.packet.AccessRequest;

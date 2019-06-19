@@ -1,10 +1,3 @@
-/**
- * $Id: VendorSpecificAttribute.java,v 1.7 2005/11/22 10:18:38 wuttke Exp $
- * Created on 10.04.2005
- *
- * @author Matthias Wuttke
- * @version $Revision: 1.7 $
- */
 package com.globalreachtech.tinyradius.attribute;
 
 import com.globalreachtech.tinyradius.dictionary.AttributeType;

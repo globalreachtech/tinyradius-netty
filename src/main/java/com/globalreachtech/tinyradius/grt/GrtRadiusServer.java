@@ -14,8 +14,8 @@ import java.net.InetSocketAddress;
 
 public class GrtRadiusServer extends RadiusProxy<NioDatagramChannel> {
 
-    public GrtRadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<NioDatagramChannel> factory, IProxyPacketManager deduplicator, int authPort, int acctPort, int proxyPort) {
-        super(dictionary, eventLoopGroup, eventExecutorGroup, factory, deduplicator, authPort, acctPort, proxyPort);
+    public GrtRadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<NioDatagramChannel> factory, IProxyPacketManager deduplicator, int authPort, int acctPort, int proxyPort) {
+        super(dictionary, eventLoopGroup, factory, deduplicator, authPort, acctPort, proxyPort);
     }
 
     @Override

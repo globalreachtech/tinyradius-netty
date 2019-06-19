@@ -1,4 +1,4 @@
-package com.globalreachtech.tinyradius.util;
+package com.globalreachtech.tinyradius.packet;
 
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -7,52 +7,17 @@ import static java.lang.Math.max;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
-/**
- * This class contains miscellaneous static utility functions.
- */
-public class RadiusUtil {
+class Util {
 
-    /**
-     * Creates a string from the passed byte array containing the
-     * string in UTF-8 representation.
-     *
-     * @param utf8 UTF-8 byte array
-     * @return Java string
-     */
-    public static String getStringFromUtf8(byte[] utf8) {
-        String s = new String(utf8, UTF_8);
-        int i = s.indexOf('\0');
-        return (i > 0) ? s.substring(0, i) : s;
-    }
-
-    /**
-     * Returns the byte array as a hex string in the format
-     * "0x1234".
-     *
-     * @param data byte array
-     * @return hex string
-     */
-    public static String getHexString(byte[] data) {
-        StringBuilder hex = new StringBuilder("0x");
-        if (data != null)
-            for (byte datum : data) {
-                String digit = Integer.toString(datum & 0x0ff, 16);
-                if (digit.length() < 2)
-                    hex.append('0');
-                hex.append(digit);
-            }
-        return hex.toString();
-    }
-
-    public static byte[] xor(byte[] src1, int src1offset, int src1length,
-                             byte[] src2, int src2offset, int src2length) {
+    static byte[] xor(byte[] src1, int src1offset, int src1length,
+                      byte[] src2, int src2offset, int src2length) {
         byte[] dst = new byte[max(max(src1length, src2length), 0)];
 
         return xor(src1, src1offset, src1length, src2, src2offset, src2length, dst, 0);
     }
 
-    public static byte[] xor(byte[] src1, int src1offset, int src1length,
-                             byte[] src2, int src2offset, int src2length, byte[] dst, int dstoffset) {
+    private static byte[] xor(byte[] src1, int src1offset, int src1length,
+                              byte[] src2, int src2offset, int src2length, byte[] dst, int dstoffset) {
 
         requireNonNull(src1, "src1 is null");
         requireNonNull(src2, "src2 is null");
@@ -90,7 +55,7 @@ public class RadiusUtil {
         return dst;
     }
 
-    public static byte[] compute(byte[]... values) throws GeneralSecurityException {
+    static byte[] compute(byte[]... values) throws GeneralSecurityException {
 
         MessageDigest md = MessageDigest.getInstance("MD5");
 
@@ -100,7 +65,7 @@ public class RadiusUtil {
         return md.digest();
     }
 
-    public static byte[] pad(byte[] value, int length) {
+    static byte[] pad(byte[] value, int length) {
         requireNonNull(value, "value cannot be null");
         if (length < 0)
             throw new IllegalArgumentException("length cannot be less than 0");
@@ -110,6 +75,19 @@ public class RadiusUtil {
         System.arraycopy(value, 0, padded, 0, value.length);
 
         return padded;
+    }
+
+    /**
+     * Creates a string from the passed byte array containing the
+     * string in UTF-8 representation.
+     *
+     * @param utf8 UTF-8 byte array
+     * @return Java string
+     */
+    static String getStringFromUtf8(byte[] utf8) {
+        String s = new String(utf8, UTF_8);
+        int i = s.indexOf('\0');
+        return (i > 0) ? s.substring(0, i) : s;
     }
 
 }
