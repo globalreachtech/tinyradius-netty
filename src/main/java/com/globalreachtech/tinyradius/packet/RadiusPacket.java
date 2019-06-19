@@ -63,6 +63,46 @@ public class RadiusPacket implements Cloneable {
     public static final int RADIUS_HEADER_LENGTH = 20;
 
     /**
+     * Type of this Radius packet.
+     */
+    private int packetType = 0;
+
+    /**
+     * Identifier of this packet.
+     */
+    private int packetIdentifier = 0;
+
+    /**
+     * Attributes for this packet.
+     */
+    private List<RadiusAttribute> attributes = new ArrayList<>();
+
+    /**
+     * MD5 digest.
+     */
+    private MessageDigest md5Digest = null;
+
+    /**
+     * Authenticator for this Radius packet.
+     */
+    private byte[] authenticator = null;
+
+    /**
+     * Dictionary to look up attribute names.
+     */
+    private Dictionary dictionary = DefaultDictionary.INSTANCE;
+
+    /**
+     * Next packet identifier.
+     */
+    private static int nextPacketId = 0;
+
+    /**
+     * Random number generator.
+     */
+    private static SecureRandom random = new SecureRandom();
+
+    /**
      * Builds a Radius packet without attributes. Retrieves
      * the next packet identifier.
      *
@@ -1029,45 +1069,4 @@ public class RadiusPacket implements Cloneable {
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
-
-    /**
-     * Type of this Radius packet.
-     */
-    private int packetType = 0;
-
-    /**
-     * Identifier of this packet.
-     */
-    private int packetIdentifier = 0;
-
-    /**
-     * Attributes for this packet.
-     */
-    private List<RadiusAttribute> attributes = new ArrayList<>();
-
-    /**
-     * MD5 digest.
-     */
-    private MessageDigest md5Digest = null;
-
-    /**
-     * Authenticator for this Radius packet.
-     */
-    private byte[] authenticator = null;
-
-    /**
-     * Dictionary to look up attribute names.
-     */
-    private Dictionary dictionary = DefaultDictionary.INSTANCE;
-
-    /**
-     * Next packet identifier.
-     */
-    private static int nextPacketId = 0;
-
-    /**
-     * Random number generator.
-     */
-    private static SecureRandom random = new SecureRandom();
-
 }
