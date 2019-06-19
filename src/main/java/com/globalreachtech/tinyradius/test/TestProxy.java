@@ -1,17 +1,29 @@
-/**
- * $Id: TestProxy.java,v 1.1 2005/09/07 22:19:01 wuttke Exp $
- * Created on 07.09.2005
- *
- * @author Matthias Wuttke
- * @version $Revision: 1.1 $
- */
 package com.globalreachtech.tinyradius.test;
 
+import com.globalreachtech.tinyradius.dictionary.Dictionary;
+import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
+import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
+import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
+import com.globalreachtech.tinyradius.netty.ProxyPacketManager;
+import com.globalreachtech.tinyradius.RadiusProxy;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.proxy.RadiusProxy;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
+import io.netty.channel.ChannelFactory;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.ReflectiveChannelFactory;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramChannel;
+import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutorGroup;
+import io.netty.util.concurrent.Future;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
+import java.io.FileInputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -26,30 +38,32 @@ import java.net.UnknownHostException;
  * target server (localhost:10000/localhost:10001) and "proxytest" as the
  * shared secret for the communication with connecting clients.
  */
-public class TestProxy extends RadiusProxy {
+public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
-    public RadiusEndpoint getProxyServer(RadiusPacket packet,
-                                         RadiusEndpoint client) {
+    public TestProxy(Dictionary dictionary, EventLoopGroup eventGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<T> factory, RadiusProxy.IProxyPacketManager deduplicator, int authPort, int acctPort, int proxyPort) {
+        super(dictionary, eventGroup, eventExecutorGroup, factory, deduplicator, authPort, acctPort, proxyPort);
+    }
+
+    public RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
         // always proxy
         try {
             InetAddress address = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
-            int port = 10000;
-            if (packet instanceof AccountingRequest)
-                port = 10001;
+            int port = packet instanceof AccountingRequest ? 1813 : 1812;
             return new RadiusEndpoint(new InetSocketAddress(address, port), "testing123");
-        } catch (UnknownHostException uhe) {
-            uhe.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
             return null;
         }
     }
 
     public String getSharedSecret(InetSocketAddress client) {
-        if (client.getPort() == 10000 || client.getPort() == 10001)
+        if (client.getPort() == 1812 || client.getPort() == 1813)
             return "testing123";
-        else if (client.getAddress().getHostAddress().equals("127.0.0.1"))
+
+        if (client.getAddress().getHostAddress().equals("127.0.0.1"))
             return "proxytest";
-        else
-            return null;
+
+        return null;
     }
 
     public String getUserPassword(String userName) {
@@ -57,8 +71,43 @@ public class TestProxy extends RadiusProxy {
         return null;
     }
 
-    public static void main(String[] args) {
-        new TestProxy().start(true, true, true);
-    }
+    public static void main(String[] args) throws Exception {
 
+        BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
+
+        final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+        final DefaultEventExecutorGroup eventExecutorGroup = new DefaultEventExecutorGroup(4);
+
+        WritableDictionary dictionary = new MemoryDictionary();
+        DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
+
+        final TestProxy<NioDatagramChannel> proxy = new TestProxy<>(
+                dictionary,
+                eventLoopGroup,
+                eventExecutorGroup,
+                new ReflectiveChannelFactory<>(NioDatagramChannel.class),
+                new ProxyPacketManager(new HashedWheelTimer(), 30000),
+                11812, 11813, 11814);
+
+
+        Future<Void> future = proxy.start();
+        future.addListener(future1 -> {
+            if (future1.isSuccess()) {
+                System.out.println("Server started.");
+            } else {
+                System.out.println("Failed to start server");
+                future1.cause().printStackTrace();
+            }
+        });
+
+        System.in.read();
+
+        proxy.stop();
+
+        eventLoopGroup.shutdownGracefully()
+                .awaitUninterruptibly();
+        eventExecutorGroup.shutdownGracefully().awaitUninterruptibly();
+
+    }
 }

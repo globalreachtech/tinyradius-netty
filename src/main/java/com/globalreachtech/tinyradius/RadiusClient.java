@@ -1,4 +1,4 @@
-package com.globalreachtech.tinyradius.netty;
+package com.globalreachtech.tinyradius;
 
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
@@ -28,8 +28,7 @@ import static java.util.Objects.requireNonNull;
  * a specified Radius server. You can use a single INSTANCE of this object
  * to authenticate or account different users with the same Radius server
  * as long as you authenticate/account one user after the other. This object
- * is thread safe, but only opens a single socket so operations using this
- * socket are synchronized to avoid confusion with the mapping of clientRequest
+ * is thread safe, but requires a packet manager to avoid confusion with the mapping of request
  * and result packets.
  */
 public class RadiusClient<T extends DatagramChannel> implements Closeable {

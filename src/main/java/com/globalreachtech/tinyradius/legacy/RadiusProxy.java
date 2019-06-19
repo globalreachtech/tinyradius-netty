@@ -5,13 +5,13 @@
  * @author glanz, Matthias Wuttke
  * @version $Revision: 1.1 $
  */
-package com.globalreachtech.tinyradius.proxy;
+package com.globalreachtech.tinyradius.legacy;
 
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
-import com.globalreachtech.tinyradius.util.RadiusServer;
+import com.globalreachtech.tinyradius.util.RadiusProxyConnection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

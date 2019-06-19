@@ -1,8 +1,9 @@
-package com.globalreachtech.tinyradius.netty;
+package com.globalreachtech.tinyradius;
 
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
 import com.globalreachtech.tinyradius.dictionary.DefaultDictionary;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
+import com.globalreachtech.tinyradius.netty.ServerPacketManager;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;

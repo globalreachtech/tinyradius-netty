@@ -1,7 +1,8 @@
 package com.globalreachtech.tinyradius.netty;
 
+import com.globalreachtech.tinyradius.RadiusProxy;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.proxy.RadiusProxyConnection;
+import com.globalreachtech.tinyradius.util.RadiusProxyConnection;
 import io.netty.util.Timer;
 
 import java.net.InetSocketAddress;

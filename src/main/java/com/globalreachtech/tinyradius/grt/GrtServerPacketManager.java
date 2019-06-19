@@ -1,6 +1,6 @@
 package com.globalreachtech.tinyradius.grt;
 
-import com.globalreachtech.tinyradius.netty.RadiusServer;
+import com.globalreachtech.tinyradius.RadiusServer;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 
 import java.net.InetSocketAddress;

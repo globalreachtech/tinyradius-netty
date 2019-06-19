@@ -1,16 +1,21 @@
-/**
- * $Id: TestClient.java,v 1.4 2006/02/17 18:14:54 wuttke Exp $
- * Created on 08.04.2005
- *
- * @author Matthias Wuttke
- * @version $Revision: 1.4 $
- */
 package com.globalreachtech.tinyradius.test;
 
+import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
+import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
+import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
+import com.globalreachtech.tinyradius.netty.ClientPacketManager;
+import com.globalreachtech.tinyradius.RadiusClient;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.util.RadiusClient;
+import com.globalreachtech.tinyradius.util.RadiusEndpoint;
+import io.netty.channel.ReflectiveChannelFactory;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.HashedWheelTimer;
+
+import java.io.FileInputStream;
+import java.net.InetSocketAddress;
 
 /**
  * Simple Radius command-line client.
@@ -20,6 +25,7 @@ public class TestClient {
     /**
      * Radius command line client.
      * <br/>Usage: TestClient <i>hostName sharedSecret userName password</i>
+     *
      * @param args arguments
      * @throws Exception
      */
@@ -35,7 +41,20 @@ public class TestClient {
         String user = args[2];
         String pass = args[3];
 
-        RadiusClient rc = new RadiusClient(host, shared);
+        final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+
+        WritableDictionary dictionary = new MemoryDictionary();
+        DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
+
+
+        RadiusClient<NioDatagramChannel> rc = new RadiusClient<>(
+                eventLoopGroup,
+                new ReflectiveChannelFactory<>(NioDatagramChannel.class),
+                new ClientPacketManager(new HashedWheelTimer(), dictionary, 30000)
+        );
+
+        final RadiusEndpoint authEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1812), shared);
+        final RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1813), shared);
 
         // 1. Send Access-Request
         AccessRequest ar = new AccessRequest(user, pass);
@@ -47,7 +66,7 @@ public class TestClient {
         ar.addAttribute("WISPr-Location-ID", "net.sourceforge.ap1");
 
         System.out.println("Packet before it is sent\n" + ar + "\n");
-        RadiusPacket response = rc.authenticate(ar);
+        RadiusPacket response = rc.communicate(ar, authEndpoint, 3).syncUninterruptibly().getNow();
         System.out.println("Packet after it was sent\n" + ar + "\n");
         System.out.println("Response\n" + response + "\n");
 
@@ -58,7 +77,7 @@ public class TestClient {
         acc.addAttribute("NAS-Port", "0");
 
         System.out.println(acc + "\n");
-        response = rc.account(acc);
+        response = rc.communicate(acc, acctEndpoint, 3).syncUninterruptibly().getNow();
         System.out.println("Response: " + response);
 
         rc.close();

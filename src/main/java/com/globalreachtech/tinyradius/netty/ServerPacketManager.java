@@ -1,5 +1,6 @@
 package com.globalreachtech.tinyradius.netty;
 
+import com.globalreachtech.tinyradius.RadiusServer;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import io.netty.util.Timer;
 

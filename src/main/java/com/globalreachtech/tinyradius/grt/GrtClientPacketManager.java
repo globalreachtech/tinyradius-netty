@@ -1,7 +1,7 @@
 package com.globalreachtech.tinyradius.grt;
 
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
-import com.globalreachtech.tinyradius.netty.RadiusClient;
+import com.globalreachtech.tinyradius.RadiusClient;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;

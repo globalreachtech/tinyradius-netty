@@ -1,9 +1,9 @@
-package com.globalreachtech.tinyradius.netty;
+package com.globalreachtech.tinyradius;
 
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.proxy.RadiusProxyConnection;
+import com.globalreachtech.tinyradius.util.RadiusProxyConnection;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
 import io.netty.buffer.ByteBuf;

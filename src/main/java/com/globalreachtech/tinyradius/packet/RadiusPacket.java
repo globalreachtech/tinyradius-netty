@@ -1026,10 +1026,6 @@ public class RadiusPacket implements Cloneable {
         return bos.toByteArray();
     }
 
-    /**
-     * @return
-     * @throws CloneNotSupportedException
-     */
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

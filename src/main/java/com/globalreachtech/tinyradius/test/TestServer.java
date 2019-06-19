@@ -7,12 +7,25 @@
  */
 package com.globalreachtech.tinyradius.test;
 
+import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
+import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
+import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
+import com.globalreachtech.tinyradius.netty.ServerPacketManager;
+import com.globalreachtech.tinyradius.RadiusServer;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusException;
-import com.globalreachtech.tinyradius.util.RadiusServer;
+import io.netty.channel.ReflectiveChannelFactory;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.Future;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
-import java.io.IOException;
+import java.io.FileInputStream;
 import java.net.InetSocketAddress;
 
 /**
@@ -22,9 +35,25 @@ import java.net.InetSocketAddress;
  */
 public class TestServer {
 
-    public static void main(String[] args)
-            throws IOException, Exception {
-        RadiusServer server = new RadiusServer() {
+    public static void main(String[] args) throws Exception {
+
+        BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
+
+        WritableDictionary dictionary = new MemoryDictionary();
+        DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
+
+        final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+        final DefaultEventExecutorGroup eventExecutorGroup = new DefaultEventExecutorGroup(4);
+
+        final RadiusServer<NioDatagramChannel> server = new RadiusServer<NioDatagramChannel>(
+                dictionary,
+                eventLoopGroup,
+                eventExecutorGroup,
+                new ReflectiveChannelFactory<>(NioDatagramChannel.class),
+                new ServerPacketManager(new HashedWheelTimer(), 30000),
+                11812, 11813) {
+
             // Authorize localhost/testing123
             public String getSharedSecret(InetSocketAddress client) {
                 if (client.getAddress().getHostAddress().equals("127.0.0.1"))
@@ -35,8 +64,8 @@ public class TestServer {
 
             // Authenticate mw
             public String getUserPassword(String userName) {
-                if (userName.equals("mw"))
-                    return "test";
+                if (userName.equals("test"))
+                    return "password";
                 else
                     return null;
             }
@@ -55,18 +84,24 @@ public class TestServer {
                 return packet;
             }
         };
-        if (args.length >= 1)
-            server.setAuthPort(Integer.parseInt(args[0]));
-        if (args.length >= 2)
-            server.setAcctPort(Integer.parseInt(args[1]));
 
-        server.start(true, true);
+        final Future<Void> future = server.start();
+        future.addListener(future1 -> {
+            if (future1.isSuccess()) {
+                System.out.println("Server started");
+            } else {
+                System.out.println("Failed to start server: " + future1.cause());
+                server.stop();
+                eventLoopGroup.shutdownGracefully();
+            }
+        });
 
-        System.out.println("Server started.");
+        System.in.read();
 
-        Thread.sleep(1000 * 60 * 30);
-        System.out.println("Stop server");
         server.stop();
+
+        eventLoopGroup.shutdownGracefully()
+                .awaitUninterruptibly();
     }
 
 }

@@ -1,9 +1,10 @@
-package com.globalreachtech.tinyradius.util;
+package com.globalreachtech.tinyradius.legacy;
 
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
+import com.globalreachtech.tinyradius.util.RadiusException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

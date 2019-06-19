@@ -2,7 +2,7 @@ package com.globalreachtech.tinyradius.grt;
 
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.netty.ServerPacketManager;
-import com.globalreachtech.tinyradius.netty.RadiusProxy;
+import com.globalreachtech.tinyradius.RadiusProxy;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import io.netty.channel.ChannelFactory;
@@ -14,7 +14,7 @@ import java.net.InetSocketAddress;
 
 public class GrtRadiusServer extends RadiusProxy<NioDatagramChannel> {
 
-    public GrtRadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory factory, ServerPacketManager deduplicator, int authPort, int acctPort, int proxyPort) {
+    public GrtRadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, EventExecutorGroup eventExecutorGroup, ChannelFactory<NioDatagramChannel> factory, IProxyPacketManager deduplicator, int authPort, int acctPort, int proxyPort) {
         super(dictionary, eventLoopGroup, eventExecutorGroup, factory, deduplicator, authPort, acctPort, proxyPort);
     }
 

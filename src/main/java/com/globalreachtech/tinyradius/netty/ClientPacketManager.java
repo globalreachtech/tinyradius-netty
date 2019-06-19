@@ -1,5 +1,6 @@
 package com.globalreachtech.tinyradius.netty;
 
+import com.globalreachtech.tinyradius.RadiusClient;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;

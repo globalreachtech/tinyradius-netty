@@ -9,46 +9,29 @@ import java.net.InetSocketAddress;
  */
 public class RadiusEndpoint {
 
-    /**
-     * Constructs a RadiusEndpoint object.
-     * @param remoteAddress remote address (ip and port number)
-     * @param sharedSecret shared secret
-     */
+    private InetSocketAddress endpointAddress;
+    private String sharedSecret;
+
     public RadiusEndpoint(InetSocketAddress remoteAddress, String sharedSecret) {
         this.endpointAddress = remoteAddress;
         this.sharedSecret = sharedSecret;
     }
 
-    /**
-     * Returns the remote address.
-     * @return remote address
-     */
     public InetSocketAddress getEndpointAddress() {
         return endpointAddress;
     }
 
-    /**
-     * Returns the shared secret.
-     * @return shared secret
-     */
     public String getSharedSecret() {
         return sharedSecret;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == null)
-            return false;
-        if (!(o instanceof RadiusEndpoint))
-            return false;
-
-        RadiusEndpoint e = (RadiusEndpoint) o;
-
-        if (e.endpointAddress.equals(endpointAddress))
-            return true;
-        return e.sharedSecret.equals(sharedSecret);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RadiusEndpoint that = (RadiusEndpoint) o;
+        return endpointAddress.equals(that.endpointAddress) &&
+                sharedSecret.equals(that.sharedSecret);
     }
 
-    private InetSocketAddress endpointAddress;
-    private String sharedSecret;
 }
