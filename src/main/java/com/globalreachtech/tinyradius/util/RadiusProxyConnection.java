@@ -1,7 +1,6 @@
 package com.globalreachtech.tinyradius.util;
 
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 
 /**
  * This class stores information about a proxied packet.
@@ -11,48 +10,42 @@ import com.globalreachtech.tinyradius.util.RadiusEndpoint;
  */
 public class RadiusProxyConnection {
 
+    private final RadiusEndpoint serverEndpoint;
+    private final RadiusEndpoint clientEndpoint;
+    private final int port;
+    private final RadiusPacket packet;
+
     /**
      * Creates a RadiusProxyConnection object.
-     * @param radiusServer server endpoint
-     * @param radiusClient client endpoint
+     *
      * @param port port the proxied packet arrived at originally
      */
-    public RadiusProxyConnection(RadiusEndpoint radiusServer, RadiusEndpoint radiusClient, RadiusPacket packet, int port) {
-        this.radiusServer = radiusServer;
-        this.radiusClient = radiusClient;
+    public RadiusProxyConnection(RadiusEndpoint serverEndpoint, RadiusEndpoint clientEndpoint, RadiusPacket packet, int port) {
+        this.serverEndpoint = serverEndpoint;
+        this.clientEndpoint = clientEndpoint;
         this.packet = packet;
         this.port = port;
     }
 
-    public RadiusEndpoint getRadiusClient() {
-        return radiusClient;
+    public RadiusEndpoint getClientEndpoint() {
+        return clientEndpoint;
     }
 
-    public RadiusEndpoint getRadiusServer() {
-        return radiusServer;
+    public RadiusEndpoint getServerEndpoint() {
+        return serverEndpoint;
     }
 
     /**
      * Returns the proxied packet.
-     * @return packet
      */
     public RadiusPacket getPacket() {
         return packet;
     }
 
     /**
-     * Returns the port number the proxied packet arrived at
-     * originally.
-     * @return port number
+     * Returns the port number the proxied packet arrived at originally.
      */
     public int getPort() {
         return port;
     }
-
-
-    private RadiusEndpoint radiusServer;
-    private RadiusEndpoint radiusClient;
-    private int port;
-    private RadiusPacket packet;
-
 }

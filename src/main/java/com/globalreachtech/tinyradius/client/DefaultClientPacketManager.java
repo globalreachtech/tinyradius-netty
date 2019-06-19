@@ -1,6 +1,5 @@
-package com.globalreachtech.tinyradius.netty;
+package com.globalreachtech.tinyradius.client;
 
-import com.globalreachtech.tinyradius.RadiusClient;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
@@ -9,7 +8,7 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
-import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,9 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class ClientPacketManager implements RadiusClient.PacketManager {
+public class DefaultClientPacketManager implements ClientPacketManager {
 
-    private static Log logger = LogFactory.getLog(ClientPacketManager.class);
+    private static Log logger = LogFactory.getLog(DefaultClientPacketManager.class);
 
     private final Timer timer;
     private final Dictionary dictionary;
@@ -32,17 +31,17 @@ public class ClientPacketManager implements RadiusClient.PacketManager {
 
     private final Map<ContextKey, Context> contexts = new ConcurrentHashMap<>();
 
-    public ClientPacketManager(Timer timer, Dictionary dictionary, int timeoutMs) {
+    public DefaultClientPacketManager(Timer timer, Dictionary dictionary, int timeoutMs) {
         this.timer = timer;
         this.dictionary = dictionary;
         this.timeoutMs = timeoutMs;
     }
 
     @Override
-    public Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint) {
+    public Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
 
         final ContextKey key = new ContextKey(packet.getPacketIdentifier(), endpoint.getEndpointAddress());
-        final Context context = new Context(endpoint.getSharedSecret(), packet);
+        final Context context = new Context(endpoint.getSharedSecret(), packet, eventExecutor.newPromise());
         contexts.put(key, context);
 
         final Timeout timeout = timer.newTimeout(
@@ -110,11 +109,12 @@ public class ClientPacketManager implements RadiusClient.PacketManager {
 
         private final String sharedSecret;
         private final RadiusPacket request;
-        private final Promise<RadiusPacket> response = new DefaultPromise<>();
+        private final Promise<RadiusPacket> response;
 
-        Context(String sharedSecret, RadiusPacket request) {
+        Context(String sharedSecret, RadiusPacket request, Promise<RadiusPacket> response) {
             this.sharedSecret = sharedSecret;
             this.request = request;
+            this.response = response;
         }
     }
 }

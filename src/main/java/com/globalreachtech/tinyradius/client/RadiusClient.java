@@ -1,8 +1,9 @@
-package com.globalreachtech.tinyradius;
+package com.globalreachtech.tinyradius.client;
 
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.*;
@@ -36,7 +37,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
 
     private final ChannelFactory<T> factory;
     private final EventLoopGroup eventLoopGroup;
-    private final PacketManager packetManager;
+    private final ClientPacketManager packetManager;
 
     private T channel = null;
 
@@ -47,7 +48,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
      * @param factory
      * @param packetManager
      */
-    public RadiusClient(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, PacketManager packetManager) {
+    public RadiusClient(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, ClientPacketManager packetManager) {
         this.factory = requireNonNull(factory, "factory cannot be null");
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
         this.packetManager = packetManager;
@@ -81,7 +82,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
     }
 
     private Future<RadiusPacket> sendOnce(RadiusPacket packet, RadiusEndpoint endpoint) {
-        Promise<RadiusPacket> promise = packetManager.logOutbound(packet, endpoint);
+        Promise<RadiusPacket> promise = packetManager.logOutbound(packet, endpoint, eventLoopGroup.next());
 
         try {
             DatagramPacket packetOut = makeDatagramPacket(packet, endpoint);
@@ -141,11 +142,10 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
      * @throws IOException
      */
     protected DatagramPacket makeDatagramPacket(RadiusPacket packet, RadiusEndpoint endpoint) throws IOException, RadiusException {
+        ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
+        packet.encodeRequestPacket(new ByteBufOutputStream(buf), endpoint.getSharedSecret());
 
-        ByteBufOutputStream bos = new ByteBufOutputStream(buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH));
-        packet.encodeRequestPacket(bos, endpoint.getSharedSecret());
-
-        return new DatagramPacket(bos.buffer(), endpoint.getEndpointAddress());
+        return new DatagramPacket(buf, endpoint.getEndpointAddress());
     }
 
     private class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
@@ -159,10 +159,4 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
         }
     }
 
-    public interface PacketManager {
-
-        Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint);
-
-        void logInbound(DatagramPacket packet);
-    }
 }

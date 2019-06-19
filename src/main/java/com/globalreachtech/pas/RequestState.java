@@ -1,9 +1,6 @@
-package com.globalreachtech.tinyradius.grt;
+package com.globalreachtech.pas;
 
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public enum RequestState {
 
@@ -18,7 +15,7 @@ public enum RequestState {
     static {
         transitions.put(QUEUED, new HashSet<>(Arrays.asList(AWAITING_SERVER_RESPONSE, RESOLVED)));
         transitions.put(AWAITING_SERVER_RESPONSE, new HashSet<>(Arrays.asList(QUEUED, RESOLVED)));
-        transitions.put(RESOLVED, new HashSet<>(Arrays.asList(CACHED)));
-        transitions.put(CACHED, new HashSet<>(Arrays.asList(EXPIRED)));
+        transitions.put(RESOLVED, new HashSet<>(Collections.singletonList(CACHED)));
+        transitions.put(CACHED, new HashSet<>(Collections.singletonList(EXPIRED)));
     }
 }

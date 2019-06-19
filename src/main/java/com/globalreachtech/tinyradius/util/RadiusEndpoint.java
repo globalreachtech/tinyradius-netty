@@ -9,8 +9,8 @@ import java.net.InetSocketAddress;
  */
 public class RadiusEndpoint {
 
-    private InetSocketAddress endpointAddress;
-    private String sharedSecret;
+    private final InetSocketAddress endpointAddress;
+    private final String sharedSecret;
 
     public RadiusEndpoint(InetSocketAddress remoteAddress, String sharedSecret) {
         this.endpointAddress = remoteAddress;

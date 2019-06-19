@@ -1,21 +1,20 @@
-package com.globalreachtech.tinyradius.grt;
+package com.globalreachtech.pas;
 
+import com.globalreachtech.tinyradius.proxy.ProxyPacketManager;
+import com.globalreachtech.tinyradius.proxy.RadiusProxy;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
-import com.globalreachtech.tinyradius.netty.ServerPacketManager;
-import com.globalreachtech.tinyradius.RadiusProxy;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.util.concurrent.EventExecutorGroup;
 
 import java.net.InetSocketAddress;
 
-public class GrtRadiusServer extends RadiusProxy<NioDatagramChannel> {
+public class GrtRadiusProxy extends RadiusProxy<NioDatagramChannel> {
 
-    public GrtRadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<NioDatagramChannel> factory, IProxyPacketManager deduplicator, int authPort, int acctPort, int proxyPort) {
-        super(dictionary, eventLoopGroup, factory, deduplicator, authPort, acctPort, proxyPort);
+    public GrtRadiusProxy(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<NioDatagramChannel> factory, ProxyPacketManager proxyPacketManager, int authPort, int acctPort, int proxyPort) {
+        super(dictionary, eventLoopGroup, factory, proxyPacketManager, authPort, acctPort, proxyPort);
     }
 
     @Override

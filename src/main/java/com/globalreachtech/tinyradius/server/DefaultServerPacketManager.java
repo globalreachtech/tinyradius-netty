@@ -1,6 +1,5 @@
-package com.globalreachtech.tinyradius.netty;
+package com.globalreachtech.tinyradius.server;
 
-import com.globalreachtech.tinyradius.RadiusServer;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import io.netty.util.Timer;
 
@@ -12,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class ServerPacketManager implements RadiusServer.PacketManager {
+public class DefaultServerPacketManager implements ServerPacketManager {
 
     private final long ttlMs;
     private final Timer timer;
@@ -23,7 +22,7 @@ public class ServerPacketManager implements RadiusServer.PacketManager {
      * @param timer used to set timeouts that clean up packets after predefined TTL
      * @param ttlMs time in ms to keep packets in cache and ignore duplicates
      */
-    public ServerPacketManager(Timer timer, long ttlMs) {
+    public DefaultServerPacketManager(Timer timer, long ttlMs) {
         this.timer = timer;
         this.ttlMs = ttlMs;
     }
@@ -41,7 +40,7 @@ public class ServerPacketManager implements RadiusServer.PacketManager {
      * @return true if it is duplicate
      */
     @Override
-    public boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
+    public boolean isClientPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
         Packet p = new Packet(packet.getPacketIdentifier(), address, packet.getAuthenticator());
 
         if (packets.contains(p))

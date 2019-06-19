@@ -1,4 +1,4 @@
-package com.globalreachtech.tinyradius.grt;
+package com.globalreachtech.pas;
 
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;

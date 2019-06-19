@@ -1,37 +1,40 @@
-package com.globalreachtech.tinyradius.grt;
+package com.globalreachtech.pas;
 
+import com.globalreachtech.tinyradius.client.ClientPacketManager;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
-import com.globalreachtech.tinyradius.RadiusClient;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
+import com.globalreachtech.tinyradius.proxy.ProxyPacketManager;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
+import com.globalreachtech.tinyradius.util.RadiusProxyConnection;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timer;
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import static java.util.Objects.requireNonNull;
 
-public class GrtClientPacketManager implements RadiusClient.PacketManager {
+public class PacketManager implements ClientPacketManager, ProxyPacketManager {
 
-    private static Log logger = LogFactory.getLog(GrtClientPacketManager.class);
-
+    private static Log logger = LogFactory.getLog(PacketManager.class);
 
     private RadiusQueue<RequestContext> queue = new RadiusQueue<>();
 
     private Dictionary dictionary;
 
-    public GrtClientPacketManager(Dictionary dictionary, Timer timer) {
+    public PacketManager(Dictionary dictionary, Timer timer) {
         this.dictionary = dictionary;
     }
 
     @Override
-    public Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint) {
+    public Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
         return null;
     }
 
@@ -86,5 +89,20 @@ public class GrtClientPacketManager implements RadiusClient.PacketManager {
         }
 
         return null;
+    }
+
+    @Override
+    public void putProxyConnection(String proxyIndex, RadiusProxyConnection proxyConnection) {
+
+    }
+
+    @Override
+    public RadiusProxyConnection removeProxyConnection(String proxyIndex) {
+        return null;
+    }
+
+    @Override
+    public boolean isClientPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
+        return false;
     }
 }

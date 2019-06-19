@@ -3,8 +3,8 @@ package com.globalreachtech.tinyradius.test;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
-import com.globalreachtech.tinyradius.netty.ClientPacketManager;
-import com.globalreachtech.tinyradius.RadiusClient;
+import com.globalreachtech.tinyradius.client.DefaultClientPacketManager;
+import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
@@ -47,7 +47,7 @@ public class TestClient {
         RadiusClient<NioDatagramChannel> rc = new RadiusClient<>(
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new ClientPacketManager(new HashedWheelTimer(), dictionary, 30000)
+                new DefaultClientPacketManager(new HashedWheelTimer(), dictionary, 30000)
         );
 
         final RadiusEndpoint authEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1812), shared);

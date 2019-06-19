@@ -1,4 +1,4 @@
-package com.globalreachtech.tinyradius.grt;
+package com.globalreachtech.pas;
 
 import java.util.Collections;
 import java.util.List;

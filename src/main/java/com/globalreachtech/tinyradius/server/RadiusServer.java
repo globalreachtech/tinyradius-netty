@@ -1,9 +1,8 @@
-package com.globalreachtech.tinyradius;
+package com.globalreachtech.tinyradius.server;
 
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
 import com.globalreachtech.tinyradius.dictionary.DefaultDictionary;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
-import com.globalreachtech.tinyradius.netty.ServerPacketManager;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
@@ -38,12 +37,13 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 
     private static Log logger = LogFactory.getLog(RadiusServer.class);
 
-    final ChannelFactory<T> factory;
-    final EventLoopGroup eventLoopGroup;
     private final Dictionary dictionary;
-    final PacketManager packetManager;
-    final int authPort;
-    final int acctPort;
+
+    protected final ChannelFactory<T> factory;
+    protected final EventLoopGroup eventLoopGroup;
+    final ServerPacketManager packetManager;
+    protected final int authPort;
+    protected final int acctPort;
 
     private InetAddress listenAddress = null;
     private T authSocket = null;
@@ -56,10 +56,10 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     }
 
     public RadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<T> factory) {
-        this(dictionary, eventLoopGroup, factory, new ServerPacketManager(new HashedWheelTimer(), 30000), 1812, 1813);
+        this(dictionary, eventLoopGroup, factory, new DefaultServerPacketManager(new HashedWheelTimer(), 30000), 1812, 1813);
     }
 
-    public RadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, PacketManager packetManager, int authPort, int acctPort) {
+    public RadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, ServerPacketManager packetManager, int authPort, int acctPort) {
         this.dictionary = requireNonNull(dictionary, "dictionary cannot be null");
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
         this.factory = requireNonNull(factory, "factory cannot be null");
@@ -149,7 +149,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
             acctSocket.close();
     }
 
-    int validPort(int port) {
+    protected int validPort(int port) {
         if (port < 1 || port > 65535)
             throw new IllegalArgumentException("bad port number");
         return port;
@@ -230,7 +230,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
      */
     protected RadiusPacket handlePacket(InetSocketAddress localAddress, InetSocketAddress remoteAddress, RadiusPacket request, String sharedSecret) throws RadiusException, IOException {
         // check for duplicates
-        if (!packetManager.isPacketDuplicate(request, remoteAddress)) {
+        if (!packetManager.isClientPacketDuplicate(request, remoteAddress)) {
             if (localAddress.getPort() == authPort) {
                 // handle packets on auth port
                 if (request instanceof AccessRequest)
@@ -299,20 +299,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     protected RadiusPacket makeRadiusPacket(DatagramPacket packet, String sharedSecret) throws IOException, RadiusException {
         ByteBufInputStream in = new ByteBufInputStream(packet.content());
         return RadiusPacket.decodeRequestPacket(dictionary, in, sharedSecret);
-    }
-
-    public interface PacketManager {
-
-        /**
-         * Checks whether the passed packet is a duplicate.
-         * A packet is duplicate if another packet with the same identifier
-         * has been sent from the same host in the last time.
-         *
-         * @param packet  packet in question
-         * @param address client address
-         * @return true if it is duplicate
-         */
-        boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address);
     }
 
     private class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {

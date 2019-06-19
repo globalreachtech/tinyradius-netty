@@ -1,10 +1,10 @@
 package com.globalreachtech.tinyradius.test;
 
-import com.globalreachtech.tinyradius.RadiusServer;
+import com.globalreachtech.tinyradius.server.RadiusServer;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
-import com.globalreachtech.tinyradius.netty.ServerPacketManager;
+import com.globalreachtech.tinyradius.server.DefaultServerPacketManager;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusException;
@@ -41,7 +41,7 @@ public class TestServer {
                 dictionary,
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new ServerPacketManager(new HashedWheelTimer(), 30000),
+                new DefaultServerPacketManager(new HashedWheelTimer(), 30000),
                 11812, 11813) {
 
             // Authorize localhost/testing123
