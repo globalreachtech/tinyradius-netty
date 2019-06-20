@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
@@ -25,10 +26,11 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * This object represents a simple Radius client which communicates with
- * a specified Radius server. You can use a single INSTANCE of this object
+ * a specified Radius server. You can use a single instance of this object
  * to authenticate or account different users with the same Radius server
- * as long as you authenticate/account one user after the other. This object
- * is thread safe, but requires a packet manager to avoid confusion with the mapping of request
+ * as long as you authenticate/account one user after the other.
+ * <p>
+ * This object is thread safe, but requires a packet manager to avoid confusion with the mapping of request
  * and result packets.
  */
 public class RadiusClient<T extends DatagramChannel> implements Closeable {
@@ -38,26 +40,69 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
     private final ChannelFactory<T> factory;
     private final EventLoopGroup eventLoopGroup;
     private final ClientPacketManager packetManager;
+    private final InetAddress listenAddress;
+    private final int port;
 
     private T channel = null;
 
+    private ChannelFuture channelFuture;
+
     /**
-     * Creates a new Radius client object for a special Radius server.
-     *
      * @param eventLoopGroup
      * @param factory
      * @param packetManager
+     * @param port           set to 0 to let system choose
      */
-    public RadiusClient(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, ClientPacketManager packetManager) {
+    public RadiusClient(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, ClientPacketManager packetManager, InetAddress listenAddress, int port) {
         this.factory = requireNonNull(factory, "factory cannot be null");
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
         this.packetManager = packetManager;
+        this.listenAddress = listenAddress;
+        this.port = port;
     }
 
     @Override
     public void close() {
         if (channel != null)
             channel.close();
+    }
+
+    /**
+     * Registers the channel and binds to address.
+     * <p>
+     * Run implicitly if {@link #communicate(RadiusPacket, RadiusEndpoint, int)} is called.
+     */
+    public ChannelFuture startChannel() {
+        if (this.channelFuture != null)
+            return this.channelFuture;
+
+        channelFuture = listen(getChannel(), new InetSocketAddress(listenAddress, port));
+
+        return channelFuture;
+    }
+
+    /**
+     * @param channel       to listen on
+     * @param listenAddress the address to bind to
+     */
+    protected ChannelFuture listen(final T channel, final InetSocketAddress listenAddress) {
+
+        channel.pipeline().addLast(new RadiusChannelHandler());
+
+        final ChannelPromise promise = channel.newPromise();
+
+        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
+        promiseCombiner.addAll(eventLoopGroup.register(channel), channel.bind(listenAddress));
+        promiseCombiner.finish(promise);
+
+        return promise;
+    }
+
+    private T getChannel() {
+        if (channel == null) {
+            channel = factory.newChannel();
+        }
+        return channel;
     }
 
     public Future<RadiusPacket> communicate(RadiusPacket packet, RadiusEndpoint endpoint, int maxAttempts) {
@@ -92,45 +137,17 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
                 logger.debug("\n" + ByteBufUtil.prettyHexDump(packetOut.content()));
             }
 
-            T channel = getChannel();
-            channel.writeAndFlush(packetOut);
+            startChannel().addListener((ChannelFuture f) -> {
+                f.channel().writeAndFlush(packetOut);
 
-            if (logger.isInfoEnabled())
-                logger.info(packet.toString());
+                if (logger.isInfoEnabled())
+                    logger.info(packet.toString());
+            });
+
         } catch (Exception e) {
             promise.tryFailure(e);
         }
         return promise;
-    }
-
-    /**
-     * Returns the socket used for the server communication. It is
-     * bound to an arbitrary free local port number.
-     *
-     * @return local socket
-     * @throws ChannelException
-     */
-    private T getChannel() throws ChannelException {
-        if (channel == null)
-            channel = createChannel();
-        return channel;
-    }
-
-    private T createChannel() {
-        final T channel = factory.newChannel();
-
-        final ChannelPromise promise = channel.newPromise()
-                .addListener(f -> channel.pipeline().addLast(new RadiusChannelHandler()));
-
-        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
-        promiseCombiner.addAll(eventLoopGroup.register(channel), channel.bind(new InetSocketAddress(0)));
-        promiseCombiner.finish(promise);
-
-        final ChannelPromise future = promise.syncUninterruptibly();
-        if (future.cause() != null)
-            throw new ChannelException(future.cause());
-
-        return channel;
     }
 
     /**

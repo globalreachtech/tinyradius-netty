@@ -1,5 +1,7 @@
 package com.globalreachtech.pas;
 
+import com.globalreachtech.tinyradius.client.ClientPacketManager;
+import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.proxy.ProxyPacketManager;
 import com.globalreachtech.tinyradius.proxy.RadiusProxy;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
@@ -9,12 +11,19 @@ import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public class GrtRadiusProxy extends RadiusProxy<NioDatagramChannel> {
 
-    public GrtRadiusProxy(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<NioDatagramChannel> factory, ProxyPacketManager proxyPacketManager, int authPort, int acctPort, int proxyPort) {
-        super(dictionary, eventLoopGroup, factory, proxyPacketManager, authPort, acctPort, proxyPort);
+    public GrtRadiusProxy(Dictionary dictionary,
+                          EventLoopGroup eventLoopGroup,
+                          ChannelFactory<NioDatagramChannel> factory,
+                          ProxyPacketManager proxyPacketManager,
+                          ClientPacketManager clientPacketManager,
+                          InetAddress listenAddress,
+                          int authPort, int acctPort, int proxyPort) {
+        super(dictionary, eventLoopGroup, factory, proxyPacketManager, clientPacketManager, listenAddress, authPort, acctPort, proxyPort);
     }
 
     @Override

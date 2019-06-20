@@ -32,7 +32,7 @@ public class TestServer {
         BasicConfigurator.configure();
         Logger.getRootLogger().setLevel(Level.INFO);
 
-        WritableDictionary dictionary = new MemoryDictionary();
+        WritableDictionary dictionary = new MemoryDictionary(); // DefaultDictionary.INSTANCE
         DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
@@ -42,6 +42,7 @@ public class TestServer {
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new DefaultServerPacketManager(new HashedWheelTimer(), 30000),
+                null,
                 11812, 11813) {
 
             // Authorize localhost/testing123

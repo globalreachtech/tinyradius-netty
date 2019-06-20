@@ -1,7 +1,6 @@
 package com.globalreachtech.tinyradius.server;
 
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
-import com.globalreachtech.tinyradius.dictionary.DefaultDictionary;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
@@ -14,7 +13,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,34 +36,35 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     private static Log logger = LogFactory.getLog(RadiusServer.class);
 
     private final Dictionary dictionary;
+    private final ServerPacketManager packetManager;
 
     protected final ChannelFactory<T> factory;
     protected final EventLoopGroup eventLoopGroup;
-    final ServerPacketManager packetManager;
     protected final int authPort;
     protected final int acctPort;
 
-    private InetAddress listenAddress = null;
-    private T authSocket = null;
-    private T acctSocket = null;
+    protected InetAddress listenAddress;
+    private T authChannel = null;
+    private T acctChannel = null;
 
-    private Future<Void> startStatus = null;
+    private Future<Void> serverStatus = null;
 
-    public RadiusServer(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory) {
-        this(DefaultDictionary.INSTANCE, eventLoopGroup, factory);
-    }
-
-    public RadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<T> factory) {
-        this(dictionary, eventLoopGroup, factory, new DefaultServerPacketManager(new HashedWheelTimer(), 30000), 1812, 1813);
-    }
-
-    public RadiusServer(Dictionary dictionary, EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, ServerPacketManager packetManager, int authPort, int acctPort) {
+    /**
+     * @param listenAddress  null address will assign wildcard address
+     */
+    public RadiusServer(Dictionary dictionary,
+                        EventLoopGroup eventLoopGroup,
+                        ChannelFactory<T> factory,
+                        ServerPacketManager packetManager,
+                        InetAddress listenAddress,
+                        int authPort, int acctPort) {
         this.dictionary = requireNonNull(dictionary, "dictionary cannot be null");
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
         this.factory = requireNonNull(factory, "factory cannot be null");
         this.packetManager = packetManager;
         this.authPort = validPort(authPort);
         this.acctPort = validPort(acctPort);
+        this.listenAddress = listenAddress;
     }
 
     /**
@@ -121,12 +120,9 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         return answer;
     }
 
-    /**
-     * Starts the Radius server.
-     */
     public Future<Void> start() {
-        if (this.startStatus != null)
-            return this.startStatus;
+        if (this.serverStatus != null)
+            return this.serverStatus;
 
         final Promise<Void> status = eventLoopGroup.next().newPromise();
 
@@ -134,7 +130,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         promiseCombiner.addAll(listenAuth(), listenAcct());
         promiseCombiner.finish(status);
 
-        this.startStatus = status;
+        this.serverStatus = status;
         return status;
     }
 
@@ -143,10 +139,10 @@ public abstract class RadiusServer<T extends DatagramChannel> {
      */
     public void stop() {
         logger.info("stopping Radius server");
-        if (authSocket != null)
-            authSocket.close();
-        if (acctSocket != null)
-            acctSocket.close();
+        if (authChannel != null)
+            authChannel.close();
+        if (acctChannel != null)
+            acctChannel.close();
     }
 
     protected int validPort(int port) {
@@ -166,18 +162,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     }
 
     /**
-     * Sets the address the server listens on.
-     * Must be called before start().
-     * Defaults to null, meaning listen on every
-     * local address (wildcard address).
-     *
-     * @param listenAddress listen address or null
-     */
-    public void setListenAddress(InetAddress listenAddress) {
-        this.listenAddress = listenAddress;
-    }
-
-    /**
      * Copies all Proxy-State attributes from the clientRequest
      * packet to the clientResponse packet.
      *
@@ -193,12 +177,12 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 
     protected ChannelFuture listenAuth() {
         logger.info("starting RadiusAuthListener on port " + authPort);
-        return listen(getAuthSocket(), new InetSocketAddress(listenAddress, authPort));
+        return listen(getAuthChannel(), new InetSocketAddress(listenAddress, authPort));
     }
 
     protected ChannelFuture listenAcct() {
         logger.info("starting RadiusAcctListener on port " + acctPort);
-        return listen(getAcctSocket(), new InetSocketAddress(listenAddress, acctPort));
+        return listen(getAcctChannel(), new InetSocketAddress(listenAddress, acctPort));
     }
 
     /**
@@ -209,8 +193,9 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         requireNonNull(channel, "channel cannot be null");
         requireNonNull(listenAddress, "listenAddress cannot be null");
 
-        final ChannelPromise promise = channel.newPromise()
-                .addListener(f -> channel.pipeline().addLast(new RadiusChannelHandler()));
+        channel.pipeline().addLast(new RadiusChannelHandler());
+
+        final ChannelPromise promise = channel.newPromise();
 
         final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
         promiseCombiner.addAll(eventLoopGroup.register(channel), channel.bind(listenAddress));
@@ -250,18 +235,18 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         return null;
     }
 
-    protected T getAuthSocket() {
-        if (authSocket == null) {
-            authSocket = factory.newChannel();
+    protected T getAuthChannel() {
+        if (authChannel == null) {
+            authChannel = factory.newChannel();
         }
-        return authSocket;
+        return authChannel;
     }
 
-    protected T getAcctSocket() {
-        if (acctSocket == null) {
-            acctSocket = factory.newChannel();
+    protected T getAcctChannel() {
+        if (acctChannel == null) {
+            acctChannel = factory.newChannel();
         }
-        return acctSocket;
+        return acctChannel;
     }
 
     /**
@@ -301,6 +286,7 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         return RadiusPacket.decodeRequestPacket(dictionary, in, sharedSecret);
     }
 
+    //todo separate handler for different ports?
     private class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
             try {

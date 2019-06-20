@@ -47,8 +47,9 @@ public class TestClient {
         RadiusClient<NioDatagramChannel> rc = new RadiusClient<>(
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new DefaultClientPacketManager(new HashedWheelTimer(), dictionary, 30000)
-        );
+                new DefaultClientPacketManager(new HashedWheelTimer(), dictionary, 30000),
+                null, 0);
+        rc.startChannel().syncUninterruptibly();
 
         final RadiusEndpoint authEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1812), shared);
         final RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1813), shared);
