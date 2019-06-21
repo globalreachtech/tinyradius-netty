@@ -1,7 +1,6 @@
 package com.globalreachtech.pas;
 
 import com.globalreachtech.tinyradius.client.ClientPacketManager;
-import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.proxy.ProxyPacketManager;
 import com.globalreachtech.tinyradius.proxy.RadiusProxy;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
@@ -23,7 +22,7 @@ public class GrtRadiusProxy extends RadiusProxy<NioDatagramChannel> {
                           ClientPacketManager clientPacketManager,
                           InetAddress listenAddress,
                           int authPort, int acctPort, int proxyPort) {
-        super(dictionary, eventLoopGroup, factory, proxyPacketManager, clientPacketManager, listenAddress, authPort, acctPort, proxyPort);
+        super(eventLoopGroup, factory, proxyPacketManager, clientPacketManager, listenAddress, authPort, acctPort, proxyPort);
     }
 
     @Override

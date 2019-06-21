@@ -39,7 +39,7 @@ public class PacketManager implements ClientPacketManager, ProxyPacketManager {
     }
 
     @Override
-    public void logInbound(DatagramPacket packet) {
+    public void handleInbound(DatagramPacket packet) {
         RequestContext context = lookup(packet);
         if (context == null) {
             logger.info("Request context not found for received packet, ignoring...");

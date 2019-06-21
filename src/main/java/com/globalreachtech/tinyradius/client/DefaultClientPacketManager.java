@@ -56,7 +56,7 @@ public class DefaultClientPacketManager implements ClientPacketManager {
     }
 
     @Override
-    public void logInbound(DatagramPacket packet) {
+    public void handleInbound(DatagramPacket packet) {
         int identifier = packet.content().duplicate().skipBytes(1).readByte() & 0xff;
         final ContextKey key = new ContextKey(identifier, packet.sender());
 

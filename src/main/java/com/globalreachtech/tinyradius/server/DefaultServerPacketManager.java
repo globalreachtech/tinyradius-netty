@@ -32,7 +32,7 @@ public class DefaultServerPacketManager implements ServerPacketManager {
      * A packet is duplicate if another packet with the same identifier
      * has been sent from the same host in the last time.
      *
-     * If duplicate is received, TTL of the packet will not rebased to
+     * If duplicate is received, TTL of the packet will NOT rebased to
      * the most recent hit.
      *
      * @param packet  packet in question
@@ -51,7 +51,7 @@ public class DefaultServerPacketManager implements ServerPacketManager {
         return false;
     }
 
-    private class Packet {
+    private static class Packet {
 
         private final int packetIdentifier;
         private final InetSocketAddress address;

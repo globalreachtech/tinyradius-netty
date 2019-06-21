@@ -5,6 +5,8 @@ import com.globalreachtech.tinyradius.client.ClientPacketManager;
 import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
+import com.globalreachtech.tinyradius.server.AcctHandler;
+import com.globalreachtech.tinyradius.server.AuthHandler;
 import com.globalreachtech.tinyradius.server.RadiusServer;
 import com.globalreachtech.tinyradius.util.RadiusProxyConnection;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
@@ -57,15 +59,16 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
     /**
      * @param listenAddress null address to assign wildcard address
      */
-    public RadiusProxy(Dictionary dictionary,
-                       EventLoopGroup eventLoopGroup,
+    public RadiusProxy(EventLoopGroup eventLoopGroup,
                        ChannelFactory<T> factory,
                        ProxyPacketManager proxyPacketManager,
                        ClientPacketManager clientPacketManager,
                        InetAddress listenAddress,
+                       AuthHandler authHandler,
+                       AcctHandler acctHandler,
                        int authPort, int acctPort, int proxyPort) {
-        super(dictionary, eventLoopGroup, factory, proxyPacketManager, listenAddress, authPort, acctPort);
-        this.radiusClient = new RadiusClient<T>(eventLoopGroup, factory, clientPacketManager, listenAddress, proxyPort);
+        super(eventLoopGroup, factory, listenAddress, authHandler, acctHandler, authPort, acctPort);
+        this.radiusClient = new RadiusClient<>(eventLoopGroup, factory, clientPacketManager, listenAddress, proxyPort);
         this.proxyPort = validPort(proxyPort); //1814
         this.proxyPacketManager = proxyPacketManager;
     }
@@ -93,6 +96,7 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
         logger.info("stopping Radius proxy");
         if (proxyChannel != null)
             proxyChannel.close();
+        radiusClient.close();
         super.stop();
     }
 
@@ -124,20 +128,8 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
         return proxyChannel;
     }
 
-    /**
-     * Handles packets coming in on the proxy port. Decides whether
-     * packets coming in on Auth/Acct ports should be proxied.
-     */
-    @Override
     protected RadiusPacket handlePacket(InetSocketAddress localAddress, InetSocketAddress remoteAddress, RadiusPacket request, String sharedSecret)
             throws RadiusException, IOException {
-        // todo listen here or use radiusClient to handle server responses?
-
-        // handle incoming proxy packet
-        if (localAddress.getPort() == proxyPort) {
-            handleUpstreamResponse(request);
-            return null;
-        }
 
         // handle auth/acct packet
         RadiusEndpoint clientEndpoint = new RadiusEndpoint(remoteAddress, sharedSecret);
@@ -159,7 +151,7 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
      *
      * @param packet packet to be sent back
      */
-    protected void handleUpstreamResponse(RadiusPacket packet) throws IOException, RadiusException {
+    protected void handleUpstreamResponse(RadiusPacket packet) throws RadiusException {
         // retrieve my Proxy-State attribute (the last)
         List<RadiusAttribute> proxyStates = packet.getAttributes(33);
         if (proxyStates == null || proxyStates.size() == 0)
@@ -219,8 +211,10 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
         // encode new packet (with new authenticator)
         ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
         packet.encodeRequestPacket(new ByteBufOutputStream(buf), serverEndpoint.getSharedSecret());
-//todo
-        Future<RadiusPacket> communicate = radiusClient.communicate(packet, serverEndpoint, 3);
+
+        radiusClient.communicate(packet, serverEndpoint, 3)
+                .addListener((Future<RadiusPacket> f) -> handleUpstreamResponse(f.getNow()));
+
 
         DatagramPacket datagram = new DatagramPacket(buf, serverEndpoint.getEndpointAddress());
 

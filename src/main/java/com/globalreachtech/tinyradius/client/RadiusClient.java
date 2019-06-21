@@ -76,8 +76,10 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
         if (this.channelFuture != null)
             return this.channelFuture;
 
-        channelFuture = listen(getChannel(), new InetSocketAddress(listenAddress, port));
+        if (channel == null)
+            channel = factory.newChannel();
 
+        channelFuture = listen(channel, new InetSocketAddress(listenAddress, port));
         return channelFuture;
     }
 
@@ -96,13 +98,6 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
         promiseCombiner.finish(promise);
 
         return promise;
-    }
-
-    private T getChannel() {
-        if (channel == null) {
-            channel = factory.newChannel();
-        }
-        return channel;
     }
 
     public Future<RadiusPacket> communicate(RadiusPacket packet, RadiusEndpoint endpoint, int maxAttempts) {
@@ -156,7 +151,6 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
      * @param packet   RadiusPacket
      * @param endpoint destination port number
      * @return new datagram packet
-     * @throws IOException
      */
     protected DatagramPacket makeDatagramPacket(RadiusPacket packet, RadiusEndpoint endpoint) throws IOException, RadiusException {
         ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
@@ -167,7 +161,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
 
     private class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-            packetManager.logInbound(packet);
+            packetManager.handleInbound(packet);
         }
 
         @Override

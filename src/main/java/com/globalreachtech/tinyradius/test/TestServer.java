@@ -38,7 +38,6 @@ public class TestServer {
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
         final RadiusServer<NioDatagramChannel> server = new RadiusServer<NioDatagramChannel>(
-                dictionary,
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new DefaultServerPacketManager(new HashedWheelTimer(), 30000),

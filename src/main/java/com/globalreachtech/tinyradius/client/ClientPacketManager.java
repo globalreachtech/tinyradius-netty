@@ -10,5 +10,5 @@ public interface ClientPacketManager {
 
     Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor);
 
-    void logInbound(DatagramPacket packet);
+    void handleInbound(DatagramPacket packet);
 }

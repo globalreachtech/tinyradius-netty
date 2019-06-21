@@ -2,7 +2,6 @@ package com.globalreachtech.tinyradius.test;
 
 import com.globalreachtech.tinyradius.client.ClientPacketManager;
 import com.globalreachtech.tinyradius.client.DefaultClientPacketManager;
-import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
@@ -49,7 +48,7 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
                       ClientPacketManager clientPacketManager,
                       InetAddress listenAddress,
                       int authPort, int acctPort, int proxyPort) {
-        super(dictionary, eventGroup, factory, proxyPacketManager, clientPacketManager, listenAddress, authPort, acctPort, proxyPort);
+        super(eventGroup, factory, proxyPacketManager, clientPacketManager, listenAddress, authPort, acctPort, proxyPort);
     }
 
     public RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
