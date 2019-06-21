@@ -90,13 +90,9 @@ public abstract class ProxyHandler extends BaseHandler implements Closeable {
             throw new RadiusException("proxy packet without Proxy-State attribute");
         RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
 
-        // retrieve proxy connection from cache
+        // todo move this logic to proxy implementation of RadiusClient.PacketManager
         String state = new String(proxyState.getAttributeData());
-        RadiusProxyConnection proxyConnection = connectionManager.removeProxyConnection(state);
-        if (proxyConnection == null) {
-            logger.warn("received packet on proxy port without saved proxy connection - duplicate?");
-            return null;
-        }
+        // use state as the key to distinguish between connections
 
         // retrieve clientEndpoint
         if (logger.isInfoEnabled())
@@ -121,6 +117,8 @@ public abstract class ProxyHandler extends BaseHandler implements Closeable {
         // add Proxy-State attribute
         String proxyIndexStr = connectionManager.nextProxyIndex();
         packet.addAttribute(new RadiusAttribute(33, proxyIndexStr.getBytes()));
+
+        // todo putProxyConnection
 
         // save clientRequest authenticator (will be calculated new)
         byte[] auth = packet.getAuthenticator();

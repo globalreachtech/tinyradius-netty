@@ -43,8 +43,5 @@ public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServe
 
         String nextProxyIndex();
 
-        void putProxyConnection(String proxyIndex, RadiusProxyConnection proxyConnection);
-
-        RadiusProxyConnection removeProxyConnection(String proxyIndex);
     }
 }
