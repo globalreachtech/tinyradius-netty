@@ -1,16 +1,17 @@
 package com.globalreachtech.tinyradius.test;
 
-import com.globalreachtech.tinyradius.client.ClientPacketManager;
-import com.globalreachtech.tinyradius.client.DefaultClientPacketManager;
+import com.globalreachtech.tinyradius.client.DefaultPacketManager;
+import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.proxy.DefaultProxyPacketManager;
-import com.globalreachtech.tinyradius.proxy.ProxyPacketManager;
+import com.globalreachtech.tinyradius.proxy.DefaultConnectionManager;
+import com.globalreachtech.tinyradius.proxy.ProxyHandler;
 import com.globalreachtech.tinyradius.proxy.RadiusProxy;
+import com.globalreachtech.tinyradius.server.DefaultDeduplicator;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
@@ -44,11 +45,11 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
     private TestProxy(Dictionary dictionary,
                       EventLoopGroup eventGroup,
                       ChannelFactory<T> factory,
-                      ProxyPacketManager proxyPacketManager,
-                      ClientPacketManager clientPacketManager,
+                      ConnectionManager connectionManager,
+                      RadiusClient.PacketManager packetManager,
                       InetAddress listenAddress,
                       int authPort, int acctPort, int proxyPort) {
-        super(eventGroup, factory, proxyPacketManager, clientPacketManager, listenAddress, authPort, acctPort, proxyPort);
+        super(eventGroup, factory, packetManager, listenAddress, authPort, acctPort, proxyPort);
     }
 
     public RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
@@ -91,12 +92,26 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
         HashedWheelTimer timer = new HashedWheelTimer();
 
+        new ProxyHandler(
+                dictionary,
+                new DefaultDeduplicator(timer, 30000),
+                new DefaultConnectionManager(),
+                new RadiusClient<NioDatagramChannel>(
+                        eventLoopGroup,
+                        nioDatagramChannelReflectiveChannelFactory,
+                        new DefaultPacketManager(timer, dictionary, 3000),
+                        null,
+                        0
+                )){
+
+        };
+
         final TestProxy<NioDatagramChannel> proxy = new TestProxy<>(
                 dictionary,
                 eventLoopGroup,
                 nioDatagramChannelReflectiveChannelFactory,
-                new DefaultProxyPacketManager(timer, 30000),
-                new DefaultClientPacketManager(timer, dictionary, 3000),
+                new DefaultConnectionManager(timer, 30000),
+                new DefaultPacketManager(timer, dictionary, 3000),
                 null,
                 11812, 11813, 11814);
 

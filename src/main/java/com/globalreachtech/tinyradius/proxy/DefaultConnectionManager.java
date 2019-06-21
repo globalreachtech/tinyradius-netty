@@ -1,15 +1,15 @@
 package com.globalreachtech.tinyradius.proxy;
 
-import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.server.DefaultServerPacketManager;
-import com.globalreachtech.tinyradius.util.RadiusProxyConnection;
-import io.netty.util.Timer;
-
-import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class DefaultProxyPacketManager extends DefaultServerPacketManager implements ProxyPacketManager {
+public class DefaultConnectionManager implements RadiusProxy.ConnectionManager {
+
+    /**
+     * Index for Proxy-State attribute.
+     */
+    private AtomicInteger proxyIndex = new AtomicInteger(1);
 
     /**
      * Cache for Radius proxy connections belonging to sent packets
@@ -18,15 +18,10 @@ public class DefaultProxyPacketManager extends DefaultServerPacketManager implem
      */
     private Map<String, RadiusProxyConnection> proxyConnections = new ConcurrentHashMap<>();
 
-    public DefaultProxyPacketManager(Timer timer, long ttlMs) {
-        super(timer, ttlMs);
-    }
-
     @Override
-    public boolean isClientPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
-        return super.isClientPacketDuplicate(packet, address);
+    public String nextProxyIndex() {
+        return Integer.toString(proxyIndex.getAndIncrement());
     }
-
 
     @Override
     public void putProxyConnection(String proxyIndex, RadiusProxyConnection proxyConnection) {

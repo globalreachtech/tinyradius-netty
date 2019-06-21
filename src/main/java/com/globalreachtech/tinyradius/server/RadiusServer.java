@@ -1,10 +1,7 @@
 package com.globalreachtech.tinyradius.server;
 
-import com.globalreachtech.tinyradius.dictionary.Dictionary;
-import io.netty.channel.ChannelFactory;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.EventLoopGroup;
+import com.globalreachtech.tinyradius.packet.RadiusPacket;
+import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
@@ -29,8 +26,8 @@ public abstract class RadiusServer<T extends DatagramChannel> {
 
     protected final ChannelFactory<T> factory;
     protected final EventLoopGroup eventLoopGroup;
-    private final AuthHandler authHandler;
-    private final AcctHandler acctHandler;
+    private final ChannelHandler authHandler;
+    private final ChannelHandler acctHandler;
     protected final int authPort;
     protected final int acctPort;
 
@@ -46,8 +43,8 @@ public abstract class RadiusServer<T extends DatagramChannel> {
     public RadiusServer(EventLoopGroup eventLoopGroup,
                         ChannelFactory<T> factory,
                         InetAddress listenAddress,
-                        AuthHandler authHandler,
-                        AcctHandler acctHandler,
+                        ChannelHandler authHandler,
+                        ChannelHandler acctHandler,
                         int authPort, int acctPort) {
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
         this.factory = requireNonNull(factory, "factory cannot be null");
@@ -88,17 +85,6 @@ public abstract class RadiusServer<T extends DatagramChannel> {
             throw new IllegalArgumentException("bad port number");
         return port;
     }
-
-    /**
-     * Returns the IP address the server listens on.
-     * Returns null if listening on the wildcard address.
-     *
-     * @return listen address or null
-     */
-    public InetAddress getListenAddress() {
-        return listenAddress;
-    }
-
 
     protected ChannelFuture listenAuth() {
         logger.info("starting RadiusAuthListener on port " + authPort);
@@ -141,4 +127,17 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         return acctChannel;
     }
 
+    public interface Deduplicator {
+
+        /**
+         * Checks whether the passed packet is a duplicate.
+         * A packet is duplicate if another packet with the same identifier
+         * has been sent from the same host in the last time.
+         *
+         * @param packet  packet in question
+         * @param address client address
+         * @return true if it is duplicate
+         */
+        boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address);
+    }
 }

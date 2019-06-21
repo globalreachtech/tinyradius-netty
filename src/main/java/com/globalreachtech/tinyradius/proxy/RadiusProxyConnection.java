@@ -1,30 +1,31 @@
-package com.globalreachtech.tinyradius.util;
+package com.globalreachtech.tinyradius.proxy;
 
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
+import com.globalreachtech.tinyradius.util.RadiusEndpoint;
+import io.netty.channel.Channel;
 
 /**
  * This class stores information about a proxied packet.
  * It contains two RadiusEndpoint objects representing the Radius client
- * and server, the port number the proxied packet arrived
+ * and server, the channel the proxied packet arrived
  * at originally and the proxied packet itself.
  */
 public class RadiusProxyConnection {
 
     private final RadiusEndpoint serverEndpoint;
     private final RadiusEndpoint clientEndpoint;
-    private final int port;
-    private final RadiusPacket packet;
+    private final RadiusPacket requestPacket;
+    private final Channel requestChannel;
 
     /**
      * Creates a RadiusProxyConnection object.
      *
-     * @param port port the proxied packet arrived at originally
      */
-    public RadiusProxyConnection(RadiusEndpoint serverEndpoint, RadiusEndpoint clientEndpoint, RadiusPacket packet, int port) {
+    public RadiusProxyConnection(RadiusEndpoint serverEndpoint, RadiusEndpoint clientEndpoint, RadiusPacket requestPacket, Channel requestChannel) {
         this.serverEndpoint = serverEndpoint;
         this.clientEndpoint = clientEndpoint;
-        this.packet = packet;
-        this.port = port;
+        this.requestPacket = requestPacket;
+        this.requestChannel = requestChannel;
     }
 
     public RadiusEndpoint getClientEndpoint() {
@@ -38,14 +39,11 @@ public class RadiusProxyConnection {
     /**
      * Returns the proxied packet.
      */
-    public RadiusPacket getPacket() {
-        return packet;
+    public RadiusPacket getRequestPacket() {
+        return requestPacket;
     }
 
-    /**
-     * Returns the port number the proxied packet arrived at originally.
-     */
-    public int getPort() {
-        return port;
+    public Channel getRequestChannel() {
+        return requestChannel;
     }
 }

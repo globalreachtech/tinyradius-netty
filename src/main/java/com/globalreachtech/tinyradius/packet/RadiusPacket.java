@@ -440,7 +440,7 @@ public class RadiusPacket implements Cloneable {
      *
      * @return List of RadiusAttribute objects
      */
-    public List getAttributes() {
+    public List<RadiusAttribute> getAttributes() {
         return attributes;
     }
 

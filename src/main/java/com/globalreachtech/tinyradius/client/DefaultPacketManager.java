@@ -21,9 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class DefaultClientPacketManager implements ClientPacketManager {
+public class DefaultPacketManager implements RadiusClient.PacketManager {
 
-    private static Log logger = LogFactory.getLog(DefaultClientPacketManager.class);
+    private static Log logger = LogFactory.getLog(DefaultPacketManager.class);
 
     private final Timer timer;
     private final Dictionary dictionary;
@@ -31,14 +31,14 @@ public class DefaultClientPacketManager implements ClientPacketManager {
 
     private final Map<ContextKey, Context> contexts = new ConcurrentHashMap<>();
 
-    public DefaultClientPacketManager(Timer timer, Dictionary dictionary, int timeoutMs) {
+    public DefaultPacketManager(Timer timer, Dictionary dictionary, int timeoutMs) {
         this.timer = timer;
         this.dictionary = dictionary;
         this.timeoutMs = timeoutMs;
     }
 
     @Override
-    public Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
+    public Promise<RadiusPacket> handleOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
 
         final ContextKey key = new ContextKey(packet.getPacketIdentifier(), endpoint.getEndpointAddress());
         final Context context = new Context(endpoint.getSharedSecret(), packet, eventExecutor.newPromise());

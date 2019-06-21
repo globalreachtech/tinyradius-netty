@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class DefaultServerPacketManager implements ServerPacketManager {
+public class DefaultDeduplicator implements RadiusServer.Deduplicator {
 
     private final long ttlMs;
     private final Timer timer;
@@ -22,7 +22,7 @@ public class DefaultServerPacketManager implements ServerPacketManager {
      * @param timer used to set timeouts that clean up packets after predefined TTL
      * @param ttlMs time in ms to keep packets in cache and ignore duplicates
      */
-    public DefaultServerPacketManager(Timer timer, long ttlMs) {
+    public DefaultDeduplicator(Timer timer, long ttlMs) {
         this.timer = timer;
         this.ttlMs = ttlMs;
     }
@@ -40,7 +40,7 @@ public class DefaultServerPacketManager implements ServerPacketManager {
      * @return true if it is duplicate
      */
     @Override
-    public boolean isClientPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
+    public boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
         Packet p = new Packet(packet.getPacketIdentifier(), address, packet.getAuthenticator());
 
         if (packets.contains(p))

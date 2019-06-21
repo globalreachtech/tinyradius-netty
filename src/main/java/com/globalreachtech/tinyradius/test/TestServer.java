@@ -4,7 +4,7 @@ import com.globalreachtech.tinyradius.server.RadiusServer;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
-import com.globalreachtech.tinyradius.server.DefaultServerPacketManager;
+import com.globalreachtech.tinyradius.server.DefaultDeduplicator;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusException;
@@ -40,7 +40,7 @@ public class TestServer {
         final RadiusServer<NioDatagramChannel> server = new RadiusServer<NioDatagramChannel>(
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new DefaultServerPacketManager(new HashedWheelTimer(), 30000),
+                new DefaultDeduplicator(new HashedWheelTimer(), 30000),
                 null,
                 11812, 11813) {
 
@@ -65,12 +65,12 @@ public class TestServer {
                     throws RadiusException {
                 System.out.println("Received Access-Request:\n" + accessRequest);
                 RadiusPacket packet = super.accessRequestReceived(accessRequest, client);
-                if (packet.getPacketType() == RadiusPacket.ACCESS_ACCEPT)
-                    packet.addAttribute("Reply-Message", "Welcome " + accessRequest.getUserName() + "!");
                 if (packet == null)
                     System.out.println("Ignore packet.");
-                else
-                    System.out.println("Answer:\n" + packet);
+                else if (packet.getPacketType() == RadiusPacket.ACCESS_ACCEPT)
+                    packet.addAttribute("Reply-Message", "Welcome " + accessRequest.getUserName() + "!");
+
+                System.out.println("Answer:\n" + packet);
                 return packet;
             }
         };
