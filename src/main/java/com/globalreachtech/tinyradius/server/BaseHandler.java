@@ -130,11 +130,14 @@ public abstract class BaseHandler extends SimpleChannelInboundHandler<DatagramPa
                 timeout.cancel();
 
                 RadiusPacket response = f.getNow();
+
                 // send clientResponse
                 if (response != null) {
                     response.setDictionary(dictionary);
-                    if (logger.isInfoEnabled())
+                    if (logger.isInfoEnabled()) {
                         logger.info("send clientResponse: " + response);
+                        logger.info("sending response packet to " + remoteAddress.toString() + " with secret " + secret);
+                    }
                     DatagramPacket packetOut = makeDatagramPacket(response, secret, remoteAddress, packet);
                     ctx.writeAndFlush(packetOut);
                 } else {
@@ -155,7 +158,7 @@ public abstract class BaseHandler extends SimpleChannelInboundHandler<DatagramPa
     /**
      * Handles the received Radius packet and constructs a clientResponse.
      *
-     * @param channel
+     * @param channel       socket which received packet
      * @param remoteAddress remote address the packet was sent by
      * @param request       the packet
      * @return clientResponse packet or null for no clientResponse
