@@ -45,7 +45,6 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
     private TestProxy(Dictionary dictionary,
                       EventLoopGroup eventGroup,
                       ChannelFactory<T> factory,
-                      ConnectionManager connectionManager,
                       RadiusClient.PacketManager packetManager,
                       InetAddress listenAddress,
                       int authPort, int acctPort, int proxyPort) {

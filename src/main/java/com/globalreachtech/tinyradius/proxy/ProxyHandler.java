@@ -8,7 +8,6 @@ import com.globalreachtech.tinyradius.server.BaseHandler;
 import com.globalreachtech.tinyradius.server.RadiusServer;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
-import com.sun.xml.internal.ws.Closeable;
 import io.netty.channel.Channel;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
@@ -16,6 +15,7 @@ import io.netty.util.concurrent.Promise;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -23,16 +23,13 @@ public abstract class ProxyHandler extends BaseHandler implements Closeable {
 
     private static Log logger = LogFactory.getLog(ProxyHandler.class);
 
-    private final RadiusProxy.ConnectionManager connectionManager;
     private final RadiusClient<?> radiusClient;
 
     protected ProxyHandler(Dictionary dictionary,
                            RadiusServer.Deduplicator deduplicator,
-                           RadiusProxy.ConnectionManager connectionManager,
                            RadiusClient<?> radiusClient,
                            Timer timer) {
         super(dictionary, deduplicator, timer);
-        this.connectionManager = connectionManager;
         this.radiusClient = radiusClient;
     }
 
@@ -84,15 +81,7 @@ public abstract class ProxyHandler extends BaseHandler implements Closeable {
      * @param packet packet to be sent back
      */
     protected RadiusPacket handleServerResponse(RadiusPacket packet) throws RadiusException {
-        // retrieve my Proxy-State attribute (the last)
-        List<RadiusAttribute> proxyStates = packet.getAttributes(33);
-        if (proxyStates == null || proxyStates.size() == 0)
-            throw new RadiusException("proxy packet without Proxy-State attribute");
-        RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
 
-        // todo move this logic to proxy implementation of RadiusClient.PacketManager
-        String state = new String(proxyState.getAttributeData());
-        // use state as the key to distinguish between connections
 
         // retrieve clientEndpoint
         if (logger.isInfoEnabled())
@@ -114,12 +103,6 @@ public abstract class ProxyHandler extends BaseHandler implements Closeable {
      * @param endpoint the endpoint for this packet
      */
     protected Promise<RadiusPacket> proxyRequest(Promise<RadiusPacket> promise, RadiusPacket packet, RadiusEndpoint endpoint) {
-        // add Proxy-State attribute
-        String proxyIndexStr = connectionManager.nextProxyIndex();
-        packet.addAttribute(new RadiusAttribute(33, proxyIndexStr.getBytes()));
-
-        // todo putProxyConnection
-
         // save clientRequest authenticator (will be calculated new)
         byte[] auth = packet.getAuthenticator();
 

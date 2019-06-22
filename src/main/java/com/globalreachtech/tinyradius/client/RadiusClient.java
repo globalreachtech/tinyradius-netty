@@ -16,6 +16,7 @@ import io.netty.util.concurrent.PromiseCombiner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -120,10 +121,11 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
     }
 
     private Future<RadiusPacket> sendOnce(RadiusPacket packet, RadiusEndpoint endpoint) {
-        Promise<RadiusPacket> promise = packetManager.handleOutbound(packet, endpoint, eventLoopGroup.next());
-
         try {
+            // run before passing to packetManager - makeDatagramPacket (encodeRequestPacket) mutates packet
             final DatagramPacket packetOut = makeDatagramPacket(packet, endpoint);
+
+            Promise<RadiusPacket> promise = packetManager.handleOutbound(packet, endpoint, eventLoopGroup.next());
 
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Sending packet to %s", endpoint.getEndpointAddress()));
@@ -137,10 +139,10 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
                     logger.info(packet.toString());
             });
 
+            return promise;
         } catch (Exception e) {
-            promise.tryFailure(e);
+            return eventLoopGroup.next().newFailedFuture(e);
         }
-        return promise;
     }
 
     /**
