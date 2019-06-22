@@ -150,7 +150,6 @@ public abstract class BaseHandler extends SimpleChannelInboundHandler<DatagramPa
             // error while reading/writing socket
             logger.error("communication error", ioe);
         } catch (RadiusException re) {
-            // malformed packet
             logger.error("malformed Radius packet", re);
         }
     }

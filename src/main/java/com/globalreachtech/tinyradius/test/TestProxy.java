@@ -8,7 +8,7 @@ import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.proxy.ProxyPacketManager;
+import com.globalreachtech.tinyradius.proxy.ProxyClientPacketManager;
 import com.globalreachtech.tinyradius.proxy.ProxyHandler;
 import com.globalreachtech.tinyradius.proxy.RadiusProxy;
 import com.globalreachtech.tinyradius.server.DefaultDeduplicator;
@@ -94,7 +94,7 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
         new ProxyHandler(
                 dictionary,
                 new DefaultDeduplicator(timer, 30000),
-                new ProxyPacketManager(),
+                new ProxyClientPacketManager(),
                 new RadiusClient<NioDatagramChannel>(
                         eventLoopGroup,
                         nioDatagramChannelReflectiveChannelFactory,
@@ -109,7 +109,7 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
                 dictionary,
                 eventLoopGroup,
                 nioDatagramChannelReflectiveChannelFactory,
-                new ProxyPacketManager(timer, 30000),
+                new ProxyClientPacketManager(timer, 30000),
                 new DefaultPacketManager(timer, dictionary, 3000),
                 null,
                 11812, 11813, 11814);

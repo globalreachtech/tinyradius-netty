@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.globalreachtech.tinyradius.packet.RadiusPacket.decodeResponsePacket;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class DefaultPacketManager implements RadiusClient.PacketManager {
@@ -67,7 +68,7 @@ public class DefaultPacketManager implements RadiusClient.PacketManager {
         }
 
         try {
-            RadiusPacket resp = RadiusPacket.decodeResponsePacket(dictionary,
+            RadiusPacket resp = decodeResponsePacket(dictionary,
                     new ByteBufInputStream(packet.content().duplicate()),
                     context.sharedSecret, context.request);
 

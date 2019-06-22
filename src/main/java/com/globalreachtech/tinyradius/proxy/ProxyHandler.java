@@ -1,6 +1,5 @@
 package com.globalreachtech.tinyradius.proxy;
 
-import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
 import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
@@ -17,7 +16,6 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
-import java.util.List;
 
 public abstract class ProxyHandler extends BaseHandler implements Closeable {
 
@@ -55,21 +53,36 @@ public abstract class ProxyHandler extends BaseHandler implements Closeable {
      */
     public abstract RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client);
 
+    /**
+     * Proxies the given packet to the server given in the proxy connection.
+     * Stores the proxy connection object in the cache with a key that
+     * is added to the packet in the "Proxy-State" attribute.
+     */
     @Override
-    protected Promise<RadiusPacket> handlePacket(Channel channel, InetSocketAddress remoteAddress, RadiusPacket request) {
+    protected Promise<RadiusPacket> handlePacket(Channel channel, InetSocketAddress remoteAddress, RadiusPacket packet) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
 
         String sharedSecret = getSharedSecret(remoteAddress);
         RadiusEndpoint clientEndpoint = new RadiusEndpoint(remoteAddress, sharedSecret);
-        RadiusEndpoint serverEndpoint = getProxyServer(request, clientEndpoint);
+        RadiusEndpoint serverEndpoint = getProxyServer(packet, clientEndpoint);
 
-        if (serverEndpoint != null) {
-            logger.info("proxy packet to " + serverEndpoint.getEndpointAddress());
-            return proxyRequest(promise, request, serverEndpoint);
+        if (serverEndpoint == null) {
+            logger.info("server not found for client proxy request, ignoring");
+            promise.tryFailure(new RadiusException("server not found for client proxy request"));
+            return promise;
         }
 
-        logger.info("server not found for client proxy request, ignoring");
-        promise.tryFailure(new RadiusException("server not found for client proxy request"));
+        logger.info("proxy packet to " + serverEndpoint.getEndpointAddress());
+        // save clientRequest authenticator (will be calculated new)
+        byte[] auth = packet.getAuthenticator();
+
+        // send new packet (with new authenticator)
+        radiusClient.communicate(packet, serverEndpoint, 3)
+                .addListener((Future<RadiusPacket> f) -> promise.trySuccess(
+                        handleServerResponse(f.getNow())));
+
+        // restore original authenticator
+        packet.setAuthenticator(auth);
         return promise;
     }
 
@@ -80,9 +93,7 @@ public abstract class ProxyHandler extends BaseHandler implements Closeable {
      *
      * @param packet packet to be sent back
      */
-    protected RadiusPacket handleServerResponse(RadiusPacket packet) throws RadiusException {
-
-
+    protected RadiusPacket handleServerResponse(RadiusPacket packet) {
         // retrieve clientEndpoint
         if (logger.isInfoEnabled())
             logger.info("received proxy packet: " + packet);
@@ -92,28 +103,5 @@ public abstract class ProxyHandler extends BaseHandler implements Closeable {
 
         // re-encode answer packet with authenticator of the original packet
         return new RadiusPacket(packet.getPacketType(), packet.getPacketIdentifier(), packet.getAttributes());
-    }
-
-    /**
-     * Proxies the given packet to the server given in the proxy connection.
-     * Stores the proxy connection object in the cache with a key that
-     * is added to the packet in the "Proxy-State" attribute.
-     *
-     * @param packet   the packet to proxy
-     * @param endpoint the endpoint for this packet
-     */
-    protected Promise<RadiusPacket> proxyRequest(Promise<RadiusPacket> promise, RadiusPacket packet, RadiusEndpoint endpoint) {
-        // save clientRequest authenticator (will be calculated new)
-        byte[] auth = packet.getAuthenticator();
-
-        // send new packet (with new authenticator)
-        radiusClient.communicate(packet, endpoint, 3)
-                .addListener((Future<RadiusPacket> f) -> promise.trySuccess(
-                        handleServerResponse(f.getNow())));
-
-        // restore original authenticator
-        packet.setAuthenticator(auth);
-
-        return promise;
     }
 }
