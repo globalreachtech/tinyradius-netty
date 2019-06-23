@@ -3,8 +3,8 @@ package com.globalreachtech.tinyradius.proxy;
 import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.server.BaseHandler;
-import com.globalreachtech.tinyradius.server.RadiusServer;
+import com.globalreachtech.tinyradius.server.Deduplicator;
+import com.globalreachtech.tinyradius.server.ServerHandler;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
 import io.netty.channel.Channel;
@@ -17,16 +17,13 @@ import org.apache.commons.logging.LogFactory;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 
-public abstract class ProxyHandler extends BaseHandler implements Closeable {
+public abstract class ProxyHandler extends ServerHandler implements Closeable {
 
     private static Log logger = LogFactory.getLog(ProxyHandler.class);
 
     private final RadiusClient<?> radiusClient;
 
-    protected ProxyHandler(Dictionary dictionary,
-                           RadiusServer.Deduplicator deduplicator,
-                           RadiusClient<?> radiusClient,
-                           Timer timer) {
+    protected ProxyHandler(Dictionary dictionary, Deduplicator deduplicator, RadiusClient<?> radiusClient, Timer timer) {
         super(dictionary, deduplicator, timer);
         this.radiusClient = radiusClient;
     }

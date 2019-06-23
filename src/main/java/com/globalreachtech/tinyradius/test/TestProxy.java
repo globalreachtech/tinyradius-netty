@@ -1,6 +1,6 @@
 package com.globalreachtech.tinyradius.test;
 
-import com.globalreachtech.tinyradius.client.DefaultPacketManager;
+import com.globalreachtech.tinyradius.client.DefaultClientHandler;
 import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
@@ -8,7 +8,7 @@ import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.proxy.ProxyClientPacketManager;
+import com.globalreachtech.tinyradius.proxy.ProxyStateClientHandler;
 import com.globalreachtech.tinyradius.proxy.ProxyHandler;
 import com.globalreachtech.tinyradius.proxy.RadiusProxy;
 import com.globalreachtech.tinyradius.server.DefaultDeduplicator;
@@ -45,10 +45,9 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
     private TestProxy(Dictionary dictionary,
                       EventLoopGroup eventGroup,
                       ChannelFactory<T> factory,
-                      RadiusClient.PacketManager packetManager,
                       InetAddress listenAddress,
                       int authPort, int acctPort, int proxyPort) {
-        super(eventGroup, factory, packetManager, listenAddress, authPort, acctPort, proxyPort);
+        super(eventGroup, factory, listenAddress, authPort, acctPort, proxyPort);
     }
 
     public RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
@@ -94,11 +93,11 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
         new ProxyHandler(
                 dictionary,
                 new DefaultDeduplicator(timer, 30000),
-                new ProxyClientPacketManager(),
+                new ProxyStateClientHandler(),
                 new RadiusClient<NioDatagramChannel>(
                         eventLoopGroup,
                         nioDatagramChannelReflectiveChannelFactory,
-                        new DefaultPacketManager(timer, dictionary, 3000),
+                        new DefaultClientHandler(timer, dictionary, 3000),
                         null,
                         0
                 )){
@@ -109,8 +108,8 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
                 dictionary,
                 eventLoopGroup,
                 nioDatagramChannelReflectiveChannelFactory,
-                new ProxyClientPacketManager(timer, 30000),
-                new DefaultPacketManager(timer, dictionary, 3000),
+                new ProxyStateClientHandler(timer, 30000),
+                new DefaultClientHandler(timer, dictionary, 3000),
                 null,
                 11812, 11813, 11814);
 

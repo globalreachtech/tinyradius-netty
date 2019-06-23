@@ -1,12 +1,13 @@
 package com.globalreachtech.tinyradius.proxy;
 
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
-import com.globalreachtech.tinyradius.client.RadiusClient;
+import com.globalreachtech.tinyradius.client.ClientHandler;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
 import io.netty.buffer.ByteBufInputStream;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
@@ -15,22 +16,19 @@ import io.netty.util.concurrent.Promise;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.decodeRequestPacket;
-import static com.globalreachtech.tinyradius.packet.RadiusPacket.decodeResponsePacket;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public abstract class ProxyClientPacketManager implements RadiusClient.PacketManager {
+public abstract class ProxyStateClientHandler extends ClientHandler {
 
-    private static Log logger = LogFactory.getLog(ProxyClientPacketManager.class);
+    private static Log logger = LogFactory.getLog(ProxyStateClientHandler.class);
 
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
 
@@ -38,40 +36,39 @@ public abstract class ProxyClientPacketManager implements RadiusClient.PacketMan
     private final Dictionary dictionary;
     private final int timeoutMs;
 
-    private final Map<ContextKey, Context> contexts = new ConcurrentHashMap<>();
+    private Map<String, Promise<RadiusPacket>> proxyConnections = new ConcurrentHashMap<>();
 
-    private Map<String, Context> proxyConnections = new ConcurrentHashMap<>();
-
-    public ProxyClientPacketManager(Timer timer, Dictionary dictionary, int timeoutMs) {
+    public ProxyStateClientHandler(Timer timer, Dictionary dictionary, int timeoutMs) {
         this.timer = timer;
         this.dictionary = dictionary;
         this.timeoutMs = timeoutMs;
     }
+
+    // todo composition over inheritance
+    public abstract String getSharedSecret(InetSocketAddress client);
 
     private String genProxyState() {
         return Integer.toString(proxyIndex.getAndIncrement());
     }
 
     @Override
-    public Promise<RadiusPacket> handleOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
-
+    public Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
         // add Proxy-State attribute
         String proxyState = genProxyState();
         packet.addAttribute(new RadiusAttribute(33, proxyState.getBytes()));
 
-        final ContextKey key = new ContextKey(packet.getPacketIdentifier(), endpoint.getEndpointAddress(), proxyState);
-        final Context context = new Context(eventExecutor.newPromise());
-        proxyConnections.put(proxyState, context);
+        Promise<RadiusPacket> response = eventExecutor.newPromise();
+        proxyConnections.put(proxyState, response);
 
         final Timeout timeout = timer.newTimeout(
-                t -> context.response.tryFailure(new RadiusException("Timeout occurred")), timeoutMs, MILLISECONDS);
+                t -> response.tryFailure(new RadiusException("Timeout occurred")), timeoutMs, MILLISECONDS);
 
-        context.response.addListener(f -> {
+        response.addListener(f -> {
             proxyConnections.remove(proxyState);
             timeout.cancel();
         });
 
-        return context.response;
+        return response;
     }
 
     /**
@@ -89,23 +86,17 @@ public abstract class ProxyClientPacketManager implements RadiusClient.PacketMan
         return decodeRequestPacket(dictionary, in, sharedSecret);
     }
 
-    public abstract String getSharedSecret(InetSocketAddress client);
-
-
     @Override
-    public void handleInbound(DatagramPacket packetIn) {
-
+    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
         try {
-            String secret = getSharedSecret(packetIn.sender());
+            String secret = getSharedSecret(datagramPacket.sender());
             if (secret == null) {
                 if (logger.isInfoEnabled())
-                    logger.info("ignoring packet from unknown server " + packetIn.sender() + " received on local address " + packetIn.recipient());
+                    logger.info("ignoring packet from unknown server " + datagramPacket.sender() + " received on local address " + datagramPacket.recipient());
                 return;
             }
 
-
-            RadiusPacket packet = makeRadiusPacket(packetIn, secret);
-
+            RadiusPacket packet = makeRadiusPacket(datagramPacket, secret);
 
             // retrieve my Proxy-State attribute (the last)
             List<RadiusAttribute> proxyStates = packet.getAttributes(33);
@@ -115,9 +106,9 @@ public abstract class ProxyClientPacketManager implements RadiusClient.PacketMan
 
             String connectionId = new String(proxyState.getAttributeData());
 
-            final Context context = proxyConnections.get(connectionId);
+            final Promise<RadiusPacket> response = proxyConnections.get(connectionId);
 
-            if (context == null) {
+            if (response == null) {
                 logger.info("Request context not found for received packet, ignoring...");
                 return;
             }
@@ -126,34 +117,12 @@ public abstract class ProxyClientPacketManager implements RadiusClient.PacketMan
                 logger.info(String.format("Found context %s for response identifier => %d",
                         connectionId, packet.getPacketIdentifier()));
 
-            context.response.trySuccess(packet);
+            response.trySuccess(packet);
         } catch (IOException ioe) {
             // error while reading/writing socket
             logger.error("communication error", ioe);
         } catch (RadiusException re) {
             logger.error("malformed Radius packet", re);
-        }
-    }
-
-    private static class ContextKey {
-        private final int packetIdentifier;
-        private final InetSocketAddress address;
-        private final String proxyState;
-
-        ContextKey(int packetIdentifier, InetSocketAddress address, String proxyState) {
-            this.packetIdentifier = packetIdentifier;
-            this.address = address;
-            this.proxyState = proxyState;
-        }
-
-    }
-
-    private static class Context {
-
-        private final Promise<RadiusPacket> response;
-
-        Context(Promise<RadiusPacket> response) {
-            this.response = response;
         }
     }
 }

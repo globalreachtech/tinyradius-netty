@@ -15,7 +15,7 @@ public class DefaultDictionary extends MemoryDictionary {
     private DefaultDictionary() {
     }
 
-    private static final String DICTIONARY_RESOURCE = "com/globalreachtech/tinyradius/dictionary/default_dictionary";
+    private static final String DICTIONARY_RESOURCE = "default_dictionary";
     public static final DefaultDictionary INSTANCE = new DefaultDictionary();
 
     /**

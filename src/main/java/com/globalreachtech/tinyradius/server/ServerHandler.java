@@ -25,15 +25,15 @@ import static com.globalreachtech.tinyradius.packet.RadiusPacket.decodeRequestPa
 import static io.netty.buffer.Unpooled.buffer;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public abstract class BaseHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+public abstract class ServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private static Log logger = LogFactory.getLog(BaseHandler.class);
+    private static Log logger = LogFactory.getLog(ServerHandler.class);
 
     private final Timer timer;
-    private final RadiusServer.Deduplicator packetManager;
+    private final Deduplicator packetManager;
     protected final Dictionary dictionary;
 
-    protected BaseHandler(Dictionary dictionary, RadiusServer.Deduplicator packetManager, Timer timer) {
+    protected ServerHandler(Dictionary dictionary, Deduplicator packetManager, Timer timer) {
         this.dictionary = dictionary;
         this.packetManager = packetManager;
         this.timer = timer;
@@ -93,7 +93,6 @@ public abstract class BaseHandler extends SimpleChannelInboundHandler<DatagramPa
         ByteBufInputStream in = new ByteBufInputStream(packet.content());
         return decodeRequestPacket(dictionary, in, sharedSecret);
     }
-
 
     public void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
         try {

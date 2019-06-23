@@ -9,14 +9,12 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -41,7 +39,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
 
     private final ChannelFactory<T> factory;
     private final EventLoopGroup eventLoopGroup;
-    private final PacketManager packetManager;
+    private final ClientHandler clientHandler;
     private final InetAddress listenAddress;
     private final int port;
 
@@ -52,10 +50,10 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
     /**
      * @param port           set to 0 to let system choose
      */
-    public RadiusClient(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, PacketManager packetManager, InetAddress listenAddress, int port) {
+    public RadiusClient(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, ClientHandler clientHandler, InetAddress listenAddress, int port) {
         this.factory = requireNonNull(factory, "factory cannot be null");
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
-        this.packetManager = packetManager;
+        this.clientHandler = clientHandler;
         this.listenAddress = listenAddress;
         this.port = port;
     }
@@ -88,7 +86,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
      */
     protected ChannelFuture listen(final T channel, final InetSocketAddress listenAddress) {
 
-        channel.pipeline().addLast(new RadiusChannelHandler());
+        channel.pipeline().addLast(clientHandler);
 
         final ChannelPromise promise = channel.newPromise();
 
@@ -125,7 +123,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
             // run before passing to packetManager - makeDatagramPacket (encodeRequestPacket) mutates packet
             final DatagramPacket packetOut = makeDatagramPacket(packet, endpoint);
 
-            Promise<RadiusPacket> promise = packetManager.handleOutbound(packet, endpoint, eventLoopGroup.next());
+            Promise<RadiusPacket> promise = clientHandler.logOutbound(packet, endpoint, eventLoopGroup.next());
 
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Sending packet to %s", endpoint.getEndpointAddress()));
@@ -159,21 +157,4 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
         return new DatagramPacket(buf, endpoint.getEndpointAddress());
     }
 
-    private class RadiusChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
-        public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-            packetManager.handleInbound(packet);
-        }
-
-        @Override
-        public void channelReadComplete(ChannelHandlerContext ctx) {
-            ctx.flush();
-        }
-    }
-
-    public interface PacketManager {
-
-        Promise<RadiusPacket> handleOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor);
-
-        void handleInbound(DatagramPacket packet);
-    }
 }

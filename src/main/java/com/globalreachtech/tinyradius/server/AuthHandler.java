@@ -15,10 +15,10 @@ import java.net.InetSocketAddress;
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.ACCESS_ACCEPT;
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.ACCESS_REJECT;
 
-public abstract class AuthHandler extends BaseHandler {
+public abstract class AuthHandler extends ServerHandler {
     private static Log logger = LogFactory.getLog(AuthHandler.class);
 
-    public AuthHandler(Dictionary dictionary, RadiusServer.Deduplicator packetManager, Timer timer) {
+    public AuthHandler(Dictionary dictionary, Deduplicator packetManager, Timer timer) {
         super(dictionary, packetManager, timer);
     }
 

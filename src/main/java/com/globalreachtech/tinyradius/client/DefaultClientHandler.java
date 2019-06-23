@@ -5,6 +5,7 @@ import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
 import io.netty.buffer.ByteBufInputStream;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
@@ -22,9 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.decodeResponsePacket;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class DefaultPacketManager implements RadiusClient.PacketManager {
+public class DefaultClientHandler extends ClientHandler {
 
-    private static Log logger = LogFactory.getLog(DefaultPacketManager.class);
+    private static Log logger = LogFactory.getLog(DefaultClientHandler.class);
 
     private final Timer timer;
     private final Dictionary dictionary;
@@ -32,14 +33,14 @@ public class DefaultPacketManager implements RadiusClient.PacketManager {
 
     private final Map<ContextKey, Context> contexts = new ConcurrentHashMap<>();
 
-    public DefaultPacketManager(Timer timer, Dictionary dictionary, int timeoutMs) {
+    public DefaultClientHandler(Timer timer, Dictionary dictionary, int timeoutMs) {
         this.timer = timer;
         this.dictionary = dictionary;
         this.timeoutMs = timeoutMs;
     }
 
     @Override
-    public Promise<RadiusPacket> handleOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
+    public Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
 
         final ContextKey key = new ContextKey(packet.getPacketIdentifier(), endpoint.getEndpointAddress());
         final Context context = new Context(endpoint.getSharedSecret(), packet, eventExecutor.newPromise());
@@ -57,7 +58,7 @@ public class DefaultPacketManager implements RadiusClient.PacketManager {
     }
 
     @Override
-    public void handleInbound(DatagramPacket packet) {
+    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
         int identifier = packet.content().duplicate().skipBytes(1).readByte() & 0xff;
         final ContextKey key = new ContextKey(identifier, packet.sender());
 
@@ -82,7 +83,6 @@ public class DefaultPacketManager implements RadiusClient.PacketManager {
     }
 
     private static class ContextKey {
-        // todo can all packets be uniquely identified by this?
         private final int packetIdentifier;
         private final InetSocketAddress address;
 

@@ -1,6 +1,5 @@
 package com.globalreachtech.tinyradius.server;
 
-import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.util.concurrent.Future;
@@ -20,7 +19,7 @@ import static java.util.Objects.requireNonNull;
  * If the server supports accounting, it must override
  * accountingRequestReceived().
  */
-public abstract class RadiusServer<T extends DatagramChannel> {
+public class RadiusServer<T extends DatagramChannel> {
 
     private static Log logger = LogFactory.getLog(RadiusServer.class);
 
@@ -127,17 +126,4 @@ public abstract class RadiusServer<T extends DatagramChannel> {
         return acctChannel;
     }
 
-    public interface Deduplicator {
-
-        /**
-         * Checks whether the passed packet is a duplicate.
-         * A packet is duplicate if another packet with the same identifier
-         * has been sent from the same host in the last time.
-         *
-         * @param packet  packet in question
-         * @param address client address
-         * @return true if it is duplicate
-         */
-        boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address);
-    }
 }

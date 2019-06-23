@@ -15,10 +15,8 @@ import java.net.InetAddress;
  * <p>
  * You have to provide a packet manager that manages the proxy connection
  * a packet belongs to.
- * <p>
- * Note: this implementation does not make use of RadiusClient which also manages retries
  */
-public abstract class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
+public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
 
     private static Log logger = LogFactory.getLog(RadiusProxy.class);
     private final ProxyHandler proxyHandler;

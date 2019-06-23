@@ -14,11 +14,12 @@ import java.net.InetSocketAddress;
 
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.ACCOUNTING_RESPONSE;
 
-public abstract class AcctHandler extends BaseHandler {
+public abstract class AcctHandler extends ServerHandler {
 
     private static Log logger = LogFactory.getLog(AcctHandler.class);
 
-    public AcctHandler(Dictionary dictionary, RadiusServer.Deduplicator packetManager, Timer timer) {
+    // todo move to tests or remove
+    public AcctHandler(Dictionary dictionary, Deduplicator packetManager, Timer timer) {
         super(dictionary, packetManager, timer);
     }
 

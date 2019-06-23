@@ -766,8 +766,6 @@ public class RadiusPacket implements Cloneable {
 
     /**
      * Returns the dictionary this Radius packet uses.
-     *
-     * @return Dictionary INSTANCE
      */
     public Dictionary getDictionary() {
         return dictionary;
@@ -845,8 +843,6 @@ public class RadiusPacket implements Cloneable {
      * encode packet attributes like the User-Password attribute.
      * The method may use getAuthenticator() to get the clientRequest
      * authenticator.
-     *
-     * @param sharedSecret
      */
     protected void encodeRequestAttributes(String sharedSecret) throws RadiusException {
     }
@@ -1009,11 +1005,8 @@ public class RadiusPacket implements Cloneable {
      * Can be overriden to decode encoded clientRequest attributes such as
      * User-Password. This method may use getAuthenticator() to get the
      * clientRequest authenticator.
-     *
-     * @param sharedSecret
      */
-    protected void decodeRequestAttributes(String sharedSecret)
-            throws RadiusException {
+    protected void decodeRequestAttributes(String sharedSecret) throws RadiusException {
     }
 
     /**
