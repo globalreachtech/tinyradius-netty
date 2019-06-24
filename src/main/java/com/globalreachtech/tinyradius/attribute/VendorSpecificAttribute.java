@@ -30,6 +30,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Constructs a new Vendor-Specific attribute to be sent.
+     *
      * @param vendorId vendor ID of the sub-attributes
      */
     public VendorSpecificAttribute(int vendorId) {
@@ -39,6 +40,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Sets the vendor ID of the child attributes.
+     *
      * @param childVendorId
      */
     public void setChildVendorId(int childVendorId) {
@@ -47,6 +49,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Returns the vendor ID of the sub-attributes.
+     *
      * @return vendor ID of sub attributes
      */
     public int getChildVendorId() {
@@ -55,6 +58,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Also copies the new dictionary to sub-attributes.
+     *
      * @param dictionary dictionary to set
      * @see RadiusAttribute#setDictionary(Dictionary)
      */
@@ -67,6 +71,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Adds a sub-attribute to this attribute.
+     *
      * @param attribute sub-attribute to add
      */
     public void addSubAttribute(RadiusAttribute attribute) {
@@ -79,9 +84,10 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Adds a sub-attribute with the specified name to this attribute.
-     * @param name name of the sub-attribute
+     *
+     * @param name  name of the sub-attribute
      * @param value value of the sub-attribute
-     * @exception IllegalArgumentException invalid sub-attribute name or value
+     * @throws IllegalArgumentException invalid sub-attribute name or value
      */
     public void addSubAttribute(String name, String value) {
         if (name == null || name.isEmpty())
@@ -108,6 +114,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Removes the specified sub-attribute from this attribute.
+     *
      * @param attribute RadiusAttribute to remove
      */
     public void removeSubAttribute(RadiusAttribute attribute) {
@@ -117,6 +124,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Returns the list of sub-attributes.
+     *
      * @return List of RadiusAttribute objects
      */
     public List<RadiusAttribute> getSubAttributes() {
@@ -125,6 +133,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Returns all sub-attributes of this attribut which have the given type.
+     *
      * @param attributeType type of sub-attributes to get
      * @return list of RadiusAttribute objects, does not return null
      */
@@ -144,10 +153,11 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     /**
      * Returns a sub-attribute of the given type which may only occur once in
      * this attribute.
+     *
      * @param type sub-attribute type
      * @return RadiusAttribute object or null if there is no such sub-attribute
      * @throws RuntimeException if there are multiple occurences of the
-     * requested sub-attribute type
+     *                          requested sub-attribute type
      */
     public RadiusAttribute getSubAttribute(int type) {
         List attrs = getSubAttributes(type);
@@ -162,6 +172,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Returns a single sub-attribute of the given type name.
+     *
      * @param type attribute type name
      * @return RadiusAttribute object or null if there is no such attribute
      * @throws RuntimeException if the attribute occurs multiple times
@@ -172,8 +183,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
         AttributeType t = getDictionary().getAttributeTypeByName(type);
         if (t == null)
-            throw new IllegalArgumentException("unknown attribute type name '"
-                    + type + "'");
+            throw new IllegalArgumentException("unknown attribute type name '" + type + "'");
         if (t.getVendorId() != getChildVendorId())
             throw new IllegalArgumentException("vendor ID mismatch");
 
@@ -183,11 +193,12 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     /**
      * Returns the value of the Radius attribute of the given type or null if
      * there is no such attribute.
+     *
      * @param type attribute type name
      * @return value of the attribute as a string or null if there is no such
      * attribute
      * @throws IllegalArgumentException if the type name is unknown
-     * @throws RuntimeException attribute occurs multiple times
+     * @throws RuntimeException         attribute occurs multiple times
      */
     public String getSubAttributeValue(String type) {
         RadiusAttribute attr = getSubAttribute(type);
@@ -199,6 +210,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Renders this attribute as a byte array.
+     *
      * @see RadiusAttribute#writeAttribute()
      */
     public byte[] writeAttribute() {
@@ -237,6 +249,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     /**
      * Reads a Vendor-Specific attribute and decodes the internal sub-attribute
      * structure.
+     *
      * @see RadiusAttribute#readAttribute(byte[], int,
      * int)
      */
@@ -296,6 +309,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Returns a string representation for debugging.
+     *
      * @see RadiusAttribute#toString()
      */
     public String toString() {

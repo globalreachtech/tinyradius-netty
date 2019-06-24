@@ -11,8 +11,8 @@ import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -33,7 +33,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  */
 public class SimpleClientHandler extends ClientHandler {
 
-    private static final Log logger = LogFactory.getLog(SimpleClientHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimpleClientHandler.class);
 
     private final Timer timer;
     private final Dictionary dictionary;

@@ -199,7 +199,7 @@ public class RadiusAttribute {
      *
      * @return AttributeType object for (sub-)attribute or null
      */
-    public AttributeType getAttributeTypeObject() {
+    public AttributeType<? extends RadiusAttribute> getAttributeTypeObject() {
         if (getVendorId() != -1)
             return dictionary.getAttributeTypeByCode(getVendorId(), getAttributeType());
         else
@@ -217,10 +217,10 @@ public class RadiusAttribute {
     public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int attributeType) {
         RadiusAttribute attribute = new RadiusAttribute();
 
-        AttributeType at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
+        AttributeType<? extends RadiusAttribute> at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
         if (at != null && at.getAttributeClass() != null) {
             try {
-                attribute = (RadiusAttribute) at.getAttributeClass().newInstance();
+                attribute = at.getAttributeClass().getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 // error instantiating class - should not occur
                 e.printStackTrace();

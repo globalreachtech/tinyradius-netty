@@ -6,14 +6,17 @@ import com.globalreachtech.tinyradius.util.RadiusException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFactory;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelPromise;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -34,7 +37,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class RadiusClient<T extends DatagramChannel> {
 
-    private static final Log logger = LogFactory.getLog(RadiusClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(RadiusClient.class);
 
     private final ChannelFactory<T> factory;
     private final EventLoopGroup eventLoopGroup;

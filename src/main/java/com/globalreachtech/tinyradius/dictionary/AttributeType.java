@@ -10,12 +10,12 @@ import static java.util.Objects.requireNonNull;
 /**
  * Represents a Radius attribute type.
  */
-public class AttributeType {
+public class AttributeType<T extends RadiusAttribute> {
 
     private int vendorId = -1;
     private int typeCode;
     private String name;
-    private Class attributeClass;
+    private Class<T> attributeClass;
     private Map<Integer, String> enumeration = null;
 
     /**
@@ -25,7 +25,7 @@ public class AttributeType {
      * @param name Attribute type name
      * @param type RadiusAttribute descendant who handles attributes of this type
      */
-    public AttributeType(int code, String name, Class type) {
+    public AttributeType(int code, String name, Class<T> type) {
         setTypeCode(code);
         setName(name);
         setAttributeClass(type);
@@ -39,7 +39,7 @@ public class AttributeType {
      * @param name   sub-attribute name
      * @param type   sub-attribute class
      */
-    public AttributeType(int vendor, int code, String name, Class type) {
+    public AttributeType(int vendor, int code, String name, Class<T> type) {
         setTypeCode(code);
         setName(name);
         setAttributeClass(type);
@@ -92,7 +92,7 @@ public class AttributeType {
      *
      * @return class
      */
-    public Class getAttributeClass() {
+    public Class<T> getAttributeClass() {
         return attributeClass;
     }
 
@@ -100,7 +100,7 @@ public class AttributeType {
      * Sets the RadiusAttribute descendant class which represents
      * attributes of this type.
      */
-    public void setAttributeClass(Class type) {
+    public void setAttributeClass(Class<T> type) {
         requireNonNull(type, "type is null");
         if (!RadiusAttribute.class.isAssignableFrom(type))
             throw new IllegalArgumentException("type is not a RadiusAttribute descendant");

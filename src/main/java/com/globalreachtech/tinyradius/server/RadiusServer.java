@@ -5,8 +5,8 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -21,7 +21,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class RadiusServer<T extends DatagramChannel> {
 
-    private static final Log logger = LogFactory.getLog(RadiusServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(RadiusServer.class);
 
     protected final ChannelFactory<T> factory;
     protected final EventLoopGroup eventLoopGroup;

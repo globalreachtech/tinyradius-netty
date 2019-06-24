@@ -17,9 +17,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import java.io.FileInputStream;
 import java.net.InetAddress;
@@ -41,9 +38,6 @@ import java.net.UnknownHostException;
 public class TestProxy {
 
     public static void main(String[] args) throws Exception {
-
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 

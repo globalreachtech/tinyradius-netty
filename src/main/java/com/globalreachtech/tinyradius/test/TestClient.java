@@ -1,10 +1,10 @@
 package com.globalreachtech.tinyradius.test;
 
+import com.globalreachtech.tinyradius.client.RadiusClient;
+import com.globalreachtech.tinyradius.client.SimpleClientHandler;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
-import com.globalreachtech.tinyradius.client.SimpleClientHandler;
-import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;

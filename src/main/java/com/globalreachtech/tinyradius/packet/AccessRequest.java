@@ -3,8 +3,8 @@ package com.globalreachtech.tinyradius.packet;
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
 import com.globalreachtech.tinyradius.attribute.StringAttribute;
 import com.globalreachtech.tinyradius.util.RadiusException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -79,7 +79,7 @@ public class AccessRequest extends RadiusPacket {
     /**
      * Logger for logging information about malformed packets
      */
-    private static final Log logger = LogFactory.getLog(AccessRequest.class);
+    private static final Logger logger = LoggerFactory.getLogger(AccessRequest.class);
 
     /**
      * Constructs an empty Access-Request packet.

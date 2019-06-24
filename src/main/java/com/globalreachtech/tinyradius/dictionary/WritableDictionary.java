@@ -1,5 +1,7 @@
 package com.globalreachtech.tinyradius.dictionary;
 
+import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
+
 /**
  * A dictionary that is not read-only. Provides methods
  * to add entries to the dictionary.
@@ -19,6 +21,6 @@ public interface WritableDictionary extends Dictionary {
      *
      * @param attributeType AttributeType object
      */
-    void addAttributeType(AttributeType attributeType);
+    void addAttributeType(AttributeType<? extends RadiusAttribute> attributeType);
 
 }

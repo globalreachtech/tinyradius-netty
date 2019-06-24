@@ -1,5 +1,7 @@
 package com.globalreachtech.tinyradius.dictionary;
 
+import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,8 +16,11 @@ import java.util.Map;
  * @see Dictionary
  * @see WritableDictionary
  */
-public class MemoryDictionary
-        implements WritableDictionary {
+public class MemoryDictionary implements WritableDictionary {
+
+    private final Map<Integer, String> vendorsByCode = new HashMap<>();
+    private final Map<Integer, Map<Integer, AttributeType<? extends RadiusAttribute>>> attributesByCode = new HashMap<>();
+    private final Map<String, AttributeType<? extends RadiusAttribute>> attributesByName = new HashMap<>();
 
     /**
      * Returns the AttributeType for the vendor -1 from the
@@ -25,7 +30,7 @@ public class MemoryDictionary
      * @return AttributeType or null
      * @see Dictionary#getAttributeTypeByCode(int)
      */
-    public AttributeType getAttributeTypeByCode(int typeCode) {
+    public AttributeType<? extends RadiusAttribute> getAttributeTypeByCode(int typeCode) {
         return getAttributeTypeByCode(-1, typeCode);
     }
 
@@ -37,8 +42,8 @@ public class MemoryDictionary
      * @return AttributeType or null
      * @see Dictionary#getAttributeTypeByCode(int, int)
      */
-    public AttributeType getAttributeTypeByCode(int vendorCode, int typeCode) {
-        Map<Integer, AttributeType> vendorAttributes = attributesByCode.get(vendorCode);
+    public AttributeType<? extends RadiusAttribute> getAttributeTypeByCode(int vendorCode, int typeCode) {
+        Map<Integer, AttributeType<? extends RadiusAttribute>> vendorAttributes = attributesByCode.get(vendorCode);
         if (vendorAttributes == null)
             return null;
         else
@@ -52,7 +57,7 @@ public class MemoryDictionary
      * @return AttributeType or null
      * @see Dictionary#getAttributeTypeByName(java.lang.String)
      */
-    public AttributeType getAttributeTypeByName(String typeName) {
+    public AttributeType<? extends RadiusAttribute> getAttributeTypeByName(String typeName) {
         return attributesByName.get(typeName);
     }
 
@@ -107,7 +112,7 @@ public class MemoryDictionary
      * @param attributeType AttributeType object
      * @throws IllegalArgumentException duplicate attribute name/type code
      */
-    public void addAttributeType(AttributeType attributeType) {
+    public void addAttributeType(AttributeType<? extends RadiusAttribute> attributeType) {
         if (attributeType == null)
             throw new IllegalArgumentException("attribute type must not be null");
 
@@ -118,16 +123,12 @@ public class MemoryDictionary
         if (attributesByName.containsKey(attributeName))
             throw new IllegalArgumentException("duplicate attribute name: " + attributeName);
 
-        Map<Integer, AttributeType> vendorAttributes = attributesByCode.computeIfAbsent(vendorId, k -> new HashMap<>());
+        Map<Integer, AttributeType<? extends RadiusAttribute>> vendorAttributes = attributesByCode
+                .computeIfAbsent(vendorId, k -> new HashMap<>());
         if (vendorAttributes.containsKey(typeCode))
             throw new IllegalArgumentException("duplicate type code: " + typeCode);
 
         attributesByName.put(attributeName, attributeType);
         vendorAttributes.put(typeCode, attributeType);
     }
-
-    private final Map<Integer, String> vendorsByCode = new HashMap<>();
-    private final Map<Integer, Map<Integer, AttributeType>> attributesByCode = new HashMap<>();
-    private final Map<String, AttributeType> attributesByName = new HashMap<>();
-
 }

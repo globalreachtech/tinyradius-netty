@@ -26,6 +26,7 @@ public class DictionaryParser {
     }
 
     // todo test parse classpath
+
     /**
      * Parses the dictionary from the specified InputStream.
      *
@@ -81,14 +82,11 @@ public class DictionaryParser {
         String typeStr = tok.nextToken().trim();
 
         // translate type to class
-        Class type;
-        if (code == VendorSpecificAttribute.VENDOR_SPECIFIC)
-            type = VendorSpecificAttribute.class;
-        else
-            type = getAttributeTypeClass(typeStr);
+        Class<? extends RadiusAttribute> type = code == VendorSpecificAttribute.VENDOR_SPECIFIC ?
+                VendorSpecificAttribute.class : getAttributeTypeClass(typeStr);
 
         // create and cache object
-        dictionary.addAttributeType(new AttributeType(code, name, type));
+        dictionary.addAttributeType(new AttributeType<>(code, name, type));
     }
 
     /**
@@ -123,9 +121,9 @@ public class DictionaryParser {
         int code = Integer.parseInt(tok.nextToken().trim());
         String typeStr = tok.nextToken().trim();
 
-        Class type = getAttributeTypeClass(typeStr);
-        AttributeType at = new AttributeType(Integer.parseInt(vendor), code, name, type);
-        dictionary.addAttributeType(at);
+        Class<? extends RadiusAttribute> type = getAttributeTypeClass(typeStr);
+        dictionary.addAttributeType(
+                new AttributeType<>(Integer.parseInt(vendor), code, name, type));
     }
 
     /**
@@ -171,7 +169,7 @@ public class DictionaryParser {
      * @param typeStr string|octets|integer|date|ipaddr
      * @return RadiusAttribute class or descendant
      */
-    private static Class getAttributeTypeClass(String typeStr) {
+    private static Class<? extends RadiusAttribute> getAttributeTypeClass(String typeStr) {
         if (typeStr.equalsIgnoreCase("string"))
             return StringAttribute.class;
         else if (typeStr.equalsIgnoreCase("octets"))

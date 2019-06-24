@@ -1,7 +1,7 @@
 package com.globalreachtech.tinyradius.proxy;
 
-import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.client.ProxyStateClientHandler;
+import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.server.Deduplicator;
@@ -13,8 +13,8 @@ import io.netty.channel.Channel;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
@@ -29,7 +29,7 @@ import java.net.InetSocketAddress;
  */
 public abstract class ProxyHandler extends ServerHandler {
 
-    private static final Log logger = LogFactory.getLog(ProxyHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProxyHandler.class);
 
     private final RadiusClient<?> radiusClient;
 

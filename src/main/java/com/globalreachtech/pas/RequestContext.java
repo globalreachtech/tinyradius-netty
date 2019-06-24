@@ -4,8 +4,8 @@ import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import io.netty.util.Timeout;
 import io.netty.util.concurrent.Future;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,7 +13,7 @@ import static java.util.Objects.requireNonNull;
 
 public class RequestContext {
 
-    private static Log logger = LogFactory.getLog(RequestContext.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestContext.class);
 
     private RequestState state;
 
