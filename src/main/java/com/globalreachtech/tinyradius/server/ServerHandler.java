@@ -83,15 +83,13 @@ public abstract class ServerHandler extends SimpleChannelInboundHandler<Datagram
 
             String secret = secretProvider.getSharedSecret(remoteAddress);
             if (secret == null) {
-                if (logger.isInfoEnabled())
-                    logger.info("ignoring packet from unknown client " + remoteAddress + " received on local address " + localAddress);
+                logger.info("ignoring packet from unknown client {} received on local address {}", remoteAddress, localAddress);
                 return;
             }
 
             // parse packet
             RadiusPacket packet = makeRadiusPacket(datagramPacket, secret);
-            if (logger.isInfoEnabled())
-                logger.info("received packet from " + remoteAddress + " on local address " + localAddress + ": " + packet);
+            logger.info("received packet from {} on local address {}: {}", remoteAddress, localAddress, packet);
 
             // check for duplicates
             if (deduplicator.isPacketDuplicate(packet, remoteAddress)) {
@@ -115,10 +113,8 @@ public abstract class ServerHandler extends SimpleChannelInboundHandler<Datagram
                 // send clientResponse
                 if (response != null) {
                     response.setDictionary(dictionary);
-                    if (logger.isInfoEnabled()) {
-                        logger.info("send clientResponse: " + response);
-                        logger.info("sending response packet to " + remoteAddress.toString() + " with secret " + secret);
-                    }
+                    logger.info("send clientResponse: {}", response);
+                    logger.info("sending response packet to {} with secret {}", remoteAddress, secret);
                     DatagramPacket packetOut = makeDatagramPacket(response, secret, remoteAddress, packet);
                     ctx.writeAndFlush(packetOut);
                 } else {

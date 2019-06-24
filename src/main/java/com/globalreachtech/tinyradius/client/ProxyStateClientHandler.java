@@ -87,8 +87,8 @@ public class ProxyStateClientHandler extends ClientHandler {
         try {
             String secret = secretProvider.getSharedSecret(datagramPacket.sender());
             if (secret == null) {
-                if (logger.isInfoEnabled())
-                    logger.info("ignoring packet from unknown server " + datagramPacket.sender() + " received on local address " + datagramPacket.recipient());
+                logger.info("ignoring packet from unknown server {} received on local address {}",
+                        datagramPacket.sender(), datagramPacket.recipient());
                 return;
             }
 
@@ -110,12 +110,8 @@ public class ProxyStateClientHandler extends ClientHandler {
                 return;
             }
 
-            if (logger.isInfoEnabled())
-                logger.info(String.format("Found connection %s for request identifier => %d",
-                        requestId, packet.getPacketIdentifier()));
-
-            if (logger.isInfoEnabled())
-                logger.info("received proxy packet: " + packet);
+            logger.info("Found connection {} for request identifier => {}", requestId, packet.getPacketIdentifier());
+            logger.info("received proxy packet: {}", packet);
 
             // remove only own Proxy-State (last attribute)
             packet.removeLastAttribute(33);

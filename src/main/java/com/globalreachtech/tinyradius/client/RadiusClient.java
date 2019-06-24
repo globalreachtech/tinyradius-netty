@@ -127,16 +127,14 @@ public class RadiusClient<T extends DatagramChannel> {
             // will mutate packet (regenerate authenticator)
             final DatagramPacket packetOut = makeDatagramPacket(packet, endpoint);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Sending packet to %s", endpoint.getEndpointAddress()));
+            logger.debug("Sending packet to {}", endpoint.getEndpointAddress());
+            if (logger.isDebugEnabled())
                 logger.debug("\n" + ByteBufUtil.prettyHexDump(packetOut.content()));
-            }
 
             startChannel().addListener((ChannelFuture f) -> {
                 f.channel().writeAndFlush(packetOut);
 
-                if (logger.isInfoEnabled())
-                    logger.info(packet.toString());
+                logger.info("{}", packet);
             });
 
             return promise;

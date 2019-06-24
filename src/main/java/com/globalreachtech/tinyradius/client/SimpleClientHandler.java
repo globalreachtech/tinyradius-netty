@@ -81,8 +81,7 @@ public class SimpleClientHandler extends ClientHandler {
                     dictionary, new ByteBufInputStream(packet.content().duplicate()),
                     request.sharedSecret, request.packet);
 
-            if (logger.isInfoEnabled())
-                logger.info(String.format("Found request for response identifier => %d", identifier));
+            logger.info("Found request for response identifier => {}", identifier);
 
             request.response.trySuccess(resp);
         } catch (IOException | RadiusException ignored) {
