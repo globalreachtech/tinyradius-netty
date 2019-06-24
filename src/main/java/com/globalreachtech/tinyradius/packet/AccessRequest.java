@@ -54,7 +54,7 @@ public class AccessRequest extends RadiusPacket {
     /**
      * Random generator
      */
-    private static SecureRandom random = new SecureRandom();
+    private static final SecureRandom random = new SecureRandom();
 
     /**
      * Radius type code for Radius attribute User-Name
@@ -79,7 +79,7 @@ public class AccessRequest extends RadiusPacket {
     /**
      * Logger for logging information about malformed packets
      */
-    private static Log logger = LogFactory.getLog(AccessRequest.class);
+    private static final Log logger = LogFactory.getLog(AccessRequest.class);
 
     /**
      * Constructs an empty Access-Request packet.
@@ -179,7 +179,6 @@ public class AccessRequest extends RadiusPacket {
      * (hash) send with this Access-Request packet. Works with both PAP
      * and CHAP.
      *
-     * @param plaintext
      * @return true if the password is valid, false otherwise
      */
     public boolean verifyPassword(String plaintext)
@@ -287,15 +286,14 @@ public class AccessRequest extends RadiusPacket {
         }
 
         try {
-            byte[] P = encryptedPass;
-            byte[] result = new byte[P.length];
+            byte[] result = new byte[encryptedPass.length];
             byte[] C = this.getAuthenticator();
 
-            for (int i = 0; i < P.length; i += C.length) {
+            for (int i = 0; i < encryptedPass.length; i += C.length) {
                 C = Util.compute(sharedSecret, C);
-                C = Util.xor(P, i, C.length, C, 0, C.length);
+                C = Util.xor(encryptedPass, i, C.length, C, 0, C.length);
                 System.arraycopy(C, 0, result, i, C.length);
-                System.arraycopy(P, i, C, 0, C.length);
+                System.arraycopy(encryptedPass, i, C, 0, C.length);
             }
 
             return Util.getStringFromUtf8(result);

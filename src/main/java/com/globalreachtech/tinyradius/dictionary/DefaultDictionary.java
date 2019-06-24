@@ -18,9 +18,9 @@ public class DefaultDictionary extends MemoryDictionary {
     private static final String DICTIONARY_RESOURCE = "default_dictionary";
     public static final DefaultDictionary INSTANCE = new DefaultDictionary();
 
-    /**
-     * Creates the singleton INSTANCE of this object
-     * and parses the classpath resource.
+    /*
+      Creates the singleton INSTANCE of this object
+      and parses the classpath resource.
      */
     static {
         try {

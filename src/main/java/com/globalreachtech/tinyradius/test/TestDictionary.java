@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 /**
+ * TestDictionary demonstrates the use of custom dictionaries.
+ * <p>
  * Shows how to use TinyRadius with a custom dictionary
  * loaded from a dictionary file.
  * Requires a file "test.dictionary" in the current directory.

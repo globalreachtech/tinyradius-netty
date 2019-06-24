@@ -1,23 +1,19 @@
 package com.globalreachtech.tinyradius.test;
 
-import com.globalreachtech.tinyradius.client.DefaultClientHandler;
+import com.globalreachtech.tinyradius.client.ProxyStateClientHandler;
 import com.globalreachtech.tinyradius.client.RadiusClient;
-import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.proxy.ProxyStateClientHandler;
 import com.globalreachtech.tinyradius.proxy.ProxyHandler;
 import com.globalreachtech.tinyradius.proxy.RadiusProxy;
 import com.globalreachtech.tinyradius.server.DefaultDeduplicator;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
-import io.netty.channel.ChannelFactory;
-import io.netty.channel.EventLoopGroup;
+import com.globalreachtech.tinyradius.util.SecretProvider;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
@@ -31,7 +27,9 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 /**
- * Test proxy server.
+ * TestProxy shows how to implement a proxy radius server. You can use
+ * this class together with TestClient and TestServer.
+ * <p>
  * Listens on localhost:1812 and localhost:1813. Proxies every access clientRequest
  * to localhost:10000 and every accounting clientRequest to localhost:10001.
  * You can use TestClient to ask this TestProxy and TestServer
@@ -40,42 +38,7 @@ import java.net.UnknownHostException;
  * target server (localhost:10000/localhost:10001) and "proxytest" as the
  * shared secret for the communication with connecting clients.
  */
-public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
-
-    private TestProxy(Dictionary dictionary,
-                      EventLoopGroup eventGroup,
-                      ChannelFactory<T> factory,
-                      InetAddress listenAddress,
-                      int authPort, int acctPort, int proxyPort) {
-        super(eventGroup, factory, listenAddress, authPort, acctPort, proxyPort);
-    }
-
-    public RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
-        // always proxy
-        try {
-            InetAddress address = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
-            int port = packet instanceof AccountingRequest ? 1813 : 1812;
-            return new RadiusEndpoint(new InetSocketAddress(address, port), "testing123");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public String getSharedSecret(InetSocketAddress client) {
-        if (client.getPort() == 1812 || client.getPort() == 1813)
-            return "testing123";
-
-        if (client.getAddress().getHostAddress().equals("127.0.0.1"))
-            return "proxytest";
-
-        return null;
-    }
-
-    public String getUserPassword(String userName) {
-        // not used because every clientRequest is proxied
-        return null;
-    }
+public class TestProxy {
 
     public static void main(String[] args) throws Exception {
 
@@ -86,32 +49,41 @@ public class TestProxy<T extends DatagramChannel> extends RadiusProxy<T> {
 
         WritableDictionary dictionary = new MemoryDictionary();
         DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
-        ReflectiveChannelFactory<NioDatagramChannel> nioDatagramChannelReflectiveChannelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
+        ReflectiveChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
 
         HashedWheelTimer timer = new HashedWheelTimer();
 
-        new ProxyHandler(
-                dictionary,
-                new DefaultDeduplicator(timer, 30000),
-                new ProxyStateClientHandler(),
-                new RadiusClient<NioDatagramChannel>(
-                        eventLoopGroup,
-                        nioDatagramChannelReflectiveChannelFactory,
-                        new DefaultClientHandler(timer, dictionary, 3000),
-                        null,
-                        0
-                )){
+        final SecretProvider secretProvider = remote -> {
+            if (remote.getPort() == 1812 || remote.getPort() == 1813)
+                return "testing123";
 
+            return remote.getAddress().getHostAddress().equals("127.0.0.1") ?
+                    "proxytest" : null;
+        };
+        final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(dictionary, timer, 3000, secretProvider);
+
+        final ProxyHandler proxyHandler = new ProxyHandler(dictionary, new DefaultDeduplicator(timer, 30000), timer, secretProvider,
+                new RadiusClient<>(eventLoopGroup, channelFactory, clientHandler, null, 11814)) {
+            @Override
+            public RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
+                try {
+                    InetAddress address = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
+                    int port = packet instanceof AccountingRequest ? 1813 : 1812;
+                    return new RadiusEndpoint(new InetSocketAddress(address, port), "testing123");
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
         };
 
-        final TestProxy<NioDatagramChannel> proxy = new TestProxy<>(
-                dictionary,
+
+        final RadiusProxy<NioDatagramChannel> proxy = new RadiusProxy<>(
                 eventLoopGroup,
-                nioDatagramChannelReflectiveChannelFactory,
-                new ProxyStateClientHandler(timer, 30000),
-                new DefaultClientHandler(timer, dictionary, 3000),
+                channelFactory,
                 null,
-                11812, 11813, 11814);
+                proxyHandler,
+                11812, 11813);
 
 
         Future<Void> future = proxy.start();

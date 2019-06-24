@@ -3,6 +3,7 @@ package com.globalreachtech.tinyradius.server;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusException;
+import com.globalreachtech.tinyradius.util.SecretProvider;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -27,36 +28,18 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public abstract class ServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private static Log logger = LogFactory.getLog(ServerHandler.class);
+    private static final Log logger = LogFactory.getLog(ServerHandler.class);
 
-    private final Timer timer;
-    private final Deduplicator packetManager;
     protected final Dictionary dictionary;
+    private final Deduplicator deduplicator;
+    private final Timer timer;
+    private final SecretProvider secretProvider;
 
-    protected ServerHandler(Dictionary dictionary, Deduplicator packetManager, Timer timer) {
+    protected ServerHandler(Dictionary dictionary, Deduplicator deduplicator, Timer timer, SecretProvider secretProvider) {
         this.dictionary = dictionary;
-        this.packetManager = packetManager;
+        this.deduplicator = deduplicator;
         this.timer = timer;
-    }
-
-    /**
-     * Returns the shared secret used to communicate with the client with the
-     * passed IP address or null if the client is not allowed at this server.
-     *
-     * @param client IP address and port number of client
-     * @return shared secret or null
-     */
-    protected abstract String getSharedSecret(InetSocketAddress client);
-
-    /**
-     * Copies all Proxy-State attributes from the clientRequest
-     * packet to the clientResponse packet.
-     *
-     * @param request clientRequest packet
-     * @param answer  clientResponse packet
-     */
-    protected void copyProxyState(RadiusPacket request, RadiusPacket answer) {
-        request.getAttributes(33).forEach(answer::addAttribute);
+        this.secretProvider = secretProvider;
     }
 
     /**
@@ -67,7 +50,6 @@ public abstract class ServerHandler extends SimpleChannelInboundHandler<Datagram
      * @param address where to send the packet
      * @param request clientRequest packet
      * @return new datagram packet
-     * @throws IOException
      */
     protected DatagramPacket makeDatagramPacket(RadiusPacket packet, String secret, InetSocketAddress address, RadiusPacket request)
             throws IOException, RadiusException {
@@ -99,7 +81,7 @@ public abstract class ServerHandler extends SimpleChannelInboundHandler<Datagram
             InetSocketAddress localAddress = datagramPacket.recipient();
             InetSocketAddress remoteAddress = datagramPacket.sender();
 
-            String secret = getSharedSecret(remoteAddress);
+            String secret = secretProvider.getSharedSecret(remoteAddress);
             if (secret == null) {
                 if (logger.isInfoEnabled())
                     logger.info("ignoring packet from unknown client " + remoteAddress + " received on local address " + localAddress);
@@ -112,14 +94,14 @@ public abstract class ServerHandler extends SimpleChannelInboundHandler<Datagram
                 logger.info("received packet from " + remoteAddress + " on local address " + localAddress + ": " + packet);
 
             // check for duplicates
-            if (packetManager.isPacketDuplicate(packet, remoteAddress)) {
+            if (deduplicator.isPacketDuplicate(packet, remoteAddress)) {
                 logger.info("ignore duplicate packet");
                 return;
             }
 
             // handle packet
             logger.trace("about to call handlePacket()");
-            final Promise<RadiusPacket> promise = handlePacket(ctx.channel(), remoteAddress, packet);
+            final Promise<RadiusPacket> promise = handlePacket(ctx.channel(), packet, remoteAddress, secret);
 
             // so futures don't stay in memory forever if never completed
             Timeout timeout = timer.newTimeout(t -> promise.tryFailure(new RadiusException("timeout while generating client response")),
@@ -141,6 +123,9 @@ public abstract class ServerHandler extends SimpleChannelInboundHandler<Datagram
                     ctx.writeAndFlush(packetOut);
                 } else {
                     logger.info("no clientResponse sent");
+                    Throwable e = f.cause();
+                    if (e != null)
+                        logger.error("exception while handling packet", e);
                 }
             });
 
@@ -157,9 +142,11 @@ public abstract class ServerHandler extends SimpleChannelInboundHandler<Datagram
      * Handles the received Radius packet and constructs a clientResponse.
      *
      * @param channel       socket which received packet
-     * @param remoteAddress remote address the packet was sent by
      * @param request       the packet
-     * @return clientResponse packet or null for no clientResponse
+     * @param remoteAddress remote address the packet was sent by
+     * @param sharedSecret  shared secret associated with remoteAddress
+     * @return Promise of RadiusPacket or null for no clientResponse. Uses Promise instead Future,
+     * to allow requests to be timed out or cancelled by the caller
      */
-    protected abstract Promise<RadiusPacket> handlePacket(Channel channel, InetSocketAddress remoteAddress, RadiusPacket request) throws RadiusException;
+    protected abstract Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket request, InetSocketAddress remoteAddress, String sharedSecret) throws RadiusException;
 }

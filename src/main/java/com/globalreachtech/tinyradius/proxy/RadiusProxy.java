@@ -4,21 +4,23 @@ import com.globalreachtech.tinyradius.server.RadiusServer;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.Promise;
+import io.netty.util.concurrent.PromiseCombiner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.net.InetAddress;
 
 /**
- * This class implements a Radius proxy that receives Radius packets
+ * This class implements a basic Radius proxy that receives Radius packets
  * and forwards them to a Radius server.
  * <p>
- * You have to provide a packet manager that manages the proxy connection
- * a packet belongs to.
+ * You have to provide a handler that handles incoming requests.
  */
 public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
 
-    private static Log logger = LogFactory.getLog(RadiusProxy.class);
+    private static final Log logger = LogFactory.getLog(RadiusProxy.class);
     private final ProxyHandler proxyHandler;
 
     public RadiusProxy(EventLoopGroup eventLoopGroup,
@@ -30,10 +32,19 @@ public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
         this.proxyHandler = proxyHandler;
     }
 
+    public Future<Void> start() {
+        Promise<Void> promise = eventLoopGroup.next().newPromise();
+
+        final PromiseCombiner combiner = new PromiseCombiner(eventLoopGroup.next());
+        combiner.addAll(super.start(), proxyHandler.start());
+        combiner.finish(promise);
+        return promise;
+    }
+
     @Override
     public void stop() {
         logger.info("stopping Radius proxy");
-        proxyHandler.close();
+        proxyHandler.stop();
         super.stop();
     }
 

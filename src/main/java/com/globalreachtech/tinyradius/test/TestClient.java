@@ -3,7 +3,7 @@ package com.globalreachtech.tinyradius.test;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
-import com.globalreachtech.tinyradius.client.DefaultClientHandler;
+import com.globalreachtech.tinyradius.client.SimpleClientHandler;
 import com.globalreachtech.tinyradius.client.RadiusClient;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.AccountingRequest;
@@ -19,6 +19,9 @@ import java.net.InetSocketAddress;
 
 /**
  * Simple Radius command-line client.
+ * <p>
+ * TestClient shows how to send Radius Access-Request and
+ * Accounting-Request packets.
  */
 public class TestClient {
 
@@ -47,7 +50,7 @@ public class TestClient {
         RadiusClient<NioDatagramChannel> rc = new RadiusClient<>(
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new DefaultClientHandler(new HashedWheelTimer(), dictionary, 30000),
+                new SimpleClientHandler(new HashedWheelTimer(), dictionary, 30000),
                 null, 0);
         rc.startChannel().syncUninterruptibly();
 
@@ -78,7 +81,7 @@ public class TestClient {
         response = rc.communicate(acc, acctEndpoint, 3).syncUninterruptibly().getNow();
         System.out.println("Response: " + response);
 
-        rc.close();
+        rc.stop();
     }
 
 }

@@ -21,7 +21,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class RadiusServer<T extends DatagramChannel> {
 
-    private static Log logger = LogFactory.getLog(RadiusServer.class);
+    private static final Log logger = LogFactory.getLog(RadiusServer.class);
 
     protected final ChannelFactory<T> factory;
     protected final EventLoopGroup eventLoopGroup;
@@ -30,7 +30,7 @@ public class RadiusServer<T extends DatagramChannel> {
     protected final int authPort;
     protected final int acctPort;
 
-    protected InetAddress listenAddress;
+    protected final InetAddress listenAddress;
     private T authChannel = null;
     private T acctChannel = null;
 

@@ -30,8 +30,8 @@ public class DefaultDeduplicator implements Deduplicator {
     /**
      * Checks whether the passed packet is a duplicate.
      * A packet is duplicate if another packet with the same identifier
-     * has been sent from the same host in the last time.
-     *
+     * has been sent from the same host.
+     * <p>
      * If duplicate is received, TTL of the packet will NOT rebased to
      * the most recent hit.
      *
@@ -64,7 +64,7 @@ public class DefaultDeduplicator implements Deduplicator {
         }
 
         /**
-         * If authenticator is null (should not happen), ignores and only compares other properties.
+         * If authenticator is null, ignores and only compares other properties.
          */
         @Override
         public boolean equals(Object o) {

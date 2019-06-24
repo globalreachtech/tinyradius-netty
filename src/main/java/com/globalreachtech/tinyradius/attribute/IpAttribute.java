@@ -105,8 +105,6 @@ public class IpAttribute extends RadiusAttribute {
     /**
      * Sets the IP number represented by this IpAttribute
      * as a 32 bit unsigned number.
-     *
-     * @param ip
      */
     public void setIpAsLong(long ip) {
         byte[] data = new byte[4];

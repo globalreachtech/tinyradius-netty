@@ -11,13 +11,13 @@ import java.util.StringTokenizer;
  */
 public class DictionaryParser {
 
+
     /**
      * Returns a new dictionary filled with the contents
      * from the given input stream.
      *
      * @param source input stream
      * @return dictionary object
-     * @throws IOException
      */
     public static Dictionary parseDictionary(InputStream source) throws IOException {
         WritableDictionary d = new MemoryDictionary();
@@ -25,13 +25,12 @@ public class DictionaryParser {
         return d;
     }
 
+    // todo test parse classpath
     /**
      * Parses the dictionary from the specified InputStream.
      *
      * @param source     input stream
      * @param dictionary dictionary data is written to
-     * @throws IOException      syntax errors
-     * @throws RuntimeException syntax errors
      */
     public static void parseDictionary(InputStream source, WritableDictionary dictionary)
             throws IOException {

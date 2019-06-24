@@ -1,12 +1,14 @@
 package com.globalreachtech.tinyradius.proxy;
 
 import com.globalreachtech.tinyradius.client.RadiusClient;
+import com.globalreachtech.tinyradius.client.ProxyStateClientHandler;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.server.Deduplicator;
 import com.globalreachtech.tinyradius.server.ServerHandler;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
+import com.globalreachtech.tinyradius.util.SecretProvider;
 import io.netty.channel.Channel;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
@@ -14,27 +16,42 @@ import io.netty.util.concurrent.Promise;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.Closeable;
 import java.net.InetSocketAddress;
 
-public abstract class ProxyHandler extends ServerHandler implements Closeable {
+/**
+ * RadiusServer handler that proxies packets to destination.
+ * <p>
+ * Depends on RadiusClient to proxy packets. {@link #start()} is used to initialize the client.
+ * <p>
+ * RadiusClient port should be set to proxy port, which will be used to communicate
+ * with upstream servers. RadiusClient should also use a variant of {@link ProxyStateClientHandler}
+ * which matches requests/responses by adding a custom Proxy-State attribute.
+ */
+public abstract class ProxyHandler extends ServerHandler {
 
-    private static Log logger = LogFactory.getLog(ProxyHandler.class);
+    private static final Log logger = LogFactory.getLog(ProxyHandler.class);
 
     private final RadiusClient<?> radiusClient;
 
-    protected ProxyHandler(Dictionary dictionary, Deduplicator deduplicator, RadiusClient<?> radiusClient, Timer timer) {
-        super(dictionary, deduplicator, timer);
+    protected ProxyHandler(Dictionary dictionary,
+                           Deduplicator deduplicator,
+                           Timer timer,
+                           SecretProvider secretProvider,
+                           RadiusClient<?> radiusClient) {
+        super(dictionary, deduplicator, timer, secretProvider);
         this.radiusClient = radiusClient;
     }
 
     /**
-     * Stops the proxy listener and closes the socket.
+     * Init dependencies, i.e. RadiusClient used to proxy requests to server.
      */
-    @Override
-    public void close() {
+    public Future<Void> start() {
+        return radiusClient.startChannel();
+    }
+
+    public void stop() {
         logger.info("stopping Radius proxy listener");
-        radiusClient.close();
+        radiusClient.stop();
     }
 
     /**
@@ -56,10 +73,9 @@ public abstract class ProxyHandler extends ServerHandler implements Closeable {
      * is added to the packet in the "Proxy-State" attribute.
      */
     @Override
-    protected Promise<RadiusPacket> handlePacket(Channel channel, InetSocketAddress remoteAddress, RadiusPacket packet) {
+    protected Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket packet, InetSocketAddress remoteAddress, String sharedSecret) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
 
-        String sharedSecret = getSharedSecret(remoteAddress);
         RadiusEndpoint clientEndpoint = new RadiusEndpoint(remoteAddress, sharedSecret);
         RadiusEndpoint serverEndpoint = getProxyServer(packet, clientEndpoint);
 
@@ -75,8 +91,8 @@ public abstract class ProxyHandler extends ServerHandler implements Closeable {
 
         // send new packet (with new authenticator)
         radiusClient.communicate(packet, serverEndpoint, 3)
-                .addListener((Future<RadiusPacket> f) -> promise.trySuccess(
-                        handleServerResponse(f.getNow())));
+                .addListener((Future<RadiusPacket> f) ->
+                        promise.trySuccess(handleServerResponse(f.getNow())));
 
         // restore original authenticator
         packet.setAuthenticator(auth);
@@ -91,13 +107,6 @@ public abstract class ProxyHandler extends ServerHandler implements Closeable {
      * @param packet packet to be sent back
      */
     protected RadiusPacket handleServerResponse(RadiusPacket packet) {
-        // retrieve clientEndpoint
-        if (logger.isInfoEnabled())
-            logger.info("received proxy packet: " + packet);
-
-        // remove only own Proxy-State (last attribute)
-        packet.removeLastAttribute(33);
-
         // re-encode answer packet with authenticator of the original packet
         return new RadiusPacket(packet.getPacketType(), packet.getPacketIdentifier(), packet.getAttributes());
     }

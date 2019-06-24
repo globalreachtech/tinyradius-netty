@@ -1,11 +1,11 @@
-package com.globalreachtech.tinyradius.proxy;
+package com.globalreachtech.tinyradius.client;
 
 import com.globalreachtech.tinyradius.attribute.RadiusAttribute;
-import com.globalreachtech.tinyradius.client.ClientHandler;
 import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusEndpoint;
 import com.globalreachtech.tinyradius.util.RadiusException;
+import com.globalreachtech.tinyradius.util.SecretProvider;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -17,7 +17,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,77 +25,76 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.decodeRequestPacket;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public abstract class ProxyStateClientHandler extends ClientHandler {
+/**
+ * ClientHandler that matches requests/response by appending Proxy-State attribute to
+ * outbound packets. This avoids problem with mismatched requests/responses when using
+ * packetIdentifier, which is limited to 256 unique IDs.
+ */
+public class ProxyStateClientHandler extends ClientHandler {
 
-    private static Log logger = LogFactory.getLog(ProxyStateClientHandler.class);
+    // todo slf4j
+    private static final Log logger = LogFactory.getLog(ProxyStateClientHandler.class);
 
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
 
-    private final Timer timer;
     private final Dictionary dictionary;
+    private final Timer timer;
     private final int timeoutMs;
+    private final SecretProvider secretProvider;
 
-    private Map<String, Promise<RadiusPacket>> proxyConnections = new ConcurrentHashMap<>();
+    private final Map<String, Promise<RadiusPacket>> requests = new ConcurrentHashMap<>();
 
-    public ProxyStateClientHandler(Timer timer, Dictionary dictionary, int timeoutMs) {
-        this.timer = timer;
+    /**
+     * @param dictionary     to decode packet incoming DatagramPackets to RadiusPackets
+     * @param timer          set timeout handlers if no responses received after timeout
+     * @param timeoutMs      time to wait for responses in MS
+     * @param secretProvider lookup shared secret for decoding response for upstream server.
+     *                       Unlike packetIdentifier, Proxy-State is stored in attribute rather than the second octet,
+     *                       so requires decoding first before we can lookup any context.
+     */
+    public ProxyStateClientHandler(Dictionary dictionary, Timer timer, int timeoutMs, SecretProvider secretProvider) {
         this.dictionary = dictionary;
+        this.timer = timer;
         this.timeoutMs = timeoutMs;
+        this.secretProvider = secretProvider;
     }
-
-    // todo composition over inheritance
-    public abstract String getSharedSecret(InetSocketAddress client);
 
     private String genProxyState() {
         return Integer.toString(proxyIndex.getAndIncrement());
     }
 
     @Override
-    public Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
+    public Promise<RadiusPacket> processRequest(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
         // add Proxy-State attribute
-        String proxyState = genProxyState();
-        packet.addAttribute(new RadiusAttribute(33, proxyState.getBytes()));
+        String requestId = genProxyState();
+        packet.addAttribute(new RadiusAttribute(33, requestId.getBytes()));
 
         Promise<RadiusPacket> response = eventExecutor.newPromise();
-        proxyConnections.put(proxyState, response);
+        requests.put(requestId, response);
 
         final Timeout timeout = timer.newTimeout(
                 t -> response.tryFailure(new RadiusException("Timeout occurred")), timeoutMs, MILLISECONDS);
 
         response.addListener(f -> {
-            proxyConnections.remove(proxyState);
+            requests.remove(requestId);
             timeout.cancel();
         });
 
         return response;
     }
 
-    /**
-     * Creates a RadiusPacket for a Radius clientRequest from a received
-     * datagram packet.
-     *
-     * @param packet received datagram
-     * @return RadiusPacket object
-     * @throws RadiusException malformed packet
-     * @throws IOException     communication error (after getRetryCount()
-     *                         retries)
-     */
-    protected RadiusPacket makeRadiusPacket(DatagramPacket packet, String sharedSecret) throws IOException, RadiusException {
-        ByteBufInputStream in = new ByteBufInputStream(packet.content());
-        return decodeRequestPacket(dictionary, in, sharedSecret);
-    }
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
         try {
-            String secret = getSharedSecret(datagramPacket.sender());
+            String secret = secretProvider.getSharedSecret(datagramPacket.sender());
             if (secret == null) {
                 if (logger.isInfoEnabled())
                     logger.info("ignoring packet from unknown server " + datagramPacket.sender() + " received on local address " + datagramPacket.recipient());
                 return;
             }
 
-            RadiusPacket packet = makeRadiusPacket(datagramPacket, secret);
+            ByteBufInputStream in = new ByteBufInputStream(datagramPacket.content());
+            RadiusPacket packet = decodeRequestPacket(dictionary, in, secret);
 
             // retrieve my Proxy-State attribute (the last)
             List<RadiusAttribute> proxyStates = packet.getAttributes(33);
@@ -104,23 +102,28 @@ public abstract class ProxyStateClientHandler extends ClientHandler {
                 throw new RadiusException("proxy packet without Proxy-State attribute");
             RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
 
-            String connectionId = new String(proxyState.getAttributeData());
+            String requestId = new String(proxyState.getAttributeData());
 
-            final Promise<RadiusPacket> response = proxyConnections.get(connectionId);
+            final Promise<RadiusPacket> request = requests.get(requestId);
 
-            if (response == null) {
+            if (request == null) {
                 logger.info("Request context not found for received packet, ignoring...");
                 return;
             }
 
             if (logger.isInfoEnabled())
-                logger.info(String.format("Found context %s for response identifier => %d",
-                        connectionId, packet.getPacketIdentifier()));
+                logger.info(String.format("Found connection %s for request identifier => %d",
+                        requestId, packet.getPacketIdentifier()));
 
-            response.trySuccess(packet);
+            if (logger.isInfoEnabled())
+                logger.info("received proxy packet: " + packet);
+
+            // remove only own Proxy-State (last attribute)
+            packet.removeLastAttribute(33);
+
+            request.trySuccess(packet);
         } catch (IOException ioe) {
-            // error while reading/writing socket
-            logger.error("communication error", ioe);
+            logger.error("communication/socket io error", ioe);
         } catch (RadiusException re) {
             logger.error("malformed Radius packet", re);
         }

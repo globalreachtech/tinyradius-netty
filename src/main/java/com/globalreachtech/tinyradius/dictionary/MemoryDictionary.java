@@ -126,8 +126,8 @@ public class MemoryDictionary
         vendorAttributes.put(typeCode, attributeType);
     }
 
-    private Map<Integer, String> vendorsByCode = new HashMap<>();
-    private Map<Integer, Map<Integer, AttributeType>> attributesByCode = new HashMap<>();
-    private Map<String, AttributeType> attributesByName = new HashMap<>();
+    private final Map<Integer, String> vendorsByCode = new HashMap<>();
+    private final Map<Integer, Map<Integer, AttributeType>> attributesByCode = new HashMap<>();
+    private final Map<String, AttributeType> attributesByName = new HashMap<>();
 
 }

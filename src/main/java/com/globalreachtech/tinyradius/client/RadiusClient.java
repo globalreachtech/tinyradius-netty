@@ -15,7 +15,6 @@ import io.netty.util.concurrent.PromiseCombiner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -33,9 +32,9 @@ import static java.util.Objects.requireNonNull;
  * This object is thread safe, but requires a packet manager to avoid confusion with the mapping of request
  * and result packets.
  */
-public class RadiusClient<T extends DatagramChannel> implements Closeable {
+public class RadiusClient<T extends DatagramChannel> {
 
-    private static Log logger = LogFactory.getLog(RadiusClient.class);
+    private static final Log logger = LogFactory.getLog(RadiusClient.class);
 
     private final ChannelFactory<T> factory;
     private final EventLoopGroup eventLoopGroup;
@@ -48,7 +47,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
     private ChannelFuture channelFuture;
 
     /**
-     * @param port           set to 0 to let system choose
+     * @param port set to 0 to let system choose
      */
     public RadiusClient(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, ClientHandler clientHandler, InetAddress listenAddress, int port) {
         this.factory = requireNonNull(factory, "factory cannot be null");
@@ -58,8 +57,7 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
         this.port = port;
     }
 
-    @Override
-    public void close() {
+    public void stop() {
         if (channel != null)
             channel.close();
     }
@@ -120,10 +118,11 @@ public class RadiusClient<T extends DatagramChannel> implements Closeable {
 
     private Future<RadiusPacket> sendOnce(RadiusPacket packet, RadiusEndpoint endpoint) {
         try {
-            // run before passing to packetManager - makeDatagramPacket (encodeRequestPacket) mutates packet
-            final DatagramPacket packetOut = makeDatagramPacket(packet, endpoint);
+            // run first to add any identifiers/attributes needed
+            Future<RadiusPacket> promise = clientHandler.processRequest(packet, endpoint, eventLoopGroup.next());
 
-            Promise<RadiusPacket> promise = clientHandler.logOutbound(packet, endpoint, eventLoopGroup.next());
+            // will mutate packet (regenerate authenticator)
+            final DatagramPacket packetOut = makeDatagramPacket(packet, endpoint);
 
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Sending packet to %s", endpoint.getEndpointAddress()));

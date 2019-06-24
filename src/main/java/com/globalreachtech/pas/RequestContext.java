@@ -17,21 +17,21 @@ public class RequestContext {
 
     private RequestState state;
 
-    private long requestTime;
+    private final long requestTime;
     private long responseTime;
-    private int id;
+    private final int id;
     private Timeout timeout;
-    private AtomicInteger attempts;
+    private final AtomicInteger attempts;
 
     Future<Void> requestFuture;
 
     private RadiusPacket upstreamRequest;
     private RadiusPacket upstreamResponse;
 
-    private RadiusPacket clientRequest;
+    private final RadiusPacket clientRequest;
     private RadiusPacket clientResponse;
 
-    private RadiusEndpoint endpoint;
+    private final RadiusEndpoint endpoint;
 
     public RequestContext(int id, RadiusPacket clientRequest, RadiusEndpoint endpoint, long timeoutNS) {
         this.id = id;

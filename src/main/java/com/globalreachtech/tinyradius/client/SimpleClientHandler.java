@@ -23,70 +23,78 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.decodeResponsePacket;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class DefaultClientHandler extends ClientHandler {
+/**
+ * ClientHandler that uses packetIdentifier and remote address to uniquely identify request/responses.
+ * <p>
+ * Note that packetIdentifier is limited to 1 byte, i.e. only 256 unique IDs. A large number of requests
+ * in short period of time may cause requests/responses to be mismatched.
+ * <p>
+ * When response is received, it also verifies against the authenticator of the original request to decode.
+ */
+public class SimpleClientHandler extends ClientHandler {
 
-    private static Log logger = LogFactory.getLog(DefaultClientHandler.class);
+    private static final Log logger = LogFactory.getLog(SimpleClientHandler.class);
 
     private final Timer timer;
     private final Dictionary dictionary;
     private final int timeoutMs;
 
-    private final Map<ContextKey, Context> contexts = new ConcurrentHashMap<>();
+    private final Map<RequestKey, Request> contexts = new ConcurrentHashMap<>();
 
-    public DefaultClientHandler(Timer timer, Dictionary dictionary, int timeoutMs) {
+    public SimpleClientHandler(Timer timer, Dictionary dictionary, int timeoutMs) {
         this.timer = timer;
         this.dictionary = dictionary;
         this.timeoutMs = timeoutMs;
     }
 
     @Override
-    public Promise<RadiusPacket> logOutbound(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
+    public Promise<RadiusPacket> processRequest(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
 
-        final ContextKey key = new ContextKey(packet.getPacketIdentifier(), endpoint.getEndpointAddress());
-        final Context context = new Context(endpoint.getSharedSecret(), packet, eventExecutor.newPromise());
-        contexts.put(key, context);
+        final RequestKey key = new RequestKey(packet.getPacketIdentifier(), endpoint.getEndpointAddress());
+        final Request request = new Request(endpoint.getSharedSecret(), packet, eventExecutor.newPromise());
+        contexts.put(key, request);
 
         final Timeout timeout = timer.newTimeout(
-                t -> context.response.tryFailure(new RadiusException("Timeout occurred")), timeoutMs, MILLISECONDS);
+                t -> request.response.tryFailure(new RadiusException("Timeout occurred")), timeoutMs, MILLISECONDS);
 
-        context.response.addListener(f -> {
+        request.response.addListener(f -> {
             contexts.remove(key);
             timeout.cancel();
         });
 
-        return context.response;
+        return request.response;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
         int identifier = packet.content().duplicate().skipBytes(1).readByte() & 0xff;
-        final ContextKey key = new ContextKey(identifier, packet.sender());
+        final RequestKey key = new RequestKey(identifier, packet.sender());
 
-        final Context context = contexts.get(key);
-        if (context == null) {
+        final Request request = contexts.get(key);
+        if (request == null) {
             logger.info("Request context not found for received packet, ignoring...");
             return;
         }
 
         try {
-            RadiusPacket resp = decodeResponsePacket(dictionary,
-                    new ByteBufInputStream(packet.content().duplicate()),
-                    context.sharedSecret, context.request);
+            RadiusPacket resp = decodeResponsePacket(
+                    dictionary, new ByteBufInputStream(packet.content().duplicate()),
+                    request.sharedSecret, request.packet);
 
             if (logger.isInfoEnabled())
-                logger.info(String.format("Found context %d for clientResponse identifier => %d",
-                        key.packetIdentifier, resp.getPacketIdentifier()));
+                logger.info(String.format("Found request for response identifier => %d", identifier));
 
-            context.response.trySuccess(resp);
+            request.response.trySuccess(resp);
         } catch (IOException | RadiusException ignored) {
+            // let timeout complete the future
         }
     }
 
-    private static class ContextKey {
+    private static class RequestKey {
         private final int packetIdentifier;
         private final InetSocketAddress address;
 
-        ContextKey(int packetIdentifier, InetSocketAddress address) {
+        RequestKey(int packetIdentifier, InetSocketAddress address) {
             this.packetIdentifier = packetIdentifier;
             this.address = address;
         }
@@ -95,7 +103,7 @@ public class DefaultClientHandler extends ClientHandler {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            ContextKey that = (ContextKey) o;
+            RequestKey that = (RequestKey) o;
             return packetIdentifier == that.packetIdentifier &&
                     address.equals(that.address);
         }
@@ -106,15 +114,15 @@ public class DefaultClientHandler extends ClientHandler {
         }
     }
 
-    private static class Context {
+    private static class Request {
 
         private final String sharedSecret;
-        private final RadiusPacket request;
+        private final RadiusPacket packet;
         private final Promise<RadiusPacket> response;
 
-        Context(String sharedSecret, RadiusPacket request, Promise<RadiusPacket> response) {
+        Request(String sharedSecret, RadiusPacket packet, Promise<RadiusPacket> response) {
             this.sharedSecret = sharedSecret;
-            this.request = request;
+            this.packet = packet;
             this.response = response;
         }
     }

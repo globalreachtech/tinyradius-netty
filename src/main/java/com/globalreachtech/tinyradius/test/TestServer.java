@@ -1,79 +1,85 @@
 package com.globalreachtech.tinyradius.test;
 
-import com.globalreachtech.tinyradius.server.RadiusServer;
 import com.globalreachtech.tinyradius.dictionary.DictionaryParser;
 import com.globalreachtech.tinyradius.dictionary.MemoryDictionary;
 import com.globalreachtech.tinyradius.dictionary.WritableDictionary;
-import com.globalreachtech.tinyradius.server.DefaultDeduplicator;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
+import com.globalreachtech.tinyradius.server.*;
 import com.globalreachtech.tinyradius.util.RadiusException;
+import com.globalreachtech.tinyradius.util.SecretProvider;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import io.netty.util.concurrent.Promise;
 
 import java.io.FileInputStream;
-import java.net.InetSocketAddress;
+
+import static com.globalreachtech.tinyradius.packet.RadiusPacket.ACCESS_ACCEPT;
 
 /**
  * Test server which terminates after 30 s.
  * Knows only the client "localhost" with secret "testing123" and
  * the user "mw" with the password "test".
+ * <p>
+ * TestServer can answer both to Access-Request and Access-Response
+ * packets with Access-Accept/Reject or Accounting-Response, respectively.
  */
 public class TestServer {
 
     public static void main(String[] args) throws Exception {
 
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
-
-        WritableDictionary dictionary = new MemoryDictionary(); // DefaultDictionary.INSTANCE
+        WritableDictionary dictionary = new MemoryDictionary();
         DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
-        final RadiusServer<NioDatagramChannel> server = new RadiusServer<NioDatagramChannel>(
-                eventLoopGroup,
-                new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new DefaultDeduplicator(new HashedWheelTimer(), 30000),
-                null,
-                11812, 11813) {
+        final Timer timer = new HashedWheelTimer();
+        final Deduplicator deduplicator = new DefaultDeduplicator(timer, 30000);
 
-            // Authorize localhost/testing123
-            public String getSharedSecret(InetSocketAddress client) {
-                if (client.getAddress().getHostAddress().equals("127.0.0.1"))
-                    return "testing123";
-                else
-                    return null;
-            }
+        final SecretProvider secretProvider = remote ->
+                remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
 
-            // Authenticate mw
+        final AuthHandler authHandler = new AuthHandler(dictionary, deduplicator, timer, secretProvider) {
+            @Override
             public String getUserPassword(String userName) {
-                if (userName.equals("test"))
-                    return "password";
-                else
-                    return null;
+                return userName.equals("test") ? "password" : null;
             }
 
             // Adds an attribute to the Access-Accept packet
-            public RadiusPacket accessRequestReceived(AccessRequest accessRequest, InetSocketAddress client)
-                    throws RadiusException {
+            @Override
+            public Promise<RadiusPacket> accessRequestReceived(EventExecutor eventExecutor, AccessRequest accessRequest) throws RadiusException {
                 System.out.println("Received Access-Request:\n" + accessRequest);
-                RadiusPacket packet = super.accessRequestReceived(accessRequest, client);
-                if (packet == null)
-                    System.out.println("Ignore packet.");
-                else if (packet.getPacketType() == RadiusPacket.ACCESS_ACCEPT)
-                    packet.addAttribute("Reply-Message", "Welcome " + accessRequest.getUserName() + "!");
+                final Promise<RadiusPacket> promise = eventExecutor.newPromise();
+                super.accessRequestReceived(eventExecutor, accessRequest).addListener((Future<RadiusPacket> f) -> {
+                    final RadiusPacket packet = f.getNow();
+                    if (packet == null) {
+                        System.out.println("Ignore packet.");
+                        promise.tryFailure(f.cause());
+                    } else {
+                        if (packet.getPacketType() == ACCESS_ACCEPT)
+                            packet.addAttribute("Reply-Message", "Welcome " + accessRequest.getUserName() + "!");
+                        System.out.println("Answer:\n" + packet);
+                        promise.trySuccess(packet);
+                    }
+                });
 
-                System.out.println("Answer:\n" + packet);
-                return packet;
+                return promise;
             }
         };
+
+        final AcctHandler acctHandler = new AcctHandler(dictionary, deduplicator, timer, secretProvider);
+
+        final RadiusServer<NioDatagramChannel> server = new RadiusServer<>(
+                eventLoopGroup,
+                new ReflectiveChannelFactory<>(NioDatagramChannel.class),
+                null,
+                authHandler, acctHandler,
+                11812, 11813);
 
         final Future<Void> future = server.start();
         future.addListener(future1 -> {

@@ -4,11 +4,11 @@ import com.globalreachtech.tinyradius.dictionary.Dictionary;
 import com.globalreachtech.tinyradius.packet.AccessRequest;
 import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.util.RadiusException;
+import com.globalreachtech.tinyradius.util.SecretProvider;
 import io.netty.channel.Channel;
 import io.netty.util.Timer;
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.net.InetSocketAddress;
 
@@ -16,15 +16,14 @@ import static com.globalreachtech.tinyradius.packet.RadiusPacket.ACCESS_ACCEPT;
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.ACCESS_REJECT;
 
 public abstract class AuthHandler extends ServerHandler {
-    private static Log logger = LogFactory.getLog(AuthHandler.class);
 
-    public AuthHandler(Dictionary dictionary, Deduplicator packetManager, Timer timer) {
-        super(dictionary, packetManager, timer);
+    public AuthHandler(Dictionary dictionary, Deduplicator deduplicator, Timer timer, SecretProvider secretProvider) {
+        super(dictionary, deduplicator, timer, secretProvider);
     }
 
     /**
      * Returns the password of the passed user. Either this
-     * method or accessRequestReceived() should be overridden.
+     * method or {@link #accessRequestReceived(EventExecutor, AccessRequest)} should be overridden.
      *
      * @param userName user name
      * @return plain-text password or null if user unknown
@@ -40,24 +39,28 @@ public abstract class AuthHandler extends ServerHandler {
      * @throws RadiusException malformed clientRequest packet; if this
      *                         exception is thrown, no answer will be sent
      */
-    public RadiusPacket accessRequestReceived(AccessRequest accessRequest) throws RadiusException {
-        String plaintext = getUserPassword(accessRequest.getUserName());
-        int type = plaintext != null && accessRequest.verifyPassword(plaintext) ?
+    public Promise<RadiusPacket> accessRequestReceived(EventExecutor eventExecutor, AccessRequest accessRequest) throws RadiusException {
+        String password = getUserPassword(accessRequest.getUserName());
+        int type = password != null && accessRequest.verifyPassword(password) ?
                 ACCESS_ACCEPT : ACCESS_REJECT;
 
         RadiusPacket answer = new RadiusPacket(type, accessRequest.getPacketIdentifier());
         answer.setDictionary(dictionary);
-        copyProxyState(accessRequest, answer);
-        return answer;
+        accessRequest.getAttributes(33)
+                .forEach(answer::addAttribute);
+
+        Promise<RadiusPacket> promise = eventExecutor.newPromise();
+        promise.trySuccess(answer);
+        return promise;
     }
 
     @Override
-    protected Promise<RadiusPacket> handlePacket(Channel channel, InetSocketAddress remoteAddress, RadiusPacket request) throws RadiusException {
-        Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
+    protected Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket request, InetSocketAddress remoteAddress, String sharedSecret) throws RadiusException {
         if (request instanceof AccessRequest)
-            promise.trySuccess(accessRequestReceived((AccessRequest) request));
-        else
-            logger.error("unknown Radius packet type: " + request.getPacketType());
+            return accessRequestReceived(channel.eventLoop(), (AccessRequest) request);
+
+        Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
+        promise.tryFailure(new RadiusException("unknown Radius packet type: " + request.getPacketType()));
         return promise;
     }
 }

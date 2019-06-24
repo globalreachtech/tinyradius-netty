@@ -3,8 +3,7 @@ package com.globalreachtech.tinyradius.util;
 import java.net.InetSocketAddress;
 
 /**
- * This class stores information about a Radius endpoint.
- * This includes the address of the remote endpoint and the shared secret
+ * Wrapper class for a remote endpoint address and the shared secret
  * used for securing the communication.
  */
 public class RadiusEndpoint {
@@ -24,14 +23,4 @@ public class RadiusEndpoint {
     public String getSharedSecret() {
         return sharedSecret;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RadiusEndpoint that = (RadiusEndpoint) o;
-        return endpointAddress.equals(that.endpointAddress) &&
-                sharedSecret.equals(that.sharedSecret);
-    }
-
 }

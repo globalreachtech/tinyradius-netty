@@ -100,7 +100,7 @@ public class RadiusPacket implements Cloneable {
     /**
      * Random number generator.
      */
-    private static SecureRandom random = new SecureRandom();
+    private static final SecureRandom random = new SecureRandom();
 
     /**
      * Builds a Radius packet without attributes. Retrieves

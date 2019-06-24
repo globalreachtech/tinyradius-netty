@@ -4,8 +4,7 @@ package com.globalreachtech.tinyradius.dictionary;
  * A dictionary that is not read-only. Provides methods
  * to add entries to the dictionary.
  */
-public interface WritableDictionary
-        extends Dictionary {
+public interface WritableDictionary extends Dictionary {
 
     /**
      * Adds the given vendor to the dictionary.
