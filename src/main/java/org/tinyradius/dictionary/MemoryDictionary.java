@@ -70,9 +70,9 @@ public class MemoryDictionary implements WritableDictionary {
      * @see Dictionary#getVendorId(java.lang.String)
      */
     public int getVendorId(String vendorName) {
-        for (Map.Entry<Integer, String> o : vendorsByCode.entrySet()) {
-            if (o.getValue().equals(vendorName))
-                return o.getKey();
+        for (Map.Entry<Integer, String> v : vendorsByCode.entrySet()) {
+            if (v.getValue().equals(vendorName))
+                return v.getKey();
         }
         return -1;
     }

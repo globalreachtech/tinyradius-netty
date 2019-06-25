@@ -150,9 +150,9 @@ public class AttributeType<T extends RadiusAttribute> {
             throw new IllegalArgumentException("value is empty");
         if (enumeration == null)
             return null;
-        for (Map.Entry<Integer, String> o : enumeration.entrySet()) {
-            if (o.getValue().equals(value))
-                return o.getKey();
+        for (Map.Entry<Integer, String> e : enumeration.entrySet()) {
+            if (e.getValue().equals(value))
+                return e.getKey();
         }
         return null;
     }

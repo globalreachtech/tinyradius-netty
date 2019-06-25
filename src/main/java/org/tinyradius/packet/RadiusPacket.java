@@ -309,15 +309,11 @@ public class RadiusPacket implements Cloneable {
         } else {
             // remove Vendor-Specific sub-attribute
             List<VendorSpecificAttribute> vsas = getVendorAttributes(attribute.getVendorId());
-            for (VendorSpecificAttribute o : vsas) {
-                List<RadiusAttribute> sas = o.getSubAttributes();
-                if (sas.contains(attribute)) {
-                    o.removeSubAttribute(attribute);
-                    if (sas.isEmpty())
-                        // removed the last sub-attribute
-                        // --> remove the whole Vendor-Specific attribute
-                        removeAttribute(o);
-                }
+            for (VendorSpecificAttribute vsa : vsas) {
+                vsa.removeSubAttribute(attribute);
+                if (vsa.getSubAttributes().isEmpty())
+                    // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
+                    removeAttribute(vsa);
             }
         }
     }
@@ -363,14 +359,12 @@ public class RadiusPacket implements Cloneable {
         }
 
         List<VendorSpecificAttribute> vsas = getVendorAttributes(vendorId);
-        for (VendorSpecificAttribute o : vsas) {
-
-            List<RadiusAttribute> sas = o.getSubAttributes();
+        for (VendorSpecificAttribute vsa : vsas) {
+            List<RadiusAttribute> sas = vsa.getSubAttributes();
             sas.removeIf(attr -> attr.getAttributeType() == typeCode && attr.getVendorId() == vendorId);
-            if (sas.size() == 0)
-                // removed the last sub-attribute
-                // --> remove the whole Vendor-Specific attribute
-                removeAttribute(o);
+            if (sas.isEmpty())
+                // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
+                removeAttribute(vsa);
         }
     }
 
@@ -408,8 +402,8 @@ public class RadiusPacket implements Cloneable {
 
         List<RadiusAttribute> result = new LinkedList<>();
         List<VendorSpecificAttribute> vsas = getVendorAttributes(vendorId);
-        for (VendorSpecificAttribute o : vsas) {
-            for (RadiusAttribute sa : o.getSubAttributes()) {
+        for (VendorSpecificAttribute vsa : vsas) {
+            for (RadiusAttribute sa : vsa.getSubAttributes()) {
                 if (sa.getAttributeType() == attributeType &&
                         sa.getVendorId() == vendorId)
                     result.add(sa);
@@ -535,10 +529,12 @@ public class RadiusPacket implements Cloneable {
      * @deprecated use getVendorAttributes(int)
      */
     public VendorSpecificAttribute getVendorAttribute(int vendorId) {
-        for (RadiusAttribute o : getAttributes(VendorSpecificAttribute.VENDOR_SPECIFIC)) {
-            VendorSpecificAttribute vsa = (VendorSpecificAttribute) o;
-            if (vsa.getChildVendorId() == vendorId)
-                return vsa;
+        for (RadiusAttribute a : getAttributes(VendorSpecificAttribute.VENDOR_SPECIFIC)) {
+            if (a instanceof VendorSpecificAttribute) {
+                VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
+                if (vsa.getChildVendorId() == vendorId)
+                    return vsa;
+            }
         }
         return null;
     }

@@ -125,8 +125,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * @param attribute RadiusAttribute to remove
      */
     public void removeSubAttribute(RadiusAttribute attribute) {
-        if (!subAttributes.remove(attribute))
-            throw new IllegalArgumentException("no such attribute");
+        subAttributes.remove(attribute);
     }
 
     /**
@@ -205,10 +204,8 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      */
     public String getSubAttributeValue(String type) {
         RadiusAttribute attr = getSubAttribute(type);
-        if (attr == null)
-            return null;
-        else
-            return attr.getAttributeValue();
+        return attr == null ?
+                null : attr.getAttributeValue();
     }
 
     /**
@@ -329,9 +326,9 @@ public class VendorSpecificAttribute extends RadiusAttribute {
             sb.append("vendor ID ");
             sb.append(vendorId);
         }
-        for (RadiusAttribute o : getSubAttributes()) {
+        for (RadiusAttribute sa : getSubAttributes()) {
             sb.append("\n");
-            sb.append(o.toString());
+            sb.append(sa.toString());
         }
         return sb.toString();
     }
