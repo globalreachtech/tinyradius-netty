@@ -27,7 +27,7 @@ import java.net.InetSocketAddress;
  * with upstream servers. RadiusClient should also use a variant of {@link ProxyStateClientHandler}
  * which matches requests/responses by adding a custom Proxy-State attribute.
  */
-public abstract class ProxyHandler extends ServerHandler {
+public abstract class ProxyHandler extends ServerHandler<RadiusPacket> {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyHandler.class);
 
@@ -38,7 +38,7 @@ public abstract class ProxyHandler extends ServerHandler {
                            Timer timer,
                            SecretProvider secretProvider,
                            RadiusClient<?> radiusClient) {
-        super(dictionary, deduplicator, timer, secretProvider);
+        super(dictionary, deduplicator, timer, secretProvider, RadiusPacket.class);
         this.radiusClient = radiusClient;
     }
 

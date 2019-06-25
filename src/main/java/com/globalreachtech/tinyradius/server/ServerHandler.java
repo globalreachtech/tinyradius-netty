@@ -26,7 +26,7 @@ import static com.globalreachtech.tinyradius.packet.RadiusPacket.decodeRequestPa
 import static io.netty.buffer.Unpooled.buffer;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public abstract class ServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerHandler.class);
 
@@ -34,12 +34,22 @@ public abstract class ServerHandler extends SimpleChannelInboundHandler<Datagram
     private final Deduplicator deduplicator;
     private final Timer timer;
     private final SecretProvider secretProvider;
+    private final Class<? extends RadiusPacket> packetClass;
 
-    protected ServerHandler(Dictionary dictionary, Deduplicator deduplicator, Timer timer, SecretProvider secretProvider) {
+    /**
+     * @param dictionary     for encoding/decoding RadiusPackets
+     * @param deduplicator   handle duplicate client requests
+     * @param timer          handle timeouts if requests take too long to be processed
+     * @param secretProvider lookup sharedSecret given remote address
+     * @param packetClass    restrict RadiusPacket subtypes that can be processed by handler, otherwise will be dropped.
+     *                       If all types of RadiusPackets are allowed, use {@link RadiusPacket}
+     */
+    protected ServerHandler(Dictionary dictionary, Deduplicator deduplicator, Timer timer, SecretProvider secretProvider, Class<T> packetClass) {
         this.dictionary = dictionary;
         this.deduplicator = deduplicator;
         this.timer = timer;
         this.secretProvider = secretProvider;
+        this.packetClass = packetClass;
     }
 
     /**
@@ -97,9 +107,14 @@ public abstract class ServerHandler extends SimpleChannelInboundHandler<Datagram
                 return;
             }
 
-            // handle packet
+            // check channelHandler packet type restrictions
+            if (!packetClass.isInstance(packet)) {
+                logger.info("handler only accepts {}, unknown Radius packet type: {}", packetClass.getName(), packet.getPacketType());
+                return;
+            }
+
             logger.trace("about to call handlePacket()");
-            final Promise<RadiusPacket> promise = handlePacket(ctx.channel(), packet, remoteAddress, secret);
+            final Promise<RadiusPacket> promise = handlePacket(ctx.channel(), (T) packet, remoteAddress, secret);
 
             // so futures don't stay in memory forever if never completed
             Timeout timeout = timer.newTimeout(t -> promise.tryFailure(new RadiusException("timeout while generating client response")),
@@ -144,5 +159,5 @@ public abstract class ServerHandler extends SimpleChannelInboundHandler<Datagram
      * @return Promise of RadiusPacket or null for no clientResponse. Uses Promise instead Future,
      * to allow requests to be timed out or cancelled by the caller
      */
-    protected abstract Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket request, InetSocketAddress remoteAddress, String sharedSecret) throws RadiusException;
+    protected abstract Promise<RadiusPacket> handlePacket(Channel channel, T request, InetSocketAddress remoteAddress, String sharedSecret) throws RadiusException;
 }

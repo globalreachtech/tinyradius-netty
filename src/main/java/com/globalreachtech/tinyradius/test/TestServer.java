@@ -8,16 +8,17 @@ import com.globalreachtech.tinyradius.packet.RadiusPacket;
 import com.globalreachtech.tinyradius.server.*;
 import com.globalreachtech.tinyradius.util.RadiusException;
 import com.globalreachtech.tinyradius.util.SecretProvider;
+import io.netty.channel.Channel;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 
 import java.io.FileInputStream;
+import java.net.InetSocketAddress;
 
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.ACCESS_ACCEPT;
 
@@ -52,10 +53,10 @@ public class TestServer {
 
             // Adds an attribute to the Access-Accept packet
             @Override
-            public Promise<RadiusPacket> accessRequestReceived(EventExecutor eventExecutor, AccessRequest accessRequest) throws RadiusException {
+            public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) throws RadiusException {
                 System.out.println("Received Access-Request:\n" + accessRequest);
-                final Promise<RadiusPacket> promise = eventExecutor.newPromise();
-                super.accessRequestReceived(eventExecutor, accessRequest).addListener((Future<RadiusPacket> f) -> {
+                final Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
+                super.handlePacket(channel, accessRequest, remoteAddress, sharedSecret).addListener((Future<RadiusPacket> f) -> {
                     final RadiusPacket packet = f.getNow();
                     if (packet == null) {
                         System.out.println("Ignore packet.");

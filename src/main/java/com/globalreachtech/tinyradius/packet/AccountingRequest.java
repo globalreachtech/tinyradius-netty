@@ -18,6 +18,16 @@ import static java.util.Objects.requireNonNull;
 public class AccountingRequest extends RadiusPacket {
 
     /**
+     * Radius User-Name attribute type
+     */
+    private static final int USER_NAME = 1;
+
+    /**
+     * Radius Acct-Status-Type attribute type
+     */
+    private static final int ACCT_STATUS_TYPE = 40;
+
+    /**
      * Acct-Status-Type: Start
      */
     public static final int ACCT_STATUS_TYPE_START = 1;
@@ -59,7 +69,6 @@ public class AccountingRequest extends RadiusPacket {
      * Radius client.
      */
     public AccountingRequest() {
-        super();
     }
 
     /**
@@ -145,15 +154,4 @@ public class AccountingRequest extends RadiusPacket {
             if (expectedAuthenticator[i] != receivedAuth[i])
                 throw new RadiusException("clientRequest authenticator invalid");
     }
-
-    /**
-     * Radius User-Name attribute type
-     */
-    private static final int USER_NAME = 1;
-
-    /**
-     * Radius Acct-Status-Type attribute type
-     */
-    private static final int ACCT_STATUS_TYPE = 40;
-
 }
