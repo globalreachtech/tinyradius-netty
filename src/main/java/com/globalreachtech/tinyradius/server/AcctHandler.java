@@ -12,6 +12,10 @@ import java.net.InetSocketAddress;
 
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.ACCOUNTING_RESPONSE;
 
+/**
+ * A reference implementation of AccountingRequest handler that responds to all Accounting-Request
+ * with standard Accounting-Response.
+ */
 public class AcctHandler extends ServerHandler<AccountingRequest> {
 
     public AcctHandler(Dictionary dictionary, Deduplicator deduplicator, Timer timer, SecretProvider secretProvider) {

@@ -14,6 +14,10 @@ import java.net.InetSocketAddress;
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.ACCESS_ACCEPT;
 import static com.globalreachtech.tinyradius.packet.RadiusPacket.ACCESS_REJECT;
 
+/**
+ * Reference implementation of AccessRequest handler that returns Access-Accept/Reject
+ * depending on whether {@link #getUserPassword(String)} matches password in Access-Request.
+ */
 public abstract class AuthHandler extends ServerHandler<AccessRequest> {
 
     public AuthHandler(Dictionary dictionary, Deduplicator deduplicator, Timer timer, SecretProvider secretProvider) {

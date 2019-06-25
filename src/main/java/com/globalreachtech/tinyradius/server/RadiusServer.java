@@ -14,10 +14,7 @@ import java.net.InetSocketAddress;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Implements a simple Radius server. This class must be subclassed to
- * provide an implementation for getSharedSecret() and getUserPassword().
- * If the server supports accounting, it must override
- * accountingRequestReceived().
+ * Implements a simple Radius server.
  */
 public class RadiusServer<T extends DatagramChannel> {
 

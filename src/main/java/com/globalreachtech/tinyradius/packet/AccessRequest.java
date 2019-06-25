@@ -29,7 +29,6 @@ public class AccessRequest extends RadiusPacket {
      */
     public static final String AUTH_CHAP = "chap";
 
-
     /**
      * Temporary storage for the unencrypted User-Password
      * attribute.
@@ -51,9 +50,6 @@ public class AccessRequest extends RadiusPacket {
      */
     private byte[] chapChallenge;
 
-    /**
-     * Random generator
-     */
     private static final SecureRandom random = new SecureRandom();
 
     /**
@@ -195,8 +191,7 @@ public class AccessRequest extends RadiusPacket {
      *
      * @see RadiusPacket#decodeRequestAttributes(java.lang.String)
      */
-    protected void decodeRequestAttributes(String sharedSecret)
-            throws RadiusException {
+    protected void decodeRequestAttributes(String sharedSecret) throws RadiusException {
         // detect auth protocol
         RadiusAttribute userPassword = getAttribute(USER_PASSWORD);
         RadiusAttribute chapPassword = getAttribute(CHAP_PASSWORD);
@@ -277,7 +272,12 @@ public class AccessRequest extends RadiusPacket {
      * @return decrypted password
      */
     private String decodePapPassword(byte[] encryptedPass, byte[] sharedSecret) throws RadiusException {
-        if (encryptedPass == null || encryptedPass.length < 16) {
+        if (encryptedPass == null) {
+            logger.warn("invalid Radius packet: User-Password is null");
+            throw new RadiusException("malformed User-Password attribute");
+        }
+
+        if (encryptedPass.length < 16) {
             // PAP passwords require at least 16 bytes
             logger.warn("invalid Radius packet: User-Password attribute with malformed PAP password, length = " +
                     encryptedPass.length + ", but length must be greater than 15");
