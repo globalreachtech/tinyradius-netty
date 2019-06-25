@@ -1,11 +1,11 @@
 package com.globalreachtech.pas;
 
-import com.tinyradius.packet.RadiusPacket;
-import com.tinyradius.util.RadiusEndpoint;
 import io.netty.util.Timeout;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.util.RadiusEndpoint;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
