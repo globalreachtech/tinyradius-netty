@@ -4,9 +4,6 @@ import java.security.MessageDigest;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-/**
- * DisconnectRequest packet
- */
 public class DisconnectRequest extends RadiusPacket {
 
     public DisconnectRequest() {

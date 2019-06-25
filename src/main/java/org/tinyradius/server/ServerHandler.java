@@ -34,7 +34,7 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
     private final Deduplicator deduplicator;
     private final Timer timer;
     private final SecretProvider secretProvider;
-    private final Class<? extends RadiusPacket> packetClass;
+    private final Class<T> packetClass;
 
     /**
      * @param dictionary     for encoding/decoding RadiusPackets
@@ -114,7 +114,7 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
             }
 
             logger.trace("about to call handlePacket()");
-            final Promise<RadiusPacket> promise = handlePacket(ctx.channel(), (T) packet, remoteAddress, secret);
+            final Promise<RadiusPacket> promise = handlePacket(ctx.channel(), packetClass.cast(packet), remoteAddress, secret);
 
             // so futures don't stay in memory forever if never completed
             Timeout timeout = timer.newTimeout(t -> promise.tryFailure(new RadiusException("timeout while generating client response")),

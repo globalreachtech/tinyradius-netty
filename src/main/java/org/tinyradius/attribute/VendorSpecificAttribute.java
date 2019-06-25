@@ -21,6 +21,16 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     public static final int VENDOR_SPECIFIC = 26;
 
     /**
+     * Sub attributes. Only set if isRawData == false.
+     */
+    private List<RadiusAttribute> subAttributes = new ArrayList<>();
+
+    /**
+     * Vendor ID of sub-attributes.
+     */
+    private int childVendorId;
+
+    /**
      * Constructs an empty Vendor-Specific attribute that can be read from a
      * Radius packet.
      */
@@ -77,7 +87,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     public void addSubAttribute(RadiusAttribute attribute) {
         if (attribute.getVendorId() != getChildVendorId())
             throw new IllegalArgumentException(
-                    "sub attribut has incorrect vendor ID");
+                    "sub attribute has incorrect vendor ID");
 
         subAttributes.add(attribute);
     }
@@ -97,17 +107,14 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
         AttributeType type = getDictionary().getAttributeTypeByName(name);
         if (type == null)
-            throw new IllegalArgumentException("unknown attribute type '"
-                    + name + "'");
+            throw new IllegalArgumentException("unknown attribute type '" + name + "'");
         if (type.getVendorId() == -1)
-            throw new IllegalArgumentException("attribute type '" + name
-                    + "' is not a Vendor-Specific sub-attribute");
+            throw new IllegalArgumentException("attribute type '" + name + "' is not a Vendor-Specific sub-attribute");
         if (type.getVendorId() != getChildVendorId())
-            throw new IllegalArgumentException("attribute type '" + name
-                    + "' does not belong to vendor ID " + getChildVendorId());
+            throw new IllegalArgumentException("attribute type '" + name + "' does not belong to vendor ID " + getChildVendorId());
 
-        RadiusAttribute attribute = createRadiusAttribute(getDictionary(),
-                getChildVendorId(), type.getTypeCode());
+        RadiusAttribute attribute = createRadiusAttribute(
+                getDictionary(), getChildVendorId(), type.getTypeCode());
         attribute.setAttributeValue(value);
         addSubAttribute(attribute);
     }
@@ -137,12 +144,11 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * @param attributeType type of sub-attributes to get
      * @return list of RadiusAttribute objects, does not return null
      */
-    public List getSubAttributes(int attributeType) {
+    public List<RadiusAttribute> getSubAttributes(int attributeType) {
         if (attributeType < 1 || attributeType > 255)
-            throw new IllegalArgumentException(
-                    "sub-attribute type out of bounds");
+            throw new IllegalArgumentException("sub-attribute type out of bounds");
 
-        LinkedList<RadiusAttribute> result = new LinkedList<>();
+        List<RadiusAttribute> result = new LinkedList<>();
         for (RadiusAttribute a : subAttributes) {
             if (attributeType == a.getAttributeType())
                 result.add(a);
@@ -160,14 +166,11 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      *                          requested sub-attribute type
      */
     public RadiusAttribute getSubAttribute(int type) {
-        List attrs = getSubAttributes(type);
+        List<RadiusAttribute> attrs = getSubAttributes(type);
         if (attrs.size() > 1)
-            throw new RuntimeException(
-                    "multiple sub-attributes of requested type " + type);
-        else if (attrs.size() == 0)
-            return null;
-        else
-            return (RadiusAttribute) attrs.get(0);
+            throw new RuntimeException("multiple sub-attributes of requested type " + type);
+
+        return attrs.size() == 0 ? null : attrs.get(0);
     }
 
     /**
@@ -332,14 +335,4 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         }
         return sb.toString();
     }
-
-    /**
-     * Sub attributes. Only set if isRawData == false.
-     */
-    private List<RadiusAttribute> subAttributes = new ArrayList<>();
-
-    /**
-     * Vendor ID of sub-attributes.
-     */
-    private int childVendorId;
 }

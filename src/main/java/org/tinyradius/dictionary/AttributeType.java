@@ -134,10 +134,8 @@ public class AttributeType<T extends RadiusAttribute> {
      * @return name
      */
     public String getEnumeration(int value) {
-        if (enumeration != null)
-            return enumeration.get(value);
-        else
-            return null;
+        return enumeration != null ?
+                enumeration.get(value) : null;
     }
 
     /**
@@ -181,8 +179,7 @@ public class AttributeType<T extends RadiusAttribute> {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        String s = getTypeCode() +
-                "/" + getName() +
+        String s = getTypeCode() + "/" + getName() +
                 ": " + attributeClass.getName();
         if (getVendorId() != -1)
             s += " (vendor " + getVendorId() + ")";

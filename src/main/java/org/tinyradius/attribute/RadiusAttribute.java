@@ -202,8 +202,8 @@ public class RadiusAttribute {
     public AttributeType<? extends RadiusAttribute> getAttributeTypeObject() {
         if (getVendorId() != -1)
             return dictionary.getAttributeTypeByCode(getVendorId(), getAttributeType());
-        else
-            return dictionary.getAttributeTypeByCode(getAttributeType());
+
+        return dictionary.getAttributeTypeByCode(getAttributeType());
     }
 
     /**
