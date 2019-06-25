@@ -1,7 +1,7 @@
 package com.globalreachtech.pas;
 
-import com.globalreachtech.tinyradius.packet.RadiusPacket;
-import com.globalreachtech.tinyradius.util.RadiusEndpoint;
+import com.tinyradius.packet.RadiusPacket;
+import com.tinyradius.util.RadiusEndpoint;
 import io.netty.util.Timeout;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
