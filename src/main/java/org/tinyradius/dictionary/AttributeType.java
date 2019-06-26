@@ -16,7 +16,7 @@ public class AttributeType<T extends RadiusAttribute> {
     private int typeCode;
     private String name;
     private Class<T> attributeClass;
-    private Map<Integer, String> enumeration = null;
+    private final Map<Integer, String> enumeration = new HashMap<>();
 
     /**
      * Create a new attribute type.
@@ -134,8 +134,7 @@ public class AttributeType<T extends RadiusAttribute> {
      * @return name
      */
     public String getEnumeration(int value) {
-        return enumeration != null ?
-                enumeration.get(value) : null;
+        return enumeration.get(value);
     }
 
     /**
@@ -148,8 +147,6 @@ public class AttributeType<T extends RadiusAttribute> {
     public Integer getEnumeration(String value) {
         if (value == null || value.isEmpty())
             throw new IllegalArgumentException("value is empty");
-        if (enumeration == null)
-            return null;
         for (Map.Entry<Integer, String> e : enumeration.entrySet()) {
             if (e.getValue().equals(value))
                 return e.getKey();
@@ -166,8 +163,6 @@ public class AttributeType<T extends RadiusAttribute> {
     public void addEnumerationValue(int num, String name) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("name is empty");
-        if (enumeration == null)
-            enumeration = new HashMap<>();
         enumeration.put(num, name);
     }
 
@@ -179,8 +174,7 @@ public class AttributeType<T extends RadiusAttribute> {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        String s = getTypeCode() + "/" + getName() +
-                ": " + attributeClass.getName();
+        String s = getTypeCode() + "/" + getName() + ": " + attributeClass.getName();
         if (getVendorId() != -1)
             s += " (vendor " + getVendorId() + ")";
         return s;

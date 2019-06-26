@@ -120,8 +120,7 @@ public class IpAttribute extends RadiusAttribute {
      *
      * @see RadiusAttribute#readAttribute(byte[], int, int)
      */
-    public void readAttribute(byte[] data, int offset, int length)
-            throws RadiusException {
+    public void readAttribute(byte[] data, int offset, int length) throws RadiusException {
         if (length != 6)
             throw new RadiusException("IP attribute: expected 4 bytes data");
         super.readAttribute(data, offset, length);

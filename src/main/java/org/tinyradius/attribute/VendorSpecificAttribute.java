@@ -113,8 +113,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         if (type.getVendorId() != getChildVendorId())
             throw new IllegalArgumentException("attribute type '" + name + "' does not belong to vendor ID " + getChildVendorId());
 
-        RadiusAttribute attribute = createRadiusAttribute(
-                getDictionary(), getChildVendorId(), type.getTypeCode());
+        RadiusAttribute attribute = createRadiusAttribute(getDictionary(), getChildVendorId(), type.getTypeCode());
         attribute.setAttributeValue(value);
         addSubAttribute(attribute);
     }
@@ -235,8 +234,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         byte[] attrData = bos.toByteArray();
         int len = attrData.length;
         if (len > 253)
-            throw new RuntimeException("Vendor-Specific attribute too long: "
-                    + bos.size());
+            throw new RuntimeException("Vendor-Specific attribute too long: " + bos.size());
 
         // compose attribute
         byte[] attr = new byte[len + 2];
@@ -253,12 +251,10 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * @see RadiusAttribute#readAttribute(byte[], int,
      * int)
      */
-    public void readAttribute(byte[] data, int offset, int length)
-            throws RadiusException {
+    public void readAttribute(byte[] data, int offset, int length) throws RadiusException {
         // check length
         if (length < 6)
-            throw new RadiusException("Vendor-Specific attribute too short: "
-                    + length);
+            throw new RadiusException("Vendor-Specific attribute too short: " + length);
 
         int vsaCode = data[offset];
         int vsaLen = ((int) data[offset + 1] & 0x000000ff) - 6;
@@ -295,8 +291,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         while (pos < vsaLen) {
             int subtype = data[(offset + 6) + pos] & 0x0ff;
             int sublength = data[(offset + 6) + pos + 1] & 0x0ff;
-            RadiusAttribute a = createRadiusAttribute(getDictionary(),
-                    vendorId, subtype);
+            RadiusAttribute a = createRadiusAttribute(getDictionary(), vendorId, subtype);
             a.readAttribute(data, (offset + 6) + pos, sublength);
             subAttributes.add(a);
             pos += sublength;

@@ -1,7 +1,5 @@
 package org.tinyradius.dictionary;
 
-import org.tinyradius.attribute.RadiusAttribute;
-
 /**
  * A dictionary that is not read-only. Provides methods
  * to add entries to the dictionary.
@@ -21,6 +19,6 @@ public interface WritableDictionary extends Dictionary {
      *
      * @param attributeType AttributeType object
      */
-    void addAttributeType(AttributeType<? extends RadiusAttribute> attributeType);
+    void addAttributeType(AttributeType attributeType);
 
 }

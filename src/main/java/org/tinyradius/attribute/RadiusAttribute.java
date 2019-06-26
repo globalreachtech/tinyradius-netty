@@ -163,8 +163,7 @@ public class RadiusAttribute {
     /**
      * Reads in this attribute from the passed byte array.
      */
-    public void readAttribute(byte[] data, int offset, int length)
-            throws RadiusException {
+    public void readAttribute(byte[] data, int offset, int length) throws RadiusException {
         if (length < 2)
             throw new RadiusException("attribute length too small: " + length);
         int attrType = data[offset] & 0x0ff;
@@ -199,7 +198,7 @@ public class RadiusAttribute {
      *
      * @return AttributeType object for (sub-)attribute or null
      */
-    public AttributeType<? extends RadiusAttribute> getAttributeTypeObject() {
+    public AttributeType getAttributeTypeObject() {
         if (getVendorId() != -1)
             return dictionary.getAttributeTypeByCode(getVendorId(), getAttributeType());
 
@@ -217,7 +216,7 @@ public class RadiusAttribute {
     public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int attributeType) {
         RadiusAttribute attribute = new RadiusAttribute();
 
-        AttributeType<? extends RadiusAttribute> at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
+        AttributeType<?> at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
         if (at != null && at.getAttributeClass() != null) {
             try {
                 attribute = at.getAttributeClass().getDeclaredConstructor().newInstance();

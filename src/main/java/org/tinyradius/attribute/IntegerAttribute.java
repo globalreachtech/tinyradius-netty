@@ -93,8 +93,7 @@ public class IntegerAttribute extends RadiusAttribute {
      *
      * @see RadiusAttribute#readAttribute(byte[], int, int)
      */
-    public void readAttribute(byte[] data, int offset, int length)
-            throws RadiusException {
+    public void readAttribute(byte[] data, int offset, int length) throws RadiusException {
         if (length != 6)
             throw new RadiusException("integer attribute: expected 4 bytes data");
         super.readAttribute(data, offset, length);

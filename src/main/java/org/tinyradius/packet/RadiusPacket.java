@@ -12,18 +12,18 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.attribute.RadiusAttribute.createRadiusAttribute;
 
 /**
  * This class represents a Radius packet. Subclasses provide convenience methods
  * for special packet types.
  */
-public class RadiusPacket implements Cloneable {
+public class RadiusPacket {
 
     /**
      * Packet type codes.
@@ -292,7 +292,7 @@ public class RadiusPacket implements Cloneable {
         if (type == null)
             throw new IllegalArgumentException("unknown attribute type '" + typeName + "'");
 
-        RadiusAttribute attribute = RadiusAttribute.createRadiusAttribute(getDictionary(), type.getVendorId(), type.getTypeCode());
+        RadiusAttribute attribute = createRadiusAttribute(getDictionary(), type.getVendorId(), type.getTypeCode());
         attribute.setAttributeValue(value);
         addAttribute(attribute);
     }
@@ -437,7 +437,8 @@ public class RadiusPacket implements Cloneable {
         if (attrs.size() > 1)
             throw new RuntimeException("multiple attributes of requested type " + type);
 
-        return attrs.size() == 0 ? null : attrs.get(0);
+        return attrs.size() == 0 ?
+                null : attrs.get(0);
     }
 
     /**
@@ -458,7 +459,8 @@ public class RadiusPacket implements Cloneable {
         if (attrs.size() > 1)
             throw new RuntimeException("multiple attributes of requested type " + type);
 
-        return attrs.size() == 0 ? null : attrs.get(0);
+        return attrs.size() == 0 ?
+                null : attrs.get(0);
     }
 
     /**
@@ -493,10 +495,8 @@ public class RadiusPacket implements Cloneable {
      */
     public String getAttributeValue(String type) {
         RadiusAttribute attr = getAttribute(type);
-        if (attr == null)
-            return null;
-        else
-            return attr.getAttributeValue();
+        return attr == null ?
+                null : attr.getAttributeValue();
     }
 
     /**
@@ -575,8 +575,7 @@ public class RadiusPacket implements Cloneable {
      * @throws IOException     IO error
      * @throws RadiusException malformed packet
      */
-    public static RadiusPacket decodeRequestPacket(InputStream in, String sharedSecret)
-            throws IOException, RadiusException {
+    public static RadiusPacket decodeRequestPacket(InputStream in, String sharedSecret) throws IOException, RadiusException {
         return decodePacket(DefaultDictionary.INSTANCE, in, sharedSecret, null);
     }
 
@@ -945,7 +944,7 @@ public class RadiusPacket implements Cloneable {
         while (pos < attributeData.length) {
             int attributeType = attributeData[pos] & 0x0ff;
             int attributeLength = attributeData[pos + 1] & 0x0ff;
-            RadiusAttribute a = RadiusAttribute.createRadiusAttribute(dictionary, -1, attributeType);
+            RadiusAttribute a = createRadiusAttribute(dictionary, -1, attributeType);
             a.readAttribute(attributeData, pos, attributeLength);
             rp.addAttribute(a);
             pos += attributeLength;
@@ -974,8 +973,7 @@ public class RadiusPacket implements Cloneable {
      * @param packetLength total length of the packet
      * @param attributes   clientRequest attribute data
      */
-    protected void checkRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes)
-            throws RadiusException {
+    protected void checkRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) throws RadiusException {
     }
 
     /**
@@ -1026,17 +1024,12 @@ public class RadiusPacket implements Cloneable {
      * @return byte array with encoded attributes
      * @throws IOException error writing data
      */
-    protected byte[] getAttributeBytes()
-            throws IOException {
+    protected byte[] getAttributeBytes() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_PACKET_LENGTH);
         for (RadiusAttribute a : attributes) {
             bos.write(a.writeAttribute());
         }
         bos.flush();
         return bos.toByteArray();
-    }
-
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 }

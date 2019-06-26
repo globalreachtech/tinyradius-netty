@@ -117,10 +117,8 @@ public class AccountingRequest extends RadiusPacket {
      */
     public int getAcctStatusType() {
         RadiusAttribute ra = getAttribute(ACCT_STATUS_TYPE);
-        if (ra == null)
-            return -1;
-        else
-            return ((IntegerAttribute) ra).getAttributeValueInt();
+        return ra == null ?
+                -1 : ((IntegerAttribute) ra).getAttributeValueInt();
     }
 
     /**

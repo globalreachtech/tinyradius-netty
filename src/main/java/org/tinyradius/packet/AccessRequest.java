@@ -13,6 +13,7 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.packet.Util.*;
 
 /**
  * This class represents an Access-Request Radius packet.
@@ -143,8 +144,7 @@ public class AccessRequest extends RadiusPacket {
         if (attrs.size() != 1)
             throw new RuntimeException("exactly one User-Name attribute required");
 
-        RadiusAttribute ra = attrs.get(0);
-        return ra.getAttributeValue();
+        return attrs.get(0).getAttributeValue();
     }
 
     /**
@@ -176,14 +176,13 @@ public class AccessRequest extends RadiusPacket {
      *
      * @return true if the password is valid, false otherwise
      */
-    public boolean verifyPassword(String plaintext)
-            throws RadiusException {
+    public boolean verifyPassword(String plaintext) throws RadiusException {
         if (plaintext == null || plaintext.isEmpty())
             throw new IllegalArgumentException("password is empty");
         if (getAuthProtocol().equals(AUTH_CHAP))
             return verifyChapPassword(plaintext);
-        else
-            return getUserPassword().equals(plaintext);
+
+        return getUserPassword().equals(plaintext);
     }
 
     /**
@@ -219,7 +218,7 @@ public class AccessRequest extends RadiusPacket {
         if (password == null || password.isEmpty())
             return;
         // ok for proxied packets whose CHAP password is already encrypted
-        //throw new RuntimeException("no password set");
+        // throw new RuntimeException("no password set");
 
         if (getAuthProtocol().equals(AUTH_PAP)) {
             byte[] pass = encodePapPassword(this.password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8));
@@ -252,8 +251,8 @@ public class AccessRequest extends RadiusPacket {
             byte[] result = new byte[P.length];
 
             for (int i = 0; i < P.length; i += C.length) {
-                C = Util.compute(sharedSecret, C);
-                C = Util.xor(P, i, C.length, C, 0, C.length);
+                C = compute(sharedSecret, C);
+                C = xor(P, i, C.length, C, 0, C.length);
                 System.arraycopy(C, 0, result, i, C.length);
             }
 
@@ -272,15 +271,10 @@ public class AccessRequest extends RadiusPacket {
      * @return decrypted password
      */
     private String decodePapPassword(byte[] encryptedPass, byte[] sharedSecret) throws RadiusException {
-        if (encryptedPass == null) {
-            logger.warn("invalid Radius packet: User-Password is null");
-            throw new RadiusException("malformed User-Password attribute");
-        }
-
-        if (encryptedPass.length < 16) {
+        if (encryptedPass == null || encryptedPass.length < 16) {
             // PAP passwords require at least 16 bytes
-            logger.warn("invalid Radius packet: User-Password attribute with malformed PAP password, length = " +
-                    encryptedPass.length + ", but length must be greater than 15");
+            logger.warn("invalid Radius packet: User-Password attribute with malformed PAP password, length = "
+                    + (encryptedPass == null ? 0 : encryptedPass.length) + ", but length must be greater than 15");
             throw new RadiusException("malformed User-Password attribute");
         }
 
@@ -289,13 +283,13 @@ public class AccessRequest extends RadiusPacket {
             byte[] C = this.getAuthenticator();
 
             for (int i = 0; i < encryptedPass.length; i += C.length) {
-                C = Util.compute(sharedSecret, C);
-                C = Util.xor(encryptedPass, i, C.length, C, 0, C.length);
+                C = compute(sharedSecret, C);
+                C = xor(encryptedPass, i, C.length, C, 0, C.length);
                 System.arraycopy(C, 0, result, i, C.length);
                 System.arraycopy(encryptedPass, i, C, 0, C.length);
             }
 
-            return Util.getStringFromUtf8(result);
+            return getStringFromUtf8(result);
 
         } catch (GeneralSecurityException e) {
             throw new RadiusException(e);
@@ -341,8 +335,7 @@ public class AccessRequest extends RadiusPacket {
      *
      * @return plain-text password
      */
-    private boolean verifyChapPassword(String plaintext)
-            throws RadiusException {
+    private boolean verifyChapPassword(String plaintext) throws RadiusException {
         if (plaintext == null || plaintext.isEmpty())
             throw new IllegalArgumentException("plaintext must not be empty");
         if (chapChallenge == null || chapChallenge.length != 16)

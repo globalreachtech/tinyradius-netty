@@ -1,7 +1,5 @@
 package org.tinyradius.dictionary;
 
-import org.tinyradius.attribute.RadiusAttribute;
-
 /**
  * A dictionary retrieves AttributeType objects by name or
  * type code.
@@ -16,7 +14,7 @@ public interface Dictionary {
      * @param typeName name of the attribute type
      * @return AttributeType object or null
      */
-    AttributeType<? extends RadiusAttribute> getAttributeTypeByName(String typeName);
+    AttributeType getAttributeTypeByName(String typeName);
 
     /**
      * Retrieves an attribute type by type code. This method
@@ -25,7 +23,7 @@ public interface Dictionary {
      * @param typeCode type code, 1-255
      * @return AttributeType object or null
      */
-    AttributeType<? extends RadiusAttribute> getAttributeTypeByCode(int typeCode);
+    AttributeType getAttributeTypeByCode(int typeCode);
 
     /**
      * Retrieves an attribute type for a vendor-specific
@@ -35,7 +33,7 @@ public interface Dictionary {
      * @param typeCode type code, 1-255
      * @return AttributeType object or null
      */
-    AttributeType<? extends RadiusAttribute> getAttributeTypeByCode(int vendorId, int typeCode);
+    AttributeType getAttributeTypeByCode(int vendorId, int typeCode);
 
     /**
      * Retrieves the name of the vendor with the given

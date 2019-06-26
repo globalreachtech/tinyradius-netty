@@ -33,46 +33,45 @@ public class DictionaryParser {
      * @param source     input stream
      * @param dictionary dictionary data is written to
      */
-    public static void parseDictionary(InputStream source, WritableDictionary dictionary)
-            throws IOException {
-        // read each line separately
-        BufferedReader in = new BufferedReader(new InputStreamReader(source));
+    public static void parseDictionary(InputStream source, WritableDictionary dictionary) throws IOException {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(source))) {
 
-        String line;
-        int lineNum = -1;
-        while ((line = in.readLine()) != null) {
-            // ignore comments
-            lineNum++;
-            line = line.trim();
-            if (line.startsWith("#") || line.isEmpty())
-                continue;
+            // read each line separately
+            String line;
+            int lineNum = -1;
+            while ((line = in.readLine()) != null) {
+                // ignore comments
+                lineNum++;
+                line = line.trim();
+                if (line.startsWith("#") || line.isEmpty())
+                    continue;
 
-            // tokenize line by whitespace
-            StringTokenizer tok = new StringTokenizer(line);
-            if (!tok.hasMoreTokens())
-                continue;
+                // tokenize line by whitespace
+                StringTokenizer tok = new StringTokenizer(line);
+                if (!tok.hasMoreTokens())
+                    continue;
 
-            String lineType = tok.nextToken().trim();
-            if (lineType.equalsIgnoreCase("ATTRIBUTE"))
-                parseAttributeLine(dictionary, tok, lineNum);
-            else if (lineType.equalsIgnoreCase("VALUE"))
-                parseValueLine(dictionary, tok, lineNum);
-            else if (lineType.equalsIgnoreCase("$INCLUDE"))
-                includeDictionaryFile(dictionary, tok, lineNum);
-            else if (lineType.equalsIgnoreCase("VENDORATTR"))
-                parseVendorAttributeLine(dictionary, tok, lineNum);
-            else if (lineType.equals("VENDOR"))
-                parseVendorLine(dictionary, tok, lineNum);
-            else
-                throw new IOException("unknown line type: " + lineType + " line: " + lineNum);
+                String lineType = tok.nextToken().trim();
+                if (lineType.equalsIgnoreCase("ATTRIBUTE"))
+                    parseAttributeLine(dictionary, tok, lineNum);
+                else if (lineType.equalsIgnoreCase("VALUE"))
+                    parseValueLine(dictionary, tok, lineNum);
+                else if (lineType.equalsIgnoreCase("$INCLUDE"))
+                    includeDictionaryFile(dictionary, tok, lineNum);
+                else if (lineType.equalsIgnoreCase("VENDORATTR"))
+                    parseVendorAttributeLine(dictionary, tok, lineNum);
+                else if (lineType.equals("VENDOR"))
+                    parseVendorLine(dictionary, tok, lineNum);
+                else
+                    throw new IOException("unknown line type: " + lineType + " line: " + lineNum);
+            }
         }
     }
 
     /**
      * Parse a line that declares an attribute.
      */
-    private static void parseAttributeLine(WritableDictionary dictionary, StringTokenizer tok, int lineNum)
-            throws IOException {
+    private static void parseAttributeLine(WritableDictionary dictionary, StringTokenizer tok, int lineNum) throws IOException {
         if (tok.countTokens() != 3)
             throw new IOException("syntax error on line " + lineNum);
 
@@ -92,8 +91,7 @@ public class DictionaryParser {
     /**
      * Parses a VALUE line containing an enumeration value.
      */
-    private static void parseValueLine(WritableDictionary dictionary, StringTokenizer tok, int lineNum)
-            throws IOException {
+    private static void parseValueLine(WritableDictionary dictionary, StringTokenizer tok, int lineNum) throws IOException {
         if (tok.countTokens() != 3)
             throw new IOException("syntax error on line " + lineNum);
 
@@ -104,15 +102,13 @@ public class DictionaryParser {
         AttributeType at = dictionary.getAttributeTypeByName(typeName);
         if (at == null)
             throw new IOException("unknown attribute type: " + typeName + ", line: " + lineNum);
-        else
-            at.addEnumerationValue(Integer.parseInt(valStr), enumName);
+        at.addEnumerationValue(Integer.parseInt(valStr), enumName);
     }
 
     /**
      * Parses a line that declares a Vendor-Specific attribute.
      */
-    private static void parseVendorAttributeLine(WritableDictionary dictionary, StringTokenizer tok, int lineNum)
-            throws IOException {
+    private static void parseVendorAttributeLine(WritableDictionary dictionary, StringTokenizer tok, int lineNum) throws IOException {
         if (tok.countTokens() != 4)
             throw new IOException("syntax error on line " + lineNum);
 
@@ -129,8 +125,7 @@ public class DictionaryParser {
     /**
      * Parses a line containing a vendor declaration.
      */
-    private static void parseVendorLine(WritableDictionary dictionary, StringTokenizer tok, int lineNum)
-            throws IOException {
+    private static void parseVendorLine(WritableDictionary dictionary, StringTokenizer tok, int lineNum) throws IOException {
         if (tok.countTokens() != 2)
             throw new IOException("syntax error on line " + lineNum);
 
@@ -143,8 +138,7 @@ public class DictionaryParser {
     /**
      * Includes a dictionary file.
      */
-    private static void includeDictionaryFile(WritableDictionary dictionary, StringTokenizer tok, int lineNum)
-            throws IOException {
+    private static void includeDictionaryFile(WritableDictionary dictionary, StringTokenizer tok, int lineNum) throws IOException {
         if (tok.countTokens() != 1)
             throw new IOException("syntax error on line " + lineNum);
         String includeFile = tok.nextToken();
@@ -170,16 +164,18 @@ public class DictionaryParser {
      * @return RadiusAttribute class or descendant
      */
     private static Class<? extends RadiusAttribute> getAttributeTypeClass(String typeStr) {
-        if (typeStr.equalsIgnoreCase("string"))
-            return StringAttribute.class;
-        else if (typeStr.equalsIgnoreCase("octets"))
-            return RadiusAttribute.class;
-        else if (typeStr.equalsIgnoreCase("integer") || typeStr.equalsIgnoreCase("date"))
-            return IntegerAttribute.class;
-        else if (typeStr.equalsIgnoreCase("ipaddr"))
-            return IpAttribute.class;
-        return RadiusAttribute.class;
+        switch (typeStr.toLowerCase()) {
+            case "string":
+                return StringAttribute.class;
+            case "integer":
+            case "date":
+                return IntegerAttribute.class;
+            case "ipaddr":
+                return IpAttribute.class;
+            case "octets":
+            default:
+                return RadiusAttribute.class;
+        }
     }
-
 }
 
