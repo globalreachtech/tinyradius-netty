@@ -1,5 +1,5 @@
 /**
- * This package contains classes for Radius Server, Proxy, and reference implementation of
+ * Classes for Radius Server, Proxy, and reference implementation of
  * ChannelHandlers for incoming packets.
  * <p>
  * ServerChannelInboundHandler is a base implementation of SimpleChannelInboundHandler that

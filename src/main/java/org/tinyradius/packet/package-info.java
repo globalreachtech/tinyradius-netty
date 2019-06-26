@@ -1,5 +1,5 @@
 /**
- * This package contains classes for encoding and decoding Radius packets.
+ * Classes for encoding and decoding Radius packets.
  * <p>
  * The base class RadiusPacket can read and write every Radius packet, the
  * subclasses AccessRequest and AccountingRequest provide convenience

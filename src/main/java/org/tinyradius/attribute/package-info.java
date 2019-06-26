@@ -1,5 +1,5 @@
 /**
- * This package contains classes for Radius attributes and Radius
+ * Classes for Radius attributes and Radius
  * attribute types.
  * <p>
  * The classes RadiusAttribute, StringAttribute, IntegerAttribute and

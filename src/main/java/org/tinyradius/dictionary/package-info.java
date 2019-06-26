@@ -1,5 +1,5 @@
 /**
- * This package contains interfaces and classes that manage
+ * Interfaces and classes that manage
  * a dictionary of Radius attribute types.
  * <p>
  * Each attribute type is represented by an instance of the

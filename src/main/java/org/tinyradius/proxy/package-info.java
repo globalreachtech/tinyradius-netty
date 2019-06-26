@@ -1,5 +1,5 @@
 /**
- * This package contains classes for Radius Proxy and reference implementation of
+ * Classes for Radius Proxy and reference implementation of
  * ProxyHandler for incoming packets.
  * <p>
  * RadiusProxy sets up listeners for client requests and ProxyHandler. ProxyHandler handles

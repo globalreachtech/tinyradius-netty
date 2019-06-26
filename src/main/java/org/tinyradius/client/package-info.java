@@ -1,5 +1,5 @@
 /**
- * This package contains classes for Radius Client and reference implementations
+ * Classes for Radius Client and reference implementations
  * of ChannelHandlers to handle incoming packets.
  * <p>
  * RadiusClient sets up the socket, while the handler contains actual logic to
