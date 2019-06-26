@@ -592,7 +592,7 @@ public class RadiusPacket {
      * @throws RadiusException malformed packet
      */
     public static RadiusPacket decodeResponsePacket(InputStream in, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
-        return decodePacket(DefaultDictionary.INSTANCE, in, sharedSecret,
+        return decodePacket(request.getDictionary(), in, sharedSecret,
                 requireNonNull(request, "clientRequest may not be null"));
     }
 

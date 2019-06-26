@@ -9,7 +9,7 @@ Source code from
 - https://github.com/ctran/TinyRadius
 
 
-Copyright
+Copyright (major contributors)
 - Matthias Wuttke (post@matthias-wuttke.de)
 - https://github.com/ctran
 - https://github.com/ivanfmartinez
