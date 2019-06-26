@@ -21,23 +21,24 @@ import java.net.InetAddress;
 public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusProxy.class);
-    private final ProxyHandler proxyHandler;
+    private final ProxyChannelInboundHandler channelInboundHandler;
 
     /**
      * @param eventLoopGroup for both channel IO and processing
      * @param factory        to create new Channel
      * @param listenAddress  local address to bind to, will be wildcard address if null
-     * @param proxyHandler   ProxyHandler to handle requests received on both authPort and acctPort
+     * @param channelInboundHandler   ProxyHandler to handle requests received on both authPort and acctPort
      * @param authPort       port to bind to, or set to 0 to let system choose
      * @param acctPort       port to bind to, or set to 0 to let system choose
      */
     public RadiusProxy(EventLoopGroup eventLoopGroup,
                        ChannelFactory<T> factory,
                        InetAddress listenAddress,
-                       ProxyHandler proxyHandler,
+                       ProxyChannelInboundHandler channelInboundHandler,
                        int authPort, int acctPort) {
-        super(eventLoopGroup, factory, listenAddress, proxyHandler, proxyHandler, authPort, acctPort);
-        this.proxyHandler = proxyHandler;
+
+        super(eventLoopGroup, factory, listenAddress, channelInboundHandler, channelInboundHandler, authPort, acctPort);
+        this.channelInboundHandler = channelInboundHandler;
     }
 
     /**
@@ -49,7 +50,7 @@ public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
         Promise<Void> promise = eventLoopGroup.next().newPromise();
 
         final PromiseCombiner combiner = new PromiseCombiner(eventLoopGroup.next());
-        combiner.addAll(super.start(), proxyHandler.start());
+        combiner.addAll(super.start(), channelInboundHandler.start());
         combiner.finish(promise);
         return promise;
     }
@@ -60,7 +61,7 @@ public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
     @Override
     public void stop() {
         logger.info("stopping Radius proxy");
-        proxyHandler.stop();
+        channelInboundHandler.stop();
         super.stop();
     }
 

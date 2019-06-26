@@ -1,16 +1,14 @@
 /**
- * This package contains classes for Radius Server and reference implementation of
+ * This package contains classes for Radius Server, Proxy, and reference implementation of
  * ChannelHandlers for incoming packets.
  * <p>
- * ServerHandler is a base implementation of SimpleChannelInboundHandler that
- * should be used or extended in most cases. It converts between DatagramPackets and
+ * ServerChannelInboundHandler is a base implementation of SimpleChannelInboundHandler that
+ * should be used in most cases. It converts between DatagramPackets and
  * RadiusPackets and handles incoming packets and sending responses.
  * <p>
- * ServerHandler depends on a Deduplicator to handle duplicate requests. A default
- * implementation of Deduplicator is provided that considers packets duplicate if
- * packetIdentifier and remote address matches.
+ * ServerChannelInboundHandler uses underlying RequestHandler for logic to handle RadiusPackets.
  * <p>
- * Basic implementations of Accounting and Access Request handlers are also included
- * for the most trivial use cases.
+ * Basic implementations of Accounting and Access RequestHandlers are included
+ * for the most trivial use cases. A simple Deduplicator handler is also included.
  */
 package org.tinyradius.server;

@@ -12,8 +12,11 @@ import org.tinyradius.dictionary.DictionaryParser;
 import org.tinyradius.dictionary.MemoryDictionary;
 import org.tinyradius.dictionary.WritableDictionary;
 import org.tinyradius.packet.AccessRequest;
+import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.*;
+import org.tinyradius.server.AcctHandler;
+import org.tinyradius.server.AuthHandler;
 import org.tinyradius.util.SecretProvider;
 
 import java.io.FileInputStream;
@@ -37,12 +40,11 @@ public class TestServer {
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
         final Timer timer = new HashedWheelTimer();
-        final Deduplicator deduplicator = new DefaultDeduplicator(timer, 30000);
 
         final SecretProvider secretProvider = remote ->
                 remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
 
-        final AuthHandler authHandler = new AuthHandler(dictionary, deduplicator, timer, secretProvider) {
+        final RequestHandler<AccessRequest> authHandler = new DeduplicatorHandler<>(new AuthHandler() {
             @Override
             public String getUserPassword(String userName) {
                 return userName.equals("test") ? "password" : null;
@@ -68,15 +70,16 @@ public class TestServer {
 
                 return promise;
             }
-        };
+        }, timer, 30000);
 
-        final AcctHandler acctHandler = new AcctHandler(dictionary, deduplicator, timer, secretProvider);
+        RequestHandler<AccountingRequest> acctHandler = new DeduplicatorHandler<>(new AcctHandler(), timer, 30000);
 
         final RadiusServer<NioDatagramChannel> server = new RadiusServer<>(
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 null,
-                authHandler, acctHandler,
+                new ServerChannelInboundHandler<>(dictionary, authHandler, timer, secretProvider, AccessRequest.class),
+                new ServerChannelInboundHandler<>(dictionary, acctHandler, timer, secretProvider, AccountingRequest.class),
                 11812, 11813);
 
         final Future<Void> future = server.start();

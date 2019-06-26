@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../org/tinyradius/proxy/ProxyHandler.html" title="class in org.tinyradius.proxy"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../org/tinyradius/proxy/ProxyRequestHandler.html" title="class in org.tinyradius.proxy"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li>Next&nbsp;Class</li>
 </ul>
 <ul class="navList">
@@ -151,10 +151,10 @@ extends <a href="../../../org/tinyradius/server/RadiusServer.html" title="class 
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../org/tinyradius/proxy/RadiusProxy.html#RadiusProxy-io.netty.channel.EventLoopGroup-io.netty.channel.ChannelFactory-java.net.InetAddress-org.tinyradius.proxy.ProxyHandler-int-int-">RadiusProxy</a></span>(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../org/tinyradius/proxy/RadiusProxy.html#RadiusProxy-io.netty.channel.EventLoopGroup-io.netty.channel.ChannelFactory-java.net.InetAddress-org.tinyradius.proxy.ProxyChannelInboundHandler-int-int-">RadiusProxy</a></span>(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
            io.netty.channel.ChannelFactory&lt;<a href="../../../org/tinyradius/proxy/RadiusProxy.html" title="type parameter in RadiusProxy">T</a>&gt;&nbsp;factory,
            java.net.InetAddress&nbsp;listenAddress,
-           <a href="../../../org/tinyradius/proxy/ProxyHandler.html" title="class in org.tinyradius.proxy">ProxyHandler</a>&nbsp;proxyHandler,
+           <a href="../../../org/tinyradius/proxy/ProxyChannelInboundHandler.html" title="class in org.tinyradius.proxy">ProxyChannelInboundHandler</a>&nbsp;channelInboundHandler,
            int&nbsp;authPort,
            int&nbsp;acctPort)</code>&nbsp;</td>
 </tr>
@@ -214,7 +214,7 @@ extends <a href="../../../org/tinyradius/server/RadiusServer.html" title="class 
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="RadiusProxy-io.netty.channel.EventLoopGroup-io.netty.channel.ChannelFactory-java.net.InetAddress-org.tinyradius.proxy.ProxyHandler-int-int-">
+<a name="RadiusProxy-io.netty.channel.EventLoopGroup-io.netty.channel.ChannelFactory-java.net.InetAddress-org.tinyradius.proxy.ProxyChannelInboundHandler-int-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -223,7 +223,7 @@ extends <a href="../../../org/tinyradius/server/RadiusServer.html" title="class 
 <pre>public&nbsp;RadiusProxy(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
                    io.netty.channel.ChannelFactory&lt;<a href="../../../org/tinyradius/proxy/RadiusProxy.html" title="type parameter in RadiusProxy">T</a>&gt;&nbsp;factory,
                    java.net.InetAddress&nbsp;listenAddress,
-                   <a href="../../../org/tinyradius/proxy/ProxyHandler.html" title="class in org.tinyradius.proxy">ProxyHandler</a>&nbsp;proxyHandler,
+                   <a href="../../../org/tinyradius/proxy/ProxyChannelInboundHandler.html" title="class in org.tinyradius.proxy">ProxyChannelInboundHandler</a>&nbsp;channelInboundHandler,
                    int&nbsp;authPort,
                    int&nbsp;acctPort)</pre>
 <dl>
@@ -231,7 +231,7 @@ extends <a href="../../../org/tinyradius/server/RadiusServer.html" title="class 
 <dd><code>eventLoopGroup</code> - for both channel IO and processing</dd>
 <dd><code>factory</code> - to create new Channel</dd>
 <dd><code>listenAddress</code> - local address to bind to, will be wildcard address if null</dd>
-<dd><code>proxyHandler</code> - ProxyHandler to handle requests received on both authPort and acctPort</dd>
+<dd><code>channelInboundHandler</code> - ProxyHandler to handle requests received on both authPort and acctPort</dd>
 <dd><code>authPort</code> - port to bind to, or set to 0 to let system choose</dd>
 <dd><code>acctPort</code> - port to bind to, or set to 0 to let system choose</dd>
 </dl>
@@ -302,7 +302,7 @@ extends <a href="../../../org/tinyradius/server/RadiusServer.html" title="class 
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../org/tinyradius/proxy/ProxyHandler.html" title="class in org.tinyradius.proxy"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../org/tinyradius/proxy/ProxyRequestHandler.html" title="class in org.tinyradius.proxy"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li>Next&nbsp;Class</li>
 </ul>
 <ul class="navList">

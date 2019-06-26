@@ -3,7 +3,6 @@ package org.tinyradius.server;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -26,27 +25,34 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
 import static org.tinyradius.packet.RadiusPacket.decodeRequestPacket;
 
-public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChannelInboundHandler<DatagramPacket> {
+/**
+ * SimpleChannelInboundHandler implementation that converts between RadiusPackets
+ * and DatagramPackets. Acts as an adapter so RequestHandlers dont have to be
+ * concerned with Datagrams.
+ *
+ * @param <T> RadiusPacket types that this Channel can accept
+ */
+public class ServerChannelInboundHandler<T extends RadiusPacket> extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerChannelInboundHandler.class);
 
     private final Dictionary dictionary;
-    private final Deduplicator deduplicator;
+    private final RequestHandler<T> requestHandler;
     private final Timer timer;
     private final SecretProvider secretProvider;
     private final Class<T> packetClass;
 
     /**
      * @param dictionary     for encoding/decoding RadiusPackets
-     * @param deduplicator   handle duplicate client requests
+     * @param requestHandler handle requests
      * @param timer          handle timeouts if requests take too long to be processed
      * @param secretProvider lookup sharedSecret given remote address
      * @param packetClass    restrict RadiusPacket subtypes that can be processed by handler, otherwise will be dropped.
      *                       If all types of RadiusPackets are allowed, use {@link RadiusPacket}
      */
-    protected ServerHandler(Dictionary dictionary, Deduplicator deduplicator, Timer timer, SecretProvider secretProvider, Class<T> packetClass) {
+    public ServerChannelInboundHandler(Dictionary dictionary, RequestHandler<T> requestHandler, Timer timer, SecretProvider secretProvider, Class<T> packetClass) {
         this.dictionary = dictionary;
-        this.deduplicator = deduplicator;
+        this.requestHandler = requestHandler;
         this.timer = timer;
         this.secretProvider = secretProvider;
         this.packetClass = packetClass;
@@ -110,15 +116,8 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
                 return;
             }
 
-            // handle duplicates
-            if (deduplicator.isPacketDuplicate(packet, remoteAddress)) {
-                logger.info("ignore duplicate packet");
-                // todo special handler
-                return;
-            }
-
             logger.trace("about to call handlePacket()");
-            final Promise<RadiusPacket> promise = handlePacket(ctx.channel(), packetClass.cast(packet), remoteAddress, secret);
+            final Promise<RadiusPacket> promise = requestHandler.handlePacket(ctx.channel(), packetClass.cast(packet), remoteAddress, secret);
 
             // so futures don't stay in memory forever if never completed
             Timeout timeout = timer.newTimeout(t -> promise.tryFailure(new RadiusException("timeout while generating client response")),
@@ -152,16 +151,4 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
             logger.error("malformed Radius packet", re);
         }
     }
-
-    /**
-     * Handles the received Radius packet and constructs a clientResponse.
-     *
-     * @param channel       socket which received packet
-     * @param request       the packet
-     * @param remoteAddress remote address the packet was sent by
-     * @param sharedSecret  shared secret associated with remoteAddress
-     * @return Promise of RadiusPacket or null for no clientResponse. Uses Promise instead Future,
-     * to allow requests to be timed out or cancelled by the caller
-     */
-    protected abstract Promise<RadiusPacket> handlePacket(Channel channel, T request, InetSocketAddress remoteAddress, String sharedSecret);
 }

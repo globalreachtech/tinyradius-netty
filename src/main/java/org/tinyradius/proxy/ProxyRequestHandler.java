@@ -1,20 +1,16 @@
 package org.tinyradius.proxy;
 
 import io.netty.channel.Channel;
-import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.ProxyStateClientHandler;
 import org.tinyradius.client.RadiusClient;
-import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.Deduplicator;
-import org.tinyradius.server.ServerHandler;
+import org.tinyradius.server.RequestHandler;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
-import org.tinyradius.util.SecretProvider;
 
 import java.net.InetSocketAddress;
 
@@ -30,18 +26,13 @@ import java.net.InetSocketAddress;
  * This implementation expects {@link #getProxyServer(RadiusPacket, RadiusEndpoint)} to lookup
  * endpoint to forward requests to.
  */
-public abstract class ProxyHandler extends ServerHandler<RadiusPacket> {
+public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProxyHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProxyRequestHandler.class);
 
     private final RadiusClient<?> radiusClient;
 
-    protected ProxyHandler(Dictionary dictionary,
-                           Deduplicator deduplicator,
-                           Timer timer,
-                           SecretProvider secretProvider,
-                           RadiusClient<?> radiusClient) {
-        super(dictionary, deduplicator, timer, secretProvider, RadiusPacket.class);
+    protected ProxyRequestHandler(RadiusClient<?> radiusClient) {
         this.radiusClient = radiusClient;
     }
 
@@ -81,7 +72,7 @@ public abstract class ProxyHandler extends ServerHandler<RadiusPacket> {
      * is added to the packet in the "Proxy-State" attribute.
      */
     @Override
-    protected Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket packet, InetSocketAddress remoteAddress, String sharedSecret) {
+    public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket packet, InetSocketAddress remoteAddress, String sharedSecret) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
 
         RadiusEndpoint clientEndpoint = new RadiusEndpoint(remoteAddress, sharedSecret);

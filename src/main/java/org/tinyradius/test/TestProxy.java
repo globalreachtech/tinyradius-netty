@@ -12,9 +12,9 @@ import org.tinyradius.dictionary.MemoryDictionary;
 import org.tinyradius.dictionary.WritableDictionary;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.proxy.ProxyHandler;
+import org.tinyradius.proxy.ProxyChannelInboundHandler;
+import org.tinyradius.proxy.ProxyRequestHandler;
 import org.tinyradius.proxy.RadiusProxy;
-import org.tinyradius.server.DefaultDeduplicator;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.SecretProvider;
 
@@ -55,9 +55,9 @@ public class TestProxy {
                     "proxytest" : null;
         };
         final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(dictionary, timer, 3000, secretProvider);
+        RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, clientHandler, null, 11814);
 
-        final ProxyHandler proxyHandler = new ProxyHandler(dictionary, new DefaultDeduplicator(timer, 30000), timer, secretProvider,
-                new RadiusClient<>(eventLoopGroup, channelFactory, clientHandler, null, 11814)) {
+        final ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(radiusClient) {
             @Override
             public RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
                 try {
@@ -71,12 +71,11 @@ public class TestProxy {
             }
         };
 
-
         final RadiusProxy<NioDatagramChannel> proxy = new RadiusProxy<>(
                 eventLoopGroup,
                 channelFactory,
                 null,
-                proxyHandler,
+                new ProxyChannelInboundHandler(dictionary, proxyRequestHandler, timer, secretProvider),
                 11812, 11813);
 
 

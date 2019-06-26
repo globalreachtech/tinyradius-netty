@@ -1,13 +1,9 @@
 package org.tinyradius.server;
 
 import io.netty.channel.Channel;
-import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
-import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.util.RadiusException;
-import org.tinyradius.util.SecretProvider;
 
 import java.net.InetSocketAddress;
 
@@ -18,11 +14,7 @@ import static org.tinyradius.packet.RadiusPacket.ACCESS_REJECT;
  * Reference implementation of AccessRequest handler that returns Access-Accept/Reject
  * depending on whether {@link #getUserPassword(String)} matches password in Access-Request.
  */
-public abstract class AuthHandler extends ServerHandler<AccessRequest> {
-
-    public AuthHandler(Dictionary dictionary, Deduplicator deduplicator, Timer timer, SecretProvider secretProvider) {
-        super(dictionary, deduplicator, timer, secretProvider, AccessRequest.class);
-    }
+public abstract class AuthHandler implements RequestHandler<AccessRequest> {
 
     /**
      * Returns the password of the passed user. Either this
@@ -41,7 +33,7 @@ public abstract class AuthHandler extends ServerHandler<AccessRequest> {
      * @return clientResponse packet or null if no packet shall be sent
      */
     @Override
-    protected Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) {
+    public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
         try {
             String password = getUserPassword(accessRequest.getUserName());

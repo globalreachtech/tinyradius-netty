@@ -70,7 +70,7 @@
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;org.tinyradius.server</h1>
 <div class="docSummary">
-<div class="block">This package contains classes for Radius Server and reference implementation of
+<div class="block">This package contains classes for Radius Server, Proxy, and reference implementation of
  ChannelHandlers for incoming packets.</div>
 </div>
 <p>See:&nbsp;<a href="#package.description">Description</a></p>
@@ -86,7 +86,7 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../org/tinyradius/server/Deduplicator.html" title="interface in org.tinyradius.server">Deduplicator</a></td>
+<td class="colFirst"><a href="../../../org/tinyradius/server/RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a>&lt;T extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</td>
 <td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
@@ -115,10 +115,10 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../org/tinyradius/server/DefaultDeduplicator.html" title="class in org.tinyradius.server">DefaultDeduplicator</a></td>
+<td class="colFirst"><a href="../../../org/tinyradius/server/DeduplicatorHandler.html" title="class in org.tinyradius.server">DeduplicatorHandler</a>&lt;T extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</td>
 <td class="colLast">
-<div class="block">Default implementation of Deduplicator that considers packets duplicate
- if packetIdentifier and remote address matches.</div>
+<div class="block">Handler that wraps around another handler and deduplicates requests, returning
+ null if duplicate.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -128,8 +128,11 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../org/tinyradius/server/ServerHandler.html" title="class in org.tinyradius.server">ServerHandler</a>&lt;T extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</td>
-<td class="colLast">&nbsp;</td>
+<td class="colFirst"><a href="../../../org/tinyradius/server/ServerChannelInboundHandler.html" title="class in org.tinyradius.server">ServerChannelInboundHandler</a>&lt;T extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</td>
+<td class="colLast">
+<div class="block">SimpleChannelInboundHandler implementation that converts between RadiusPackets
+ and DatagramPackets.</div>
+</td>
 </tr>
 </tbody>
 </table>
@@ -139,19 +142,17 @@
 <!--   -->
 </a>
 <h2 title="Package org.tinyradius.server Description">Package org.tinyradius.server Description</h2>
-<div class="block">This package contains classes for Radius Server and reference implementation of
+<div class="block">This package contains classes for Radius Server, Proxy, and reference implementation of
  ChannelHandlers for incoming packets.
  <p>
- ServerHandler is a base implementation of SimpleChannelInboundHandler that
- should be used or extended in most cases. It converts between DatagramPackets and
+ ServerChannelInboundHandler is a base implementation of SimpleChannelInboundHandler that
+ should be used in most cases. It converts between DatagramPackets and
  RadiusPackets and handles incoming packets and sending responses.
  <p>
- ServerHandler depends on a Deduplicator to handle duplicate requests. A default
- implementation of Deduplicator is provided that considers packets duplicate if
- packetIdentifier and remote address matches.
+ ServerChannelInboundHandler uses underlying RequestHandler for logic to handle RadiusPackets.
  <p>
- Basic implementations of Accounting and Access Request handlers are also included
- for the most trivial use cases.</div>
+ Basic implementations of Accounting and Access RequestHandlers are included
+ for the most trivial use cases. A simple Deduplicator handler is also included.</div>
 </div>
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
 <div class="bottomNav"><a name="navbar.bottom">
