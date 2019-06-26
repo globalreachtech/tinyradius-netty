@@ -3,6 +3,10 @@ plugins {
     id 'maven-publish'
 }
 
+javadoc {
+    destinationDir = file('docs')
+}
+
 group = 'com.tinyradius'
 version = '1.0.2-SNAPSHOT'
 

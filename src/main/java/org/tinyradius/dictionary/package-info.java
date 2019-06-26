@@ -27,6 +27,6 @@
  * The <code>DefaultDictionary</code> class is initialised from the
  * classpath resource
  * <code>org.tinyradius.dictionary.default_dictionary</code>.
- * <
+ *
  */
 package org.tinyradius.dictionary;

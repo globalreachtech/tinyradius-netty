@@ -694,7 +694,6 @@ public class RadiusPacket {
     }
 
     /**
-     * §§
      * String representation of this packet, for debugging purposes.
      *
      * @see java.lang.Object#toString()

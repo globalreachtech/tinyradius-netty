@@ -20,14 +20,13 @@ import java.net.InetSocketAddress;
 /**
  * Simple Radius command-line client.
  * <p>
- * TestClient shows how to send Radius Access-Request and
- * Accounting-Request packets.
+ * TestClient shows how to send Radius Access-Request and Accounting-Request packets.
  */
 public class TestClient {
-
     /**
      * Radius command line client.
-     * <br/>Usage: TestClient <i>hostName sharedSecret userName password</i>
+     *
+     * @param args [host, sharedSecret, username, password]
      */
     public static void main(String[] args)
             throws Exception {
