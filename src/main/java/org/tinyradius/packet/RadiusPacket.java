@@ -664,10 +664,10 @@ public class RadiusPacket {
                 rp = new AccessRequest();
                 break;
             case COA_REQUEST:
-                rp = new CoaRequest();
+                rp = new CoaRequest(COA_REQUEST);
                 break;
             case DISCONNECT_REQUEST:
-                rp = new DisconnectRequest();
+                rp = new CoaRequest(DISCONNECT_REQUEST);
                 break;
             case ACCOUNTING_REQUEST:
                 rp = new AccountingRequest();
