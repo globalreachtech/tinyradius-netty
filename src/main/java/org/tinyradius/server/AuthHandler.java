@@ -49,7 +49,6 @@ public abstract class AuthHandler extends ServerHandler<AccessRequest> {
                     ACCESS_ACCEPT : ACCESS_REJECT;
 
             RadiusPacket answer = new RadiusPacket(type, accessRequest.getPacketIdentifier());
-            answer.setDictionary(dictionary);
             accessRequest.getAttributes(33)
                     .forEach(answer::addAttribute);
 

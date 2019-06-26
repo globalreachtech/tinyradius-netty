@@ -348,7 +348,10 @@
 <dt><a href="org/tinyradius/server/Deduplicator.html" title="interface in org.tinyradius.server"><span class="typeNameLink">Deduplicator</span></a> - Interface in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/server/DefaultDeduplicator.html" title="class in org.tinyradius.server"><span class="typeNameLink">DefaultDeduplicator</span></a> - Class in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Default implementation of Deduplicator that considers packets duplicate
+ if packetIdentifier and remote address matches.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/DefaultDeduplicator.html#DefaultDeduplicator-io.netty.util.Timer-long-">DefaultDeduplicator(Timer, long)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/DefaultDeduplicator.html" title="class in org.tinyradius.server">DefaultDeduplicator</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/dictionary/DefaultDictionary.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">DefaultDictionary</span></a> - Class in <a href="org/tinyradius/dictionary/package-summary.html">org.tinyradius.dictionary</a></dt>
@@ -858,7 +861,7 @@
 <dt><a href="org/tinyradius/client/package-summary.html">org.tinyradius.client</a> - package org.tinyradius.client</dt>
 <dd>
 <div class="block">This package contains classes for Radius Client and reference implementations
- for ChannelHandlers to handle incoming packets.</div>
+ of ChannelHandlers to handle incoming packets.</div>
 </dd>
 <dt><a href="org/tinyradius/dictionary/package-summary.html">org.tinyradius.dictionary</a> - package org.tinyradius.dictionary</dt>
 <dd>
@@ -870,9 +873,15 @@
 <div class="block">This package contains classes for encoding and decoding Radius packets.</div>
 </dd>
 <dt><a href="org/tinyradius/proxy/package-summary.html">org.tinyradius.proxy</a> - package org.tinyradius.proxy</dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">This package contains classes for Radius Proxy and reference implementation of
+ ProxyHandler for incoming packets.</div>
+</dd>
 <dt><a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a> - package org.tinyradius.server</dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">This package contains classes for Radius Server and reference implementation of
+ ChannelHandlers for incoming packets.</div>
+</dd>
 <dt><a href="org/tinyradius/test/package-summary.html">org.tinyradius.test</a> - package org.tinyradius.test</dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/util/package-summary.html">org.tinyradius.util</a> - package org.tinyradius.util</dt>

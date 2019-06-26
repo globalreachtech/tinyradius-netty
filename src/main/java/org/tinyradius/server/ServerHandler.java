@@ -30,7 +30,7 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
 
     private static final Logger logger = LoggerFactory.getLogger(ServerHandler.class);
 
-    protected final Dictionary dictionary;
+    private final Dictionary dictionary;
     private final Deduplicator deduplicator;
     private final Timer timer;
     private final SecretProvider secretProvider;
@@ -63,7 +63,7 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
      * @throws IOException     IO error
      * @throws RadiusException malformed packet
      */
-    protected DatagramPacket makeDatagramPacket(RadiusPacket packet, String secret, InetSocketAddress address, RadiusPacket request)
+    private DatagramPacket makeDatagramPacket(RadiusPacket packet, String secret, InetSocketAddress address, RadiusPacket request)
             throws IOException, RadiusException {
 
         ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
@@ -83,7 +83,7 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
      * @throws RadiusException malformed packet
      * @throws IOException     communication error
      */
-    protected RadiusPacket makeRadiusPacket(DatagramPacket packet, String sharedSecret) throws IOException, RadiusException {
+    private RadiusPacket makeRadiusPacket(DatagramPacket packet, String sharedSecret) throws IOException, RadiusException {
         ByteBufInputStream in = new ByteBufInputStream(packet.content());
         return decodeRequestPacket(dictionary, in, sharedSecret);
     }
@@ -110,7 +110,7 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
                 return;
             }
 
-            // check for duplicates
+            // handle duplicates
             if (deduplicator.isPacketDuplicate(packet, remoteAddress)) {
                 logger.info("ignore duplicate packet");
                 // todo special handler

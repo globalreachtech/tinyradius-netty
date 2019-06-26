@@ -69,6 +69,11 @@
 <!-- ========= END OF TOP NAVBAR ========= -->
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;org.tinyradius.server</h1>
+<div class="docSummary">
+<div class="block">This package contains classes for Radius Server and reference implementation of
+ ChannelHandlers for incoming packets.</div>
+</div>
+<p>See:&nbsp;<a href="#package.description">Description</a></p>
 </div>
 <div class="contentContainer">
 <ul class="blockList">
@@ -111,7 +116,10 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><a href="../../../org/tinyradius/server/DefaultDeduplicator.html" title="class in org.tinyradius.server">DefaultDeduplicator</a></td>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Default implementation of Deduplicator that considers packets duplicate
+ if packetIdentifier and remote address matches.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><a href="../../../org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a>&lt;T extends io.netty.channel.socket.DatagramChannel&gt;</td>
@@ -127,6 +135,23 @@
 </table>
 </li>
 </ul>
+<a name="package.description">
+<!--   -->
+</a>
+<h2 title="Package org.tinyradius.server Description">Package org.tinyradius.server Description</h2>
+<div class="block">This package contains classes for Radius Server and reference implementation of
+ ChannelHandlers for incoming packets.
+ <p>
+ ServerHandler is a base implementation of SimpleChannelInboundHandler that
+ should be used or extended in most cases. It converts between DatagramPackets and
+ RadiusPackets and handles incoming packets and sending responses.
+ <p>
+ ServerHandler depends on a Deduplicator to handle duplicate requests. A default
+ implementation of Deduplicator is provided that considers packets duplicate if
+ packetIdentifier and remote address matches.
+ <p>
+ Basic implementations of Accounting and Access Request handlers are also included
+ for the most trivial use cases.</div>
 </div>
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
 <div class="bottomNav"><a name="navbar.bottom">
