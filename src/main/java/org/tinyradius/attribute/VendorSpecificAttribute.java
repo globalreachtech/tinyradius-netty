@@ -51,7 +51,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     /**
      * Sets the vendor ID of the child attributes.
      *
-     * @param childVendorId
+     * @param childVendorId vendor ID of sub-attributes
      */
     public void setChildVendorId(int childVendorId) {
         this.childVendorId = childVendorId;

@@ -15,6 +15,7 @@ import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
 /**
@@ -27,9 +28,9 @@ public class TestClient {
      * Radius command line client.
      *
      * @param args [host, sharedSecret, username, password]
+     * @throws IOException if error parsing dictionary
      */
-    public static void main(String[] args)
-            throws Exception {
+    public static void main(String[] args) throws IOException {
         if (args.length != 4) {
             System.out.println("Usage: TestClient hostName sharedSecret userName password");
             System.exit(1);
