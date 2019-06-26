@@ -940,7 +940,7 @@ public class RadiusPacket {
             int attributeType = attributeData[pos] & 0x0ff;
             int attributeLength = attributeData[pos + 1] & 0x0ff;
             RadiusAttribute a = createRadiusAttribute(dictionary, -1, attributeType);
-            a.readAttribute(attributeData, pos, attributeLength);
+            a.readAttribute(attributeData, pos);
             rp.addAttribute(a);
             pos += attributeLength;
         }

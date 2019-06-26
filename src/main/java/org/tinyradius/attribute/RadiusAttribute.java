@@ -167,16 +167,15 @@ public class RadiusAttribute {
      *
      * @param data input data
      * @param offset byte to start reading from
-     * @param length
      * @throws RadiusException
      */
-    public void readAttribute(byte[] data, int offset, int length) throws RadiusException {
+    public void readAttribute(byte[] data, int offset) throws RadiusException {
+        int length = data[offset + 1] & 0x0ff;
         if (length < 2)
             throw new RadiusException("attribute length too small: " + length);
         int attrType = data[offset] & 0x0ff;
-        int attrLen = data[offset + 1] & 0x0ff;
-        byte[] attrData = new byte[attrLen - 2];
-        System.arraycopy(data, offset + 2, attrData, 0, attrLen - 2);
+        byte[] attrData = new byte[length - 2];
+        System.arraycopy(data, offset + 2, attrData, 0, length - 2);
         setAttributeType(attrType);
         setAttributeData(attrData);
     }

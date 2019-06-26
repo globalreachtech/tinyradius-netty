@@ -248,16 +248,14 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * Reads a Vendor-Specific attribute and decodes the internal sub-attribute
      * structure.
      *
-     * @see RadiusAttribute#readAttribute(byte[], int,
-     * int)
+     * @see RadiusAttribute#readAttribute(byte[], int)
      */
-    public void readAttribute(byte[] data, int offset, int length) throws RadiusException {
-        // check length
-        if (length < 6)
-            throw new RadiusException("Vendor-Specific attribute too short: " + length);
-
+    public void readAttribute(byte[] data, int offset) throws RadiusException {
         int vsaCode = data[offset];
-        int vsaLen = ((int) data[offset + 1] & 0x000000ff) - 6;
+        int vsaLen = ((int) data[offset + 1] & 0x0ff) - 6;
+
+        if (vsaLen < 6)
+            throw new RadiusException("Vendor-Specific attribute too short: " + vsaLen);
 
         if (vsaCode != VENDOR_SPECIFIC)
             throw new RadiusException("not a Vendor-Specific attribute");
@@ -290,10 +288,10 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         pos = 0;
         while (pos < vsaLen) {
             int subtype = data[(offset + 6) + pos] & 0x0ff;
-            int sublength = data[(offset + 6) + pos + 1] & 0x0ff;
             RadiusAttribute a = createRadiusAttribute(getDictionary(), vendorId, subtype);
-            a.readAttribute(data, (offset + 6) + pos, sublength);
+            a.readAttribute(data, (offset + 6) + pos);
             subAttributes.add(a);
+            int sublength = data[(offset + 6) + pos + 1] & 0x0ff;
             pos += sublength;
         }
     }
