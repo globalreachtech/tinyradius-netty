@@ -7,7 +7,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class CoaRequest extends RadiusPacket {
 
     public CoaRequest() {
-        super(COA_REQUEST, getNextPacketIdentifier());
+        super(COA_REQUEST);
     }
 
     /**

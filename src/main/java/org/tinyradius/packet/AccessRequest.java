@@ -82,6 +82,7 @@ public class AccessRequest extends RadiusPacket {
      * Constructs an empty Access-Request packet.
      */
     public AccessRequest() {
+        super(ACCESS_REQUEST);
     }
 
     /**
@@ -93,7 +94,7 @@ public class AccessRequest extends RadiusPacket {
      * @param userPassword user password
      */
     public AccessRequest(String userName, String userPassword) {
-        super(ACCESS_REQUEST, getNextPacketIdentifier());
+        this();
         setUserName(userName);
         setUserPassword(userPassword);
     }

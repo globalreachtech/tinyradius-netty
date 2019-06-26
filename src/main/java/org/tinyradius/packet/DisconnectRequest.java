@@ -7,7 +7,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class DisconnectRequest extends RadiusPacket {
 
     public DisconnectRequest() {
-        super(DISCONNECT_REQUEST, getNextPacketIdentifier());
+        super(DISCONNECT_REQUEST);
     }
 
     /**

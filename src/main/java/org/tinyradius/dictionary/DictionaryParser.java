@@ -160,7 +160,7 @@ public class DictionaryParser {
      * Returns the RadiusAttribute descendant class for the given
      * attribute type.
      *
-     * @param typeStr string|octets|integer|date|ipaddr
+     * @param typeStr string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
      * @return RadiusAttribute class or descendant
      */
     private static Class<? extends RadiusAttribute> getAttributeTypeClass(String typeStr) {
@@ -172,6 +172,10 @@ public class DictionaryParser {
                 return IntegerAttribute.class;
             case "ipaddr":
                 return IpAttribute.class;
+            case "ipv6addr":
+                return Ipv6Attribute.class;
+            case "ipv6prefix":
+                return Ipv6PrefixAttribute.class;
             case "octets":
             default:
                 return RadiusAttribute.class;

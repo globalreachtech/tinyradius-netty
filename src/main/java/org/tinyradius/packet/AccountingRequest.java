@@ -59,7 +59,7 @@ public class AccountingRequest extends RadiusPacket {
      * @param acctStatusType ACCT_STATUS_TYPE_*
      */
     public AccountingRequest(String userName, int acctStatusType) {
-        super(ACCOUNTING_REQUEST, getNextPacketIdentifier());
+        this();
         setUserName(userName);
         setAcctStatusType(acctStatusType);
     }
@@ -69,10 +69,11 @@ public class AccountingRequest extends RadiusPacket {
      * Radius client.
      */
     public AccountingRequest() {
+        super(ACCOUNTING_REQUEST);
     }
 
     /**
-     * Sets the User-Name attribute of this Accountnig-Request.
+     * Sets the User-Name attribute of this Accounting-Request.
      *
      * @param userName user name to set
      */
