@@ -1,14 +1,26 @@
 plugins {
     id 'java'
-    id 'maven-publish'
+    id "com.jfrog.bintray" version "1.+"
 }
 
 javadoc {
     destinationDir = file('docs')
 }
 
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    pkg {
+        repo = 'generic'
+        name = 'gradle-project'
+        userOrg = 'globalreachtech'
+        licenses = ['LGPL-2.1']
+        vcsUrl = 'https://github.com/bintray/gradle-bintray-plugin.git'
+    }
+}
+
 group = 'com.tinyradius'
-version = '1.0.2-SNAPSHOT'
+version = '1.2.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
