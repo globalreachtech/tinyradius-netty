@@ -181,7 +181,9 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/client/RadiusClient.html#stop--">stop</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/client/RadiusClient.html#stop--">stop</a></span>()</code>
+<div class="block">Closes channel socket</div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -218,7 +220,11 @@ extends java.lang.Object</pre>
                     int&nbsp;port)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>port</code> - set to 0 to let system choose</dd>
+<dd><code>eventLoopGroup</code> - for both channel IO and processing</dd>
+<dd><code>factory</code> - to create new Channel</dd>
+<dd><code>clientHandler</code> - to log outgoing packets and handle incoming packets/responses</dd>
+<dd><code>listenAddress</code> - local address to bind to, will be wildcard address if null</dd>
+<dd><code>port</code> - port to bind to, or set to 0 to let system choose</dd>
 </dl>
 </li>
 </ul>
@@ -237,6 +243,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>stop</h4>
 <pre>public&nbsp;void&nbsp;stop()</pre>
+<div class="block">Closes channel socket</div>
 </li>
 </ul>
 <a name="startChannel--">
@@ -248,7 +255,11 @@ extends java.lang.Object</pre>
 <pre>public&nbsp;io.netty.channel.ChannelFuture&nbsp;startChannel()</pre>
 <div class="block">Registers the channel and binds to address.
  <p>
- Run implicitly if <a href="../../../org/tinyradius/client/RadiusClient.html#communicate-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-int-"><code>communicate(RadiusPacket, RadiusEndpoint, int)</code></a> is called.</div>
+ Also run implicitly if <a href="../../../org/tinyradius/client/RadiusClient.html#communicate-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-int-"><code>communicate(RadiusPacket, RadiusEndpoint, int)</code></a> is called.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>channelFuture of started channel socket</dd>
+</dl>
 </li>
 </ul>
 <a name="listen-io.netty.channel.socket.DatagramChannel-java.net.InetSocketAddress-">
@@ -265,6 +276,8 @@ extends java.lang.Object</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>channel</code> - to listen on</dd>
 <dd><code>listenAddress</code> - the address to bind to</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>channel that resolves after it is bound to address and registered with eventLoopGroup</dd>
 </dl>
 </li>
 </ul>
@@ -297,8 +310,8 @@ extends java.lang.Object</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>new datagram packet</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.io.IOException</code></dd>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code>java.io.IOException</code> - error when writing packet to output stream</dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - error when encoding RadiusPacket attributes</dd>
 </dl>
 </li>
 </ul>

@@ -109,6 +109,8 @@ public class RadiusAttribute {
      * Gets the Vendor-Id of the Vendor-Specific attribute this
      * attribute belongs to. Returns -1 if this attribute is not
      * a sub attribute of a Vendor-Specific attribute.
+     *
+     * @return vendor ID
      */
     public int getVendorId() {
         return vendorId;
@@ -162,6 +164,11 @@ public class RadiusAttribute {
 
     /**
      * Reads in this attribute from the passed byte array.
+     *
+     * @param data input data
+     * @param offset byte to start reading from
+     * @param length
+     * @throws RadiusException
      */
     public void readAttribute(byte[] data, int offset, int length) throws RadiusException {
         if (length < 2)

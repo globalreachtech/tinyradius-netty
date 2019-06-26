@@ -321,8 +321,7 @@ extends <a href="../../../org/tinyradius/server/ServerHandler.html" title="class
 <pre>protected&nbsp;io.netty.util.concurrent.Promise&lt;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket(io.netty.channel.Channel&nbsp;channel,
                                                                       <a href="../../../org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a>&nbsp;accessRequest,
                                                                       java.net.InetSocketAddress&nbsp;remoteAddress,
-                                                                      java.lang.String&nbsp;sharedSecret)
-                                                               throws <a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+                                                                      java.lang.String&nbsp;sharedSecret)</pre>
 <div class="block">Constructs an answer for an Access-Request packet. This
  method should be overridden.</div>
 <dl>
@@ -335,9 +334,6 @@ extends <a href="../../../org/tinyradius/server/ServerHandler.html" title="class
 <dd><code>sharedSecret</code> - shared secret associated with remoteAddress</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>clientResponse packet or null if no packet shall be sent</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed clientRequest packet; if this
-                         exception is thrown, no answer will be sent</dd>
 </dl>
 </li>
 </ul>

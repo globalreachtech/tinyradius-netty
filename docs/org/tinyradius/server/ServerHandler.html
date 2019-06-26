@@ -357,8 +357,8 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>new datagram packet</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.io.IOException</code></dd>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code>java.io.IOException</code> - IO error</dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - packet malformed</dd>
 </dl>
 </li>
 </ul>
@@ -377,12 +377,12 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>packet</code> - received datagram</dd>
+<dd><code>sharedSecret</code> - to decode datagram</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>RadiusPacket object</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
-<dd><code>java.io.IOException</code> - communication error (after getRetryCount()
-                         retries)</dd>
+<dd><code>java.io.IOException</code> - communication error</dd>
 </dl>
 </li>
 </ul>
@@ -411,8 +411,7 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <pre>protected abstract&nbsp;io.netty.util.concurrent.Promise&lt;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket(io.netty.channel.Channel&nbsp;channel,
                                                                                <a href="../../../org/tinyradius/server/ServerHandler.html" title="type parameter in ServerHandler">T</a>&nbsp;request,
                                                                                java.net.InetSocketAddress&nbsp;remoteAddress,
-                                                                               java.lang.String&nbsp;sharedSecret)
-                                                                        throws <a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+                                                                               java.lang.String&nbsp;sharedSecret)</pre>
 <div class="block">Handles the received Radius packet and constructs a clientResponse.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -423,8 +422,6 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Promise of RadiusPacket or null for no clientResponse. Uses Promise instead Future,
  to allow requests to be timed out or cancelled by the caller</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
 </dl>
 </li>
 </ul>

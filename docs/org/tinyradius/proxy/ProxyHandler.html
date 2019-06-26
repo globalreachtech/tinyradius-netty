@@ -242,7 +242,9 @@ extends <a href="../../../org/tinyradius/server/ServerHandler.html" title="class
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/proxy/ProxyHandler.html#stop--">stop</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/proxy/ProxyHandler.html#stop--">stop</a></span>()</code>
+<div class="block">Close sockets used by proxy client</div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -330,6 +332,10 @@ extends <a href="../../../org/tinyradius/server/ServerHandler.html" title="class
 <h4>start</h4>
 <pre>public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;start()</pre>
 <div class="block">Init dependencies, i.e. RadiusClient used to proxy requests to server.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>future completes when proxy client sockets and handlers are set up</dd>
+</dl>
 </li>
 </ul>
 <a name="stop--">
@@ -339,6 +345,7 @@ extends <a href="../../../org/tinyradius/server/ServerHandler.html" title="class
 <li class="blockList">
 <h4>stop</h4>
 <pre>public&nbsp;void&nbsp;stop()</pre>
+<div class="block">Close sockets used by proxy client</div>
 </li>
 </ul>
 <a name="getProxyServer-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-">
@@ -402,7 +409,9 @@ extends <a href="../../../org/tinyradius/server/ServerHandler.html" title="class
  the Proxy-State attribute.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>packet</code> - packet to be sent back</dd>
+<dd><code>packet</code> - response received from server</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>packet to send back to client</dd>
 </dl>
 </li>
 </ul>

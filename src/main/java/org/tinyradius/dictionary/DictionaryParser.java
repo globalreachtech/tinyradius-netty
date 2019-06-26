@@ -18,6 +18,7 @@ public class DictionaryParser {
      *
      * @param source input stream
      * @return dictionary object
+     * @throws IOException parse error reading from input
      */
     public static Dictionary parseDictionary(InputStream source) throws IOException {
         WritableDictionary d = new MemoryDictionary();
@@ -32,6 +33,7 @@ public class DictionaryParser {
      *
      * @param source     input stream
      * @param dictionary dictionary data is written to
+     * @throws IOException parse error reading from input
      */
     public static void parseDictionary(InputStream source, WritableDictionary dictionary) throws IOException {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(source))) {

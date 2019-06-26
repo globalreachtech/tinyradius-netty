@@ -49,7 +49,11 @@ public class RadiusClient<T extends DatagramChannel> {
     private ChannelFuture channelFuture;
 
     /**
-     * @param port set to 0 to let system choose
+     * @param eventLoopGroup for both channel IO and processing
+     * @param factory        to create new Channel
+     * @param clientHandler  to log outgoing packets and handle incoming packets/responses
+     * @param listenAddress  local address to bind to, will be wildcard address if null
+     * @param port           port to bind to, or set to 0 to let system choose
      */
     public RadiusClient(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, ClientHandler clientHandler, InetAddress listenAddress, int port) {
         this.factory = requireNonNull(factory, "factory cannot be null");
@@ -59,6 +63,9 @@ public class RadiusClient<T extends DatagramChannel> {
         this.port = port;
     }
 
+    /**
+     * Closes channel socket
+     */
     public void stop() {
         if (channel != null)
             channel.close();
@@ -67,7 +74,9 @@ public class RadiusClient<T extends DatagramChannel> {
     /**
      * Registers the channel and binds to address.
      * <p>
-     * Run implicitly if {@link #communicate(RadiusPacket, RadiusEndpoint, int)} is called.
+     * Also run implicitly if {@link #communicate(RadiusPacket, RadiusEndpoint, int)} is called.
+     *
+     * @return channelFuture of started channel socket
      */
     public ChannelFuture startChannel() {
         if (this.channelFuture != null)
@@ -83,6 +92,7 @@ public class RadiusClient<T extends DatagramChannel> {
     /**
      * @param channel       to listen on
      * @param listenAddress the address to bind to
+     * @return channel that resolves after it is bound to address and registered with eventLoopGroup
      */
     protected ChannelFuture listen(final T channel, final InetSocketAddress listenAddress) {
 
@@ -148,6 +158,8 @@ public class RadiusClient<T extends DatagramChannel> {
      * @param packet   RadiusPacket
      * @param endpoint destination port number
      * @return new datagram packet
+     * @throws IOException     error when writing packet to output stream
+     * @throws RadiusException error when encoding RadiusPacket attributes
      */
     protected DatagramPacket makeDatagramPacket(RadiusPacket packet, RadiusEndpoint endpoint) throws IOException, RadiusException {
         ByteBuf buf = buffer(RadiusPacket.MAX_PACKET_LENGTH, RadiusPacket.MAX_PACKET_LENGTH);

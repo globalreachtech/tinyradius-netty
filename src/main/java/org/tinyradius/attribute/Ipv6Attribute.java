@@ -52,8 +52,7 @@ public class Ipv6Attribute extends RadiusAttribute {
      * Sets the attribute value (IPv6 number). String format:
      * ipv6 address.
      *
-     * @throws IllegalArgumentException
-     * @throws NumberFormatException
+     * @throws IllegalArgumentException bad IP address
      * @see org.tinyradius.attribute.RadiusAttribute#setAttributeValue(String)
      */
     public void setAttributeValue(String value) {

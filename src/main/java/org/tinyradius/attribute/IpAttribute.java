@@ -65,8 +65,7 @@ public class IpAttribute extends RadiusAttribute {
      * Sets the attribute value (IP number). String format:
      * "xx.xx.xx.xx".
      *
-     * @throws IllegalArgumentException
-     * @throws NumberFormatException
+     * @throws IllegalArgumentException bad IP address
      * @see RadiusAttribute#setAttributeValue(java.lang.String)
      */
     public void setAttributeValue(String value) {

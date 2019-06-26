@@ -7,6 +7,8 @@ import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -51,6 +53,11 @@ public class RadiusServer<T extends DatagramChannel> {
         this.listenAddress = listenAddress;
     }
 
+    /**
+     * Registers channels and binds to address.
+     *
+     * @return future completes when server sockets and handlers are set up
+     */
     public Future<Void> start() {
         if (this.serverStatus != null)
             return this.serverStatus;
@@ -97,6 +104,7 @@ public class RadiusServer<T extends DatagramChannel> {
     /**
      * @param channel       to listen on
      * @param listenAddress the address to bind to
+     * @return
      */
     protected ChannelFuture listen(final T channel, final InetSocketAddress listenAddress) {
         requireNonNull(channel, "channel cannot be null");

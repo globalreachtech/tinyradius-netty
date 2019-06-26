@@ -14,7 +14,6 @@ import org.tinyradius.dictionary.WritableDictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.*;
-import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
 
 import java.io.FileInputStream;
@@ -51,7 +50,7 @@ public class TestServer {
 
             // Adds an attribute to the Access-Accept packet
             @Override
-            public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) throws RadiusException {
+            public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) {
                 System.out.println("Received Access-Request:\n" + accessRequest);
                 final Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
                 super.handlePacket(channel, accessRequest, remoteAddress, sharedSecret).addListener((Future<RadiusPacket> f) -> {

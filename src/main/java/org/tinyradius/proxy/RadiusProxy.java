@@ -32,6 +32,11 @@ public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
         this.proxyHandler = proxyHandler;
     }
 
+    /**
+     * Registers channels and binds to address.
+     *
+     * @return future completes when proxy sockets and handlers are set up
+     */
     public Future<Void> start() {
         Promise<Void> promise = eventLoopGroup.next().newPromise();
 
@@ -41,6 +46,9 @@ public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
         return promise;
     }
 
+    /**
+     * Stops the server and client used for the proxy, and closes the sockets.
+     */
     @Override
     public void stop() {
         logger.info("stopping Radius proxy");

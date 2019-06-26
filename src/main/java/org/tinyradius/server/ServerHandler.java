@@ -60,6 +60,8 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
      * @param address where to send the packet
      * @param request clientRequest packet
      * @return new datagram packet
+     * @throws IOException     IO error
+     * @throws RadiusException packet malformed
      */
     protected DatagramPacket makeDatagramPacket(RadiusPacket packet, String secret, InetSocketAddress address, RadiusPacket request)
             throws IOException, RadiusException {
@@ -76,10 +78,10 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
      * datagram packet.
      *
      * @param packet received datagram
+     * @param sharedSecret to decode datagram
      * @return RadiusPacket object
      * @throws RadiusException malformed packet
-     * @throws IOException     communication error (after getRetryCount()
-     *                         retries)
+     * @throws IOException     communication error
      */
     protected RadiusPacket makeRadiusPacket(DatagramPacket packet, String sharedSecret) throws IOException, RadiusException {
         ByteBufInputStream in = new ByteBufInputStream(packet.content());
@@ -159,5 +161,5 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
      * @return Promise of RadiusPacket or null for no clientResponse. Uses Promise instead Future,
      * to allow requests to be timed out or cancelled by the caller
      */
-    protected abstract Promise<RadiusPacket> handlePacket(Channel channel, T request, InetSocketAddress remoteAddress, String sharedSecret) throws RadiusException;
+    protected abstract Promise<RadiusPacket> handlePacket(Channel channel, T request, InetSocketAddress remoteAddress, String sharedSecret);
 }

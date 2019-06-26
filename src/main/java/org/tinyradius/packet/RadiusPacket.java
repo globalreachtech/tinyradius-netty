@@ -771,7 +771,7 @@ public class RadiusPacket {
     protected void encodePacket(OutputStream out, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
         // check shared secret
         if (sharedSecret == null || sharedSecret.isEmpty())
-            throw new RuntimeException("no shared secret has been set");
+            throw new IllegalArgumentException("no shared secret has been set");
 
         // check clientRequest authenticator
         if (request != null && request.getAuthenticator() == null)
@@ -884,8 +884,8 @@ public class RadiusPacket {
      * @param request      Radius clientRequest packet if this is a clientResponse packet to be
      *                     decoded, null if this is a clientRequest packet to be decoded
      * @return new RadiusPacket object
-     * @throws IOException     if an IO error occurred
-     * @throws RadiusException if the Radius packet is malformed
+     * @throws IOException     IO error
+     * @throws RadiusException packet malformed
      */
     protected static RadiusPacket decodePacket(Dictionary dictionary, InputStream in, String sharedSecret, RadiusPacket request)
             throws IOException, RadiusException {

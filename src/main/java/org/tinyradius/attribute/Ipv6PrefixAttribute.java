@@ -54,8 +54,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      * Sets the attribute value (IPv6 number/prefix). String format:
      * ipv6 address.
      *
-     * @throws IllegalArgumentException
-     * @throws NumberFormatException
+     * @throws IllegalArgumentException bad IP address
      * @see org.tinyradius.attribute.RadiusAttribute#setAttributeValue(String)
      */
     public void setAttributeValue(String value) {
@@ -64,7 +63,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
         try {
             final byte[] data = new byte[18];
             data[0] = 0;
-//TODO better checking
+            //TODO better checking
             final int slashPos = value.indexOf("/");
             data[1] = (byte) (Integer.parseInt(value.substring(slashPos + 1)) & 0xff);
 

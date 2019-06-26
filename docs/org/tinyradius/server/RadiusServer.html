@@ -213,7 +213,9 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RadiusServer.html#start--">start</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RadiusServer.html#start--">start</a></span>()</code>
+<div class="block">Registers channels and binds to address.</div>
+</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
@@ -334,6 +336,11 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>start</h4>
 <pre>public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;start()</pre>
+<div class="block">Registers channels and binds to address.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>future completes when server sockets and handlers are set up</dd>
+</dl>
 </li>
 </ul>
 <a name="stop--">
@@ -387,6 +394,7 @@ extends java.lang.Object</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>channel</code> - to listen on</dd>
 <dd><code>listenAddress</code> - the address to bind to</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
 </dl>
 </li>
 </ul>

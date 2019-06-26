@@ -39,22 +39,24 @@ public abstract class AuthHandler extends ServerHandler<AccessRequest> {
      *
      * @param accessRequest Radius clientRequest packet
      * @return clientResponse packet or null if no packet shall be sent
-     * @throws RadiusException malformed clientRequest packet; if this
-     *                         exception is thrown, no answer will be sent
      */
     @Override
-    protected Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) throws RadiusException {
-        String password = getUserPassword(accessRequest.getUserName());
-        int type = password != null && accessRequest.verifyPassword(password) ?
-                ACCESS_ACCEPT : ACCESS_REJECT;
-
-        RadiusPacket answer = new RadiusPacket(type, accessRequest.getPacketIdentifier());
-        answer.setDictionary(dictionary);
-        accessRequest.getAttributes(33)
-                .forEach(answer::addAttribute);
-
+    protected Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
-        promise.trySuccess(answer);
+        try {
+            String password = getUserPassword(accessRequest.getUserName());
+            int type = password != null && accessRequest.verifyPassword(password) ?
+                    ACCESS_ACCEPT : ACCESS_REJECT;
+
+            RadiusPacket answer = new RadiusPacket(type, accessRequest.getPacketIdentifier());
+            answer.setDictionary(dictionary);
+            accessRequest.getAttributes(33)
+                    .forEach(answer::addAttribute);
+
+            promise.trySuccess(answer);
+        } catch (Exception e) {
+            promise.tryFailure(e);
+        }
         return promise;
     }
 }

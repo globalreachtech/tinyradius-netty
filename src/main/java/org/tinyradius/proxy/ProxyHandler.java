@@ -44,11 +44,16 @@ public abstract class ProxyHandler extends ServerHandler<RadiusPacket> {
 
     /**
      * Init dependencies, i.e. RadiusClient used to proxy requests to server.
+     *
+     * @return future completes when proxy client sockets and handlers are set up
      */
     public Future<Void> start() {
         return radiusClient.startChannel();
     }
 
+    /**
+     * Close sockets used by proxy client
+     */
     public void stop() {
         logger.info("stopping Radius proxy listener");
         radiusClient.stop();
@@ -104,7 +109,8 @@ public abstract class ProxyHandler extends ServerHandler<RadiusPacket> {
      * Retrieves the RadiusProxyConnection object from the cache employing
      * the Proxy-State attribute.
      *
-     * @param packet packet to be sent back
+     * @param packet response received from server
+     * @return packet to send back to client
      */
     protected RadiusPacket handleServerResponse(RadiusPacket packet) {
         // re-encode answer packet with authenticator of the original packet

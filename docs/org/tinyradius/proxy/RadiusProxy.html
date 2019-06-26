@@ -175,12 +175,14 @@ extends <a href="../../../org/tinyradius/server/RadiusServer.html" title="class 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/proxy/RadiusProxy.html#start--">start</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/proxy/RadiusProxy.html#start--">start</a></span>()</code>
+<div class="block">Registers channels and binds to address.</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/proxy/RadiusProxy.html#stop--">stop</a></span>()</code>
-<div class="block">Stops the server and closes the sockets.</div>
+<div class="block">Stops the server and client used for the proxy, and closes the sockets.</div>
 </td>
 </tr>
 </table>
@@ -241,9 +243,12 @@ extends <a href="../../../org/tinyradius/server/RadiusServer.html" title="class 
 <li class="blockList">
 <h4>start</h4>
 <pre>public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;start()</pre>
+<div class="block">Registers channels and binds to address.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../org/tinyradius/server/RadiusServer.html#start--">start</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a>&lt;<a href="../../../org/tinyradius/proxy/RadiusProxy.html" title="type parameter in RadiusProxy">T</a> extends io.netty.channel.socket.DatagramChannel&gt;</code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>future completes when proxy sockets and handlers are set up</dd>
 </dl>
 </li>
 </ul>
@@ -254,8 +259,7 @@ extends <a href="../../../org/tinyradius/server/RadiusServer.html" title="class 
 <li class="blockList">
 <h4>stop</h4>
 <pre>public&nbsp;void&nbsp;stop()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../org/tinyradius/server/RadiusServer.html#stop--">RadiusServer</a></code></span></div>
-<div class="block">Stops the server and closes the sockets.</div>
+<div class="block">Stops the server and client used for the proxy, and closes the sockets.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../org/tinyradius/server/RadiusServer.html#stop--">stop</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a>&lt;<a href="../../../org/tinyradius/proxy/RadiusProxy.html" title="type parameter in RadiusProxy">T</a> extends io.netty.channel.socket.DatagramChannel&gt;</code></dd>
