@@ -10,6 +10,10 @@ public class CoaRequest extends RadiusPacket {
         super(COA_REQUEST);
     }
 
+    public CoaRequest(final int type) {
+        super(type);
+    }
+
     /**
      * @see AccountingRequest#updateRequestAuthenticator(String, int, byte[])
      */

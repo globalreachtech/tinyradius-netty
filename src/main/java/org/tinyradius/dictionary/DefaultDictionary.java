@@ -15,7 +15,7 @@ public class DefaultDictionary extends MemoryDictionary {
     private DefaultDictionary() {
     }
 
-    private static final String DICTIONARY_RESOURCE = "default_dictionary";
+    private static final String DICTIONARY_RESOURCE = "org/tinyradius/dictionary/default_dictionary";
     public static final DefaultDictionary INSTANCE = new DefaultDictionary();
 
     /*
@@ -24,7 +24,11 @@ public class DefaultDictionary extends MemoryDictionary {
      */
     static {
         try {
-            InputStream source = DefaultDictionary.class.getClassLoader().getResourceAsStream(DICTIONARY_RESOURCE);
+            ClassLoader classLoader = DefaultDictionary.class.getClassLoader();
+            InputStream source = classLoader.getResourceAsStream("tinyradius_dictionary");
+            if (source == null)
+                source = classLoader.getResourceAsStream(DICTIONARY_RESOURCE);
+
             if (source != null)
                 DictionaryParser.parseDictionary(source, INSTANCE);
         } catch (IOException e) {

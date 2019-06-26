@@ -1,17 +1,17 @@
-TinyRadius README
+# tinyradius-netty
 
 TinyRadius is a simple, small and fast Java Radius library capable of
 sending and receiving Radius packets of all types. It is released
 under the terms of the LGPL.
 
-For documentation, please have a look at doc/tinyradius.html
-and doc/apidoc. Every method has got JavaDoc comments, and every
-package has got a package.html document detailing the package
-usage.
+Source code from
+- http://tinyradius.sourceforge.net/
+- https://github.com/ctran/TinyRadius
 
-Please do not hesitate to contact me if you have got questions or
-suggestions.
 
-Matthias Wuttke
-post@matthias-wuttke.de
-http://tinyradius.sourceforge.net/
+Copyright
+- Matthias Wuttke (post@matthias-wuttke.de)
+- https://github.com/ctran
+- https://github.com/ivanfmartinez
+- https://github.com/mnowa
+- https://github.com/globalreachtech/
