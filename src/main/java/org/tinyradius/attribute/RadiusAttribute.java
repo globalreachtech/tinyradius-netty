@@ -99,7 +99,7 @@ public class RadiusAttribute {
     }
 
     /**
-     * Gets the value of this attribute as a string.
+     * @return the value of this attribute as a string.
      */
     public String getAttributeValue() {
         return getHexString(getAttributeData());
@@ -120,6 +120,8 @@ public class RadiusAttribute {
      * Sets the Vendor-Id of the Vendor-Specific attribute this
      * attribute belongs to. The default value of -1 means this attribute
      * is not a sub attribute of a Vendor-Specific attribute.
+     *
+     * @param vendorId vendor ID
      */
     public void setVendorId(int vendorId) {
         this.vendorId = vendorId;
@@ -165,9 +167,9 @@ public class RadiusAttribute {
     /**
      * Reads in this attribute from the passed byte array.
      *
-     * @param data input data
+     * @param data   input data
      * @param offset byte to start reading from
-     * @throws RadiusException
+     * @throws RadiusException malformed packet
      */
     public void readAttribute(byte[] data, int offset) throws RadiusException {
         int length = data[offset + 1] & 0x0ff;

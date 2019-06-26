@@ -11,6 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+/**
+ * Default implementation of Deduplicator that considers packets duplicate
+ * if packetIdentifier and remote address matches.
+ */
 public class DefaultDeduplicator implements Deduplicator {
 
     private final long ttlMs;

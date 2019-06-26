@@ -139,7 +139,10 @@ extends <a href="../../../org/tinyradius/server/ServerHandler.html" title="class
  <p>
  RadiusClient port should be set to proxy port, which will be used to communicate
  with upstream servers. RadiusClient should also use a variant of <a href="../../../org/tinyradius/client/ProxyStateClientHandler.html" title="class in org.tinyradius.client"><code>ProxyStateClientHandler</code></a>
- which matches requests/responses by adding a custom Proxy-State attribute.</div>
+ which matches requests/responses by adding a custom Proxy-State attribute.
+ <p>
+ This implementation expects <a href="../../../org/tinyradius/proxy/ProxyHandler.html#getProxyServer-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-"><code>getProxyServer(RadiusPacket, RadiusEndpoint)</code></a> to lookup
+ endpoint to forward requests to.</div>
 </li>
 </ul>
 </div>

@@ -317,7 +317,13 @@ extends java.lang.Object</pre>
                     int&nbsp;acctPort)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listenAddress</code> - null address will assign wildcard address</dd>
+<dd><code>eventLoopGroup</code> - for both channel IO and processing</dd>
+<dd><code>factory</code> - to create new Channel</dd>
+<dd><code>listenAddress</code> - local address to bind to, will be wildcard address if null</dd>
+<dd><code>authHandler</code> - ChannelHandler to handle requests received on authPort</dd>
+<dd><code>acctHandler</code> - ChannelHandler to handle requests received on acctPort</dd>
+<dd><code>authPort</code> - port to bind to, or set to 0 to let system choose</dd>
+<dd><code>acctPort</code> - port to bind to, or set to 0 to let system choose</dd>
 </dl>
 </li>
 </ul>
@@ -395,6 +401,7 @@ extends java.lang.Object</pre>
 <dd><code>channel</code> - to listen on</dd>
 <dd><code>listenAddress</code> - the address to bind to</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
+<dd>channelFuture of started channel socket</dd>
 </dl>
 </li>
 </ul>

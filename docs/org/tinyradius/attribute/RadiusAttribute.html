@@ -201,9 +201,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getAttributeValue--">getAttributeValue</a></span>()</code>
-<div class="block">Gets the value of this attribute as a string.</div>
-</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getAttributeValue--">getAttributeValue</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></code></td>
@@ -220,9 +218,8 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#readAttribute-byte:A-int-int-">readAttribute</a></span>(byte[]&nbsp;data,
-             int&nbsp;offset,
-             int&nbsp;length)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#readAttribute-byte:A-int-">readAttribute</a></span>(byte[]&nbsp;data,
+             int&nbsp;offset)</code>
 <div class="block">Reads in this attribute from the passed byte array.</div>
 </td>
 </tr>
@@ -401,7 +398,10 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getAttributeValue</h4>
 <pre>public&nbsp;java.lang.String&nbsp;getAttributeValue()</pre>
-<div class="block">Gets the value of this attribute as a string.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the value of this attribute as a string.</dd>
+</dl>
 </li>
 </ul>
 <a name="getVendorId--">
@@ -414,6 +414,10 @@ extends java.lang.Object</pre>
 <div class="block">Gets the Vendor-Id of the Vendor-Specific attribute this
  attribute belongs to. Returns -1 if this attribute is not
  a sub attribute of a Vendor-Specific attribute.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>vendor ID</dd>
+</dl>
 </li>
 </ul>
 <a name="setVendorId-int-">
@@ -426,6 +430,10 @@ extends java.lang.Object</pre>
 <div class="block">Sets the Vendor-Id of the Vendor-Specific attribute this
  attribute belongs to. The default value of -1 means this attribute
  is not a sub attribute of a Vendor-Specific attribute.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>vendorId</code> - vendor ID</dd>
+</dl>
 </li>
 </ul>
 <a name="getDictionary--">
@@ -473,20 +481,22 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="readAttribute-byte:A-int-int-">
+<a name="readAttribute-byte:A-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readAttribute</h4>
 <pre>public&nbsp;void&nbsp;readAttribute(byte[]&nbsp;data,
-                          int&nbsp;offset,
-                          int&nbsp;length)
+                          int&nbsp;offset)
                    throws <a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <div class="block">Reads in this attribute from the passed byte array.</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - input data</dd>
+<dd><code>offset</code> - byte to start reading from</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>

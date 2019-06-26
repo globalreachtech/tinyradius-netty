@@ -504,10 +504,13 @@ extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class 
  (hash) send with this Access-Request packet. Works with both PAP
  and CHAP.</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>plaintext</code> - password to verify packet against</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the password is valid, false otherwise</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - password verification failed or not supported
+                         for auth protocol</dd>
 </dl>
 </li>
 </ul>
@@ -523,8 +526,10 @@ extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class 
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../org/tinyradius/packet/RadiusPacket.html#decodeRequestAttributes-java.lang.String-">decodeRequestAttributes</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sharedSecret</code> - used for decoding</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../org/tinyradius/packet/RadiusPacket.html#decodeRequestAttributes-java.lang.String-"><code>RadiusPacket.decodeRequestAttributes(java.lang.String)</code></a></dd>
 </dl>
@@ -542,8 +547,10 @@ extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class 
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../org/tinyradius/packet/RadiusPacket.html#encodeRequestAttributes-java.lang.String-">encodeRequestAttributes</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sharedSecret</code> - used for encoding</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../org/tinyradius/packet/RadiusPacket.html#encodeRequestAttributes-java.lang.String-"><code>RadiusPacket.encodeRequestAttributes(java.lang.String)</code></a></dd>
 </dl>

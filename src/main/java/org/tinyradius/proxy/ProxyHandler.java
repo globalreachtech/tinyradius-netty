@@ -26,6 +26,9 @@ import java.net.InetSocketAddress;
  * RadiusClient port should be set to proxy port, which will be used to communicate
  * with upstream servers. RadiusClient should also use a variant of {@link ProxyStateClientHandler}
  * which matches requests/responses by adding a custom Proxy-State attribute.
+ * <p>
+ * This implementation expects {@link #getProxyServer(RadiusPacket, RadiusEndpoint)} to lookup
+ * endpoint to forward requests to.
  */
 public abstract class ProxyHandler extends ServerHandler<RadiusPacket> {
 

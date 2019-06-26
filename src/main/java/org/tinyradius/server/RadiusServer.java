@@ -36,7 +36,13 @@ public class RadiusServer<T extends DatagramChannel> {
     private Future<Void> serverStatus = null;
 
     /**
-     * @param listenAddress null address will assign wildcard address
+     * @param eventLoopGroup for both channel IO and processing
+     * @param factory        to create new Channel
+     * @param listenAddress  local address to bind to, will be wildcard address if null
+     * @param authHandler    ChannelHandler to handle requests received on authPort
+     * @param acctHandler    ChannelHandler to handle requests received on acctPort
+     * @param authPort       port to bind to, or set to 0 to let system choose
+     * @param acctPort       port to bind to, or set to 0 to let system choose
      */
     public RadiusServer(EventLoopGroup eventLoopGroup,
                         ChannelFactory<T> factory,
@@ -104,7 +110,7 @@ public class RadiusServer<T extends DatagramChannel> {
     /**
      * @param channel       to listen on
      * @param listenAddress the address to bind to
-     * @return
+     * @return channelFuture of started channel socket
      */
     protected ChannelFuture listen(final T channel, final InetSocketAddress listenAddress) {
         requireNonNull(channel, "channel cannot be null");

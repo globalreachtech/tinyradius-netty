@@ -23,6 +23,14 @@ public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> {
     private static final Logger logger = LoggerFactory.getLogger(RadiusProxy.class);
     private final ProxyHandler proxyHandler;
 
+    /**
+     * @param eventLoopGroup for both channel IO and processing
+     * @param factory        to create new Channel
+     * @param listenAddress  local address to bind to, will be wildcard address if null
+     * @param proxyHandler   ProxyHandler to handle requests received on both authPort and acctPort
+     * @param authPort       port to bind to, or set to 0 to let system choose
+     * @param acctPort       port to bind to, or set to 0 to let system choose
+     */
     public RadiusProxy(EventLoopGroup eventLoopGroup,
                        ChannelFactory<T> factory,
                        InetAddress listenAddress,

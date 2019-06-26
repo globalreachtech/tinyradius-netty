@@ -226,6 +226,15 @@ extends <a href="../../../org/tinyradius/server/RadiusServer.html" title="class 
                    <a href="../../../org/tinyradius/proxy/ProxyHandler.html" title="class in org.tinyradius.proxy">ProxyHandler</a>&nbsp;proxyHandler,
                    int&nbsp;authPort,
                    int&nbsp;acctPort)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventLoopGroup</code> - for both channel IO and processing</dd>
+<dd><code>factory</code> - to create new Channel</dd>
+<dd><code>listenAddress</code> - local address to bind to, will be wildcard address if null</dd>
+<dd><code>proxyHandler</code> - ProxyHandler to handle requests received on both authPort and acctPort</dd>
+<dd><code>authPort</code> - port to bind to, or set to 0 to let system choose</dd>
+<dd><code>acctPort</code> - port to bind to, or set to 0 to let system choose</dd>
+</dl>
 </li>
 </ul>
 </li>

@@ -99,6 +99,8 @@ public class AttributeType<T extends RadiusAttribute> {
     /**
      * Sets the RadiusAttribute descendant class which represents
      * attributes of this type.
+     *
+     * @param type subclass of {@link RadiusAttribute}
      */
     public void setAttributeClass(Class<T> type) {
         requireNonNull(type, "type is null");
@@ -127,22 +129,19 @@ public class AttributeType<T extends RadiusAttribute> {
     }
 
     /**
-     * Returns the name of the given integer value if this attribute
+     * @param value int value
+     * @return the name of the given integer value if this attribute
      * is an enumeration, or null if it is not or if the integer value
      * is unknown.
-     *
-     * @return name
      */
     public String getEnumeration(int value) {
         return enumeration.get(value);
     }
 
     /**
-     * Returns the number of the given string value if this attribute is
-     * an enumeration, or null if it is not or if the string value is unknown.
-     *
      * @param value string value
-     * @return Integer or null
+     * @return the number of the given string value if this attribute is
+     * an enumeration, or null if it is not or if the string value is unknown.
      */
     public Integer getEnumeration(String value) {
         if (value == null || value.isEmpty())

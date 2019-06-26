@@ -173,18 +173,11 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/dictionary/AttributeType.html#getEnumeration-int-">getEnumeration</a></span>(int&nbsp;value)</code>
-<div class="block">Returns the name of the given integer value if this attribute
- is an enumeration, or null if it is not or if the integer value
- is unknown.</div>
-</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/dictionary/AttributeType.html#getEnumeration-int-">getEnumeration</a></span>(int&nbsp;value)</code>&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>java.lang.Integer</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/dictionary/AttributeType.html#getEnumeration-java.lang.String-">getEnumeration</a></span>(java.lang.String&nbsp;value)</code>
-<div class="block">Returns the number of the given string value if this attribute is
- an enumeration, or null if it is not or if the string value is unknown.</div>
-</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/dictionary/AttributeType.html#getEnumeration-java.lang.String-">getEnumeration</a></span>(java.lang.String&nbsp;value)</code>&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
@@ -384,6 +377,10 @@ extends java.lang.Object</pre>
 <pre>public&nbsp;void&nbsp;setAttributeClass(java.lang.Class&lt;<a href="../../../org/tinyradius/dictionary/AttributeType.html" title="type parameter in AttributeType">T</a>&gt;&nbsp;type)</pre>
 <div class="block">Sets the RadiusAttribute descendant class which represents
  attributes of this type.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>type</code> - subclass of <a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute"><code>RadiusAttribute</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="getVendorId--">
@@ -422,12 +419,13 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getEnumeration</h4>
 <pre>public&nbsp;java.lang.String&nbsp;getEnumeration(int&nbsp;value)</pre>
-<div class="block">Returns the name of the given integer value if this attribute
- is an enumeration, or null if it is not or if the integer value
- is unknown.</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>value</code> - int value</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>name</dd>
+<dd>the name of the given integer value if this attribute
+ is an enumeration, or null if it is not or if the integer value
+ is unknown.</dd>
 </dl>
 </li>
 </ul>
@@ -438,13 +436,12 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getEnumeration</h4>
 <pre>public&nbsp;java.lang.Integer&nbsp;getEnumeration(java.lang.String&nbsp;value)</pre>
-<div class="block">Returns the number of the given string value if this attribute is
- an enumeration, or null if it is not or if the string value is unknown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>value</code> - string value</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Integer or null</dd>
+<dd>the number of the given string value if this attribute is
+ an enumeration, or null if it is not or if the string value is unknown.</dd>
 </dl>
 </li>
 </ul>

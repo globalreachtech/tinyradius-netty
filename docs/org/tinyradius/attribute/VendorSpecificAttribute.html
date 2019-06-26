@@ -232,9 +232,8 @@ extends <a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#readAttribute-byte:A-int-int-">readAttribute</a></span>(byte[]&nbsp;data,
-             int&nbsp;offset,
-             int&nbsp;length)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#readAttribute-byte:A-int-">readAttribute</a></span>(byte[]&nbsp;data,
+             int&nbsp;offset)</code>
 <div class="block">Reads a Vendor-Specific attribute and decodes the internal sub-attribute
  structure.</div>
 </td>
@@ -552,26 +551,27 @@ extends <a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="
 </dl>
 </li>
 </ul>
-<a name="readAttribute-byte:A-int-int-">
+<a name="readAttribute-byte:A-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readAttribute</h4>
 <pre>public&nbsp;void&nbsp;readAttribute(byte[]&nbsp;data,
-                          int&nbsp;offset,
-                          int&nbsp;length)
+                          int&nbsp;offset)
                    throws <a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <div class="block">Reads a Vendor-Specific attribute and decodes the internal sub-attribute
  structure.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#readAttribute-byte:A-int-int-">readAttribute</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#readAttribute-byte:A-int-">readAttribute</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - input data</dd>
+<dd><code>offset</code> - byte to start reading from</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#readAttribute-byte:A-int-int-"><code>RadiusAttribute.readAttribute(byte[], int,
- int)</code></a></dd>
+<dd><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#readAttribute-byte:A-int-"><code>RadiusAttribute.readAttribute(byte[], int)</code></a></dd>
 </dl>
 </li>
 </ul>

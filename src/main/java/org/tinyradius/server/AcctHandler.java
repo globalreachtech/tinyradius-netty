@@ -26,7 +26,7 @@ public class AcctHandler extends ServerHandler<AccountingRequest> {
      * Constructs an answer for an Accounting-Request packet. This method
      * should be overridden.
      *
-     * @param accountingRequest Radius clientRequest packet
+     * @param accountingRequest Radius request packet
      * @return clientResponse packet or null if no packet shall be sent
      */
     @Override

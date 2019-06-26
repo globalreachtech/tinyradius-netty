@@ -61,7 +61,7 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
      * @param request clientRequest packet
      * @return new datagram packet
      * @throws IOException     IO error
-     * @throws RadiusException packet malformed
+     * @throws RadiusException malformed packet
      */
     protected DatagramPacket makeDatagramPacket(RadiusPacket packet, String secret, InetSocketAddress address, RadiusPacket request)
             throws IOException, RadiusException {
@@ -77,7 +77,7 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
      * Creates a RadiusPacket for a Radius clientRequest from a received
      * datagram packet.
      *
-     * @param packet received datagram
+     * @param packet       received datagram
      * @param sharedSecret to decode datagram
      * @return RadiusPacket object
      * @throws RadiusException malformed packet
@@ -103,15 +103,17 @@ public abstract class ServerHandler<T extends RadiusPacket> extends SimpleChanne
             RadiusPacket packet = makeRadiusPacket(datagramPacket, secret);
             logger.info("received packet from {} on local address {}: {}", remoteAddress, localAddress, packet);
 
-            // check for duplicates
-            if (deduplicator.isPacketDuplicate(packet, remoteAddress)) {
-                logger.info("ignore duplicate packet");
-                return;
-            }
 
             // check channelHandler packet type restrictions
             if (!packetClass.isInstance(packet)) {
                 logger.info("handler only accepts {}, unknown Radius packet type: {}", packetClass.getName(), packet.getPacketType());
+                return;
+            }
+
+            // check for duplicates
+            if (deduplicator.isPacketDuplicate(packet, remoteAddress)) {
+                logger.info("ignore duplicate packet");
+                // todo special handler
                 return;
             }
 

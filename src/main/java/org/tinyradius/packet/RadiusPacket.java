@@ -540,12 +540,12 @@ public class RadiusPacket {
     }
 
     /**
-     * Encodes this Radius packet and sends it to the specified output
-     * stream.
+     * Encodes this Radius packet and sends it to the specified output stream.
      *
      * @param out          output stream to use
      * @param sharedSecret shared secret to be used to encode this packet
-     * @throws IOException communication error
+     * @throws IOException     communication error
+     * @throws RadiusException malformed packet
      */
     public void encodeRequestPacket(OutputStream out, String sharedSecret) throws IOException, RadiusException {
         encodePacket(out, sharedSecret, null);
@@ -557,19 +557,21 @@ public class RadiusPacket {
      *
      * @param out          output stream to use
      * @param sharedSecret shared secret to be used to encode this packet
-     * @param request      Radius clientRequest packet
-     * @throws IOException communication error
+     * @param request      Radius request packet
+     * @throws IOException     communication error
+     * @throws RadiusException malformed packet
      */
     public void encodeResponsePacket(OutputStream out, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
         encodePacket(out, sharedSecret, requireNonNull(request, "clientRequest cannot be null"));
     }
 
     /**
-     * Reads a Radius clientRequest packet from the given input stream and
-     * creates an appropiate RadiusPacket descendant object.
+     * Reads a Radius request packet from the given input stream and
+     * creates an appropriate RadiusPacket descendant object.
      * Reads in all attributes and returns the object.
      * Decodes the encrypted fields and attributes of the packet.
      *
+     * @param in           input stream to read from
      * @param sharedSecret shared secret to be used to decode this packet
      * @return new RadiusPacket object
      * @throws IOException     IO error
@@ -581,12 +583,13 @@ public class RadiusPacket {
 
     /**
      * Reads a Radius clientResponse packet from the given input stream and
-     * creates an appropiate RadiusPacket descendant object.
+     * creates an appropriate RadiusPacket descendant object.
      * Reads in all attributes and returns the object.
      * Checks the packet authenticator.
      *
+     * @param in           input stream to read from
      * @param sharedSecret shared secret to be used to decode this packet
-     * @param request      Radius clientRequest packet
+     * @param request      Radius request packet
      * @return new RadiusPacket object
      * @throws IOException     IO error
      * @throws RadiusException malformed packet
@@ -597,8 +600,8 @@ public class RadiusPacket {
     }
 
     /**
-     * Reads a Radius clientRequest packet from the given input stream and
-     * creates an appropiate RadiusPacket descendant object.
+     * Reads a Radius request packet from the given input stream and
+     * creates an appropriate RadiusPacket descendant object.
      * Reads in all attributes and returns the object.
      * Decodes the encrypted fields and attributes of the packet.
      *
@@ -616,14 +619,14 @@ public class RadiusPacket {
 
     /**
      * Reads a Radius clientResponse packet from the given input stream and
-     * creates an appropiate RadiusPacket descendant object.
+     * creates an appropriate RadiusPacket descendant object.
      * Reads in all attributes and returns the object.
      * Checks the packet authenticator.
      *
      * @param dictionary   dictionary to use for attributes
      * @param in           InputStream to read packet from
      * @param sharedSecret shared secret to be used to decode this packet
-     * @param request      Radius clientRequest packet
+     * @param request      Radius request packet
      * @return new RadiusPacket object
      * @throws IOException     IO error
      * @throws RadiusException malformed packet
@@ -652,7 +655,8 @@ public class RadiusPacket {
      * appropriate packet is created. Also sets the type, and the
      * the packet identifier.
      *
-     * @param type packet type
+     * @param type       packet type
+     * @param dictionary to use for packet
      * @return RadiusPacket object
      */
     public static RadiusPacket createRadiusPacket(final int type, Dictionary dictionary) {
@@ -683,7 +687,7 @@ public class RadiusPacket {
 
     /**
      * Creates a RadiusPacket object. Depending on the passed type, the
-     * appropiate successor is chosen. Sets the type, but does not touch
+     * appropriate successor is chosen. Sets the type, but does not touch
      * the packet identifier.
      *
      * @param type packet type
@@ -736,7 +740,7 @@ public class RadiusPacket {
     }
 
     /**
-     * Returns the dictionary this Radius packet uses.
+     * @return the dictionary this Radius packet uses.
      */
     public Dictionary getDictionary() {
         return dictionary;
@@ -763,10 +767,11 @@ public class RadiusPacket {
      *
      * @param out          output stream to use
      * @param sharedSecret shared secret to be used to encode this packet
-     * @param request      Radius clientRequest packet if this packet to be encoded
-     *                     is a clientResponse packet, null if this packet is a clientRequest packet
-     * @throws IOException      communication error
-     * @throws RuntimeException if required packet data has not been set
+     * @param request      Radius request packet if this packet to be encoded
+     *                     is a response packet, null if this packet is a clientRequest packet
+     * @throws IOException              communication error
+     * @throws IllegalArgumentException if required packet data has not been set
+     * @throws RadiusException          malformed packet
      */
     protected void encodePacket(OutputStream out, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
         // check shared secret
@@ -775,7 +780,7 @@ public class RadiusPacket {
 
         // check clientRequest authenticator
         if (request != null && request.getAuthenticator() == null)
-            throw new RuntimeException("clientRequest authenticator not set");
+            throw new IllegalArgumentException("clientRequest authenticator not set");
 
         // clientRequest packet authenticator
         if (request == null) {
@@ -789,7 +794,7 @@ public class RadiusPacket {
         byte[] attributes = getAttributeBytes();
         int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
         if (packetLength > MAX_PACKET_LENGTH)
-            throw new RuntimeException("packet too long");
+            throw new IllegalArgumentException("packet too long");
 
         // clientResponse packet authenticator
         if (request != null) {
@@ -814,6 +819,9 @@ public class RadiusPacket {
      * encode packet attributes like the User-Password attribute.
      * The method may use getAuthenticator() to get the clientRequest
      * authenticator.
+     *
+     * @param sharedSecret used for encoding
+     * @throws RadiusException malformed packet
      */
     protected void encodeRequestAttributes(String sharedSecret) throws RadiusException {
     }
@@ -875,14 +883,15 @@ public class RadiusPacket {
 
     /**
      * Reads a Radius packet from the given input stream and
-     * creates an appropiate RadiusPacket descendant object.
+     * creates an appropriate RadiusPacket descendant object.
      * Reads in all attributes and returns the object.
      * Decodes the encrypted fields and attributes of the packet.
      *
      * @param dictionary   dictionary to use for attributes
+     * @param in           inputStream to read from
      * @param sharedSecret shared secret to be used to decode this packet
-     * @param request      Radius clientRequest packet if this is a clientResponse packet to be
-     *                     decoded, null if this is a clientRequest packet to be decoded
+     * @param request      Radius request packet if this is a response packet to be
+     *                     decoded, null if this is a request packet to be decoded
      * @return new RadiusPacket object
      * @throws IOException     IO error
      * @throws RadiusException packet malformed
@@ -967,6 +976,7 @@ public class RadiusPacket {
      * @param sharedSecret shared secret
      * @param packetLength total length of the packet
      * @param attributes   clientRequest attribute data
+     * @throws RadiusException malformed packet
      */
     protected void checkRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) throws RadiusException {
     }
@@ -975,6 +985,9 @@ public class RadiusPacket {
      * Can be overriden to decode encoded clientRequest attributes such as
      * User-Password. This method may use getAuthenticator() to get the
      * clientRequest authenticator.
+     *
+     * @param sharedSecret used for decoding
+     * @throws RadiusException malformed packet
      */
     protected void decodeRequestAttributes(String sharedSecret) throws RadiusException {
     }
@@ -988,6 +1001,7 @@ public class RadiusPacket {
      * @param attributes           attribute data of the clientResponse packet
      * @param requestAuthenticator 16 bytes authenticator of the clientRequest packet belonging
      *                             to this clientResponse packet
+     * @throws RadiusException malformed packet
      */
     protected void checkResponseAuthenticator(String sharedSecret, int packetLength, byte[] attributes, byte[] requestAuthenticator)
             throws RadiusException {

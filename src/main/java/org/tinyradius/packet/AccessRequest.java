@@ -209,7 +209,10 @@ public class AccessRequest extends RadiusPacket {
      * (hash) send with this Access-Request packet. Works with both PAP
      * and CHAP.
      *
+     * @param plaintext password to verify packet against
      * @return true if the password is valid, false otherwise
+     * @throws RadiusException password verification failed or not supported
+     *                         for auth protocol
      */
     public boolean verifyPassword(String plaintext) throws RadiusException {
         if (plaintext == null || plaintext.isEmpty())

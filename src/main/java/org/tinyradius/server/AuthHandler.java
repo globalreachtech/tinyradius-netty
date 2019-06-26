@@ -37,7 +37,7 @@ public abstract class AuthHandler extends ServerHandler<AccessRequest> {
      * Constructs an answer for an Access-Request packet. This
      * method should be overridden.
      *
-     * @param accessRequest Radius clientRequest packet
+     * @param accessRequest Radius request packet
      * @return clientResponse packet or null if no packet shall be sent
      */
     @Override

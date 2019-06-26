@@ -358,7 +358,7 @@ extends java.lang.Object</pre>
             java.lang.String&nbsp;sharedSecret,
             <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request)</code>
 <div class="block">Reads a Radius packet from the given input stream and
- creates an appropiate RadiusPacket descendant object.</div>
+ creates an appropriate RadiusPacket descendant object.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
@@ -373,16 +373,16 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/RadiusPacket.html#decodeRequestPacket-org.tinyradius.dictionary.Dictionary-java.io.InputStream-java.lang.String-">decodeRequestPacket</a></span>(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
                    java.io.InputStream&nbsp;in,
                    java.lang.String&nbsp;sharedSecret)</code>
-<div class="block">Reads a Radius clientRequest packet from the given input stream and
- creates an appropiate RadiusPacket descendant object.</div>
+<div class="block">Reads a Radius request packet from the given input stream and
+ creates an appropriate RadiusPacket descendant object.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/RadiusPacket.html#decodeRequestPacket-java.io.InputStream-java.lang.String-">decodeRequestPacket</a></span>(java.io.InputStream&nbsp;in,
                    java.lang.String&nbsp;sharedSecret)</code>
-<div class="block">Reads a Radius clientRequest packet from the given input stream and
- creates an appropiate RadiusPacket descendant object.</div>
+<div class="block">Reads a Radius request packet from the given input stream and
+ creates an appropriate RadiusPacket descendant object.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
@@ -392,7 +392,7 @@ extends java.lang.Object</pre>
                     java.lang.String&nbsp;sharedSecret,
                     <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request)</code>
 <div class="block">Reads a Radius clientResponse packet from the given input stream and
- creates an appropiate RadiusPacket descendant object.</div>
+ creates an appropriate RadiusPacket descendant object.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
@@ -401,7 +401,7 @@ extends java.lang.Object</pre>
                     java.lang.String&nbsp;sharedSecret,
                     <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request)</code>
 <div class="block">Reads a Radius clientResponse packet from the given input stream and
- creates an appropiate RadiusPacket descendant object.</div>
+ creates an appropriate RadiusPacket descendant object.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
@@ -424,8 +424,7 @@ extends java.lang.Object</pre>
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/RadiusPacket.html#encodeRequestPacket-java.io.OutputStream-java.lang.String-">encodeRequestPacket</a></span>(java.io.OutputStream&nbsp;out,
                    java.lang.String&nbsp;sharedSecret)</code>
-<div class="block">Encodes this Radius packet and sends it to the specified output
- stream.</div>
+<div class="block">Encodes this Radius packet and sends it to the specified output stream.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
@@ -500,9 +499,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i27" class="rowColor">
 <td class="colFirst"><code><a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/RadiusPacket.html#getDictionary--">getDictionary</a></span>()</code>
-<div class="block">Returns the dictionary this Radius packet uses.</div>
-</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/RadiusPacket.html#getDictionary--">getDictionary</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i28" class="altColor">
 <td class="colFirst"><code>protected java.security.MessageDigest</code></td>
@@ -1415,15 +1412,14 @@ extends java.lang.Object</pre>
                                 java.lang.String&nbsp;sharedSecret)
                          throws java.io.IOException,
                                 <a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
-<div class="block">Encodes this Radius packet and sends it to the specified output
- stream.</div>
+<div class="block">Encodes this Radius packet and sends it to the specified output stream.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>out</code> - output stream to use</dd>
 <dd><code>sharedSecret</code> - shared secret to be used to encode this packet</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.io.IOException</code> - communication error</dd>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
@@ -1444,10 +1440,10 @@ extends java.lang.Object</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>out</code> - output stream to use</dd>
 <dd><code>sharedSecret</code> - shared secret to be used to encode this packet</dd>
-<dd><code>request</code> - Radius clientRequest packet</dd>
+<dd><code>request</code> - Radius request packet</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.io.IOException</code> - communication error</dd>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
@@ -1461,12 +1457,13 @@ extends java.lang.Object</pre>
                                                java.lang.String&nbsp;sharedSecret)
                                         throws java.io.IOException,
                                                <a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
-<div class="block">Reads a Radius clientRequest packet from the given input stream and
- creates an appropiate RadiusPacket descendant object.
+<div class="block">Reads a Radius request packet from the given input stream and
+ creates an appropriate RadiusPacket descendant object.
  Reads in all attributes and returns the object.
  Decodes the encrypted fields and attributes of the packet.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>in</code> - input stream to read from</dd>
 <dd><code>sharedSecret</code> - shared secret to be used to decode this packet</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>new RadiusPacket object</dd>
@@ -1488,13 +1485,14 @@ extends java.lang.Object</pre>
                                          throws java.io.IOException,
                                                 <a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <div class="block">Reads a Radius clientResponse packet from the given input stream and
- creates an appropiate RadiusPacket descendant object.
+ creates an appropriate RadiusPacket descendant object.
  Reads in all attributes and returns the object.
  Checks the packet authenticator.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>in</code> - input stream to read from</dd>
 <dd><code>sharedSecret</code> - shared secret to be used to decode this packet</dd>
-<dd><code>request</code> - Radius clientRequest packet</dd>
+<dd><code>request</code> - Radius request packet</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>new RadiusPacket object</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -1514,8 +1512,8 @@ extends java.lang.Object</pre>
                                                java.lang.String&nbsp;sharedSecret)
                                         throws java.io.IOException,
                                                <a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
-<div class="block">Reads a Radius clientRequest packet from the given input stream and
- creates an appropiate RadiusPacket descendant object.
+<div class="block">Reads a Radius request packet from the given input stream and
+ creates an appropriate RadiusPacket descendant object.
  Reads in all attributes and returns the object.
  Decodes the encrypted fields and attributes of the packet.</div>
 <dl>
@@ -1544,7 +1542,7 @@ extends java.lang.Object</pre>
                                          throws java.io.IOException,
                                                 <a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <div class="block">Reads a Radius clientResponse packet from the given input stream and
- creates an appropiate RadiusPacket descendant object.
+ creates an appropriate RadiusPacket descendant object.
  Reads in all attributes and returns the object.
  Checks the packet authenticator.</div>
 <dl>
@@ -1552,7 +1550,7 @@ extends java.lang.Object</pre>
 <dd><code>dictionary</code> - dictionary to use for attributes</dd>
 <dd><code>in</code> - InputStream to read packet from</dd>
 <dd><code>sharedSecret</code> - shared secret to be used to decode this packet</dd>
-<dd><code>request</code> - Radius clientRequest packet</dd>
+<dd><code>request</code> - Radius request packet</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>new RadiusPacket object</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -1590,6 +1588,7 @@ extends java.lang.Object</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>type</code> - packet type</dd>
+<dd><code>dictionary</code> - to use for packet</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>RadiusPacket object</dd>
 </dl>
@@ -1603,7 +1602,7 @@ extends java.lang.Object</pre>
 <h4>createRadiusPacket</h4>
 <pre>public static&nbsp;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;createRadiusPacket(int&nbsp;type)</pre>
 <div class="block">Creates a RadiusPacket object. Depending on the passed type, the
- appropiate successor is chosen. Sets the type, but does not touch
+ appropriate successor is chosen. Sets the type, but does not touch
  the packet identifier.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1671,7 +1670,10 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getDictionary</h4>
 <pre>public&nbsp;<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;getDictionary()</pre>
-<div class="block">Returns the dictionary this Radius packet uses.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the dictionary this Radius packet uses.</dd>
+</dl>
 </li>
 </ul>
 <a name="setDictionary-org.tinyradius.dictionary.Dictionary-">
@@ -1709,12 +1711,12 @@ extends java.lang.Object</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>out</code> - output stream to use</dd>
 <dd><code>sharedSecret</code> - shared secret to be used to encode this packet</dd>
-<dd><code>request</code> - Radius clientRequest packet if this packet to be encoded
-                     is a clientResponse packet, null if this packet is a clientRequest packet</dd>
+<dd><code>request</code> - Radius request packet if this packet to be encoded
+                     is a response packet, null if this packet is a clientRequest packet</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.io.IOException</code> - communication error</dd>
-<dd><code>java.lang.RuntimeException</code> - if required packet data has not been set</dd>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code>java.lang.IllegalArgumentException</code> - if required packet data has not been set</dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
@@ -1731,8 +1733,10 @@ extends java.lang.Object</pre>
  The method may use getAuthenticator() to get the clientRequest
  authenticator.</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sharedSecret</code> - used for encoding</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
@@ -1810,15 +1814,16 @@ extends java.lang.Object</pre>
                                     throws java.io.IOException,
                                            <a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <div class="block">Reads a Radius packet from the given input stream and
- creates an appropiate RadiusPacket descendant object.
+ creates an appropriate RadiusPacket descendant object.
  Reads in all attributes and returns the object.
  Decodes the encrypted fields and attributes of the packet.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dictionary</code> - dictionary to use for attributes</dd>
+<dd><code>in</code> - inputStream to read from</dd>
 <dd><code>sharedSecret</code> - shared secret to be used to decode this packet</dd>
-<dd><code>request</code> - Radius clientRequest packet if this is a clientResponse packet to be
-                     decoded, null if this is a clientRequest packet to be decoded</dd>
+<dd><code>request</code> - Radius request packet if this is a response packet to be
+                     decoded, null if this is a request packet to be decoded</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>new RadiusPacket object</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -1847,7 +1852,7 @@ extends java.lang.Object</pre>
 <dd><code>packetLength</code> - total length of the packet</dd>
 <dd><code>attributes</code> - clientRequest attribute data</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
@@ -1863,8 +1868,10 @@ extends java.lang.Object</pre>
  User-Password. This method may use getAuthenticator() to get the
  clientRequest authenticator.</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sharedSecret</code> - used for decoding</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
@@ -1889,7 +1896,7 @@ extends java.lang.Object</pre>
 <dd><code>requestAuthenticator</code> - 16 bytes authenticator of the clientRequest packet belonging
                              to this clientResponse packet</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
