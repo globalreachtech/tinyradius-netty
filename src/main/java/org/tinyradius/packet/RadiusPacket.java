@@ -672,12 +672,8 @@ public class RadiusPacket {
             case ACCOUNTING_REQUEST:
                 rp = new AccountingRequest();
                 break;
-
-            case ACCESS_ACCEPT:
-            case ACCESS_REJECT:
-            case ACCOUNTING_RESPONSE:
             default:
-                rp = new RadiusPacket();
+                rp = new RadiusPacket(type);
         }
 
         rp.setDictionary(dictionary);
