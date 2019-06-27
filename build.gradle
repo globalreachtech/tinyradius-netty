@@ -4,15 +4,27 @@ plugins {
     id "com.jfrog.bintray" version "1.8.4"
 }
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.slf4j:slf4j-api:1.7.26'
+    implementation 'io.netty:netty-all:4.1.36.Final'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+}
+
 javadoc {
     destinationDir file('docs')
     options.noTimestamp = true
     options.addBooleanOption('html5', true)  // comment out if building with <jdk9
 }
 
-test {
-    useJUnitPlatform()
-}
+test { useJUnitPlatform() }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     archiveClassifier = 'sources'
@@ -33,7 +45,7 @@ bintray {
         name = 'tinyradius-netty'
         userOrg = 'globalreachtech'
         licenses = ['LGPL-2.1']
-        vcsUrl = 'https://github.com/bintray/gradle-bintray-plugin.git'
+        vcsUrl = 'https://github.com/globalreachtech/tinyradius-netty.git'
         version {
             name = '1.0.1'
             released = new Date()
@@ -57,20 +69,40 @@ publishing {
             groupId 'com.globalreachtech'
             artifactId 'tinyradius-netty'
             version '1.0.1'
+            pom.withXml {
+                asNode().children().last() + {
+                    name 'tinyradius-netty'
+                    description 'TinyRadius is a simple, small and fast Java Radius library capable of sending and receiving Radius packets of all types.'
+                    url 'https://github.com/globalreachtech/tinyradius-netty'
+                    licenses {
+                        license {
+                            name 'GNU Lesser General Public License, version 2.1'
+                            url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html'
+                            distribution "repo"
+                        }
+                    }
+                    developers {
+                        developer {
+                            id 'wuttke'
+                            name 'Matthias Wuttke'
+                            email 'mw@teuto.net'
+                        }
+                        developer {
+                            id 'ctran'
+                            email 'cuong.tran@gmail.com'
+                        }
+                        developer {
+                            id 'globalreachtech'
+                            organization 'GlobalReach Technology'
+                            organizationUrl 'https://www.globalreachtech.com/'
+                        }
+                    }
+                    scm {
+                        url 'https://github.com/globalreachtech/tinyradius-netty'
+                    }
+                }
+            }
         }
     }
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'org.slf4j:slf4j-api:1.7.26'
-    implementation 'io.netty:netty-all:4.1.36.Final'
-
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
-}

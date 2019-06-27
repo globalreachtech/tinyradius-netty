@@ -114,6 +114,10 @@ public class RadiusClient<T extends DatagramChannel> {
     private Future<RadiusPacket> send(RadiusPacket packet, RadiusEndpoint endpoint, int attempts, int maxAttempts) {
         Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
+        // TODO increase Acct-Delay-Time
+        // this changes the packet authenticator and requires packetOut to be
+        // calculated again (call makeDatagramPacket)
+
         // because netty promises don't support chaining
         sendOnce(packet, endpoint).addListener((Future<RadiusPacket> attempt) -> {
             if (attempt.isSuccess())
