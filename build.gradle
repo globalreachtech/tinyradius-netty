@@ -1,7 +1,8 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id "com.jfrog.bintray" version "1.8.4"
+    id 'com.jfrog.bintray' version '1.8.4'
+    id 'com.jfrog.artifactory' version '4.9.7'
 }
 
 sourceCompatibility = 1.8
@@ -58,6 +59,38 @@ bintray {
     }
 }
 
+def pomConfig = {
+    name 'tinyradius-netty'
+    description 'TinyRadius is a simple, small and fast Java Radius library capable of sending and receiving Radius packets of all types.'
+    url 'https://github.com/globalreachtech/tinyradius-netty'
+    licenses {
+        license {
+            name 'GNU Lesser General Public License, version 2.1'
+            url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html'
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id 'wuttke'
+            name 'Matthias Wuttke'
+            email 'mw@teuto.net'
+        }
+        developer {
+            id 'ctran'
+            email 'cuong.tran@gmail.com'
+        }
+        developer {
+            id 'globalreachtech'
+            organization 'GlobalReach Technology'
+            organizationUrl 'https://www.globalreachtech.com/'
+        }
+    }
+    scm {
+        url 'https://github.com/globalreachtech/tinyradius-netty'
+    }
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -70,37 +103,7 @@ publishing {
             artifactId 'tinyradius-netty'
             version '1.0.1'
             pom.withXml {
-                asNode().children().last() + {
-                    name 'tinyradius-netty'
-                    description 'TinyRadius is a simple, small and fast Java Radius library capable of sending and receiving Radius packets of all types.'
-                    url 'https://github.com/globalreachtech/tinyradius-netty'
-                    licenses {
-                        license {
-                            name 'GNU Lesser General Public License, version 2.1'
-                            url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html'
-                            distribution "repo"
-                        }
-                    }
-                    developers {
-                        developer {
-                            id 'wuttke'
-                            name 'Matthias Wuttke'
-                            email 'mw@teuto.net'
-                        }
-                        developer {
-                            id 'ctran'
-                            email 'cuong.tran@gmail.com'
-                        }
-                        developer {
-                            id 'globalreachtech'
-                            organization 'GlobalReach Technology'
-                            organizationUrl 'https://www.globalreachtech.com/'
-                        }
-                    }
-                    scm {
-                        url 'https://github.com/globalreachtech/tinyradius-netty'
-                    }
-                }
+                asNode().children().last() + pomConfig
             }
         }
     }
