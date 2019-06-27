@@ -14,6 +14,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
@@ -95,7 +96,7 @@ public class RadiusPacket {
     /**
      * Next packet identifier.
      */
-    private static int nextPacketId = 0;
+    private static AtomicInteger nextPacketId = new AtomicInteger();
 
     /**
      * Random number generator.
@@ -643,11 +644,8 @@ public class RadiusPacket {
      *
      * @return the next packet identifier to use
      */
-    public static synchronized int getNextPacketIdentifier() {
-        nextPacketId++;
-        if (nextPacketId > 255)
-            nextPacketId = 0;
-        return nextPacketId;
+    public static int getNextPacketIdentifier() {
+        return nextPacketId.updateAndGet(i -> i >= 255 ? 0 : i + 1);
     }
 
     /**
@@ -834,11 +832,9 @@ public class RadiusPacket {
         byte[] randomBytes = new byte[16];
         random.nextBytes(randomBytes);
 
-        MessageDigest md5 = getMd5Digest();
-        md5.reset();
+        MessageDigest md5 = getResetMd5Digest();
         md5.update(secretBytes);
-        md5.update(randomBytes);
-        return md5.digest();
+        return md5.digest(randomBytes);
     }
 
     /**
@@ -864,16 +860,14 @@ public class RadiusPacket {
      * @return new 16 byte clientResponse authenticator
      */
     protected byte[] createResponseAuthenticator(String sharedSecret, int packetLength, byte[] attributes, byte[] requestAuthenticator) {
-        MessageDigest md5 = getMd5Digest();
-        md5.reset();
+        MessageDigest md5 = getResetMd5Digest();
         md5.update((byte) getPacketType());
         md5.update((byte) getPacketIdentifier());
         md5.update((byte) (packetLength >> 8));
         md5.update((byte) (packetLength & 0x0ff));
         md5.update(requestAuthenticator);
-        md5.update(attributes );
-        md5.update(sharedSecret.getBytes(UTF_8));
-        return md5.digest();
+        md5.update(attributes);
+        return md5.digest(sharedSecret.getBytes(UTF_8));
     }
 
     /**
@@ -1012,13 +1006,14 @@ public class RadiusPacket {
      *
      * @return MessageDigest object
      */
-    protected MessageDigest getMd5Digest() {
+    protected MessageDigest getResetMd5Digest() {
         if (md5Digest == null)
             try {
                 md5Digest = MessageDigest.getInstance("MD5");
             } catch (NoSuchAlgorithmException nsae) {
                 throw new RuntimeException("md5 digest not available", nsae);
             }
+        md5Digest.reset();
         return md5Digest;
     }
 
