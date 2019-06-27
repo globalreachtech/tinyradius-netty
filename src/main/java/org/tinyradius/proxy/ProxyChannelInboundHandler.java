@@ -4,37 +4,41 @@ import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.ServerChannelInboundHandler;
+import org.tinyradius.server.ChannelInboundHandler;
+import org.tinyradius.server.RequestHandler;
+import org.tinyradius.util.Lifecycle;
 import org.tinyradius.util.SecretProvider;
 
 /**
- * ServerChannelInboundHandler that allows any RadiusPacket type and adds lifecycle methods.
+ * ChannelInboundHandler that allows any RadiusPacket type and implements Lifecycle.
  */
-public class ProxyChannelInboundHandler extends ServerChannelInboundHandler<RadiusPacket> {
+public class ProxyChannelInboundHandler extends ChannelInboundHandler<RadiusPacket> implements Lifecycle {
 
-    private final ProxyRequestHandler requestHandler;
+    private final Lifecycle requestHandler;
 
     /**
      * @param dictionary     for encoding/decoding RadiusPackets
-     * @param requestHandler handle requests
+     * @param requestHandler ProxyRequestHandler to handle requests. Should also implement {@link Lifecycle}
+     *                       as the handler is expected to manage the socket for proxying.
      * @param timer          handle timeouts if requests take too long to be processed
      * @param secretProvider lookup sharedSecret given remote address
+     * @param <H>            implements RequestHandler and Lifecycle
      */
-    public ProxyChannelInboundHandler(Dictionary dictionary, ProxyRequestHandler requestHandler, Timer timer, SecretProvider secretProvider) {
+    public <H extends RequestHandler<RadiusPacket> & Lifecycle> ProxyChannelInboundHandler(
+            Dictionary dictionary,
+            H requestHandler,
+            Timer timer,
+            SecretProvider secretProvider) {
         super(dictionary, requestHandler, timer, secretProvider, RadiusPacket.class);
         this.requestHandler = requestHandler;
     }
 
-    /***
-     * @return future completes when underlying ProxyRequestHandler initializes
-     */
+    @Override
     public Future<Void> start() {
         return requestHandler.start();
     }
 
-    /**
-     * Close sockets used by underlying RequestHandler
-     */
+    @Override
     public void stop() {
         requestHandler.stop();
     }

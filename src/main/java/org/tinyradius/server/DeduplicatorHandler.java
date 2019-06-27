@@ -21,7 +21,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * if packetIdentifier and remote address matches.
  */
 public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandler<T> {
-// todo implement something similar for proxy, with lifecycle events
+
     private static final Logger logger = LoggerFactory.getLogger(DeduplicatorHandler.class);
 
     private final RequestHandler<T> requestHandler;
@@ -32,8 +32,8 @@ public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandl
 
     /**
      * @param requestHandler underlying handler to process packet if not duplicate
-     * @param timer used to set timeouts that clean up packets after predefined TTL
-     * @param ttlMs time in ms to keep packets in cache and ignore duplicates
+     * @param timer          used to set timeouts that clean up packets after predefined TTL
+     * @param ttlMs          time in ms to keep packets in cache and ignore duplicates
      */
     public DeduplicatorHandler(RequestHandler<T> requestHandler, Timer timer, long ttlMs) {
         this.requestHandler = requestHandler;
@@ -42,7 +42,6 @@ public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandl
     }
 
     /**
-     *
      * @param channel       socket which received packet
      * @param request       the packet
      * @param remoteAddress remote address the packet was sent by

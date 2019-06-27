@@ -32,9 +32,9 @@ import static org.tinyradius.packet.RadiusPacket.decodeRequestPacket;
  *
  * @param <T> RadiusPacket types that this Channel can accept
  */
-public class ServerChannelInboundHandler<T extends RadiusPacket> extends SimpleChannelInboundHandler<DatagramPacket> {
+public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerChannelInboundHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ChannelInboundHandler.class);
 
     private final Dictionary dictionary;
     private final RequestHandler<T> requestHandler;
@@ -50,7 +50,7 @@ public class ServerChannelInboundHandler<T extends RadiusPacket> extends SimpleC
      * @param packetClass    restrict RadiusPacket subtypes that can be processed by handler, otherwise will be dropped.
      *                       If all types of RadiusPackets are allowed, use {@link RadiusPacket}
      */
-    public ServerChannelInboundHandler(Dictionary dictionary, RequestHandler<T> requestHandler, Timer timer, SecretProvider secretProvider, Class<T> packetClass) {
+    public ChannelInboundHandler(Dictionary dictionary, RequestHandler<T> requestHandler, Timer timer, SecretProvider secretProvider, Class<T> packetClass) {
         this.dictionary = dictionary;
         this.requestHandler = requestHandler;
         this.timer = timer;

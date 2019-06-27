@@ -7,8 +7,7 @@ import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.util.RadiusEndpoint;
+import org.tinyradius.util.Lifecycle;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -18,7 +17,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Implements a simple Radius server.
  */
-public class RadiusServer<T extends DatagramChannel> {
+public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusServer.class);
 
@@ -59,11 +58,7 @@ public class RadiusServer<T extends DatagramChannel> {
         this.listenAddress = listenAddress;
     }
 
-    /**
-     * Registers channels and binds to address.
-     *
-     * @return future completes when server sockets and handlers are set up
-     */
+    @Override
     public Future<Void> start() {
         if (this.serverStatus != null)
             return this.serverStatus;
@@ -78,9 +73,7 @@ public class RadiusServer<T extends DatagramChannel> {
         return status;
     }
 
-    /**
-     * Stops the server and closes the sockets.
-     */
+    @Override
     public void stop() {
         logger.info("stopping Radius server");
         if (authChannel != null)

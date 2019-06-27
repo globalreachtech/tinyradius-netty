@@ -15,8 +15,6 @@ import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.*;
-import org.tinyradius.server.AcctHandler;
-import org.tinyradius.server.AuthHandler;
 import org.tinyradius.util.SecretProvider;
 
 import java.io.FileInputStream;
@@ -78,8 +76,8 @@ public class TestServer {
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 null,
-                new ServerChannelInboundHandler<>(dictionary, authHandler, timer, secretProvider, AccessRequest.class),
-                new ServerChannelInboundHandler<>(dictionary, acctHandler, timer, secretProvider, AccountingRequest.class),
+                new ChannelInboundHandler<>(dictionary, authHandler, timer, secretProvider, AccessRequest.class),
+                new ChannelInboundHandler<>(dictionary, acctHandler, timer, secretProvider, AccountingRequest.class),
                 11812, 11813);
 
         final Future<Void> future = server.start();

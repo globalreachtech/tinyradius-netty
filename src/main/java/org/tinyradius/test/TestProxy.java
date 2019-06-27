@@ -13,6 +13,7 @@ import org.tinyradius.dictionary.WritableDictionary;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.proxy.ProxyChannelInboundHandler;
+import org.tinyradius.proxy.ProxyDeduplicatorHandler;
 import org.tinyradius.proxy.ProxyRequestHandler;
 import org.tinyradius.proxy.RadiusProxy;
 import org.tinyradius.util.RadiusEndpoint;
@@ -71,11 +72,13 @@ public class TestProxy {
             }
         };
 
+        final ProxyDeduplicatorHandler proxyDeduplicatorHandler = new ProxyDeduplicatorHandler(proxyRequestHandler, timer, 30000);
+
         final RadiusProxy<NioDatagramChannel> proxy = new RadiusProxy<>(
                 eventLoopGroup,
                 channelFactory,
                 null,
-                new ProxyChannelInboundHandler(dictionary, proxyRequestHandler, timer, secretProvider),
+                new ProxyChannelInboundHandler(dictionary, proxyDeduplicatorHandler, timer, secretProvider),
                 11812, 11813);
 
 

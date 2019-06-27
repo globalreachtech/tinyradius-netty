@@ -9,6 +9,7 @@ import org.tinyradius.client.ProxyStateClientHandler;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestHandler;
+import org.tinyradius.util.Lifecycle;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
@@ -26,28 +27,22 @@ import java.net.InetSocketAddress;
  * This implementation expects {@link #getProxyServer(RadiusPacket, RadiusEndpoint)} to lookup
  * endpoint to forward requests to.
  */
-public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket> {
+public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket>, Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyRequestHandler.class);
 
     private final RadiusClient<?> radiusClient;
 
-    protected ProxyRequestHandler(RadiusClient<?> radiusClient) {
+    public ProxyRequestHandler(RadiusClient<?> radiusClient) {
         this.radiusClient = radiusClient;
     }
 
-    /**
-     * Init dependencies, i.e. RadiusClient used to proxy requests to server.
-     *
-     * @return future completes when proxy client sockets and handlers are set up
-     */
+    @Override
     public Future<Void> start() {
         return radiusClient.startChannel();
     }
 
-    /**
-     * Close sockets used by proxy client
-     */
+    @Override
     public void stop() {
         logger.info("stopping Radius proxy listener");
         radiusClient.stop();
