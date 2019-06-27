@@ -7,33 +7,48 @@ plugins {
 javadoc {
     destinationDir file('docs')
     options.noTimestamp = true
+    options.addBooleanOption('html5', true)  // comment out if building with <jdk9
 }
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allJava
+test {
+    useJUnitPlatform()
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
     archiveClassifier = 'sources'
+    from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar) {
-    from javadoc
+task javadocJar(type: Jar, dependsOn: javadoc) {
     archiveClassifier = 'javadoc'
+    from javadoc.destinationDir
 }
 
 bintray {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
+    publications = ['mavenJava']
     pkg {
-        repo = 'generic'
-        name = 'gradle-project'
+        repo = 'grt-maven'
+        name = 'tinyradius-netty'
         userOrg = 'globalreachtech'
         licenses = ['LGPL-2.1']
         vcsUrl = 'https://github.com/bintray/gradle-bintray-plugin.git'
+        version {
+            name = '1.0.1'
+            released = new Date()
+//            mavenCentralSync {
+//                user = 'userToken' //OSS user token
+//                password = 'paasword' //OSS user password
+//            }
+
+        }
     }
 }
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        mavenJava(MavenPublication) {
             from components.java
             afterEvaluate {
                 artifact sourcesJar
@@ -41,7 +56,7 @@ publishing {
             }
             groupId 'com.globalreachtech'
             artifactId 'tinyradius-netty'
-            version '1.2.0-SNAPSHOT'
+            version '1.0.1'
         }
     }
 }
