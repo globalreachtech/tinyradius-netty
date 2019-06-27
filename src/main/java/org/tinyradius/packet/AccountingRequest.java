@@ -5,15 +5,12 @@ import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.util.RadiusException;
 
-import java.security.MessageDigest;
 import java.util.List;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
 /**
- * This class represents a Radius packet of the type
- * "Accounting-Request".
+ * This class represents a Radius packet of the type Accounting-Request.
  */
 public class AccountingRequest extends RadiusPacket {
 
@@ -128,19 +125,7 @@ public class AccountingRequest extends RadiusPacket {
      * @see RadiusPacket#updateRequestAuthenticator(java.lang.String, int, byte[])
      */
     protected byte[] updateRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) {
-        byte[] authenticator = new byte[16];
-        for (int i = 0; i < 16; i++)
-            authenticator[i] = 0;
-        MessageDigest md5 = getMd5Digest();
-        md5.reset();
-        md5.update((byte) getPacketType());
-        md5.update((byte) getPacketIdentifier());
-        md5.update((byte) (packetLength >> 8));
-        md5.update((byte) (packetLength & 0xff));
-        md5.update(authenticator, 0, authenticator.length);
-        md5.update(attributes, 0, attributes.length);
-        md5.update(sharedSecret.getBytes(UTF_8));
-        return md5.digest();
+        return createResponseAuthenticator(sharedSecret, packetLength, attributes, new byte[16]);
     }
 
     /**

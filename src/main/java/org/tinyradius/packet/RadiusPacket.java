@@ -697,11 +697,6 @@ public class RadiusPacket {
         return createRadiusPacket(type, DefaultDictionary.INSTANCE);
     }
 
-    /**
-     * String representation of this packet, for debugging purposes.
-     *
-     * @see java.lang.Object#toString()
-     */
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append(getPacketTypeName());
@@ -875,8 +870,8 @@ public class RadiusPacket {
         md5.update((byte) getPacketIdentifier());
         md5.update((byte) (packetLength >> 8));
         md5.update((byte) (packetLength & 0x0ff));
-        md5.update(requestAuthenticator, 0, requestAuthenticator.length);
-        md5.update(attributes, 0, attributes.length);
+        md5.update(requestAuthenticator);
+        md5.update(attributes );
         md5.update(sharedSecret.getBytes(UTF_8));
         return md5.digest();
     }
@@ -969,7 +964,7 @@ public class RadiusPacket {
 
     /**
      * Checks the clientRequest authenticator against the supplied shared secret.
-     * Overriden by AccountingRequest to handle special accounting clientRequest
+     * Overridden by AccountingRequest to handle special accounting clientRequest
      * authenticators. There is no way to check clientRequest authenticators for
      * authentication requests as they contain secret bytes.
      *
