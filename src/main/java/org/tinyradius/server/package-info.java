@@ -1,5 +1,5 @@
 /**
- * Classes for Radius Server, Proxy, and reference implementation of
+ * Classes for Radius Server, and reference implementation of
  * ChannelHandlers for incoming packets.
  * <p>
  * ChannelInboundHandler is a base implementation of SimpleChannelInboundHandler that
@@ -9,6 +9,6 @@
  * ChannelInboundHandler uses underlying RequestHandler for logic to handle RadiusPackets.
  * <p>
  * Basic implementations of Accounting and Access RequestHandlers are included
- * for the most trivial use cases. A simple Deduplicator handler is also included.
+ * for the most trivial use cases. A simple DeduplicatorHandler is also included.
  */
 package org.tinyradius.server;
