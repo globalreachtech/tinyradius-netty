@@ -13,7 +13,7 @@ tinyradius-netty is a fork of the original, with some significant changes:
 - Updated to use Generics and Java 8 language features
 - Backported improvements from https://github.com/ctran/TinyRadius
 - RadiusProxy uses RadiusClient to handle requests upstream and connection management
-
+- More immutability
 
 ## License
 Copyright Matthias Wuttke (mw@teuto.net) and contributors.

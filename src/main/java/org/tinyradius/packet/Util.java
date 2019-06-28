@@ -1,8 +1,5 @@
 package org.tinyradius.packet;
 
-import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-
 import static java.lang.Math.max;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
@@ -55,16 +52,6 @@ class Util {
         return dst;
     }
 
-    static byte[] compute(byte[]... values) throws GeneralSecurityException {
-
-        MessageDigest md = MessageDigest.getInstance("MD5");
-
-        for (byte[] b : values)
-            md.update(b);
-
-        return md.digest();
-    }
-
     static byte[] pad(byte[] value, int length) {
         requireNonNull(value, "value cannot be null");
         if (length < 0)
@@ -80,13 +67,6 @@ class Util {
         return padded;
     }
 
-    /**
-     * Creates a string from the passed byte array containing the
-     * string in UTF-8 representation.
-     *
-     * @param utf8 UTF-8 byte array
-     * @return Java string
-     */
     static String getStringFromUtf8(byte[] utf8) {
         String s = new String(utf8, UTF_8);
         int i = s.indexOf('\0');

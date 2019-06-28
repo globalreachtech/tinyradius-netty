@@ -14,9 +14,10 @@ public class CoaRequest extends RadiusPacket {
     }
 
     /**
-     * @see AccountingRequest#updateRequestAuthenticator(String, int, byte[])
+     * Calculates the clientRequest authenticator as specified by RFC 5176, as defined in RFC 2866.
      */
-    protected byte[] updateRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) {
-        return createResponseAuthenticator(sharedSecret, packetLength, attributes, new byte[16]);
+    @Override
+    protected byte[] createRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) {
+        return createHashedAuthenticator(sharedSecret, packetLength, attributes, new byte[16]);
     }
 }

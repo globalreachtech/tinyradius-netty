@@ -121,18 +121,17 @@ public class AccountingRequest extends RadiusPacket {
 
     /**
      * Calculates the clientRequest authenticator as specified by RFC 2866.
-     *
-     * @see RadiusPacket#updateRequestAuthenticator(java.lang.String, int, byte[])
      */
-    protected byte[] updateRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) {
-        return createResponseAuthenticator(sharedSecret, packetLength, attributes, new byte[16]);
+    @Override
+    protected byte[] createRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) {
+        return createHashedAuthenticator(sharedSecret, packetLength, attributes, new byte[16]);
     }
 
     /**
      * Checks the received clientRequest authenticator as specified by RFC 2866.
      */
     protected void checkRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) throws RadiusException {
-        byte[] expectedAuthenticator = updateRequestAuthenticator(sharedSecret, packetLength, attributes);
+        byte[] expectedAuthenticator = createHashedAuthenticator(sharedSecret, packetLength, attributes, new byte[16]);
         byte[] receivedAuth = getAuthenticator();
         for (int i = 0; i < 16; i++)
             if (expectedAuthenticator[i] != receivedAuth[i])

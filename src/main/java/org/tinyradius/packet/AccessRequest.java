@@ -6,7 +6,7 @@ import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.util.RadiusException;
 
-import java.security.GeneralSecurityException;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -16,12 +16,15 @@ import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.packet.Util.*;
+import static org.tinyradius.packet.Util.getStringFromUtf8;
+import static org.tinyradius.packet.Util.xor;
 
 /**
  * This class represents an Access-Request Radius packet.
  */
 public class AccessRequest extends RadiusPacket {
+
+    private static final Logger logger = LoggerFactory.getLogger(AccessRequest.class);
 
     /**
      * Passphrase Authentication Protocol
@@ -108,11 +111,6 @@ public class AccessRequest extends RadiusPacket {
     private static final int MS_CHAP2_RESPONSE = 25;
 
     /**
-     * Logger for logging information about malformed packets
-     */
-    private static final Logger logger = LoggerFactory.getLogger(AccessRequest.class);
-
-    /**
      * Constructs an empty Access-Request packet.
      */
     public AccessRequest() {
@@ -185,7 +183,7 @@ public class AccessRequest extends RadiusPacket {
     /**
      * Returns the protocol used for encrypting the passphrase.
      *
-     * @return AUTH_PAP or AUTH_CHAP
+     * @return one of {@link #AUTH_PROTOCOLS}
      */
     public String getAuthProtocol() {
         return authProtocol;
@@ -195,7 +193,7 @@ public class AccessRequest extends RadiusPacket {
      * Selects the protocol to use for encrypting the passphrase when
      * encoding this Radius packet.
      *
-     * @param authProtocol AUTH_PAP or AUTH_CHAP
+     * @param authProtocol {@link #AUTH_PROTOCOLS}
      */
     public void setAuthProtocol(String authProtocol) {
         if (authProtocol != null && AUTH_PROTOCOLS.contains(authProtocol))
@@ -267,10 +265,22 @@ public class AccessRequest extends RadiusPacket {
             throw new RadiusException("Access-Request: User-Password or CHAP-Password/CHAP-Challenge missing");
     }
 
+    @Override
+    protected void encodeRequest(String sharedSecret) throws RadiusException, IOException {
+        // first create authenticator if needed, then encode attributes
+        // (User-Password attribute needs the authenticator)
+        if (authenticator == null)
+            authenticator = createRandomizedAuthenticator(sharedSecret);
+        encodeRequestAttributes(sharedSecret);
+
+        byte[] attributes = getAttributeBytes();
+        int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
+        if (packetLength > MAX_PACKET_LENGTH)
+            throw new RuntimeException("packet too long");
+    }
+
     /**
      * Sets and encrypts the User-Password attribute.
-     *
-     * @see RadiusPacket#encodeRequestAttributes(java.lang.String)
      */
     protected void encodeRequestAttributes(String sharedSecret) throws RadiusException {
         if (password == null || password.isEmpty())
@@ -308,26 +318,21 @@ public class AccessRequest extends RadiusPacket {
      * @param sharedSecret shared secret
      * @return the byte array containing the encrypted password
      */
-    private byte[] encodePapPassword(final byte[] userPass, byte[] sharedSecret) throws RadiusException {
+    private byte[] encodePapPassword(final byte[] userPass, byte[] sharedSecret) {
         requireNonNull(userPass, "userPass cannot be null");
         requireNonNull(sharedSecret, "sharedSecret cannot be null");
 
-        try {
-            byte[] C = this.getAuthenticator();
-            byte[] P = Util.pad(userPass, C.length);
-            byte[] result = new byte[P.length];
+        byte[] C = this.getAuthenticator();
+        byte[] P = Util.pad(userPass, C.length);
+        byte[] result = new byte[P.length];
 
-            for (int i = 0; i < P.length; i += C.length) {
-                C = compute(sharedSecret, C);
-                C = xor(P, i, C.length, C, 0, C.length);
-                System.arraycopy(C, 0, result, i, C.length);
-            }
-
-            return result;
-
-        } catch (GeneralSecurityException e) {
-            throw new RadiusException(e);
+        for (int i = 0; i < P.length; i += C.length) {
+            C = compute(sharedSecret, C);
+            C = xor(P, i, C.length, C, 0, C.length);
+            System.arraycopy(C, 0, result, i, C.length);
         }
+
+        return result;
     }
 
     /**
@@ -345,22 +350,17 @@ public class AccessRequest extends RadiusPacket {
             throw new RadiusException("malformed User-Password attribute");
         }
 
-        try {
-            byte[] result = new byte[encryptedPass.length];
-            byte[] C = this.getAuthenticator();
+        byte[] result = new byte[encryptedPass.length];
+        byte[] C = this.getAuthenticator();
 
-            for (int i = 0; i < encryptedPass.length; i += C.length) {
-                C = compute(sharedSecret, C);
-                C = xor(encryptedPass, i, C.length, C, 0, C.length);
-                System.arraycopy(C, 0, result, i, C.length);
-                System.arraycopy(encryptedPass, i, C, 0, C.length);
-            }
-
-            return getStringFromUtf8(result);
-
-        } catch (GeneralSecurityException e) {
-            throw new RadiusException(e);
+        for (int i = 0; i < encryptedPass.length; i += C.length) {
+            C = compute(sharedSecret, C);
+            C = xor(encryptedPass, i, C.length, C, 0, C.length);
+            System.arraycopy(C, 0, result, i, C.length);
+            System.arraycopy(encryptedPass, i, C, 0, C.length);
         }
+
+        return getStringFromUtf8(result);
     }
 
     /**
@@ -420,5 +420,14 @@ public class AccessRequest extends RadiusPacket {
             if (chapHash[i] != chapPassword[i + 1])
                 return false;
         return true;
+    }
+
+    private byte[] compute(byte[]... values) {
+        MessageDigest md = getResetMd5Digest();
+
+        for (byte[] b : values)
+            md.update(b);
+
+        return md.digest();
     }
 }
