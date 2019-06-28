@@ -30,12 +30,12 @@ public class RadiusPacket {
     /**
      * Packet type codes.
      */
-    public static final int ACCESS_REQUEST = 1;
+    public static final int ACCESS_REQUEST = 1; // RFC 2865
     public static final int ACCESS_ACCEPT = 2;
     public static final int ACCESS_REJECT = 3;
     public static final int ACCESS_CHALLENGE = 11;
 
-    public static final int ACCOUNTING_REQUEST = 4;
+    public static final int ACCOUNTING_REQUEST = 4; // RFC 2866
     public static final int ACCOUNTING_RESPONSE = 5;
     public static final int ACCOUNTING_STATUS = 6; // aka Interim Accounting
     public static final int ACCOUNTING_MESSAGE = 10;
@@ -47,7 +47,7 @@ public class RadiusPacket {
     public static final int STATUS_SERVER = 12; // RFC 5997
     public static final int STATUS_CLIENT = 13;
 
-    public static final int DISCONNECT_REQUEST = 40; // RFC 2882
+    public static final int DISCONNECT_REQUEST = 40; // RFC 5176
     public static final int DISCONNECT_ACK = 41;
     public static final int DISCONNECT_NAK = 42;
     public static final int COA_REQUEST = 43;
@@ -253,7 +253,7 @@ public class RadiusPacket {
     public void addAttribute(RadiusAttribute attribute) {
         requireNonNull(attributes, "attribute is null");
 
-        attribute.setDictionary(getDictionary());
+        attribute.setDictionary(dictionary);
         if (attribute.getVendorId() == -1)
             this.attributes.add(attribute);
         else {
@@ -539,7 +539,11 @@ public class RadiusPacket {
      * @throws RadiusException malformed packet
      */
     public void encodeRequestPacket(OutputStream out, String sharedSecret) throws IOException, RadiusException {
-        encodePacket(out, sharedSecret, null);
+        if (sharedSecret == null || sharedSecret.isEmpty())
+            throw new IllegalArgumentException("no shared secret has been set");
+
+        encodeRequest(sharedSecret);
+        writeOutput(out);
     }
 
     /**
@@ -549,11 +553,16 @@ public class RadiusPacket {
      * @param out          output stream to use
      * @param sharedSecret shared secret to be used to encode this packet
      * @param request      Radius request packet
-     * @throws IOException     communication error
-     * @throws RadiusException malformed packet
+     * @throws IOException communication error
      */
-    public void encodeResponsePacket(OutputStream out, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
-        encodePacket(out, sharedSecret, requireNonNull(request, "request cannot be null"));
+    public void encodeResponsePacket(OutputStream out, String sharedSecret, RadiusPacket request) throws IOException {
+        if (sharedSecret == null || sharedSecret.isEmpty())
+            throw new IllegalArgumentException("no shared secret has been set");
+        if (request == null || request.getAuthenticator() == null)
+            throw new IllegalArgumentException("request authenticator not set");
+
+        encodeResponse(sharedSecret, request.getAuthenticator());
+        writeOutput(out);
     }
 
     /**
@@ -741,30 +750,6 @@ public class RadiusPacket {
         attributes.forEach(a -> a.setDictionary(dictionary));
     }
 
-    /**
-     * Encodes this Radius packet and sends it to the specified output
-     * stream.
-     *
-     * @param out          output stream to use
-     * @param sharedSecret shared secret to be used to encode this packet
-     * @param request      Radius request packet if this packet to be encoded
-     *                     is a response packet, null if this packet is a request packet
-     * @throws IOException              communication error
-     * @throws IllegalArgumentException if required packet data has not been set
-     * @throws RadiusException          malformed packet
-     */
-    protected void encodePacket(OutputStream out, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
-        if (sharedSecret == null || sharedSecret.isEmpty())
-            throw new IllegalArgumentException("no shared secret has been set");
-
-        if (request == null)
-            encodeRequest(sharedSecret);
-        else
-            encodeResponse(sharedSecret, request);
-
-        writeOutput(out);
-    }
-
     private void writeOutput(OutputStream out) throws IOException {
         byte[] attributes = getAttributeBytes();
         DataOutputStream dos = new DataOutputStream(out);
@@ -777,31 +762,21 @@ public class RadiusPacket {
     }
 
     protected void encodeRequest(String sharedSecret) throws RadiusException, IOException {
-        // first create authenticator if needed, then encode attributes
-        // (User-Password attribute needs the authenticator)
-        if (authenticator == null)
-            authenticator = createRandomizedAuthenticator(sharedSecret);
-
         byte[] attributes = getAttributeBytes();
         int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
         if (packetLength > MAX_PACKET_LENGTH)
             throw new RuntimeException("packet too long");
 
-        // update authenticator after encoding attributes
         authenticator = createRequestAuthenticator(sharedSecret, packetLength, attributes);
     }
 
-    protected void encodeResponse(String sharedSecret, RadiusPacket request) throws IOException {
-        if (request.getAuthenticator() == null)
-            throw new IllegalArgumentException("request authenticator not set");
-
+    protected void encodeResponse(String sharedSecret, byte[] requestAuthenticator) throws IOException {
         byte[] attributes = getAttributeBytes();
         int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
         if (packetLength > MAX_PACKET_LENGTH)
             throw new RuntimeException("packet too long");
 
-        // after encoding attributes, create authenticator
-        authenticator = createHashedAuthenticator(sharedSecret, packetLength, attributes, request.getAuthenticator());
+        authenticator = createHashedAuthenticator(sharedSecret, packetLength, attributes, requestAuthenticator);
     }
 
     /**
@@ -823,8 +798,11 @@ public class RadiusPacket {
     }
 
     /**
-     * AccountingRequest overrides this
-     * method to create a request authenticator as specified by RFC 2866.
+     * AccountingRequest / CoA overrides this method to create a request authenticator as specified by RFC 2866.
+     * <p>
+     * By default, generate randomized authenticator as used by Access-Request / Status-Server (not implemented).
+     * <p>
+     * As more packet types are supposed, consider changing the default authenticator generation method.
      *
      * @param sharedSecret shared secret
      * @param packetLength length of the final Radius packet
@@ -832,7 +810,8 @@ public class RadiusPacket {
      * @return new request authenticator
      */
     protected byte[] createRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) {
-        return authenticator;
+        return authenticator == null ?
+                createRandomizedAuthenticator(sharedSecret) : authenticator;
     }
 
     /**
@@ -927,7 +906,6 @@ public class RadiusPacket {
             pos += attributeLength;
         }
 
-        // request packet?
         if (request == null) {
             // decode attributes
             rp.decodeRequestAttributes(sharedSecret);
