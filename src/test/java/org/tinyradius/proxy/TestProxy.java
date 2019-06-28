@@ -1,4 +1,4 @@
-package org.tinyradius.test;
+package org.tinyradius.proxy;
 
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;

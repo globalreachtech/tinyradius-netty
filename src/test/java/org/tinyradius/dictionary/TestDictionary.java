@@ -1,4 +1,4 @@
-package org.tinyradius.test;
+package org.tinyradius.dictionary;
 
 import org.tinyradius.attribute.IpAttribute;
 import org.tinyradius.attribute.Ipv6Attribute;

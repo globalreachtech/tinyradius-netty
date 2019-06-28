@@ -1,4 +1,4 @@
-package org.tinyradius.test;
+package org.tinyradius.server;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ReflectiveChannelFactory;
