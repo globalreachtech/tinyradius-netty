@@ -1,0 +1,7 @@
+VENDORATTR                                            PKM-SS-Cert    137     octets
+VENDORATTR                                            PKM-CA-Cert    138     octets
+VENDORATTR                                    PKM-Config-Settings    139     octets
+VENDORATTR                                   PKM-Cryptosuite-List    140     octets
+VENDORATTR                                               PKM-SAID    141      short
+VENDORATTR                                      PKM-SA-Descriptor    142     octets
+VENDORATTR                                           PKM-Auth-Key    143     octets

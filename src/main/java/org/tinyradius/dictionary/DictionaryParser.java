@@ -30,8 +30,6 @@ public class DictionaryParser {
         return d;
     }
 
-    // todo test parse classpath
-
     /**
      * Parses the dictionary from the specified InputStream.
      *
@@ -161,10 +159,8 @@ public class DictionaryParser {
         FileInputStream fis = new FileInputStream(incf);
         parseDictionary(fis, dictionary);
 
-        // line numbers begin with 0 again, but file name is
-        // not mentioned in exceptions
-        // furthermore, this method does not allow to include
-        // classpath resources
+        // todo line numbers begin with 0 again, but file name is not mentioned in exceptions
+        // todo this method does not allow to include classpath resources
     }
 
     /**
