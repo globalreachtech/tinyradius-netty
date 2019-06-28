@@ -9,7 +9,8 @@ import java.net.InetSocketAddress;
 public interface RequestHandler<T extends RadiusPacket> {
 
     /**
-     * Handles the received Radius packet and constructs a response.
+     * Handles the received Radius packet and constructs a response. Filters/Deduplicators
+     * can also implement this and wrap around underlying handlers.
      *
      * @param channel       socket which received packet
      * @param request       the packet

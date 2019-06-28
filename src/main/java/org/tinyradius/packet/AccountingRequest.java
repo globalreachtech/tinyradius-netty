@@ -122,12 +122,7 @@ public class AccountingRequest extends RadiusPacket {
 
     @Override
     protected void encodeRequest(String sharedSecret) throws IOException {
-        byte[] attributes = getAttributeBytes();
-        int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
-        if (packetLength > MAX_PACKET_LENGTH)
-            throw new RuntimeException("packet too long");
-
-        authenticator = createHashedAuthenticator(sharedSecret, packetLength, attributes, new byte[16]);
+        encodePacket(sharedSecret, new byte[16]);
     }
 
     /**
