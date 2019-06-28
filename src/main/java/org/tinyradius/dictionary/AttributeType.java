@@ -12,10 +12,10 @@ import static java.util.Objects.requireNonNull;
  */
 public class AttributeType<T extends RadiusAttribute> {
 
-    private int vendorId = -1;
-    private int typeCode;
-    private String name;
-    private Class<T> attributeClass;
+    private final int vendorId;
+    private final int typeCode;
+    private final String name;
+    private final Class<T> attributeClass;
     private final Map<Integer, String> enumeration = new HashMap<>();
 
     /**
@@ -26,24 +26,27 @@ public class AttributeType<T extends RadiusAttribute> {
      * @param type RadiusAttribute descendant who handles attributes of this type
      */
     public AttributeType(int code, String name, Class<T> type) {
-        setTypeCode(code);
-        setName(name);
-        setAttributeClass(type);
+        this(-1, code, name, type);
     }
 
     /**
      * Constructs a Vendor-Specific sub-attribute type.
      *
-     * @param vendor vendor ID
-     * @param code   sub-attribute type code
-     * @param name   sub-attribute name
-     * @param type   sub-attribute class
+     * @param vendorId vendor ID
+     * @param code     sub-attribute type code
+     * @param name     sub-attribute name
+     * @param type     sub-attribute class
      */
-    public AttributeType(int vendor, int code, String name, Class<T> type) {
-        setTypeCode(code);
-        setName(name);
-        setAttributeClass(type);
-        setVendorId(vendor);
+    public AttributeType(int vendorId, int code, String name, Class<T> type) {
+        if (code < 1 || code > 255)
+            throw new IllegalArgumentException("code out of bounds");
+        if (name == null || name.isEmpty())
+            throw new IllegalArgumentException("name is empty");
+        requireNonNull(type, "type is null");
+        this.vendorId = vendorId;
+        this.typeCode = code;
+        this.name = name;
+        this.attributeClass = type;
     }
 
     /**
@@ -56,34 +59,12 @@ public class AttributeType<T extends RadiusAttribute> {
     }
 
     /**
-     * Sets the Radius type code for this attribute type.
-     *
-     * @param code type code, 1-255
-     */
-    public void setTypeCode(int code) {
-        if (code < 1 || code > 255)
-            throw new IllegalArgumentException("code out of bounds");
-        this.typeCode = code;
-    }
-
-    /**
      * Retrieves the name of this type.
      *
      * @return name
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * Sets the name of this type.
-     *
-     * @param name type name
-     */
-    public void setName(String name) {
-        if (name == null || name.isEmpty())
-            throw new IllegalArgumentException("name is empty");
-        this.name = name;
     }
 
     /**
@@ -97,19 +78,6 @@ public class AttributeType<T extends RadiusAttribute> {
     }
 
     /**
-     * Sets the RadiusAttribute descendant class which represents
-     * attributes of this type.
-     *
-     * @param type subclass of {@link RadiusAttribute}
-     */
-    public void setAttributeClass(Class<T> type) {
-        requireNonNull(type, "type is null");
-        if (!RadiusAttribute.class.isAssignableFrom(type))
-            throw new IllegalArgumentException("type is not a RadiusAttribute descendant");
-        this.attributeClass = type;
-    }
-
-    /**
      * Returns the vendor ID.
      * No vendor specific attribute = -1
      *
@@ -117,15 +85,6 @@ public class AttributeType<T extends RadiusAttribute> {
      */
     public int getVendorId() {
         return vendorId;
-    }
-
-    /**
-     * Sets the vendor ID.
-     *
-     * @param vendorId vendor ID
-     */
-    public void setVendorId(int vendorId) {
-        this.vendorId = vendorId;
     }
 
     /**
@@ -170,7 +129,6 @@ public class AttributeType<T extends RadiusAttribute> {
      * for debugging purposes.
      *
      * @return string
-     * @see java.lang.Object#toString()
      */
     public String toString() {
         String s = getTypeCode() + "/" + getName() + ": " + attributeClass.getName();
