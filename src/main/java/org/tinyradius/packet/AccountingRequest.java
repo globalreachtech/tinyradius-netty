@@ -120,7 +120,7 @@ public class AccountingRequest extends RadiusPacket {
     }
 
     /**
-     * Calculates the clientRequest authenticator as specified by RFC 2866.
+     * Calculates the request authenticator as specified by RFC 2866.
      */
     @Override
     protected byte[] createRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) {
@@ -128,13 +128,13 @@ public class AccountingRequest extends RadiusPacket {
     }
 
     /**
-     * Checks the received clientRequest authenticator as specified by RFC 2866.
+     * Checks the received request authenticator as specified by RFC 2866.
      */
     protected void checkRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) throws RadiusException {
         byte[] expectedAuthenticator = createHashedAuthenticator(sharedSecret, packetLength, attributes, new byte[16]);
         byte[] receivedAuth = getAuthenticator();
         for (int i = 0; i < 16; i++)
             if (expectedAuthenticator[i] != receivedAuth[i])
-                throw new RadiusException("clientRequest authenticator invalid");
+                throw new RadiusException("request authenticator invalid");
     }
 }

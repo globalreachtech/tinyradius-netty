@@ -20,7 +20,7 @@ public class AcctHandler implements RequestHandler<AccountingRequest> {
      * should be overridden.
      *
      * @param accountingRequest Radius request packet
-     * @return clientResponse packet or null if no packet shall be sent
+     * @return response packet or null if no packet shall be sent
      */
     @Override
     public Promise<RadiusPacket> handlePacket(Channel channel, AccountingRequest accountingRequest, InetSocketAddress remoteAddress, String sharedSecret) {

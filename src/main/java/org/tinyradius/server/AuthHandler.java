@@ -30,7 +30,7 @@ public abstract class AuthHandler implements RequestHandler<AccessRequest> {
      * method should be overridden.
      *
      * @param accessRequest Radius request packet
-     * @return clientResponse packet or null if no packet shall be sent
+     * @return response packet or null if no packet shall be sent
      */
     @Override
     public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) {

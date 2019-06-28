@@ -28,8 +28,8 @@ import java.net.UnknownHostException;
  * TestProxy shows how to implement a proxy radius server. You can use
  * this class together with TestClient and TestServer.
  * <p>
- * Listens on localhost:1812 and localhost:1813. Proxies every access clientRequest
- * to localhost:10000 and every accounting clientRequest to localhost:10001.
+ * Listens on localhost:1812 and localhost:1813. Proxies every access request
+ * to localhost:10000 and every accounting request to localhost:10001.
  * You can use TestClient to ask this TestProxy and TestServer
  * with the parameters 10000 and 10001 as the target server.
  * Uses "testing123" as the shared secret for the communication with the

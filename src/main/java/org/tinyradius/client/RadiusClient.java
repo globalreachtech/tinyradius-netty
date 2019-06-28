@@ -125,7 +125,7 @@ public class RadiusClient<T extends DatagramChannel> {
             if (attempts >= maxAttempts)
                 promise.tryFailure(new RadiusException("Max retries reached: " + maxAttempts)); //todo check obo error
 
-            logger.info(String.format("Retransmitting clientRequest for context %d", packet.getPacketIdentifier()));
+            logger.info(String.format("Retransmitting request for context %d", packet.getPacketIdentifier()));
             send(packet, endpoint, attempts + 1, maxAttempts);
         });
 

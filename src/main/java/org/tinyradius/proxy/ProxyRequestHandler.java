@@ -80,7 +80,7 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
         }
 
         logger.info("proxy packet to " + serverEndpoint.getEndpointAddress());
-        // save clientRequest authenticator (will be calculated new)
+        // save request authenticator (will be calculated new)
         byte[] auth = packet.getAuthenticator();
 
         // send new packet (with new authenticator)

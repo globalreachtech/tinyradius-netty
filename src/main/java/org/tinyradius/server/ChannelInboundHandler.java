@@ -59,12 +59,12 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
     }
 
     /**
-     * Creates a Radius clientResponse datagram packet from a RadiusPacket to be send.
+     * Creates a Radius response datagram packet from a RadiusPacket to be send.
      *
      * @param packet  RadiusPacket
      * @param secret  shared secret to encode packet
      * @param address where to send the packet
-     * @param request clientRequest packet
+     * @param request request packet
      * @return new datagram packet
      * @throws IOException     IO error
      * @throws RadiusException malformed packet
@@ -80,7 +80,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
     }
 
     /**
-     * Creates a RadiusPacket for a Radius clientRequest from a received
+     * Creates a RadiusPacket for a Radius request from a received
      * datagram packet.
      *
      * @param packet       received datagram
@@ -128,15 +128,15 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
 
                 RadiusPacket response = f.getNow();
 
-                // send clientResponse
+                // send response
                 if (response != null) {
                     response.setDictionary(dictionary);
-                    logger.info("send clientResponse: {}", response);
+                    logger.info("send response: {}", response);
                     logger.info("sending response packet to {} with secret {}", remoteAddress, secret);
                     DatagramPacket packetOut = makeDatagramPacket(response, secret, remoteAddress, packet);
                     ctx.writeAndFlush(packetOut);
                 } else {
-                    logger.info("no clientResponse sent");
+                    logger.info("no response sent");
                     Throwable e = f.cause();
                     if (e != null)
                         logger.error("exception while handling packet", e);

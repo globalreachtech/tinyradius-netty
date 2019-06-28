@@ -54,7 +54,7 @@ public class AccessRequest extends RadiusPacket {
     private String password;
 
     /**
-     * Authentication protocol for this access clientRequest.
+     * Authentication protocol for this access request.
      */
     private String authProtocol = AUTH_PAP;
 

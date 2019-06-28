@@ -543,7 +543,7 @@ public class RadiusPacket {
     }
 
     /**
-     * Encodes this Radius clientResponse packet and sends it to the specified output
+     * Encodes this Radius response packet and sends it to the specified output
      * stream.
      *
      * @param out          output stream to use
@@ -553,7 +553,7 @@ public class RadiusPacket {
      * @throws RadiusException malformed packet
      */
     public void encodeResponsePacket(OutputStream out, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
-        encodePacket(out, sharedSecret, requireNonNull(request, "clientRequest cannot be null"));
+        encodePacket(out, sharedSecret, requireNonNull(request, "request cannot be null"));
     }
 
     /**
@@ -573,7 +573,7 @@ public class RadiusPacket {
     }
 
     /**
-     * Reads a Radius clientResponse packet from the given input stream and
+     * Reads a Radius response packet from the given input stream and
      * creates an appropriate RadiusPacket descendant object.
      * Reads in all attributes and returns the object.
      * Checks the packet authenticator.
@@ -587,7 +587,7 @@ public class RadiusPacket {
      */
     public static RadiusPacket decodeResponsePacket(InputStream in, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
         return decodePacket(request.getDictionary(), in, sharedSecret,
-                requireNonNull(request, "clientRequest may not be null"));
+                requireNonNull(request, "request may not be null"));
     }
 
     /**
@@ -609,7 +609,7 @@ public class RadiusPacket {
     }
 
     /**
-     * Reads a Radius clientResponse packet from the given input stream and
+     * Reads a Radius response packet from the given input stream and
      * creates an appropriate RadiusPacket descendant object.
      * Reads in all attributes and returns the object.
      * Checks the packet authenticator.
@@ -625,7 +625,7 @@ public class RadiusPacket {
     public static RadiusPacket decodeResponsePacket(Dictionary dictionary, InputStream in, String sharedSecret, RadiusPacket request)
             throws IOException, RadiusException {
         return decodePacket(dictionary, in, sharedSecret,
-                requireNonNull(request, "clientRequest may not be null"));
+                requireNonNull(request, "request may not be null"));
     }
 
     /**
@@ -748,7 +748,7 @@ public class RadiusPacket {
      * @param out          output stream to use
      * @param sharedSecret shared secret to be used to encode this packet
      * @param request      Radius request packet if this packet to be encoded
-     *                     is a response packet, null if this packet is a clientRequest packet
+     *                     is a response packet, null if this packet is a request packet
      * @throws IOException              communication error
      * @throws IllegalArgumentException if required packet data has not been set
      * @throws RadiusException          malformed packet
@@ -805,12 +805,12 @@ public class RadiusPacket {
     }
 
     /**
-     * Creates a clientRequest authenticator for this packet. This clientRequest authenticator
+     * Creates a request authenticator for this packet. This request authenticator
      * is constructed as described in RFC 2865.
      *
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client
-     * @return clientRequest authenticator, 16 bytes
+     * @return request authenticator, 16 bytes
      */
     protected byte[] createRandomizedAuthenticator(String sharedSecret) {
         byte[] secretBytes = sharedSecret.getBytes(UTF_8);
@@ -824,25 +824,25 @@ public class RadiusPacket {
 
     /**
      * AccountingRequest overrides this
-     * method to create a clientRequest authenticator as specified by RFC 2866.
+     * method to create a request authenticator as specified by RFC 2866.
      *
      * @param sharedSecret shared secret
      * @param packetLength length of the final Radius packet
      * @param attributes   attribute data
-     * @return new clientRequest authenticator
+     * @return new request authenticator
      */
     protected byte[] createRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) {
         return authenticator;
     }
 
     /**
-     * Creates an authenticator for a Radius clientResponse packet.
+     * Creates an authenticator for a Radius response packet.
      *
      * @param sharedSecret         shared secret
-     * @param packetLength         length of clientResponse packet
-     * @param attributes           encoded attributes of clientResponse packet
-     * @param requestAuthenticator clientRequest packet authenticator
-     * @return new 16 byte clientResponse authenticator
+     * @param packetLength         length of response packet
+     * @param attributes           encoded attributes of response packet
+     * @param requestAuthenticator request packet authenticator
+     * @return new 16 byte response authenticator
      */
     protected byte[] createHashedAuthenticator(String sharedSecret, int packetLength, byte[] attributes, byte[] requestAuthenticator) {
         MessageDigest md5 = getResetMd5Digest();
@@ -876,9 +876,9 @@ public class RadiusPacket {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new RuntimeException("no shared secret has been set");
 
-        // check clientRequest authenticator
+        // check request authenticator
         if (request != null && request.getAuthenticator() == null)
-            throw new RuntimeException("clientRequest authenticator not set");
+            throw new RuntimeException("request authenticator not set");
 
         // read and check header
         int type = in.read() & 0x0ff;
@@ -886,7 +886,7 @@ public class RadiusPacket {
         int length = (in.read() & 0x0ff) << 8 | (in.read() & 0x0ff);
 
         if (request != null && request.getPacketIdentifier() != identifier)
-            throw new RadiusException("bad packet: invalid packet identifier (clientRequest: " + request.getPacketIdentifier() + ", clientResponse: " + identifier);
+            throw new RadiusException("bad packet: invalid packet identifier (request: " + request.getPacketIdentifier() + ", response: " + identifier);
         if (length < RADIUS_HEADER_LENGTH)
             throw new RadiusException("bad packet: packet too short (" + length + " bytes)");
         if (length > MAX_PACKET_LENGTH)
@@ -927,13 +927,13 @@ public class RadiusPacket {
             pos += attributeLength;
         }
 
-        // clientRequest packet?
+        // request packet?
         if (request == null) {
             // decode attributes
             rp.decodeRequestAttributes(sharedSecret);
             rp.checkRequestAuthenticator(sharedSecret, length, attributeData);
         } else {
-            // clientResponse packet: check authenticator
+            // response packet: check authenticator
             rp.checkResponseAuthenticator(sharedSecret, length, attributeData, request.getAuthenticator());
         }
 
@@ -941,23 +941,23 @@ public class RadiusPacket {
     }
 
     /**
-     * Checks the clientRequest authenticator against the supplied shared secret.
-     * Overridden by AccountingRequest to handle special accounting clientRequest
-     * authenticators. There is no way to check clientRequest authenticators for
+     * Checks the request authenticator against the supplied shared secret.
+     * Overridden by AccountingRequest to handle special accounting request
+     * authenticators. There is no way to check request authenticators for
      * authentication requests as they contain secret bytes.
      *
      * @param sharedSecret shared secret
      * @param packetLength total length of the packet
-     * @param attributes   clientRequest attribute data
+     * @param attributes   request attribute data
      * @throws RadiusException malformed packet
      */
     protected void checkRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) throws RadiusException {
     }
 
     /**
-     * Can be overriden to decode encoded clientRequest attributes such as
+     * Can be overridden to decode encoded request attributes such as
      * User-Password. This method may use getAuthenticator() to get the
-     * clientRequest authenticator.
+     * request authenticator.
      *
      * @param sharedSecret used for decoding
      * @throws RadiusException malformed packet
@@ -967,13 +967,13 @@ public class RadiusPacket {
 
     /**
      * This method checks the authenticator of this Radius packet. This method
-     * may be overriden to include special attributes in the authenticator check.
+     * may be overridden to include special attributes in the authenticator check.
      *
      * @param sharedSecret         shared secret to be used to encrypt the authenticator
-     * @param packetLength         length of the clientResponse packet
-     * @param attributes           attribute data of the clientResponse packet
-     * @param requestAuthenticator 16 bytes authenticator of the clientRequest packet belonging
-     *                             to this clientResponse packet
+     * @param packetLength         length of the response packet
+     * @param attributes           attribute data of the response packet
+     * @param requestAuthenticator 16 bytes authenticator of the request packet belonging
+     *                             to this response packet
      * @throws RadiusException malformed packet
      */
     protected void checkResponseAuthenticator(String sharedSecret, int packetLength, byte[] attributes, byte[] requestAuthenticator)
@@ -982,7 +982,7 @@ public class RadiusPacket {
         byte[] receivedAuth = getAuthenticator();
         for (int i = 0; i < 16; i++)
             if (authenticator[i] != receivedAuth[i])
-                throw new RadiusException("clientResponse authenticator invalid");
+                throw new RadiusException("response authenticator invalid");
     }
 
     /**
