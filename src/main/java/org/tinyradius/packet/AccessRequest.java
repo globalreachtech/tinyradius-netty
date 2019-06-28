@@ -16,8 +16,7 @@ import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.packet.Util.getStringFromUtf8;
-import static org.tinyradius.packet.Util.xor;
+import static org.tinyradius.packet.Util.*;
 
 /**
  * This class represents an Access-Request Radius packet.
@@ -229,9 +228,8 @@ public class AccessRequest extends RadiusPacket {
 
     /**
      * Decrypts the User-Password attribute.
-     *
-     * @see RadiusPacket#decodeRequestAttributes(java.lang.String)
      */
+    @Override
     protected void decodeRequestAttributes(String sharedSecret) throws RadiusException {
         // detect auth protocol
         RadiusAttribute userPassword = getAttribute(USER_PASSWORD);
@@ -250,11 +248,10 @@ public class AccessRequest extends RadiusPacket {
             setAuthProtocol(AUTH_CHAP);
             this.chapPassword = chapPassword.getAttributeData();
             this.chapChallenge = chapChallenge.getAttributeData();
-        } else if (chapPassword != null && getAuthenticator().length == 16) {
-            // thanks to Guillaume Tartayre
+        } else if (chapPassword != null && authenticator.length == 16) {
             setAuthProtocol(AUTH_CHAP);
             this.chapPassword = chapPassword.getAttributeData();
-            this.chapChallenge = getAuthenticator();
+            this.chapChallenge = authenticator;
         } else if (msChapChallenge != null && msChap2Response != null) {
             setAuthProtocol(AUTH_MS_CHAP_V2);
             this.chapPassword = msChap2Response.getAttributeData();
@@ -267,12 +264,14 @@ public class AccessRequest extends RadiusPacket {
 
     @Override
     protected void encodeRequest(String sharedSecret) throws RadiusException, IOException {
-        // first create authenticator if needed, then encode attributes
-        // (User-Password attribute needs the authenticator)
+        // create authenticator only if needed
         if (authenticator == null)
-            authenticator = createRandomizedAuthenticator(sharedSecret);
+            authenticator = generateRandomizedAuthenticator(sharedSecret);
+
+        // then encode attributes (User-Password attribute needs the authenticator)
         encodeRequestAttributes(sharedSecret);
 
+        // length check now after attributes encoded
         byte[] attributes = getAttributeBytes();
         int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
         if (packetLength > MAX_PACKET_LENGTH)
@@ -322,8 +321,8 @@ public class AccessRequest extends RadiusPacket {
         requireNonNull(userPass, "userPass cannot be null");
         requireNonNull(sharedSecret, "sharedSecret cannot be null");
 
-        byte[] C = this.getAuthenticator();
-        byte[] P = Util.pad(userPass, C.length);
+        byte[] C = authenticator;
+        byte[] P = pad(userPass, C.length);
         byte[] result = new byte[P.length];
 
         for (int i = 0; i < P.length; i += C.length) {

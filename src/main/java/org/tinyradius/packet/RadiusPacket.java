@@ -709,8 +709,7 @@ public class RadiusPacket {
      * Returns the authenticator for this Radius packet.
      * For a Radius packet read from a stream, this will return the
      * authenticator sent by the server. For a new Radius packet to be sent,
-     * this will return the authenticator created by the method
-     * createAuthenticator() and will return null if no authenticator
+     * this will return the authenticator created and will return null if no authenticator
      * has been created yet.
      *
      * @return authenticator, 16 bytes
@@ -761,14 +760,28 @@ public class RadiusPacket {
         dos.flush();
     }
 
+    /**
+     * Encode request and generate authenticator if required.
+     * <p>
+     * AccountingRequest/CoA/DisconnectRequest overrides this method to create a hash authenticator as per RFC 2866.
+     * <p>
+     * AccessRequest overrides this method to generate a randomized authenticator as per RFC 2865
+     * and encode required attributes.
+     * <p>
+     * Base implementation in RadiusPacket generates randomized authenticator as used by
+     * Access-Request/Status-Server. As more packet types are supported, consider changing
+     * the base authenticator generation method.
+     */
     protected void encodeRequest(String sharedSecret) throws RadiusException, IOException {
         byte[] attributes = getAttributeBytes();
         int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
         if (packetLength > MAX_PACKET_LENGTH)
             throw new RuntimeException("packet too long");
 
-        authenticator = createRequestAuthenticator(sharedSecret, packetLength, attributes);
+        if (authenticator == null)
+            authenticator = generateRandomizedAuthenticator(sharedSecret);
     }
+
 
     protected void encodeResponse(String sharedSecret, byte[] requestAuthenticator) throws IOException {
         byte[] attributes = getAttributeBytes();
@@ -780,14 +793,14 @@ public class RadiusPacket {
     }
 
     /**
-     * Creates a request authenticator for this packet. This request authenticator
+     * Generates a request authenticator for this packet. This request authenticator
      * is constructed as described in RFC 2865.
      *
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client
      * @return request authenticator, 16 bytes
      */
-    protected byte[] createRandomizedAuthenticator(String sharedSecret) {
+    protected byte[] generateRandomizedAuthenticator(String sharedSecret) {
         byte[] secretBytes = sharedSecret.getBytes(UTF_8);
         byte[] randomBytes = new byte[16];
         random.nextBytes(randomBytes);
@@ -795,23 +808,6 @@ public class RadiusPacket {
         MessageDigest md5 = getResetMd5Digest();
         md5.update(secretBytes);
         return md5.digest(randomBytes);
-    }
-
-    /**
-     * AccountingRequest / CoA overrides this method to create a request authenticator as specified by RFC 2866.
-     * <p>
-     * By default, generate randomized authenticator as used by Access-Request / Status-Server (not implemented).
-     * <p>
-     * As more packet types are supposed, consider changing the default authenticator generation method.
-     *
-     * @param sharedSecret shared secret
-     * @param packetLength length of the final Radius packet
-     * @param attributes   attribute data
-     * @return new request authenticator
-     */
-    protected byte[] createRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) {
-        return authenticator == null ?
-                createRandomizedAuthenticator(sharedSecret) : authenticator;
     }
 
     /**

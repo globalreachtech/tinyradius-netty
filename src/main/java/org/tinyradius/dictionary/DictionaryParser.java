@@ -6,11 +6,9 @@ import java.io.*;
 import java.util.StringTokenizer;
 
 /**
- * Parses a dictionary in "Radiator format" and fills a
- * WritableDictionary.
+ * Parses a dictionary in "Radiator format" and fills a WritableDictionary.
  */
 public class DictionaryParser {
-
 
     /**
      * Returns a new dictionary filled with the contents
