@@ -8,11 +8,6 @@ import java.util.Map;
  * in the memory. The dictionary has to be filled using the
  * methods <code>addAttributeType</code> and
  * <code>addVendor</code>.
- *
- * @see #addAttributeType(AttributeType)
- * @see #addVendor(int, String)
- * @see Dictionary
- * @see WritableDictionary
  */
 public class MemoryDictionary implements WritableDictionary {
 
@@ -21,8 +16,7 @@ public class MemoryDictionary implements WritableDictionary {
     private final Map<String, AttributeType> attributesByName = new HashMap<>();
 
     /**
-     * Returns the AttributeType for the vendor -1 from the
-     * cache.
+     * Returns the AttributeType for the vendor -1 from the cache.
      *
      * @param typeCode attribute type code
      * @return AttributeType or null
@@ -51,7 +45,6 @@ public class MemoryDictionary implements WritableDictionary {
      *
      * @param typeName name of the attribute type
      * @return AttributeType or null
-     * @see Dictionary#getAttributeTypeByName(java.lang.String)
      */
     public AttributeType getAttributeTypeByName(String typeName) {
         return attributesByName.get(typeName);
@@ -63,7 +56,6 @@ public class MemoryDictionary implements WritableDictionary {
      *
      * @param vendorName vendor name
      * @return vendor code or -1
-     * @see Dictionary#getVendorId(java.lang.String)
      */
     public int getVendorId(String vendorName) {
         for (Map.Entry<Integer, String> v : vendorsByCode.entrySet()) {
@@ -79,7 +71,6 @@ public class MemoryDictionary implements WritableDictionary {
      *
      * @param vendorId vendor number
      * @return vendor name or null
-     * @see Dictionary#getVendorName(int)
      */
     public String getVendorName(int vendorId) {
         return vendorsByCode.get(vendorId);
