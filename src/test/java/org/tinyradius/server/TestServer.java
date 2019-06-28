@@ -14,7 +14,6 @@ import org.tinyradius.dictionary.WritableDictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.*;
 import org.tinyradius.util.SecretProvider;
 
 import java.io.FileInputStream;
@@ -33,7 +32,7 @@ public class TestServer {
     public static void main(String[] args) throws Exception {
 
         WritableDictionary dictionary = new MemoryDictionary();
-        DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
+        new DictionaryParser().parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 

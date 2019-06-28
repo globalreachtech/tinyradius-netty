@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -154,7 +154,7 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,java.lang.String,java.lang.Class)">AttributeType</a></span>&#8203;(int&nbsp;vendor,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,java.lang.String,java.lang.Class)">AttributeType</a></span>&#8203;(int&nbsp;vendorId,
              int&nbsp;code,
              java.lang.String&nbsp;name,
              java.lang.Class&lt;<a href="AttributeType.html" title="type parameter in AttributeType">T</a>&gt;&nbsp;type)</code></th>
@@ -236,35 +236,6 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAttributeClass(java.lang.Class)">setAttributeClass</a></span>&#8203;(java.lang.Class&lt;<a href="AttributeType.html" title="type parameter in AttributeType">T</a>&gt;&nbsp;type)</code></th>
-<td class="colLast">
-<div class="block">Sets the RadiusAttribute descendant class which represents
- attributes of this type.</div>
-</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setName(java.lang.String)">setName</a></span>&#8203;(java.lang.String&nbsp;name)</code></th>
-<td class="colLast">
-<div class="block">Sets the name of this type.</div>
-</td>
-</tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTypeCode(int)">setTypeCode</a></span>&#8203;(int&nbsp;code)</code></th>
-<td class="colLast">
-<div class="block">Sets the Radius type code for this attribute type.</div>
-</td>
-</tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVendorId(int)">setVendorId</a></span>&#8203;(int&nbsp;vendorId)</code></th>
-<td class="colLast">
-<div class="block">Sets the vendor ID.</div>
-</td>
-</tr>
-<tr id="i11" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">
@@ -320,14 +291,14 @@ extends java.lang.Object</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AttributeType</h4>
-<pre>public&nbsp;AttributeType&#8203;(int&nbsp;vendor,
+<pre>public&nbsp;AttributeType&#8203;(int&nbsp;vendorId,
                      int&nbsp;code,
                      java.lang.String&nbsp;name,
                      java.lang.Class&lt;<a href="AttributeType.html" title="type parameter in AttributeType">T</a>&gt;&nbsp;type)</pre>
 <div class="block">Constructs a Vendor-Specific sub-attribute type.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>vendor</code> - vendor ID</dd>
+<dd><code>vendorId</code> - vendor ID</dd>
 <dd><code>code</code> - sub-attribute type code</dd>
 <dd><code>name</code> - sub-attribute name</dd>
 <dd><code>type</code> - sub-attribute class</dd>
@@ -358,20 +329,6 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="setTypeCode(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setTypeCode</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setTypeCode&#8203;(int&nbsp;code)</pre>
-<div class="block">Sets the Radius type code for this attribute type.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>code</code> - type code, 1-255</dd>
-</dl>
-</li>
-</ul>
 <a id="getName()">
 <!--   -->
 </a>
@@ -383,20 +340,6 @@ extends java.lang.Object</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>name</dd>
-</dl>
-</li>
-</ul>
-<a id="setName(java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setName</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setName&#8203;(java.lang.String&nbsp;name)</pre>
-<div class="block">Sets the name of this type.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - type name</dd>
 </dl>
 </li>
 </ul>
@@ -415,21 +358,6 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="setAttributeClass(java.lang.Class)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setAttributeClass</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setAttributeClass&#8203;(java.lang.Class&lt;<a href="AttributeType.html" title="type parameter in AttributeType">T</a>&gt;&nbsp;type)</pre>
-<div class="block">Sets the RadiusAttribute descendant class which represents
- attributes of this type.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>type</code> - subclass of <a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute"><code>RadiusAttribute</code></a></dd>
-</dl>
-</li>
-</ul>
 <a id="getVendorId()">
 <!--   -->
 </a>
@@ -442,20 +370,6 @@ extends java.lang.Object</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>vendor ID</dd>
-</dl>
-</li>
-</ul>
-<a id="setVendorId(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setVendorId</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setVendorId&#8203;(int&nbsp;vendorId)</pre>
-<div class="block">Sets the vendor ID.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>vendorId</code> - vendor ID</dd>
 </dl>
 </li>
 </ul>
@@ -522,8 +436,6 @@ extends java.lang.Object</pre>
 <dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>string</dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><code>Object.toString()</code></dd>
 </dl>
 </li>
 </ul>

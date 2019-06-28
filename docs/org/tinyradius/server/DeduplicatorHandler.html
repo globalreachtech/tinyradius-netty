@@ -195,7 +195,7 @@ implements <a href="RequestHandler.html" title="interface in org.tinyradius.serv
             java.net.InetSocketAddress&nbsp;remoteAddress,
             java.lang.String&nbsp;sharedSecret)</code></th>
 <td class="colLast">
-<div class="block">Handles the received Radius packet and constructs a clientResponse.</div>
+<div class="block">Handles the received Radius packet and constructs a response.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -270,7 +270,8 @@ implements <a href="RequestHandler.html" title="interface in org.tinyradius.serv
                                                                    java.net.InetSocketAddress&nbsp;remoteAddress,
                                                                    java.lang.String&nbsp;sharedSecret)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="RequestHandler.html#handlePacket(io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">RequestHandler</a></code></span></div>
-<div class="block">Handles the received Radius packet and constructs a clientResponse.</div>
+<div class="block">Handles the received Radius packet and constructs a response. Filters/Deduplicators
+ can also implement this and wrap around underlying handlers.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="RequestHandler.html#handlePacket(io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></code>&nbsp;in interface&nbsp;<code><a href="RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a>&lt;<a href="DeduplicatorHandler.html" title="type parameter in DeduplicatorHandler">T</a> extends <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></dd>

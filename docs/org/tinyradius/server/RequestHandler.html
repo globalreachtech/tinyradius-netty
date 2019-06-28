@@ -155,7 +155,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
             java.net.InetSocketAddress&nbsp;remoteAddress,
             java.lang.String&nbsp;sharedSecret)</code></th>
 <td class="colLast">
-<div class="block">Handles the received Radius packet and constructs a clientResponse.</div>
+<div class="block">Handles the received Radius packet and constructs a response.</div>
 </td>
 </tr>
 </table>
@@ -187,7 +187,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                                                             <a href="RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;request,
                                                             java.net.InetSocketAddress&nbsp;remoteAddress,
                                                             java.lang.String&nbsp;sharedSecret)</pre>
-<div class="block">Handles the received Radius packet and constructs a clientResponse.</div>
+<div class="block">Handles the received Radius packet and constructs a response. Filters/Deduplicators
+ can also implement this and wrap around underlying handlers.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>channel</code> - socket which received packet</dd>
@@ -195,7 +196,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>remoteAddress</code> - remote address the packet was sent by</dd>
 <dd><code>sharedSecret</code> - shared secret associated with remoteAddress</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Promise of RadiusPacket or null for no clientResponse. Uses Promise instead Future,
+<dd>Promise of RadiusPacket or null for no response. Uses Promise instead Future,
  to allow requests to be timed out or cancelled by the caller</dd>
 </dl>
 </li>

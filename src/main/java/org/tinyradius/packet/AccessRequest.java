@@ -280,6 +280,10 @@ public class AccessRequest extends RadiusPacket {
 
     /**
      * Sets and encrypts the User-Password attribute.
+     *
+     * @param sharedSecret shared secret that secures the communication
+     *                     with the other Radius server/client
+     * @throws RadiusException auth protocol not supported
      */
     protected void encodeRequestAttributes(String sharedSecret) throws RadiusException {
         if (password == null || password.isEmpty())

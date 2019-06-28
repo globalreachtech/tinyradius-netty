@@ -42,7 +42,7 @@ public class TestClient {
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
         WritableDictionary dictionary = new MemoryDictionary();
-        DictionaryParser.parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
+        new DictionaryParser().parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
 
 
         RadiusClient<NioDatagramChannel> rc = new RadiusClient<>(

@@ -26,7 +26,7 @@ public class DefaultDictionary extends MemoryDictionary {
                 source = classLoader.getResourceAsStream(DEFAULT_DICTIONARY_SOURCE);
 
             if (source != null)
-                DictionaryParser.parseDictionary(source, INSTANCE);
+                new DictionaryParser().parseDictionary(source, INSTANCE);
         } catch (IOException e) {
             throw new RuntimeException("default dictionary unavailable", e);
         }

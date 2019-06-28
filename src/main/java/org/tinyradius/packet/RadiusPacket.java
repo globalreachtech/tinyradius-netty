@@ -771,6 +771,8 @@ public class RadiusPacket {
      * Access-Request/Status-Server. As more packet types are supported, consider changing
      * the default encodeRequest() method.
      *
+     * @param sharedSecret shared secret that secures the communication
+     *                     with the other Radius server/client
      * @throws RadiusException malformed packet
      * @throws IOException     error writing data
      */
