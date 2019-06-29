@@ -1,6 +1,8 @@
 # tinyradius-netty
 
 [![CircleCI](https://circleci.com/gh/globalreachtech/tinyradius-netty.svg?style=svg)](https://circleci.com/gh/globalreachtech/tinyradius-netty)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=globalreachtech/tinyradius-netty)](https://dependabot.com)
+
 
 TinyRadius is a simple, small and fast Java Radius library capable of
 sending and receiving Radius packets of all types.
