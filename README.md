@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/globalreachtech/tinyradius-netty.svg?style=svg)](https://circleci.com/gh/globalreachtech/tinyradius-netty)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/globalreachtech/tinyradius-netty.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/globalreachtech/tinyradius-netty/alerts/)
+[![Maintainability](https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/maintainability)](https://codeclimate.com/github/codeclimate/codeclimate/maintainability)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=globalreachtech/tinyradius-netty)](https://dependabot.com)
 
 
