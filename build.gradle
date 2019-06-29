@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.26'
-    implementation 'io.netty:netty-all:4.1.36.Final'
+    implementation 'io.netty:netty-all:4.1.37.Final'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
     testImplementation 'org.slf4j:slf4j-simple:1.7.26'
