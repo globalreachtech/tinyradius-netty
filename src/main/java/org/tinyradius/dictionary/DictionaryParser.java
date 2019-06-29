@@ -4,7 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.*;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static java.lang.Integer.parseInt;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
@@ -52,25 +58,28 @@ public class DictionaryParser {
                 final String[] tokens = line.split("\\s+");
                 if (tokens.length == 0)
                     continue;
-
-                switch (tokens[0].toUpperCase()) {
-                    case "ATTRIBUTE":
-                        parseAttributeLine(dictionary, tokens, lineNum);
-                        break;
-                    case "VALUE":
-                        parseValueLine(dictionary, tokens, lineNum);
-                        break;
-                    case "$INCLUDE":
-                        includeDictionaryFile(dictionary, tokens, lineNum);
-                        break;
-                    case "VENDORATTR":
-                        parseVendorAttributeLine(dictionary, tokens, lineNum);
-                        break;
-                    case "VENDOR":
-                        parseVendorLine(dictionary, tokens, lineNum);
-                        break;
-                    default:
-                        logger.warn("unknown line type: {} line: {}", tokens[0], lineNum);
+                try {
+                    switch (tokens[0].toUpperCase()) {
+                        case "ATTRIBUTE":
+                            parseAttributeLine(dictionary, tokens, lineNum);
+                            break;
+                        case "VALUE":
+                            parseValueLine(dictionary, tokens, lineNum);
+                            break;
+                        case "$INCLUDE":
+                            includeDictionaryFile(dictionary, tokens, lineNum);
+                            break;
+                        case "VENDORATTR":
+                            parseVendorAttributeLine(dictionary, tokens, lineNum);
+                            break;
+                        case "VENDOR":
+                            parseVendorLine(dictionary, tokens, lineNum);
+                            break;
+                        default:
+                            logger.warn("unknown line type: {} line: {}", tokens[0], lineNum);
+                    }
+                } catch (Exception e) {
+                    logger.warn("error processing line: {}", tokens, e);
                 }
             }
         }
@@ -152,12 +161,11 @@ public class DictionaryParser {
             logger.warn("dictionary parse error on line {}: {}", lineNum, tok);
         String includeFile = tok[1];
 
-        File incf = new File(includeFile);
-        if (!incf.exists())
+        Path incf = Paths.get(includeFile);
+        if (!Files.exists(incf))
             logger.warn("included file '{}' not found, line {}", includeFile, lineNum);
 
-        FileInputStream fis = new FileInputStream(incf);
-        parseDictionary(fis, dictionary);
+        parseDictionary(Files.newInputStream(incf), dictionary);
 
         // todo line numbers begin with 0 again, but file name is not mentioned in exceptions
         // todo this method does not allow to include classpath resources

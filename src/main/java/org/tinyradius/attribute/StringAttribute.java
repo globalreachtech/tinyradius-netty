@@ -10,6 +10,12 @@ import static java.util.Objects.requireNonNull;
 public class StringAttribute extends RadiusAttribute {
 
     /**
+     * Constructs an empty string attribute.
+     */
+    public StringAttribute() {
+    }
+
+    /**
      * Constructs a string attribute with the given value.
      *
      * @param type  attribute type

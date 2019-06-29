@@ -35,7 +35,6 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * Radius packet.
      */
     public VendorSpecificAttribute() {
-        super();
     }
 
     /**

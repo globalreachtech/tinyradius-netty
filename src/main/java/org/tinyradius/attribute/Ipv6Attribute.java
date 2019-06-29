@@ -14,7 +14,6 @@ public class Ipv6Attribute extends RadiusAttribute {
      * Constructs an empty IPv6 attribute.
      */
     public Ipv6Attribute() {
-        super();
     }
 
     /**

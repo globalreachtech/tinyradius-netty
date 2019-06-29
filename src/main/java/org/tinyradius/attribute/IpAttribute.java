@@ -13,7 +13,6 @@ public class IpAttribute extends RadiusAttribute {
      * Constructs an empty IP attribute.
      */
     public IpAttribute() {
-        super();
     }
 
     /**

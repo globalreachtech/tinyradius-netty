@@ -15,7 +15,6 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      * Constructs an empty IP attribute.
      */
     public Ipv6PrefixAttribute() {
-        super();
     }
 
     /**

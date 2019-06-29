@@ -12,15 +12,13 @@ import java.io.InputStream;
  */
 public class DefaultDictionary extends MemoryDictionary {
 
-    private DefaultDictionary() {
-    }
-
     private static final String DEFAULT_DICTIONARY_SOURCE = "org/tinyradius/dictionary/default_dictionary";
+
     public static final DefaultDictionary INSTANCE = new DefaultDictionary();
 
-    static {
+    private DefaultDictionary() {
         try {
-            ClassLoader classLoader = DefaultDictionary.class.getClassLoader();
+            ClassLoader classLoader = this.getClass().getClassLoader();
             InputStream source = classLoader.getResourceAsStream("tinyradius_dictionary");
             if (source == null)
                 source = classLoader.getResourceAsStream(DEFAULT_DICTIONARY_SOURCE);

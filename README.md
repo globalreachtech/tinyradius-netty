@@ -1,6 +1,6 @@
-[![CircleCI](https://circleci.com/gh/globalreachtech/tinyradius-netty.svg?style=svg)](https://circleci.com/gh/globalreachtech/tinyradius-netty)
-
 # tinyradius-netty
+
+[![CircleCI](https://circleci.com/gh/globalreachtech/tinyradius-netty.svg?style=svg)](https://circleci.com/gh/globalreachtech/tinyradius-netty)
 
 TinyRadius is a simple, small and fast Java Radius library capable of
 sending and receiving Radius packets of all types.
@@ -22,4 +22,4 @@ Source code from
 - http://tinyradius.sourceforge.net/
 - https://github.com/ctran/TinyRadius
 
-Licensed under LGPL.
+Licensed under LGPL 2.1
