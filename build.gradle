@@ -1,5 +1,7 @@
 plugins {
     id 'java-library'
+    id 'jacoco'
+    id 'com.github.kt3k.coveralls' version '2.8.2'
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.4'
     id 'com.jfrog.artifactory' version '4.9.7'
@@ -20,13 +22,26 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-simple:1.7.26'
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+coveralls {
+    jacocoReportPath 'build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml'
+}
+
 javadoc {
     destinationDir file('docs')
     options.noTimestamp = true
     options.addBooleanOption('html5', true)  // comment out if building with <jdk9
 }
 
-test { useJUnitPlatform() }
+test {
+    useJUnitPlatform()
+}
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     archiveClassifier = 'sources'
