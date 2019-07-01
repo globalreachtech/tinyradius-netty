@@ -73,9 +73,10 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
 
         ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
         packet.setDictionary(dictionary);
-        packet.encodeResponsePacket(new ByteBufOutputStream(buf), secret, requestAuthenticator);
-
-        return new DatagramPacket(buf, address);
+        try (final ByteBufOutputStream outputStream = new ByteBufOutputStream(buf)) {
+            packet.encodeResponsePacket(outputStream, secret, requestAuthenticator);
+            return new DatagramPacket(buf, address);
+        }
     }
 
     /**

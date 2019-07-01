@@ -83,15 +83,14 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
-        try {
-            String secret = secretProvider.getSharedSecret(datagramPacket.sender());
-            if (secret == null) {
-                logger.info("ignoring packet from unknown server {} received on local address {}",
-                        datagramPacket.sender(), datagramPacket.recipient());
-                return;
-            }
+        String secret = secretProvider.getSharedSecret(datagramPacket.sender());
+        if (secret == null) {
+            logger.info("ignoring packet from unknown server {} received on local address {}",
+                    datagramPacket.sender(), datagramPacket.recipient());
+            return;
+        }
 
-            ByteBufInputStream in = new ByteBufInputStream(datagramPacket.content());
+        try (ByteBufInputStream in = new ByteBufInputStream(datagramPacket.content())) {
             RadiusPacket packet = RadiusPacket.decodeRequestPacket(dictionary, in, secret);
 
             // retrieve my Proxy-State attribute (the last)
