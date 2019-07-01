@@ -65,9 +65,11 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
 
         final Promise<Void> status = eventLoopGroup.next().newPromise();
 
-        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
-        promiseCombiner.addAll(listenAuth(), listenAcct());
-        promiseCombiner.finish(status);
+        eventLoopGroup.submit(() -> {
+            final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
+            promiseCombiner.addAll(listenAuth(), listenAcct());
+            promiseCombiner.finish(status);
+        });
 
         this.serverStatus = status;
         return status;
@@ -111,9 +113,13 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
 
         final ChannelPromise promise = channel.newPromise();
 
-        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
-        promiseCombiner.addAll(eventLoopGroup.register(channel), channel.bind(listenAddress));
-        promiseCombiner.finish(promise);
+        eventLoopGroup.submit(() -> {
+
+            final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
+            promiseCombiner.addAll(eventLoopGroup.register(channel), channel.bind(listenAddress));
+            promiseCombiner.finish(promise);
+
+        });
 
         return promise;
     }
