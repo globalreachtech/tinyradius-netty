@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
@@ -497,37 +498,11 @@ public class RadiusPacket {
      * @return List with VendorSpecificAttribute objects, never null
      */
     public List<VendorSpecificAttribute> getVendorAttributes(int vendorId) {
-        List<VendorSpecificAttribute> result = new LinkedList<>();
-        for (RadiusAttribute a : getAttributes(VENDOR_SPECIFIC)) {
-            if (a instanceof VendorSpecificAttribute) {
-                VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
-                if (vsa.getChildVendorId() == vendorId)
-                    result.add(vsa);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Returns the Vendor-Specific attribute for the given vendor ID.
-     * If there is more than one Vendor-Specific
-     * attribute with the given vendor ID, the first attribute found is
-     * returned. If there is no such attribute, null is returned.
-     *
-     * @param vendorId vendor ID of the attribute
-     * @return the attribute or null if there is no such attribute
-     * @see #getVendorAttributes(int)
-     * @deprecated use getVendorAttributes(int)
-     */
-    public VendorSpecificAttribute getVendorAttribute(int vendorId) {
-        for (RadiusAttribute a : getAttributes(VENDOR_SPECIFIC)) {
-            if (a instanceof VendorSpecificAttribute) {
-                VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
-                if (vsa.getChildVendorId() == vendorId)
-                    return vsa;
-            }
-        }
-        return null;
+       return getAttributes(VENDOR_SPECIFIC).stream()
+                .filter(VendorSpecificAttribute.class::isInstance)
+                .map(VendorSpecificAttribute.class::cast)
+                .filter(a -> a.getChildVendorId() == vendorId)
+                .collect(Collectors.toList());
     }
 
     /**
