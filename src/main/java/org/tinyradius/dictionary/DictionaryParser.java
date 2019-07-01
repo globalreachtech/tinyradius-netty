@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.*;
 
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -48,7 +46,7 @@ public class DictionaryParser {
      * @param resource   location of resource, resolved depending on {@link ResourceResolver}
      * @throws IOException parse error reading from input
      */
-     void parseDictionary(WritableDictionary dictionary, String resource) throws IOException {
+    void parseDictionary(WritableDictionary dictionary, String resource) throws IOException {
         try (InputStream inputStream = resourceResolver.openStream(resource);
              BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
 
@@ -169,11 +167,10 @@ public class DictionaryParser {
 
         final String nextResource = resourceResolver.resolve(currentResource, includeFile);
 
-        if (nextResource.isEmpty())
+        if (!nextResource.isEmpty())
             parseDictionary(dictionary, nextResource);
-
-
-        // todo line numbers begin with 0 again, but file name is not mentioned in exceptions
+        else
+            logger.warn("included file '{}' not found, line {}, {}", includeFile, lineNum, currentResource);
     }
 
     /**
@@ -213,10 +210,8 @@ public class DictionaryParser {
         @Override
         public String resolve(String currentResource, String nextResource) {
             final Path path = Paths.get(currentResource).getParent().resolve(nextResource);
-            if (Files.exists(path))
-                return path.toString();
-            logger.warn("included file '{}' not found, line {}", nextResource, currentResource);
-            return "";
+            return Files.exists(path) ?
+                    path.toString() : "";
         }
 
         @Override
@@ -237,17 +232,9 @@ public class DictionaryParser {
     public static class ClasspathResourceResolver implements ResourceResolver {
         @Override
         public String resolve(String currentResource, String nextResource) {
-            try {
-                final URL currentResourceUrl = this.getClass().getClassLoader().getResource(currentResource);
-
-                if (currentResourceUrl != null)
-                    return currentResourceUrl.toURI().resolve("..").resolve(nextResource).toString();
-
-                logger.warn("current classpath resource not found: {}", currentResource);
-            } catch (URISyntaxException e) {
-                logger.warn("current classpath resource invalid URL: {}", currentResource, e);
-            }
-            return "";
+            final String path = Paths.get(currentResource).getParent().resolve(nextResource).toString();
+            return this.getClass().getClassLoader().getResource(path) != null ?
+                    path : "";
         }
 
         @Override

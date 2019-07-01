@@ -75,7 +75,7 @@ class DictionaryParserTest {
     void fileSystemIncludeDictionary() throws IOException {
         final DictionaryParser parser = new DictionaryParser(new DictionaryParser.FileResourceResolver());
 
-        final Dictionary dictionary = parser.parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
+        final Dictionary dictionary = parser.parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
 
         final AttributeType serviceTypeAttr = dictionary.getAttributeTypeByCode(6);
         assertNotNull(serviceTypeAttr);
