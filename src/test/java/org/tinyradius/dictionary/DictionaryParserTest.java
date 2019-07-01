@@ -1,5 +1,7 @@
 package org.tinyradius.dictionary;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.IpAttribute;
 import org.tinyradius.attribute.Ipv6Attribute;
@@ -7,7 +9,6 @@ import org.tinyradius.attribute.Ipv6PrefixAttribute;
 import org.tinyradius.packet.AccessRequest;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -18,11 +19,31 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DictionaryParserTest {
 
-    private final String packagePath = "org/tinyradius/dictionary/";
+    private static final String PACKAGE_PREFIX = "org/tinyradius/dictionary/";
 
-    private final String TEST_DICTIONARY = "test_dictionary";
+    private static final String TEST_DICTIONARY = "test_dictionary";
+    private static final String DEFAULT_DICTIONARY = "default_dictionary";
+    private static final String RFC_DICTIONARY = "dictionary.rfc5904";
 
-    private final DictionaryParser parser = new DictionaryParser();
+    private static Path tmpPath;
+
+    @BeforeAll
+    static void setup() throws IOException {
+        tmpPath = Files.createTempDirectory("tinyradius_test_");
+        copyDic(tmpPath, TEST_DICTIONARY);
+        copyDic(tmpPath, DEFAULT_DICTIONARY);
+        copyDic(tmpPath, RFC_DICTIONARY);
+    }
+
+    @AfterAll
+    static void tearDown() {
+        try {
+            Files.delete(tmpPath.resolve(TEST_DICTIONARY));
+            Files.delete(tmpPath.resolve(DEFAULT_DICTIONARY));
+            Files.delete(tmpPath.resolve(TEST_DICTIONARY));
+        } catch (IOException ignored) {
+        }
+    }
 
     @Test
     void defaultDictionary() {
@@ -40,26 +61,21 @@ class DictionaryParserTest {
 
     @Test
     void classpathIncludeDictionary() throws IOException {
-        final MemoryDictionary dictionary = new MemoryDictionary();
+        final DictionaryParser parser = new DictionaryParser(new DictionaryParser.ClasspathResourceResolver());
 
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        InputStream source = classLoader.getResourceAsStream(packagePath + TEST_DICTIONARY);
-
-        parser.parseDictionary(source, dictionary);
+        final Dictionary dictionary = parser.parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
 
         final AttributeType serviceTypeAttr = dictionary.getAttributeTypeByCode(6);
         assertNotNull(serviceTypeAttr);
         assertEquals("Service-Type", serviceTypeAttr.getName());
         assertEquals("Login-User", serviceTypeAttr.getEnumeration(1));
-
     }
 
     @Test
     void fileSystemIncludeDictionary() throws IOException {
-        final Path path = copyDictionaryToTmp();
-        final MemoryDictionary dictionary = new MemoryDictionary();
+        final DictionaryParser parser = new DictionaryParser(new DictionaryParser.FileResourceResolver());
 
-        parser.parseDictionary(Files.newInputStream(path.resolve(TEST_DICTIONARY)), dictionary);
+        final Dictionary dictionary = parser.parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
 
         final AttributeType serviceTypeAttr = dictionary.getAttributeTypeByCode(6);
         assertNotNull(serviceTypeAttr);
@@ -67,17 +83,9 @@ class DictionaryParserTest {
         assertEquals("Login-User", serviceTypeAttr.getEnumeration(1));
     }
 
-    private Path copyDictionaryToTmp() throws IOException {
-        Path tempDir = Files.createTempDirectory("tinyradius_test_");
-        copyDic(tempDir, TEST_DICTIONARY);
-        copyDic(tempDir, "default_dictionary");
-        copyDic(tempDir, "dictionary.rfc5904");
-        return tempDir;
-    }
-
-    private void copyDic(Path tempDir, String fileName) throws IOException {
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        Files.copy(requireNonNull(classLoader.getResourceAsStream(packagePath + fileName)),
+    private static void copyDic(Path tempDir, String fileName) throws IOException {
+        ClassLoader classLoader = DictionaryParserTest.class.getClassLoader();
+        Files.copy(requireNonNull(classLoader.getResourceAsStream(PACKAGE_PREFIX + fileName)),
                 tempDir.resolve(fileName), REPLACE_EXISTING);
     }
 }

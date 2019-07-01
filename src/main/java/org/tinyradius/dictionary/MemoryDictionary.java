@@ -103,8 +103,8 @@ public class MemoryDictionary implements WritableDictionary {
         if (attributeType == null)
             throw new IllegalArgumentException("attribute type must not be null");
 
-        Integer vendorId = attributeType.getVendorId();
-        Integer typeCode = attributeType.getTypeCode();
+        int vendorId = attributeType.getVendorId();
+        int typeCode = attributeType.getTypeCode();
         String attributeName = attributeType.getName();
 
         if (attributesByName.containsKey(attributeName))

@@ -42,8 +42,6 @@ class Util {
         for (int i = 0; i < length; i++) {
             if (i >= src1length) {
                 dst[i + dstoffset] = src2[i + src2offset];
-            } else if (i >= src2length) {
-                dst[i + dstoffset] = src1[i + src1offset];
             } else {
                 dst[i + dstoffset] = (byte) (src1[i + src1offset] ^ src2[i + src2offset]);
             }

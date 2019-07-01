@@ -4,15 +4,12 @@ import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
-import org.tinyradius.dictionary.DictionaryParser;
-import org.tinyradius.dictionary.MemoryDictionary;
-import org.tinyradius.dictionary.WritableDictionary;
+import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
@@ -41,9 +38,7 @@ public class TestClient {
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
-        WritableDictionary dictionary = new MemoryDictionary();
-        new DictionaryParser().parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
-
+        final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
 
         RadiusClient<NioDatagramChannel> rc = new RadiusClient<>(
                 eventLoopGroup,

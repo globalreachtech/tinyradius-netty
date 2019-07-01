@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 
 import static io.netty.buffer.Unpooled.buffer;
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
 
 /**
  * This object represents a simple Radius client which communicates with
@@ -166,10 +167,10 @@ public class RadiusClient<T extends DatagramChannel> {
      * @throws RadiusException error when encoding RadiusPacket attributes
      */
     protected DatagramPacket makeDatagramPacket(RadiusPacket packet, RadiusEndpoint endpoint) throws IOException, RadiusException {
-        ByteBuf buf = buffer(RadiusPacket.MAX_PACKET_LENGTH, RadiusPacket.MAX_PACKET_LENGTH);
-        packet.encodeRequestPacket(new ByteBufOutputStream(buf), endpoint.getSharedSecret());
-
-        return new DatagramPacket(buf, endpoint.getEndpointAddress());
+        ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
+        try (final ByteBufOutputStream outputStream = new ByteBufOutputStream(buf)) {
+            packet.encodeRequestPacket(outputStream, endpoint.getSharedSecret());
+            return new DatagramPacket(buf, endpoint.getEndpointAddress());
+        }
     }
-
 }

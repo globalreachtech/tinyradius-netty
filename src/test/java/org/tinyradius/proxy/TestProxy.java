@@ -7,19 +7,12 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
 import org.tinyradius.client.ProxyStateClientHandler;
 import org.tinyradius.client.RadiusClient;
-import org.tinyradius.dictionary.DictionaryParser;
-import org.tinyradius.dictionary.MemoryDictionary;
-import org.tinyradius.dictionary.WritableDictionary;
+import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.proxy.ProxyChannelInboundHandler;
-import org.tinyradius.proxy.ProxyDeduplicatorHandler;
-import org.tinyradius.proxy.ProxyRequestHandler;
-import org.tinyradius.proxy.RadiusProxy;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.SecretProvider;
 
-import java.io.FileInputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -41,9 +34,8 @@ public class TestProxy {
     public static void main(String[] args) throws Exception {
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+        final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
 
-        WritableDictionary dictionary = new MemoryDictionary();
-        new DictionaryParser().parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
         ReflectiveChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
 
         HashedWheelTimer timer = new HashedWheelTimer();

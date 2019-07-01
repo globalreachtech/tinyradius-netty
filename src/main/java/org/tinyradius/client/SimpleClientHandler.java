@@ -76,10 +76,8 @@ public class SimpleClientHandler extends ClientHandler {
             return;
         }
 
-        try {
-            RadiusPacket resp = decodeResponsePacket(
-                    dictionary, new ByteBufInputStream(packet.content().duplicate()),
-                    request.sharedSecret, request.packet);
+        try (ByteBufInputStream inputStream = new ByteBufInputStream(packet.content().duplicate())) {
+            RadiusPacket resp = decodeResponsePacket(dictionary, inputStream, request.sharedSecret, request.packet);
 
             logger.info("Found request for response identifier => {}", identifier);
 

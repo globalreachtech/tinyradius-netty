@@ -4,10 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,29 +21,36 @@ public class DictionaryParser {
 
     private static final Logger logger = LoggerFactory.getLogger(DictionaryParser.class);
 
+    private final ResourceResolver resourceResolver;
+
+    public DictionaryParser(ResourceResolver resourceResolver) {
+        this.resourceResolver = resourceResolver;
+    }
+
     /**
      * Returns a new dictionary filled with the contents
      * from the given input stream.
      *
-     * @param source input stream
+     * @param resource location of resource, resolved depending on {@link ResourceResolver}
      * @return dictionary object
      * @throws IOException parse error reading from input
      */
-    public Dictionary parseDictionary(InputStream source) throws IOException {
+    public Dictionary parseDictionary(String resource) throws IOException {
         WritableDictionary d = new MemoryDictionary();
-        parseDictionary(source, d);
+        parseDictionary(d, resource);
         return d;
     }
 
     /**
      * Parses the dictionary from the specified InputStream.
      *
-     * @param source     input stream
      * @param dictionary dictionary data is written to
+     * @param resource   location of resource, resolved depending on {@link ResourceResolver}
      * @throws IOException parse error reading from input
      */
-    public void parseDictionary(InputStream source, WritableDictionary dictionary) throws IOException {
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(source))) {
+     void parseDictionary(WritableDictionary dictionary, String resource) throws IOException {
+        try (InputStream inputStream = resourceResolver.openStream(resource);
+             BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
 
             String line;
             int lineNum = -1;
@@ -67,7 +73,7 @@ public class DictionaryParser {
                             parseValueLine(dictionary, tokens, lineNum);
                             break;
                         case "$INCLUDE":
-                            includeDictionaryFile(dictionary, tokens, lineNum);
+                            includeDictionaryFile(dictionary, tokens, lineNum, resource);
                             break;
                         case "VENDORATTR":
                             parseVendorAttributeLine(dictionary, tokens, lineNum);
@@ -156,19 +162,18 @@ public class DictionaryParser {
     /**
      * Includes a dictionary file.
      */
-    private void includeDictionaryFile(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
+    private void includeDictionaryFile(WritableDictionary dictionary, String[] tok, int lineNum, String currentResource) throws IOException {
         if (tok.length != 2)
             logger.warn("dictionary parse error on line {}: {}", lineNum, tok);
         String includeFile = tok[1];
 
-        Path incf = Paths.get(includeFile);
-        if (!Files.exists(incf))
-            logger.warn("included file '{}' not found, line {}", includeFile, lineNum);
+        final String nextResource = resourceResolver.resolve(currentResource, includeFile);
 
-        parseDictionary(Files.newInputStream(incf), dictionary);
+        if (nextResource.isEmpty())
+            parseDictionary(dictionary, nextResource);
+
 
         // todo line numbers begin with 0 again, but file name is not mentioned in exceptions
-        // todo this method does not allow to include classpath resources
     }
 
     /**
@@ -194,6 +199,65 @@ public class DictionaryParser {
             case "octets":
             default:
                 return RadiusAttribute.class;
+        }
+    }
+
+    public interface ResourceResolver {
+        String resolve(String currentResource, String nextResource);
+
+        InputStream openStream(String resource);
+    }
+
+    public static class FileResourceResolver implements ResourceResolver {
+
+        @Override
+        public String resolve(String currentResource, String nextResource) {
+            final Path path = Paths.get(currentResource).getParent().resolve(nextResource);
+            if (Files.exists(path))
+                return path.toString();
+            logger.warn("included file '{}' not found, line {}", nextResource, currentResource);
+            return "";
+        }
+
+        @Override
+        public InputStream openStream(String resource) {
+            try {
+                final Path path = Paths.get(resource);
+                if (Files.exists(path))
+                    return Files.newInputStream(path);
+
+                logger.warn("could not open stream, file not found: {}", resource);
+            } catch (IOException e) {
+                logger.warn("io exception opening file: {}", resource, e);
+            }
+            return new ByteArrayInputStream(new byte[0]);
+        }
+    }
+
+    public static class ClasspathResourceResolver implements ResourceResolver {
+        @Override
+        public String resolve(String currentResource, String nextResource) {
+            try {
+                final URL currentResourceUrl = this.getClass().getClassLoader().getResource(currentResource);
+
+                if (currentResourceUrl != null)
+                    return currentResourceUrl.toURI().resolve("..").resolve(nextResource).toString();
+
+                logger.warn("current classpath resource not found: {}", currentResource);
+            } catch (URISyntaxException e) {
+                logger.warn("current classpath resource invalid URL: {}", currentResource, e);
+            }
+            return "";
+        }
+
+        @Override
+        public InputStream openStream(String resource) {
+            final InputStream stream = this.getClass().getClassLoader().getResourceAsStream(resource);
+            if (stream != null)
+                return stream;
+
+            logger.warn("could not open stream, classpath resource not found: {}", resource);
+            return new ByteArrayInputStream(new byte[0]);
         }
     }
 }

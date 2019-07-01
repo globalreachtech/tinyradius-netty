@@ -115,6 +115,8 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
                 return;
             }
 
+            final byte[] requestAuthenticator = request.getAuthenticator(); // save ref in case request is mutated
+
             logger.trace("about to call handlePacket()");
             final Promise<RadiusPacket> promise = requestHandler.handlePacket(ctx.channel(), packetClass.cast(request), remoteAddress, secret);
 
@@ -132,7 +134,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
                     response.setDictionary(dictionary);
                     logger.info("send response: {}", response);
                     logger.info("sending response packet to {} with secret {}", remoteAddress, secret);
-                    DatagramPacket packetOut = makeDatagramPacket(response, secret, remoteAddress, request.getAuthenticator());
+                    DatagramPacket packetOut = makeDatagramPacket(response, secret, remoteAddress, requestAuthenticator);
                     ctx.writeAndFlush(packetOut);
                 } else {
                     logger.info("no response sent");

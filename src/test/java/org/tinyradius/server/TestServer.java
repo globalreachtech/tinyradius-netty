@@ -8,6 +8,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
+import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.DictionaryParser;
 import org.tinyradius.dictionary.MemoryDictionary;
 import org.tinyradius.dictionary.WritableDictionary;
@@ -31,8 +32,7 @@ public class TestServer {
 
     public static void main(String[] args) throws Exception {
 
-        WritableDictionary dictionary = new MemoryDictionary();
-        new DictionaryParser().parseDictionary(new FileInputStream("dictionary/dictionary"), dictionary);
+        final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
