@@ -3,10 +3,6 @@ package org.tinyradius.dictionary;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.IpAttribute;
-import org.tinyradius.attribute.Ipv6Attribute;
-import org.tinyradius.attribute.Ipv6PrefixAttribute;
-import org.tinyradius.packet.AccessRequest;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,20 +39,6 @@ class DictionaryParserTest {
             Files.delete(tmpPath.resolve(TEST_DICTIONARY));
         } catch (IOException ignored) {
         }
-    }
-
-    @Test
-    void defaultDictionary() {
-        Dictionary dictionary = DefaultDictionary.INSTANCE;
-
-        AccessRequest ar = new AccessRequest("UserName", "UserPassword");
-        ar.setDictionary(dictionary);
-        ar.addAttribute("WISPr-Location-ID", "LocationID");
-        ar.addAttribute(new IpAttribute(8, 1234567));
-        ar.addAttribute(new Ipv6Attribute(168, "fe80::"));
-        ar.addAttribute(new Ipv6PrefixAttribute(97, "fe80::/64"));
-        ar.addAttribute(new Ipv6PrefixAttribute(97, "fe80::/128"));
-        System.out.println(ar);
     }
 
     @Test

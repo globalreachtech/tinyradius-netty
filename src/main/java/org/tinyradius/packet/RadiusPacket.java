@@ -83,7 +83,7 @@ public class RadiusPacket {
     /**
      * Attributes for this packet.
      */
-    private List<RadiusAttribute> attributes = new ArrayList<>();
+    private final List<RadiusAttribute> attributes;
 
     /**
      * MD5 digest.
@@ -144,7 +144,7 @@ public class RadiusPacket {
             throw new IllegalArgumentException("packet type out of bounds");
         this.packetType = type;
         setPacketIdentifier(identifier);
-        setAttributes(attributes);
+        this.attributes = requireNonNull(attributes, "attributes list is null");
     }
 
     /**
@@ -232,15 +232,6 @@ public class RadiusPacket {
             default:
                 return "Unknown (" + getPacketType() + ")";
         }
-    }
-
-    /**
-     * Sets the list of attributes for this Radius packet.
-     *
-     * @param attributes list of RadiusAttribute objects
-     */
-    public void setAttributes(List<RadiusAttribute> attributes) {
-        this.attributes = requireNonNull(attributes, "attributes list is null");
     }
 
     /**
@@ -498,7 +489,7 @@ public class RadiusPacket {
      * @return List with VendorSpecificAttribute objects, never null
      */
     public List<VendorSpecificAttribute> getVendorAttributes(int vendorId) {
-       return getAttributes(VENDOR_SPECIFIC).stream()
+        return getAttributes(VENDOR_SPECIFIC).stream()
                 .filter(VendorSpecificAttribute.class::isInstance)
                 .map(VendorSpecificAttribute.class::cast)
                 .filter(a -> a.getChildVendorId() == vendorId)
@@ -653,18 +644,6 @@ public class RadiusPacket {
 
         rp.setDictionary(dictionary);
         return rp;
-    }
-
-    /**
-     * Creates a RadiusPacket object. Depending on the passed type, the
-     * appropriate successor is chosen. Sets the type, but does not touch
-     * the packet identifier.
-     *
-     * @param type packet type
-     * @return RadiusPacket object
-     */
-    public static RadiusPacket createRadiusPacket(final int type) {
-        return createRadiusPacket(type, DefaultDictionary.INSTANCE);
     }
 
     public String toString() {
@@ -884,7 +863,7 @@ public class RadiusPacket {
 
         // load attributes
         pos = 0;
-        while (pos < attributeData.length) {
+        while (pos + 1 < attributeData.length) { // pos+1 to avoid ArrayIndexOutOfBoundsException reading length
             int attributeType = attributeData[pos] & 0x0ff;
             int attributeLength = attributeData[pos + 1] & 0x0ff;
             RadiusAttribute a = createRadiusAttribute(dictionary, -1, attributeType);

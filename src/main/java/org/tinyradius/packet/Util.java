@@ -40,11 +40,7 @@ class Util {
         int length = Math.min(src1length, src2length);
 
         for (int i = 0; i < length; i++) {
-            if (i >= src1length) {
-                dst[i + dstoffset] = src2[i + src2offset];
-            } else {
-                dst[i + dstoffset] = (byte) (src1[i + src1offset] ^ src2[i + src2offset]);
-            }
+            dst[i + dstoffset] = (byte) (src1[i + src1offset] ^ src2[i + src2offset]);
         }
 
         return dst;
