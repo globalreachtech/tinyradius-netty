@@ -249,6 +249,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      *
      * @see RadiusAttribute#readAttribute(byte[], int)
      */
+    @Override
     public void readAttribute(byte[] data, int offset) throws RadiusException {
         int vsaCode = data[offset];
         int vsaLen = ((int) data[offset + 1] & 0x0ff) - 6;
@@ -260,10 +261,6 @@ public class VendorSpecificAttribute extends RadiusAttribute {
             throw new RadiusException("not a Vendor-Specific attribute");
 
         // read vendor ID and vendor data
-        /*
-         * int vendorId = (data[offset + 2] << 24 | data[offset + 3] << 16 |
-         * data[offset + 4] << 8 | ((int)data[offset + 5] & 0x000000ff));
-         */
         int vendorId = (unsignedByteToInt(data[offset + 2]) << 24
                 | unsignedByteToInt(data[offset + 3]) << 16
                 | unsignedByteToInt(data[offset + 4]) << 8 | unsignedByteToInt(data[offset + 5]));

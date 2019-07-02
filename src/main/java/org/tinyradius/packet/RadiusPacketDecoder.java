@@ -7,12 +7,23 @@ import org.tinyradius.util.RadiusException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.RadiusAttribute.createRadiusAttribute;
 
 public class RadiusPacketDecoder {
 
+    private static AtomicInteger nextPacketId = new AtomicInteger();
+
+    /**
+     * Increment the next packet identifier to use.
+     *
+     * @return the next packet identifier to use
+     */
+    public static int getNextPacketIdentifier() {
+        return nextPacketId.updateAndGet(i -> i >= 255 ? 0 : i + 1);
+    }
 
     /**
      * Reads a Radius request packet from the given input stream and

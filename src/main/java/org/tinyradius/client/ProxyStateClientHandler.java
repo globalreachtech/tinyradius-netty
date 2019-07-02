@@ -100,17 +100,16 @@ public class ProxyStateClientHandler extends ClientHandler {
                 throw new RadiusException("proxy packet without Proxy-State attribute");
             RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
 
-            String requestId = new String(proxyState.getAttributeData());
+            String proxyStateId = new String(proxyState.getAttributeData());
 
-            final Promise<RadiusPacket> request = requests.get(requestId);
+            final Promise<RadiusPacket> request = requests.get(proxyStateId);
 
             if (request == null) {
                 logger.info("Request context not found for received packet, ignoring...");
                 return;
             }
 
-            logger.info("Found connection {} for request identifier => {}", requestId, packet.getPacketIdentifier());
-            logger.info("received proxy packet: {}", packet);
+            logger.info("Found connection (proxyState) {} for packet => {}", proxyStateId, packet);
 
             // remove only own Proxy-State (last attribute)
             packet.removeLastAttribute(33);

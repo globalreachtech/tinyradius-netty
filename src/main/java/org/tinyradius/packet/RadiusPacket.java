@@ -17,7 +17,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -26,8 +25,7 @@ import static org.tinyradius.attribute.RadiusAttribute.createRadiusAttribute;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
- * This class represents a Radius packet. Subclasses provide convenience methods
- * for special packet types.
+ * A generic Radius packet. Subclasses provide convenience methods for special packet types.
  */
 public class RadiusPacket {
 
@@ -41,8 +39,6 @@ public class RadiusPacket {
     byte[] authenticator = null;
 
     private Dictionary dictionary = DefaultDictionary.INSTANCE;
-
-    private static AtomicInteger nextPacketId = new AtomicInteger();
 
     private static final SecureRandom random = new SecureRandom();
 
@@ -68,9 +64,9 @@ public class RadiusPacket {
     public RadiusPacket(final int type, final int identifier, final List<RadiusAttribute> attributes) {
         if (type < 1 || type > 255)
             throw new IllegalArgumentException("packet type out of bounds");
-        this.packetType = type;
         if (identifier < 0 || identifier > 255)
             throw new IllegalArgumentException("packet identifier out of bounds");
+        this.packetType = type;
         this.packetIdentifier = identifier;
         this.attributes = requireNonNull(attributes, "attributes list is null");
     }
@@ -383,15 +379,6 @@ public class RadiusPacket {
 
         encodePacket(sharedSecret, requestAuthenticator);
         writeOutput(out);
-    }
-
-    /**
-     * Retrieves the next packet identifier to use.
-     *
-     * @return the next packet identifier to use
-     */
-    public static int getNextPacketIdentifier() {
-        return nextPacketId.updateAndGet(i -> i >= 255 ? 0 : i + 1);
     }
 
     public String toString() {
