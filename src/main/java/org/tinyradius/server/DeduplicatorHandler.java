@@ -95,6 +95,8 @@ public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandl
         }
 
         /**
+         *
+         * // todo authenticator should never be null?
          * If authenticator is null, ignores and only compares other properties.
          */
         @Override

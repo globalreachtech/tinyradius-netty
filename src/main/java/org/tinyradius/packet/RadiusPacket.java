@@ -1,5 +1,8 @@
 package org.tinyradius.packet;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.AttributeType;
@@ -10,7 +13,7 @@ import org.tinyradius.util.RadiusException;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -19,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.netty.buffer.Unpooled.buffer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.RadiusAttribute.createRadiusAttribute;
@@ -32,11 +36,10 @@ public class RadiusPacket {
     public static final int MAX_PACKET_LENGTH = 4096;
     public static final int RADIUS_HEADER_LENGTH = 20;
 
-    private final int packetType;
-    private final int packetIdentifier;
-    private final List<RadiusAttribute> attributes;
-
-    byte[] authenticator = null;
+    protected final int packetType;
+    protected final int packetIdentifier;
+    protected final List<RadiusAttribute> attributes;
+    protected final byte[] authenticator;
 
     private Dictionary dictionary = DefaultDictionary.INSTANCE;
 
@@ -49,8 +52,30 @@ public class RadiusPacket {
      * @param type       packet type
      * @param identifier packet identifier
      */
-    public RadiusPacket(final int type, final int identifier) {
-        this(type, identifier, new ArrayList<>());
+    public RadiusPacket(int type, int identifier) {
+        this(type, identifier, null, new ArrayList<>());
+    }
+
+    /**
+     * Builds a Radius packet with the given type and identifier
+     * and without attributes.
+     *
+     * @param type       packet type
+     * @param identifier packet identifier
+     */
+    public RadiusPacket(int type, int identifier, byte[] authenticator) {
+        this(type, identifier, authenticator, new ArrayList<>());
+    }
+
+    /**
+     * Builds a Radius packet with the given type and identifier
+     * and without attributes.
+     *
+     * @param type       packet type
+     * @param identifier packet identifier
+     */
+    public RadiusPacket(int type, int identifier, List<RadiusAttribute> attributes) {
+        this(type, identifier, null, attributes);
     }
 
     /**
@@ -61,13 +86,14 @@ public class RadiusPacket {
      * @param identifier packet identifier
      * @param attributes list of RadiusAttribute objects
      */
-    public RadiusPacket(final int type, final int identifier, final List<RadiusAttribute> attributes) {
+    public RadiusPacket(int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         if (type < 1 || type > 255)
             throw new IllegalArgumentException("packet type out of bounds");
         if (identifier < 0 || identifier > 255)
             throw new IllegalArgumentException("packet identifier out of bounds");
         this.packetType = type;
         this.packetIdentifier = identifier;
+        this.authenticator = authenticator;
         this.attributes = requireNonNull(attributes, "attributes list is null");
     }
 
@@ -156,20 +182,16 @@ public class RadiusPacket {
     }
 
     /**
-     * Removes all attributes from this packet which have got
-     * the specified type.
+     * Removes all attributes from this packet which have got the specified type.
      *
      * @param type attribute type to remove
      */
     public void removeAttributes(int type) {
-        if (type < 1 || type > 255)
-            throw new IllegalArgumentException("attribute type out of bounds");
-
-        attributes.removeIf(attribute -> attribute.getAttributeType() == type);
+        attributes.removeIf(a -> a.getAttributeType() == type);
     }
 
     /**
-     * Removes the last occurence of the attribute of the given
+     * Removes the last occurrence of the attribute of the given
      * type from the packet.
      *
      * @param type attribute type code
@@ -348,37 +370,33 @@ public class RadiusPacket {
     }
 
     /**
-     * Encodes this Radius packet and sends it to the specified output stream.
+     * Encodes this Radius packet
      *
-     * @param out          output stream to use
      * @param sharedSecret shared secret to be used to encode this packet
      * @throws IOException     communication error
      * @throws RadiusException malformed packet
      */
-    public void encodeRequestPacket(OutputStream out, String sharedSecret) throws IOException, RadiusException {
+    public RadiusPacket encodeRequestPacket(String sharedSecret) throws IOException, RadiusException {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("no shared secret has been set");
 
-        encodeRequest(sharedSecret);
-        writeOutput(out);
+        return encodeRequest(sharedSecret);
     }
 
     /**
      * Encodes this Radius response packet and sends it to the specified output
      * stream.
      *
-     * @param out                  output stream to use
      * @param sharedSecret         shared secret to be used to encode this packet
      * @param requestAuthenticator Radius request packet authenticator
      * @throws IOException communication error
      */
-    public void encodeResponsePacket(OutputStream out, String sharedSecret, byte[] requestAuthenticator) throws IOException {
+    public RadiusPacket encodeResponsePacket(String sharedSecret, byte[] requestAuthenticator) throws IOException {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("no shared secret has been set");
         requireNonNull(requestAuthenticator, "request authenticator not set");
 
-        encodePacket(sharedSecret, requestAuthenticator);
-        writeOutput(out);
+        return encodePacket(sharedSecret, requestAuthenticator);
     }
 
     public String toString() {
@@ -407,17 +425,6 @@ public class RadiusPacket {
     }
 
     /**
-     * Sets the authenticator to be used for this Radius packet.
-     * This method should seldomly be used.
-     * Authenticators are created and managed by this class internally.
-     *
-     * @param authenticator authenticator
-     */
-    public void setAuthenticator(byte[] authenticator) {
-        this.authenticator = authenticator;
-    }
-
-    /**
      * @return the dictionary this Radius packet uses.
      */
     public Dictionary getDictionary() {
@@ -437,15 +444,19 @@ public class RadiusPacket {
         attributes.forEach(a -> a.setDictionary(dictionary));
     }
 
-    private void writeOutput(OutputStream out) throws IOException {
-        byte[] attributes = getAttributeBytes();
-        DataOutputStream dos = new DataOutputStream(out);
-        dos.writeByte(getPacketType());
-        dos.writeByte(getPacketIdentifier());
-        dos.writeShort(RADIUS_HEADER_LENGTH + attributes.length);
-        dos.write(getAuthenticator());
-        dos.write(attributes);
-        dos.flush();
+    public DatagramPacket toDatagramPacket(InetSocketAddress address) throws IOException {
+        ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
+        try (ByteBufOutputStream outputStream = new ByteBufOutputStream(buf)) {
+            byte[] attributes = getAttributeBytes();
+            DataOutputStream dos = new DataOutputStream(outputStream);
+            dos.writeByte(getPacketType());
+            dos.writeByte(getPacketIdentifier());
+            dos.writeShort(RADIUS_HEADER_LENGTH + attributes.length);
+            dos.write(getAuthenticator());
+            dos.write(attributes);
+            dos.flush();
+            return new DatagramPacket(buf, address);
+        }
     }
 
     /**
@@ -465,14 +476,14 @@ public class RadiusPacket {
      * @throws RadiusException malformed packet
      * @throws IOException     error writing data
      */
-    protected void encodeRequest(String sharedSecret) throws RadiusException, IOException {
+    protected RadiusPacket encodeRequest(String sharedSecret) throws RadiusException, IOException {
         byte[] attributes = getAttributeBytes();
         int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
         if (packetLength > MAX_PACKET_LENGTH)
             throw new RuntimeException("packet too long");
 
-        if (authenticator == null)
-            authenticator = generateRandomizedAuthenticator(sharedSecret);
+        return authenticator != null ?
+                this : new RadiusPacket(packetType, packetIdentifier, generateRandomizedAuthenticator(sharedSecret), this.attributes);
     }
 
     /**
@@ -488,13 +499,14 @@ public class RadiusPacket {
      *                             16 zero octets if encoding requests
      * @throws IOException error writing data
      */
-    protected void encodePacket(String sharedSecret, byte[] requestAuthenticator) throws IOException {
+    protected RadiusPacket encodePacket(String sharedSecret, byte[] requestAuthenticator) throws IOException {
         byte[] attributes = getAttributeBytes();
         int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
         if (packetLength > MAX_PACKET_LENGTH)
             throw new RuntimeException("packet too long");
 
-        authenticator = createHashedAuthenticator(sharedSecret, packetLength, attributes, requestAuthenticator);
+        final byte[] authenticator = createHashedAuthenticator(sharedSecret, packetLength, attributes, requestAuthenticator);
+        return new RadiusPacket(packetType, packetIdentifier, authenticator, this.attributes);
     }
 
     /**

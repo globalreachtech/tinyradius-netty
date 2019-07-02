@@ -138,8 +138,9 @@ public class RadiusClient<T extends DatagramChannel> {
             // run first to add any identifiers/attributes needed
             Future<RadiusPacket> promise = clientHandler.processRequest(packet, endpoint, eventLoopGroup.next());
 
-            // will mutate packet (regenerate authenticator)
-            final DatagramPacket packetOut = makeDatagramPacket(packet, endpoint);
+            final DatagramPacket packetOut = packet
+                    .encodeRequestPacket(endpoint.getSharedSecret())
+                    .toDatagramPacket(endpoint.getEndpointAddress());
 
             logger.debug("Sending packet to {}", endpoint.getEndpointAddress());
             if (logger.isDebugEnabled())
@@ -154,23 +155,6 @@ public class RadiusClient<T extends DatagramChannel> {
             return promise;
         } catch (Exception e) {
             return eventLoopGroup.next().newFailedFuture(e);
-        }
-    }
-
-    /**
-     * Creates a datagram packet from a RadiusPacket to be send.
-     *
-     * @param packet   RadiusPacket
-     * @param endpoint destination port number
-     * @return new datagram packet
-     * @throws IOException     error when writing packet to output stream
-     * @throws RadiusException error when encoding RadiusPacket attributes
-     */
-    protected DatagramPacket makeDatagramPacket(RadiusPacket packet, RadiusEndpoint endpoint) throws IOException, RadiusException {
-        ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
-        try (final ByteBufOutputStream outputStream = new ByteBufOutputStream(buf)) {
-            packet.encodeRequestPacket(outputStream, endpoint.getSharedSecret());
-            return new DatagramPacket(buf, endpoint.getEndpointAddress());
         }
     }
 }

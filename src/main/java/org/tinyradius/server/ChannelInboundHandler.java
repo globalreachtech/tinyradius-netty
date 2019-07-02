@@ -1,8 +1,5 @@
 package org.tinyradius.server;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -14,16 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import static io.netty.buffer.Unpooled.buffer;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
-import static org.tinyradius.packet.RadiusPacketDecoder.decodeRequestPacket;
 
 /**
  * SimpleChannelInboundHandler implementation that converts between RadiusPackets
@@ -58,42 +53,6 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
         this.packetClass = packetClass;
     }
 
-    /**
-     * Creates a Radius response datagram packet from a RadiusPacket to be send.
-     *
-     * @param packet               RadiusPacket
-     * @param secret               shared secret to encode packet
-     * @param address              where to send the packet
-     * @param requestAuthenticator request packet authenticator
-     * @return new datagram packet
-     * @throws IOException IO error
-     */
-    private DatagramPacket makeDatagramPacket(RadiusPacket packet, String secret, InetSocketAddress address, byte[] requestAuthenticator)
-            throws IOException {
-
-        ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
-        packet.setDictionary(dictionary);
-        try (final ByteBufOutputStream outputStream = new ByteBufOutputStream(buf)) {
-            packet.encodeResponsePacket(outputStream, secret, requestAuthenticator);
-            return new DatagramPacket(buf, address);
-        }
-    }
-
-    /**
-     * Creates a RadiusPacket for a Radius request from a received
-     * datagram packet.
-     *
-     * @param packet       received datagram
-     * @param sharedSecret to decode datagram
-     * @return RadiusPacket object
-     * @throws RadiusException malformed packet
-     * @throws IOException     communication error
-     */
-    private RadiusPacket makeRadiusPacket(DatagramPacket packet, String sharedSecret) throws IOException, RadiusException {
-        ByteBufInputStream in = new ByteBufInputStream(packet.content());
-        return decodeRequestPacket(dictionary, in, sharedSecret);
-    }
-
     public void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
         try {
             InetSocketAddress localAddress = datagramPacket.recipient();
@@ -106,7 +65,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
             }
 
             // parse packet
-            RadiusPacket request = makeRadiusPacket(datagramPacket, secret);
+            RadiusPacket request =  RadiusPacketEncoder.decodeRequestPacket(dictionary, datagramPacket, secret);
             logger.info("received packet from {} on local address {}: {}", remoteAddress, localAddress, request);
 
 
@@ -135,7 +94,9 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
                     response.setDictionary(dictionary);
                     logger.info("send response: {}", response);
                     logger.info("sending response packet to {} with secret {}", remoteAddress, secret);
-                    DatagramPacket packetOut = makeDatagramPacket(response, secret, remoteAddress, requestAuthenticator);
+                    DatagramPacket packetOut = response
+                            .encodeResponsePacket(secret, requestAuthenticator)
+                            .toDatagramPacket(remoteAddress);
                     ctx.writeAndFlush(packetOut);
                 } else {
                     logger.info("no response sent");

@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.tinyradius.packet.RadiusPacketDecoder.decodeResponsePacket;
+import static org.tinyradius.packet.RadiusPacketEncoder.decodeResponsePacket;
 
 /**
  * ClientHandler that uses packetIdentifier and remote address to uniquely identify request/responses.
@@ -76,9 +76,8 @@ public class SimpleClientHandler extends ClientHandler {
             return;
         }
 
-        try (ByteBufInputStream inputStream = new ByteBufInputStream(packet.content().duplicate())) {
-            RadiusPacket resp = decodeResponsePacket(dictionary, inputStream, request.sharedSecret, request.packet);
-
+        try {
+            RadiusPacket resp = decodeResponsePacket(dictionary, packet, request.sharedSecret, request.packet);
             logger.info("Found request for response identifier => {}", identifier);
 
             request.response.trySuccess(resp);

@@ -17,8 +17,7 @@ import static org.tinyradius.packet.PacketType.ACCESS_REJECT;
 public abstract class AuthHandler implements RequestHandler<AccessRequest> {
 
     /**
-     * Returns the password of the passed user. Either this
-     * method or {@link #handlePacket(Channel, AccessRequest, InetSocketAddress, String)} (EventExecutor, AccessRequest)} should be overridden.
+     * Returns the password of the passed user.
      *
      * @param userName user name
      * @return plain-text password or null if user unknown

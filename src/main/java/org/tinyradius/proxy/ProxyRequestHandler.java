@@ -80,16 +80,11 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
         }
 
         logger.info("proxy packet to " + serverEndpoint.getEndpointAddress());
-        // save request authenticator (will be calculated new)
-        byte[] auth = packet.getAuthenticator();
 
-        // send new packet (with new authenticator)
         radiusClient.communicate(packet, serverEndpoint, 3)
                 .addListener((Future<RadiusPacket> f) ->
                         promise.trySuccess(handleServerResponse(f.getNow())));
 
-        // restore original authenticator
-        packet.setAuthenticator(auth);
         return promise;
     }
 
@@ -102,7 +97,6 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
      * @return packet to send back to client
      */
     protected RadiusPacket handleServerResponse(RadiusPacket packet) {
-        // re-encode answer packet with authenticator of the original packet
         return new RadiusPacket(packet.getPacketType(), packet.getPacketIdentifier(), packet.getAttributes());
     }
 }

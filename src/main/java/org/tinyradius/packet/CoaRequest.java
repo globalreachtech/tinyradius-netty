@@ -8,16 +8,16 @@ import java.io.IOException;
 public class CoaRequest extends RadiusPacket {
 
     /**
-     *
-     * @param type should be one of COA_REQUEST or DISCONNECT_REQUEST
+     * @param type          should be one of COA_REQUEST or DISCONNECT_REQUEST
      * @param identifier
+     * @param authenticator
      */
-    public CoaRequest(final int type, int identifier) {
-        super(type, identifier);
+    public CoaRequest(int type, int identifier, byte[] authenticator) {
+        super(type, identifier, authenticator);
     }
 
     @Override
-    protected void encodeRequest(String sharedSecret) throws IOException {
-        encodePacket(sharedSecret, new byte[16]);
+    protected RadiusPacket encodeRequest(String sharedSecret) throws IOException {
+        return encodePacket(sharedSecret, new byte[16]);
     }
 }

@@ -36,8 +36,8 @@ public class AccountingRequest extends RadiusPacket {
      * @param userName       user name
      * @param acctStatusType ACCT_STATUS_TYPE_*
      */
-    public AccountingRequest(int identifier, String userName, int acctStatusType) {
-        this(identifier);
+    public AccountingRequest(int identifier, byte[] authenticator, String userName, int acctStatusType) {
+        this(identifier, authenticator);
         setUserName(userName);
         setAcctStatusType(acctStatusType);
     }
@@ -45,8 +45,8 @@ public class AccountingRequest extends RadiusPacket {
     /**
      * Constructs an empty Accounting-Request.
      */
-    public AccountingRequest(int identifier) {
-        super(PacketType.ACCOUNTING_REQUEST, identifier);
+    public AccountingRequest(int identifier, byte[] authenticator) {
+        super(PacketType.ACCOUNTING_REQUEST, identifier, authenticator);
     }
 
     /**
@@ -89,9 +89,8 @@ public class AccountingRequest extends RadiusPacket {
     }
 
     /**
-     * Retrieves the user name from the User-Name attribute.
      *
-     * @return user name
+     * @return
      */
     public int getAcctStatusType() {
         RadiusAttribute ra = getAttribute(ACCT_STATUS_TYPE);
@@ -100,8 +99,8 @@ public class AccountingRequest extends RadiusPacket {
     }
 
     @Override
-    protected void encodeRequest(String sharedSecret) throws IOException {
-        encodePacket(sharedSecret, new byte[16]);
+    protected RadiusPacket encodeRequest(String sharedSecret) throws IOException {
+       return encodePacket(sharedSecret, new byte[16]);
     }
 
     /**

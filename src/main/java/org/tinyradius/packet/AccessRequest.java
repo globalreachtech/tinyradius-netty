@@ -9,10 +9,7 @@ import org.tinyradius.util.RadiusException;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
@@ -67,8 +64,12 @@ public class AccessRequest extends RadiusPacket {
     /**
      * Constructs an empty Access-Request packet.
      */
-    public AccessRequest(int identifier) {
-        super(PacketType.ACCESS_REQUEST, identifier);
+    public AccessRequest(int identifier, byte[] authenticator) {
+        super(PacketType.ACCESS_REQUEST, identifier, authenticator);
+    }
+
+    public AccessRequest(int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        super(PacketType.ACCESS_REQUEST, identifier, authenticator, attributes);
     }
 
     /**
@@ -79,8 +80,8 @@ public class AccessRequest extends RadiusPacket {
      * @param userName     user name
      * @param userPassword user password
      */
-    public AccessRequest(int identifier, String userName, String userPassword) {
-        this(identifier);
+    public AccessRequest(int identifier, byte[] authenticator, String userName, String userPassword) {
+        this(identifier, authenticator);
         setUserName(userName);
         setUserPassword(userPassword);
     }
@@ -218,19 +219,25 @@ public class AccessRequest extends RadiusPacket {
     }
 
     @Override
-    protected void encodeRequest(String sharedSecret) throws RadiusException, IOException {
+    protected RadiusPacket encodeRequest(String sharedSecret) throws RadiusException, IOException {
         // create authenticator only if needed
-        if (authenticator == null)
-            authenticator = generateRandomizedAuthenticator(sharedSecret);
+        byte[] newAuthenticator = authenticator == null ? generateRandomizedAuthenticator(sharedSecret) : getAuthenticator();
 
-        // then encode attributes (User-Password attribute needs the authenticator)
-        encodeRequestAttributes(sharedSecret);
+        final AccessRequest accessRequest = new AccessRequest(packetIdentifier, newAuthenticator, new ArrayList<>(attributes));
+
+        // encode attributes (User-Password attribute needs the new authenticator)
+        encodeRequestAttributes(newAuthenticator, sharedSecret).forEach(a ->{
+            removeAttributes(a.getAttributeType());
+            addAttribute(a);
+        });
 
         // length check now after attributes encoded
-        byte[] attributes = getAttributeBytes();
+        byte[] attributes = accessRequest.getAttributeBytes();
         int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
         if (packetLength > MAX_PACKET_LENGTH)
             throw new RuntimeException("packet too long");
+
+        return accessRequest;
     }
 
     /**
@@ -240,33 +247,25 @@ public class AccessRequest extends RadiusPacket {
      *                     with the other Radius server/client
      * @throws RadiusException auth protocol not supported
      */
-    protected void encodeRequestAttributes(String sharedSecret) throws RadiusException {
-        if (password == null || password.isEmpty())
-            return;
-        // ok for proxied packets whose CHAP password is already encrypted
-        // throw new RuntimeException("no password set");
+    protected List<RadiusAttribute> encodeRequestAttributes(byte[] newAuthenticator, String sharedSecret) throws RadiusException {
+        if (password != null && !password.isEmpty())
+            switch (getAuthProtocol()) {
+                case AUTH_PAP:
+                    return Collections.singletonList(
+                            new RadiusAttribute(USER_PASSWORD,
+                                    encodePapPassword(newAuthenticator, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
+                case AUTH_CHAP:
+                    byte[] challenge = createChapChallenge();
+                    return Arrays.asList(
+                            new RadiusAttribute(CHAP_CHALLENGE, challenge),
+                            new RadiusAttribute(CHAP_PASSWORD, encodeChapPassword(password, challenge)));
+                case AUTH_MS_CHAP_V2:
+                    throw new RadiusException("encoding not supported for " + AUTH_MS_CHAP_V2);
+                case AUTH_EAP:
+                    throw new RadiusException("encoding not supported for " + AUTH_EAP);
+            }
 
-        switch (getAuthProtocol()) {
-            case AUTH_PAP: {
-                byte[] pass = encodePapPassword(this.password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8));
-                removeAttributes(USER_PASSWORD);
-                addAttribute(new RadiusAttribute(USER_PASSWORD, pass));
-                break;
-            }
-            case AUTH_CHAP: {
-                byte[] challenge = createChapChallenge();
-                byte[] pass = encodeChapPassword(password, challenge);
-                removeAttributes(CHAP_PASSWORD);
-                removeAttributes(CHAP_CHALLENGE);
-                addAttribute(new RadiusAttribute(CHAP_PASSWORD, pass));
-                addAttribute(new RadiusAttribute(CHAP_CHALLENGE, challenge));
-                break;
-            }
-            case AUTH_MS_CHAP_V2:
-                throw new RadiusException("encoding not supported for " + AUTH_MS_CHAP_V2);
-            case AUTH_EAP:
-                throw new RadiusException("encoding not supported for " + AUTH_EAP);
-        }
+        return Collections.emptyList();
     }
 
     /**
@@ -276,11 +275,11 @@ public class AccessRequest extends RadiusPacket {
      * @param sharedSecret shared secret
      * @return the byte array containing the encrypted password
      */
-    private byte[] encodePapPassword(final byte[] userPass, byte[] sharedSecret) {
+    private byte[] encodePapPassword(byte[] newAuthenticator, byte[] userPass, byte[] sharedSecret) {
         requireNonNull(userPass, "userPass cannot be null");
         requireNonNull(sharedSecret, "sharedSecret cannot be null");
 
-        byte[] C = authenticator;
+        byte[] C = newAuthenticator;
         byte[] P = pad(userPass, C.length);
         byte[] result = new byte[P.length];
 

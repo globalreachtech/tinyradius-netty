@@ -1,6 +1,5 @@
 package org.tinyradius.client;
 
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timeout;
@@ -12,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketDecoder;
+import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
@@ -91,8 +90,8 @@ public class ProxyStateClientHandler extends ClientHandler {
             return;
         }
 
-        try (ByteBufInputStream in = new ByteBufInputStream(datagramPacket.content())) {
-            RadiusPacket packet = RadiusPacketDecoder.decodeRequestPacket(dictionary, in, secret);
+        try {
+            RadiusPacket packet = RadiusPacketEncoder.decodeRequestPacket(dictionary, datagramPacket, secret);
 
             // retrieve my Proxy-State attribute (the last)
             List<RadiusAttribute> proxyStates = packet.getAttributes(33);
