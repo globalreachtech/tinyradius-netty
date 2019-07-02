@@ -16,38 +16,18 @@ import static java.util.Objects.requireNonNull;
 public class AccountingRequest extends RadiusPacket {
 
     /**
-     * Radius User-Name attribute type
+     * Attributes
      */
     private static final int USER_NAME = 1;
-
-    /**
-     * Radius Acct-Status-Type attribute type
-     */
     private static final int ACCT_STATUS_TYPE = 40;
 
     /**
-     * Acct-Status-Type: Start
+     * Acct-Status-Type values
      */
     public static final int ACCT_STATUS_TYPE_START = 1;
-
-    /**
-     * Acct-Status-Type: Stop
-     */
     public static final int ACCT_STATUS_TYPE_STOP = 2;
-
-    /**
-     * Acct-Status-Type: Interim Update/Alive
-     */
     public static final int ACCT_STATUS_TYPE_INTERIM_UPDATE = 3;
-
-    /**
-     * Acct-Status-Type: Accounting-On
-     */
     public static final int ACCT_STATUS_TYPE_ACCOUNTING_ON = 7;
-
-    /**
-     * Acct-Status-Type: Accounting-Off
-     */
     public static final int ACCT_STATUS_TYPE_ACCOUNTING_OFF = 8;
 
     /**
@@ -56,18 +36,17 @@ public class AccountingRequest extends RadiusPacket {
      * @param userName       user name
      * @param acctStatusType ACCT_STATUS_TYPE_*
      */
-    public AccountingRequest(String userName, int acctStatusType) {
-        this();
+    public AccountingRequest(int identifier, String userName, int acctStatusType) {
+        this(identifier);
         setUserName(userName);
         setAcctStatusType(acctStatusType);
     }
 
     /**
-     * Constructs an empty Accounting-Request to be received by a
-     * Radius client.
+     * Constructs an empty Accounting-Request.
      */
-    public AccountingRequest() {
-        super(PacketType.ACCOUNTING_REQUEST);
+    public AccountingRequest(int identifier) {
+        super(PacketType.ACCOUNTING_REQUEST, identifier);
     }
 
     /**

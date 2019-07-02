@@ -1,5 +1,7 @@
 package org.tinyradius.packet;
 
+import java.util.HashMap;
+
 /**
  * Packet type codes.
  */
@@ -34,56 +36,33 @@ public class PacketType {
     public static final int STATUS_REJECT = 48;
     public static final int RESERVED = 255;
 
+    private static HashMap<Integer, String> typeNames = new HashMap<Integer, String>() {{
+        put(ACCESS_REQUEST, "Access-Request");
+        put(ACCESS_ACCEPT, "Access-Accept");
+        put(ACCESS_REJECT, "Access-Reject");
+        put(ACCOUNTING_REQUEST, "Accounting-Request");
+        put(ACCOUNTING_RESPONSE, "Accounting-Response");
+        put(ACCOUNTING_STATUS, "Accounting-Status");
+        put(PASSWORD_REQUEST, "Password-Request");
+        put(PASSWORD_ACCEPT, "Password-Accept");
+        put(PASSWORD_REJECT, "Password-Reject");
+        put(ACCOUNTING_MESSAGE, "Accounting-Message");
+        put(ACCESS_CHALLENGE, "Access-Challenge");
+        put(STATUS_SERVER, "Status-Server");
+        put(STATUS_CLIENT, "Status-Client");
+        put(DISCONNECT_REQUEST, "Disconnect-Request");
+        put(DISCONNECT_ACK, "Disconnect-ACK");
+        put(DISCONNECT_NAK, "Disconnect-NAK");
+        put(COA_REQUEST, "CoA-Request");
+        put(COA_ACK, "CoA-ACK");
+        put(COA_NAK, "CoA-NAK");
+        put(STATUS_REQUEST, "Status-Request");
+        put(STATUS_ACCEPT, "Status-Accept");
+        put(STATUS_REJECT, "Status-Reject");
+        put(RESERVED, "Reserved");
+    }};
+
     public static String getPacketTypeName(int code) {
-        switch (code) {
-            case ACCESS_REQUEST:
-                return "Access-Request";
-            case ACCESS_ACCEPT:
-                return "Access-Accept";
-            case ACCESS_REJECT:
-                return "Access-Reject";
-            case ACCOUNTING_REQUEST:
-                return "Accounting-Request";
-            case ACCOUNTING_RESPONSE:
-                return "Accounting-Response";
-            case ACCOUNTING_STATUS:
-                return "Accounting-Status";
-            case PASSWORD_REQUEST:
-                return "Password-Request";
-            case PASSWORD_ACCEPT:
-                return "Password-Accept";
-            case PASSWORD_REJECT:
-                return "Password-Reject";
-            case ACCOUNTING_MESSAGE:
-                return "Accounting-Message";
-            case ACCESS_CHALLENGE:
-                return "Access-Challenge";
-            case STATUS_SERVER:
-                return "Status-Server";
-            case STATUS_CLIENT:
-                return "Status-Client";
-            case DISCONNECT_REQUEST:
-                return "Disconnect-Request";
-            case DISCONNECT_ACK:
-                return "Disconnect-ACK";
-            case DISCONNECT_NAK:
-                return "Disconnect-NAK";
-            case COA_REQUEST:
-                return "CoA-Request";
-            case COA_ACK:
-                return "CoA-ACK";
-            case COA_NAK:
-                return "CoA-NAK";
-            case STATUS_REQUEST:
-                return "Status-Request";
-            case STATUS_ACCEPT:
-                return "Status-Accept";
-            case STATUS_REJECT:
-                return "Status-Reject";
-            case RESERVED:
-                return "Reserved";
-            default:
-                return "Unknown (" + code + ")";
-        }
+        return typeNames.getOrDefault(code, "Unknown (" + code + ")");
     }
 }

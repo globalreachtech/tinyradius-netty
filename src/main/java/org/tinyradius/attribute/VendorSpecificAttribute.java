@@ -167,7 +167,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         if (attrs.size() > 1)
             throw new RuntimeException("multiple sub-attributes of requested type " + type);
 
-        return attrs.size() == 0 ? null : attrs.get(0);
+        return attrs.isEmpty() ? null : attrs.get(0);
     }
 
     /**

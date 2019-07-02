@@ -10,7 +10,6 @@ import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 /**
@@ -23,9 +22,8 @@ public class TestClient {
      * Radius command line client.
      *
      * @param args [host, sharedSecret, username, password]
-     * @throws IOException if error parsing dictionary
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if (args.length != 4) {
             System.out.println("Usage: TestClient hostName sharedSecret userName password");
             System.exit(1);
@@ -51,7 +49,7 @@ public class TestClient {
         final RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1813), shared);
 
         // 1. Send Access-Request
-        AccessRequest ar = new AccessRequest(user, pass);
+        AccessRequest ar = new AccessRequest(RadiusPacket.getNextPacketIdentifier(), user, pass);
         ar.setAuthProtocol(AccessRequest.AUTH_PAP); // or AUTH_CHAP
         ar.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
         ar.addAttribute("NAS-IP-Address", "192.168.0.100");
@@ -65,7 +63,7 @@ public class TestClient {
         System.out.println("Response\n" + response + "\n");
 
         // 2. Send Accounting-Request
-        AccountingRequest acc = new AccountingRequest("mw", AccountingRequest.ACCT_STATUS_TYPE_START);
+        AccountingRequest acc = new AccountingRequest(RadiusPacket.getNextPacketIdentifier(), "mw", AccountingRequest.ACCT_STATUS_TYPE_START);
         acc.addAttribute("Acct-Session-Id", "1234567890");
         acc.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
         acc.addAttribute("NAS-Port", "0");

@@ -143,8 +143,7 @@ public class RadiusPacketDecoder {
             throw new RadiusException("bad packet: attribute length mismatch");
 
         // create RadiusPacket object; set properties
-        RadiusPacket rp = createRadiusPacket(type, dictionary);
-        rp.setPacketIdentifier(identifier);
+        RadiusPacket rp = createRadiusPacket(type, dictionary, identifier);
         rp.authenticator = authenticator;
 
         // load attributes
@@ -179,25 +178,25 @@ public class RadiusPacketDecoder {
      * @param dictionary to use for packet
      * @return RadiusPacket object
      */
-    public static RadiusPacket createRadiusPacket(final int type, Dictionary dictionary) {
+    public static RadiusPacket createRadiusPacket(final int type, Dictionary dictionary, int identifier) {
         requireNonNull(dictionary, "dictionary cannot be null");
 
         RadiusPacket rp;
         switch (type) {
             case PacketType.ACCESS_REQUEST:
-                rp = new AccessRequest();
+                rp = new AccessRequest(identifier);
                 break;
             case PacketType.COA_REQUEST:
-                rp = new CoaRequest(PacketType.COA_REQUEST);
+                rp = new CoaRequest(PacketType.COA_REQUEST, identifier);
                 break;
             case PacketType.DISCONNECT_REQUEST:
-                rp = new CoaRequest(PacketType.DISCONNECT_REQUEST);
+                rp = new CoaRequest(PacketType.DISCONNECT_REQUEST, identifier);
                 break;
             case PacketType.ACCOUNTING_REQUEST:
-                rp = new AccountingRequest();
+                rp = new AccountingRequest(identifier);
                 break;
             default:
-                rp = new RadiusPacket(type);
+                rp = new RadiusPacket(type, identifier);
         }
 
         rp.setDictionary(dictionary);

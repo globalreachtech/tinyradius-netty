@@ -7,12 +7,13 @@ import java.io.IOException;
  */
 public class CoaRequest extends RadiusPacket {
 
-    public CoaRequest() {
-        this(PacketType.COA_REQUEST);
-    }
-
-    public CoaRequest(final int type) {
-        super(type);
+    /**
+     *
+     * @param type should be one of COA_REQUEST or DISCONNECT_REQUEST
+     * @param identifier
+     */
+    public CoaRequest(final int type, int identifier) {
+        super(type, identifier);
     }
 
     @Override

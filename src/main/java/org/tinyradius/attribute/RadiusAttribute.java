@@ -13,35 +13,21 @@ import static java.util.Objects.requireNonNull;
  */
 public class RadiusAttribute {
 
-    /**
-     * Dictionary to look up attribute names.
-     */
+    //todo implement equals/hashcode
+
     private Dictionary dictionary = DefaultDictionary.INSTANCE;
 
-    /**
-     * Attribute type
-     */
     private int attributeType = -1;
 
-    /**
-     * Vendor ID, only for sub-attributes of Vendor-Specific attributes.
-     */
-    private int vendorId = -1;
+    private int vendorId = -1; //only for sub-attributes of Vendor-Specific attributes.
 
-    /**
-     * Attribute data
-     */
     private byte[] attributeData = null;
 
-    /**
-     * Constructs an empty Radius attribute.
-     */
     public RadiusAttribute() {
     }
 
     /**
-     * Constructs a Radius attribute with the specified
-     * type and data.
+     * Constructs a Radius attribute with the specified type and data.
      *
      * @param type attribute type, see AttributeTypes.*
      * @param data attribute data

@@ -35,34 +35,16 @@ public class RadiusPacket {
     public static final int RADIUS_HEADER_LENGTH = 20;
 
     private final int packetType;
-
-    private int packetIdentifier = 0;
-
+    private final int packetIdentifier;
     private final List<RadiusAttribute> attributes;
 
     byte[] authenticator = null;
 
-    /**
-     * Dictionary to look up attribute names.
-     */
     private Dictionary dictionary = DefaultDictionary.INSTANCE;
 
-    /**
-     * Next packet identifier.
-     */
     private static AtomicInteger nextPacketId = new AtomicInteger();
 
     private static final SecureRandom random = new SecureRandom();
-
-    /**
-     * Builds a Radius packet without attributes. Retrieves
-     * the next packet identifier.
-     *
-     * @param type packet type
-     */
-    public RadiusPacket(final int type) {
-        this(type, getNextPacketIdentifier());
-    }
 
     /**
      * Builds a Radius packet with the given type and identifier
@@ -87,7 +69,9 @@ public class RadiusPacket {
         if (type < 1 || type > 255)
             throw new IllegalArgumentException("packet type out of bounds");
         this.packetType = type;
-        setPacketIdentifier(identifier);
+        if (identifier < 0 || identifier > 255)
+            throw new IllegalArgumentException("packet identifier out of bounds");
+        this.packetIdentifier = identifier;
         this.attributes = requireNonNull(attributes, "attributes list is null");
     }
 
@@ -98,17 +82,6 @@ public class RadiusPacket {
      */
     public int getPacketIdentifier() {
         return packetIdentifier;
-    }
-
-    /**
-     * Sets the packet identifier for this Radius packet.
-     *
-     * @param identifier packet identifier, 0-255
-     */
-    public void setPacketIdentifier(int identifier) {
-        if (identifier < 0 || identifier > 255)
-            throw new IllegalArgumentException("packet identifier out of bounds");
-        this.packetIdentifier = identifier;
     }
 
     /**
@@ -173,8 +146,7 @@ public class RadiusPacket {
      */
     public void removeAttribute(RadiusAttribute attribute) {
         if (attribute.getVendorId() == -1) {
-            if (!this.attributes.remove(attribute))
-                throw new IllegalArgumentException("no such attribute");
+            this.attributes.remove(attribute);
         } else {
             // remove Vendor-Specific sub-attribute
             List<VendorSpecificAttribute> vsas = getVendorAttributes(attribute.getVendorId());
@@ -208,7 +180,7 @@ public class RadiusPacket {
      */
     public void removeLastAttribute(int type) {
         List<RadiusAttribute> attrs = getAttributes(type);
-        if (attrs == null || attrs.size() == 0)
+        if (attrs == null || attrs.isEmpty())
             return;
 
         removeAttribute(attrs.get(attrs.size() - 1));
@@ -283,8 +255,7 @@ public class RadiusPacket {
     }
 
     /**
-     * Returns a list of all attributes belonging to this Radius
-     * packet.
+     * Returns a list of all attributes belonging to this Radius packet.
      *
      * @return List of RadiusAttribute objects
      */
@@ -306,8 +277,7 @@ public class RadiusPacket {
         if (attrs.size() > 1)
             throw new RuntimeException("multiple attributes of requested type " + type);
 
-        return attrs.size() == 0 ?
-                null : attrs.get(0);
+        return attrs.isEmpty() ? null : attrs.get(0);
     }
 
     /**
@@ -328,8 +298,7 @@ public class RadiusPacket {
         if (attrs.size() > 1)
             throw new RuntimeException("multiple attributes of requested type " + type);
 
-        return attrs.size() == 0 ?
-                null : attrs.get(0);
+        return attrs.isEmpty() ? null : attrs.get(0);
     }
 
     /**
@@ -417,8 +386,7 @@ public class RadiusPacket {
     }
 
     /**
-     * Retrieves the next packet identifier to use and increments the static
-     * storage.
+     * Retrieves the next packet identifier to use.
      *
      * @return the next packet identifier to use
      */

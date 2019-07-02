@@ -25,95 +25,50 @@ public class AccessRequest extends RadiusPacket {
 
     private static final Logger logger = LoggerFactory.getLogger(AccessRequest.class);
 
-    /**
-     * Passphrase Authentication Protocol
-     */
     public static final String AUTH_PAP = "pap";
-
-    /**
-     * Challenged Handshake Authentication Protocol
-     */
     public static final String AUTH_CHAP = "chap";
-
-    /**
-     * Microsoft Challenged Handshake Authentication Protocol V2
-     */
     public static final String AUTH_MS_CHAP_V2 = "mschapv2";
-
-    /**
-     * Extended Authentication Protocol
-     */
     public static final String AUTH_EAP = "eap";
 
     public static final Set<String> AUTH_PROTOCOLS = new HashSet<>(Arrays.asList(AUTH_PAP, AUTH_CHAP, AUTH_MS_CHAP_V2, AUTH_EAP));
+
     /**
-     * Temporary storage for the unencrypted User-Password
-     * attribute.
+     * Temporary storage for the unencrypted User-Password attribute.
      */
     private String password;
 
-    /**
-     * Authentication protocol for this access request.
-     */
     private String authProtocol = AUTH_PAP;
 
-    /**
-     * CHAP password from a decoded CHAP Access-Request.
-     */
     private byte[] chapPassword;
-
-    /**
-     * CHAP challenge from a decoded CHAP Access-Request.
-     */
     private byte[] chapChallenge;
 
     private static final SecureRandom random = new SecureRandom();
 
     /**
-     * Radius type code for Radius attribute User-Name
+     * Attributes
      */
     private static final int USER_NAME = 1;
-
-    /**
-     * Radius attribute type for User-Password attribute.
-     */
     private static final int USER_PASSWORD = 2;
-
-    /**
-     * Radius attribute type for CHAP-Password attribute.
-     */
     private static final int CHAP_PASSWORD = 3;
-
-    /**
-     * Radius attribute type for CHAP-Challenge attribute.
-     */
     private static final int CHAP_CHALLENGE = 60;
-
-    /**
-     * Radius attribute type for EAP-Message attribute.
-     */
     private static final int EAP_MESSAGE = 79;
 
     /**
-     * Vendor id for Microsoft
+     * VendorIds
      */
     private static final int MICROSOFT = 311;
 
     /**
-     * Radius attribute type for MS-CHAP-Challenge attribute.
+     * Vendor Specific Attributes
      */
     private static final int MS_CHAP_CHALLENGE = 11;
-
-    /**
-     * Radius attribute type for MS-CHAP-Challenge attribute.
-     */
     private static final int MS_CHAP2_RESPONSE = 25;
 
     /**
      * Constructs an empty Access-Request packet.
      */
-    public AccessRequest() {
-        super(PacketType.ACCESS_REQUEST);
+    public AccessRequest(int identifier) {
+        super(PacketType.ACCESS_REQUEST, identifier);
     }
 
     /**
@@ -124,8 +79,8 @@ public class AccessRequest extends RadiusPacket {
      * @param userName     user name
      * @param userPassword user password
      */
-    public AccessRequest(String userName, String userPassword) {
-        this();
+    public AccessRequest(int identifier, String userName, String userPassword) {
+        this(identifier);
         setUserName(userName);
         setUserPassword(userPassword);
     }

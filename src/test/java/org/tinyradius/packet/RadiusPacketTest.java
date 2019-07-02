@@ -13,7 +13,7 @@ class RadiusPacketTest {
     @Test
     void addAttribute() {
 
-        RadiusPacket rp = new RadiusPacket(ACCESS_REQUEST);
+        RadiusPacket rp = new RadiusPacket(ACCESS_REQUEST, 1);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
         rp.addAttribute(new IpAttribute(8, 1234567));
         rp.addAttribute(new Ipv6Attribute(168, "fe80::"));
