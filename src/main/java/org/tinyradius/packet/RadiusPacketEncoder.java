@@ -116,7 +116,7 @@ public class RadiusPacketEncoder {
     protected static RadiusPacket decodePacket(Dictionary dictionary, DatagramPacket packet, String sharedSecret, RadiusPacket request)
             throws IOException, RadiusException {
 
-        try (ByteBufInputStream in = new ByteBufInputStream(packet.content());) {
+        try (ByteBufInputStream in = new ByteBufInputStream(packet.content())) {
             // check shared secret
             if (sharedSecret == null || sharedSecret.isEmpty())
                 throw new RuntimeException("no shared secret has been set");
@@ -143,32 +143,26 @@ public class RadiusPacketEncoder {
             in.read(authenticator);
             in.read(attributeData);
 
-            // check and count attributes
-            int pos = 0;
-            while (pos < attributeData.length) {
-                if (pos + 1 >= attributeData.length)
-                    throw new RadiusException("bad packet: attribute length mismatch");
-                int attributeLength = attributeData[pos + 1] & 0x0ff;
-                if (attributeLength < 2)
-                    throw new RadiusException("bad packet: invalid attribute length");
-                pos += attributeLength;
-            }
-            if (pos != attributeData.length)
-                throw new RadiusException("bad packet: attribute length mismatch");
-
             // create RadiusPacket object; set properties
             RadiusPacket rp = createRadiusPacket(type, dictionary, identifier, authenticator);
 
             // load attributes
-            pos = 0;
-            while (pos + 1 < attributeData.length) { // pos+1 to avoid ArrayIndexOutOfBoundsException reading length
+            int pos = 0;
+            while (pos < attributeData.length) { // pos+1 to avoid ArrayIndexOutOfBoundsException reading length
+                if (pos + 1 >= attributeData.length)
+                    throw new RadiusException("bad packet: attribute length out of bounds");
                 int attributeType = attributeData[pos] & 0x0ff;
                 int attributeLength = attributeData[pos + 1] & 0x0ff;
+                if (attributeLength < 2)
+                    throw new RadiusException("bad packet: invalid attribute length");
                 RadiusAttribute a = createRadiusAttribute(dictionary, -1, attributeType);
                 a.readAttribute(attributeData, pos);
                 rp.addAttribute(a);
                 pos += attributeLength;
             }
+
+            if (pos != attributeData.length)
+                throw new RadiusException("bad packet: attribute length mismatch");
 
             if (request == null) {
                 // decode attributes
