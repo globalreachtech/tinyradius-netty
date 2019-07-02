@@ -7,7 +7,10 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -28,71 +31,15 @@ import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
  */
 public class RadiusPacket {
 
-    /**
-     * Packet type codes.
-     */
-    public static final int ACCESS_REQUEST = 1; // RFC 2865
-    public static final int ACCESS_ACCEPT = 2;
-    public static final int ACCESS_REJECT = 3;
-    public static final int ACCESS_CHALLENGE = 11;
-
-    public static final int ACCOUNTING_REQUEST = 4; // RFC 2866
-    public static final int ACCOUNTING_RESPONSE = 5;
-    public static final int ACCOUNTING_STATUS = 6; // aka Interim Accounting
-    public static final int ACCOUNTING_MESSAGE = 10;
-
-    public static final int PASSWORD_REQUEST = 7;
-    public static final int PASSWORD_ACCEPT = 8;
-    public static final int PASSWORD_REJECT = 9;
-
-    public static final int STATUS_SERVER = 12; // RFC 5997
-    public static final int STATUS_CLIENT = 13;
-
-    public static final int DISCONNECT_REQUEST = 40; // RFC 5176
-    public static final int DISCONNECT_ACK = 41;
-    public static final int DISCONNECT_NAK = 42;
-    public static final int COA_REQUEST = 43;
-    public static final int COA_ACK = 44;
-    public static final int COA_NAK = 45;
-
-    public static final int STATUS_REQUEST = 46;
-    public static final int STATUS_ACCEPT = 47;
-    public static final int STATUS_REJECT = 48;
-    public static final int RESERVED = 255;
-
-    /**
-     * Maximum packet length.
-     */
     public static final int MAX_PACKET_LENGTH = 4096;
-
-    /**
-     * Packet header length.
-     */
     public static final int RADIUS_HEADER_LENGTH = 20;
 
-    /**
-     * Type of this Radius packet.
-     */
     private final int packetType;
 
-    /**
-     * Identifier of this packet.
-     */
     private int packetIdentifier = 0;
 
-    /**
-     * Attributes for this packet.
-     */
     private final List<RadiusAttribute> attributes;
 
-    /**
-     * MD5 digest.
-     */
-    private MessageDigest md5Digest = null;
-
-    /**
-     * Authenticator for this Radius packet.
-     */
     byte[] authenticator = null;
 
     /**
@@ -105,9 +52,6 @@ public class RadiusPacket {
      */
     private static AtomicInteger nextPacketId = new AtomicInteger();
 
-    /**
-     * Random number generator.
-     */
     private static final SecureRandom random = new SecureRandom();
 
     /**
@@ -174,64 +118,6 @@ public class RadiusPacket {
      */
     public int getPacketType() {
         return packetType;
-    }
-
-    /**
-     * Returns the type name of this Radius packet.
-     *
-     * @return name
-     */
-    public String getPacketTypeName() {
-        switch (getPacketType()) {
-            case ACCESS_REQUEST:
-                return "Access-Request";
-            case ACCESS_ACCEPT:
-                return "Access-Accept";
-            case ACCESS_REJECT:
-                return "Access-Reject";
-            case ACCOUNTING_REQUEST:
-                return "Accounting-Request";
-            case ACCOUNTING_RESPONSE:
-                return "Accounting-Response";
-            case ACCOUNTING_STATUS:
-                return "Accounting-Status";
-            case PASSWORD_REQUEST:
-                return "Password-Request";
-            case PASSWORD_ACCEPT:
-                return "Password-Accept";
-            case PASSWORD_REJECT:
-                return "Password-Reject";
-            case ACCOUNTING_MESSAGE:
-                return "Accounting-Message";
-            case ACCESS_CHALLENGE:
-                return "Access-Challenge";
-            case STATUS_SERVER:
-                return "Status-Server";
-            case STATUS_CLIENT:
-                return "Status-Client";
-            case DISCONNECT_REQUEST:
-                return "Disconnect-Request";
-            case DISCONNECT_ACK:
-                return "Disconnect-ACK";
-            case DISCONNECT_NAK:
-                return "Disconnect-NAK";
-            case COA_REQUEST:
-                return "CoA-Request";
-            case COA_ACK:
-                return "CoA-ACK";
-            case COA_NAK:
-                return "CoA-NAK";
-            case STATUS_REQUEST:
-                return "Status-Request";
-            case STATUS_ACCEPT:
-                return "Status-Accept";
-            case STATUS_REJECT:
-                return "Status-Reject";
-            case RESERVED:
-                return "Reserved";
-            default:
-                return "Unknown (" + getPacketType() + ")";
-        }
     }
 
     /**
@@ -531,78 +417,6 @@ public class RadiusPacket {
     }
 
     /**
-     * Reads a Radius request packet from the given input stream and
-     * creates an appropriate RadiusPacket descendant object.
-     * Reads in all attributes and returns the object.
-     * Decodes the encrypted fields and attributes of the packet.
-     *
-     * @param in           input stream to read from
-     * @param sharedSecret shared secret to be used to decode this packet
-     * @return new RadiusPacket object
-     * @throws IOException     IO error
-     * @throws RadiusException malformed packet
-     */
-    public static RadiusPacket decodeRequestPacket(InputStream in, String sharedSecret) throws IOException, RadiusException {
-        return decodePacket(DefaultDictionary.INSTANCE, in, sharedSecret, null);
-    }
-
-    /**
-     * Reads a Radius response packet from the given input stream and
-     * creates an appropriate RadiusPacket descendant object.
-     * Reads in all attributes and returns the object.
-     * Checks the packet authenticator.
-     *
-     * @param in           input stream to read from
-     * @param sharedSecret shared secret to be used to decode this packet
-     * @param request      Radius request packet
-     * @return new RadiusPacket object
-     * @throws IOException     IO error
-     * @throws RadiusException malformed packet
-     */
-    public static RadiusPacket decodeResponsePacket(InputStream in, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
-        return decodePacket(request.getDictionary(), in, sharedSecret,
-                requireNonNull(request, "request may not be null"));
-    }
-
-    /**
-     * Reads a Radius request packet from the given input stream and
-     * creates an appropriate RadiusPacket descendant object.
-     * Reads in all attributes and returns the object.
-     * Decodes the encrypted fields and attributes of the packet.
-     *
-     * @param dictionary   dictionary to use for attributes
-     * @param in           InputStream to read packet from
-     * @param sharedSecret shared secret to be used to decode this packet
-     * @return new RadiusPacket object
-     * @throws IOException     IO error
-     * @throws RadiusException malformed packet
-     */
-    public static RadiusPacket decodeRequestPacket(Dictionary dictionary, InputStream in, String sharedSecret)
-            throws IOException, RadiusException {
-        return decodePacket(dictionary, in, sharedSecret, null);
-    }
-
-    /**
-     * Reads a Radius response packet from the given input stream and
-     * creates an appropriate RadiusPacket descendant object.
-     * Reads in all attributes and returns the object.
-     * Checks the packet authenticator.
-     *
-     * @param dictionary   dictionary to use for attributes
-     * @param in           InputStream to read packet from
-     * @param sharedSecret shared secret to be used to decode this packet
-     * @param request      Radius request packet
-     * @return new RadiusPacket object
-     * @throws IOException     IO error
-     * @throws RadiusException malformed packet
-     */
-    public static RadiusPacket decodeResponsePacket(Dictionary dictionary, InputStream in, String sharedSecret, RadiusPacket request)
-            throws IOException, RadiusException {
-        return decodePacket(dictionary, in, sharedSecret,
-                requireNonNull(request, "request may not be null"));
-    }
-
-    /**
      * Retrieves the next packet identifier to use and increments the static
      * storage.
      *
@@ -612,43 +426,9 @@ public class RadiusPacket {
         return nextPacketId.updateAndGet(i -> i >= 255 ? 0 : i + 1);
     }
 
-    /**
-     * Creates a RadiusPacket object. Depending on the passed type, an
-     * appropriate packet is created. Also sets the type, and the
-     * the packet identifier.
-     *
-     * @param type       packet type
-     * @param dictionary to use for packet
-     * @return RadiusPacket object
-     */
-    public static RadiusPacket createRadiusPacket(final int type, Dictionary dictionary) {
-        requireNonNull(dictionary, "dictionary cannot be null");
-
-        RadiusPacket rp;
-        switch (type) {
-            case ACCESS_REQUEST:
-                rp = new AccessRequest();
-                break;
-            case COA_REQUEST:
-                rp = new CoaRequest(COA_REQUEST);
-                break;
-            case DISCONNECT_REQUEST:
-                rp = new CoaRequest(DISCONNECT_REQUEST);
-                break;
-            case ACCOUNTING_REQUEST:
-                rp = new AccountingRequest();
-                break;
-            default:
-                rp = new RadiusPacket(type);
-        }
-
-        rp.setDictionary(dictionary);
-        return rp;
-    }
-
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append(getPacketTypeName());
+        s.append(PacketType.getPacketTypeName(getPacketType()));
         s.append(", ID ");
         s.append(packetIdentifier);
         for (RadiusAttribute attr : attributes) {
@@ -775,7 +555,7 @@ public class RadiusPacket {
         byte[] randomBytes = new byte[16];
         random.nextBytes(randomBytes);
 
-        MessageDigest md5 = getResetMd5Digest();
+        MessageDigest md5 = getMd5Digest();
         md5.update(secretBytes);
         return md5.digest(randomBytes);
     }
@@ -790,7 +570,7 @@ public class RadiusPacket {
      * @return new 16 byte response authenticator
      */
     protected byte[] createHashedAuthenticator(String sharedSecret, int packetLength, byte[] attributes, byte[] requestAuthenticator) {
-        MessageDigest md5 = getResetMd5Digest();
+        MessageDigest md5 = getMd5Digest();
         md5.update((byte) getPacketType());
         md5.update((byte) getPacketIdentifier());
         md5.update((byte) (packetLength >> 8));
@@ -798,90 +578,6 @@ public class RadiusPacket {
         md5.update(requestAuthenticator);
         md5.update(attributes);
         return md5.digest(sharedSecret.getBytes(UTF_8));
-    }
-
-    /**
-     * Reads a Radius packet from the given input stream and
-     * creates an appropriate RadiusPacket descendant object.
-     * Reads in all attributes and returns the object.
-     * Decodes the encrypted fields and attributes of the packet.
-     *
-     * @param dictionary   dictionary to use for attributes
-     * @param in           inputStream to read from
-     * @param sharedSecret shared secret to be used to decode this packet
-     * @param request      Radius request packet if this is a response packet to be
-     *                     decoded, null if this is a request packet to be decoded
-     * @return new RadiusPacket object
-     * @throws IOException     IO error
-     * @throws RadiusException packet malformed
-     */
-    protected static RadiusPacket decodePacket(Dictionary dictionary, InputStream in, String sharedSecret, RadiusPacket request)
-            throws IOException, RadiusException {
-        // check shared secret
-        if (sharedSecret == null || sharedSecret.isEmpty())
-            throw new RuntimeException("no shared secret has been set");
-
-        // check request authenticator
-        if (request != null && request.getAuthenticator() == null)
-            throw new RuntimeException("request authenticator not set");
-
-        // read and check header
-        int type = in.read() & 0x0ff;
-        int identifier = in.read() & 0x0ff;
-        int length = (in.read() & 0x0ff) << 8 | (in.read() & 0x0ff);
-
-        if (request != null && request.getPacketIdentifier() != identifier)
-            throw new RadiusException("bad packet: invalid packet identifier (request: " + request.getPacketIdentifier() + ", response: " + identifier);
-        if (length < RADIUS_HEADER_LENGTH)
-            throw new RadiusException("bad packet: packet too short (" + length + " bytes)");
-        if (length > MAX_PACKET_LENGTH)
-            throw new RadiusException("bad packet: packet too long (" + length + " bytes)");
-
-        // read rest of packet
-        byte[] authenticator = new byte[16];
-        byte[] attributeData = new byte[length - RADIUS_HEADER_LENGTH];
-        in.read(authenticator);
-        in.read(attributeData);
-
-        // check and count attributes
-        int pos = 0;
-        while (pos < attributeData.length) {
-            if (pos + 1 >= attributeData.length)
-                throw new RadiusException("bad packet: attribute length mismatch");
-            int attributeLength = attributeData[pos + 1] & 0x0ff;
-            if (attributeLength < 2)
-                throw new RadiusException("bad packet: invalid attribute length");
-            pos += attributeLength;
-        }
-        if (pos != attributeData.length)
-            throw new RadiusException("bad packet: attribute length mismatch");
-
-        // create RadiusPacket object; set properties
-        RadiusPacket rp = createRadiusPacket(type, dictionary);
-        rp.setPacketIdentifier(identifier);
-        rp.authenticator = authenticator;
-
-        // load attributes
-        pos = 0;
-        while (pos + 1 < attributeData.length) { // pos+1 to avoid ArrayIndexOutOfBoundsException reading length
-            int attributeType = attributeData[pos] & 0x0ff;
-            int attributeLength = attributeData[pos + 1] & 0x0ff;
-            RadiusAttribute a = createRadiusAttribute(dictionary, -1, attributeType);
-            a.readAttribute(attributeData, pos);
-            rp.addAttribute(a);
-            pos += attributeLength;
-        }
-
-        if (request == null) {
-            // decode attributes
-            rp.decodeRequestAttributes(sharedSecret);
-            rp.checkRequestAuthenticator(sharedSecret, length, attributeData);
-        } else {
-            // response packet: check authenticator
-            rp.checkResponseAuthenticator(sharedSecret, length, attributeData, request.getAuthenticator());
-        }
-
-        return rp;
     }
 
     /**
@@ -929,20 +625,12 @@ public class RadiusPacket {
                 throw new RadiusException("response authenticator invalid");
     }
 
-    /**
-     * Returns a MD5 digest.
-     *
-     * @return MessageDigest object
-     */
-    protected MessageDigest getResetMd5Digest() {
-        if (md5Digest == null)
-            try {
-                md5Digest = MessageDigest.getInstance("MD5");
-            } catch (NoSuchAlgorithmException nsae) {
-                throw new RuntimeException("md5 digest not available", nsae);
-            }
-        md5Digest.reset();
-        return md5Digest;
+    protected MessageDigest getMd5Digest() {
+        try {
+            return MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException nsae) {
+            throw new RuntimeException(nsae); // never happen
+        }
     }
 
     /**

@@ -9,15 +9,12 @@ import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.dictionary.DictionaryParser;
-import org.tinyradius.dictionary.MemoryDictionary;
-import org.tinyradius.dictionary.WritableDictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
+import org.tinyradius.packet.PacketType;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.SecretProvider;
 
-import java.io.FileInputStream;
 import java.net.InetSocketAddress;
 
 /**
@@ -58,7 +55,7 @@ public class TestServer {
                         System.out.println("Ignore packet.");
                         promise.tryFailure(f.cause());
                     } else {
-                        if (packet.getPacketType() == RadiusPacket.ACCESS_ACCEPT)
+                        if (packet.getPacketType() == PacketType.ACCESS_ACCEPT)
                             packet.addAttribute("Reply-Message", "Welcome " + accessRequest.getUserName() + "!");
                         System.out.println("Answer:\n" + packet);
                         promise.trySuccess(packet);

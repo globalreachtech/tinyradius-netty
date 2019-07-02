@@ -7,7 +7,7 @@ import org.tinyradius.packet.RadiusPacket;
 
 import java.net.InetSocketAddress;
 
-import static org.tinyradius.packet.RadiusPacket.ACCOUNTING_RESPONSE;
+import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
 
 /**
  * A reference implementation of AccountingRequest handler that responds to all Accounting-Request

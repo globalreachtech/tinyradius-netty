@@ -7,8 +7,8 @@ import org.tinyradius.packet.RadiusPacket;
 
 import java.net.InetSocketAddress;
 
-import static org.tinyradius.packet.RadiusPacket.ACCESS_ACCEPT;
-import static org.tinyradius.packet.RadiusPacket.ACCESS_REJECT;
+import static org.tinyradius.packet.PacketType.ACCESS_ACCEPT;
+import static org.tinyradius.packet.PacketType.ACCESS_REJECT;
 
 /**
  * Reference implementation of AccessRequest handler that returns Access-Accept/Reject

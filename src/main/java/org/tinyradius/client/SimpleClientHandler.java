@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.tinyradius.packet.RadiusPacket.decodeResponsePacket;
+import static org.tinyradius.packet.RadiusPacketDecoder.decodeResponsePacket;
 
 /**
  * ClientHandler that uses packetIdentifier and remote address to uniquely identify request/responses.

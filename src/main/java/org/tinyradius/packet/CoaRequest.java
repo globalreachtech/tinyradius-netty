@@ -8,7 +8,7 @@ import java.io.IOException;
 public class CoaRequest extends RadiusPacket {
 
     public CoaRequest() {
-        this(COA_REQUEST);
+        this(PacketType.COA_REQUEST);
     }
 
     public CoaRequest(final int type) {

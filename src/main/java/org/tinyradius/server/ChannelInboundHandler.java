@@ -23,7 +23,7 @@ import java.net.InetSocketAddress;
 import static io.netty.buffer.Unpooled.buffer;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
-import static org.tinyradius.packet.RadiusPacket.decodeRequestPacket;
+import static org.tinyradius.packet.RadiusPacketDecoder.decodeRequestPacket;
 
 /**
  * SimpleChannelInboundHandler implementation that converts between RadiusPackets

@@ -6,7 +6,7 @@ import org.tinyradius.attribute.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.packet.RadiusPacket.ACCESS_REQUEST;
+import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 
 class RadiusPacketTest {
 

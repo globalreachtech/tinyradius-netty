@@ -113,7 +113,7 @@ public class AccessRequest extends RadiusPacket {
      * Constructs an empty Access-Request packet.
      */
     public AccessRequest() {
-        super(ACCESS_REQUEST);
+        super(PacketType.ACCESS_REQUEST);
     }
 
     /**
@@ -390,7 +390,7 @@ public class AccessRequest extends RadiusPacket {
         byte[] chapPassword = new byte[17];
         chapPassword[0] = chapIdentifier;
 
-        MessageDigest md5 = getResetMd5Digest();
+        MessageDigest md5 = getMd5Digest();
         md5.update(chapIdentifier);
         md5.update(plaintext.getBytes(UTF_8));
         byte[] chapHash = md5.digest(chapChallenge);
@@ -413,7 +413,7 @@ public class AccessRequest extends RadiusPacket {
             throw new RadiusException("CHAP password must be 17 bytes");
 
         byte chapIdentifier = chapPassword[0];
-        MessageDigest md5 = getResetMd5Digest();
+        MessageDigest md5 = getMd5Digest();
         md5.update(chapIdentifier);
         md5.update(plaintext.getBytes(UTF_8));
         byte[] chapHash = md5.digest(chapChallenge);
@@ -426,7 +426,7 @@ public class AccessRequest extends RadiusPacket {
     }
 
     private byte[] compute(byte[]... values) {
-        MessageDigest md = getResetMd5Digest();
+        MessageDigest md = getMd5Digest();
 
         for (byte[] b : values)
             md.update(b);
