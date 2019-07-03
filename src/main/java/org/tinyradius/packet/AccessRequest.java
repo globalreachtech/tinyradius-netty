@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.StringAttribute;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.packet.Util.*;
 
 /**
@@ -41,35 +43,29 @@ public class AccessRequest extends RadiusPacket {
 
     private static final SecureRandom random = new SecureRandom();
 
-    /**
-     * Attributes
-     */
+    // Attributes
     private static final int USER_NAME = 1;
     private static final int USER_PASSWORD = 2;
     private static final int CHAP_PASSWORD = 3;
     private static final int CHAP_CHALLENGE = 60;
     private static final int EAP_MESSAGE = 79;
 
-    /**
-     * VendorIds
-     */
+    // VendorIds
     private static final int MICROSOFT = 311;
 
-    /**
-     * Vendor Specific Attributes
-     */
+    // Vendor Specific Attributes
     private static final int MS_CHAP_CHALLENGE = 11;
     private static final int MS_CHAP2_RESPONSE = 25;
 
     /**
      * Constructs an empty Access-Request packet.
      */
-    public AccessRequest(int identifier, byte[] authenticator) {
-        this(identifier, authenticator, new ArrayList<>());
+    public AccessRequest(Dictionary dictionary, int identifier, byte[] authenticator) {
+        this(dictionary, identifier, authenticator, new ArrayList<>());
     }
 
-    public AccessRequest(int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(PacketType.ACCESS_REQUEST, identifier, authenticator, attributes);
+    public AccessRequest(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
     }
 
     /**
@@ -80,8 +76,8 @@ public class AccessRequest extends RadiusPacket {
      * @param userName     user name
      * @param userPassword user password
      */
-    public AccessRequest(int identifier, byte[] authenticator, String userName, String userPassword) {
-        this(identifier, authenticator);
+    public AccessRequest(Dictionary dictionary, int identifier, byte[] authenticator, String userName, String userPassword) {
+        this(dictionary, identifier, authenticator);
         setUserName(userName);
         setUserPassword(userPassword);
     }
@@ -97,7 +93,7 @@ public class AccessRequest extends RadiusPacket {
             throw new IllegalArgumentException("empty user name not allowed");
 
         removeAttributes(USER_NAME);
-        addAttribute(new StringAttribute(USER_NAME, -1, userName));
+        addAttribute(new StringAttribute(getDictionary(), USER_NAME, -1, userName));
     }
 
     /**
@@ -198,8 +194,6 @@ public class AccessRequest extends RadiusPacket {
         if (userPassword != null) {
             setAuthProtocol(AUTH_PAP);
             this.password = decodePapPassword(userPassword.getAttributeData(), sharedSecret.getBytes(UTF_8));
-            // copy truncated data
-            userPassword.setAttributeData(this.password.getBytes(UTF_8));
         } else if (chapPassword != null && chapChallenge != null) {
             setAuthProtocol(AUTH_CHAP);
             this.chapPassword = chapPassword.getAttributeData();
@@ -223,7 +217,7 @@ public class AccessRequest extends RadiusPacket {
         // create authenticator only if needed
         byte[] newAuthenticator = authenticator == null ? generateRandomizedAuthenticator(sharedSecret) : getAuthenticator();
 
-        final AccessRequest accessRequest = new AccessRequest(packetIdentifier, newAuthenticator, new ArrayList<>(attributes));
+        final AccessRequest accessRequest = new AccessRequest(getDictionary(), packetIdentifier, newAuthenticator, new ArrayList<>(attributes));
 
         // encode attributes (User-Password attribute needs the new authenticator)
         encodeRequestAttributes(newAuthenticator, sharedSecret).forEach(a -> {
@@ -252,13 +246,13 @@ public class AccessRequest extends RadiusPacket {
             switch (getAuthProtocol()) {
                 case AUTH_PAP:
                     return Collections.singletonList(
-                            new RadiusAttribute(USER_PASSWORD,
+                            new RadiusAttribute(getDictionary(), USER_PASSWORD, -1,
                                     encodePapPassword(newAuthenticator, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
                 case AUTH_CHAP:
                     byte[] challenge = createChapChallenge();
                     return Arrays.asList(
-                            new RadiusAttribute(CHAP_CHALLENGE, challenge),
-                            new RadiusAttribute(CHAP_PASSWORD, encodeChapPassword(password, challenge)));
+                            new RadiusAttribute(getDictionary(), CHAP_CHALLENGE, -1, challenge),
+                            new RadiusAttribute(getDictionary(), CHAP_PASSWORD, -1, encodeChapPassword(password, challenge)));
                 case AUTH_MS_CHAP_V2:
                     throw new RadiusException("encoding not supported for " + AUTH_MS_CHAP_V2);
                 case AUTH_EAP:

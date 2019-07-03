@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketEncoder;
+import org.tinyradius.packet.RadiusPacketDecoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
@@ -32,6 +32,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public class ProxyStateClientHandler extends ClientHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyStateClientHandler.class);
+
+    private static final int PROXY_STATE = 33;
 
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
 
@@ -65,7 +67,7 @@ public class ProxyStateClientHandler extends ClientHandler {
     public Promise<RadiusPacket> processRequest(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
         // add Proxy-State attribute
         String requestId = genProxyState();
-        packet.addAttribute(new RadiusAttribute(33, requestId.getBytes()));
+        packet.addAttribute(new RadiusAttribute(packet.getDictionary(), PROXY_STATE, -1, requestId.getBytes()));
 
         Promise<RadiusPacket> response = eventExecutor.newPromise();
         requests.put(requestId, response);
@@ -91,10 +93,10 @@ public class ProxyStateClientHandler extends ClientHandler {
         }
 
         try {
-            RadiusPacket packet = RadiusPacketEncoder.decodeRequestPacket(dictionary, datagramPacket, secret);
+            RadiusPacket packet = RadiusPacketDecoder.decodeRequestPacket(dictionary, datagramPacket, secret);
 
             // retrieve my Proxy-State attribute (the last)
-            List<RadiusAttribute> proxyStates = packet.getAttributes(33);
+            List<RadiusAttribute> proxyStates = packet.getAttributes(PROXY_STATE);
             if (proxyStates == null || proxyStates.isEmpty())
                 throw new RadiusException("proxy packet without Proxy-State attribute");
             RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
@@ -110,8 +112,7 @@ public class ProxyStateClientHandler extends ClientHandler {
 
             logger.info("Found connection (proxyState) {} for packet => {}", proxyStateId, packet);
 
-            // remove only own Proxy-State (last attribute)
-            packet.removeLastAttribute(33);
+            packet.removeLastAttribute(PROXY_STATE);
 
             request.trySuccess(packet);
         } catch (IOException ioe) {

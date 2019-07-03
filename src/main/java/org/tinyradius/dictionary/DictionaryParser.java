@@ -2,7 +2,6 @@ package org.tinyradius.dictionary;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinyradius.attribute.*;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -10,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static java.lang.Integer.parseInt;
-import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
  * Parses a dictionary in "Radiator format" and fills a WritableDictionary.
@@ -101,11 +99,8 @@ public class DictionaryParser {
         int code = parseInt(tok[2]);
         String typeStr = tok[3];
 
-        AttributeFactory attributeFactory = code == VENDOR_SPECIFIC ?
-                VendorSpecificAttribute::new : getAttributeTypeClass(typeStr);
-
         // create and cache object
-        dictionary.addAttributeType(new AttributeType<>(code, name, attributeFactory));
+        dictionary.addAttributeType(new AttributeType(code, name, typeStr));
     }
 
     /**
@@ -138,8 +133,7 @@ public class DictionaryParser {
         int code = parseInt(tok[3]);
         String typeStr = tok[4];
 
-        dictionary.addAttributeType(
-                new AttributeType<>(parseInt(vendor), code, name, getAttributeTypeClass(typeStr)));
+        dictionary.addAttributeType(new AttributeType(parseInt(vendor), code, name, typeStr));
     }
 
     /**
@@ -171,31 +165,6 @@ public class DictionaryParser {
             logger.warn("included file '{}' not found, line {}, {}", includeFile, lineNum, currentResource);
     }
 
-    /**
-     * Returns the RadiusAttribute descendant class for the given
-     * attribute type.
-     *
-     * @param typeStr string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
-     * @return RadiusAttribute class or descendant
-     */
-    private AttributeFactory getAttributeTypeClass(String typeStr) {
-        switch (typeStr.toLowerCase()) {
-            case "string":
-                return StringAttribute::new;
-            case "integer":
-            case "date":
-                return IntegerAttribute::new;
-            case "ipaddr":
-                return IpAttribute::new;
-            case "ipv6addr":
-                return Ipv6Attribute::new;
-            case "ipv6prefix":
-                return Ipv6PrefixAttribute::new;
-            case "octets":
-            default:
-                return RadiusAttribute::new;
-        }
-    }
 
     public interface ResourceResolver {
         String resolve(String currentResource, String nextResource);

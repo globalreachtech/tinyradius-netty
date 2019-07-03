@@ -1,6 +1,7 @@
 package org.tinyradius.packet;
 
 import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.dictionary.Dictionary;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,8 +16,8 @@ public class CoaRequest extends RadiusPacket {
      * @param identifier
      * @param authenticator
      */
-    public CoaRequest(int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(type, identifier, authenticator, attributes);
+    public CoaRequest(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        super(dictionary, type, identifier, authenticator, attributes);
     }
 
     @Override

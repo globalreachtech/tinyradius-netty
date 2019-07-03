@@ -1,5 +1,6 @@
 package org.tinyradius.attribute;
 
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
 import java.util.StringTokenizer;
@@ -9,24 +10,29 @@ import java.util.StringTokenizer;
  */
 public class IpAttribute extends RadiusAttribute {
 
-    public IpAttribute(int attributeType, int vendorId) {
-        super(attributeType, vendorId);
+    public static IpAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
+        int length = data[offset + 1] & 0x0ff;
+        if (length != 6)
+            throw new RadiusException("IP attribute: expected 4 bytes data");
+        final int type = readType(data, offset);
+        final byte[] bytes = readData(data, offset);
+        return new IpAttribute(dictionary, type, vendorId, bytes);
     }
 
-    public IpAttribute(int type, int vendorId, String value) {
-        this(type, vendorId);
-        setAttributeValue(value);
+    public IpAttribute(Dictionary dictionary, int type, int vendorId, byte[] data) {
+        super(dictionary, type, vendorId, data);
+    }
+
+    public IpAttribute(Dictionary dictionary, int type, int vendorId, String value) {
+        this(dictionary, type, vendorId, convertValue(value));
     }
 
     /**
-     * Constructs an IP attribute.
-     *
      * @param type  attribute type code
-     * @param ipNum value as a 32 bit unsigned int
+     * @param value 32 bit unsigned int
      */
-    public IpAttribute(int type, int vendorId, long ipNum) {
-        this(type, vendorId);
-        setIpAsLong(ipNum);
+    public IpAttribute(Dictionary dictionary, int type, int vendorId, long value) {
+        this(dictionary, type, vendorId, convertValue(value));
     }
 
     /**
@@ -57,8 +63,7 @@ public class IpAttribute extends RadiusAttribute {
      *
      * @throws IllegalArgumentException bad IP address
      */
-    @Override
-    public void setAttributeValue(String value) {
+    private static byte[] convertValue(String value) {
         if (value == null || value.length() < 7 || value.length() > 15)
             throw new IllegalArgumentException("bad IP number");
 
@@ -74,7 +79,7 @@ public class IpAttribute extends RadiusAttribute {
             data[i] = (byte) num;
         }
 
-        setAttributeData(data);
+        return (data);
     }
 
     /**
@@ -97,24 +102,13 @@ public class IpAttribute extends RadiusAttribute {
      *
      * @param ip IP address as 32-bit unsigned number
      */
-    public void setIpAsLong(long ip) {
+    private static byte[] convertValue(long ip) {
         byte[] data = new byte[4];
         data[0] = (byte) ((ip >> 24) & 0x0ff);
         data[1] = (byte) ((ip >> 16) & 0x0ff);
         data[2] = (byte) ((ip >> 8) & 0x0ff);
         data[3] = (byte) (ip & 0x0ff);
-        setAttributeData(data);
-    }
-
-    /**
-     * Check attribute length.
-     */
-    @Override
-    public void readAttribute(byte[] data, int offset) throws RadiusException {
-        int length = data[offset + 1] & 0x0ff;
-        if (length != 6)
-            throw new RadiusException("IP attribute: expected 4 bytes data");
-        super.readAttribute(data, offset);
+        return data;
     }
 
 }

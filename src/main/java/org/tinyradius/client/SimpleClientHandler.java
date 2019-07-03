@@ -1,6 +1,5 @@
 package org.tinyradius.client;
 
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timeout;
@@ -21,7 +20,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.tinyradius.packet.RadiusPacketEncoder.decodeResponsePacket;
+import static org.tinyradius.packet.RadiusPacketDecoder.decodeResponsePacket;
 
 /**
  * ClientHandler that uses packetIdentifier and remote address to uniquely identify request/responses.

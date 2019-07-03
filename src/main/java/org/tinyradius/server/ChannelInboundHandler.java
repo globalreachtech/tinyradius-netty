@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketEncoder;
+import org.tinyradius.packet.RadiusPacketDecoder;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
 
@@ -65,7 +65,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
             }
 
             // parse packet
-            RadiusPacket request =  RadiusPacketEncoder.decodeRequestPacket(dictionary, datagramPacket, secret);
+            RadiusPacket request = RadiusPacketDecoder.decodeRequestPacket(dictionary, datagramPacket, secret);
             logger.info("received packet from {} on local address {}: {}", remoteAddress, localAddress, request);
 
 
@@ -78,7 +78,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
             final byte[] requestAuthenticator = request.getAuthenticator(); // save ref in case request is mutated
 
             logger.trace("about to call handlePacket()");
-            final Promise<RadiusPacket> promise = requestHandler.handlePacket(ctx.channel(), packetClass.cast(request), remoteAddress, secret);
+            final Promise<RadiusPacket> promise = requestHandler.handlePacket(dictionary, ctx.channel(), packetClass.cast(request), remoteAddress, secret);
 
             // so futures don't stay in memory forever if never completed
             Timeout timeout = timer.newTimeout(t -> promise.tryFailure(new RadiusException("timeout while generating client response")),
@@ -91,7 +91,6 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
 
                 // send response
                 if (response != null) {
-                    response.setDictionary(dictionary);
                     logger.info("send response: {}", response);
                     logger.info("sending response packet to {} with secret {}", remoteAddress, secret);
                     DatagramPacket packetOut = response

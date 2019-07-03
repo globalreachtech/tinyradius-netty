@@ -12,7 +12,7 @@ import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
 
-import static org.tinyradius.packet.RadiusPacketEncoder.getNextPacketIdentifier;
+import static org.tinyradius.packet.RadiusPacketDecoder.getNextPacketIdentifier;
 
 /**
  * TestClient shows how to send Radius Access-Request and Accounting-Request packets.
@@ -49,7 +49,7 @@ public class TestClient {
         final RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1813), shared);
 
         // 1. Send Access-Request
-        AccessRequest ar = new AccessRequest(getNextPacketIdentifier(), null, user, pass);
+        AccessRequest ar = new AccessRequest(dictionary, getNextPacketIdentifier(), null, user, pass);
         ar.setAuthProtocol(AccessRequest.AUTH_PAP); // or AUTH_CHAP
         ar.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
         ar.addAttribute("NAS-IP-Address", "192.168.0.100");
@@ -63,7 +63,7 @@ public class TestClient {
         System.out.println("Response\n" + response + "\n");
 
         // 2. Send Accounting-Request
-        AccountingRequest acc = new AccountingRequest(getNextPacketIdentifier(), null, "mw", AccountingRequest.ACCT_STATUS_TYPE_START);
+        AccountingRequest acc = new AccountingRequest(dictionary, getNextPacketIdentifier(), null, "mw", AccountingRequest.ACCT_STATUS_TYPE_START);
         acc.addAttribute("Acct-Session-Id", "1234567890");
         acc.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
         acc.addAttribute("NAS-Port", "0");

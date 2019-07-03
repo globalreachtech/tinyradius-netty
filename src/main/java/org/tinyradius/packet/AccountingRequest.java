@@ -3,6 +3,7 @@ package org.tinyradius.packet;
 import org.tinyradius.attribute.IntegerAttribute;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.StringAttribute;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
 import java.io.IOException;
@@ -37,21 +38,21 @@ public class AccountingRequest extends RadiusPacket {
      * @param userName       user name
      * @param acctStatusType ACCT_STATUS_TYPE_*
      */
-    public AccountingRequest(int identifier, byte[] authenticator, String userName, int acctStatusType) {
-        this(identifier, authenticator);
+    public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator, String userName, int acctStatusType) {
+        this(dictionary, identifier, authenticator);
         setUserName(userName);
         setAcctStatusType(acctStatusType);
     }
 
-    public AccountingRequest(int identifier, byte[] authenticator) {
-        this(identifier, authenticator, new ArrayList<>());
+    public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator) {
+        this(dictionary, identifier, authenticator, new ArrayList<>());
     }
 
     /**
      * Constructs an empty Accounting-Request.
      */
-    public AccountingRequest(int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(PacketType.ACCOUNTING_REQUEST, identifier, authenticator, attributes);
+    public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        super(dictionary, PacketType.ACCOUNTING_REQUEST, identifier, authenticator, attributes);
     }
 
     /**
@@ -65,7 +66,7 @@ public class AccountingRequest extends RadiusPacket {
             throw new IllegalArgumentException("empty user name not allowed");
 
         removeAttributes(USER_NAME);
-        addAttribute(new StringAttribute(USER_NAME, -1, userName));
+        addAttribute(new StringAttribute(getDictionary(), USER_NAME, -1, userName));
     }
 
     /**
@@ -90,7 +91,7 @@ public class AccountingRequest extends RadiusPacket {
         if (acctStatusType < 1 || acctStatusType > 15)
             throw new IllegalArgumentException("bad Acct-Status-Type");
         removeAttributes(ACCT_STATUS_TYPE);
-        addAttribute(new IntegerAttribute(ACCT_STATUS_TYPE, acctStatusType));
+        addAttribute(new IntegerAttribute(getDictionary(), ACCT_STATUS_TYPE, -1, acctStatusType));
     }
 
     /**

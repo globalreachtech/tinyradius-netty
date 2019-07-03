@@ -1,5 +1,6 @@
 package org.tinyradius.attribute;
 
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
 import java.net.Inet6Address;
@@ -10,8 +11,17 @@ import java.net.UnknownHostException;
  */
 public class Ipv6Attribute extends RadiusAttribute {
 
-    public Ipv6Attribute(int attributeType, int vendorId) {
-        super(attributeType, vendorId);
+    public static IpAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
+        int length = data[offset + 1] & 0x0ff;
+        if (length != 18)
+            throw new RadiusException("IP attribute: expected 16 bytes data");
+        final int type = readType(data, offset);
+        final byte[] bytes = readData(data, offset);
+        return new IpAttribute(dictionary, type, vendorId, bytes);
+    }
+
+    public Ipv6Attribute(Dictionary dictionary, int type, int vendorId, byte[] data) {
+        super(dictionary, type, vendorId, data);
     }
 
     /**
@@ -20,9 +30,8 @@ public class Ipv6Attribute extends RadiusAttribute {
      * @param type  attribute type code
      * @param value value, format:ipv6 address
      */
-    public Ipv6Attribute(int type, int vendorId, String value) {
-        this(type, vendorId);
-        setAttributeValue(value);
+    public Ipv6Attribute(Dictionary dictionary, int type, int vendorId, String value) {
+        this(dictionary, type, vendorId, convertValue(value));
     }
 
     /**
@@ -34,9 +43,7 @@ public class Ipv6Attribute extends RadiusAttribute {
         if (data == null || data.length != 16)
             throw new RuntimeException("ip attribute: expected 16 bytes attribute data");
         try {
-            Inet6Address addr = (Inet6Address) Inet6Address.getByAddress(null, data);
-
-            return addr.getHostAddress();
+            return Inet6Address.getByAddress(null, data).getHostAddress();
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("bad IPv6 address", e);
         }
@@ -49,31 +56,14 @@ public class Ipv6Attribute extends RadiusAttribute {
      *
      * @throws IllegalArgumentException bad IP address
      */
-    @Override
-    public void setAttributeValue(String value) {
+    private static byte[] convertValue(String value) {
         if (value == null || value.length() < 3)
             throw new IllegalArgumentException("bad IPv6 address : " + value);
         try {
-            final Inet6Address addr = (Inet6Address) Inet6Address.getByName(value);
+            return Inet6Address.getByName(value).getAddress();
 
-            byte[] data = addr.getAddress();
-
-            setAttributeData(data);
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("bad IPv6 address : " + value, e);
         }
     }
-
-
-    /**
-     * Check attribute length.
-     */
-    @Override
-    public void readAttribute(byte[] data, int offset) throws RadiusException {
-        int length = data[offset + 1] & 0x0ff;
-        if (length != 18)
-            throw new RadiusException("IP attribute: expected 16 bytes data");
-        super.readAttribute(data, offset);
-    }
-
 }

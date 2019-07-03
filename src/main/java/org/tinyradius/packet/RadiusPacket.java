@@ -6,7 +6,6 @@ import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.AttributeType;
-import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 import static io.netty.buffer.Unpooled.buffer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.RadiusAttributeBuilder.createRadiusAttribute;
+import static org.tinyradius.attribute.AttributeBuilder.createRadiusAttribute;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
@@ -41,7 +40,7 @@ public class RadiusPacket {
     protected final List<RadiusAttribute> attributes;
     protected final byte[] authenticator;
 
-    private Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private final Dictionary dictionary;
 
     private static final SecureRandom random = new SecureRandom();
 
@@ -52,8 +51,8 @@ public class RadiusPacket {
      * @param type       packet type
      * @param identifier packet identifier
      */
-    public RadiusPacket(int type, int identifier) {
-        this(type, identifier, null, new ArrayList<>());
+    public RadiusPacket(Dictionary dictionary, int type, int identifier) {
+        this(dictionary, type, identifier, null, new ArrayList<>());
     }
 
     /**
@@ -63,8 +62,8 @@ public class RadiusPacket {
      * @param type       packet type
      * @param identifier packet identifier
      */
-    public RadiusPacket(int type, int identifier, byte[] authenticator) {
-        this(type, identifier, authenticator, new ArrayList<>());
+    public RadiusPacket(Dictionary dictionary, int type, int identifier, byte[] authenticator) {
+        this(dictionary, type, identifier, authenticator, new ArrayList<>());
     }
 
     /**
@@ -74,8 +73,8 @@ public class RadiusPacket {
      * @param type       packet type
      * @param identifier packet identifier
      */
-    public RadiusPacket(int type, int identifier, List<RadiusAttribute> attributes) {
-        this(type, identifier, null, attributes);
+    public RadiusPacket(Dictionary dictionary, int type, int identifier, List<RadiusAttribute> attributes) {
+        this(dictionary, type, identifier, null, attributes);
     }
 
     /**
@@ -86,7 +85,7 @@ public class RadiusPacket {
      * @param identifier packet identifier
      * @param attributes list of RadiusAttribute objects
      */
-    public RadiusPacket(int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public RadiusPacket(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         if (type < 1 || type > 255)
             throw new IllegalArgumentException("packet type out of bounds");
         if (identifier < 0 || identifier > 255)
@@ -95,6 +94,7 @@ public class RadiusPacket {
         this.packetIdentifier = identifier;
         this.authenticator = authenticator;
         this.attributes = requireNonNull(attributes, "attributes list is null");
+        this.dictionary = dictionary;
     }
 
     /**
@@ -126,11 +126,11 @@ public class RadiusPacket {
     public void addAttribute(RadiusAttribute attribute) {
         requireNonNull(attributes, "attribute is null");
 
-        attribute.setDictionary(dictionary);
+        // todo create new attribute with RP dictionary
         if (attribute.getVendorId() == -1)
             this.attributes.add(attribute);
         else {
-            VendorSpecificAttribute vsa = new VendorSpecificAttribute(attribute.getVendorId());
+            VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, attribute.getVendorId());
             vsa.addSubAttribute(attribute);
             this.attributes.add(vsa);
         }
@@ -141,7 +141,30 @@ public class RadiusPacket {
      * Uses AttributeTypes to lookup the type code and converts the value.
      * Can also be used to add sub-attributes.
      *
-     * @param typeName name of the attribute, for example "NAS-Ip-Address"
+     * @param typeName name of the attribute, for example "NAS-Ip-Address", should NOT be 'Vendor-Specific'
+     * @param value    value of the attribute, for example "127.0.0.1"
+     * @throws IllegalArgumentException if type name is unknown
+     */
+    public void addAttribute(String typeName, byte[] value) {
+        if (typeName == null || typeName.isEmpty())
+            throw new IllegalArgumentException("type name is empty");
+        if (value == null || value.length == 0)
+            throw new IllegalArgumentException("value is empty");
+
+        AttributeType type = dictionary.getAttributeTypeByName(typeName);
+        if (type == null)
+            throw new IllegalArgumentException("unknown attribute type '" + typeName + "'");
+
+        RadiusAttribute attribute = createRadiusAttribute(getDictionary(), type.getVendorId(), type.getTypeCode(), value);
+        addAttribute(attribute);
+    }
+
+    /**
+     * Adds a Radius attribute to this packet.
+     * Uses AttributeTypes to lookup the type code and converts the value.
+     * Can also be used to add sub-attributes.
+     *
+     * @param typeName name of the attribute, for example "NAS-Ip-Address", should NOT be 'Vendor-Specific'
      * @param value    value of the attribute, for example "127.0.0.1"
      * @throws IllegalArgumentException if type name is unknown
      */
@@ -155,8 +178,7 @@ public class RadiusPacket {
         if (type == null)
             throw new IllegalArgumentException("unknown attribute type '" + typeName + "'");
 
-        RadiusAttribute attribute = createRadiusAttribute(getDictionary(), type.getVendorId(), type.getTypeCode());
-        attribute.setAttributeValue(value);
+        RadiusAttribute attribute = createRadiusAttribute(getDictionary(), type.getVendorId(), type.getTypeCode(), value);
         addAttribute(attribute);
     }
 
@@ -286,7 +308,7 @@ public class RadiusPacket {
      *
      * @param type attribute type
      * @return RadiusAttribute object or null if there is no such attribute
-     * @throws RuntimeException if there are multiple occurences of the
+     * @throws RuntimeException if there are multiple occurrences of the
      *                          requested attribute type
      */
     public RadiusAttribute getAttribute(int type) {
@@ -304,7 +326,7 @@ public class RadiusPacket {
      * @param vendorId vendor ID
      * @param type     attribute type
      * @return RadiusAttribute object or null if there is no such attribute
-     * @throws RuntimeException if there are multiple occurences of the
+     * @throws RuntimeException if there are multiple occurrences of the
      *                          requested attribute type
      */
     public RadiusAttribute getAttribute(int vendorId, int type) {
@@ -364,7 +386,7 @@ public class RadiusPacket {
         return getAttributes(VENDOR_SPECIFIC).stream()
                 .filter(VendorSpecificAttribute.class::isInstance)
                 .map(VendorSpecificAttribute.class::cast)
-                .filter(a -> a.getChildVendorId() == vendorId)
+                .filter(a -> a.getVendorId() == vendorId)
                 .collect(Collectors.toList());
     }
 
@@ -430,19 +452,6 @@ public class RadiusPacket {
         return dictionary;
     }
 
-    /**
-     * Sets a custom dictionary to use. If no dictionary is set,
-     * the default dictionary is used.
-     * Also copies the dictionary to the attributes.
-     *
-     * @param dictionary Dictionary class to use
-     * @see DefaultDictionary
-     */
-    public void setDictionary(Dictionary dictionary) {
-        this.dictionary = dictionary;
-        attributes.forEach(a -> a.setDictionary(dictionary));
-    }
-
     public DatagramPacket toDatagramPacket(InetSocketAddress address) throws IOException {
         ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
         try (ByteBufOutputStream outputStream = new ByteBufOutputStream(buf)) {
@@ -482,7 +491,7 @@ public class RadiusPacket {
             throw new RuntimeException("packet too long");
 
         return authenticator != null ?
-                this : new RadiusPacket(packetType, packetIdentifier, generateRandomizedAuthenticator(sharedSecret), this.attributes);
+                this : new RadiusPacket(dictionary, packetType, packetIdentifier, generateRandomizedAuthenticator(sharedSecret), this.attributes);
     }
 
     /**
@@ -505,7 +514,7 @@ public class RadiusPacket {
             throw new RuntimeException("packet too long");
 
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, packetLength, attributes, requestAuthenticator);
-        return new RadiusPacket(packetType, packetIdentifier, authenticator, this.attributes);
+        return new RadiusPacket(dictionary, packetType, packetIdentifier, authenticator, this.attributes);
     }
 
     /**

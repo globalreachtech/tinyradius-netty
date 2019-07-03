@@ -1,7 +1,5 @@
 package org.tinyradius.client;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelFuture;
@@ -18,13 +16,10 @@ import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import static io.netty.buffer.Unpooled.buffer;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
 
 /**
  * This object represents a simple Radius client which communicates with

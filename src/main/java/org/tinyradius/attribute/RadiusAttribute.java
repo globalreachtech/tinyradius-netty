@@ -1,7 +1,6 @@
 package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.AttributeType;
-import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
@@ -15,29 +14,24 @@ public class RadiusAttribute {
 
     //todo implement equals/hashcode
 
-    private Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private final Dictionary dictionary;
+    private final int type;
+    protected final int vendorId; //only for Vendor-Specific attributes and their sub-attributes
+    private final byte[] attributeData;
 
-    private final int attributeType;
-    private final int vendorId; //only for sub-attributes of Vendor-Specific attributes.
-
-    private byte[] attributeData = null;
-
-    public RadiusAttribute(int attributeType, int vendorId) {
-        this.vendorId = vendorId;
-        if (attributeType < 0 || attributeType > 255)
-            throw new IllegalArgumentException("attribute type invalid: " + attributeType);
-        this.attributeType = attributeType;
+    public static RadiusAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
+        final int type = readType(data, offset);
+        final byte[] bytes = readData(data, offset);
+        return new RadiusAttribute(dictionary, type, vendorId, bytes);
     }
 
-    /**
-     * Constructs a Radius attribute with the specified type and data.
-     *
-     * @param type attribute type, see AttributeTypes.*
-     * @param data attribute data
-     */
-    public RadiusAttribute(int type, byte[] data) {
-        this(type, -1);
-        setAttributeData(data);
+    public RadiusAttribute(Dictionary dictionary, int type, int vendorId, byte[] data) {
+        this.dictionary = dictionary;
+        this.vendorId = vendorId;
+        if (type < 0 || type > 255)
+            throw new IllegalArgumentException("attribute type invalid: " + type);
+        this.type = type;
+        this.attributeData = data;
     }
 
     /**
@@ -50,30 +44,12 @@ public class RadiusAttribute {
     }
 
     /**
-     * Sets the data for this attribute.
-     *
-     * @param attributeData attribute data
-     */
-    public void setAttributeData(byte[] attributeData) {
-        this.attributeData = requireNonNull(attributeData, "attribute data is null");
-    }
-
-    /**
      * Returns the type of this Radius attribute.
      *
      * @return type code, 0-255
      */
     public int getAttributeType() {
-        return attributeType;
-    }
-
-    /**
-     * Sets the value of the attribute using a string.
-     *
-     * @param value value as a string
-     */
-    public void setAttributeValue(String value) {
-        throw new RuntimeException("cannot set the value of attribute " + attributeType + " as a string");
+        return type;
     }
 
     /**
@@ -104,17 +80,6 @@ public class RadiusAttribute {
     }
 
     /**
-     * Sets a custom dictionary to use. If no dictionary is set,
-     * the default dictionary is used.
-     *
-     * @param dictionary Dictionary class to use
-     * @see DefaultDictionary
-     */
-    public void setDictionary(Dictionary dictionary) {
-        this.dictionary = dictionary;
-    }
-
-    /**
      * Returns this attribute encoded as a byte array.
      *
      * @return attribute
@@ -138,14 +103,17 @@ public class RadiusAttribute {
      * @param offset byte to start reading from
      * @throws RadiusException malformed packet
      */
-    public void readAttribute(byte[] data, int offset) throws RadiusException {
+    protected static byte[] readData(byte[] data, int offset) throws RadiusException {
         int length = data[offset + 1] & 0x0ff;
         if (length < 2)
-            throw new RadiusException("attribute length too small: " + length);
-        int attrType = data[offset] & 0x0ff;
+            throw new RadiusException("attribute length too small: " + length + ", expecting min length 2");
         byte[] attrData = new byte[length - 2];
         System.arraycopy(data, offset + 2, attrData, 0, length - 2);
-        setAttributeData(attrData);
+        return attrData;
+    }
+
+    public static int readType(byte[] data, int offset) {
+        return data[offset] & 0x0ff;
     }
 
     public String toString() {
@@ -173,10 +141,7 @@ public class RadiusAttribute {
      * @return AttributeType object for (sub-)attribute or null
      */
     public AttributeType getAttributeTypeObject() {
-        if (getVendorId() != -1)
-            return dictionary.getAttributeTypeByCode(getVendorId(), getAttributeType());
-
-        return dictionary.getAttributeTypeByCode(getAttributeType());
+        return dictionary.getAttributeTypeByCode(getVendorId(), getAttributeType());
     }
 
     /**

@@ -2,6 +2,7 @@ package org.tinyradius.server;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.RadiusPacket;
 
@@ -28,18 +29,19 @@ public abstract class AuthHandler implements RequestHandler<AccessRequest> {
      * Constructs an answer for an Access-Request packet. This
      * method should be overridden.
      *
+     * @param dictionary
      * @param accessRequest Radius request packet
      * @return response packet or null if no packet shall be sent
      */
     @Override
-    public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) {
+    public Promise<RadiusPacket> handlePacket(Dictionary dictionary, Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
         try {
             String password = getUserPassword(accessRequest.getUserName());
             int type = password != null && accessRequest.verifyPassword(password) ?
                     ACCESS_ACCEPT : ACCESS_REJECT;
 
-            RadiusPacket answer = new RadiusPacket(type, accessRequest.getPacketIdentifier());
+            RadiusPacket answer = new RadiusPacket(dictionary, type, accessRequest.getPacketIdentifier());
             accessRequest.getAttributes(33)
                     .forEach(answer::addAttribute);
 

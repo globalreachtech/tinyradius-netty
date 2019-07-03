@@ -3,6 +3,7 @@ package org.tinyradius.packet;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.AttributeBuilder;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
@@ -13,9 +14,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.RadiusAttributeBuilder.createRadiusAttribute;
+import static org.tinyradius.packet.PacketType.COA_REQUEST;
+import static org.tinyradius.packet.PacketType.DISCONNECT_REQUEST;
 
-public class RadiusPacketEncoder {
+public class RadiusPacketDecoder {
 
     private static AtomicInteger nextPacketId = new AtomicInteger();
 
@@ -147,9 +149,8 @@ public class RadiusPacketEncoder {
 
             final List<RadiusAttribute> attributes = extractAttributes(attributeData, dictionary);
 
-            // create RadiusPacket object; set properties
-            RadiusPacket rp = createRadiusPacket(type, identifier, authenticator, attributes);
-            rp.setDictionary(dictionary);
+            // create RadiusPacket object
+            RadiusPacket rp = createRadiusPacket(dictionary, type, identifier, authenticator, attributes);
 
             if (request == null) {
                 // decode attributes
@@ -168,15 +169,14 @@ public class RadiusPacketEncoder {
         List<RadiusAttribute> attributes = new ArrayList<>();
 
         int pos = 0;
-        while (pos < attributeData.length) { // pos+1 to avoid ArrayIndexOutOfBoundsException reading length
+        while (pos < attributeData.length) {
             if (pos + 1 >= attributeData.length)
                 throw new RadiusException("bad packet: attribute length out of bounds");
             int attributeType = attributeData[pos] & 0x0ff;
             int attributeLength = attributeData[pos + 1] & 0x0ff;
             if (attributeLength < 2)
                 throw new RadiusException("bad packet: invalid attribute length");
-            RadiusAttribute a = createRadiusAttribute(dictionary, -1, attributeType);
-            a.readAttribute(attributeData, pos);
+            RadiusAttribute a = AttributeBuilder.parseRadiusAttribute(dictionary, -1, attributeType, attributeData, pos);
             attributes.add(a);
             pos += attributeLength;
         }
@@ -194,26 +194,18 @@ public class RadiusPacketEncoder {
      * @param type packet type
      * @return RadiusPacket object
      */
-    public static RadiusPacket createRadiusPacket(int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-
-        RadiusPacket rp;
+    public static RadiusPacket createRadiusPacket(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
             case PacketType.ACCESS_REQUEST:
-                rp = new AccessRequest(identifier, authenticator, attributes);
-                break;
-            case PacketType.COA_REQUEST:
-                rp = new CoaRequest(PacketType.COA_REQUEST, identifier, authenticator, attributes);
-                break;
-            case PacketType.DISCONNECT_REQUEST:
-                rp = new CoaRequest(PacketType.DISCONNECT_REQUEST, identifier, authenticator, attributes);
-                break;
+                return new AccessRequest(dictionary, identifier, authenticator, attributes);
+            case COA_REQUEST:
+                return new CoaRequest(dictionary, COA_REQUEST, identifier, authenticator, attributes);
+            case DISCONNECT_REQUEST:
+                return new CoaRequest(dictionary, DISCONNECT_REQUEST, identifier, authenticator, attributes);
             case PacketType.ACCOUNTING_REQUEST:
-                rp = new AccountingRequest(identifier, authenticator, attributes);
-                break;
+                return new AccountingRequest(dictionary, identifier, authenticator, attributes);
             default:
-                rp = new RadiusPacket(type, identifier, authenticator, attributes);
+                return new RadiusPacket(dictionary, type, identifier, authenticator, attributes);
         }
-
-        return rp;
     }
 }
