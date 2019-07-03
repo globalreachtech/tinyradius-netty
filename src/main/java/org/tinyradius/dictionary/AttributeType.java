@@ -1,52 +1,115 @@
 package org.tinyradius.dictionary;
 
-import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
  * Represents a Radius attribute type.
  */
-public class AttributeType<T extends RadiusAttribute> {
+public class AttributeType {
 
     private final int vendorId;
     private final int typeCode;
     private final String name;
-    private final Class<T> attributeClass;
+    private final AttributeBuilder.PacketParser packetParser;
+    private final AttributeBuilder.ByteArrayConstructor byteArrayConstructor;
+    private final AttributeBuilder.StringConstructor stringConstructor;
     private final Map<Integer, String> enumeration = new HashMap<>();
 
     /**
      * Create a new attribute type.
      *
-     * @param code Radius attribute type code
-     * @param name Attribute type name
-     * @param type RadiusAttribute descendant who handles attributes of this type
+     * @param attributeType    Radius attribute type code
+     * @param name    Attribute type name
+     * @param typeStr string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
      */
-    public AttributeType(int code, String name, Class<T> type) {
-        this(-1, code, name, type);
+    public AttributeType(int attributeType, String name, String typeStr) {
+        this(-1, attributeType, name, typeStr);
     }
 
     /**
      * Constructs a Vendor-Specific sub-attribute type.
      *
      * @param vendorId vendor ID
-     * @param code     sub-attribute type code
+     * @param attributeType     sub-attribute type code
      * @param name     sub-attribute name
-     * @param type     sub-attribute class
+     * @param dataType  string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
      */
-    public AttributeType(int vendorId, int code, String name, Class<T> type) {
-        if (code < 1 || code > 255)
-            throw new IllegalArgumentException("code out of bounds");
+    public AttributeType(int vendorId, int attributeType, String name, String dataType) {
+        if (attributeType < 1 || attributeType > 255)
+            throw new IllegalArgumentException("type code out of bounds");
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("name is empty");
-        requireNonNull(type, "type is null");
+        requireNonNull(dataType, "type is null");
         this.vendorId = vendorId;
-        this.typeCode = code;
+        this.typeCode = attributeType;
         this.name = name;
-        this.attributeClass = type;
+
+        if (attributeType == VENDOR_SPECIFIC) {
+            packetParser = VendorSpecificAttribute::parse;
+            byteArrayConstructor = (a, b, c, d) -> {
+                throw new IllegalArgumentException("should not instantiate VendorSpecificAttribute with attribute byte array directly");
+            };
+            stringConstructor = (a, b, c, d) -> {
+                throw new IllegalArgumentException("should not instantiate VendorSpecificAttribute with attribute byte array directly");
+            };
+            return;
+        }
+
+        switch (dataType.toLowerCase()) {
+            case "string":
+                packetParser = StringAttribute::parse;
+                byteArrayConstructor = StringAttribute::new;
+                stringConstructor = StringAttribute::new;
+                break;
+            case "integer":
+            case "date":
+                packetParser = IntegerAttribute::parse;
+                byteArrayConstructor = IntegerAttribute::new;
+                stringConstructor = IntegerAttribute::new;
+
+                break;
+            case "ipaddr":
+                packetParser = IpAttribute::parse;
+                byteArrayConstructor = IpAttribute::new;
+                stringConstructor = IpAttribute::new;
+
+                break;
+            case "ipv6addr":
+                packetParser = Ipv6Attribute::parse;
+                byteArrayConstructor = Ipv6Attribute::new;
+                stringConstructor = Ipv6Attribute::new;
+
+                break;
+            case "ipv6prefix":
+                packetParser = Ipv6PrefixAttribute::parse;
+                byteArrayConstructor = Ipv6PrefixAttribute::new;
+                stringConstructor = Ipv6PrefixAttribute::new;
+
+                break;
+            case "vsa":
+                packetParser = VendorSpecificAttribute::parse;
+                byteArrayConstructor = (a, b, c, d) -> {
+                    throw new IllegalArgumentException("should not instantiate VendorSpecificAttribute with attribute byte array directly");
+                };
+                stringConstructor = (a, b, c, d) -> {
+                    throw new IllegalArgumentException("should not instantiate VendorSpecificAttribute with attribute byte array directly");
+                };
+                break;
+            case "octets":
+            default:
+                packetParser = RadiusAttribute::parse;
+                byteArrayConstructor = RadiusAttribute::new;
+                stringConstructor = (a, b, c, d) -> {
+                    throw new RuntimeException("cannot set the value of attribute " + attributeType + " as a string");
+                };
+
+        }
     }
 
     /**
@@ -73,8 +136,16 @@ public class AttributeType<T extends RadiusAttribute> {
      *
      * @return class
      */
-    public Class<T> getAttributeClass() {
-        return attributeClass;
+    public AttributeBuilder.PacketParser getPacketParser() {
+        return packetParser;
+    }
+
+    public AttributeBuilder.ByteArrayConstructor getByteArrayConstructor() {
+        return byteArrayConstructor;
+    }
+
+    public AttributeBuilder.StringConstructor getStringConstructor() {
+        return stringConstructor;
     }
 
     /**
@@ -131,7 +202,7 @@ public class AttributeType<T extends RadiusAttribute> {
      * @return string
      */
     public String toString() {
-        String s = getTypeCode() + "/" + getName() + ": " + attributeClass.getName();
+        String s = getTypeCode() + "/" + getName() + ": " + packetParser.getClass();
         if (getVendorId() != -1)
             s += " (vendor " + getVendorId() + ")";
         return s;

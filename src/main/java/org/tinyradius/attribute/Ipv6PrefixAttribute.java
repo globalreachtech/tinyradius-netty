@@ -1,5 +1,6 @@
 package org.tinyradius.attribute;
 
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
 import java.net.Inet6Address;
@@ -11,10 +12,17 @@ import java.util.Arrays;
  */
 public class Ipv6PrefixAttribute extends RadiusAttribute {
 
-    /**
-     * Constructs an empty IP attribute.
-     */
-    public Ipv6PrefixAttribute() {
+    public static IpAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
+        int length = data[offset + 1] & 0x0ff;
+        if (length != 20)
+            throw new RadiusException("IP attribute: expected 18 bytes data");
+        final int type = readType(data, offset);
+        final byte[] bytes = readData(data, offset);
+        return new IpAttribute(dictionary, type, vendorId, bytes);
+    }
+
+    public Ipv6PrefixAttribute(Dictionary dictionary, int type, int vendorId, byte[] data) {
+        super(dictionary, type, vendorId, data);
     }
 
     /**
@@ -23,17 +31,15 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      * @param type  attribute type code
      * @param value value, format: "ipv6 address"/prefix
      */
-    public Ipv6PrefixAttribute(int type, String value) {
-        setAttributeType(type);
-        setAttributeValue(value);
+    public Ipv6PrefixAttribute(Dictionary dictionary, int type, int vendorId, String value) {
+        this(dictionary, type, vendorId, convertValue(value));
     }
 
     /**
      * Returns the attribute value (IP number) as a string of the
      * format "xx.xx.xx.xx".
-     *
-     * @see org.tinyradius.attribute.RadiusAttribute#getAttributeValue()
      */
+    @Override
     public String getAttributeValue() {
         final byte[] data = getAttributeData();
         if (data == null || data.length != 18)
@@ -54,9 +60,8 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      * ipv6 address.
      *
      * @throws IllegalArgumentException bad IP address
-     * @see org.tinyradius.attribute.RadiusAttribute#setAttributeValue(String)
      */
-    public void setAttributeValue(String value) {
+    private static byte[] convertValue(String value) {
         if (value == null || value.length() < 3)
             throw new IllegalArgumentException("bad IPv6 address : " + value);
         try {
@@ -71,23 +76,9 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
             byte[] ipData = addr.getAddress();
             System.arraycopy(ipData, 0, data, 2, ipData.length);
 
-            setAttributeData(data);
+            return data;
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("bad IPv6 address : " + value, e);
         }
     }
-
-
-    /**
-     * Check attribute length.
-     *
-     * @see org.tinyradius.attribute.RadiusAttribute#readAttribute(byte[], int)
-     */
-    public void readAttribute(byte[] data, int offset) throws RadiusException {
-        int length = data[offset + 1] & 0x0ff;
-        if (length != 20)
-            throw new RadiusException("IP attribute: expected 18 bytes data");
-        super.readAttribute(data, offset);
-    }
-
 }

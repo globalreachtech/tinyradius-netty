@@ -1,6 +1,5 @@
 package org.tinyradius.client;
 
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timeout;
@@ -34,6 +33,8 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyStateClientHandler.class);
 
+    private static final int PROXY_STATE = 33;
+
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
 
     private final Dictionary dictionary;
@@ -66,7 +67,7 @@ public class ProxyStateClientHandler extends ClientHandler {
     public Promise<RadiusPacket> processRequest(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
         // add Proxy-State attribute
         String requestId = genProxyState();
-        packet.addAttribute(new RadiusAttribute(33, requestId.getBytes()));
+        packet.addAttribute(new RadiusAttribute(packet.getDictionary(), PROXY_STATE, -1, requestId.getBytes()));
 
         Promise<RadiusPacket> response = eventExecutor.newPromise();
         requests.put(requestId, response);
@@ -91,29 +92,27 @@ public class ProxyStateClientHandler extends ClientHandler {
             return;
         }
 
-        try (ByteBufInputStream in = new ByteBufInputStream(datagramPacket.content())) {
-            RadiusPacket packet = RadiusPacketDecoder.decodeRequestPacket(dictionary, in, secret);
+        try {
+            RadiusPacket packet = RadiusPacketDecoder.decodeRequestPacket(dictionary, datagramPacket, secret);
 
             // retrieve my Proxy-State attribute (the last)
-            List<RadiusAttribute> proxyStates = packet.getAttributes(33);
+            List<RadiusAttribute> proxyStates = packet.getAttributes(PROXY_STATE);
             if (proxyStates == null || proxyStates.isEmpty())
                 throw new RadiusException("proxy packet without Proxy-State attribute");
             RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
 
-            String requestId = new String(proxyState.getAttributeData());
+            String proxyStateId = new String(proxyState.getAttributeData());
 
-            final Promise<RadiusPacket> request = requests.get(requestId);
+            final Promise<RadiusPacket> request = requests.get(proxyStateId);
 
             if (request == null) {
                 logger.info("Request context not found for received packet, ignoring...");
                 return;
             }
 
-            logger.info("Found connection {} for request identifier => {}", requestId, packet.getPacketIdentifier());
-            logger.info("received proxy packet: {}", packet);
+            logger.info("Found connection (proxyState) {} for packet => {}", proxyStateId, packet);
 
-            // remove only own Proxy-State (last attribute)
-            packet.removeLastAttribute(33);
+            packet.removeLastAttribute(PROXY_STATE);
 
             request.trySuccess(packet);
         } catch (IOException ioe) {

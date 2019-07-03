@@ -1,7 +1,5 @@
 package org.tinyradius.client;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelFuture;
@@ -18,13 +16,10 @@ import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import static io.netty.buffer.Unpooled.buffer;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
 
 /**
  * This object represents a simple Radius client which communicates with
@@ -138,8 +133,9 @@ public class RadiusClient<T extends DatagramChannel> {
             // run first to add any identifiers/attributes needed
             Future<RadiusPacket> promise = clientHandler.processRequest(packet, endpoint, eventLoopGroup.next());
 
-            // will mutate packet (regenerate authenticator)
-            final DatagramPacket packetOut = makeDatagramPacket(packet, endpoint);
+            final DatagramPacket packetOut = packet
+                    .encodeRequestPacket(endpoint.getSharedSecret())
+                    .toDatagramPacket(endpoint.getEndpointAddress());
 
             logger.debug("Sending packet to {}", endpoint.getEndpointAddress());
             if (logger.isDebugEnabled())
@@ -154,23 +150,6 @@ public class RadiusClient<T extends DatagramChannel> {
             return promise;
         } catch (Exception e) {
             return eventLoopGroup.next().newFailedFuture(e);
-        }
-    }
-
-    /**
-     * Creates a datagram packet from a RadiusPacket to be send.
-     *
-     * @param packet   RadiusPacket
-     * @param endpoint destination port number
-     * @return new datagram packet
-     * @throws IOException     error when writing packet to output stream
-     * @throws RadiusException error when encoding RadiusPacket attributes
-     */
-    protected DatagramPacket makeDatagramPacket(RadiusPacket packet, RadiusEndpoint endpoint) throws IOException, RadiusException {
-        ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
-        try (final ByteBufOutputStream outputStream = new ByteBufOutputStream(buf)) {
-            packet.encodeRequestPacket(outputStream, endpoint.getSharedSecret());
-            return new DatagramPacket(buf, endpoint.getEndpointAddress());
         }
     }
 }

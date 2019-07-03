@@ -9,6 +9,7 @@ import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.PacketType;
@@ -46,10 +47,10 @@ public class TestServer {
 
             // Adds an attribute to the Access-Accept packet
             @Override
-            public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) {
+            public Promise<RadiusPacket> handlePacket(Dictionary dictionary, Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) {
                 System.out.println("Received Access-Request:\n" + accessRequest);
                 final Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
-                super.handlePacket(channel, accessRequest, remoteAddress, sharedSecret).addListener((Future<RadiusPacket> f) -> {
+                super.handlePacket(dictionary, channel, accessRequest, remoteAddress, sharedSecret).addListener((Future<RadiusPacket> f) -> {
                     final RadiusPacket packet = f.getNow();
                     if (packet == null) {
                         System.out.println("Ignore packet.");

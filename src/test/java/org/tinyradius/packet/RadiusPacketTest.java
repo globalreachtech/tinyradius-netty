@@ -2,6 +2,7 @@ package org.tinyradius.packet;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.*;
+import org.tinyradius.dictionary.DefaultDictionary;
 
 import java.util.List;
 
@@ -13,12 +14,12 @@ class RadiusPacketTest {
     @Test
     void addAttribute() {
 
-        RadiusPacket rp = new RadiusPacket(ACCESS_REQUEST, 1);
+        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
-        rp.addAttribute(new IpAttribute(8, 1234567));
-        rp.addAttribute(new Ipv6Attribute(168, "fe80::"));
-        rp.addAttribute(new Ipv6PrefixAttribute(97, "fe80::/64"));
-        rp.addAttribute(new Ipv6PrefixAttribute(97, "fe80::/128"));
+        rp.addAttribute(new IpAttribute(rp.getDictionary(), 8, -1, 1234567));
+        rp.addAttribute(new Ipv6Attribute(rp.getDictionary(), 168, -1, "fe80::"));
+        rp.addAttribute(new Ipv6PrefixAttribute(rp.getDictionary(), 97, -1, "fe80::/64"));
+        rp.addAttribute(new Ipv6PrefixAttribute(rp.getDictionary(), 97, -1, "fe80::/128"));
 
         final List<VendorSpecificAttribute> vendorAttributes = rp.getVendorAttributes(14122);
         assertEquals(1, vendorAttributes.size());

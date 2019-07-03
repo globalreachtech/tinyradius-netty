@@ -1,29 +1,33 @@
 package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.AttributeType;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
 /**
- * This class represents a Radius attribute which only
- * contains a 32 bit integer.
+ * This class represents a Radius attribute which only contains a 32 bit integer.
  */
 public class IntegerAttribute extends RadiusAttribute {
 
-    /**
-     * Constructs an empty integer attribute.
-     */
-    public IntegerAttribute() {
+    public static IntegerAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
+        int length = data[offset + 1] & 0x0ff;
+        if (length != 6)
+            throw new RadiusException("integer attribute: expected 4 bytes data");
+        final int type = readType(data, offset);
+        final byte[] bytes = readData(data, offset);
+        return new IntegerAttribute(dictionary, type, vendorId, bytes);
     }
 
-    /**
-     * Constructs an integer attribute with the given value.
-     *
-     * @param type  attribute type
-     * @param value attribute value
-     */
-    public IntegerAttribute(int type, int value) {
-        setAttributeType(type);
-        setAttributeValue(value);
+    public IntegerAttribute(Dictionary dictionary, int type, int vendorId, byte[] data) {
+        super(dictionary, type, vendorId, data);
+    }
+
+    public IntegerAttribute(Dictionary dictionary, int type, int vendorId, int value) {
+        this(dictionary, type, vendorId, convertValue(value));
+    }
+
+    public IntegerAttribute(Dictionary dictionary, int type, int vendorId, String value) {
+        this(dictionary, type, vendorId, convertValue(value, dictionary, type, vendorId));
     }
 
     /**
@@ -40,9 +44,8 @@ public class IntegerAttribute extends RadiusAttribute {
     /**
      * Returns the value of this attribute as a string.
      * Tries to resolve enumerations.
-     *
-     * @see RadiusAttribute#getAttributeValue()
      */
+    @Override
     public String getAttributeValue() {
         int value = getAttributeValueInt();
         AttributeType at = getAttributeTypeObject();
@@ -58,47 +61,27 @@ public class IntegerAttribute extends RadiusAttribute {
     /**
      * Sets the value of this attribute.
      *
-     * @param value integer value
+     * @throws NumberFormatException if value is not a number and constant cannot be resolved
      */
-    public void setAttributeValue(int value) {
+    private static byte[] convertValue(int value) {
         byte[] data = new byte[4];
         data[0] = (byte) (value >> 24 & 0x0ff);
         data[1] = (byte) (value >> 16 & 0x0ff);
         data[2] = (byte) (value >> 8 & 0x0ff);
         data[3] = (byte) (value & 0x0ff);
-        setAttributeData(data);
+        return data;
     }
 
-    /**
-     * Sets the value of this attribute.
-     *
-     * @throws NumberFormatException if value is not a number and constant cannot be resolved
-     * @see RadiusAttribute#setAttributeValue(java.lang.String)
-     */
-    public void setAttributeValue(String value) {
-        AttributeType at = getAttributeTypeObject();
+    private static byte[] convertValue(String value, Dictionary dictionary, int attributeType, int vendorId) {
+        AttributeType at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
         if (at != null) {
             Integer val = at.getEnumeration(value);
             if (val != null) {
-                setAttributeValue(val);
-                return;
+                return convertValue(val);
             }
         }
 
         // Radius uses only unsigned integers for this the parser should consider as Long to parse high bit correctly...
-        setAttributeValue((int) Long.parseLong(value));
+        return convertValue((int) Long.parseLong(value));
     }
-
-    /**
-     * Check attribute length.
-     *
-     * @see RadiusAttribute#readAttribute(byte[], int)
-     */
-    public void readAttribute(byte[] data, int offset) throws RadiusException {
-        int length = data[offset + 1] & 0x0ff;
-        if (length != 6)
-            throw new RadiusException("integer attribute: expected 4 bytes data");
-        super.readAttribute(data, offset);
-    }
-
 }

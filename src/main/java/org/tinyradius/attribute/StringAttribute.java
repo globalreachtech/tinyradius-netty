@@ -1,29 +1,25 @@
 package org.tinyradius.attribute;
 
+import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.util.RadiusException;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.requireNonNull;
 
 /**
- * This class represents a Radius attribute which only
- * contains a string.
+ * This class represents a Radius attribute which only contains a string.
  */
 public class StringAttribute extends RadiusAttribute {
 
-    /**
-     * Constructs an empty string attribute.
-     */
-    public StringAttribute() {
+    public static StringAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
+        return new StringAttribute(dictionary, readType(data, offset), vendorId, readData(data, offset));
     }
 
-    /**
-     * Constructs a string attribute with the given value.
-     *
-     * @param type  attribute type
-     * @param value attribute value
-     */
-    public StringAttribute(int type, String value) {
-        setAttributeType(type);
-        setAttributeValue(value);
+    public StringAttribute(Dictionary dictionary, int attributeType, int vendorId, byte[] data) {
+        super(dictionary, attributeType, vendorId, data);
+    }
+
+    public StringAttribute(Dictionary dictionary, int type, int vendorId, String value) {
+        this(dictionary, type, vendorId, value.getBytes(UTF_8));
     }
 
     /**
@@ -31,18 +27,8 @@ public class StringAttribute extends RadiusAttribute {
      *
      * @return a string
      */
+    @Override
     public String getAttributeValue() {
         return new String(getAttributeData(), UTF_8);
     }
-
-    /**
-     * Sets the string value of this attribute.
-     *
-     * @param value string, not null
-     */
-    public void setAttributeValue(String value) {
-        requireNonNull(value, "string value not set");
-        setAttributeData(value.getBytes(UTF_8));
-    }
-
 }

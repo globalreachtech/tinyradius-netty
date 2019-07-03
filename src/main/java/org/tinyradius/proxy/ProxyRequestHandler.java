@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.ProxyStateClientHandler;
 import org.tinyradius.client.RadiusClient;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestHandler;
 import org.tinyradius.util.Lifecycle;
@@ -67,7 +68,7 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
      * is added to the packet in the "Proxy-State" attribute.
      */
     @Override
-    public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket packet, InetSocketAddress remoteAddress, String sharedSecret) {
+    public Promise<RadiusPacket> handlePacket(Dictionary dictionary, Channel channel, RadiusPacket packet, InetSocketAddress remoteAddress, String sharedSecret) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
 
         RadiusEndpoint clientEndpoint = new RadiusEndpoint(remoteAddress, sharedSecret);
@@ -80,16 +81,11 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
         }
 
         logger.info("proxy packet to " + serverEndpoint.getEndpointAddress());
-        // save request authenticator (will be calculated new)
-        byte[] auth = packet.getAuthenticator();
 
-        // send new packet (with new authenticator)
         radiusClient.communicate(packet, serverEndpoint, 3)
                 .addListener((Future<RadiusPacket> f) ->
-                        promise.trySuccess(handleServerResponse(f.getNow())));
+                        promise.trySuccess(handleServerResponse(dictionary, f.getNow())));
 
-        // restore original authenticator
-        packet.setAuthenticator(auth);
         return promise;
     }
 
@@ -101,8 +97,7 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
      * @param packet response received from server
      * @return packet to send back to client
      */
-    protected RadiusPacket handleServerResponse(RadiusPacket packet) {
-        // re-encode answer packet with authenticator of the original packet
-        return new RadiusPacket(packet.getPacketType(), packet.getPacketIdentifier(), packet.getAttributes());
+    protected RadiusPacket handleServerResponse(Dictionary dictionary, RadiusPacket packet) {
+        return new RadiusPacket(dictionary, packet.getPacketType(), packet.getPacketIdentifier(), packet.getAttributes());
     }
 }

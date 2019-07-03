@@ -1,6 +1,5 @@
 package org.tinyradius.client;
 
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timeout;
@@ -76,9 +75,8 @@ public class SimpleClientHandler extends ClientHandler {
             return;
         }
 
-        try (ByteBufInputStream inputStream = new ByteBufInputStream(packet.content().duplicate())) {
-            RadiusPacket resp = decodeResponsePacket(dictionary, inputStream, request.sharedSecret, request.packet);
-
+        try {
+            RadiusPacket resp = decodeResponsePacket(dictionary, packet, request.sharedSecret, request.packet);
             logger.info("Found request for response identifier => {}", identifier);
 
             request.response.trySuccess(resp);
