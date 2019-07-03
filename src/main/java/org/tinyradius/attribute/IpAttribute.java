@@ -117,8 +117,6 @@ public class IpAttribute extends RadiusAttribute {
 
     /**
      * Check attribute length.
-     *
-     * @see RadiusAttribute#readAttribute(byte[], int)
      */
     @Override
     public void readAttribute(byte[] data, int offset) throws RadiusException {

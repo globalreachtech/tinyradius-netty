@@ -71,8 +71,6 @@ public class Ipv6Attribute extends RadiusAttribute {
 
     /**
      * Check attribute length.
-     *
-     * @see org.tinyradius.attribute.RadiusAttribute#readAttribute(byte[], int)
      */
     @Override
     public void readAttribute(byte[] data, int offset) throws RadiusException {

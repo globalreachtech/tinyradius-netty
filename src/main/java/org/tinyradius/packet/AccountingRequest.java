@@ -6,6 +6,7 @@ import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.util.RadiusException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -42,11 +43,15 @@ public class AccountingRequest extends RadiusPacket {
         setAcctStatusType(acctStatusType);
     }
 
+    public AccountingRequest(int identifier, byte[] authenticator) {
+        this(identifier, authenticator, new ArrayList<>());
+    }
+
     /**
      * Constructs an empty Accounting-Request.
      */
-    public AccountingRequest(int identifier, byte[] authenticator) {
-        super(PacketType.ACCOUNTING_REQUEST, identifier, authenticator);
+    public AccountingRequest(int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        super(PacketType.ACCOUNTING_REQUEST, identifier, authenticator, attributes);
     }
 
     /**
@@ -89,7 +94,6 @@ public class AccountingRequest extends RadiusPacket {
     }
 
     /**
-     *
      * @return
      */
     public int getAcctStatusType() {
@@ -100,7 +104,7 @@ public class AccountingRequest extends RadiusPacket {
 
     @Override
     protected RadiusPacket encodeRequest(String sharedSecret) throws IOException {
-       return encodePacket(sharedSecret, new byte[16]);
+        return encodePacket(sharedSecret, new byte[16]);
     }
 
     /**

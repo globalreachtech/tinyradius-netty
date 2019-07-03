@@ -246,8 +246,6 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     /**
      * Reads a Vendor-Specific attribute and decodes the internal sub-attribute
      * structure.
-     *
-     * @see RadiusAttribute#readAttribute(byte[], int)
      */
     @Override
     public void readAttribute(byte[] data, int offset) throws RadiusException {

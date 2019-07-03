@@ -1,6 +1,9 @@
 package org.tinyradius.packet;
 
+import org.tinyradius.attribute.RadiusAttribute;
+
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Represents CoA-Request and Disconnect-Request.
@@ -12,8 +15,8 @@ public class CoaRequest extends RadiusPacket {
      * @param identifier
      * @param authenticator
      */
-    public CoaRequest(int type, int identifier, byte[] authenticator) {
-        super(type, identifier, authenticator);
+    public CoaRequest(int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        super(type, identifier, authenticator, attributes);
     }
 
     @Override

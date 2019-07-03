@@ -65,7 +65,7 @@ public class AccessRequest extends RadiusPacket {
      * Constructs an empty Access-Request packet.
      */
     public AccessRequest(int identifier, byte[] authenticator) {
-        super(PacketType.ACCESS_REQUEST, identifier, authenticator);
+        this(identifier, authenticator, new ArrayList<>());
     }
 
     public AccessRequest(int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
@@ -226,7 +226,7 @@ public class AccessRequest extends RadiusPacket {
         final AccessRequest accessRequest = new AccessRequest(packetIdentifier, newAuthenticator, new ArrayList<>(attributes));
 
         // encode attributes (User-Password attribute needs the new authenticator)
-        encodeRequestAttributes(newAuthenticator, sharedSecret).forEach(a ->{
+        encodeRequestAttributes(newAuthenticator, sharedSecret).forEach(a -> {
             removeAttributes(a.getAttributeType());
             addAttribute(a);
         });
