@@ -59,14 +59,14 @@ public class ProxyStateClientHandler extends ClientHandler {
         this.secretProvider = secretProvider;
     }
 
-    private String genProxyState() {
+    private String nextProxyStateId() {
         return Integer.toString(proxyIndex.getAndIncrement());
     }
 
     @Override
     public Promise<RadiusPacket> processRequest(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
         // add Proxy-State attribute
-        String requestId = genProxyState();
+        String requestId = nextProxyStateId();
         packet.addAttribute(new RadiusAttribute(packet.getDictionary(), PROXY_STATE, -1, requestId.getBytes()));
 
         Promise<RadiusPacket> response = eventExecutor.newPromise();

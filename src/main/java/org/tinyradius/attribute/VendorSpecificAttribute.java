@@ -215,10 +215,10 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     public byte[] writeAttribute() {
         // write vendor ID
         ByteArrayOutputStream bos = new ByteArrayOutputStream(255);
-        bos.write(vendorId >> 24 & 0x0ff);
-        bos.write(vendorId >> 16 & 0x0ff);
-        bos.write(vendorId >> 8 & 0x0ff);
-        bos.write(vendorId & 0x0ff);
+        bos.write(getVendorId() >> 24 & 0x0ff);
+        bos.write(getVendorId() >> 16 & 0x0ff);
+        bos.write(getVendorId() >> 8 & 0x0ff);
+        bos.write(getVendorId() & 0x0ff);
 
         // write sub-attributes
         try {
@@ -272,15 +272,15 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Vendor-Specific: ");
-        String vendorName = getDictionary().getVendorName(vendorId);
+        String vendorName = getDictionary().getVendorName(getVendorId());
         if (vendorName != null) {
             sb.append(vendorName);
             sb.append(" (");
-            sb.append(vendorId);
+            sb.append(getVendorId());
             sb.append(")");
         } else {
             sb.append("vendor ID ");
-            sb.append(vendorId);
+            sb.append(getVendorId());
         }
         for (RadiusAttribute sa : getSubAttributes()) {
             sb.append("\n");

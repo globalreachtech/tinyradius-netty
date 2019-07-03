@@ -24,9 +24,9 @@ public class AttributeType {
     /**
      * Create a new attribute type.
      *
-     * @param attributeType    Radius attribute type code
-     * @param name    Attribute type name
-     * @param typeStr string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
+     * @param attributeType Radius attribute type code
+     * @param name          Attribute type name
+     * @param typeStr       string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
      */
     public AttributeType(int attributeType, String name, String typeStr) {
         this(-1, attributeType, name, typeStr);
@@ -35,10 +35,10 @@ public class AttributeType {
     /**
      * Constructs a Vendor-Specific sub-attribute type.
      *
-     * @param vendorId vendor ID
-     * @param attributeType     sub-attribute type code
-     * @param name     sub-attribute name
-     * @param dataType  string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
+     * @param vendorId      vendor ID
+     * @param attributeType sub-attribute type code
+     * @param name          sub-attribute name
+     * @param dataType      string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
      */
     public AttributeType(int vendorId, int attributeType, String name, String dataType) {
         if (attributeType < 1 || attributeType > 255)
@@ -113,18 +113,14 @@ public class AttributeType {
     }
 
     /**
-     * Retrieves the Radius type code for this attribute type.
-     *
-     * @return Radius type code
+     * @return Radius type code for this attribute e.g. '1' (for User-Name)
      */
     public int getTypeCode() {
         return typeCode;
     }
 
     /**
-     * Retrieves the name of this type.
-     *
-     * @return name
+     * @return name of type e.g. 'User-Name'
      */
     public String getName() {
         return name;
@@ -149,10 +145,7 @@ public class AttributeType {
     }
 
     /**
-     * Returns the vendor ID.
-     * No vendor specific attribute = -1
-     *
-     * @return vendor ID
+     * @return vendor ID or -1 if not applicable
      */
     public int getVendorId() {
         return vendorId;
@@ -196,10 +189,7 @@ public class AttributeType {
     }
 
     /**
-     * String representation of AttributeType object
-     * for debugging purposes.
-     *
-     * @return string
+     * @return string for debugging
      */
     public String toString() {
         String s = getTypeCode() + "/" + getName() + ": " + packetParser.getClass();

@@ -16,8 +16,9 @@ public class RadiusAttribute {
 
     private final Dictionary dictionary;
     private final int type;
-    protected final int vendorId; //only for Vendor-Specific attributes and their sub-attributes
     private final byte[] attributeData;
+
+    private final int vendorId; //only for Vendor-Specific attributes and their sub-attributes
 
     public static RadiusAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
         final int type = readType(data, offset);
@@ -35,54 +36,42 @@ public class RadiusAttribute {
     }
 
     /**
-     * Returns the data for this attribute.
-     *
-     * @return attribute data
+     * @return attribute data as raw bytes
      */
     public byte[] getAttributeData() {
         return attributeData;
     }
 
     /**
-     * Returns the type of this Radius attribute.
-     *
-     * @return type code, 0-255
+     * @return attribute type code, 0-255
      */
     public int getAttributeType() {
         return type;
     }
 
     /**
-     * @return the value of this attribute as a string.
+     * @return value of this attribute as a string.
      */
     public String getAttributeValue() {
         return getHexString(getAttributeData());
     }
 
     /**
-     * Gets the Vendor-Id of the Vendor-Specific attribute this
-     * attribute belongs to. Returns -1 if this attribute is not
-     * a sub attribute of a Vendor-Specific attribute.
-     *
-     * @return vendor ID
+     * @return vendor Id if Vendor-Specific attribute or sub-attribute, otherwise -1
      */
     public int getVendorId() {
         return vendorId;
     }
 
     /**
-     * Returns the dictionary this Radius attribute uses.
-     *
-     * @return Dictionary INSTANCE
+     * @return dictionary that attribute uses
      */
     public Dictionary getDictionary() {
         return dictionary;
     }
 
     /**
-     * Returns this attribute encoded as a byte array.
-     *
-     * @return attribute
+     * @return entire attribute (including attribute type/length) as byte array
      */
     public byte[] writeAttribute() {
         if (getAttributeType() == -1)
@@ -136,8 +125,6 @@ public class RadiusAttribute {
     }
 
     /**
-     * Retrieves an AttributeType object for this attribute.
-     *
      * @return AttributeType object for (sub-)attribute or null
      */
     public AttributeType getAttributeTypeObject() {

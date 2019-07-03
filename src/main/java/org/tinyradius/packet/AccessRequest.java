@@ -198,10 +198,10 @@ public class AccessRequest extends RadiusPacket {
             setAuthProtocol(AUTH_CHAP);
             this.chapPassword = chapPassword.getAttributeData();
             this.chapChallenge = chapChallenge.getAttributeData();
-        } else if (chapPassword != null && authenticator.length == 16) {
+        } else if (chapPassword != null && getAuthenticator().length == 16) {
             setAuthProtocol(AUTH_CHAP);
             this.chapPassword = chapPassword.getAttributeData();
-            this.chapChallenge = authenticator;
+            this.chapChallenge = getAuthenticator();
         } else if (msChapChallenge != null && msChap2Response != null) {
             setAuthProtocol(AUTH_MS_CHAP_V2);
             this.chapPassword = msChap2Response.getAttributeData();
@@ -215,9 +215,9 @@ public class AccessRequest extends RadiusPacket {
     @Override
     protected RadiusPacket encodeRequest(String sharedSecret) throws RadiusException, IOException {
         // create authenticator only if needed
-        byte[] newAuthenticator = authenticator == null ? generateRandomizedAuthenticator(sharedSecret) : getAuthenticator();
+        byte[] newAuthenticator = getAuthenticator() == null ? generateRandomizedAuthenticator(sharedSecret) : getAuthenticator();
 
-        final AccessRequest accessRequest = new AccessRequest(getDictionary(), packetIdentifier, newAuthenticator, new ArrayList<>(attributes));
+        final AccessRequest accessRequest = new AccessRequest(getDictionary(), getPacketIdentifier(), newAuthenticator, new ArrayList<>(getAttributes()));
 
         // encode attributes (User-Password attribute needs the new authenticator)
         encodeRequestAttributes(newAuthenticator, sharedSecret).forEach(a -> {

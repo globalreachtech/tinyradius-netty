@@ -10,10 +10,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccessRequest;
-import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.PacketType;
-import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.*;
 import org.tinyradius.util.SecretProvider;
 
 import java.net.InetSocketAddress;
@@ -31,9 +28,7 @@ public class TestServer {
     public static void main(String[] args) throws Exception {
 
         final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
-
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-
         final Timer timer = new HashedWheelTimer();
 
         final SecretProvider secretProvider = remote ->

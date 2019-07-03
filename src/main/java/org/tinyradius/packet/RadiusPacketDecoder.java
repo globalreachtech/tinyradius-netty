@@ -2,9 +2,8 @@ package org.tinyradius.packet;
 
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.socket.DatagramPacket;
-import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.AttributeBuilder;
-import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
@@ -28,40 +27,6 @@ public class RadiusPacketDecoder {
      */
     public static int getNextPacketIdentifier() {
         return nextPacketId.updateAndGet(i -> i >= 255 ? 0 : i + 1);
-    }
-
-    /**
-     * Reads a Radius request packet from the given input stream and
-     * creates an appropriate RadiusPacket descendant object.
-     * Reads in all attributes and returns the object.
-     * Decodes the encrypted fields and attributes of the packet.
-     *
-     * @param packet       DatagramPacket to read packet from
-     * @param sharedSecret shared secret to be used to decode this packet
-     * @return new RadiusPacket object
-     * @throws IOException     IO error
-     * @throws RadiusException malformed packet
-     */
-    public static RadiusPacket decodeRequestPacket(DatagramPacket packet, String sharedSecret) throws IOException, RadiusException {
-        return decodePacket(DefaultDictionary.INSTANCE, packet, sharedSecret, null);
-    }
-
-    /**
-     * Reads a Radius response packet from the given input stream and
-     * creates an appropriate RadiusPacket descendant object.
-     * Reads in all attributes and returns the object.
-     * Checks the packet authenticator.
-     *
-     * @param packet       DatagramPacket to read packet from
-     * @param sharedSecret shared secret to be used to decode this packet
-     * @param request      Radius request packet
-     * @return new RadiusPacket object
-     * @throws IOException     IO error
-     * @throws RadiusException malformed packet
-     */
-    public static RadiusPacket decodeResponsePacket(DatagramPacket packet, String sharedSecret, RadiusPacket request) throws IOException, RadiusException {
-        return decodePacket(request.getDictionary(), packet, sharedSecret,
-                requireNonNull(request, "request may not be null"));
     }
 
     /**

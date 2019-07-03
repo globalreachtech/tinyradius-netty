@@ -35,7 +35,6 @@ public class TestProxy {
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
-
         ReflectiveChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
 
         HashedWheelTimer timer = new HashedWheelTimer();

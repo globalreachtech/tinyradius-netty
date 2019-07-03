@@ -25,10 +25,10 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
     protected final EventLoopGroup eventLoopGroup;
     private final ChannelHandler authHandler;
     private final ChannelHandler acctHandler;
-    protected final int authPort;
-    protected final int acctPort;
+    private final int authPort;
+    private final int acctPort;
 
-    protected final InetAddress listenAddress;
+    private final InetAddress listenAddress;
     private T authChannel = null;
     private T acctChannel = null;
 

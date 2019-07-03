@@ -32,17 +32,17 @@ import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
  */
 public class RadiusPacket {
 
+    private static final SecureRandom random = new SecureRandom();
+
     public static final int MAX_PACKET_LENGTH = 4096;
     public static final int RADIUS_HEADER_LENGTH = 20;
 
-    protected final int packetType;
-    protected final int packetIdentifier;
-    protected final List<RadiusAttribute> attributes;
-    protected final byte[] authenticator;
+    private final int packetType;
+    private final int packetIdentifier;
+    private final List<RadiusAttribute> attributes;
+    private final byte[] authenticator;
 
     private final Dictionary dictionary;
-
-    private static final SecureRandom random = new SecureRandom();
 
     /**
      * Builds a Radius packet with the given type and identifier
