@@ -65,7 +65,7 @@ public class AccountingRequest extends RadiusPacket {
             throw new IllegalArgumentException("empty user name not allowed");
 
         removeAttributes(USER_NAME);
-        addAttribute(new StringAttribute(USER_NAME, userName));
+        addAttribute(new StringAttribute(USER_NAME, -1, userName));
     }
 
     /**

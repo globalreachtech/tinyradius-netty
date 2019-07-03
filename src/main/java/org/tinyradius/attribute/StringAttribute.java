@@ -15,14 +15,8 @@ public class StringAttribute extends RadiusAttribute {
         super(attributeType, vendorId);
     }
 
-    /**
-     * Constructs a string attribute with the given value.
-     *
-     * @param type  attribute type
-     * @param value attribute value
-     */
-    public StringAttribute(int type, String value) {
-        this(type);
+    public StringAttribute(int type, int vendorId, String value) {
+        this(type, vendorId);
         setAttributeValue(value);
     }
 
@@ -31,6 +25,7 @@ public class StringAttribute extends RadiusAttribute {
      *
      * @return a string
      */
+    @Override
     public String getAttributeValue() {
         return new String(getAttributeData(), UTF_8);
     }
@@ -40,6 +35,7 @@ public class StringAttribute extends RadiusAttribute {
      *
      * @param value string, not null
      */
+    @Override
     public void setAttributeValue(String value) {
         requireNonNull(value, "string value not set");
         setAttributeData(value.getBytes(UTF_8));

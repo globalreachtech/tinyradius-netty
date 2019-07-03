@@ -13,14 +13,8 @@ public class IpAttribute extends RadiusAttribute {
         super(attributeType, vendorId);
     }
 
-    /**
-     * Constructs an IP attribute.
-     *
-     * @param type  attribute type code
-     * @param value value, format: xx.xx.xx.xx
-     */
-    public IpAttribute(int type, String value) {
-        this(type);
+    public IpAttribute(int type, int vendorId, String value) {
+        this(type, vendorId);
         setAttributeValue(value);
     }
 
@@ -30,17 +24,16 @@ public class IpAttribute extends RadiusAttribute {
      * @param type  attribute type code
      * @param ipNum value as a 32 bit unsigned int
      */
-    public IpAttribute(int type, long ipNum) {
-        this(type);
+    public IpAttribute(int type, int vendorId, long ipNum) {
+        this(type, vendorId);
         setIpAsLong(ipNum);
     }
 
     /**
      * Returns the attribute value (IP number) as a string of the
      * format "xx.xx.xx.xx".
-     *
-     * @see RadiusAttribute#getAttributeValue()
      */
+    @Override
     public String getAttributeValue() {
         StringBuilder ip = new StringBuilder();
         byte[] data = getAttributeData();
@@ -63,8 +56,8 @@ public class IpAttribute extends RadiusAttribute {
      * "xx.xx.xx.xx".
      *
      * @throws IllegalArgumentException bad IP address
-     * @see RadiusAttribute#setAttributeValue(java.lang.String)
      */
+    @Override
     public void setAttributeValue(String value) {
         if (value == null || value.length() < 7 || value.length() > 15)
             throw new IllegalArgumentException("bad IP number");

@@ -101,12 +101,11 @@ public class DictionaryParser {
         int code = parseInt(tok[2]);
         String typeStr = tok[3];
 
-        // translate type to class
-        Class<? extends RadiusAttribute> type = code == VENDOR_SPECIFIC ?
-                VendorSpecificAttribute.class : getAttributeTypeClass(typeStr);
+        AttributeFactory attributeFactory = code == VENDOR_SPECIFIC ?
+                VendorSpecificAttribute::new : getAttributeTypeClass(typeStr);
 
         // create and cache object
-        dictionary.addAttributeType(new AttributeType<>(code, name, type));
+        dictionary.addAttributeType(new AttributeType<>(code, name, attributeFactory));
     }
 
     /**
@@ -139,9 +138,8 @@ public class DictionaryParser {
         int code = parseInt(tok[3]);
         String typeStr = tok[4];
 
-        Class<? extends RadiusAttribute> type = getAttributeTypeClass(typeStr);
         dictionary.addAttributeType(
-                new AttributeType<>(parseInt(vendor), code, name, type));
+                new AttributeType<>(parseInt(vendor), code, name, getAttributeTypeClass(typeStr)));
     }
 
     /**
@@ -180,22 +178,22 @@ public class DictionaryParser {
      * @param typeStr string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
      * @return RadiusAttribute class or descendant
      */
-    private Class<? extends RadiusAttribute> getAttributeTypeClass(String typeStr) {
+    private AttributeFactory getAttributeTypeClass(String typeStr) {
         switch (typeStr.toLowerCase()) {
             case "string":
-                return StringAttribute.class;
+                return StringAttribute::new;
             case "integer":
             case "date":
-                return IntegerAttribute.class;
+                return IntegerAttribute::new;
             case "ipaddr":
-                return IpAttribute.class;
+                return IpAttribute::new;
             case "ipv6addr":
-                return Ipv6Attribute.class;
+                return Ipv6Attribute::new;
             case "ipv6prefix":
-                return Ipv6PrefixAttribute.class;
-            case "octets": // todo dont lookup class here - save the typeStr, and instantiate constructor directly when we need to
+                return Ipv6PrefixAttribute::new;
+            case "octets":
             default:
-                return RadiusAttribute.class;
+                return RadiusAttribute::new;
         }
     }
 

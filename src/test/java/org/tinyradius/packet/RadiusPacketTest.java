@@ -15,10 +15,10 @@ class RadiusPacketTest {
 
         RadiusPacket rp = new RadiusPacket(ACCESS_REQUEST, 1);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
-        rp.addAttribute(new IpAttribute(8, 1234567));
-        rp.addAttribute(new Ipv6Attribute(168, "fe80::"));
-        rp.addAttribute(new Ipv6PrefixAttribute(97, "fe80::/64"));
-        rp.addAttribute(new Ipv6PrefixAttribute(97, "fe80::/128"));
+        rp.addAttribute(new IpAttribute(8, -1, 1234567));
+        rp.addAttribute(new Ipv6Attribute(168, -1, "fe80::"));
+        rp.addAttribute(new Ipv6PrefixAttribute(97, -1, "fe80::/64"));
+        rp.addAttribute(new Ipv6PrefixAttribute(97, -1, "fe80::/128"));
 
         final List<VendorSpecificAttribute> vendorAttributes = rp.getVendorAttributes(14122);
         assertEquals(1, vendorAttributes.size());

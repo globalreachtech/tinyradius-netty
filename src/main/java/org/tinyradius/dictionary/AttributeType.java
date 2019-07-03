@@ -1,5 +1,6 @@
 package org.tinyradius.dictionary;
 
+import org.tinyradius.attribute.AttributeFactory;
 import org.tinyradius.attribute.RadiusAttribute;
 
 import java.util.HashMap;
@@ -15,38 +16,38 @@ public class AttributeType<T extends RadiusAttribute> {
     private final int vendorId;
     private final int typeCode;
     private final String name;
-    private final Class<T> attributeClass;
+    private final AttributeFactory attributeFactory;
     private final Map<Integer, String> enumeration = new HashMap<>();
 
     /**
      * Create a new attribute type.
      *
-     * @param code Radius attribute type code
-     * @param name Attribute type name
-     * @param type RadiusAttribute descendant who handles attributes of this type
+     * @param code             Radius attribute type code
+     * @param name             Attribute type name
+     * @param attributeFactory RadiusAttribute descendant who handles attributes of this type
      */
-    public AttributeType(int code, String name, Class<T> type) {
-        this(-1, code, name, type);
+    public AttributeType(int code, String name, AttributeFactory attributeFactory) {
+        this(-1, code, name, attributeFactory);
     }
 
     /**
      * Constructs a Vendor-Specific sub-attribute type.
      *
-     * @param vendorId vendor ID
-     * @param code     sub-attribute type code
-     * @param name     sub-attribute name
-     * @param type     sub-attribute class
+     * @param vendorId         vendor ID
+     * @param code             sub-attribute type code
+     * @param name             sub-attribute name
+     * @param attributeFactory sub-attribute class
      */
-    public AttributeType(int vendorId, int code, String name, Class<T> type) {
+    public AttributeType(int vendorId, int code, String name, AttributeFactory attributeFactory) {
         if (code < 1 || code > 255)
             throw new IllegalArgumentException("code out of bounds");
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("name is empty");
-        requireNonNull(type, "type is null");
+        requireNonNull(attributeFactory, "type is null");
         this.vendorId = vendorId;
         this.typeCode = code;
         this.name = name;
-        this.attributeClass = type;
+        this.attributeFactory = attributeFactory;
     }
 
     /**
@@ -73,8 +74,8 @@ public class AttributeType<T extends RadiusAttribute> {
      *
      * @return class
      */
-    public Class<T> getAttributeClass() {
-        return attributeClass;
+    public AttributeFactory getAttributeFactory() {
+        return attributeFactory;
     }
 
     /**
@@ -131,7 +132,7 @@ public class AttributeType<T extends RadiusAttribute> {
      * @return string
      */
     public String toString() {
-        String s = getTypeCode() + "/" + getName() + ": " + attributeClass.getName();
+        String s = getTypeCode() + "/" + getName() + ": " + attributeFactory.getClass();
         if (getVendorId() != -1)
             s += " (vendor " + getVendorId() + ")";
         return s;

@@ -10,9 +10,6 @@ import java.net.UnknownHostException;
  */
 public class Ipv6Attribute extends RadiusAttribute {
 
-    /**
-     * Constructs an empty IPv6 attribute.
-     */
     public Ipv6Attribute(int attributeType, int vendorId) {
         super(attributeType, vendorId);
     }
@@ -23,17 +20,15 @@ public class Ipv6Attribute extends RadiusAttribute {
      * @param type  attribute type code
      * @param value value, format:ipv6 address
      */
-    public Ipv6Attribute(int type, String value) {
-        this(type);
+    public Ipv6Attribute(int type, int vendorId, String value) {
+        this(type, vendorId);
         setAttributeValue(value);
     }
 
     /**
-     * Returns the attribute value (IPv6 number) as a string of the
-     * format ipv6 address
-     *
-     * @see org.tinyradius.attribute.RadiusAttribute#getAttributeValue()
+     * Returns the attribute value (IPv6 number) as a string of the format ipv6 address
      */
+    @Override
     public String getAttributeValue() {
         byte[] data = getAttributeData();
         if (data == null || data.length != 16)
@@ -53,8 +48,8 @@ public class Ipv6Attribute extends RadiusAttribute {
      * ipv6 address.
      *
      * @throws IllegalArgumentException bad IP address
-     * @see org.tinyradius.attribute.RadiusAttribute#setAttributeValue(String)
      */
+    @Override
     public void setAttributeValue(String value) {
         if (value == null || value.length() < 3)
             throw new IllegalArgumentException("bad IPv6 address : " + value);

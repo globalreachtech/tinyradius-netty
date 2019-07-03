@@ -24,17 +24,16 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      * @param type  attribute type code
      * @param value value, format: "ipv6 address"/prefix
      */
-    public Ipv6PrefixAttribute(int type, String value) {
-        this(type, -1);
+    public Ipv6PrefixAttribute(int type, int vendorId, String value) {
+        this(type, vendorId);
         setAttributeValue(value);
     }
 
     /**
      * Returns the attribute value (IP number) as a string of the
      * format "xx.xx.xx.xx".
-     *
-     * @see org.tinyradius.attribute.RadiusAttribute#getAttributeValue()
      */
+    @Override
     public String getAttributeValue() {
         final byte[] data = getAttributeData();
         if (data == null || data.length != 18)
@@ -55,8 +54,8 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      * ipv6 address.
      *
      * @throws IllegalArgumentException bad IP address
-     * @see org.tinyradius.attribute.RadiusAttribute#setAttributeValue(String)
      */
+    @Override
     public void setAttributeValue(String value) {
         if (value == null || value.length() < 3)
             throw new IllegalArgumentException("bad IPv6 address : " + value);

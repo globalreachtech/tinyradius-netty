@@ -14,12 +14,8 @@ public class RadiusAttributeBuilder {
      * @return RadiusAttribute object
      */
     public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int attributeType) {
-        RadiusAttribute attribute = new RadiusAttribute();
-
-        AttributeType<?> at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
-        if (at != null && at.getAttributeClass() != null) {
-            attribute = at.getAttributeClass().getDeclaredConstructor().newInstance();
-        }
+        AttributeType at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
+        final RadiusAttribute attribute = at.getAttributeFactory().create(attributeType, vendorId);
 
         attribute.setDictionary(dictionary);
         return attribute;

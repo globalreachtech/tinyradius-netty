@@ -12,14 +12,8 @@ public class IntegerAttribute extends RadiusAttribute {
         super(attributeType, vendorId);
     }
 
-    /**
-     * Constructs an integer attribute with the given value.
-     *
-     * @param type  attribute type
-     * @param value attribute value
-     */
-    public IntegerAttribute(int type, int value) {
-        this(type);
+    public IntegerAttribute(int type, int vendorId, int value) {
+        this(type, vendorId);
         setAttributeValue(value);
     }
 
@@ -37,9 +31,8 @@ public class IntegerAttribute extends RadiusAttribute {
     /**
      * Returns the value of this attribute as a string.
      * Tries to resolve enumerations.
-     *
-     * @see RadiusAttribute#getAttributeValue()
      */
+    @Override
     public String getAttributeValue() {
         int value = getAttributeValueInt();
         AttributeType at = getAttributeTypeObject();
@@ -70,8 +63,8 @@ public class IntegerAttribute extends RadiusAttribute {
      * Sets the value of this attribute.
      *
      * @throws NumberFormatException if value is not a number and constant cannot be resolved
-     * @see RadiusAttribute#setAttributeValue(java.lang.String)
      */
+    @Override
     public void setAttributeValue(String value) {
         AttributeType at = getAttributeTypeObject();
         if (at != null) {
