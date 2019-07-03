@@ -17,13 +17,16 @@ public class RadiusAttribute {
 
     private Dictionary dictionary = DefaultDictionary.INSTANCE;
 
-    private int attributeType = -1;
-
-    private int vendorId = -1; //only for sub-attributes of Vendor-Specific attributes.
+    private final int attributeType;
+    private final int vendorId; //only for sub-attributes of Vendor-Specific attributes.
 
     private byte[] attributeData = null;
 
-    public RadiusAttribute() {
+    public RadiusAttribute(int attributeType, int vendorId) {
+        this.vendorId = vendorId;
+        if (attributeType < 0 || attributeType > 255)
+            throw new IllegalArgumentException("attribute type invalid: " + attributeType);
+        this.attributeType = attributeType;
     }
 
     /**
@@ -33,7 +36,7 @@ public class RadiusAttribute {
      * @param data attribute data
      */
     public RadiusAttribute(int type, byte[] data) {
-        setAttributeType(type);
+        this(type, -1);
         setAttributeData(data);
     }
 
@@ -65,17 +68,6 @@ public class RadiusAttribute {
     }
 
     /**
-     * Sets the type of this Radius attribute.
-     *
-     * @param attributeType type code, 0-255
-     */
-    public void setAttributeType(int attributeType) {
-        if (attributeType < 0 || attributeType > 255)
-            throw new IllegalArgumentException("attribute type invalid: " + attributeType);
-        this.attributeType = attributeType;
-    }
-
-    /**
      * Sets the value of the attribute using a string.
      *
      * @param value value as a string
@@ -100,17 +92,6 @@ public class RadiusAttribute {
      */
     public int getVendorId() {
         return vendorId;
-    }
-
-    /**
-     * Sets the Vendor-Id of the Vendor-Specific attribute this
-     * attribute belongs to. The default value of -1 means this attribute
-     * is not a sub attribute of a Vendor-Specific attribute.
-     *
-     * @param vendorId vendor ID
-     */
-    public void setVendorId(int vendorId) {
-        this.vendorId = vendorId;
     }
 
     /**
@@ -164,7 +145,6 @@ public class RadiusAttribute {
         int attrType = data[offset] & 0x0ff;
         byte[] attrData = new byte[length - 2];
         System.arraycopy(data, offset + 2, attrData, 0, length - 2);
-        setAttributeType(attrType);
         setAttributeData(attrData);
     }
 
@@ -197,58 +177,6 @@ public class RadiusAttribute {
             return dictionary.getAttributeTypeByCode(getVendorId(), getAttributeType());
 
         return dictionary.getAttributeTypeByCode(getAttributeType());
-    }
-
-    /**
-     * Creates a RadiusAttribute object of the appropriate type.
-     *
-     * @param dictionary    Dictionary to use
-     * @param vendorId      vendor ID or -1
-     * @param attributeType attribute type
-     * @return RadiusAttribute object
-     */
-    public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int attributeType) {
-        RadiusAttribute attribute = new RadiusAttribute();
-
-        AttributeType<?> at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
-        if (at != null && at.getAttributeClass() != null) {
-            try {
-                attribute = at.getAttributeClass().getDeclaredConstructor().newInstance();
-            } catch (Exception e) {
-                // error instantiating class - should not occur
-                e.printStackTrace();
-            }
-        }
-
-        attribute.setAttributeType(attributeType);
-        attribute.setDictionary(dictionary);
-        attribute.setVendorId(vendorId);
-        return attribute;
-    }
-
-    /**
-     * Creates a Radius attribute, including vendor-specific
-     * attributes. The default dictionary is used.
-     *
-     * @param vendorId      vendor ID or -1
-     * @param attributeType attribute type
-     * @return RadiusAttribute INSTANCE
-     */
-    public static RadiusAttribute createRadiusAttribute(int vendorId, int attributeType) {
-        Dictionary dictionary = DefaultDictionary.INSTANCE;
-        return createRadiusAttribute(dictionary, vendorId, attributeType);
-    }
-
-    /**
-     * Creates a Radius attribute. The default dictionary is
-     * used.
-     *
-     * @param attributeType attribute type
-     * @return RadiusAttribute INSTANCE
-     */
-    public static RadiusAttribute createRadiusAttribute(int attributeType) {
-        Dictionary dictionary = DefaultDictionary.INSTANCE;
-        return createRadiusAttribute(dictionary, -1, attributeType);
     }
 
     /**

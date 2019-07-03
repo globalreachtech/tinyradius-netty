@@ -4,15 +4,12 @@ import org.tinyradius.dictionary.AttributeType;
 import org.tinyradius.util.RadiusException;
 
 /**
- * This class represents a Radius attribute which only
- * contains a 32 bit integer.
+ * This class represents a Radius attribute which only contains a 32 bit integer.
  */
 public class IntegerAttribute extends RadiusAttribute {
 
-    /**
-     * Constructs an empty integer attribute.
-     */
-    public IntegerAttribute() {
+    public IntegerAttribute(int attributeType, int vendorId) {
+        super(attributeType, vendorId);
     }
 
     /**
@@ -22,7 +19,7 @@ public class IntegerAttribute extends RadiusAttribute {
      * @param value attribute value
      */
     public IntegerAttribute(int type, int value) {
-        setAttributeType(type);
+        this(type);
         setAttributeValue(value);
     }
 

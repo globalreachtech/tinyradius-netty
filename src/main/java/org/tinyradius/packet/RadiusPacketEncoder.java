@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.RadiusAttribute.createRadiusAttribute;
+import static org.tinyradius.attribute.RadiusAttributeBuilder.createRadiusAttribute;
 
 public class RadiusPacketEncoder {
 

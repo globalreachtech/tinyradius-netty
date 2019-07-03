@@ -4,15 +4,15 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
 /**
- * This class represents a Radius attribute which only
- * contains a string.
+ * This class represents a Radius attribute which only contains a string.
  */
 public class StringAttribute extends RadiusAttribute {
 
     /**
      * Constructs an empty string attribute.
      */
-    public StringAttribute() {
+    public StringAttribute(int attributeType, int vendorId) {
+        super(attributeType, vendorId);
     }
 
     /**
@@ -22,7 +22,7 @@ public class StringAttribute extends RadiusAttribute {
      * @param value attribute value
      */
     public StringAttribute(int type, String value) {
-        setAttributeType(type);
+        this(type);
         setAttributeValue(value);
     }
 

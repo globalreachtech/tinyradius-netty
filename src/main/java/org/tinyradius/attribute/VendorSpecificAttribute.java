@@ -30,11 +30,8 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      */
     private int childVendorId;
 
-    /**
-     * Constructs an empty Vendor-Specific attribute that can be read from a
-     * Radius packet.
-     */
-    public VendorSpecificAttribute() {
+    public VendorSpecificAttribute(int attributeType, int vendorId) {
+        super(attributeType, vendorId);
     }
 
     /**
@@ -43,7 +40,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * @param vendorId vendor ID of the sub-attributes
      */
     public VendorSpecificAttribute(int vendorId) {
-        setAttributeType(VENDOR_SPECIFIC);
+        this(VENDOR_SPECIFIC, vendorId);
         setChildVendorId(vendorId);
     }
 
@@ -69,7 +66,6 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * Also copies the new dictionary to sub-attributes.
      *
      * @param dictionary dictionary to set
-     * @see RadiusAttribute#setDictionary(Dictionary)
      */
     public void setDictionary(Dictionary dictionary) {
         super.setDictionary(dictionary);
@@ -112,7 +108,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         if (type.getVendorId() != getChildVendorId())
             throw new IllegalArgumentException("attribute type '" + name + "' does not belong to vendor ID " + getChildVendorId());
 
-        RadiusAttribute attribute = createRadiusAttribute(getDictionary(), getChildVendorId(), type.getTypeCode());
+        RadiusAttribute attribute = RadiusAttributeBuilder.createRadiusAttribute(getDictionary(), getChildVendorId(), type.getTypeCode());
         attribute.setAttributeValue(value);
         addSubAttribute(attribute);
     }
@@ -282,7 +278,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         pos = 0;
         while (pos < vsaLen) {
             int subtype = data[(offset + 6) + pos] & 0x0ff;
-            RadiusAttribute a = createRadiusAttribute(getDictionary(), vendorId, subtype);
+            RadiusAttribute a = RadiusAttributeBuilder.createRadiusAttribute(getDictionary(), vendorId, subtype);
             a.readAttribute(data, (offset + 6) + pos);
             subAttributes.add(a);
             int sublength = data[(offset + 6) + pos + 1] & 0x0ff;

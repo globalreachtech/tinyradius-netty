@@ -9,10 +9,8 @@ import java.util.StringTokenizer;
  */
 public class IpAttribute extends RadiusAttribute {
 
-    /**
-     * Constructs an empty IP attribute.
-     */
-    public IpAttribute() {
+    public IpAttribute(int attributeType, int vendorId) {
+        super(attributeType, vendorId);
     }
 
     /**
@@ -22,7 +20,7 @@ public class IpAttribute extends RadiusAttribute {
      * @param value value, format: xx.xx.xx.xx
      */
     public IpAttribute(int type, String value) {
-        setAttributeType(type);
+        this(type);
         setAttributeValue(value);
     }
 
@@ -33,7 +31,7 @@ public class IpAttribute extends RadiusAttribute {
      * @param ipNum value as a 32 bit unsigned int
      */
     public IpAttribute(int type, long ipNum) {
-        setAttributeType(type);
+        this(type);
         setIpAsLong(ipNum);
     }
 

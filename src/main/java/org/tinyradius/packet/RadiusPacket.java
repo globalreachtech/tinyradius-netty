@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import static io.netty.buffer.Unpooled.buffer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.RadiusAttribute.createRadiusAttribute;
+import static org.tinyradius.attribute.RadiusAttributeBuilder.createRadiusAttribute;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
@@ -138,8 +138,7 @@ public class RadiusPacket {
 
     /**
      * Adds a Radius attribute to this packet.
-     * Uses AttributeTypes to lookup the type code and converts
-     * the value.
+     * Uses AttributeTypes to lookup the type code and converts the value.
      * Can also be used to add sub-attributes.
      *
      * @param typeName name of the attribute, for example "NAS-Ip-Address"

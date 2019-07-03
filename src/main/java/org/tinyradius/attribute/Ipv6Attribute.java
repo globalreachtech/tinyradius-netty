@@ -13,7 +13,8 @@ public class Ipv6Attribute extends RadiusAttribute {
     /**
      * Constructs an empty IPv6 attribute.
      */
-    public Ipv6Attribute() {
+    public Ipv6Attribute(int attributeType, int vendorId) {
+        super(attributeType, vendorId);
     }
 
     /**
@@ -23,7 +24,7 @@ public class Ipv6Attribute extends RadiusAttribute {
      * @param value value, format:ipv6 address
      */
     public Ipv6Attribute(int type, String value) {
-        setAttributeType(type);
+        this(type);
         setAttributeValue(value);
     }
 

@@ -193,7 +193,7 @@ public class DictionaryParser {
                 return Ipv6Attribute.class;
             case "ipv6prefix":
                 return Ipv6PrefixAttribute.class;
-            case "octets":
+            case "octets": // todo dont lookup class here - save the typeStr, and instantiate constructor directly when we need to
             default:
                 return RadiusAttribute.class;
         }
