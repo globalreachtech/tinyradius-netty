@@ -65,7 +65,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
             }
 
             // parse packet
-            RadiusPacket request = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, secret);
+            RadiusPacket request = RadiusPacketEncoder.fromRequestDatagram(dictionary, datagramPacket, secret);
             logger.info("received packet from {} on local address {}: {}", remoteAddress, localAddress, request);
 
 

@@ -93,7 +93,7 @@ public class ProxyStateClientHandler extends ClientHandler {
         }
 
         try {
-            RadiusPacket packet = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, secret);
+            RadiusPacket packet = RadiusPacketEncoder.fromRequestDatagram(dictionary, datagramPacket, secret);
 
             // retrieve my Proxy-State attribute (the last)
             List<RadiusAttribute> proxyStates = packet.getAttributes(PROXY_STATE);

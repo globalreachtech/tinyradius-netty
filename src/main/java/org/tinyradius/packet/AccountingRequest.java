@@ -6,7 +6,6 @@ import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,7 +104,7 @@ public class AccountingRequest extends RadiusPacket {
     }
 
     @Override
-    protected AccountingRequest encodeRequest(String sharedSecret) throws IOException {
+    protected AccountingRequest encodeRequest(String sharedSecret) {
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
         return new AccountingRequest(getDictionary(), getPacketIdentifier(), authenticator, getAttributes());
     }
@@ -113,7 +112,7 @@ public class AccountingRequest extends RadiusPacket {
     /**
      * Checks the received request authenticator as specified by RFC 2866.
      */
-    protected void checkRequestAuthenticator(String sharedSecret) throws RadiusException, IOException {
+    protected void checkRequestAuthenticator(String sharedSecret) throws RadiusException {
         // todo also implement this for CoaRequests?
         byte[] expectedAuthenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
         byte[] receivedAuth = getAuthenticator();

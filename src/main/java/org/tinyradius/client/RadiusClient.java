@@ -17,6 +17,7 @@ import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -149,7 +150,7 @@ public class RadiusClient<T extends DatagramChannel> {
             });
 
             return promise;
-        } catch (Exception e) {
+        } catch (RadiusException | IOException e) {
             return eventLoopGroup.next().newFailedFuture(e);
         }
     }

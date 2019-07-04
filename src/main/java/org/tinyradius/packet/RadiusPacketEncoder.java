@@ -67,9 +67,9 @@ public class RadiusPacketEncoder {
      * @throws IOException     IO error
      * @throws RadiusException malformed packet
      */
-    public static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret)
+    public static RadiusPacket fromRequestDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret)
             throws IOException, RadiusException {
-        return decodePacket(dictionary, packet, sharedSecret, null);
+        return fromDatagram(dictionary, packet, sharedSecret, null);
     }
 
     /**
@@ -86,9 +86,9 @@ public class RadiusPacketEncoder {
      * @throws IOException     IO error
      * @throws RadiusException malformed packet
      */
-    public static RadiusPacket decodeResponsePacket(Dictionary dictionary, DatagramPacket packet, String sharedSecret, RadiusPacket request)
+    public static RadiusPacket fromResponseDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret, RadiusPacket request)
             throws IOException, RadiusException {
-        return decodePacket(dictionary, packet, sharedSecret,
+        return fromDatagram(dictionary, packet, sharedSecret,
                 requireNonNull(request, "request may not be null"));
     }
 
@@ -107,7 +107,7 @@ public class RadiusPacketEncoder {
      * @throws IOException     IO error
      * @throws RadiusException packet malformed
      */
-    protected static RadiusPacket decodePacket(Dictionary dictionary, DatagramPacket packet, String sharedSecret, RadiusPacket request)
+    protected static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret, RadiusPacket request)
             throws IOException, RadiusException {
 
         try (ByteBufInputStream in = new ByteBufInputStream(packet.content())) {

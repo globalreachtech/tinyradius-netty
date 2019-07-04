@@ -3,7 +3,6 @@ package org.tinyradius.packet;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -21,7 +20,7 @@ public class CoaRequest extends RadiusPacket {
     }
 
     @Override
-    protected CoaRequest encodeRequest(String sharedSecret) throws IOException {
+    protected CoaRequest encodeRequest(String sharedSecret) {
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
         return new CoaRequest(getDictionary(), getPacketType(), getPacketIdentifier(), authenticator, getAttributes());
     }

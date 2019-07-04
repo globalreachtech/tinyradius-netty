@@ -356,10 +356,9 @@ public class RadiusPacket {
      * Encodes this Radius packet
      *
      * @param sharedSecret shared secret to be used to encode this packet
-     * @throws IOException     communication error
      * @throws RadiusException malformed packet
      */
-    public RadiusPacket encodeRequestPacket(String sharedSecret) throws IOException, RadiusException {
+    public RadiusPacket encodeRequestPacket(String sharedSecret) throws RadiusException {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("no shared secret has been set");
 
@@ -372,9 +371,8 @@ public class RadiusPacket {
      *
      * @param sharedSecret         shared secret to be used to encode this packet
      * @param requestAuthenticator Radius request packet authenticator
-     * @throws IOException communication error
      */
-    public RadiusPacket encodeResponsePacket(String sharedSecret, byte[] requestAuthenticator) throws IOException {
+    public RadiusPacket encodeResponsePacket(String sharedSecret, byte[] requestAuthenticator) {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("no shared secret has been set");
         requireNonNull(requestAuthenticator, "request authenticator not set");
@@ -430,9 +428,8 @@ public class RadiusPacket {
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client
      * @throws RadiusException malformed packet
-     * @throws IOException     error writing data
      */
-    protected RadiusPacket encodeRequest(String sharedSecret) throws RadiusException, IOException {
+    protected RadiusPacket encodeRequest(String sharedSecret) throws RadiusException {
         return authenticator != null ?
                 this : new RadiusPacket(dictionary, packetType, packetIdentifier, generateRandomizedAuthenticator(), this.attributes);
     }
@@ -456,7 +453,7 @@ public class RadiusPacket {
      * @param requestAuthenticator request packet authenticator
      * @return new 16 byte response authenticator
      */
-    protected byte[] createHashedAuthenticator(String sharedSecret, byte[] requestAuthenticator) throws IOException {
+    protected byte[] createHashedAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
         byte[] attributes = getAttributeBytes();
         int packetLength = HEADER_LENGTH + attributes.length;
 
@@ -502,7 +499,7 @@ public class RadiusPacket {
      *                             to this response packet
      * @throws RadiusException malformed packet
      */
-    protected void checkResponseAuthenticator(String sharedSecret, byte[] requestAuthenticator) throws RadiusException, IOException {
+    protected void checkResponseAuthenticator(String sharedSecret, byte[] requestAuthenticator) throws RadiusException {
         byte[] authenticator = createHashedAuthenticator(sharedSecret, requestAuthenticator);
         byte[] receivedAuth = getAuthenticator();
         for (int i = 0; i < 16; i++)
@@ -526,10 +523,16 @@ public class RadiusPacket {
      * @return byte array with encoded attributes
      * @throws IOException error writing data
      */
-    protected byte[] getAttributeBytes() throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_PACKET_LENGTH);
-        for (RadiusAttribute a : attributes)
-            bos.write(a.writeAttribute());
-        return bos.toByteArray();
+    protected byte[] getAttributeBytes() {
+        try {
+            // todo use ByteBuffer?
+            ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_PACKET_LENGTH);
+            for (RadiusAttribute a : attributes) {
+                bos.write(a.writeAttribute());
+            }
+            return bos.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e); // should never happen
+        }
     }
 }
