@@ -21,11 +21,16 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     private static final Logger logger = LoggerFactory.getLogger(VendorSpecificAttribute.class);
 
+    public static final int VENDOR_SPECIFIC = 26;
+
+    private final List<RadiusAttribute> subAttributes;
+
     public static VendorSpecificAttribute parse(Dictionary dictionary, int ignoredVendorId, byte[] data, int offset) throws RadiusException {
         int vsaCode = data[offset];
         if (vsaCode != VENDOR_SPECIFIC)
             throw new RadiusException("not a Vendor-Specific attribute");
 
+        // todo check bounds for VSA header lengths
         int vsaLen = ((int) data[offset + 1] & 0x0ff) - 6;
         if (vsaLen < 6)
             throw new RadiusException("Vendor-Specific attribute too short: " + vsaLen);
@@ -33,17 +38,13 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         // read vendor ID and vendor data
         int vendorId = (unsignedByteToInt(data[offset + 2]) << 24
                 | unsignedByteToInt(data[offset + 3]) << 16
-                | unsignedByteToInt(data[offset + 4]) << 8 | unsignedByteToInt(data[offset + 5]));
+                | unsignedByteToInt(data[offset + 4]) << 8
+                | unsignedByteToInt(data[offset + 5]));
 
         final List<RadiusAttribute> subAttributes = extractAttributes(dictionary, data, offset, vsaLen, vendorId);
 
         return new VendorSpecificAttribute(dictionary, vendorId, subAttributes);
     }
-
-    // attribute type code for Vendor-Specific
-    public static final int VENDOR_SPECIFIC = 26;
-
-    private final List<RadiusAttribute> subAttributes;
 
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, List<RadiusAttribute> subAttributes) {
         super(dictionary, VENDOR_SPECIFIC, vendorId, null);

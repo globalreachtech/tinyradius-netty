@@ -10,12 +10,11 @@ import org.tinyradius.util.RadiusException;
 public class IntegerAttribute extends RadiusAttribute {
 
     public static IntegerAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
-        int length = data[offset + 1] & 0x0ff;
+        final int length = readLength(data, offset);
         if (length != 6)
-            throw new RadiusException("integer attribute: expected 4 bytes data");
-        final int type = readType(data, offset);
-        final byte[] bytes = readData(data, offset);
-        return new IntegerAttribute(dictionary, type, vendorId, bytes);
+            throw new RadiusException("integer attribute: expected length 6, packet declared " + length);
+
+        return new IntegerAttribute(dictionary, readType(data, offset), vendorId, readData(data, offset));
     }
 
     public IntegerAttribute(Dictionary dictionary, int type, int vendorId, byte[] data) {

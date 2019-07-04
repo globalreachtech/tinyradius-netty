@@ -12,12 +12,11 @@ import java.net.UnknownHostException;
 public class Ipv6Attribute extends RadiusAttribute {
 
     public static IpAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
-        int length = data[offset + 1] & 0x0ff;
+        final int length = readLength(data, offset);
         if (length != 18)
-            throw new RadiusException("IP attribute: expected 16 bytes data");
-        final int type = readType(data, offset);
-        final byte[] bytes = readData(data, offset);
-        return new IpAttribute(dictionary, type, vendorId, bytes);
+            throw new RadiusException("IPv6 attribute: expected length 18, packet declared " + length);
+
+        return new IpAttribute(dictionary, readType(data, offset), vendorId, readData(data, offset));
     }
 
     public Ipv6Attribute(Dictionary dictionary, int type, int vendorId, byte[] data) {

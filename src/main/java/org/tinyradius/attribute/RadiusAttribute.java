@@ -21,9 +21,11 @@ public class RadiusAttribute {
     private final int vendorId; //only for Vendor-Specific attributes and their sub-attributes
 
     public static RadiusAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
-        final int type = readType(data, offset);
-        final byte[] bytes = readData(data, offset);
-        return new RadiusAttribute(dictionary, type, vendorId, bytes);
+        final int length = readLength(data, offset);
+        if (length < 2)
+            throw new RadiusException("Radius attribute: expected length min 2, packet declared " + length);
+
+        return new RadiusAttribute(dictionary, readType(data, offset), vendorId, readData(data, offset));
     }
 
     public RadiusAttribute(Dictionary dictionary, int type, int vendorId, byte[] data) {
@@ -90,12 +92,10 @@ public class RadiusAttribute {
      *
      * @param data   input data
      * @param offset byte to start reading from
-     * @throws RadiusException malformed packet
      */
-    protected static byte[] readData(byte[] data, int offset) throws RadiusException {
-        int length = data[offset + 1] & 0x0ff;
-        if (length < 2)
-            throw new RadiusException("attribute length too small: " + length + ", expecting min length 2");
+    protected static byte[] readData(byte[] data, int offset) {
+        int length = readLength(data, offset);
+
         byte[] attrData = new byte[length - 2];
         System.arraycopy(data, offset + 2, attrData, 0, length - 2);
         return attrData;
@@ -103,6 +103,10 @@ public class RadiusAttribute {
 
     public static int readType(byte[] data, int offset) {
         return data[offset] & 0x0ff;
+    }
+
+    public static int readLength(byte[] data, int offset) {
+        return data[offset + 1] & 0x0ff;
     }
 
     public String toString() {
