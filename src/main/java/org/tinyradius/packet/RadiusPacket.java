@@ -1,8 +1,5 @@
 package org.tinyradius.packet;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufOutputStream;
-import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.AttributeType;
@@ -10,9 +7,7 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -22,7 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.netty.buffer.Unpooled.buffer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.AttributeBuilder.createRadiusAttribute;
@@ -419,25 +413,6 @@ public class RadiusPacket {
      */
     public Dictionary getDictionary() {
         return dictionary;
-    }
-
-    public static DatagramPacket toDatagramPacket(RadiusPacket packet, InetSocketAddress address) throws IOException {
-        byte[] attributes = packet.getAttributeBytes();
-        int packetLength = HEADER_LENGTH + attributes.length;
-        if (packetLength > MAX_PACKET_LENGTH)
-            throw new RuntimeException("packet too long");
-
-        ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
-        try (ByteBufOutputStream outputStream = new ByteBufOutputStream(buf)) {
-            DataOutputStream dos = new DataOutputStream(outputStream);
-            dos.writeByte(packet.getPacketType());
-            dos.writeByte(packet.getPacketIdentifier());
-            dos.writeShort(packetLength);
-            dos.write(packet.getAuthenticator());
-            dos.write(attributes);
-            dos.flush();
-            return new DatagramPacket(buf, address);
-        }
     }
 
     /**

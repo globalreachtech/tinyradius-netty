@@ -13,6 +13,7 @@ import io.netty.util.concurrent.PromiseCombiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.RadiusPacketDecoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
@@ -133,9 +134,9 @@ public class RadiusClient<T extends DatagramChannel> {
             // run first to add any identifiers/attributes needed
             Future<RadiusPacket> promise = clientHandler.processRequest(packet, endpoint, eventLoopGroup.next());
 
-            final DatagramPacket packetOut = RadiusPacket
-                    .toDatagramPacket(packet
-                            .encodeRequestPacket(endpoint.getSharedSecret()), endpoint.getEndpointAddress());
+            final DatagramPacket packetOut = RadiusPacketDecoder.toDatagramPacket(
+                    packet.encodeRequestPacket(endpoint.getSharedSecret()),
+                    endpoint.getEndpointAddress());
 
             logger.debug("Sending packet to {}", endpoint.getEndpointAddress());
             if (logger.isDebugEnabled())

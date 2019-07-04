@@ -93,9 +93,9 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
                 if (response != null) {
                     logger.info("send response: {}", response);
                     logger.info("sending response packet to {} with secret {}", remoteAddress, secret);
-                    DatagramPacket packetOut = RadiusPacket
-                            .toDatagramPacket(response
-                                    .encodeResponsePacket(secret, requestAuthenticator), remoteAddress);
+                    DatagramPacket packetOut = RadiusPacketDecoder.toDatagramPacket(
+                            response.encodeResponsePacket(secret, requestAuthenticator),
+                            remoteAddress);
                     ctx.writeAndFlush(packetOut);
                 } else {
                     logger.info("no response sent");
