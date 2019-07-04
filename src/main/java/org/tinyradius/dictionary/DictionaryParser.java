@@ -58,29 +58,32 @@ public class DictionaryParser {
                     continue;
 
                 final String[] tokens = line.split("\\s+");
-                if (tokens.length == 0)
-                    continue;
 
-                switch (tokens[0].toUpperCase()) {
-                    case "ATTRIBUTE":
-                        parseAttributeLine(dictionary, tokens, lineNum);
-                        break;
-                    case "VALUE":
-                        parseValueLine(dictionary, tokens, lineNum);
-                        break;
-                    case "$INCLUDE":
-                        includeDictionaryFile(dictionary, tokens, lineNum, resource);
-                        break;
-                    case "VENDORATTR":
-                        parseVendorAttributeLine(dictionary, tokens, lineNum);
-                        break;
-                    case "VENDOR":
-                        parseVendorLine(dictionary, tokens, lineNum);
-                        break;
-                    default:
-                        logger.warn("unknown line type: {} line: {}", tokens[0], lineNum);
-                }
+                if (tokens.length != 0)
+                    parseLine(dictionary, tokens, lineNum, resource);
             }
+        }
+    }
+
+    private void parseLine(WritableDictionary dictionary, String[] tokens, int lineNum, String resource) throws IOException {
+        switch (tokens[0].toUpperCase()) {
+            case "ATTRIBUTE":
+                parseAttributeLine(dictionary, tokens, lineNum);
+                break;
+            case "VALUE":
+                parseValueLine(dictionary, tokens, lineNum);
+                break;
+            case "$INCLUDE":
+                includeDictionaryFile(dictionary, tokens, lineNum, resource);
+                break;
+            case "VENDORATTR":
+                parseVendorAttributeLine(dictionary, tokens, lineNum);
+                break;
+            case "VENDOR":
+                parseVendorLine(dictionary, tokens, lineNum);
+                break;
+            default:
+                logger.warn("unknown line type: {} line: {}", tokens[0], lineNum);
         }
     }
 

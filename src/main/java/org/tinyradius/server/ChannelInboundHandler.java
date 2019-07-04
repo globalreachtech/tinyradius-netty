@@ -68,7 +68,6 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
             RadiusPacket request = RadiusPacketEncoder.fromRequestDatagram(dictionary, datagramPacket, secret);
             logger.info("received packet from {} on local address {}: {}", remoteAddress, localAddress, request);
 
-
             // check channelHandler packet type restrictions
             if (!packetClass.isInstance(request)) {
                 logger.info("handler only accepts {}, unknown Radius packet type: {}", packetClass.getName(), request.getPacketType());
