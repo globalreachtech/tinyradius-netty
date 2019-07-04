@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":9,"i7":9,"i8":9,"i9":9,"i10":10,"i11":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -159,18 +159,11 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">RadiusAttribute</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Constructs an empty Radius attribute.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,byte%5B%5D)">RadiusAttribute</a></span>&#8203;(int&nbsp;type,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,int,int,byte%5B%5D)">RadiusAttribute</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+               int&nbsp;type,
+               int&nbsp;vendorId,
                byte[]&nbsp;data)</code></th>
-<td class="colLast">
-<div class="block">Constructs a Radius attribute with the specified
- type and data.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -191,126 +184,72 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>static <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createRadiusAttribute(int)">createRadiusAttribute</a></span>&#8203;(int&nbsp;attributeType)</code></th>
-<td class="colLast">
-<div class="block">Creates a Radius attribute.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>static <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createRadiusAttribute(int,int)">createRadiusAttribute</a></span>&#8203;(int&nbsp;vendorId,
-                     int&nbsp;attributeType)</code></th>
-<td class="colLast">
-<div class="block">Creates a Radius attribute, including vendor-specific
- attributes.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>static <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createRadiusAttribute(org.tinyradius.dictionary.Dictionary,int,int)">createRadiusAttribute</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                     int&nbsp;vendorId,
-                     int&nbsp;attributeType)</code></th>
-<td class="colLast">
-<div class="block">Creates a RadiusAttribute object of the appropriate type.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeData()">getAttributeData</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns the data for this attribute.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeType()">getAttributeType</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns the type of this Radius attribute.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../dictionary/AttributeType.html" title="class in org.tinyradius.dictionary">AttributeType</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeTypeObject()">getAttributeTypeObject</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Retrieves an AttributeType object for this attribute.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeValue()">getAttributeValue</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDictionary()">getDictionary</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns the dictionary this Radius attribute uses.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVendorId()">getVendorId</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Gets the Vendor-Id of the Vendor-Specific attribute this
- attribute belongs to.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readAttribute(byte%5B%5D,int)">readAttribute</a></span>&#8203;(byte[]&nbsp;data,
-             int&nbsp;offset)</code></th>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parse(org.tinyradius.dictionary.Dictionary,int,byte%5B%5D,int)">parse</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+     int&nbsp;vendorId,
+     byte[]&nbsp;data,
+     int&nbsp;offset)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>protected static byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readData(byte%5B%5D,int)">readData</a></span>&#8203;(byte[]&nbsp;data,
+        int&nbsp;offset)</code></th>
 <td class="colLast">
 <div class="block">Reads in this attribute from the passed byte array.</div>
 </td>
 </tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readLength(byte%5B%5D,int)">readLength</a></span>&#8203;(byte[]&nbsp;data,
+          int&nbsp;offset)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readType(byte%5B%5D,int)">readType</a></span>&#8203;(byte[]&nbsp;data,
+        int&nbsp;offset)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAttributeData(byte%5B%5D)">setAttributeData</a></span>&#8203;(byte[]&nbsp;attributeData)</code></th>
-<td class="colLast">
-<div class="block">Sets the data for this attribute.</div>
-</td>
-</tr>
-<tr id="i11" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAttributeType(int)">setAttributeType</a></span>&#8203;(int&nbsp;attributeType)</code></th>
-<td class="colLast">
-<div class="block">Sets the type of this Radius attribute.</div>
-</td>
-</tr>
-<tr id="i12" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAttributeValue(java.lang.String)">setAttributeValue</a></span>&#8203;(java.lang.String&nbsp;value)</code></th>
-<td class="colLast">
-<div class="block">Sets the value of the attribute using a string.</div>
-</td>
-</tr>
-<tr id="i13" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDictionary(org.tinyradius.dictionary.Dictionary)">setDictionary</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary)</code></th>
-<td class="colLast">
-<div class="block">Sets a custom dictionary to use.</div>
-</td>
-</tr>
-<tr id="i14" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVendorId(int)">setVendorId</a></span>&#8203;(int&nbsp;vendorId)</code></th>
-<td class="colLast">
-<div class="block">Sets the Vendor-Id of the Vendor-Specific attribute this
- attribute belongs to.</div>
-</td>
-</tr>
-<tr id="i15" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeAttribute()">writeAttribute</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns this attribute encoded as a byte array.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -336,31 +275,16 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>RadiusAttribute</h4>
-<pre>public&nbsp;RadiusAttribute()</pre>
-<div class="block">Constructs an empty Radius attribute.</div>
-</li>
-</ul>
-<a id="&lt;init&gt;(int,byte[])">
+<a id="&lt;init&gt;(org.tinyradius.dictionary.Dictionary,int,int,byte[])">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>RadiusAttribute</h4>
-<pre>public&nbsp;RadiusAttribute&#8203;(int&nbsp;type,
+<pre>public&nbsp;RadiusAttribute&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                       int&nbsp;type,
+                       int&nbsp;vendorId,
                        byte[]&nbsp;data)</pre>
-<div class="block">Constructs a Radius attribute with the specified
- type and data.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>type</code> - attribute type, see AttributeTypes.*</dd>
-<dd><code>data</code> - attribute data</dd>
-</dl>
 </li>
 </ul>
 </li>
@@ -373,6 +297,23 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="parse(org.tinyradius.dictionary.Dictionary,int,byte[],int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parse</h4>
+<pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;parse&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                                    int&nbsp;vendorId,
+                                    byte[]&nbsp;data,
+                                    int&nbsp;offset)
+                             throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+</dl>
+</li>
+</ul>
 <a id="getAttributeData()">
 <!--   -->
 </a>
@@ -380,24 +321,9 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getAttributeData</h4>
 <pre class="methodSignature">public&nbsp;byte[]&nbsp;getAttributeData()</pre>
-<div class="block">Returns the data for this attribute.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>attribute data</dd>
-</dl>
-</li>
-</ul>
-<a id="setAttributeData(byte[])">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setAttributeData</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setAttributeData&#8203;(byte[]&nbsp;attributeData)</pre>
-<div class="block">Sets the data for this attribute.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>attributeData</code> - attribute data</dd>
+<dd>attribute data as raw bytes</dd>
 </dl>
 </li>
 </ul>
@@ -408,38 +334,9 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getAttributeType</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getAttributeType()</pre>
-<div class="block">Returns the type of this Radius attribute.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>type code, 0-255</dd>
-</dl>
-</li>
-</ul>
-<a id="setAttributeType(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setAttributeType</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setAttributeType&#8203;(int&nbsp;attributeType)</pre>
-<div class="block">Sets the type of this Radius attribute.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>attributeType</code> - type code, 0-255</dd>
-</dl>
-</li>
-</ul>
-<a id="setAttributeValue(java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setAttributeValue</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setAttributeValue&#8203;(java.lang.String&nbsp;value)</pre>
-<div class="block">Sets the value of the attribute using a string.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>value</code> - value as a string</dd>
+<dd>attribute type code, 0-255</dd>
 </dl>
 </li>
 </ul>
@@ -452,7 +349,7 @@ extends java.lang.Object</pre>
 <pre class="methodSignature">public&nbsp;java.lang.String&nbsp;getAttributeValue()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>the value of this attribute as a string.</dd>
+<dd>value of this attribute as a string.</dd>
 </dl>
 </li>
 </ul>
@@ -463,28 +360,9 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getVendorId</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getVendorId()</pre>
-<div class="block">Gets the Vendor-Id of the Vendor-Specific attribute this
- attribute belongs to. Returns -1 if this attribute is not
- a sub attribute of a Vendor-Specific attribute.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>vendor ID</dd>
-</dl>
-</li>
-</ul>
-<a id="setVendorId(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setVendorId</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setVendorId&#8203;(int&nbsp;vendorId)</pre>
-<div class="block">Sets the Vendor-Id of the Vendor-Specific attribute this
- attribute belongs to. The default value of -1 means this attribute
- is not a sub attribute of a Vendor-Specific attribute.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>vendorId</code> - vendor ID</dd>
+<dd>vendor Id if Vendor-Specific attribute or sub-attribute, otherwise -1</dd>
 </dl>
 </li>
 </ul>
@@ -495,27 +373,9 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getDictionary</h4>
 <pre class="methodSignature">public&nbsp;<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;getDictionary()</pre>
-<div class="block">Returns the dictionary this Radius attribute uses.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Dictionary INSTANCE</dd>
-</dl>
-</li>
-</ul>
-<a id="setDictionary(org.tinyradius.dictionary.Dictionary)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setDictionary</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setDictionary&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary)</pre>
-<div class="block">Sets a custom dictionary to use. If no dictionary is set,
- the default dictionary is used.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dictionary</code> - Dictionary class to use</dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../dictionary/DefaultDictionary.html" title="class in org.tinyradius.dictionary"><code>DefaultDictionary</code></a></dd>
+<dd>dictionary that attribute uses</dd>
 </dl>
 </li>
 </ul>
@@ -526,30 +386,46 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>writeAttribute</h4>
 <pre class="methodSignature">public&nbsp;byte[]&nbsp;writeAttribute()</pre>
-<div class="block">Returns this attribute encoded as a byte array.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>attribute</dd>
+<dd>entire attribute (including attribute type/length) as byte array</dd>
 </dl>
 </li>
 </ul>
-<a id="readAttribute(byte[],int)">
+<a id="readData(byte[],int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>readAttribute</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;readAttribute&#8203;(byte[]&nbsp;data,
-                          int&nbsp;offset)
-                   throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<h4>readData</h4>
+<pre class="methodSignature">protected static&nbsp;byte[]&nbsp;readData&#8203;(byte[]&nbsp;data,
+                                 int&nbsp;offset)</pre>
 <div class="block">Reads in this attribute from the passed byte array.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - input data</dd>
 <dd><code>offset</code> - byte to start reading from</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
+</li>
+</ul>
+<a id="readType(byte[],int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readType</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;readType&#8203;(byte[]&nbsp;data,
+                           int&nbsp;offset)</pre>
+</li>
+</ul>
+<a id="readLength(byte[],int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readLength</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;readLength&#8203;(byte[]&nbsp;data,
+                             int&nbsp;offset)</pre>
 </li>
 </ul>
 <a id="toString()">
@@ -568,70 +444,13 @@ extends java.lang.Object</pre>
 <a id="getAttributeTypeObject()">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>getAttributeTypeObject</h4>
 <pre class="methodSignature">public&nbsp;<a href="../dictionary/AttributeType.html" title="class in org.tinyradius.dictionary">AttributeType</a>&nbsp;getAttributeTypeObject()</pre>
-<div class="block">Retrieves an AttributeType object for this attribute.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>AttributeType object for (sub-)attribute or null</dd>
-</dl>
-</li>
-</ul>
-<a id="createRadiusAttribute(org.tinyradius.dictionary.Dictionary,int,int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createRadiusAttribute</h4>
-<pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;createRadiusAttribute&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                                                    int&nbsp;vendorId,
-                                                    int&nbsp;attributeType)</pre>
-<div class="block">Creates a RadiusAttribute object of the appropriate type.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dictionary</code> - Dictionary to use</dd>
-<dd><code>vendorId</code> - vendor ID or -1</dd>
-<dd><code>attributeType</code> - attribute type</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>RadiusAttribute object</dd>
-</dl>
-</li>
-</ul>
-<a id="createRadiusAttribute(int,int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createRadiusAttribute</h4>
-<pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;createRadiusAttribute&#8203;(int&nbsp;vendorId,
-                                                    int&nbsp;attributeType)</pre>
-<div class="block">Creates a Radius attribute, including vendor-specific
- attributes. The default dictionary is used.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>vendorId</code> - vendor ID or -1</dd>
-<dd><code>attributeType</code> - attribute type</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>RadiusAttribute INSTANCE</dd>
-</dl>
-</li>
-</ul>
-<a id="createRadiusAttribute(int)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>createRadiusAttribute</h4>
-<pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;createRadiusAttribute&#8203;(int&nbsp;attributeType)</pre>
-<div class="block">Creates a Radius attribute. The default dictionary is
- used.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>attributeType</code> - attribute type</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>RadiusAttribute INSTANCE</dd>
 </dl>
 </li>
 </ul>

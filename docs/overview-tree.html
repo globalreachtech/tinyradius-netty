@@ -112,7 +112,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">java.lang.Object
 <ul>
 <li class="circle">org.tinyradius.server.<a href="org/tinyradius/server/AcctHandler.html" title="class in org.tinyradius.server"><span class="typeNameLink">AcctHandler</span></a> (implements org.tinyradius.server.<a href="org/tinyradius/server/RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a>&lt;T&gt;)</li>
-<li class="circle">org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/AttributeType.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">AttributeType</span></a>&lt;T&gt;</li>
+<li class="circle">org.tinyradius.attribute.<a href="org/tinyradius/attribute/AttributeBuilder.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">AttributeBuilder</span></a></li>
+<li class="circle">org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/AttributeType.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">AttributeType</span></a></li>
 <li class="circle">org.tinyradius.server.<a href="org/tinyradius/server/AuthHandler.html" title="class in org.tinyradius.server"><span class="typeNameLink">AuthHandler</span></a> (implements org.tinyradius.server.<a href="org/tinyradius/server/RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a>&lt;T&gt;)</li>
 <li class="circle">io.netty.channel.ChannelHandlerAdapter (implements io.netty.channel.ChannelHandler)
 <ul>
@@ -143,11 +144,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </li>
 <li class="circle">org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/DictionaryParser.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">DictionaryParser</span></a></li>
+<li class="circle">org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/DictionaryParser.ClasspathResourceResolver.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">DictionaryParser.ClasspathResourceResolver</span></a> (implements org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/DictionaryParser.ResourceResolver.html" title="interface in org.tinyradius.dictionary">DictionaryParser.ResourceResolver</a>)</li>
+<li class="circle">org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/DictionaryParser.FileResourceResolver.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">DictionaryParser.FileResourceResolver</span></a> (implements org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/DictionaryParser.ResourceResolver.html" title="interface in org.tinyradius.dictionary">DictionaryParser.ResourceResolver</a>)</li>
 <li class="circle">org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/MemoryDictionary.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">MemoryDictionary</span></a> (implements org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/WritableDictionary.html" title="interface in org.tinyradius.dictionary">WritableDictionary</a>)
 <ul>
 <li class="circle">org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/DefaultDictionary.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">DefaultDictionary</span></a></li>
 </ul>
 </li>
+<li class="circle">org.tinyradius.packet.<a href="org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet"><span class="typeNameLink">PacketType</span></a></li>
 <li class="circle">org.tinyradius.proxy.<a href="org/tinyradius/proxy/ProxyRequestHandler.html" title="class in org.tinyradius.proxy"><span class="typeNameLink">ProxyRequestHandler</span></a> (implements org.tinyradius.util.<a href="org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a>, org.tinyradius.server.<a href="org/tinyradius/server/RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a>&lt;T&gt;)</li>
 <li class="circle">org.tinyradius.attribute.<a href="org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">RadiusAttribute</span></a>
 <ul>
@@ -168,6 +172,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">org.tinyradius.packet.<a href="org/tinyradius/packet/CoaRequest.html" title="class in org.tinyradius.packet"><span class="typeNameLink">CoaRequest</span></a></li>
 </ul>
 </li>
+<li class="circle">org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacketEncoder.html" title="class in org.tinyradius.packet"><span class="typeNameLink">RadiusPacketEncoder</span></a></li>
 <li class="circle">org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server"><span class="typeNameLink">RadiusServer</span></a>&lt;T&gt; (implements org.tinyradius.util.<a href="org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a>)
 <ul>
 <li class="circle">org.tinyradius.proxy.<a href="org/tinyradius/proxy/RadiusProxy.html" title="class in org.tinyradius.proxy"><span class="typeNameLink">RadiusProxy</span></a>&lt;T&gt; (implements org.tinyradius.util.<a href="org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a>)</li>
@@ -189,11 +194,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <section role="region">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
+<li class="circle">org.tinyradius.attribute.<a href="org/tinyradius/attribute/AttributeBuilder.ByteArrayConstructor.html" title="interface in org.tinyradius.attribute"><span class="typeNameLink">AttributeBuilder.ByteArrayConstructor</span></a>&lt;T&gt;</li>
+<li class="circle">org.tinyradius.attribute.<a href="org/tinyradius/attribute/AttributeBuilder.PacketParser.html" title="interface in org.tinyradius.attribute"><span class="typeNameLink">AttributeBuilder.PacketParser</span></a>&lt;T&gt;</li>
+<li class="circle">org.tinyradius.attribute.<a href="org/tinyradius/attribute/AttributeBuilder.StringConstructor.html" title="interface in org.tinyradius.attribute"><span class="typeNameLink">AttributeBuilder.StringConstructor</span></a>&lt;T&gt;</li>
 <li class="circle">org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary"><span class="typeNameLink">Dictionary</span></a>
 <ul>
 <li class="circle">org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/WritableDictionary.html" title="interface in org.tinyradius.dictionary"><span class="typeNameLink">WritableDictionary</span></a></li>
 </ul>
 </li>
+<li class="circle">org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/DictionaryParser.ResourceResolver.html" title="interface in org.tinyradius.dictionary"><span class="typeNameLink">DictionaryParser.ResourceResolver</span></a></li>
 <li class="circle">org.tinyradius.util.<a href="org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util"><span class="typeNameLink">Lifecycle</span></a></li>
 <li class="circle">org.tinyradius.server.<a href="org/tinyradius/server/RequestHandler.html" title="interface in org.tinyradius.server"><span class="typeNameLink">RequestHandler</span></a>&lt;T&gt;</li>
 <li class="circle">org.tinyradius.util.<a href="org/tinyradius/util/SecretProvider.html" title="interface in org.tinyradius.util"><span class="typeNameLink">SecretProvider</span></a></li>

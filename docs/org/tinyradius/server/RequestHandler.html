@@ -150,7 +150,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handlePacket(io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></span>&#8203;(io.netty.channel.Channel&nbsp;channel,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+            io.netty.channel.Channel&nbsp;channel,
             <a href="RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;request,
             java.net.InetSocketAddress&nbsp;remoteAddress,
             java.lang.String&nbsp;sharedSecret)</code></th>
@@ -175,15 +176,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="handlePacket(io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">
+<a id="handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">
 <!--   -->
-</a><a id="handlePacket(io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">
+</a><a id="handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>handlePacket</h4>
-<pre class="methodSignature">io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket&#8203;(io.netty.channel.Channel&nbsp;channel,
+<pre class="methodSignature">io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                                                            io.netty.channel.Channel&nbsp;channel,
                                                             <a href="RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;request,
                                                             java.net.InetSocketAddress&nbsp;remoteAddress,
                                                             java.lang.String&nbsp;sharedSecret)</pre>
@@ -191,6 +193,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  can also implement this and wrap around underlying handlers.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dictionary</code> - </dd>
 <dd><code>channel</code> - socket which received packet</dd>
 <dd><code>request</code> - the packet</dd>
 <dd><code>remoteAddress</code> - remote address the packet was sent by</dd>

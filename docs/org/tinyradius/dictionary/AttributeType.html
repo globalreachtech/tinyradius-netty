@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -116,14 +116,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.dictionary</a></div>
-<h2 title="Class AttributeType" class="title">Class AttributeType&lt;T extends <a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;</h2>
+<h2 title="Class AttributeType" class="title">Class AttributeType</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>org.tinyradius.dictionary.AttributeType&lt;T&gt;</li>
+<li>org.tinyradius.dictionary.AttributeType</li>
 </ul>
 </li>
 </ul>
@@ -131,7 +131,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public class <span class="typeNameLabel">AttributeType&lt;T extends <a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;</span>
+<pre>public class <span class="typeNameLabel">AttributeType</span>
 extends java.lang.Object</pre>
 <div class="block">Represents a Radius attribute type.</div>
 </li>
@@ -154,18 +154,18 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,java.lang.String,java.lang.Class)">AttributeType</a></span>&#8203;(int&nbsp;vendorId,
-             int&nbsp;code,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,java.lang.String,java.lang.String)">AttributeType</a></span>&#8203;(int&nbsp;vendorId,
+             int&nbsp;attributeType,
              java.lang.String&nbsp;name,
-             java.lang.Class&lt;<a href="AttributeType.html" title="type parameter in AttributeType">T</a>&gt;&nbsp;type)</code></th>
+             java.lang.String&nbsp;dataType)</code></th>
 <td class="colLast">
 <div class="block">Constructs a Vendor-Specific sub-attribute type.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.lang.String,java.lang.Class)">AttributeType</a></span>&#8203;(int&nbsp;code,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,java.lang.String,java.lang.String)">AttributeType</a></span>&#8203;(int&nbsp;attributeType,
              java.lang.String&nbsp;name,
-             java.lang.Class&lt;<a href="AttributeType.html" title="type parameter in AttributeType">T</a>&gt;&nbsp;type)</code></th>
+             java.lang.String&nbsp;typeStr)</code></th>
 <td class="colLast">
 <div class="block">Create a new attribute type.</div>
 </td>
@@ -197,12 +197,9 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>java.lang.Class&lt;<a href="AttributeType.html" title="type parameter in AttributeType">T</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeClass()">getAttributeClass</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Retrieves the RadiusAttribute descendant class which represents
- attributes of this type.</div>
-</td>
+<td class="colFirst"><code><a href="../attribute/AttributeBuilder.ByteArrayConstructor.html" title="interface in org.tinyradius.attribute">AttributeBuilder.ByteArrayConstructor</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getByteArrayConstructor()">getByteArrayConstructor</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
@@ -217,31 +214,35 @@ extends java.lang.Object</pre>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Retrieves the name of this type.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTypeCode()">getTypeCode</a></span>()</code></th>
+<td class="colFirst"><code><a href="../attribute/AttributeBuilder.PacketParser.html" title="interface in org.tinyradius.attribute">AttributeBuilder.PacketParser</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPacketParser()">getPacketParser</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Retrieves the Radius type code for this attribute type.</div>
+<div class="block">Retrieves the RadiusAttribute descendant class which represents
+ attributes of this type.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVendorId()">getVendorId</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns the vendor ID.</div>
-</td>
+<td class="colFirst"><code><a href="../attribute/AttributeBuilder.StringConstructor.html" title="interface in org.tinyradius.attribute">AttributeBuilder.StringConstructor</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getStringConstructor()">getStringConstructor</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTypeCode()">getTypeCode</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVendorId()">getVendorId</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">
-<div class="block">String representation of AttributeType object
- for debugging purposes.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -267,41 +268,41 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(int,java.lang.String,java.lang.Class)">
+<a id="&lt;init&gt;(int,java.lang.String,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>AttributeType</h4>
-<pre>public&nbsp;AttributeType&#8203;(int&nbsp;code,
+<pre>public&nbsp;AttributeType&#8203;(int&nbsp;attributeType,
                      java.lang.String&nbsp;name,
-                     java.lang.Class&lt;<a href="AttributeType.html" title="type parameter in AttributeType">T</a>&gt;&nbsp;type)</pre>
+                     java.lang.String&nbsp;typeStr)</pre>
 <div class="block">Create a new attribute type.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>code</code> - Radius attribute type code</dd>
+<dd><code>attributeType</code> - Radius attribute type code</dd>
 <dd><code>name</code> - Attribute type name</dd>
-<dd><code>type</code> - RadiusAttribute descendant who handles attributes of this type</dd>
+<dd><code>typeStr</code> - string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix</dd>
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(int,int,java.lang.String,java.lang.Class)">
+<a id="&lt;init&gt;(int,int,java.lang.String,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AttributeType</h4>
 <pre>public&nbsp;AttributeType&#8203;(int&nbsp;vendorId,
-                     int&nbsp;code,
+                     int&nbsp;attributeType,
                      java.lang.String&nbsp;name,
-                     java.lang.Class&lt;<a href="AttributeType.html" title="type parameter in AttributeType">T</a>&gt;&nbsp;type)</pre>
+                     java.lang.String&nbsp;dataType)</pre>
 <div class="block">Constructs a Vendor-Specific sub-attribute type.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>vendorId</code> - vendor ID</dd>
-<dd><code>code</code> - sub-attribute type code</dd>
+<dd><code>attributeType</code> - sub-attribute type code</dd>
 <dd><code>name</code> - sub-attribute name</dd>
-<dd><code>type</code> - sub-attribute class</dd>
+<dd><code>dataType</code> - string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix</dd>
 </dl>
 </li>
 </ul>
@@ -322,10 +323,9 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getTypeCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getTypeCode()</pre>
-<div class="block">Retrieves the Radius type code for this attribute type.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Radius type code</dd>
+<dd>Radius type code for this attribute e.g. '1' (for User-Name)</dd>
 </dl>
 </li>
 </ul>
@@ -336,26 +336,43 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getName</h4>
 <pre class="methodSignature">public&nbsp;java.lang.String&nbsp;getName()</pre>
-<div class="block">Retrieves the name of this type.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>name</dd>
+<dd>name of type e.g. 'User-Name'</dd>
 </dl>
 </li>
 </ul>
-<a id="getAttributeClass()">
+<a id="getPacketParser()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getAttributeClass</h4>
-<pre class="methodSignature">public&nbsp;java.lang.Class&lt;<a href="AttributeType.html" title="type parameter in AttributeType">T</a>&gt;&nbsp;getAttributeClass()</pre>
+<h4>getPacketParser</h4>
+<pre class="methodSignature">public&nbsp;<a href="../attribute/AttributeBuilder.PacketParser.html" title="interface in org.tinyradius.attribute">AttributeBuilder.PacketParser</a>&nbsp;getPacketParser()</pre>
 <div class="block">Retrieves the RadiusAttribute descendant class which represents
  attributes of this type.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>class</dd>
 </dl>
+</li>
+</ul>
+<a id="getByteArrayConstructor()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getByteArrayConstructor</h4>
+<pre class="methodSignature">public&nbsp;<a href="../attribute/AttributeBuilder.ByteArrayConstructor.html" title="interface in org.tinyradius.attribute">AttributeBuilder.ByteArrayConstructor</a>&nbsp;getByteArrayConstructor()</pre>
+</li>
+</ul>
+<a id="getStringConstructor()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getStringConstructor</h4>
+<pre class="methodSignature">public&nbsp;<a href="../attribute/AttributeBuilder.StringConstructor.html" title="interface in org.tinyradius.attribute">AttributeBuilder.StringConstructor</a>&nbsp;getStringConstructor()</pre>
 </li>
 </ul>
 <a id="getVendorId()">
@@ -365,11 +382,9 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getVendorId</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getVendorId()</pre>
-<div class="block">Returns the vendor ID.
- No vendor specific attribute = -1</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>vendor ID</dd>
+<dd>vendor ID or -1 if not applicable</dd>
 </dl>
 </li>
 </ul>
@@ -429,13 +444,11 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;java.lang.String&nbsp;toString()</pre>
-<div class="block">String representation of AttributeType object
- for debugging purposes.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>string</dd>
+<dd>string for debugging</dd>
 </dl>
 </li>
 </ul>

@@ -200,7 +200,8 @@ implements <a href="../server/RequestHandler.html" title="interface in org.tinyr
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handlePacket(io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></span>&#8203;(io.netty.channel.Channel&nbsp;channel,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+            io.netty.channel.Channel&nbsp;channel,
             <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
             java.net.InetSocketAddress&nbsp;remoteAddress,
             java.lang.String&nbsp;sharedSecret)</code></th>
@@ -210,7 +211,8 @@ implements <a href="../server/RequestHandler.html" title="interface in org.tinyr
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleServerResponse(org.tinyradius.packet.RadiusPacket)">handleServerResponse</a></span>&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleServerResponse(org.tinyradius.dictionary.Dictionary,org.tinyradius.packet.RadiusPacket)">handleServerResponse</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                    <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet)</code></th>
 <td class="colLast">
 <div class="block">Sends an answer to a proxied packet back to the original host.</div>
 </td>
@@ -326,13 +328,14 @@ implements <a href="../server/RequestHandler.html" title="interface in org.tinyr
 </dl>
 </li>
 </ul>
-<a id="handlePacket(io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">
+<a id="handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>handlePacket</h4>
-<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket&#8203;(io.netty.channel.Channel&nbsp;channel,
+<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                                                                   io.netty.channel.Channel&nbsp;channel,
                                                                    <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
                                                                    java.net.InetSocketAddress&nbsp;remoteAddress,
                                                                    java.lang.String&nbsp;sharedSecret)</pre>
@@ -341,8 +344,7 @@ implements <a href="../server/RequestHandler.html" title="interface in org.tinyr
  is added to the packet in the "Proxy-State" attribute.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../server/RequestHandler.html#handlePacket(io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></code>&nbsp;in interface&nbsp;<code><a href="../server/RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a>&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code><a href="../server/RequestHandler.html#handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></code>&nbsp;in interface&nbsp;<code><a href="../server/RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a>&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></dd>
 <dd><code>channel</code> - socket which received packet</dd>
 <dd><code>packet</code> - the packet</dd>
 <dd><code>remoteAddress</code> - remote address the packet was sent by</dd>
@@ -353,13 +355,14 @@ implements <a href="../server/RequestHandler.html" title="interface in org.tinyr
 </dl>
 </li>
 </ul>
-<a id="handleServerResponse(org.tinyradius.packet.RadiusPacket)">
+<a id="handleServerResponse(org.tinyradius.dictionary.Dictionary,org.tinyradius.packet.RadiusPacket)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>handleServerResponse</h4>
-<pre class="methodSignature">protected&nbsp;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;handleServerResponse&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet)</pre>
+<pre class="methodSignature">protected&nbsp;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;handleServerResponse&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                                            <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet)</pre>
 <div class="block">Sends an answer to a proxied packet back to the original host.
  Retrieves the RadiusProxyConnection object from the cache employing
  the Proxy-State attribute.</div>

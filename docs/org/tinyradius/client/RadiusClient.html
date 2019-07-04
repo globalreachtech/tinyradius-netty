@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -199,21 +199,13 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>protected io.netty.channel.socket.DatagramPacket</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#makeDatagramPacket(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)">makeDatagramPacket</a></span>&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
-                  <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</code></th>
-<td class="colLast">
-<div class="block">Creates a datagram packet from a RadiusPacket to be send.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code>io.netty.channel.ChannelFuture</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startChannel()">startChannel</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Registers the channel and binds to address.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
@@ -323,35 +315,12 @@ extends java.lang.Object</pre>
 <a id="communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,int)">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>communicate</h4>
 <pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;communicate&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
                                                                  <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
                                                                  int&nbsp;maxAttempts)</pre>
-</li>
-</ul>
-<a id="makeDatagramPacket(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>makeDatagramPacket</h4>
-<pre class="methodSignature">protected&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;makeDatagramPacket&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
-                                                                    <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)
-                                                             throws java.io.IOException,
-                                                                    <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
-<div class="block">Creates a datagram packet from a RadiusPacket to be send.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>packet</code> - RadiusPacket</dd>
-<dd><code>endpoint</code> - destination port number</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>new datagram packet</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.io.IOException</code> - error when writing packet to output stream</dd>
-<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - error when encoding RadiusPacket attributes</dd>
-</dl>
 </li>
 </ul>
 </li>
