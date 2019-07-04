@@ -36,7 +36,7 @@ public class RadiusPacket {
     private static final SecureRandom random = new SecureRandom();
 
     public static final int MAX_PACKET_LENGTH = 4096;
-    public static final int RADIUS_HEADER_LENGTH = 20;
+    public static final int HEADER_LENGTH = 20;
 
     private final int packetType;
     private final int packetIdentifier;
@@ -99,18 +99,14 @@ public class RadiusPacket {
     }
 
     /**
-     * Returns the packet identifier for this Radius packet.
-     *
-     * @return packet identifier
+     * @return Radius packet identifier
      */
     public int getPacketIdentifier() {
         return packetIdentifier;
     }
 
     /**
-     * Returns the type of this Radius packet.
-     *
-     * @return packet type
+     * @return Radius packet type
      */
     public int getPacketType() {
         return packetType;
@@ -389,7 +385,8 @@ public class RadiusPacket {
             throw new IllegalArgumentException("no shared secret has been set");
         requireNonNull(requestAuthenticator, "request authenticator not set");
 
-        return encodePacket(sharedSecret, requestAuthenticator);
+        final byte[] authenticator = createHashedAuthenticator(sharedSecret, getAttributeBytes(), requestAuthenticator);
+        return new RadiusPacket(dictionary, packetType, packetIdentifier, authenticator, this.attributes);
     }
 
     public String toString() {
@@ -424,15 +421,19 @@ public class RadiusPacket {
         return dictionary;
     }
 
-    public DatagramPacket toDatagramPacket(InetSocketAddress address) throws IOException {
+    public static DatagramPacket toDatagramPacket(RadiusPacket packet, InetSocketAddress address) throws IOException {
+        byte[] attributes = packet.getAttributeBytes();
+        int packetLength = HEADER_LENGTH + attributes.length;
+        if (packetLength > MAX_PACKET_LENGTH)
+            throw new RuntimeException("packet too long");
+
         ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
         try (ByteBufOutputStream outputStream = new ByteBufOutputStream(buf)) {
-            byte[] attributes = getAttributeBytes();
             DataOutputStream dos = new DataOutputStream(outputStream);
-            dos.writeByte(getPacketType());
-            dos.writeByte(getPacketIdentifier());
-            dos.writeShort(RADIUS_HEADER_LENGTH + attributes.length);
-            dos.write(getAuthenticator());
+            dos.writeByte(packet.getPacketType());
+            dos.writeByte(packet.getPacketIdentifier());
+            dos.writeShort(packetLength);
+            dos.write(packet.getAuthenticator());
             dos.write(attributes);
             dos.flush();
             return new DatagramPacket(buf, address);
@@ -457,36 +458,8 @@ public class RadiusPacket {
      * @throws IOException     error writing data
      */
     protected RadiusPacket encodeRequest(String sharedSecret) throws RadiusException, IOException {
-        byte[] attributes = getAttributeBytes();
-        int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
-        if (packetLength > MAX_PACKET_LENGTH)
-            throw new RuntimeException("packet too long");
-
         return authenticator != null ?
                 this : new RadiusPacket(dictionary, packetType, packetIdentifier, generateRandomizedAuthenticator(sharedSecret), this.attributes);
-    }
-
-    /**
-     * Encodes packet by checking packet length is legal and setting authenticator
-     * to MD5 hash of requestAuthenticator and current packet. Should be idempotent.
-     * <p>
-     * Used for encoding responses, and request types which generate the
-     * authenticator by hashing (e.g. AcountingRequest, CoaRequest, DisconnectRequest)
-     *
-     * @param sharedSecret         shared secret that secures the communication
-     *                             with the other Radius server/client
-     * @param requestAuthenticator request authenticator if encoding responses, or set to
-     *                             16 zero octets if encoding requests
-     * @throws IOException error writing data
-     */
-    protected RadiusPacket encodePacket(String sharedSecret, byte[] requestAuthenticator) throws IOException {
-        byte[] attributes = getAttributeBytes();
-        int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
-        if (packetLength > MAX_PACKET_LENGTH)
-            throw new RuntimeException("packet too long");
-
-        final byte[] authenticator = createHashedAuthenticator(sharedSecret, packetLength, attributes, requestAuthenticator);
-        return new RadiusPacket(dictionary, packetType, packetIdentifier, authenticator, this.attributes);
     }
 
     /**
@@ -511,12 +484,13 @@ public class RadiusPacket {
      * Creates an authenticator for a Radius response packet.
      *
      * @param sharedSecret         shared secret
-     * @param packetLength         length of response packet
      * @param attributes           encoded attributes of response packet
      * @param requestAuthenticator request packet authenticator
      * @return new 16 byte response authenticator
      */
-    protected byte[] createHashedAuthenticator(String sharedSecret, int packetLength, byte[] attributes, byte[] requestAuthenticator) {
+    protected byte[] createHashedAuthenticator(String sharedSecret, byte[] attributes, byte[] requestAuthenticator) {
+        int packetLength = HEADER_LENGTH + attributes.length;
+
         MessageDigest md5 = getMd5Digest();
         md5.update((byte) getPacketType());
         md5.update((byte) getPacketIdentifier());
@@ -534,11 +508,10 @@ public class RadiusPacket {
      * authentication requests as they contain secret bytes.
      *
      * @param sharedSecret shared secret
-     * @param packetLength total length of the packet
      * @param attributes   request attribute data
      * @throws RadiusException malformed packet
      */
-    protected void checkRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) throws RadiusException {
+    protected void checkRequestAuthenticator(String sharedSecret, byte[] attributes) throws RadiusException {
     }
 
     /**
@@ -557,15 +530,13 @@ public class RadiusPacket {
      * may be overridden to include special attributes in the authenticator check.
      *
      * @param sharedSecret         shared secret to be used to encrypt the authenticator
-     * @param packetLength         length of the response packet
      * @param attributes           attribute data of the response packet
      * @param requestAuthenticator 16 bytes authenticator of the request packet belonging
      *                             to this response packet
      * @throws RadiusException malformed packet
      */
-    protected void checkResponseAuthenticator(String sharedSecret, int packetLength, byte[] attributes, byte[] requestAuthenticator)
-            throws RadiusException {
-        byte[] authenticator = createHashedAuthenticator(sharedSecret, packetLength, attributes, requestAuthenticator);
+    protected void checkResponseAuthenticator(String sharedSecret, byte[] attributes, byte[] requestAuthenticator) throws RadiusException {
+        byte[] authenticator = createHashedAuthenticator(sharedSecret, attributes, requestAuthenticator);
         byte[] receivedAuth = getAuthenticator();
         for (int i = 0; i < 16; i++)
             if (authenticator[i] != receivedAuth[i])

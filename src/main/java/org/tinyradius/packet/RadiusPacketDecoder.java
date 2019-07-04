@@ -100,14 +100,14 @@ public class RadiusPacketDecoder {
 
             if (request != null && request.getPacketIdentifier() != identifier)
                 throw new RadiusException("bad packet: invalid packet identifier (request: " + request.getPacketIdentifier() + ", response: " + identifier);
-            if (length < RadiusPacket.RADIUS_HEADER_LENGTH)
+            if (length < RadiusPacket.HEADER_LENGTH)
                 throw new RadiusException("bad packet: packet too short (" + length + " bytes)");
             if (length > RadiusPacket.MAX_PACKET_LENGTH)
                 throw new RadiusException("bad packet: packet too long (" + length + " bytes)");
 
             // read rest of packet
             byte[] authenticator = new byte[16];
-            byte[] attributeData = new byte[length - RadiusPacket.RADIUS_HEADER_LENGTH];
+            byte[] attributeData = new byte[length - RadiusPacket.HEADER_LENGTH];
             in.read(authenticator);
             in.read(attributeData);
 
@@ -119,10 +119,10 @@ public class RadiusPacketDecoder {
             if (request == null) {
                 // decode attributes
                 rp.decodeRequestAttributes(sharedSecret);
-                rp.checkRequestAuthenticator(sharedSecret, length, attributeData);
+                rp.checkRequestAuthenticator(sharedSecret, attributeData);
             } else {
                 // response packet: check authenticator
-                rp.checkResponseAuthenticator(sharedSecret, length, attributeData, request.getAuthenticator());
+                rp.checkResponseAuthenticator(sharedSecret, attributeData, request.getAuthenticator());
             }
 
             return rp;

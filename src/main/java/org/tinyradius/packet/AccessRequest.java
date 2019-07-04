@@ -213,7 +213,7 @@ public class AccessRequest extends RadiusPacket {
     }
 
     @Override
-    protected RadiusPacket encodeRequest(String sharedSecret) throws RadiusException, IOException {
+    protected AccessRequest encodeRequest(String sharedSecret) throws RadiusException {
         // create authenticator only if needed
         byte[] newAuthenticator = getAuthenticator() == null ? generateRandomizedAuthenticator(sharedSecret) : getAuthenticator();
 
@@ -224,13 +224,6 @@ public class AccessRequest extends RadiusPacket {
             removeAttributes(a.getAttributeType());
             addAttribute(a);
         });
-
-        // length check now after attributes encoded
-        byte[] attributes = accessRequest.getAttributeBytes();
-        int packetLength = RADIUS_HEADER_LENGTH + attributes.length;
-        if (packetLength > MAX_PACKET_LENGTH)
-            throw new RuntimeException("packet too long");
-
         return accessRequest;
     }
 

@@ -133,9 +133,9 @@ public class RadiusClient<T extends DatagramChannel> {
             // run first to add any identifiers/attributes needed
             Future<RadiusPacket> promise = clientHandler.processRequest(packet, endpoint, eventLoopGroup.next());
 
-            final DatagramPacket packetOut = packet
-                    .encodeRequestPacket(endpoint.getSharedSecret())
-                    .toDatagramPacket(endpoint.getEndpointAddress());
+            final DatagramPacket packetOut = RadiusPacket
+                    .toDatagramPacket(packet
+                            .encodeRequestPacket(endpoint.getSharedSecret()), endpoint.getEndpointAddress());
 
             logger.debug("Sending packet to {}", endpoint.getEndpointAddress());
             if (logger.isDebugEnabled())

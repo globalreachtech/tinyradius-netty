@@ -184,12 +184,12 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     /**
      * Renders this attribute as a byte array.
-     *
-     * @see RadiusAttribute#writeAttribute()
      */
+    @Override
     public byte[] writeAttribute() {
-        // write vendor ID
         ByteArrayOutputStream bos = new ByteArrayOutputStream(255);
+        bos.write(VENDOR_SPECIFIC);
+        bos.write(0); // length placeholder
         bos.write(getVendorId() >> 24 & 0x0ff);
         bos.write(getVendorId() >> 16 & 0x0ff);
         bos.write(getVendorId() >> 8 & 0x0ff);
@@ -208,15 +208,11 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         // check data length
         byte[] attrData = bos.toByteArray();
         int len = attrData.length;
-        if (len > 253)
+        if (len > 255)
             throw new RuntimeException("Vendor-Specific attribute too long: " + bos.size());
 
-        // compose attribute
-        byte[] attr = new byte[len + 2];
-        attr[0] = VENDOR_SPECIFIC; // code
-        attr[1] = (byte) (len + 2); // length
-        System.arraycopy(attrData, 0, attr, 2, len);
-        return attr;
+        attrData[1] = (byte) len;
+        return attrData;
     }
 
     private static List<RadiusAttribute> extractAttributes(Dictionary dictionary, byte[] data, int offset, int vsaLen, int vendorId) throws RadiusException {

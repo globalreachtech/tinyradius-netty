@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 
 /**
  * This class represents a Radius packet of the type Accounting-Request.
@@ -52,7 +53,7 @@ public class AccountingRequest extends RadiusPacket {
      * Constructs an empty Accounting-Request.
      */
     public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, PacketType.ACCOUNTING_REQUEST, identifier, authenticator, attributes);
+        super(dictionary, ACCOUNTING_REQUEST, identifier, authenticator, attributes);
     }
 
     /**
@@ -104,15 +105,17 @@ public class AccountingRequest extends RadiusPacket {
     }
 
     @Override
-    protected RadiusPacket encodeRequest(String sharedSecret) throws IOException {
-        return encodePacket(sharedSecret, new byte[16]);
+    protected AccountingRequest encodeRequest(String sharedSecret) throws IOException {
+        final byte[] authenticator = createHashedAuthenticator(sharedSecret, getAttributeBytes(), new byte[16]);
+        return new AccountingRequest(getDictionary(), getPacketIdentifier(), authenticator, getAttributes());
     }
 
     /**
      * Checks the received request authenticator as specified by RFC 2866.
      */
-    protected void checkRequestAuthenticator(String sharedSecret, int packetLength, byte[] attributes) throws RadiusException {
-        byte[] expectedAuthenticator = createHashedAuthenticator(sharedSecret, packetLength, attributes, new byte[16]);
+    protected void checkRequestAuthenticator(String sharedSecret, byte[] attributes) throws RadiusException {
+        // todo also implement this for CoaRequests?
+        byte[] expectedAuthenticator = createHashedAuthenticator(sharedSecret, attributes, new byte[16]);
         byte[] receivedAuth = getAuthenticator();
         for (int i = 0; i < 16; i++)
             if (expectedAuthenticator[i] != receivedAuth[i])
