@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketDecoder;
+import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
@@ -76,7 +76,7 @@ public class SimpleClientHandler extends ClientHandler {
         }
 
         try {
-            RadiusPacket resp = RadiusPacketDecoder.decodeResponsePacket(dictionary, packet, request.sharedSecret, request.packet);
+            RadiusPacket resp = RadiusPacketEncoder.decodeResponsePacket(dictionary, packet, request.sharedSecret, request.packet);
             logger.info("Found request for response identifier => {}", identifier);
 
             request.response.trySuccess(resp);

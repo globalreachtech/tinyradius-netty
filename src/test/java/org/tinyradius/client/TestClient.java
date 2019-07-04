@@ -12,7 +12,7 @@ import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
 
-import static org.tinyradius.packet.RadiusPacketDecoder.getNextPacketIdentifier;
+import static org.tinyradius.packet.RadiusPacketEncoder.getNextPacketIdentifier;
 
 /**
  * TestClient shows how to send Radius Access-Request and Accounting-Request packets.

@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketDecoder;
+import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
 
@@ -65,7 +65,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
             }
 
             // parse packet
-            RadiusPacket request = RadiusPacketDecoder.decodeRequestPacket(dictionary, datagramPacket, secret);
+            RadiusPacket request = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, secret);
             logger.info("received packet from {} on local address {}: {}", remoteAddress, localAddress, request);
 
 
@@ -93,7 +93,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
                 if (response != null) {
                     logger.info("send response: {}", response);
                     logger.info("sending response packet to {} with secret {}", remoteAddress, secret);
-                    DatagramPacket packetOut = RadiusPacketDecoder.toDatagramPacket(
+                    DatagramPacket packetOut = RadiusPacketEncoder.toDatagram(
                             response.encodeResponsePacket(secret, requestAuthenticator),
                             remoteAddress);
                     ctx.writeAndFlush(packetOut);

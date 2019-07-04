@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketDecoder;
+import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
@@ -93,7 +93,7 @@ public class ProxyStateClientHandler extends ClientHandler {
         }
 
         try {
-            RadiusPacket packet = RadiusPacketDecoder.decodeRequestPacket(dictionary, datagramPacket, secret);
+            RadiusPacket packet = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, secret);
 
             // retrieve my Proxy-State attribute (the last)
             List<RadiusAttribute> proxyStates = packet.getAttributes(PROXY_STATE);

@@ -106,16 +106,16 @@ public class AccountingRequest extends RadiusPacket {
 
     @Override
     protected AccountingRequest encodeRequest(String sharedSecret) throws IOException {
-        final byte[] authenticator = createHashedAuthenticator(sharedSecret, getAttributeBytes(), new byte[16]);
+        final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
         return new AccountingRequest(getDictionary(), getPacketIdentifier(), authenticator, getAttributes());
     }
 
     /**
      * Checks the received request authenticator as specified by RFC 2866.
      */
-    protected void checkRequestAuthenticator(String sharedSecret, byte[] attributes) throws RadiusException {
+    protected void checkRequestAuthenticator(String sharedSecret) throws RadiusException, IOException {
         // todo also implement this for CoaRequests?
-        byte[] expectedAuthenticator = createHashedAuthenticator(sharedSecret, attributes, new byte[16]);
+        byte[] expectedAuthenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
         byte[] receivedAuth = getAuthenticator();
         for (int i = 0; i < 16; i++)
             if (expectedAuthenticator[i] != receivedAuth[i])

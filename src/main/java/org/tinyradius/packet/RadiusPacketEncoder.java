@@ -22,7 +22,7 @@ import static org.tinyradius.packet.PacketType.*;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
 import static org.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
 
-public class RadiusPacketDecoder {
+public class RadiusPacketEncoder {
 
     private static AtomicInteger nextPacketId = new AtomicInteger();
 
@@ -35,7 +35,7 @@ public class RadiusPacketDecoder {
         return nextPacketId.updateAndGet(i -> i >= 255 ? 0 : i + 1);
     }
 
-    public static DatagramPacket toDatagramPacket(RadiusPacket packet, InetSocketAddress address) throws IOException {
+    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress address) throws IOException {
         byte[] attributes = packet.getAttributeBytes();
         int packetLength = HEADER_LENGTH + attributes.length;
         if (packetLength > MAX_PACKET_LENGTH)
@@ -67,7 +67,7 @@ public class RadiusPacketDecoder {
      * @throws IOException     IO error
      * @throws RadiusException malformed packet
      */
-    public static RadiusPacket decodeRequestPacket(Dictionary dictionary, DatagramPacket packet, String sharedSecret)
+    public static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret)
             throws IOException, RadiusException {
         return decodePacket(dictionary, packet, sharedSecret, null);
     }
@@ -145,10 +145,10 @@ public class RadiusPacketDecoder {
             if (request == null) {
                 // decode attributes
                 rp.decodeRequestAttributes(sharedSecret);
-                rp.checkRequestAuthenticator(sharedSecret, attributeData);
+                rp.checkRequestAuthenticator(sharedSecret);
             } else {
                 // response packet: check authenticator
-                rp.checkResponseAuthenticator(sharedSecret, attributeData, request.getAuthenticator());
+                rp.checkResponseAuthenticator(sharedSecret, request.getAuthenticator());
             }
 
             return rp;

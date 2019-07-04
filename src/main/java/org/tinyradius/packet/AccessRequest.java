@@ -7,7 +7,6 @@ import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.*;
@@ -215,7 +214,7 @@ public class AccessRequest extends RadiusPacket {
     @Override
     protected AccessRequest encodeRequest(String sharedSecret) throws RadiusException {
         // create authenticator only if needed
-        byte[] newAuthenticator = getAuthenticator() == null ? generateRandomizedAuthenticator(sharedSecret) : getAuthenticator();
+        byte[] newAuthenticator = getAuthenticator() == null ? generateRandomizedAuthenticator() : getAuthenticator();
 
         final AccessRequest accessRequest = new AccessRequest(getDictionary(), getPacketIdentifier(), newAuthenticator, new ArrayList<>(getAttributes()));
 

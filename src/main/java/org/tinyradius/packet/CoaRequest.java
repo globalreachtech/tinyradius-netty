@@ -22,7 +22,7 @@ public class CoaRequest extends RadiusPacket {
 
     @Override
     protected CoaRequest encodeRequest(String sharedSecret) throws IOException {
-        final byte[] authenticator = createHashedAuthenticator(sharedSecret, getAttributeBytes(), new byte[16]);
+        final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
         return new CoaRequest(getDictionary(), getPacketType(), getPacketIdentifier(), authenticator, getAttributes());
     }
 }
