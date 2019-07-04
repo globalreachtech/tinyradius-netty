@@ -60,28 +60,25 @@ public class DictionaryParser {
                 final String[] tokens = line.split("\\s+");
                 if (tokens.length == 0)
                     continue;
-                try {
-                    switch (tokens[0].toUpperCase()) {
-                        case "ATTRIBUTE":
-                            parseAttributeLine(dictionary, tokens, lineNum);
-                            break;
-                        case "VALUE":
-                            parseValueLine(dictionary, tokens, lineNum);
-                            break;
-                        case "$INCLUDE":
-                            includeDictionaryFile(dictionary, tokens, lineNum, resource);
-                            break;
-                        case "VENDORATTR":
-                            parseVendorAttributeLine(dictionary, tokens, lineNum);
-                            break;
-                        case "VENDOR":
-                            parseVendorLine(dictionary, tokens, lineNum);
-                            break;
-                        default:
-                            logger.warn("unknown line type: {} line: {}", tokens[0], lineNum);
-                    }
-                } catch (Exception e) {
-                    logger.warn("error processing line: {}", tokens, e);
+
+                switch (tokens[0].toUpperCase()) {
+                    case "ATTRIBUTE":
+                        parseAttributeLine(dictionary, tokens, lineNum);
+                        break;
+                    case "VALUE":
+                        parseValueLine(dictionary, tokens, lineNum);
+                        break;
+                    case "$INCLUDE":
+                        includeDictionaryFile(dictionary, tokens, lineNum, resource);
+                        break;
+                    case "VENDORATTR":
+                        parseVendorAttributeLine(dictionary, tokens, lineNum);
+                        break;
+                    case "VENDOR":
+                        parseVendorLine(dictionary, tokens, lineNum);
+                        break;
+                    default:
+                        logger.warn("unknown line type: {} line: {}", tokens[0], lineNum);
                 }
             }
         }
