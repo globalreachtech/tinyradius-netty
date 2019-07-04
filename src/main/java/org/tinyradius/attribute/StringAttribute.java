@@ -22,11 +22,6 @@ public class StringAttribute extends RadiusAttribute {
         this(dictionary, type, vendorId, value.getBytes(UTF_8));
     }
 
-    /**
-     * Returns the string value of this attribute.
-     *
-     * @return a string
-     */
     @Override
     public String getAttributeValue() {
         return new String(getAttributeData(), UTF_8);

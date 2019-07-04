@@ -17,6 +17,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -145,29 +146,6 @@ public class RadiusPacket {
      * @param value    value of the attribute, for example "127.0.0.1"
      * @throws IllegalArgumentException if type name is unknown
      */
-    public void addAttribute(String typeName, byte[] value) {
-        if (typeName == null || typeName.isEmpty())
-            throw new IllegalArgumentException("type name is empty");
-        if (value == null || value.length == 0)
-            throw new IllegalArgumentException("value is empty");
-
-        AttributeType type = dictionary.getAttributeTypeByName(typeName);
-        if (type == null)
-            throw new IllegalArgumentException("unknown attribute type '" + typeName + "'");
-
-        RadiusAttribute attribute = createRadiusAttribute(getDictionary(), type.getVendorId(), type.getTypeCode(), value);
-        addAttribute(attribute);
-    }
-
-    /**
-     * Adds a Radius attribute to this packet.
-     * Uses AttributeTypes to lookup the type code and converts the value.
-     * Can also be used to add sub-attributes.
-     *
-     * @param typeName name of the attribute, for example "NAS-Ip-Address", should NOT be 'Vendor-Specific'
-     * @param value    value of the attribute, for example "127.0.0.1"
-     * @throws IllegalArgumentException if type name is unknown
-     */
     public void addAttribute(String typeName, String value) {
         if (typeName == null || typeName.isEmpty())
             throw new IllegalArgumentException("type name is empty");
@@ -280,17 +258,11 @@ public class RadiusPacket {
         if (vendorId == -1)
             return getAttributes(attributeType);
 
-        List<RadiusAttribute> result = new LinkedList<>();
-        List<VendorSpecificAttribute> vsas = getVendorAttributes(vendorId);
-        for (VendorSpecificAttribute vsa : vsas) {
-            for (RadiusAttribute sa : vsa.getSubAttributes()) {
-                if (sa.getAttributeType() == attributeType &&
-                        sa.getVendorId() == vendorId)
-                    result.add(sa);
-            }
-        }
-
-        return result;
+        return getVendorAttributes(vendorId).stream()
+                .map(VendorSpecificAttribute::getSubAttributes)
+                .flatMap(Collection::stream)
+                .filter(sa -> sa.getAttributeType() == attributeType && sa.getVendorId() == vendorId)
+                .collect(Collectors.toList());
     }
 
     /**

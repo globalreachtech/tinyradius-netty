@@ -36,8 +36,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
     }
 
     /**
-     * Returns the attribute value (IP number) as a string of the
-     * format "xx.xx.xx.xx".
+     * Returns the attribute value (IP number) as a string of the format "xx.xx.xx.xx".
      */
     @Override
     public String getAttributeValue() {

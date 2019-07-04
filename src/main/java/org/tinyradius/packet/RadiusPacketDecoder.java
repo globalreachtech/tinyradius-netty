@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.packet.PacketType.COA_REQUEST;
-import static org.tinyradius.packet.PacketType.DISCONNECT_REQUEST;
+import static org.tinyradius.packet.PacketType.*;
 
 public class RadiusPacketDecoder {
 
@@ -161,13 +160,13 @@ public class RadiusPacketDecoder {
      */
     public static RadiusPacket createRadiusPacket(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
-            case PacketType.ACCESS_REQUEST:
+            case ACCESS_REQUEST:
                 return new AccessRequest(dictionary, identifier, authenticator, attributes);
             case COA_REQUEST:
                 return new CoaRequest(dictionary, COA_REQUEST, identifier, authenticator, attributes);
             case DISCONNECT_REQUEST:
                 return new CoaRequest(dictionary, DISCONNECT_REQUEST, identifier, authenticator, attributes);
-            case PacketType.ACCOUNTING_REQUEST:
+            case ACCOUNTING_REQUEST:
                 return new AccountingRequest(dictionary, identifier, authenticator, attributes);
             default:
                 return new RadiusPacket(dictionary, type, identifier, authenticator, attributes);

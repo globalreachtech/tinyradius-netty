@@ -78,31 +78,6 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * @param value value of the sub-attribute
      * @throws IllegalArgumentException invalid sub-attribute name or value
      */
-    public void addSubAttribute(String name, byte[] value) {
-        if (name == null || name.isEmpty())
-            throw new IllegalArgumentException("type name is empty");
-        if (value == null || value.length == 0)
-            throw new IllegalArgumentException("value is empty");
-
-        AttributeType type = getDictionary().getAttributeTypeByName(name);
-        if (type == null)
-            throw new IllegalArgumentException("unknown attribute type '" + name + "'");
-        if (type.getVendorId() == -1)
-            throw new IllegalArgumentException("attribute type '" + name + "' is not a Vendor-Specific sub-attribute");
-        if (type.getVendorId() != getVendorId())
-            throw new IllegalArgumentException("attribute type '" + name + "' does not belong to vendor ID " + getVendorId());
-
-        RadiusAttribute attribute = createRadiusAttribute(getDictionary(), getVendorId(), type.getTypeCode(), value);
-        addSubAttribute(attribute);
-    }
-
-    /**
-     * Adds a sub-attribute with the specified name to this attribute.
-     *
-     * @param name  name of the sub-attribute
-     * @param value value of the sub-attribute
-     * @throws IllegalArgumentException invalid sub-attribute name or value
-     */
     public void addSubAttribute(String name, String value) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("type name is empty");
