@@ -173,7 +173,7 @@ public class RadiusPacket {
      * @param type attribute type to remove
      */
     public void removeAttributes(int type) {
-        attributes.removeIf(a -> a.getAttributeType() == type);
+        attributes.removeIf(a -> a.getType() == type);
     }
 
     /**
@@ -206,7 +206,7 @@ public class RadiusPacket {
         List<VendorSpecificAttribute> vsas = getVendorAttributes(vendorId);
         for (VendorSpecificAttribute vsa : vsas) {
             List<RadiusAttribute> sas = vsa.getSubAttributes();
-            sas.removeIf(attr -> attr.getAttributeType() == typeCode && attr.getVendorId() == vendorId);
+            sas.removeIf(attr -> attr.getType() == typeCode && attr.getVendorId() == vendorId);
             if (sas.isEmpty())
                 // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
                 removeAttribute(vsa);
@@ -226,7 +226,7 @@ public class RadiusPacket {
 
         List<RadiusAttribute> result = new LinkedList<>();
         for (RadiusAttribute attribute : attributes) {
-            if (attributeType == attribute.getAttributeType())
+            if (attributeType == attribute.getType())
                 result.add(attribute);
         }
         return result;
@@ -248,7 +248,7 @@ public class RadiusPacket {
         return getVendorAttributes(vendorId).stream()
                 .map(VendorSpecificAttribute::getSubAttributes)
                 .flatMap(Collection::stream)
-                .filter(sa -> sa.getAttributeType() == attributeType && sa.getVendorId() == vendorId)
+                .filter(sa -> sa.getType() == attributeType && sa.getVendorId() == vendorId)
                 .collect(Collectors.toList());
     }
 
@@ -332,7 +332,7 @@ public class RadiusPacket {
     public String getAttributeValue(String type) {
         RadiusAttribute attr = getAttribute(type);
         return attr == null ?
-                null : attr.getAttributeValue();
+                null : attr.getDataString();
     }
 
     /**
@@ -501,7 +501,7 @@ public class RadiusPacket {
             // todo use ByteBuffer?
             ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_PACKET_LENGTH);
             for (RadiusAttribute a : attributes) {
-                bos.write(a.writeAttribute());
+                bos.write(a.toByteArray());
             }
             return bos.toByteArray();
         } catch (IOException e) {

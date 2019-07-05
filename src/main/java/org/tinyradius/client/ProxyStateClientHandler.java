@@ -67,7 +67,7 @@ public class ProxyStateClientHandler extends ClientHandler {
     public Promise<RadiusPacket> processRequest(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
         // add Proxy-State attribute
         String requestId = nextProxyStateId();
-        packet.addAttribute(new RadiusAttribute(packet.getDictionary(), PROXY_STATE, -1, requestId.getBytes()));
+        packet.addAttribute(new RadiusAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes()));
 
         Promise<RadiusPacket> response = eventExecutor.newPromise();
         requests.put(requestId, response);
@@ -101,7 +101,7 @@ public class ProxyStateClientHandler extends ClientHandler {
                 throw new RadiusException("proxy packet without Proxy-State attribute");
             RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
 
-            String proxyStateId = new String(proxyState.getAttributeData());
+            String proxyStateId = new String(proxyState.getData());
 
             final Promise<RadiusPacket> request = requests.get(proxyStateId);
 

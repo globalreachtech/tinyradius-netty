@@ -14,19 +14,19 @@ public class IntegerAttribute extends RadiusAttribute {
         if (length != 6)
             throw new RadiusException("integer attribute: expected length 6, packet declared " + length);
 
-        return new IntegerAttribute(dictionary, readType(data, offset), vendorId, readData(data, offset));
+        return new IntegerAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
     }
 
-    public IntegerAttribute(Dictionary dictionary, int type, int vendorId, byte[] data) {
-        super(dictionary, type, vendorId, data);
+    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+        super(dictionary, vendorId, type, data);
     }
 
-    public IntegerAttribute(Dictionary dictionary, int type, int vendorId, int value) {
-        this(dictionary, type, vendorId, convertValue(value));
+    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, int value) {
+        this(dictionary, vendorId, type, convertValue(value));
     }
 
-    public IntegerAttribute(Dictionary dictionary, int type, int vendorId, String value) {
-        this(dictionary, type, vendorId, convertValue(value, dictionary, type, vendorId));
+    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+        this(dictionary, vendorId, type, convertValue(value, dictionary, type, vendorId));
     }
 
     /**
@@ -35,7 +35,7 @@ public class IntegerAttribute extends RadiusAttribute {
      * @return a string
      */
     public int getAttributeValueInt() {
-        byte[] data = getAttributeData();
+        byte[] data = getData();
         return (((data[0] & 0x0ff) << 24) | ((data[1] & 0x0ff) << 16) |
                 ((data[2] & 0x0ff) << 8) | (data[3] & 0x0ff));
     }
@@ -45,7 +45,7 @@ public class IntegerAttribute extends RadiusAttribute {
      * Tries to resolve enumerations.
      */
     @Override
-    public String getAttributeValue() {
+    public String getDataString() {
         int value = getAttributeValueInt();
         AttributeType at = getAttributeTypeObject();
         if (at != null) {

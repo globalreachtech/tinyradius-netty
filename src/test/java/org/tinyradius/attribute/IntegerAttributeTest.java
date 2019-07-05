@@ -13,7 +13,7 @@ class IntegerAttributeTest {
         System.err.println((int) bigValue);
         System.err.println(bigValue);
         final String bigValueSt = Long.toString(bigValue);
-        final IntegerAttribute intAttr = new IntegerAttribute(DefaultDictionary.INSTANCE, 27, -1, bigValueSt);
-        assertEquals(bigValueSt, intAttr.getAttributeValue());
+        final IntegerAttribute intAttr = new IntegerAttribute(DefaultDictionary.INSTANCE, -1, 27, bigValueSt);
+        assertEquals(bigValueSt, intAttr.getDataString());
     }
 }

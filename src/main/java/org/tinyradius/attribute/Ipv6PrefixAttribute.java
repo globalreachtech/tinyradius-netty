@@ -17,29 +17,28 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
         if (length < 4 || length > 20)
             throw new RadiusException("IPv6 prefix attribute: expected length min 4, max 20, packet declared " + length);
 
-        return new IpAttribute(dictionary, readType(data, offset), vendorId, readData(data, offset));
+        return new IpAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
     }
 
-    public Ipv6PrefixAttribute(Dictionary dictionary, int type, int vendorId, byte[] data) {
-        super(dictionary, type, vendorId, data);
+    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+        super(dictionary, vendorId, type, data);
     }
 
     /**
      * Constructs an IPv6 prefix attribute.
-     *
-     * @param type  attribute type code
+     *  @param type  attribute type code
      * @param value value, format: "ipv6 address"/prefix
      */
-    public Ipv6PrefixAttribute(Dictionary dictionary, int type, int vendorId, String value) {
-        this(dictionary, type, vendorId, convertValue(value));
+    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+        this(dictionary, vendorId, type, convertValue(value));
     }
 
     /**
      * Returns the attribute value (IP number) as a string of the format "xx.xx.xx.xx".
      */
     @Override
-    public String getAttributeValue() {
-        final byte[] data = getAttributeData();
+    public String getDataString() {
+        final byte[] data = getData();
         if (data == null || data.length != 18)
             throw new RuntimeException("ip attribute: expected 18 bytes attribute data");
         try {

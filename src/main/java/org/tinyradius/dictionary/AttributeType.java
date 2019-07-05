@@ -52,10 +52,10 @@ public class AttributeType {
 
         if (attributeType == VENDOR_SPECIFIC) {
             packetParser = VendorSpecificAttribute::parse;
-            byteArrayConstructor = (a, b, c, d) -> {
+            byteArrayConstructor = (a, c, b, d) -> {
                 throw new IllegalArgumentException("should not instantiate VendorSpecificAttribute with attribute byte array directly");
             };
-            stringConstructor = (a, b, c, d) -> {
+            stringConstructor = (a, c, b, d) -> {
                 throw new IllegalArgumentException("should not instantiate VendorSpecificAttribute with attribute byte array directly");
             };
             return;
@@ -94,10 +94,10 @@ public class AttributeType {
                 break;
             case "vsa":
                 packetParser = VendorSpecificAttribute::parse;
-                byteArrayConstructor = (a, b, c, d) -> {
+                byteArrayConstructor = (a, c, b, d) -> {
                     throw new IllegalArgumentException("should not instantiate VendorSpecificAttribute with attribute byte array directly");
                 };
-                stringConstructor = (a, b, c, d) -> {
+                stringConstructor = (a, c, b, d) -> {
                     throw new IllegalArgumentException("should not instantiate VendorSpecificAttribute with attribute byte array directly");
                 };
                 break;
@@ -105,7 +105,7 @@ public class AttributeType {
             default:
                 packetParser = RadiusAttribute::parse;
                 byteArrayConstructor = RadiusAttribute::new;
-                stringConstructor = (a, b, c, d) -> {
+                stringConstructor = (a, c, b, d) -> {
                     throw new RuntimeException("cannot set the value of attribute " + attributeType + " as a string");
                 };
 

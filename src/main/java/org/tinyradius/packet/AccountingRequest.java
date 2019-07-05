@@ -4,7 +4,6 @@ import org.tinyradius.attribute.IntegerAttribute;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +65,7 @@ public class AccountingRequest extends RadiusPacket {
             throw new IllegalArgumentException("empty user name not allowed");
 
         removeAttributes(USER_NAME);
-        addAttribute(new StringAttribute(getDictionary(), USER_NAME, -1, userName));
+        addAttribute(new StringAttribute(getDictionary(), -1, USER_NAME, userName));
     }
 
     /**
@@ -79,7 +78,7 @@ public class AccountingRequest extends RadiusPacket {
         if (attrs.size() != 1)
             throw new RuntimeException("exactly one User-Name attribute required");
 
-        return attrs.get(0).getAttributeValue();
+        return attrs.get(0).getDataString();
     }
 
     /**
@@ -91,7 +90,7 @@ public class AccountingRequest extends RadiusPacket {
         if (acctStatusType < 1 || acctStatusType > 15)
             throw new IllegalArgumentException("bad Acct-Status-Type");
         removeAttributes(ACCT_STATUS_TYPE);
-        addAttribute(new IntegerAttribute(getDictionary(), ACCT_STATUS_TYPE, -1, acctStatusType));
+        addAttribute(new IntegerAttribute(getDictionary(), -1, ACCT_STATUS_TYPE, acctStatusType));
     }
 
     /**

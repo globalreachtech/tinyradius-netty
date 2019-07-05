@@ -16,11 +16,11 @@ public class Ipv6Attribute extends RadiusAttribute {
         if (length != 18)
             throw new RadiusException("IPv6 attribute: expected length 18, packet declared " + length);
 
-        return new IpAttribute(dictionary, readType(data, offset), vendorId, readData(data, offset));
+        return new IpAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
     }
 
-    public Ipv6Attribute(Dictionary dictionary, int type, int vendorId, byte[] data) {
-        super(dictionary, type, vendorId, data);
+    public Ipv6Attribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+        super(dictionary, vendorId, type, data);
     }
 
     /**
@@ -29,16 +29,16 @@ public class Ipv6Attribute extends RadiusAttribute {
      * @param type  attribute type code
      * @param value value, format:ipv6 address
      */
-    public Ipv6Attribute(Dictionary dictionary, int type, int vendorId, String value) {
-        this(dictionary, type, vendorId, convertValue(value));
+    public Ipv6Attribute(Dictionary dictionary, int vendorId, int type, String value) {
+        this(dictionary, vendorId, type, convertValue(value));
     }
 
     /**
      * Returns the attribute value (IPv6 number) as a string of the format ipv6 address
      */
     @Override
-    public String getAttributeValue() {
-        byte[] data = getAttributeData();
+    public String getDataString() {
+        byte[] data = getData();
         if (data == null || data.length != 16)
             throw new RuntimeException("ip attribute: expected 16 bytes attribute data");
         try {

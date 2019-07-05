@@ -16,7 +16,7 @@ public class RadiusAttribute {
 
     private final Dictionary dictionary;
     private final int type;
-    private final byte[] attributeData;
+    private final byte[] data;
 
     private final int vendorId; //only for Vendor-Specific attributes and their sub-attributes
 
@@ -25,37 +25,37 @@ public class RadiusAttribute {
         if (length < 2)
             throw new RadiusException("Radius attribute: expected length min 2, packet declared " + length);
 
-        return new RadiusAttribute(dictionary, readType(data, offset), vendorId, readData(data, offset));
+        return new RadiusAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
     }
 
-    public RadiusAttribute(Dictionary dictionary, int type, int vendorId, byte[] data) {
-        this.dictionary = dictionary;
+    public RadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+        this.dictionary = requireNonNull(dictionary, "dictionary not set");
         this.vendorId = vendorId;
         if (type < 0 || type > 255)
             throw new IllegalArgumentException("attribute type invalid: " + type);
         this.type = type;
-        this.attributeData = data;
+        this.data = requireNonNull(data, "attribute data not set");
     }
 
     /**
      * @return attribute data as raw bytes
      */
-    public byte[] getAttributeData() {
-        return attributeData;
+    public byte[] getData() {
+        return data;
     }
 
     /**
      * @return attribute type code, 0-255
      */
-    public int getAttributeType() {
+    public int getType() {
         return type;
     }
 
     /**
      * @return value of this attribute as a string.
      */
-    public String getAttributeValue() {
-        return getHexString(getAttributeData());
+    public String getDataString() {
+        return getHexString(getData());
     }
 
     /**
@@ -73,17 +73,14 @@ public class RadiusAttribute {
     }
 
     /**
-     * @return entire attribute (including attribute type/length) as byte array
+     * @return entire attribute (including headers) as byte array
      */
-    public byte[] writeAttribute() {
-        if (getAttributeType() == -1)
-            throw new IllegalArgumentException("attribute type not set");
-        requireNonNull(attributeData, "attribute data not set");
+    public byte[] toByteArray() {
 
-        byte[] attr = new byte[2 + attributeData.length];
-        attr[0] = (byte) getAttributeType();
-        attr[1] = (byte) (2 + attributeData.length);
-        System.arraycopy(attributeData, 0, attr, 2, attributeData.length);
+        byte[] attr = new byte[2 + data.length];
+        attr[0] = (byte) getType();
+        attr[1] = (byte) (2 + data.length);
+        System.arraycopy(data, 0, attr, 2, data.length);
         return attr;
     }
 
@@ -117,22 +114,22 @@ public class RadiusAttribute {
         if (at != null)
             name = at.getName();
         else if (getVendorId() != -1)
-            name = "Unknown-Sub-Attribute-" + getAttributeType();
+            name = "Unknown-Sub-Attribute-" + getType();
         else
-            name = "Unknown-Attribute-" + getAttributeType();
+            name = "Unknown-Attribute-" + getType();
 
         // indent sub attributes
         if (getVendorId() != -1)
             name = "  " + name;
 
-        return name + ": " + getAttributeValue();
+        return name + ": " + getDataString();
     }
 
     /**
      * @return AttributeType object for (sub-)attribute or null
      */
     public AttributeType getAttributeTypeObject() {
-        return dictionary.getAttributeTypeByCode(getVendorId(), getAttributeType());
+        return dictionary.getAttributeTypeByCode(getVendorId(), getType());
     }
 
     /**

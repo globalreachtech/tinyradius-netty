@@ -15,23 +15,23 @@ public class IpAttribute extends RadiusAttribute {
         if (length != 6)
             throw new RadiusException("IP attribute: expected length 6, packet declared " + length);
 
-        return new IpAttribute(dictionary, readType(data, offset), vendorId, readData(data, offset));
+        return new IpAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
     }
 
-    public IpAttribute(Dictionary dictionary, int type, int vendorId, byte[] data) {
-        super(dictionary, type, vendorId, data);
+    public IpAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+        super(dictionary, vendorId, type, data);
     }
 
-    public IpAttribute(Dictionary dictionary, int type, int vendorId, String value) {
-        this(dictionary, type, vendorId, convertValue(value));
+    public IpAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+        this(dictionary, vendorId, type, convertValue(value));
     }
 
     /**
      * @param type  attribute type code
      * @param value 32 bit unsigned int
      */
-    public IpAttribute(Dictionary dictionary, int type, int vendorId, long value) {
-        this(dictionary, type, vendorId, convertValue(value));
+    public IpAttribute(Dictionary dictionary, int vendorId, int type, long value) {
+        this(dictionary, vendorId, type, convertValue(value));
     }
 
     /**
@@ -39,9 +39,9 @@ public class IpAttribute extends RadiusAttribute {
      * format "xx.xx.xx.xx".
      */
     @Override
-    public String getAttributeValue() {
+    public String getDataString() {
         StringBuilder ip = new StringBuilder();
-        byte[] data = getAttributeData();
+        byte[] data = getData();
         if (data == null || data.length != 4)
             throw new RuntimeException("ip attribute: expected 4 bytes attribute data");
 
@@ -54,6 +54,20 @@ public class IpAttribute extends RadiusAttribute {
         ip.append(data[3] & 0x0ff);
 
         return ip.toString();
+    }
+
+    /**
+     * Returns the IP number as a 32 bit unsigned number. The number is
+     * returned in a long because Java does not support unsigned ints.
+     *
+     * @return IP number
+     */
+    public long getDataLong() {
+        byte[] data = getData();
+        if (data == null || data.length != 4)
+            throw new RuntimeException("expected 4 bytes attribute data");
+        return ((long) (data[0] & 0x0ff)) << 24 | (data[1] & 0x0ff) << 16 |
+                (data[2] & 0x0ff) << 8 | (data[3] & 0x0ff);
     }
 
     /**
@@ -79,20 +93,6 @@ public class IpAttribute extends RadiusAttribute {
         }
 
         return (data);
-    }
-
-    /**
-     * Returns the IP number as a 32 bit unsigned number. The number is
-     * returned in a long because Java does not support unsigned ints.
-     *
-     * @return IP number
-     */
-    public long getIpAsLong() {
-        byte[] data = getAttributeData();
-        if (data == null || data.length != 4)
-            throw new RuntimeException("expected 4 bytes attribute data");
-        return ((long) (data[0] & 0x0ff)) << 24 | (data[1] & 0x0ff) << 16 |
-                (data[2] & 0x0ff) << 8 | (data[3] & 0x0ff);
     }
 
     /**

@@ -16,31 +16,31 @@ class RadiusPacketTest {
 
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
-        rp.addAttribute(new IpAttribute(rp.getDictionary(), 8, -1, 1234567));
-        rp.addAttribute(new Ipv6Attribute(rp.getDictionary(), 168, -1, "fe80::"));
-        rp.addAttribute(new Ipv6PrefixAttribute(rp.getDictionary(), 97, -1, "fe80::/64"));
-        rp.addAttribute(new Ipv6PrefixAttribute(rp.getDictionary(), 97, -1, "fe80::/128"));
+        rp.addAttribute(new IpAttribute(rp.getDictionary(), -1, 8, 1234567));
+        rp.addAttribute(new Ipv6Attribute(rp.getDictionary(), -1, 168, "fe80::"));
+        rp.addAttribute(new Ipv6PrefixAttribute(rp.getDictionary(), -1, 97, "fe80::/64"));
+        rp.addAttribute(new Ipv6PrefixAttribute(rp.getDictionary(), -1, 97, "fe80::/128"));
 
         final List<VendorSpecificAttribute> vendorAttributes = rp.getVendorAttributes(14122);
         assertEquals(1, vendorAttributes.size());
 
         final List<RadiusAttribute> wisprLocations = vendorAttributes.get(0).getSubAttributes();
         assertEquals(1, wisprLocations.size());
-        assertEquals("myLocationId", wisprLocations.get(0).getAttributeValue());
+        assertEquals("myLocationId", wisprLocations.get(0).getDataString());
 
-        assertEquals("myLocationId", rp.getAttribute(14122, 1).getAttributeValue());
+        assertEquals("myLocationId", rp.getAttribute(14122, 1).getDataString());
         final List<RadiusAttribute> wisprLocations2 = rp.getAttributes(14122, 1);
         assertEquals(1, wisprLocations2.size());
-        assertEquals("myLocationId", wisprLocations2.get(0).getAttributeValue());
+        assertEquals("myLocationId", wisprLocations2.get(0).getDataString());
 
-        assertEquals("0.18.214.135", rp.getAttribute(8).getAttributeValue());
-        assertEquals("0.18.214.135", rp.getAttribute("Framed-IP-Address").getAttributeValue());
-        assertEquals("fe80:0:0:0:0:0:0:0", rp.getAttribute(168).getAttributeValue());
-        assertEquals("fe80:0:0:0:0:0:0:0", rp.getAttribute("Framed-IPv6-Address").getAttributeValue());
+        assertEquals("0.18.214.135", rp.getAttribute(8).getDataString());
+        assertEquals("0.18.214.135", rp.getAttribute("Framed-IP-Address").getDataString());
+        assertEquals("fe80:0:0:0:0:0:0:0", rp.getAttribute(168).getDataString());
+        assertEquals("fe80:0:0:0:0:0:0:0", rp.getAttribute("Framed-IPv6-Address").getDataString());
 
         System.out.println(rp);
         final List<RadiusAttribute> ipV6Attributes = rp.getAttributes(97);
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
-                ipV6Attributes.stream().map(RadiusAttribute::getAttributeValue).toArray());
+                ipV6Attributes.stream().map(RadiusAttribute::getDataString).toArray());
     }
 }

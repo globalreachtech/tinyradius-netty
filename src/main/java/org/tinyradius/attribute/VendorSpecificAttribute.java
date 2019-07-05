@@ -25,7 +25,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     private final List<RadiusAttribute> subAttributes;
 
-    public static VendorSpecificAttribute parse(Dictionary dictionary, int ignoredVendorId, byte[] data, int offset) throws RadiusException {
+    public static VendorSpecificAttribute parse(Dictionary dictionary, int ignored,  byte[] data, int offset) throws RadiusException {
         int vsaCode = data[offset];
         if (vsaCode != VENDOR_SPECIFIC)
             throw new RadiusException("not a Vendor-Specific attribute");
@@ -47,7 +47,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     }
 
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, List<RadiusAttribute> subAttributes) {
-        super(dictionary, VENDOR_SPECIFIC, vendorId, null);
+        super(dictionary, vendorId, VENDOR_SPECIFIC, null);
         this.subAttributes = subAttributes;
     }
 
@@ -126,7 +126,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
             throw new IllegalArgumentException("sub-attribute type out of bounds");
 
         return subAttributes.stream()
-                .filter(sa -> sa.getAttributeType() == attributeType)
+                .filter(sa -> sa.getType() == attributeType)
                 .collect(Collectors.toList());
     }
 
@@ -180,14 +180,14 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     public String getSubAttributeValue(String type) {
         RadiusAttribute attr = getSubAttribute(type);
         return attr == null ?
-                null : attr.getAttributeValue();
+                null : attr.getDataString();
     }
 
     /**
      * Renders this attribute as a byte array.
      */
     @Override
-    public byte[] writeAttribute() {
+    public byte[] toByteArray() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(255);
         bos.write(VENDOR_SPECIFIC);
         bos.write(0); // length placeholder
@@ -199,7 +199,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         // write sub-attributes
         try {
             for (RadiusAttribute subAttribute : subAttributes) {
-                bos.write(subAttribute.writeAttribute());
+                bos.write(subAttribute.toByteArray());
             }
         } catch (IOException ioe) {
             // occurs never

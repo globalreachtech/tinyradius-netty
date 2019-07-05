@@ -15,19 +15,19 @@ public class StringAttribute extends RadiusAttribute {
         if (length < 3)
             throw new RadiusException("String attribute: expected length min 3, packet declared " + length);
 
-        return new StringAttribute(dictionary, readType(data, offset), vendorId, readData(data, offset));
+        return new StringAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
     }
 
-    public StringAttribute(Dictionary dictionary, int attributeType, int vendorId, byte[] data) {
-        super(dictionary, attributeType, vendorId, data);
+    public StringAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+        super(dictionary, vendorId, type, data);
     }
 
-    public StringAttribute(Dictionary dictionary, int type, int vendorId, String value) {
-        this(dictionary, type, vendorId, value.getBytes(UTF_8));
+    public StringAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+        this(dictionary, vendorId, type, value.getBytes(UTF_8));
     }
 
     @Override
-    public String getAttributeValue() {
-        return new String(getAttributeData(), UTF_8);
+    public String getDataString() {
+        return new String(getData(), UTF_8);
     }
 }
