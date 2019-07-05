@@ -9,11 +9,11 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
 - Uses netty for asynchronous IO, timeouts thread management
 - Most methods return (netty) Promises
 - Uses slf4j instead of commons-logging
-- Uses Gradle for builds
 - Updated to use Generics and Java 8 language features
 - Backported improvements from https://github.com/ctran/TinyRadius
 - Proxy uses Client to handle requests upstream and connection management
 - More immutability
+- More tests
 
 ## License
 Copyright Matthias Wuttke (mw@teuto.net) and contributors.

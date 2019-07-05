@@ -4,6 +4,8 @@ import org.tinyradius.dictionary.AttributeType;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
+import java.util.Arrays;
+
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -20,6 +22,15 @@ public class RadiusAttribute {
 
     private final int vendorId; //only for Vendor-Specific attributes and their sub-attributes
 
+    /**
+     *
+     * @param dictionary
+     * @param vendorId
+     * @param data
+     * @param offset
+     * @return
+     * @throws RadiusException
+     */
     public static RadiusAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
         final int length = readLength(data, offset);
         if (length < 2)
@@ -28,6 +39,13 @@ public class RadiusAttribute {
         return new RadiusAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
     }
 
+    /**
+     *
+     * @param dictionary
+     * @param vendorId
+     * @param type
+     * @param data
+     */
     public RadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         this.dictionary = requireNonNull(dictionary, "dictionary not set");
         this.vendorId = vendorId;
@@ -89,13 +107,11 @@ public class RadiusAttribute {
      *
      * @param data   input data
      * @param offset byte to start reading from
+     * @return
      */
     protected static byte[] readData(byte[] data, int offset) {
         int length = readLength(data, offset);
-
-        byte[] attrData = new byte[length - 2];
-        System.arraycopy(data, offset + 2, attrData, 0, length - 2);
-        return attrData;
+        return Arrays.copyOfRange(data, offset + 2, offset + length);
     }
 
     public static int readType(byte[] data, int offset) {

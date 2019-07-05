@@ -68,7 +68,7 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
      * is added to the packet in the "Proxy-State" attribute.
      */
     @Override
-    public Promise<RadiusPacket> handlePacket(Dictionary dictionary, Channel channel, RadiusPacket packet, InetSocketAddress remoteAddress, String sharedSecret) {
+    public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket packet, InetSocketAddress remoteAddress, String sharedSecret) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
 
         RadiusEndpoint clientEndpoint = new RadiusEndpoint(remoteAddress, sharedSecret);
@@ -84,7 +84,7 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
 
         radiusClient.communicate(packet, serverEndpoint, 3)
                 .addListener((Future<RadiusPacket> f) ->
-                        promise.trySuccess(handleServerResponse(dictionary, f.getNow())));
+                        promise.trySuccess(handleServerResponse(packet.getDictionary(), f.getNow())));
 
         return promise;
     }

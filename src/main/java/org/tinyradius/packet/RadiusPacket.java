@@ -40,6 +40,7 @@ public class RadiusPacket {
      * Builds a Radius packet with the given type and identifier
      * and without attributes.
      *
+     * @param dictionary custom dictionary to use
      * @param type       packet type
      * @param identifier packet identifier
      */
@@ -51,6 +52,7 @@ public class RadiusPacket {
      * Builds a Radius packet with the given type and identifier
      * and without attributes.
      *
+     * @param dictionary custom dictionary to use
      * @param type       packet type
      * @param identifier packet identifier
      */
@@ -62,6 +64,7 @@ public class RadiusPacket {
      * Builds a Radius packet with the given type and identifier
      * and without attributes.
      *
+     * @param dictionary custom dictionary to use
      * @param type       packet type
      * @param identifier packet identifier
      */
@@ -73,6 +76,7 @@ public class RadiusPacket {
      * Builds a Radius packet with the given type, identifier and
      * attributes.
      *
+     * @param dictionary custom dictionary to use
      * @param type       packet type
      * @param identifier packet identifier
      * @param attributes list of RadiusAttribute objects
@@ -86,7 +90,7 @@ public class RadiusPacket {
         this.packetIdentifier = identifier;
         this.authenticator = authenticator;
         this.attributes = requireNonNull(attributes, "attributes list is null");
-        this.dictionary = dictionary;
+        this.dictionary = requireNonNull(dictionary, "dicationary is null");
     }
 
     /**

@@ -12,7 +12,7 @@ public class AttributeBuilder {
      * @param type       attribute type
      * @param data       attribute data as byte array
      * @return RadiusAttribute object
-     * @throws RadiusException
+     * @throws RadiusException if unable to create attribute for given attribute vendorId/type and data
      */
     public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) throws RadiusException {
         final ByteArrayConstructor byteArrayConstructor = dictionary.getAttributeTypeByCode(vendorId, type).getByteArrayConstructor();
@@ -27,7 +27,7 @@ public class AttributeBuilder {
      * @param type       attribute type
      * @param data       attribute data as String
      * @return RadiusAttribute object
-     * @throws RadiusException
+     * @throws RadiusException if unable to create attribute for given attribute vendorId/type and data
      */
     public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int type, String data) throws RadiusException {
         final StringConstructor stringConstructor = dictionary.getAttributeTypeByCode(vendorId, type).getStringConstructor();
@@ -35,13 +35,13 @@ public class AttributeBuilder {
     }
 
     /**
-     * @param dictionary
-     * @param vendorId
-     * @param type
-     * @param sourceArray
-     * @param offset
-     * @return
-     * @throws RadiusException
+     * @param dictionary  Dictionary to use
+     * @param vendorId    vendor ID or -1
+     * @param type        attribute type
+     * @param sourceArray source array to read data from
+     * @param offset      offset in array to start reading from
+     * @return RadiusAttribute object
+     * @throws RadiusException if source data invalid or unable to create attribute for given attribute vendorId/type and data
      */
     public static RadiusAttribute parseRadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] sourceArray, int offset)
             throws RadiusException {

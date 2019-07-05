@@ -9,7 +9,6 @@ import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.*;
 import org.tinyradius.util.SecretProvider;
 
@@ -40,21 +39,20 @@ public class TestServer {
                 return userName.equals("test") ? "password" : null;
             }
 
-            // Adds an attribute to the Access-Accept packet
             @Override
-            public Promise<RadiusPacket> handlePacket(Dictionary dictionary, Channel channel, AccessRequest accessRequest, InetSocketAddress remoteAddress, String sharedSecret) {
-                System.out.println("Received Access-Request:\n" + accessRequest);
+            public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest packet, InetSocketAddress remoteAddress, String sharedSecret) {
+                System.out.println("Received Access-Request:\n" + packet);
                 final Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
-                super.handlePacket(dictionary, channel, accessRequest, remoteAddress, sharedSecret).addListener((Future<RadiusPacket> f) -> {
-                    final RadiusPacket packet = f.getNow();
-                    if (packet == null) {
+                super.handlePacket(channel, packet, remoteAddress, sharedSecret).addListener((Future<RadiusPacket> f) -> {
+                    final RadiusPacket response = f.getNow();
+                    if (response == null) {
                         System.out.println("Ignore packet.");
                         promise.tryFailure(f.cause());
                     } else {
-                        if (packet.getPacketType() == PacketType.ACCESS_ACCEPT)
-                            packet.addAttribute("Reply-Message", "Welcome " + accessRequest.getUserName() + "!");
-                        System.out.println("Answer:\n" + packet);
-                        promise.trySuccess(packet);
+                        if (response.getPacketType() == PacketType.ACCESS_ACCEPT)
+                            response.addAttribute("Reply-Message", "Welcome " + packet.getUserName() + "!");
+                        System.out.println("Answer:\n" + response);
+                        promise.trySuccess(response);
                     }
                 });
 

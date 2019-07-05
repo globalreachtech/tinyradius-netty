@@ -28,8 +28,10 @@ public class IpAttribute extends RadiusAttribute {
     }
 
     /**
-     * @param type  attribute type code
-     * @param value 32 bit unsigned int
+     * @param dictionary dictionary to use
+     * @param vendorId
+     * @param type       attribute type code
+     * @param value      32 bit unsigned int
      */
     public IpAttribute(Dictionary dictionary, int vendorId, int type, long value) {
         this(dictionary, vendorId, type, convertIpV4(value));
