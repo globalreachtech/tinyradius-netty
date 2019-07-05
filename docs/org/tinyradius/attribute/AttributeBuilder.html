@@ -209,31 +209,31 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createRadiusAttribute(org.tinyradius.dictionary.Dictionary,int,int,byte%5B%5D)">createRadiusAttribute</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                     int&nbsp;vendorId,
-                     int&nbsp;type,
-                     byte[]&nbsp;data)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#create(org.tinyradius.dictionary.Dictionary,int,int,byte%5B%5D)">create</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+      int&nbsp;vendorId,
+      int&nbsp;type,
+      byte[]&nbsp;data)</code></th>
 <td class="colLast">
 <div class="block">Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createRadiusAttribute(org.tinyradius.dictionary.Dictionary,int,int,java.lang.String)">createRadiusAttribute</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                     int&nbsp;vendorId,
-                     int&nbsp;type,
-                     java.lang.String&nbsp;data)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#create(org.tinyradius.dictionary.Dictionary,int,int,java.lang.String)">create</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+      int&nbsp;vendorId,
+      int&nbsp;type,
+      java.lang.String&nbsp;data)</code></th>
 <td class="colLast">
 <div class="block">Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRadiusAttribute(org.tinyradius.dictionary.Dictionary,int,int,byte%5B%5D,int)">parseRadiusAttribute</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                    int&nbsp;vendorId,
-                    int&nbsp;type,
-                    byte[]&nbsp;sourceArray,
-                    int&nbsp;offset)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parse(org.tinyradius.dictionary.Dictionary,int,int,byte%5B%5D,int)">parse</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+     int&nbsp;vendorId,
+     int&nbsp;type,
+     byte[]&nbsp;sourceArray,
+     int&nbsp;offset)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -279,17 +279,17 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="createRadiusAttribute(org.tinyradius.dictionary.Dictionary,int,int,byte[])">
+<a id="create(org.tinyradius.dictionary.Dictionary,int,int,byte[])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>createRadiusAttribute</h4>
-<pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;createRadiusAttribute&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                                                    int&nbsp;vendorId,
-                                                    int&nbsp;type,
-                                                    byte[]&nbsp;data)
-                                             throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<h4>create</h4>
+<pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;create&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                                     int&nbsp;vendorId,
+                                     int&nbsp;type,
+                                     byte[]&nbsp;data)
+                              throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <div class="block">Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -304,17 +304,17 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="createRadiusAttribute(org.tinyradius.dictionary.Dictionary,int,int,java.lang.String)">
+<a id="create(org.tinyradius.dictionary.Dictionary,int,int,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>createRadiusAttribute</h4>
-<pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;createRadiusAttribute&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                                                    int&nbsp;vendorId,
-                                                    int&nbsp;type,
-                                                    java.lang.String&nbsp;data)
-                                             throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<h4>create</h4>
+<pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;create&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                                     int&nbsp;vendorId,
+                                     int&nbsp;type,
+                                     java.lang.String&nbsp;data)
+                              throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <div class="block">Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -329,18 +329,18 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="parseRadiusAttribute(org.tinyradius.dictionary.Dictionary,int,int,byte[],int)">
+<a id="parse(org.tinyradius.dictionary.Dictionary,int,int,byte[],int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>parseRadiusAttribute</h4>
-<pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;parseRadiusAttribute&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                                                   int&nbsp;vendorId,
-                                                   int&nbsp;type,
-                                                   byte[]&nbsp;sourceArray,
-                                                   int&nbsp;offset)
-                                            throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<h4>parse</h4>
+<pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;parse&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                                    int&nbsp;vendorId,
+                                    int&nbsp;type,
+                                    byte[]&nbsp;sourceArray,
+                                    int&nbsp;offset)
+                             throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dictionary</code> - Dictionary to use</dd>

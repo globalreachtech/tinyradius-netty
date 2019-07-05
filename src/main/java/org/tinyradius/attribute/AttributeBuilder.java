@@ -14,7 +14,7 @@ public class AttributeBuilder {
      * @return RadiusAttribute object
      * @throws RadiusException if unable to create attribute for given attribute vendorId/type and data
      */
-    public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) throws RadiusException {
+    public static RadiusAttribute create(Dictionary dictionary, int vendorId, int type, byte[] data) throws RadiusException {
         final ByteArrayConstructor byteArrayConstructor = dictionary.getAttributeTypeByCode(vendorId, type).getByteArrayConstructor();
         return byteArrayConstructor.newInstance(dictionary, vendorId, type, data);
     }
@@ -29,7 +29,7 @@ public class AttributeBuilder {
      * @return RadiusAttribute object
      * @throws RadiusException if unable to create attribute for given attribute vendorId/type and data
      */
-    public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int type, String data) throws RadiusException {
+    public static RadiusAttribute create(Dictionary dictionary, int vendorId, int type, String data) throws RadiusException {
         final StringConstructor stringConstructor = dictionary.getAttributeTypeByCode(vendorId, type).getStringConstructor();
         return stringConstructor.newInstance(dictionary, vendorId, type, data);
     }
@@ -43,7 +43,7 @@ public class AttributeBuilder {
      * @return RadiusAttribute object
      * @throws RadiusException if source data invalid or unable to create attribute for given attribute vendorId/type and data
      */
-    public static RadiusAttribute parseRadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] sourceArray, int offset)
+    public static RadiusAttribute parse(Dictionary dictionary, int vendorId, int type, byte[] sourceArray, int offset)
             throws RadiusException {
         final PacketParser packetParser = dictionary.getAttributeTypeByCode(vendorId, type).getPacketParser();
         return packetParser.parse(dictionary, vendorId, sourceArray, offset);

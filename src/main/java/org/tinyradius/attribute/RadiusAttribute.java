@@ -23,13 +23,12 @@ public class RadiusAttribute {
     private final int vendorId; //only for Vendor-Specific attributes and their sub-attributes
 
     /**
-     *
-     * @param dictionary
-     * @param vendorId
-     * @param data
-     * @param offset
-     * @return
-     * @throws RadiusException
+     * @param dictionary Dictionary to use
+     * @param vendorId   vendor ID or -1
+     * @param data       source array to read data from
+     * @param offset     offset in array to start reading from
+     * @return RadiusAttribute object
+     * @throws RadiusException if source data invalid or unable to create attribute for given attribute vendorId/type and data
      */
     public static RadiusAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
         final int length = readLength(data, offset);
@@ -40,7 +39,6 @@ public class RadiusAttribute {
     }
 
     /**
-     *
      * @param dictionary
      * @param vendorId
      * @param type

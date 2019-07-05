@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.tinyradius.attribute.AttributeBuilder.createRadiusAttribute;
+import static org.tinyradius.attribute.AttributeBuilder.create;
 
 /**
  * This class represents a "Vendor-Specific" attribute.
@@ -98,7 +98,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         if (type.getVendorId() != getVendorId())
             throw new IllegalArgumentException("attribute type '" + name + "' does not belong to vendor ID " + getVendorId());
 
-        RadiusAttribute attribute = createRadiusAttribute(getDictionary(), getVendorId(), type.getTypeCode(), value);
+        RadiusAttribute attribute = create(getDictionary(), getVendorId(), type.getTypeCode(), value);
         addSubAttribute(attribute);
     }
 
@@ -228,7 +228,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
             if (pos + 1 >= vsaLen)
                 throw new RadiusException("Vendor-Specific attribute malformed");
             int subtype = data[(offset + 6) + pos] & 0x0ff;
-            RadiusAttribute a = AttributeBuilder.parseRadiusAttribute(dictionary, vendorId, subtype, data, (offset + 6) + pos);
+            RadiusAttribute a = AttributeBuilder.parse(dictionary, vendorId, subtype, data, (offset + 6) + pos);
             attributes.add(a);
             int sublength = data[(offset + 6) + pos + 1] & 0x0ff;
             pos += sublength;

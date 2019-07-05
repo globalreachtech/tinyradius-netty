@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.AttributeBuilder.createRadiusAttribute;
+import static org.tinyradius.attribute.AttributeBuilder.create;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
@@ -150,7 +150,7 @@ public class RadiusPacket {
         if (type == null)
             throw new IllegalArgumentException("unknown attribute type '" + typeName + "'");
 
-        RadiusAttribute attribute = createRadiusAttribute(getDictionary(), type.getVendorId(), type.getTypeCode(), value);
+        RadiusAttribute attribute = create(getDictionary(), type.getVendorId(), type.getTypeCode(), value);
         addAttribute(attribute);
     }
 

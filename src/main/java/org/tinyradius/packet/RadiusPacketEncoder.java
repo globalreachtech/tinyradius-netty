@@ -164,7 +164,7 @@ public class RadiusPacketEncoder {
             int attributeLength = attributeData[pos + 1] & 0x0ff;
             if (attributeLength < 2)
                 throw new RadiusException("bad packet: invalid attribute length");
-            RadiusAttribute a = AttributeBuilder.parseRadiusAttribute(dictionary, -1, attributeType, attributeData, pos);
+            RadiusAttribute a = AttributeBuilder.parse(dictionary, -1, attributeType, attributeData, pos);
             attributes.add(a);
             pos += attributeLength;
         }

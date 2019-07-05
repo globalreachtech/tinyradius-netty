@@ -317,13 +317,14 @@ extends java.lang.Object</pre>
                              throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dictionary</code> - </dd>
-<dd><code>vendorId</code> - </dd>
-<dd><code>data</code> - </dd>
-<dd><code>offset</code> - </dd>
+<dd><code>dictionary</code> - Dictionary to use</dd>
+<dd><code>vendorId</code> - vendor ID or -1</dd>
+<dd><code>data</code> - source array to read data from</dd>
+<dd><code>offset</code> - offset in array to start reading from</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
+<dd>RadiusAttribute object</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - if source data invalid or unable to create attribute for given attribute vendorId/type and data</dd>
 </dl>
 </li>
 </ul>

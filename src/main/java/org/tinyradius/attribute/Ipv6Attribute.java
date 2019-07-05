@@ -3,7 +3,6 @@ package org.tinyradius.attribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -12,12 +11,12 @@ import java.net.UnknownHostException;
  */
 public class Ipv6Attribute extends RadiusAttribute {
 
-    public static IpAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
+    public static Ipv6Attribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
         final int length = readLength(data, offset);
         if (length != 18)
             throw new RadiusException("IPv6 attribute: expected length 18, packet declared " + length);
 
-        return new IpAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
+        return new Ipv6Attribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
     }
 
     public Ipv6Attribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
@@ -43,11 +42,10 @@ public class Ipv6Attribute extends RadiusAttribute {
         if (data == null || data.length != 16)
             throw new RuntimeException("ip attribute: expected 16 bytes attribute data");
         try {
-            return Inet6Address.getByAddress(null, data).getHostAddress();
+            return InetAddress.getByAddress(data).getHostAddress();
         } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("bad IPv6 address", e);
+            throw new IllegalArgumentException("bad address", e);
         }
-
     }
 
     /**

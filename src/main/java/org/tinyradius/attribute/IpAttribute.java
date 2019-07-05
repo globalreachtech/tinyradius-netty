@@ -43,20 +43,14 @@ public class IpAttribute extends RadiusAttribute {
      */
     @Override
     public String getDataString() {
-        StringBuilder ip = new StringBuilder();
         byte[] data = getData();
         if (data == null || data.length != 4)
             throw new RuntimeException("ip attribute: expected 4 bytes attribute data");
-
-        ip.append(data[0] & 0x0ff);
-        ip.append(".");
-        ip.append(data[1] & 0x0ff);
-        ip.append(".");
-        ip.append(data[2] & 0x0ff);
-        ip.append(".");
-        ip.append(data[3] & 0x0ff);
-
-        return ip.toString();
+        try {
+            return InetAddress.getByAddress(data).getHostAddress();
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("bad address", e);
+        }
     }
 
     /**
@@ -69,8 +63,10 @@ public class IpAttribute extends RadiusAttribute {
         byte[] data = getData();
         if (data == null || data.length != 4)
             throw new RuntimeException("expected 4 bytes attribute data");
-        return ((long) (data[0] & 0x0ff)) << 24 | (data[1] & 0x0ff) << 16 |
-                (data[2] & 0x0ff) << 8 | (data[3] & 0x0ff);
+        return ((long) (data[0] & 0x0ff)) << 24
+                | (data[1] & 0x0ff) << 16
+                | (data[2] & 0x0ff) << 8
+                | (data[3] & 0x0ff);
     }
 
     /**
