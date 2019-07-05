@@ -35,7 +35,7 @@ class DictionaryParserTest {
     static void tearDown() throws IOException {
         Files.delete(tmpPath.resolve(TEST_DICTIONARY));
         Files.delete(tmpPath.resolve(DEFAULT_DICTIONARY));
-        Files.delete(tmpPath.resolve(TEST_DICTIONARY));
+        Files.delete(tmpPath.resolve(RFC_DICTIONARY));
     }
 
     @Test

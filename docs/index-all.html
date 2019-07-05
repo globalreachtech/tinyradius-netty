@@ -256,18 +256,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/ChannelInboundHandler.html#channelRead0(io.netty.channel.ChannelHandlerContext,io.netty.channel.socket.DatagramPacket)">channelRead0(ChannelHandlerContext, DatagramPacket)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/ChannelInboundHandler.html" title="class in org.tinyradius.server">ChannelInboundHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#checkRequestAuthenticator(java.lang.String)">checkRequestAuthenticator(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
-<dd>
-<div class="block">Checks the received request authenticator as specified by RFC 2866.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#checkRequestAuthenticator(java.lang.String)">checkRequestAuthenticator(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
-<dd>
-<div class="block">Checks the request authenticator against the supplied shared secret.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#checkResponseAuthenticator(java.lang.String,byte%5B%5D)">checkResponseAuthenticator(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
-<dd>
-<div class="block">This method checks the authenticator of this Radius packet.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/dictionary/DictionaryParser.ClasspathResourceResolver.html#%3Cinit%3E()">ClasspathResourceResolver()</a></span> - Constructor for class org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/DictionaryParser.ClasspathResourceResolver.html" title="class in org.tinyradius.dictionary">DictionaryParser.ClasspathResourceResolver</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/client/ClientHandler.html" title="class in org.tinyradius.client"><span class="typeNameLink">ClientHandler</span></a> - Class in <a href="org/tinyradius/client/package-summary.html">org.tinyradius.client</a></dt>
@@ -310,14 +298,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">D</h2>
 <dl>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#decodeRequestAttributes(java.lang.String)">decodeRequestAttributes(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#decodeAttributes(java.lang.String)">decodeAttributes(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
 <dd>
 <div class="block">Decrypts the User-Password attribute.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#decodeRequestAttributes(java.lang.String)">decodeRequestAttributes(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#decodeAttributes(java.lang.String)">decodeAttributes(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
 <dd>
-<div class="block">Can be overridden to decode encoded request attributes such as
- User-Password.</div>
+<div class="block">Can be overridden to decode attributes such as User-Password.</div>
 </dd>
 <dt><a href="org/tinyradius/server/DeduplicatorHandler.html" title="class in org.tinyradius.server"><span class="typeNameLink">DeduplicatorHandler</span></a>&lt;<a href="org/tinyradius/server/DeduplicatorHandler.html" title="type parameter in DeduplicatorHandler">T</a> extends <a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt; - Class in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
 <dd>
@@ -364,14 +351,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h2 class="title">E</h2>
 <dl>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#encodeRequest(java.lang.String)">encodeRequest(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">AccessRequest overrides this method to generate a randomized authenticator as per RFC 2865
+ and encode required attributes (i.e.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#encodeRequest(java.lang.String)">encodeRequest(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/CoaRequest.html#encodeRequest(java.lang.String)">encodeRequest(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/CoaRequest.html" title="class in org.tinyradius.packet">CoaRequest</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#encodeRequest(java.lang.String)">encodeRequest(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
 <dd>
-<div class="block">Encode request and generate authenticator if required.</div>
+<div class="block">Encode request and generate authenticator.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#encodeRequestAttributes(byte%5B%5D,java.lang.String)">encodeRequestAttributes(byte[], String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
 <dd>
@@ -1133,6 +1123,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/attribute/VendorSpecificAttribute.html#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,int,java.util.List)">VendorSpecificAttribute(Dictionary, int, List&lt;RadiusAttribute&gt;)</a></span> - Constructor for class org.tinyradius.attribute.<a href="org/tinyradius/attribute/VendorSpecificAttribute.html" title="class in org.tinyradius.attribute">VendorSpecificAttribute</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#verifyAuthenticator(java.lang.String,byte%5B%5D)">verifyAuthenticator(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
+<dd>
+<div class="block">There is no way to check request authenticators for
+ authentication requests as they contain secret bytes.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#verifyAuthenticator(java.lang.String,byte%5B%5D)">verifyAuthenticator(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
+<dd>
+<div class="block">Checks the request authenticator against the supplied shared secret.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#verifyPassword(java.lang.String)">verifyPassword(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
 <dd>
 <div class="block">Verifies that the passed plain-text password matches the password
