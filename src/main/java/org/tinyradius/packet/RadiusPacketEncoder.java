@@ -88,8 +88,12 @@ public class RadiusPacketEncoder {
      */
     public static RadiusPacket fromResponseDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret, RadiusPacket request)
             throws IOException, RadiusException {
-        return fromDatagram(dictionary, packet, sharedSecret,
-                requireNonNull(request, "request may not be null"));
+        requireNonNull(request, "request may not be null");
+
+        if (request.getAuthenticator() == null)
+            throw new RuntimeException("request authenticator not set");
+
+        return fromDatagram(dictionary, packet, sharedSecret, request);
     }
 
     /**
@@ -115,10 +119,6 @@ public class RadiusPacketEncoder {
             if (sharedSecret == null || sharedSecret.isEmpty())
                 throw new RuntimeException("no shared secret has been set");
 
-            // check request authenticator
-            if (request != null && request.getAuthenticator() == null)
-                throw new RuntimeException("request authenticator not set");
-
             // read and check header
             int type = in.read() & 0x0ff;
             int identifier = in.read() & 0x0ff;
@@ -142,14 +142,14 @@ public class RadiusPacketEncoder {
             // create RadiusPacket object
             RadiusPacket rp = createRadiusPacket(dictionary, type, identifier, authenticator, attributes);
 
-            if (request == null) {
-                // decode attributes
-                rp.decodeRequestAttributes(sharedSecret);
-                rp.checkRequestAuthenticator(sharedSecret);
-            } else {
-                // response packet: check authenticator
-                rp.checkResponseAuthenticator(sharedSecret, request.getAuthenticator());
-            }
+            // decode attributes
+            rp.decodeAttributes(sharedSecret);
+
+            final byte[] requestAuth = request == null ?
+                    new byte[16] : request.getAuthenticator();
+
+            if (!rp.verifyAuthenticator(sharedSecret, requestAuth))
+                throw new RadiusException("Authenticator check failed");
 
             return rp;
         }

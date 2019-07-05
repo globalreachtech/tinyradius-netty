@@ -11,10 +11,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -414,24 +411,18 @@ public class RadiusPacket {
     }
 
     /**
-     * Encode request and generate authenticator if required.
+     * Encode request and generate authenticator.
      * <p>
-     * AccountingRequest/CoA/DisconnectRequest overrides this method to create a hash authenticator as per RFC 2866.
-     * <p>
-     * AccessRequest overrides this method to generate a randomized authenticator as per RFC 2865
-     * and encode required attributes (i.e. User-Password).
-     * <p>
-     * Base implementation in RadiusPacket generates randomized authenticator as used by
-     * Access-Request/Status-Server. As more packet types are supported, consider changing
-     * the default encodeRequest() method.
+     * Base implementation generates hashed authenticator. This
+     * should be overridden for any specialized/subclassed packet types.
      *
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client
      * @throws RadiusException malformed packet
      */
     protected RadiusPacket encodeRequest(String sharedSecret) throws RadiusException {
-        return authenticator != null ?
-                this : new RadiusPacket(dictionary, packetType, packetIdentifier, generateRandomizedAuthenticator(), this.attributes);
+        final byte[] hashedAuthenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
+        return new RadiusPacket(dictionary, packetType, packetIdentifier, hashedAuthenticator, this.attributes);
     }
 
     /**
@@ -469,44 +460,27 @@ public class RadiusPacket {
 
     /**
      * Checks the request authenticator against the supplied shared secret.
-     * Overridden by AccountingRequest to handle special accounting request
-     * authenticators. There is no way to check request authenticators for
-     * authentication requests as they contain secret bytes.
      *
-     * @param sharedSecret shared secret
-     * @throws RadiusException malformed packet
+     * @param sharedSecret         shared secret
+     * @param requestAuthenticator should be set to request authenticator if verifying response,
+     *                             otherwise set to 16 zero octets
+     * @return true if the authenticator is valid, false otherwise
      */
-    protected void checkRequestAuthenticator(String sharedSecret) throws RadiusException, IOException {
+    protected boolean verifyAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
+        byte[] expectedAuth = createHashedAuthenticator(sharedSecret, requestAuthenticator);
+        byte[] receivedAuth = getAuthenticator();
+
+        return expectedAuth.length == 16
+                && Arrays.equals(expectedAuth, receivedAuth);
     }
 
     /**
-     * Can be overridden to decode encoded request attributes such as
-     * User-Password. This method may use getAuthenticator() to get the
-     * request authenticator.
+     * Can be overridden to decode attributes such as User-Password.
      *
      * @param sharedSecret used for decoding
      * @throws RadiusException malformed packet
      */
-    protected void decodeRequestAttributes(String sharedSecret) throws RadiusException {
-    }
-
-    /**
-     * This method checks the authenticator of this Radius packet. This method
-     * may be overridden to include special attributes in the authenticator check.
-     *
-     * @param sharedSecret         shared secret to be used to encrypt the authenticator
-     * @param requestAuthenticator 16 bytes authenticator of the request packet belonging
-     *                             to this response packet
-     * @throws RadiusException malformed packet
-     */
-    protected void checkResponseAuthenticator(String sharedSecret, byte[] requestAuthenticator) throws RadiusException {
-        byte[] authenticator = createHashedAuthenticator(sharedSecret, requestAuthenticator);
-        byte[] receivedAuth = getAuthenticator();
-        for (int i = 0; i < 16; i++)
-            if (authenticator[i] != receivedAuth[i])
-                throw new RadiusException("response authenticator invalid");
-
-// todo        Arrays.equals(authenticator, receivedAuth)
+    protected void decodeAttributes(String sharedSecret) throws RadiusException {
     }
 
     protected MessageDigest getMd5Digest() {
@@ -521,7 +495,6 @@ public class RadiusPacket {
      * Encodes the attributes of this Radius packet to a byte array.
      *
      * @return byte array with encoded attributes
-     * @throws IOException error writing data
      */
     protected byte[] getAttributeBytes() {
         try {

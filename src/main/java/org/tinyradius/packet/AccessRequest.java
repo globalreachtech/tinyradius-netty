@@ -152,6 +152,19 @@ public class AccessRequest extends RadiusPacket {
             throw new IllegalArgumentException("protocol must be in " + AUTH_PROTOCOLS);
     }
 
+
+    /**
+     * There is no way to check request authenticators for
+     * authentication requests as they contain secret bytes.
+     *
+     * @param sharedSecret shared secret
+     * @return true if the password is valid, false otherwise
+     */
+    @Override
+    protected boolean verifyAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
+        return true;
+    }
+
     /**
      * Verifies that the passed plain-text password matches the password
      * (hash) send with this Access-Request packet. Works with both PAP
@@ -172,6 +185,7 @@ public class AccessRequest extends RadiusPacket {
                 throw new RadiusException(AUTH_MS_CHAP_V2 + " verification not supported yet");
             case AUTH_EAP:
                 throw new RadiusException(AUTH_EAP + " verification not supported yet");
+            case AUTH_PAP:
             default:
                 return getUserPassword().equals(plaintext);
         }
@@ -181,7 +195,7 @@ public class AccessRequest extends RadiusPacket {
      * Decrypts the User-Password attribute.
      */
     @Override
-    protected void decodeRequestAttributes(String sharedSecret) throws RadiusException {
+    protected void decodeAttributes(String sharedSecret) throws RadiusException {
         // detect auth protocol
         RadiusAttribute userPassword = getAttribute(USER_PASSWORD);
         RadiusAttribute chapPassword = getAttribute(CHAP_PASSWORD);
@@ -211,6 +225,15 @@ public class AccessRequest extends RadiusPacket {
             throw new RadiusException("Access-Request: User-Password or CHAP-Password/CHAP-Challenge missing");
     }
 
+    /**
+     * AccessRequest overrides this method to generate a randomized authenticator as per RFC 2865
+     * and encode required attributes (i.e. User-Password).
+     *
+     * @param sharedSecret shared secret that secures the communication
+     *                     with the other Radius server/client
+     * @return
+     * @throws RadiusException
+     */
     @Override
     protected AccessRequest encodeRequest(String sharedSecret) throws RadiusException {
         // create authenticator only if needed
