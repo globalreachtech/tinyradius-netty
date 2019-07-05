@@ -160,8 +160,8 @@ extends java.lang.Object</pre>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,int,int,byte%5B%5D)">RadiusAttribute</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-               int&nbsp;type,
                int&nbsp;vendorId,
+               int&nbsp;type,
                byte[]&nbsp;data)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -184,28 +184,28 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>byte[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeData()">getAttributeData</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeType()">getAttributeType</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../dictionary/AttributeType.html" title="class in org.tinyradius.dictionary">AttributeType</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeTypeObject()">getAttributeTypeObject</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getData()">getData</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeValue()">getAttributeValue</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDataString()">getDataString</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDictionary()">getDictionary</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDictionary()">getDictionary</a></span>()</code></th>
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getType()">getType</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -242,13 +242,13 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
+<td class="colFirst"><code>byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toByteArray()">toByteArray</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><code>byte[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeAttribute()">writeAttribute</a></span>()</code></th>
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -282,8 +282,8 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>RadiusAttribute</h4>
 <pre>public&nbsp;RadiusAttribute&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                       int&nbsp;type,
                        int&nbsp;vendorId,
+                       int&nbsp;type,
                        byte[]&nbsp;data)</pre>
 </li>
 </ul>
@@ -314,39 +314,39 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="getAttributeData()">
+<a id="getData()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getAttributeData</h4>
-<pre class="methodSignature">public&nbsp;byte[]&nbsp;getAttributeData()</pre>
+<h4>getData</h4>
+<pre class="methodSignature">public&nbsp;byte[]&nbsp;getData()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>attribute data as raw bytes</dd>
 </dl>
 </li>
 </ul>
-<a id="getAttributeType()">
+<a id="getType()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getAttributeType</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;getAttributeType()</pre>
+<h4>getType</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getType()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>attribute type code, 0-255</dd>
 </dl>
 </li>
 </ul>
-<a id="getAttributeValue()">
+<a id="getDataString()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getAttributeValue</h4>
-<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;getAttributeValue()</pre>
+<h4>getDataString</h4>
+<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;getDataString()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>value of this attribute as a string.</dd>
@@ -379,16 +379,16 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="writeAttribute()">
+<a id="toByteArray()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>writeAttribute</h4>
-<pre class="methodSignature">public&nbsp;byte[]&nbsp;writeAttribute()</pre>
+<h4>toByteArray</h4>
+<pre class="methodSignature">public&nbsp;byte[]&nbsp;toByteArray()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>entire attribute (including attribute type/length) as byte array</dd>
+<dd>entire attribute (including headers) as byte array</dd>
 </dl>
 </li>
 </ul>
