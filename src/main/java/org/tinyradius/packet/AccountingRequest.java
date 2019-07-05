@@ -16,15 +16,11 @@ import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
  */
 public class AccountingRequest extends RadiusPacket {
 
-    /**
-     * Attributes
-     */
+    // Attributes
     private static final int USER_NAME = 1;
     private static final int ACCT_STATUS_TYPE = 40;
 
-    /**
-     * Acct-Status-Type values
-     */
+    // Acct-Status-Type values
     public static final int ACCT_STATUS_TYPE_START = 1;
     public static final int ACCT_STATUS_TYPE_STOP = 2;
     public static final int ACCT_STATUS_TYPE_INTERIM_UPDATE = 3;

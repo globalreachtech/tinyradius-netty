@@ -150,9 +150,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#ACCT_STATUS_TYPE_INTERIM_UPDATE">ACCT_STATUS_TYPE_INTERIM_UPDATE</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#ACCT_STATUS_TYPE_START">ACCT_STATUS_TYPE_START</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
-<dd>
-<div class="block">Acct-Status-Type values</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#ACCT_STATUS_TYPE_STOP">ACCT_STATUS_TYPE_STOP</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/server/AcctHandler.html" title="class in org.tinyradius.server"><span class="typeNameLink">AcctHandler</span></a> - Class in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
@@ -256,6 +254,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/ChannelInboundHandler.html#channelRead0(io.netty.channel.ChannelHandlerContext,io.netty.channel.socket.DatagramPacket)">channelRead0(ChannelHandlerContext, DatagramPacket)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/ChannelInboundHandler.html" title="class in org.tinyradius.server">ChannelInboundHandler</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#checkAuthenticator(java.lang.String,byte%5B%5D)">checkAuthenticator(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
+<dd>
+<div class="block">AccessRequest checkAuthenticator() is a NOOP.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#checkAuthenticator(java.lang.String,byte%5B%5D)">checkAuthenticator(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
+<dd>
+<div class="block">Checks the request authenticator against the supplied shared secret.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/dictionary/DictionaryParser.ClasspathResourceResolver.html#%3Cinit%3E()">ClasspathResourceResolver()</a></span> - Constructor for class org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/DictionaryParser.ClasspathResourceResolver.html" title="class in org.tinyradius.dictionary">DictionaryParser.ClasspathResourceResolver</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/client/ClientHandler.html" title="class in org.tinyradius.client"><span class="typeNameLink">ClientHandler</span></a> - Class in <a href="org/tinyradius/client/package-summary.html">org.tinyradius.client</a></dt>
@@ -644,21 +650,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">H</h2>
 <dl>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/AuthHandler.html#handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,org.tinyradius.packet.AccessRequest,java.net.InetSocketAddress,java.lang.String)">handlePacket(Dictionary, Channel, AccessRequest, InetSocketAddress, String)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/AuthHandler.html" title="class in org.tinyradius.server">AuthHandler</a></dt>
-<dd>
-<div class="block">Constructs an answer for an Access-Request packet.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/AcctHandler.html#handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,org.tinyradius.packet.AccountingRequest,java.net.InetSocketAddress,java.lang.String)">handlePacket(Dictionary, Channel, AccountingRequest, InetSocketAddress, String)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/AcctHandler.html" title="class in org.tinyradius.server">AcctHandler</a></dt>
-<dd>
-<div class="block">Constructs an answer for an Accounting-Request packet.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/proxy/ProxyRequestHandler.html#handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">handlePacket(Dictionary, Channel, RadiusPacket, InetSocketAddress, String)</a></span> - Method in class org.tinyradius.proxy.<a href="org/tinyradius/proxy/ProxyRequestHandler.html" title="class in org.tinyradius.proxy">ProxyRequestHandler</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/AuthHandler.html#handlePacket(io.netty.channel.Channel,org.tinyradius.packet.AccessRequest,java.net.InetSocketAddress,java.lang.String)">handlePacket(Channel, AccessRequest, InetSocketAddress, String)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/AuthHandler.html" title="class in org.tinyradius.server">AuthHandler</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/AcctHandler.html#handlePacket(io.netty.channel.Channel,org.tinyradius.packet.AccountingRequest,java.net.InetSocketAddress,java.lang.String)">handlePacket(Channel, AccountingRequest, InetSocketAddress, String)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/AcctHandler.html" title="class in org.tinyradius.server">AcctHandler</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/proxy/ProxyRequestHandler.html#handlePacket(io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">handlePacket(Channel, RadiusPacket, InetSocketAddress, String)</a></span> - Method in class org.tinyradius.proxy.<a href="org/tinyradius/proxy/ProxyRequestHandler.html" title="class in org.tinyradius.proxy">ProxyRequestHandler</a></dt>
 <dd>
 <div class="block">Proxies the given packet to the server given in the proxy connection.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/DeduplicatorHandler.html#handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket(Dictionary, Channel, T, InetSocketAddress, String)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/DeduplicatorHandler.html" title="class in org.tinyradius.server">DeduplicatorHandler</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/DeduplicatorHandler.html#handlePacket(io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket(Channel, T, InetSocketAddress, String)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/DeduplicatorHandler.html" title="class in org.tinyradius.server">DeduplicatorHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/RequestHandler.html#handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket(Dictionary, Channel, T, InetSocketAddress, String)</a></span> - Method in interface org.tinyradius.server.<a href="org/tinyradius/server/RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/RequestHandler.html#handlePacket(io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket(Channel, T, InetSocketAddress, String)</a></span> - Method in interface org.tinyradius.server.<a href="org/tinyradius/server/RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a></dt>
 <dd>
 <div class="block">Handles the received Radius packet and constructs a response.</div>
 </dd>
@@ -1133,15 +1135,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/attribute/VendorSpecificAttribute.html#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,int,java.util.List)">VendorSpecificAttribute(Dictionary, int, List&lt;RadiusAttribute&gt;)</a></span> - Constructor for class org.tinyradius.attribute.<a href="org/tinyradius/attribute/VendorSpecificAttribute.html" title="class in org.tinyradius.attribute">VendorSpecificAttribute</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#verifyAuthenticator(java.lang.String,byte%5B%5D)">verifyAuthenticator(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
-<dd>
-<div class="block">There is no way to check request authenticators for
- authentication requests as they contain secret bytes.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#verifyAuthenticator(java.lang.String,byte%5B%5D)">verifyAuthenticator(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
-<dd>
-<div class="block">Checks the request authenticator against the supplied shared secret.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#verifyPassword(java.lang.String)">verifyPassword(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
 <dd>
 <div class="block">Verifies that the passed plain-text password matches the password

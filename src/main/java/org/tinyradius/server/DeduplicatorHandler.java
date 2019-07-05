@@ -43,7 +43,7 @@ public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandl
 
     /**
      * @param channel       socket which received packet
-     * @param packet       the packet
+     * @param packet        the packet
      * @param remoteAddress remote address the packet was sent by
      * @param sharedSecret  shared secret associated with remoteAddress
      * @return null if packet is considered duplicate, otherwise delegates to underlying handler.

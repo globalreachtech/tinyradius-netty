@@ -200,8 +200,7 @@ implements <a href="../server/RequestHandler.html" title="interface in org.tinyr
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-            io.netty.channel.Channel&nbsp;channel,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handlePacket(io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></span>&#8203;(io.netty.channel.Channel&nbsp;channel,
             <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
             java.net.InetSocketAddress&nbsp;remoteAddress,
             java.lang.String&nbsp;sharedSecret)</code></th>
@@ -328,14 +327,13 @@ implements <a href="../server/RequestHandler.html" title="interface in org.tinyr
 </dl>
 </li>
 </ul>
-<a id="handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">
+<a id="handlePacket(io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>handlePacket</h4>
-<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                                                                   io.netty.channel.Channel&nbsp;channel,
+<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket&#8203;(io.netty.channel.Channel&nbsp;channel,
                                                                    <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
                                                                    java.net.InetSocketAddress&nbsp;remoteAddress,
                                                                    java.lang.String&nbsp;sharedSecret)</pre>
@@ -344,14 +342,15 @@ implements <a href="../server/RequestHandler.html" title="interface in org.tinyr
  is added to the packet in the "Proxy-State" attribute.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../server/RequestHandler.html#handlePacket(org.tinyradius.dictionary.Dictionary,io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></code>&nbsp;in interface&nbsp;<code><a href="../server/RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a>&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></dd>
+<dd><code><a href="../server/RequestHandler.html#handlePacket(io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></code>&nbsp;in interface&nbsp;<code><a href="../server/RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a>&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>channel</code> - socket which received packet</dd>
-<dd><code>packet</code> - the packet</dd>
+<dd><code>packet</code> - incoming packet, can be RadiusPacket or subclass</dd>
 <dd><code>remoteAddress</code> - remote address the packet was sent by</dd>
 <dd><code>sharedSecret</code> - shared secret associated with remoteAddress</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Promise of RadiusPacket or null for no response. Uses Promise instead Future,
- to allow requests to be timed out or cancelled by the caller</dd>
+ so requests to be timed out or cancelled by the caller</dd>
 </dl>
 </li>
 </ul>

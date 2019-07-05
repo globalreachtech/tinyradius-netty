@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -221,19 +224,16 @@ public class RadiusPacket {
      * Returns all attributes of this packet of the given type.
      * Returns an empty list if there are no such attributes.
      *
-     * @param attributeType type of attributes to get
+     * @param type type of attributes to get
      * @return list of RadiusAttribute objects, does not return null
      */
-    public List<RadiusAttribute> getAttributes(int attributeType) {
-        if (attributeType < 1 || attributeType > 255)
+    public List<RadiusAttribute> getAttributes(int type) {
+        if (type < 1 || type > 255)
             throw new IllegalArgumentException("attribute type out of bounds");
 
-        List<RadiusAttribute> result = new LinkedList<>();
-        for (RadiusAttribute attribute : attributes) {
-            if (attributeType == attribute.getType())
-                result.add(attribute);
-        }
-        return result;
+        return attributes.stream()
+                .filter(a -> a.getType() == type)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -468,14 +468,15 @@ public class RadiusPacket {
      * @param sharedSecret         shared secret
      * @param requestAuthenticator should be set to request authenticator if verifying response,
      *                             otherwise set to 16 zero octets
-     * @return true if the authenticator is valid, false otherwise
+     * @throws RadiusException if authenticator check fails
      */
-    protected boolean verifyAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
+    protected void checkAuthenticator(String sharedSecret, byte[] requestAuthenticator) throws RadiusException {
         byte[] expectedAuth = createHashedAuthenticator(sharedSecret, requestAuthenticator);
         byte[] receivedAuth = getAuthenticator();
 
-        return expectedAuth.length == 16
-                && Arrays.equals(expectedAuth, receivedAuth);
+        if (receivedAuth.length != 16 ||
+                !Arrays.equals(expectedAuth, receivedAuth))
+            throw new RadiusException("Authenticator check failed");
     }
 
     /**

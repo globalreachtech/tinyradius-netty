@@ -97,10 +97,10 @@ public class ProxyStateClientHandler extends ClientHandler {
 
             // retrieve my Proxy-State attribute (the last)
             List<RadiusAttribute> proxyStates = packet.getAttributes(PROXY_STATE);
-            if (proxyStates == null || proxyStates.isEmpty())
+            if (proxyStates.isEmpty())
                 throw new RadiusException("proxy packet without Proxy-State attribute");
-            RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
 
+            RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
             String proxyStateId = new String(proxyState.getData());
 
             final Promise<RadiusPacket> request = requests.get(proxyStateId);

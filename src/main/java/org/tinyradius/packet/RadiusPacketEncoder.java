@@ -61,15 +61,18 @@ public class RadiusPacketEncoder {
      * Decodes the encrypted fields and attributes of the packet.
      *
      * @param dictionary   dictionary to use for attributes
-     * @param packet       DatagramPacket to read packet from
+     * @param datagram     DatagramPacket to read packet from
      * @param sharedSecret shared secret to be used to decode this packet
      * @return new RadiusPacket object
      * @throws IOException     IO error
      * @throws RadiusException malformed packet
      */
-    public static RadiusPacket fromRequestDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret)
+    public static RadiusPacket fromRequestDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret)
             throws IOException, RadiusException {
-        return fromDatagram(dictionary, packet, sharedSecret, null);
+        final RadiusPacket radiusPacket = fromDatagram(dictionary, datagram, sharedSecret, null);
+        radiusPacket.checkAuthenticator(sharedSecret, new byte[16]);
+
+        return radiusPacket;
     }
 
     /**
@@ -79,21 +82,25 @@ public class RadiusPacketEncoder {
      * Checks the packet authenticator.
      *
      * @param dictionary   dictionary to use for attributes
-     * @param packet       DatagramPacket to read packet from
+     * @param datagram     DatagramPacket to read packet from
      * @param sharedSecret shared secret to be used to decode this packet
      * @param request      Radius request packet
      * @return new RadiusPacket object
      * @throws IOException     IO error
      * @throws RadiusException malformed packet
      */
-    public static RadiusPacket fromResponseDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret, RadiusPacket request)
+    public static RadiusPacket fromResponseDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret, RadiusPacket request)
             throws IOException, RadiusException {
         requireNonNull(request, "request may not be null");
 
         if (request.getAuthenticator() == null)
             throw new RuntimeException("request authenticator not set");
 
-        return fromDatagram(dictionary, packet, sharedSecret, request);
+        final RadiusPacket radiusPacket = fromDatagram(dictionary, datagram, sharedSecret, request);
+        radiusPacket.checkAuthenticator(sharedSecret, request.getAuthenticator());
+
+        return radiusPacket;
+
     }
 
     /**
@@ -139,17 +146,8 @@ public class RadiusPacketEncoder {
 
             final List<RadiusAttribute> attributes = extractAttributes(attributeData, dictionary);
 
-            // create RadiusPacket object
             RadiusPacket rp = createRadiusPacket(dictionary, type, identifier, authenticator, attributes);
-
-            // decode attributes
             rp.decodeAttributes(sharedSecret);
-
-            final byte[] requestAuth = request == null ?
-                    new byte[16] : request.getAuthenticator();
-
-            if (!rp.verifyAuthenticator(sharedSecret, requestAuth))
-                throw new RadiusException("Authenticator check failed");
 
             return rp;
         }

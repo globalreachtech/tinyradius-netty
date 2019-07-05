@@ -154,15 +154,16 @@ public class AccessRequest extends RadiusPacket {
 
 
     /**
+     * AccessRequest checkAuthenticator() is a NOOP.
+     * <p>
      * There is no way to check request authenticators for
-     * authentication requests as they contain secret bytes.
+     * authentication requests as they contain random bytes.
      *
-     * @param sharedSecret shared secret
-     * @return true if the password is valid, false otherwise
+     * @param sharedSecret         ignored
+     * @param requestAuthenticator ignored
      */
     @Override
-    protected boolean verifyAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
-        return true;
+    protected void checkAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
     }
 
     /**
