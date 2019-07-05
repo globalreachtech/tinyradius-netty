@@ -640,7 +640,8 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>addAttribute</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addAttribute&#8203;(java.lang.String&nbsp;typeName,
-                         java.lang.String&nbsp;value)</pre>
+                         java.lang.String&nbsp;value)
+                  throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <div class="block">Adds a Radius attribute to this packet.
  Uses AttributeTypes to lookup the type code and converts the value.
  Can also be used to add sub-attributes.</div>
@@ -650,6 +651,7 @@ extends java.lang.Object</pre>
 <dd><code>value</code> - value of the attribute, for example "127.0.0.1"</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.IllegalArgumentException</code> - if type name is unknown</dd>
+<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
 </dl>
 </li>
 </ul>

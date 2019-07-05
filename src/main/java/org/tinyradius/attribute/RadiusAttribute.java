@@ -55,7 +55,7 @@ public class RadiusAttribute {
      * @return value of this attribute as a string.
      */
     public String getDataString() {
-        return getHexString(getData());
+        return getHexString(data);
     }
 
     /**
@@ -133,8 +133,7 @@ public class RadiusAttribute {
     }
 
     /**
-     * Returns the byte array as a hex string in the format
-     * "0x1234".
+     * Returns the byte array as a hex string in the format "0x1234".
      *
      * @param data byte array
      * @return hex string

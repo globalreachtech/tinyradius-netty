@@ -214,7 +214,7 @@ extends java.lang.Object</pre>
                      int&nbsp;type,
                      byte[]&nbsp;data)</code></th>
 <td class="colLast">
-<div class="block">Creates a RadiusAttribute object of the appropriate type.</div>
+<div class="block">Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -223,7 +223,9 @@ extends java.lang.Object</pre>
                      int&nbsp;vendorId,
                      int&nbsp;type,
                      java.lang.String&nbsp;data)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
@@ -286,8 +288,9 @@ extends java.lang.Object</pre>
 <pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;createRadiusAttribute&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
                                                     int&nbsp;vendorId,
                                                     int&nbsp;type,
-                                                    byte[]&nbsp;data)</pre>
-<div class="block">Creates a RadiusAttribute object of the appropriate type.</div>
+                                                    byte[]&nbsp;data)
+                                             throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<div class="block">Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dictionary</code> - Dictionary to use</dd>
@@ -296,6 +299,8 @@ extends java.lang.Object</pre>
 <dd><code>data</code> - attribute data as byte array</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>RadiusAttribute object</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -308,7 +313,20 @@ extends java.lang.Object</pre>
 <pre class="methodSignature">public static&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;createRadiusAttribute&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
                                                     int&nbsp;vendorId,
                                                     int&nbsp;type,
-                                                    java.lang.String&nbsp;data)</pre>
+                                                    java.lang.String&nbsp;data)
+                                             throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<div class="block">Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dictionary</code> - Dictionary to use</dd>
+<dd><code>vendorId</code> - vendor ID or -1</dd>
+<dd><code>type</code> - attribute type</dd>
+<dd><code>data</code> - attribute data as String</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>RadiusAttribute object</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
+</dl>
 </li>
 </ul>
 <a id="parseRadiusAttribute(org.tinyradius.dictionary.Dictionary,int,int,byte[],int)">
@@ -324,6 +342,13 @@ extends java.lang.Object</pre>
                                                    int&nbsp;offset)
                                             throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dictionary</code> - </dd>
+<dd><code>vendorId</code> - </dd>
+<dd><code>type</code> - </dd>
+<dd><code>sourceArray</code> - </dd>
+<dd><code>offset</code> - </dd>
+<dt><span class="returnLabel">Returns:</span></dt>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
 </dl>

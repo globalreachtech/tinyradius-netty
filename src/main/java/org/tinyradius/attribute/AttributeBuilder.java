@@ -5,26 +5,44 @@ import org.tinyradius.util.RadiusException;
 
 public class AttributeBuilder {
     /**
-     * Creates a RadiusAttribute object of the appropriate type.
+     * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
      *
      * @param dictionary Dictionary to use
      * @param vendorId   vendor ID or -1
      * @param type       attribute type
      * @param data       attribute data as byte array
      * @return RadiusAttribute object
+     * @throws RadiusException
      */
-    public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+    public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) throws RadiusException {
         final ByteArrayConstructor byteArrayConstructor = dictionary.getAttributeTypeByCode(vendorId, type).getByteArrayConstructor();
         return byteArrayConstructor.newInstance(dictionary, vendorId, type, data);
     }
 
-
-    public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int type, String data) {
+    /**
+     * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
+     *
+     * @param dictionary Dictionary to use
+     * @param vendorId   vendor ID or -1
+     * @param type       attribute type
+     * @param data       attribute data as String
+     * @return RadiusAttribute object
+     * @throws RadiusException
+     */
+    public static RadiusAttribute createRadiusAttribute(Dictionary dictionary, int vendorId, int type, String data) throws RadiusException {
         final StringConstructor stringConstructor = dictionary.getAttributeTypeByCode(vendorId, type).getStringConstructor();
         return stringConstructor.newInstance(dictionary, vendorId, type, data);
     }
 
-
+    /**
+     * @param dictionary
+     * @param vendorId
+     * @param type
+     * @param sourceArray
+     * @param offset
+     * @return
+     * @throws RadiusException
+     */
     public static RadiusAttribute parseRadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] sourceArray, int offset)
             throws RadiusException {
         final PacketParser packetParser = dictionary.getAttributeTypeByCode(vendorId, type).getPacketParser();
@@ -32,11 +50,11 @@ public class AttributeBuilder {
     }
 
     public interface ByteArrayConstructor<T extends RadiusAttribute> {
-        T newInstance(Dictionary dictionary, int vendorId, int type, byte[] data);
+        T newInstance(Dictionary dictionary, int vendorId, int type, byte[] data) throws RadiusException;
     }
 
     public interface StringConstructor<T extends RadiusAttribute> {
-        T newInstance(Dictionary dictionary, int vendorId, int type, String data);
+        T newInstance(Dictionary dictionary, int vendorId, int type, String data) throws RadiusException;
     }
 
     public interface PacketParser<T extends RadiusAttribute> {

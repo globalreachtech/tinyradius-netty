@@ -46,8 +46,13 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         return new VendorSpecificAttribute(dictionary, vendorId, subAttributes);
     }
 
+    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) throws RadiusException {
+        this(dictionary, vendorId,
+                extractAttributes(dictionary, data, 0, data.length, vendorId));
+    }
+
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, List<RadiusAttribute> subAttributes) {
-        super(dictionary, vendorId, VENDOR_SPECIFIC, null);
+        super(dictionary, vendorId, VENDOR_SPECIFIC, new byte[0]);
         this.subAttributes = subAttributes;
     }
 
@@ -79,7 +84,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * @param value value of the sub-attribute
      * @throws IllegalArgumentException invalid sub-attribute name or value
      */
-    public void addSubAttribute(String name, String value) {
+    public void addSubAttribute(String name, String value) throws RadiusException {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("type name is empty");
         if (value == null || value.isEmpty())

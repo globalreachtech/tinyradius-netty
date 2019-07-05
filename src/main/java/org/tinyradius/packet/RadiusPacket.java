@@ -133,7 +133,7 @@ public class RadiusPacket {
      * @param value    value of the attribute, for example "127.0.0.1"
      * @throws IllegalArgumentException if type name is unknown
      */
-    public void addAttribute(String typeName, String value) {
+    public void addAttribute(String typeName, String value) throws RadiusException {
         if (typeName == null || typeName.isEmpty())
             throw new IllegalArgumentException("type name is empty");
         if (value == null || value.isEmpty())

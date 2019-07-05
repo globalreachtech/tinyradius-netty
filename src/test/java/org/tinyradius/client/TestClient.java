@@ -9,6 +9,7 @@ import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
+import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
 
@@ -23,7 +24,7 @@ public class TestClient {
      *
      * @param args [host, sharedSecret, username, password]
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RadiusException {
         if (args.length != 4) {
             System.out.println("Usage: TestClient hostName sharedSecret userName password");
             System.exit(1);

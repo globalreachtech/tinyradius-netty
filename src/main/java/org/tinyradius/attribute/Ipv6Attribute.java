@@ -4,6 +4,7 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
 import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
@@ -30,7 +31,7 @@ public class Ipv6Attribute extends RadiusAttribute {
      * @param value value, format:ipv6 address
      */
     public Ipv6Attribute(Dictionary dictionary, int vendorId, int type, String value) {
-        this(dictionary, vendorId, type, convertValue(value));
+        this(dictionary, vendorId, type, convertIpV6(value));
     }
 
     /**
@@ -50,19 +51,17 @@ public class Ipv6Attribute extends RadiusAttribute {
     }
 
     /**
-     * Sets the attribute value (IPv6 number). String format:
-     * ipv6 address.
-     *
+     * @return 16 octet representing IPv6 address
      * @throws IllegalArgumentException bad IP address
      */
-    private static byte[] convertValue(String value) {
-        if (value == null || value.length() < 3)
-            throw new IllegalArgumentException("bad IPv6 address : " + value);
+    private static byte[] convertIpV6(String value) {
         try {
-            return Inet6Address.getByName(value).getAddress();
-
+            final byte[] address = InetAddress.getByName(value).getAddress();
+            if (address.length != 16)
+                throw new IllegalArgumentException("IPv6 address expected, received IPv4 address: " + value);
+            return address;
         } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("bad IPv6 address : " + value, e);
+            throw new IllegalArgumentException("bad address: " + value, e);
         }
     }
 }

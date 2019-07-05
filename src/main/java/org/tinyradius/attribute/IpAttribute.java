@@ -3,7 +3,8 @@ package org.tinyradius.attribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.util.StringTokenizer;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * This class represents a Radius attribute for an IP number.
@@ -23,7 +24,7 @@ public class IpAttribute extends RadiusAttribute {
     }
 
     public IpAttribute(Dictionary dictionary, int vendorId, int type, String value) {
-        this(dictionary, vendorId, type, convertValue(value));
+        this(dictionary, vendorId, type, convertIpV4(value));
     }
 
     /**
@@ -31,7 +32,7 @@ public class IpAttribute extends RadiusAttribute {
      * @param value 32 bit unsigned int
      */
     public IpAttribute(Dictionary dictionary, int vendorId, int type, long value) {
-        this(dictionary, vendorId, type, convertValue(value));
+        this(dictionary, vendorId, type, convertIpV4(value));
     }
 
     /**
@@ -71,28 +72,18 @@ public class IpAttribute extends RadiusAttribute {
     }
 
     /**
-     * Sets the attribute value (IP number). String format:
-     * "xx.xx.xx.xx".
-     *
+     * @return 4 octet representing IPv4 address
      * @throws IllegalArgumentException bad IP address
      */
-    private static byte[] convertValue(String value) {
-        if (value == null || value.length() < 7 || value.length() > 15)
-            throw new IllegalArgumentException("bad IP number");
-
-        StringTokenizer tok = new StringTokenizer(value, ".");
-        if (tok.countTokens() != 4)
-            throw new IllegalArgumentException("bad IP number: 4 numbers required");
-
-        byte[] data = new byte[4];
-        for (int i = 0; i < 4; i++) {
-            int num = Integer.parseInt(tok.nextToken());
-            if (num < 0 || num > 255)
-                throw new IllegalArgumentException("bad IP number: num out of bounds");
-            data[i] = (byte) num;
+    private static byte[] convertIpV4(String value) {
+        try {
+            final byte[] address = InetAddress.getByName(value).getAddress();
+            if (address.length != 4)
+                throw new IllegalArgumentException("IPv4 address expected, received IPv6 address: " + value);
+            return address;
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("bad address: " + value, e);
         }
-
-        return (data);
     }
 
     /**
@@ -101,7 +92,7 @@ public class IpAttribute extends RadiusAttribute {
      *
      * @param ip IP address as 32-bit unsigned number
      */
-    private static byte[] convertValue(long ip) {
+    private static byte[] convertIpV4(long ip) {
         byte[] data = new byte[4];
         data[0] = (byte) ((ip >> 24) & 0x0ff);
         data[1] = (byte) ((ip >> 16) & 0x0ff);
@@ -109,5 +100,4 @@ public class IpAttribute extends RadiusAttribute {
         data[3] = (byte) (ip & 0x0ff);
         return data;
     }
-
 }
