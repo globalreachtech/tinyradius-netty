@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class AccountingRequestPacketTest {
 
     @Test
-    void checkTest() throws NoSuchAlgorithmException {
+    void encodeNewAccountingRequest() throws NoSuchAlgorithmException {
         //hashed authenticator
         MessageDigest md5 = MessageDigest.getInstance("MD5");
         md5.update((byte) 4); // code

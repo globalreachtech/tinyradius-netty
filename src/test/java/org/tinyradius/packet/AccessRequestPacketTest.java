@@ -27,7 +27,7 @@ class AccessRequestPacketTest {
     private static byte[] authenticator;
 
     @BeforeEach
-    static void setup() throws IOException {
+    void setup() throws IOException {
         byte[] randomBytes = new byte[16];
         random.nextBytes(randomBytes);
         authenticator = randomBytes;
