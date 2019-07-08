@@ -6,8 +6,7 @@ import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
 
@@ -17,18 +16,21 @@ class AccountingRequestTest {
     void encodeAccountingRequest() {
 
         String sharedSecret = "sharedSecret";
+        String user = "myUser1";
 
-        AccountingRequest original = new AccountingRequest(DefaultDictionary.INSTANCE, 1, null);
-        original.addAttribute(new RadiusAttribute(DefaultDictionary.INSTANCE, -1, 1, "asdf".getBytes(UTF_8)));
+        AccountingRequest request = new AccountingRequest(DefaultDictionary.INSTANCE, 1, null);
+        request.addAttribute(new RadiusAttribute(DefaultDictionary.INSTANCE, -1, 1, user.getBytes(UTF_8)));
 
-        final byte[] attributeBytes = original.getAttributeBytes();
+        final byte[] attributeBytes = request.getAttributeBytes();
         final int length = attributeBytes.length + HEADER_LENGTH;
-        final byte[] expectedAuthenticator = RadiusUtils.makeRFC2866RequestAuthenticator(sharedSecret, (byte) ACCOUNTING_REQUEST, (byte) 1, length, attributeBytes, 0, attributeBytes.length);
+        final byte[] expectedAuthenticator = RadiusUtils.makeRFC2866RequestAuthenticator(
+                sharedSecret, (byte) ACCOUNTING_REQUEST, (byte) 1, length, attributeBytes, 0, attributeBytes.length);
 
-        AccountingRequest encoded = original.encodeRequest(sharedSecret);
-        assertEquals(original.getPacketType(), encoded.getPacketType());
-        assertEquals(original.getPacketIdentifier(), encoded.getPacketIdentifier());
-        assertEquals(original.getAttributes().size(), encoded.getAttributes().size());
+        AccountingRequest encoded = request.encodeRequest(sharedSecret);
+
+        assertEquals(request.getPacketType(), encoded.getPacketType());
+        assertEquals(request.getPacketIdentifier(), encoded.getPacketIdentifier());
+        assertEquals(request.getAttributes(), encoded.getAttributes());
         assertArrayEquals(expectedAuthenticator, encoded.getAuthenticator());
     }
 }

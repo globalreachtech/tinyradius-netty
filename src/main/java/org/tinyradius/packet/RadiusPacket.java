@@ -5,6 +5,7 @@ import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.AttributeType;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
+import sun.security.provider.MD5;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -424,9 +425,8 @@ public class RadiusPacket {
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client
      * @return RadiusPacket with new authenticator and/or encoded attributes
-     * @throws RadiusException malformed packet
      */
-    protected RadiusPacket encodeRequest(String sharedSecret) throws RadiusException {
+    protected RadiusPacket encodeRequest(String sharedSecret) {
         final byte[] hashedAuthenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
         return new RadiusPacket(dictionary, packetType, packetIdentifier, hashedAuthenticator, this.attributes);
     }

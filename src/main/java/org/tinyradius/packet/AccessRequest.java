@@ -30,9 +30,7 @@ public class AccessRequest extends RadiusPacket {
 
     public static final Set<String> AUTH_PROTOCOLS = new HashSet<>(Arrays.asList(AUTH_PAP, AUTH_CHAP, AUTH_MS_CHAP_V2, AUTH_EAP));
 
-    /**
-     * Temporary storage for the unencrypted User-Password attribute.
-     */
+    // Temporary storage for the unencrypted User-Password attribute.
     private String password;
 
     private String authProtocol = AUTH_PAP;
@@ -57,12 +55,22 @@ public class AccessRequest extends RadiusPacket {
     private static final int MS_CHAP2_RESPONSE = 25;
 
     /**
-     * Constructs an empty Access-Request packet.
+     *
+     * @param dictionary
+     * @param identifier
+     * @param authenticator
      */
     public AccessRequest(Dictionary dictionary, int identifier, byte[] authenticator) {
         this(dictionary, identifier, authenticator, new ArrayList<>());
     }
 
+    /**
+     *
+     * @param dictionary
+     * @param identifier
+     * @param authenticator
+     * @param attributes
+     */
     public AccessRequest(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
     }
@@ -110,7 +118,7 @@ public class AccessRequest extends RadiusPacket {
      * Retrieves the plain-text user password.
      * Returns null for CHAP - use verifyPassword().
      *
-     * @return user password
+     * @return user password in plaintext if decoded and using PAP
      * @see #verifyPassword(String)
      */
     public String getUserPassword() {
@@ -176,16 +184,16 @@ public class AccessRequest extends RadiusPacket {
      * @throws RadiusException password verification failed or not supported
      *                         for auth protocol
      */
-    public boolean verifyPassword(String plaintext) throws RadiusException {
+    public boolean verifyPassword(String plaintext) throws RadiusException, UnsupportedOperationException {
         if (plaintext == null || plaintext.isEmpty())
             throw new IllegalArgumentException("password is empty");
         switch (getAuthProtocol()) {
             case AUTH_CHAP:
                 return verifyChapPassword(plaintext);
             case AUTH_MS_CHAP_V2:
-                throw new RadiusException(AUTH_MS_CHAP_V2 + " verification not supported yet");
+                throw new UnsupportedOperationException(AUTH_MS_CHAP_V2 + " verification not supported yet");
             case AUTH_EAP:
-                throw new RadiusException(AUTH_EAP + " verification not supported yet");
+                throw new UnsupportedOperationException(AUTH_EAP + " verification not supported yet");
             case AUTH_PAP:
             default:
                 return getUserPassword().equals(plaintext);

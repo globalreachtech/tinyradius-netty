@@ -23,53 +23,61 @@ class AccessRequestTest {
 
     private static final SecureRandom random = new SecureRandom();
     private static Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private byte[] authenticator;
+    private byte[] authenticator = new byte[16];
 
     @BeforeEach
     void setup() {
-        byte[] randomBytes = new byte[16];
-        random.nextBytes(randomBytes);
-        authenticator = randomBytes;
+        random.nextBytes(authenticator);
     }
 
     @Test
     void encodePapPassword() {
         String user = "user1";
-        String pass = "myPassword1";
+        String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequest accessRequest = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, pass);
-        accessRequest.setAuthProtocol(AccessRequest.AUTH_PAP);
-        final AccessRequest encodedRequest = accessRequest.encodeRequest(sharedSecret);
+        AccessRequest request = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, plaintextPw);
+        request.setAuthProtocol(AccessRequest.AUTH_PAP);
+        final AccessRequest encoded = request.encodeRequest(sharedSecret);
 
         final byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
-                accessRequest.getUserPassword().getBytes(UTF_8), accessRequest.getAuthenticator(), sharedSecret);
+                request.getUserPassword().getBytes(UTF_8), request.getAuthenticator(), sharedSecret);
 
-        assertArrayEquals(expectedEncodedPassword, encodedRequest.getAttribute("User-Password").getData());
+        assertEquals(request.getPacketType(), encoded.getPacketType());
+        assertEquals(request.getPacketIdentifier(), encoded.getPacketIdentifier());
+        assertEquals(request.getAttribute("User-Name").getDataString(), encoded.getAttribute("User-Name").getDataString());
+
+        assertNull(request.getAttribute("User-Password"));
+        assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").getData());
     }
 
     @Test
     void decodePapPassword() throws RadiusException {
         String user = "user2";
-        String pass = "myPassword2";
+        String plaintextPw = "myPassword2";
         String sharedSecret = "sharedSecret2";
 
-        byte[] encodedPassword = RadiusUtils.encodePapPassword(pass.getBytes(UTF_8), authenticator, sharedSecret);
+        byte[] encodedPassword = RadiusUtils.encodePapPassword(plaintextPw.getBytes(UTF_8), authenticator, sharedSecret);
 
         List<RadiusAttribute> attributes = Arrays.asList(
                 new StringAttribute(dictionary, -1, 1, user),
                 new RadiusAttribute(dictionary, -1, 2, encodedPassword));
 
-        AccessRequest accessRequest = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, attributes);
-        accessRequest.decodeAttributes(sharedSecret);
+        AccessRequest request = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, attributes);
 
-        assertEquals(pass, accessRequest.getUserPassword());
+        assertNull(request.getUserPassword());
+        assertEquals(user, request.getAttribute("User-Name").getDataString());
+        assertArrayEquals(encodedPassword, request.getAttribute("User-Password").getData());
+
+        request.decodeAttributes(sharedSecret);
+
+        assertEquals(plaintextPw, request.getUserPassword());
     }
 
     @Test
     void encodeChapPassword() {
         String user = "user";
-        String pass = "password123456789";
+        String plaintextPw = "password123456789";
         String sharedSecret = "sharedSecret";
 
         byte[] chapChallenge = new byte[16];
@@ -81,7 +89,7 @@ class AccessRequestTest {
 
         MessageDigest md5 = getMessageDigest();
         md5.update(chapId);
-        md5.update(pass.getBytes(UTF_8));
+        md5.update(plaintextPw.getBytes(UTF_8));
         byte[] chapHash = md5.digest();
 
         System.arraycopy(chapHash, 0, chapPassword, 1, 16);
@@ -91,9 +99,9 @@ class AccessRequestTest {
                 new RadiusAttribute(dictionary, -1, 60, chapChallenge),
                 new RadiusAttribute(dictionary, -1, 3, chapPassword));
 
-        AccessRequest accessRequest = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, pass);
-        accessRequest.setAuthProtocol(AccessRequest.AUTH_CHAP);
-        final AccessRequest encodedRequest = accessRequest.encodeRequest(sharedSecret);
+        AccessRequest request = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, plaintextPw);
+        request.setAuthProtocol(AccessRequest.AUTH_CHAP);
+        final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
 
         assertEquals(radiusAttributes.size(), encodedRequest.getAttributes().size());
     }
@@ -101,19 +109,19 @@ class AccessRequestTest {
     @Test
     void verifyChapPassword() {
         String user = "user";
-        String pass = "password123456789";
+        String plaintextPw = "password123456789";
         String sharedSecret = "sharedSecret";
 
-        AccessRequest accessRequest = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, pass);
-        accessRequest.setAuthProtocol(AccessRequest.AUTH_CHAP);
-        final AccessRequest encodedRequest = accessRequest.encodeRequest(sharedSecret);
+        AccessRequest request = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, plaintextPw);
+        request.setAuthProtocol(AccessRequest.AUTH_CHAP);
+        final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
 
         byte[] chapChallenge = encodedRequest.getAttribute("CHAP-Challenge").getData();
         byte[] chapPassword = encodedRequest.getAttribute("CHAP-Password").getData();
         byte chapIdentifier = chapPassword[0];
         MessageDigest md5 = getMessageDigest();
         md5.update(chapIdentifier);
-        md5.update(pass.getBytes(UTF_8));
+        md5.update(plaintextPw.getBytes(UTF_8));
         byte[] chapHash = md5.digest(chapChallenge);
 
         boolean isTrue = false;
