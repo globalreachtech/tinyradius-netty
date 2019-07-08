@@ -1,34 +1,34 @@
 package org.tinyradius.packet;
 
+import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
+import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
 
 class AccountingRequestTest {
 
     @Test
-    void encodeNewAccountingRequest() throws NoSuchAlgorithmException {
-        //hashed authenticator
-        MessageDigest md5 = MessageDigest.getInstance("MD5");
-        md5.update((byte) ACCOUNTING_REQUEST); // code
-        md5.update((byte) 1); // identifier
-        md5.update((byte) 20); // length
-        md5.update(new byte[16]); // 16 zero octets
-        md5.update(new byte[0]); // attributes
+    void encodeAccountingRequest() {
+
         String sharedSecret = "sharedSecret";
-        byte[] authenticator = md5.digest(sharedSecret.getBytes(UTF_8)); // shared secret
 
         AccountingRequest original = new AccountingRequest(DefaultDictionary.INSTANCE, 1, null);
+        original.addAttribute(new RadiusAttribute(DefaultDictionary.INSTANCE, -1, 1, "asdf".getBytes(UTF_8)));
+
+        final byte[] attributeBytes = original.getAttributeBytes();
+        final int length = attributeBytes.length + HEADER_LENGTH;
+        final byte[] expectedAuthenticator = RadiusUtils.makeRFC2866RequestAuthenticator(sharedSecret, (byte) ACCOUNTING_REQUEST, (byte) 1, length, attributeBytes, 0, attributeBytes.length);
+
         AccountingRequest encoded = original.encodeRequest(sharedSecret);
         assertEquals(original.getPacketType(), encoded.getPacketType());
         assertEquals(original.getPacketIdentifier(), encoded.getPacketIdentifier());
         assertEquals(original.getAttributes().size(), encoded.getAttributes().size());
-        assertEquals(authenticator, encoded.getAuthenticator());
+        assertArrayEquals(expectedAuthenticator, encoded.getAuthenticator());
     }
 }

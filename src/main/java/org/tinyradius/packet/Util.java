@@ -66,5 +66,4 @@ class Util {
         int i = s.indexOf('\0');
         return (i > 0) ? s.substring(0, i) : s;
     }
-
 }

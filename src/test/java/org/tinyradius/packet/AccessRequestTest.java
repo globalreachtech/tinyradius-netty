@@ -1,86 +1,73 @@
 package org.tinyradius.packet;
 
+import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.lang.Math.max;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.packet.RadiusPacketEncoder.getNextPacketIdentifier;
-import static org.tinyradius.packet.Util.getStringFromUtf8;
 
 class AccessRequestTest {
 
     private static final SecureRandom random = new SecureRandom();
-    private static byte[] authenticator;
+    private static Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private byte[] authenticator;
 
     @BeforeEach
-    void setup() throws IOException {
+    void setup() {
         byte[] randomBytes = new byte[16];
         random.nextBytes(randomBytes);
         authenticator = randomBytes;
     }
 
     @Test
-    void encodePapPassword() throws RadiusException {
-        String user = "user";
-        String pass = "password123456789";
-        String sharedSecret = "sharedSecret";
+    void encodePapPassword() {
+        String user = "user1";
+        String pass = "myPassword1";
+        String sharedSecret = "sharedSecret1";
 
-        byte[] data = encodePapPassword(pass, sharedSecret);
-
-        List<RadiusAttribute> radiusAttributes = Arrays.asList(new StringAttribute(DefaultDictionary.INSTANCE, -1, 1, user),
-                new RadiusAttribute(DefaultDictionary.INSTANCE, -1, 2, data));
-
-        AccessRequest accessRequest = new AccessRequest(DefaultDictionary.INSTANCE, getNextPacketIdentifier(), authenticator, user, pass);
+        AccessRequest accessRequest = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, pass);
         accessRequest.setAuthProtocol(AccessRequest.AUTH_PAP);
-        accessRequest.encodeRequest(sharedSecret);
-        String userPassword = accessRequest.getAttribute("User-Password").getDataString();
+        final AccessRequest encodedRequest = accessRequest.encodeRequest(sharedSecret);
 
-        assertEquals(radiusAttributes.get(1).getDataString(), userPassword);
+        final byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
+                accessRequest.getUserPassword().getBytes(UTF_8), accessRequest.getAuthenticator(), sharedSecret);
+
+        assertArrayEquals(expectedEncodedPassword, encodedRequest.getAttribute("User-Password").getData());
     }
 
     @Test
     void decodePapPassword() throws RadiusException {
-        String user = "user";
-        String pass = "password123456789";
-        String sharedSecret = "sharedSecret";
+        String user = "user2";
+        String pass = "myPassword2";
+        String sharedSecret = "sharedSecret2";
 
-        byte[] encryptedPass = encodePapPassword(pass, sharedSecret);
-        byte[] result = new byte[encryptedPass.length];
-        byte[] C = authenticator;
+        byte[] encodedPassword = RadiusUtils.encodePapPassword(pass.getBytes(UTF_8), authenticator, sharedSecret);
 
-        for (int i = 0; i < encryptedPass.length; i += C.length) {
-            C = compute(sharedSecret.getBytes(), C);
-            C = xor(encryptedPass, i, C.length, C, C.length);
-            System.arraycopy(C, 0, result, i, C.length);
-            System.arraycopy(encryptedPass, i, C, 0, C.length);
-        }
+        List<RadiusAttribute> attributes = Arrays.asList(
+                new StringAttribute(dictionary, -1, 1, user),
+                new RadiusAttribute(dictionary, -1, 2, encodedPassword));
 
-        String decodedPassword = getStringFromUtf8(result);
-
-        AccessRequest accessRequest = new AccessRequest(DefaultDictionary.INSTANCE, getNextPacketIdentifier(), authenticator, user, pass);
-        accessRequest.setAuthProtocol(AccessRequest.AUTH_PAP);
-        accessRequest.encodeRequest(sharedSecret);
+        AccessRequest accessRequest = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, attributes);
         accessRequest.decodeAttributes(sharedSecret);
 
-        assertEquals(decodedPassword, accessRequest.getUserPassword());
+        assertEquals(pass, accessRequest.getUserPassword());
     }
 
     @Test
-    void encodeChapPassword() throws RadiusException {
+    void encodeChapPassword() {
         String user = "user";
         String pass = "password123456789";
         String sharedSecret = "sharedSecret";
@@ -99,29 +86,30 @@ class AccessRequestTest {
 
         System.arraycopy(chapHash, 0, chapPassword, 1, 16);
 
-        List<RadiusAttribute> radiusAttributes = Arrays.asList(new StringAttribute(DefaultDictionary.INSTANCE, -1, 1, user),
-                new RadiusAttribute(DefaultDictionary.INSTANCE, -1, 60, chapChallenge),
-                new RadiusAttribute(DefaultDictionary.INSTANCE, -1, 3, chapPassword));
+        List<RadiusAttribute> radiusAttributes = Arrays.asList(
+                new StringAttribute(dictionary, -1, 1, user),
+                new RadiusAttribute(dictionary, -1, 60, chapChallenge),
+                new RadiusAttribute(dictionary, -1, 3, chapPassword));
 
-        AccessRequest accessRequest = new AccessRequest(DefaultDictionary.INSTANCE, getNextPacketIdentifier(), authenticator, user, pass);
+        AccessRequest accessRequest = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, pass);
         accessRequest.setAuthProtocol(AccessRequest.AUTH_CHAP);
-        accessRequest.encodeRequest(sharedSecret);
+        final AccessRequest encodedRequest = accessRequest.encodeRequest(sharedSecret);
 
-        assertEquals(radiusAttributes.size(), accessRequest.getAttributes().size());
+        assertEquals(radiusAttributes.size(), encodedRequest.getAttributes().size());
     }
 
     @Test
-    void verifyChapPassword() throws RadiusException {
+    void verifyChapPassword() {
         String user = "user";
         String pass = "password123456789";
         String sharedSecret = "sharedSecret";
 
-        AccessRequest accessRequest = new AccessRequest(DefaultDictionary.INSTANCE, getNextPacketIdentifier(), authenticator, user, pass);
+        AccessRequest accessRequest = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, pass);
         accessRequest.setAuthProtocol(AccessRequest.AUTH_CHAP);
-        accessRequest.encodeRequest(sharedSecret);
+        final AccessRequest encodedRequest = accessRequest.encodeRequest(sharedSecret);
 
-        byte[] chapChallenge = accessRequest.getAttribute("CHAP-Challenge").getData();
-        byte[] chapPassword = accessRequest.getAttribute("CHAP-Password").getData();
+        byte[] chapChallenge = encodedRequest.getAttribute("CHAP-Challenge").getData();
+        byte[] chapPassword = encodedRequest.getAttribute("CHAP-Password").getData();
         byte chapIdentifier = chapPassword[0];
         MessageDigest md5 = getMessageDigest();
         md5.update(chapIdentifier);
@@ -138,36 +126,6 @@ class AccessRequestTest {
         assertTrue(isTrue);
     }
 
-    private byte[] encodePapPassword(String pass, String sharedSecret) {
-        byte[] C = authenticator;
-        byte[] padded = getPadded(pass.getBytes());
-        byte[] data = new byte[padded.length];
-
-        for (int i = 0; i < padded.length; i += C.length) {
-            C = compute(sharedSecret.getBytes(), C);
-            C = xor(padded, i, C.length, C, C.length);
-            System.arraycopy(C, 0, data, i, C.length);
-        }
-        return data;
-    }
-
-    private byte[] getPadded(byte[] pass) {
-        int length = Math.max((int) (Math.ceil((double) pass.length / authenticator.length) * authenticator.length), authenticator.length);
-        byte[] padded = new byte[length];
-        System.arraycopy(pass, 0, padded, 0, pass.length);
-        return padded;
-    }
-
-    private byte[] compute(byte[]... values) {
-        MessageDigest md = getMessageDigest();
-        assert md != null;
-
-        for (byte[] b : values)
-            md.update(b);
-
-        return md.digest();
-    }
-
     private MessageDigest getMessageDigest() {
         MessageDigest md = null;
         try {
@@ -177,19 +135,4 @@ class AccessRequestTest {
         }
         return md;
     }
-
-
-    private byte[] xor(byte[] src1, int src1offset, int src1length,
-                       byte[] src2, int src2length) {
-        byte[] dst = new byte[max(max(src1length, src2length), 0)];
-
-        int length = Math.min(src1length, src2length);
-
-        for (int i = 0; i < length; i++) {
-            dst[i] = (byte) (src1[i + src1offset] ^ src2[i]);
-        }
-
-        return dst;
-    }
-
 }

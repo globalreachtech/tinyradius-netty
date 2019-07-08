@@ -423,6 +423,7 @@ public class RadiusPacket {
      *
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client
+     * @return RadiusPacket with new authenticator and/or encoded attributes
      * @throws RadiusException malformed packet
      */
     protected RadiusPacket encodeRequest(String sharedSecret) throws RadiusException {

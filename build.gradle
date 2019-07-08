@@ -20,6 +20,9 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.5.0'
     testImplementation 'org.slf4j:slf4j-simple:1.7.26'
+    testImplementation('net.jradius:jradius-core:1.1.5') {
+        transitive = false // for alternative implementation of hashing utilities
+    }
 }
 
 jacocoTestReport {
