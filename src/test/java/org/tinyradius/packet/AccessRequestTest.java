@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.tinyradius.packet.RadiusPacketEncoder.getNextPacketIdentifier;
 import static org.tinyradius.packet.Util.getStringFromUtf8;
 
-class AccessRequestPacketTest {
+class AccessRequestTest {
 
     private static final SecureRandom random = new SecureRandom();
     private static byte[] authenticator;

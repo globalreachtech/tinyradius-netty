@@ -79,10 +79,11 @@ public class RadiusPacket {
      * Builds a Radius packet with the given type, identifier and
      * attributes.
      *
-     * @param dictionary custom dictionary to use
-     * @param type       packet type
-     * @param identifier packet identifier
-     * @param attributes list of RadiusAttribute objects
+     * @param dictionary    custom dictionary to use
+     * @param type          packet type
+     * @param identifier    packet identifier
+     * @param authenticator can be null if creating manually
+     * @param attributes    list of RadiusAttribute objects
      */
     public RadiusPacket(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         if (type < 1 || type > 255)
@@ -93,7 +94,7 @@ public class RadiusPacket {
         this.packetIdentifier = identifier;
         this.authenticator = authenticator;
         this.attributes = requireNonNull(attributes, "attributes list is null");
-        this.dictionary = requireNonNull(dictionary, "dicationary is null");
+        this.dictionary = requireNonNull(dictionary, "dictionary is null");
     }
 
     /**
