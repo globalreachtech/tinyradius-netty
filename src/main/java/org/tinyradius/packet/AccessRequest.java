@@ -355,7 +355,7 @@ public class AccessRequest extends RadiusPacket {
      *
      * @param plaintext     plain-text password
      * @param chapChallenge CHAP challenge
-     * @return CHAP-encoded password
+     * @return 17 octet CHAP-encoded password (1 octet for CHAP ID, 16 octets CHAP response)
      */
     private byte[] encodeChapPassword(String plaintext, byte[] chapChallenge) {
         // see RFC 2865 section 2.2
@@ -375,6 +375,7 @@ public class AccessRequest extends RadiusPacket {
     /**
      * Verifies a CHAP password against the given plaintext password.
      *
+     * @param plaintext
      * @return plain-text password
      */
     private boolean verifyChapPassword(String plaintext) throws RadiusException {

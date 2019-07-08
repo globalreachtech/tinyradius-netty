@@ -5,7 +5,6 @@ import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.AttributeType;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
-import sun.security.provider.MD5;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
