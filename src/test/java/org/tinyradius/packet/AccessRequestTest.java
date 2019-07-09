@@ -2,7 +2,6 @@ package org.tinyradius.packet;
 
 import net.jradius.util.CHAP;
 import net.jradius.util.RadiusUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.StringAttribute;
@@ -10,7 +9,6 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -18,17 +16,25 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.packet.RadiusPacketEncoder.getNextPacketIdentifier;
+import static org.tinyradius.packet.RadiusPacketEncoder.nextPacketId;
 
 class AccessRequestTest {
 
     private static final SecureRandom random = new SecureRandom();
     private static Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private byte[] authenticator = new byte[16];
 
-    @BeforeEach
-    void setup() {
-        random.nextBytes(authenticator);
+    @Test
+    void authenticatorOnlyAddedIfNull() {
+        String sharedSecret = "sharedSecret1";
+
+        AccessRequest nullAuthRequest = new AccessRequest(dictionary, 2, null, "myUser", "myPw");
+        assertNull(nullAuthRequest.getAuthenticator());
+
+        assertNotNull(nullAuthRequest.encodeRequest(sharedSecret).getAuthenticator());
+
+        AccessRequest authRequest = new AccessRequest(dictionary, 2, random16Bytes(), "myUser", "myPw");
+        assertNotNull(authRequest.getAuthenticator());
+        assertArrayEquals(authRequest.getAuthenticator(), authRequest.encodeRequest(sharedSecret).getAuthenticator());
     }
 
     @Test
@@ -37,18 +43,22 @@ class AccessRequestTest {
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequest request = new AccessRequest(dictionary, getNextPacketIdentifier(), null, user, plaintextPw);
+        AccessRequest request = new AccessRequest(dictionary, 2, null, user, plaintextPw);
         request.setAuthProtocol(AccessRequest.AUTH_PAP);
         final AccessRequest encoded = request.encodeRequest(sharedSecret);
 
+        // randomly generated, need to extract
+        final byte[] authenticator = encoded.getAuthenticator();
         final byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
-                request.getUserPassword().getBytes(UTF_8), encoded.getAuthenticator(), sharedSecret);
+                request.getUserPassword().getBytes(UTF_8), authenticator, sharedSecret);
 
+        assertNull(request.getAttribute("User-Password"));
+        assertNull(request.getAttribute("CHAP-Password"));
         assertEquals(request.getPacketType(), encoded.getPacketType());
         assertEquals(request.getPacketIdentifier(), encoded.getPacketIdentifier());
         assertEquals(request.getAttribute("User-Name").getDataString(), encoded.getAttribute("User-Name").getDataString());
 
-        assertNull(request.getAttribute("User-Password"));
+        assertNull(encoded.getAttribute("CHAP-Password"));
         assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").getData());
     }
 
@@ -57,6 +67,7 @@ class AccessRequestTest {
         String user = "user2";
         String plaintextPw = "myPassword2";
         String sharedSecret = "sharedSecret2";
+        final byte[] authenticator = random16Bytes();
 
         byte[] encodedPassword = RadiusUtils.encodePapPassword(plaintextPw.getBytes(UTF_8), authenticator, sharedSecret);
 
@@ -64,7 +75,7 @@ class AccessRequestTest {
                 new StringAttribute(dictionary, -1, 1, user),
                 new RadiusAttribute(dictionary, -1, 2, encodedPassword));
 
-        AccessRequest request = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, attributes);
+        AccessRequest request = new AccessRequest(dictionary, nextPacketId(), authenticator, attributes);
 
         assertNull(request.getUserPassword());
         assertEquals(user, request.getAttribute("User-Name").getDataString());
@@ -81,9 +92,15 @@ class AccessRequestTest {
         String plaintextPw = "password123456789";
         String sharedSecret = "sharedSecret";
 
-        AccessRequest request = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, plaintextPw);
+        AccessRequest request = new AccessRequest(dictionary, nextPacketId(), null, user, plaintextPw);
         request.setAuthProtocol(AccessRequest.AUTH_CHAP);
         final AccessRequest encoded = request.encodeRequest(sharedSecret);
+
+        assertNull(request.getAttribute("User-Password"));
+        assertNull(request.getAttribute("CHAP-Password"));
+        assertEquals(request.getPacketType(), encoded.getPacketType());
+        assertEquals(request.getPacketIdentifier(), encoded.getPacketIdentifier());
+        assertEquals(request.getAttribute("User-Name").getDataString(), encoded.getAttribute("User-Name").getDataString());
 
         // randomly generated, need to extract
         final byte[] chapChallenge = encoded.getAttribute("CHAP-Challenge").getData();
@@ -92,43 +109,40 @@ class AccessRequestTest {
         final byte[] expectedChapPassword = CHAP.chapResponse(chapPassword[0], plaintextPw.getBytes(UTF_8), chapChallenge);
 
         assertArrayEquals(expectedChapPassword, chapPassword);
+        assertNull(encoded.getAttribute("User-Password"));
     }
 
     @Test
-    void verifyChapPassword() {
-        String user = "user";
+    void verifyChapPassword() throws NoSuchAlgorithmException, RadiusException {
         String plaintextPw = "password123456789";
-        String sharedSecret = "sharedSecret";
 
-        AccessRequest request = new AccessRequest(dictionary, 1, authenticator, user, plaintextPw);
-        request.setAuthProtocol(AccessRequest.AUTH_CHAP);
-        final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
+        final int chapId = random.nextInt(256);
+        final byte[] challenge = random16Bytes();
+        final byte[] password = CHAP.chapResponse((byte) chapId, plaintextPw.getBytes(UTF_8), challenge);
 
-        byte[] chapChallenge = encodedRequest.getAttribute("CHAP-Challenge").getData();
-        byte[] chapPassword = encodedRequest.getAttribute("CHAP-Password").getData();
-        byte chapIdentifier = chapPassword[0];
-        MessageDigest md5 = getMessageDigest();
-        md5.update(chapIdentifier);
-        md5.update(plaintextPw.getBytes(UTF_8));
-        byte[] chapHash = md5.digest(chapChallenge);
+        AccessRequest goodRequest = new AccessRequest(dictionary, 1, null, Arrays.asList(
+                new RadiusAttribute(dictionary, -1, 60, challenge),
+                new RadiusAttribute(dictionary, -1, 3, password)));
+        goodRequest.decodeAttributes(null);
+        assertTrue(goodRequest.verifyPassword(plaintextPw));
 
-        boolean isTrue = false;
-        for (int i = 0; i < 16; i++) {
-            if (chapHash[i] == chapPassword[i + 1]) {
-                isTrue = true;
-            }
-        }
+        AccessRequest badChallenge = new AccessRequest(dictionary, 1, null, Arrays.asList(
+                new RadiusAttribute(dictionary, -1, 60, random16Bytes()),
+                new RadiusAttribute(dictionary, -1, 3, password)));
+        badChallenge.decodeAttributes(null);
+        assertFalse(badChallenge.verifyPassword(plaintextPw));
 
-        assertTrue(isTrue);
+        password[0] = (byte) ((chapId + 1) % 256);
+        AccessRequest badPassword = new AccessRequest(dictionary, 1, null, Arrays.asList(
+                new RadiusAttribute(dictionary, -1, 60, challenge),
+                new RadiusAttribute(dictionary, -1, 3, password)));
+        badPassword.decodeAttributes(null);
+        assertFalse(badPassword.verifyPassword(plaintextPw));
     }
 
-    private MessageDigest getMessageDigest() {
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return md;
+    private byte[] random16Bytes() {
+        byte[] randomBytes = new byte[16];
+        random.nextBytes(randomBytes);
+        return randomBytes;
     }
 }

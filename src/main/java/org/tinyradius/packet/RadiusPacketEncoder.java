@@ -31,7 +31,7 @@ public class RadiusPacketEncoder {
      *
      * @return the next packet identifier to use
      */
-    public static int getNextPacketIdentifier() {
+    public static int nextPacketId() {
         return nextPacketId.updateAndGet(i -> i >= 255 ? 0 : i + 1);
     }
 

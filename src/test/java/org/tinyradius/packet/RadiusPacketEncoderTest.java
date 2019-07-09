@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.packet.AccessRequest.AUTH_PAP;
 
 class RadiusPacketEncoderTest {
 
@@ -25,6 +26,18 @@ class RadiusPacketEncoderTest {
     void setup() {
         random.nextBytes(authenticator);
     }
+
+    @Test
+    void getNextPacketIdentifier() {
+        int lastId, nextId = 0;
+        for (int i = 0; i < 1000; i++) {
+            lastId = nextId;
+            nextId = RadiusPacketEncoder.nextPacketId();
+            assertEquals(nextId, (lastId + 1) % 256);
+            assertTrue(nextId < 256);
+        }
+    }
+
 
     @Test
     void encodeRadiusPacket() throws IOException {
@@ -41,8 +54,8 @@ class RadiusPacketEncoderTest {
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequest request = new AccessRequest(dictionary, 1, authenticator, user, plaintextPw);
-        request.setAuthProtocol(AccessRequest.AUTH_PAP);
+        AccessRequest request = new AccessRequest(dictionary, 1, null, user, plaintextPw);
+        request.setAuthProtocol(AUTH_PAP);
         AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
 
         DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(encodedRequest, remoteAddress);
@@ -60,8 +73,8 @@ class RadiusPacketEncoderTest {
         String plaintextPw = "myPassword2";
         String sharedSecret = "sharedSecret2";
 
-        AccessRequest request = new AccessRequest(dictionary, 2, authenticator, user, plaintextPw);
-        request.setAuthProtocol(AccessRequest.AUTH_PAP);
+        AccessRequest request = new AccessRequest(dictionary, 2, null, user, plaintextPw);
+        request.setAuthProtocol(AUTH_PAP);
         AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
 
         DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(encodedRequest, remoteAddress);
