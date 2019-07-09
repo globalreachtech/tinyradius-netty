@@ -17,6 +17,8 @@ class RadiusPacketEncoderTest {
 
     private static final SecureRandom random = new SecureRandom();
     private static Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private static final InetSocketAddress remoteAddress = new InetSocketAddress(0);
+
     private byte[] authenticator = new byte[16];
 
     @BeforeEach
@@ -26,11 +28,6 @@ class RadiusPacketEncoderTest {
 
     @Test
     void encodeRadiusPacket() throws IOException {
-        byte[] randomBytes = new byte[16];
-        SecureRandom random = new SecureRandom();
-        random.nextBytes(randomBytes);
-
-        InetSocketAddress remoteAddress = new InetSocketAddress(0);
         AccessRequest request = new AccessRequest(dictionary, 1, authenticator);
         DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(request, remoteAddress);
 
@@ -43,7 +40,6 @@ class RadiusPacketEncoderTest {
         String user = "user1";
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
-        InetSocketAddress remoteAddress = new InetSocketAddress(0);
 
         AccessRequest request = new AccessRequest(dictionary, 1, authenticator, user, plaintextPw);
         request.setAuthProtocol(AccessRequest.AUTH_PAP);
@@ -63,7 +59,6 @@ class RadiusPacketEncoderTest {
         String user = "user2";
         String plaintextPw = "myPassword2";
         String sharedSecret = "sharedSecret2";
-        InetSocketAddress remoteAddress = new InetSocketAddress(0);
 
         AccessRequest request = new AccessRequest(dictionary, 2, authenticator, user, plaintextPw);
         request.setAuthProtocol(AccessRequest.AUTH_PAP);
