@@ -3,6 +3,9 @@ package org.tinyradius.packet;
 import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinyradius.client.ProxyStateClientHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
@@ -15,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.packet.AccessRequest.AUTH_PAP;
 
 class RadiusPacketEncoderTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(RadiusPacketEncoderTest.class);
+
 
     private static final SecureRandom random = new SecureRandom();
     private static Dictionary dictionary = DefaultDictionary.INSTANCE;
@@ -36,8 +42,8 @@ class RadiusPacketEncoderTest {
             try {
                 assertEquals(nextId, (lastId + 1) % 256);
             } catch (Exception e) {
-                System.out.println(nextId);
-                System.out.println(lastId);
+                logger.warn("{}", nextId);
+                logger.warn("{}", lastId);
                 throw e;
             }
             assertTrue(nextId < 256);
