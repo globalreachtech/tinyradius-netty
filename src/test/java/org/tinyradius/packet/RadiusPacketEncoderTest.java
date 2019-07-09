@@ -1,0 +1,61 @@
+package org.tinyradius.packet;
+
+import io.netty.channel.socket.DatagramPacket;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.util.RadiusException;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.security.SecureRandom;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class RadiusPacketEncoderTest {
+
+    private static final SecureRandom random = new SecureRandom();
+    private static Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private byte[] authenticator = new byte[16];
+
+    @BeforeEach
+    void setup() {
+        random.nextBytes(authenticator);
+    }
+
+    @Test
+    void encodeRadiusPacket() throws IOException {
+        byte[] randomBytes = new byte[16];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(randomBytes);
+
+        InetSocketAddress remoteAddress = new InetSocketAddress(0);
+        AccessRequest request = new AccessRequest(dictionary, 1, authenticator);
+        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(request, remoteAddress);
+
+        assertTrue(datagramPacket.content().isReadable());
+        assertEquals(remoteAddress, datagramPacket.recipient());
+    }
+
+    @Test
+    void getRadiusPacketFromDatagram() throws IOException, RadiusException {
+        String user = "user1";
+        String plaintextPw = "myPassword1";
+        String sharedSecret = "sharedSecret1";
+        InetSocketAddress remoteAddress = new InetSocketAddress(0);
+
+        AccessRequest request = new AccessRequest(dictionary, 1, authenticator, user, plaintextPw);
+        request.setAuthProtocol(AccessRequest.AUTH_PAP);
+        AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
+        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(encodedRequest, remoteAddress);
+
+        RadiusPacket radiusPacket = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, sharedSecret, null);
+        String expectedPlaintextPw = ((AccessRequest) radiusPacket).getUserPassword();
+
+        assertArrayEquals(encodedRequest.getAttribute("User-Password").getData(), radiusPacket.getAttribute("User-Password").getData());
+        assertEquals(plaintextPw, expectedPlaintextPw);
+        assertEquals(encodedRequest.getAttribute("User-Name").getDataString(), radiusPacket.getAttribute("User-Name").getDataString());
+    }
+
+}
