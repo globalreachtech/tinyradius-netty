@@ -48,9 +48,12 @@ public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> impl
     public Future<Void> start() {
         Promise<Void> promise = eventLoopGroup.next().newPromise();
 
-        final PromiseCombiner combiner = new PromiseCombiner(eventLoopGroup.next());
-        combiner.addAll(super.start(), channelInboundHandler.start());
-        combiner.finish(promise);
+        eventLoopGroup.submit(() -> {
+            final PromiseCombiner combiner = new PromiseCombiner(eventLoopGroup.next());
+            combiner.addAll(super.start(), channelInboundHandler.start());
+            combiner.finish(promise);
+        });
+
         return promise;
     }
 

@@ -71,7 +71,7 @@ public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandl
      * @param address client address
      * @return true if it is duplicate
      */
-    public boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
+    private boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
         Packet p = new Packet(packet.getPacketIdentifier(), address, packet.getAuthenticator());
 
         if (packets.contains(p))
@@ -94,18 +94,14 @@ public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandl
             this.authenticator = authenticator;
         }
 
-        /**
-         * // todo authenticator should never be null?
-         * If authenticator is null, ignores and only compares other properties.
-         */
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Packet packet = (Packet) o;
             return packetIdentifier == packet.packetIdentifier &&
-                    address.equals(packet.address) &&
-                    (authenticator == null || packet.authenticator == null || Arrays.equals(packet.authenticator, authenticator));
+                    Objects.equals(address, packet.address) &&
+                    Arrays.equals(authenticator, packet.authenticator);
         }
 
         @Override
