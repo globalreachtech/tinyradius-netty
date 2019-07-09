@@ -5,6 +5,7 @@ import org.tinyradius.attribute.*;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.util.RadiusException;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -14,9 +15,19 @@ import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 class RadiusPacketTest {
 
     @Test
+    void doesNotMutateOriginalList() throws RadiusException {
+        final List<RadiusAttribute> attributes= Collections.emptyList();
+        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, attributes);
+        rp.addAttribute("WISPr-Location-ID", "myLocationId");
+
+        assertEquals(0, attributes.size());
+        assertEquals(1, rp.getAttributes().size());
+    }
+
+    @Test
     void addAttribute() throws RadiusException {
 
-        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
+        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, Collections.emptyList());
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
         rp.addAttribute(new IpAttribute(rp.getDictionary(), -1, 8, 1234567));
         rp.addAttribute(new Ipv6Attribute(rp.getDictionary(), -1, 168, "fe80::"));

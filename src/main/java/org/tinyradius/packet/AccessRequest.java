@@ -7,6 +7,7 @@ import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.*;
@@ -55,7 +56,6 @@ public class AccessRequest extends RadiusPacket {
     private static final int MS_CHAP2_RESPONSE = 25;
 
     /**
-     *
      * @param dictionary
      * @param identifier
      * @param authenticator
@@ -65,7 +65,6 @@ public class AccessRequest extends RadiusPacket {
     }
 
     /**
-     *
      * @param dictionary
      * @param identifier
      * @param authenticator
@@ -181,10 +180,8 @@ public class AccessRequest extends RadiusPacket {
      *
      * @param plaintext password to verify packet against
      * @return true if the password is valid, false otherwise
-     * @throws RadiusException password verification failed or not supported
-     *                         for auth protocol
      */
-    public boolean verifyPassword(String plaintext) throws RadiusException, UnsupportedOperationException {
+    public boolean verifyPassword(String plaintext) throws UnsupportedOperationException {
         if (plaintext == null || plaintext.isEmpty())
             throw new IllegalArgumentException("password is empty");
         switch (getAuthProtocol()) {
@@ -216,14 +213,11 @@ public class AccessRequest extends RadiusPacket {
         if (userPassword != null) {
             setAuthProtocol(AUTH_PAP);
             this.password = decodePapPassword(userPassword.getData(), sharedSecret.getBytes(UTF_8));
-        } else if (chapPassword != null && chapChallenge != null) {
+        } else if (chapPassword != null) {
             setAuthProtocol(AUTH_CHAP);
             this.chapPassword = chapPassword.getData();
-            this.chapChallenge = chapChallenge.getData();
-        } else if (chapPassword != null && getAuthenticator().length == 16) {
-            setAuthProtocol(AUTH_CHAP);
-            this.chapPassword = chapPassword.getData();
-            this.chapChallenge = getAuthenticator();
+            this.chapChallenge = chapChallenge != null ?
+                    chapChallenge.getData() : getAuthenticator();
         } else if (msChapChallenge != null && msChap2Response != null) {
             setAuthProtocol(AUTH_MS_CHAP_V2);
             this.chapPassword = msChap2Response.getData();
@@ -246,7 +240,7 @@ public class AccessRequest extends RadiusPacket {
     @Override
     protected AccessRequest encodeRequest(String sharedSecret) throws UnsupportedOperationException {
         // create authenticator only if needed
-        byte[] newAuthenticator = getAuthenticator() == null ? generateRandomizedAuthenticator() : getAuthenticator();
+        byte[] newAuthenticator = getAuthenticator() == null ? randomBytes(16) : getAuthenticator();
 
         final AccessRequest accessRequest = new AccessRequest(getDictionary(), getPacketIdentifier(), newAuthenticator, new ArrayList<>(getAttributes()));
 
@@ -274,10 +268,11 @@ public class AccessRequest extends RadiusPacket {
                             new RadiusAttribute(getDictionary(), -1, USER_PASSWORD,
                                     encodePapPassword(newAuthenticator, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
                 case AUTH_CHAP:
-                    byte[] challenge = createChapChallenge();
+                    byte[] challenge = randomBytes(16);
                     return Arrays.asList(
                             new RadiusAttribute(getDictionary(), -1, CHAP_CHALLENGE, challenge),
-                            new RadiusAttribute(getDictionary(), -1, CHAP_PASSWORD, encodeChapPassword(password, challenge)));
+                            new RadiusAttribute(getDictionary(), -1, CHAP_PASSWORD,
+                                    computeChapPassword((byte) random.nextInt(256), password, challenge)));
                 case AUTH_MS_CHAP_V2:
                     throw new UnsupportedOperationException("encoding not supported for " + AUTH_MS_CHAP_V2);
                 case AUTH_EAP:
@@ -340,36 +335,24 @@ public class AccessRequest extends RadiusPacket {
     }
 
     /**
-     * Creates a random CHAP challenge using a secure random algorithm.
-     *
-     * @return 16 byte CHAP challenge
-     */
-    private byte[] createChapChallenge() {
-        byte[] challenge = new byte[16];
-        random.nextBytes(challenge);
-        return challenge;
-    }
-
-    /**
      * Encodes a plain-text password using the given CHAP challenge.
+     * See RFC 2865 section 2.2
      *
-     * @param plaintext     plain-text password
-     * @param chapChallenge CHAP challenge
+     * @param chapId        CHAP ID associated with request
+     * @param plaintextPw   plain-text password
+     * @param chapChallenge random 16 octet CHAP challenge
      * @return 17 octet CHAP-encoded password (1 octet for CHAP ID, 16 octets CHAP response)
      */
-    private byte[] encodeChapPassword(String plaintext, byte[] chapChallenge) {
-        // see RFC 2865 section 2.2
-        byte chapIdentifier = (byte) random.nextInt(256);
-        byte[] chapPassword = new byte[17];
-        chapPassword[0] = chapIdentifier;
-
+    private byte[] computeChapPassword(byte chapId, String plaintextPw, byte[] chapChallenge) {
         MessageDigest md5 = getMd5Digest();
-        md5.update(chapIdentifier);
-        md5.update(plaintext.getBytes(UTF_8));
-        byte[] chapHash = md5.digest(chapChallenge);
+        md5.update(chapId);
+        md5.update(plaintextPw.getBytes(UTF_8));
+        md5.update(chapChallenge);
 
-        System.arraycopy(chapHash, 0, chapPassword, 1, 16);
-        return chapPassword;
+        return ByteBuffer.allocate(17)
+                .put(chapId)
+                .put(md5.digest())
+                .array();
     }
 
     /**
@@ -378,25 +361,16 @@ public class AccessRequest extends RadiusPacket {
      * @param plaintext
      * @return plain-text password
      */
-    private boolean verifyChapPassword(String plaintext) throws RadiusException {
+    private boolean verifyChapPassword(String plaintext) {
         if (plaintext == null || plaintext.isEmpty())
-            throw new IllegalArgumentException("plaintext must not be empty");
-        if (chapChallenge == null || chapChallenge.length != 16)
-            throw new RadiusException("CHAP challenge must be 16 bytes");
-        if (chapPassword == null || chapPassword.length != 17)
-            throw new RadiusException("CHAP password must be 17 bytes");
-
-        byte chapIdentifier = chapPassword[0];
-        MessageDigest md5 = getMd5Digest();
-        md5.update(chapIdentifier);
-        md5.update(plaintext.getBytes(UTF_8));
-        byte[] chapHash = md5.digest(chapChallenge);
-
-        // compare
-        for (int i = 0; i < 16; i++)
-            if (chapHash[i] != chapPassword[i + 1])
-                return false;
-        return true;
+            logger.warn("plaintext must not be empty");
+        else if (chapChallenge == null)
+            logger.warn("CHAP challenge is null");
+        else if (chapPassword == null || chapPassword.length != 17)
+            logger.warn("CHAP password must be 17 bytes");
+        else
+            return Arrays.equals(chapPassword, computeChapPassword(chapPassword[0], plaintext, chapChallenge));
+        return false;
     }
 
     private byte[] compute(byte[]... values) {

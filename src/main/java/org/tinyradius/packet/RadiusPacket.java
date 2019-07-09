@@ -90,10 +90,13 @@ public class RadiusPacket {
             throw new IllegalArgumentException("packet type out of bounds");
         if (identifier < 0 || identifier > 255)
             throw new IllegalArgumentException("packet identifier out of bounds");
+        if (authenticator != null && authenticator.length != 16)
+            throw new IllegalArgumentException("authenticator must be 16 octets");
+
         this.packetType = type;
         this.packetIdentifier = identifier;
         this.authenticator = authenticator;
-        this.attributes = requireNonNull(attributes, "attributes list is null");
+        this.attributes = new ArrayList<>(attributes); // catch nulls, avoid mutating original list
         this.dictionary = requireNonNull(dictionary, "dictionary is null");
     }
 
@@ -434,10 +437,11 @@ public class RadiusPacket {
      * Generates a request authenticator for this packet. This request authenticator
      * is constructed as described in RFC 2865.
      *
-     * @return request authenticator, 16 bytes
+     * @param size length of random byte array
+     * @return array of random bytes
      */
-    protected byte[] generateRandomizedAuthenticator() {
-        byte[] randomBytes = new byte[16];
+    protected byte[] randomBytes(int size) {
+        byte[] randomBytes = new byte[size];
         random.nextBytes(randomBytes);
         return randomBytes;
     }

@@ -1,5 +1,6 @@
 package org.tinyradius.packet;
 
+import net.jradius.util.CHAP;
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,12 +37,12 @@ class AccessRequestTest {
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequest request = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, plaintextPw);
+        AccessRequest request = new AccessRequest(dictionary, getNextPacketIdentifier(), null, user, plaintextPw);
         request.setAuthProtocol(AccessRequest.AUTH_PAP);
         final AccessRequest encoded = request.encodeRequest(sharedSecret);
 
         final byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
-                request.getUserPassword().getBytes(UTF_8), request.getAuthenticator(), sharedSecret);
+                request.getUserPassword().getBytes(UTF_8), encoded.getAuthenticator(), sharedSecret);
 
         assertEquals(request.getPacketType(), encoded.getPacketType());
         assertEquals(request.getPacketIdentifier(), encoded.getPacketIdentifier());
@@ -75,35 +76,22 @@ class AccessRequestTest {
     }
 
     @Test
-    void encodeChapPassword() {
+    void encodeChapPassword() throws NoSuchAlgorithmException {
         String user = "user";
         String plaintextPw = "password123456789";
         String sharedSecret = "sharedSecret";
 
-        byte[] chapChallenge = new byte[16];
-        random.nextBytes(chapChallenge);
-
-        byte chapId = (byte) random.nextInt(256);
-        byte[] chapPassword = new byte[17];
-        chapPassword[0] = chapId;
-
-        MessageDigest md5 = getMessageDigest();
-        md5.update(chapId);
-        md5.update(plaintextPw.getBytes(UTF_8));
-        byte[] chapHash = md5.digest();
-
-        System.arraycopy(chapHash, 0, chapPassword, 1, 16);
-
-        List<RadiusAttribute> radiusAttributes = Arrays.asList(
-                new StringAttribute(dictionary, -1, 1, user),
-                new RadiusAttribute(dictionary, -1, 60, chapChallenge),
-                new RadiusAttribute(dictionary, -1, 3, chapPassword));
-
         AccessRequest request = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, plaintextPw);
         request.setAuthProtocol(AccessRequest.AUTH_CHAP);
-        final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
+        final AccessRequest encoded = request.encodeRequest(sharedSecret);
 
-        assertEquals(radiusAttributes.size(), encodedRequest.getAttributes().size());
+        // randomly generated, need to extract
+        final byte[] chapChallenge = encoded.getAttribute("CHAP-Challenge").getData();
+        final byte[] chapPassword = encoded.getAttribute("CHAP-Password").getData();
+
+        final byte[] expectedChapPassword = CHAP.chapResponse(chapPassword[0], plaintextPw.getBytes(UTF_8), chapChallenge);
+
+        assertArrayEquals(expectedChapPassword, chapPassword);
     }
 
     @Test
@@ -112,7 +100,7 @@ class AccessRequestTest {
         String plaintextPw = "password123456789";
         String sharedSecret = "sharedSecret";
 
-        AccessRequest request = new AccessRequest(dictionary, getNextPacketIdentifier(), authenticator, user, plaintextPw);
+        AccessRequest request = new AccessRequest(dictionary, 1, authenticator, user, plaintextPw);
         request.setAuthProtocol(AccessRequest.AUTH_CHAP);
         final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
 

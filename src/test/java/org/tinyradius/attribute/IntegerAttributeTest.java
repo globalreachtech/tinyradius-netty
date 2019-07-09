@@ -10,8 +10,6 @@ class IntegerAttributeTest {
     @Test
     void testLargestUnsignedInt() {
         final long bigValue = 0xffffffffL; // big value with highest bit set
-        System.err.println((int) bigValue);
-        System.err.println(bigValue);
         final String bigValueSt = Long.toString(bigValue);
         final IntegerAttribute intAttr = new IntegerAttribute(DefaultDictionary.INSTANCE, -1, 27, bigValueSt);
         assertEquals(bigValueSt, intAttr.getDataString());
