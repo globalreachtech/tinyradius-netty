@@ -60,7 +60,7 @@ class RadiusPacketTest {
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         RadiusAttribute ra = new RadiusAttribute(rp.getDictionary(), -1, 8, new byte[16]);
         rp.addAttribute(ra);
-        assertTrue(!rp.getAttributes().isEmpty());
+        assertFalse(rp.getAttributes().isEmpty());
         assertEquals(1, rp.getAttributes().size());
 
         rp.removeAttribute(ra);
@@ -71,7 +71,7 @@ class RadiusPacketTest {
     void removeSpecificVendorAttributes() throws RadiusException {
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
-        assertTrue(!rp.getAttributes().isEmpty());
+        assertFalse(rp.getAttributes().isEmpty());
 
         rp.removeAttributes(14122, 1);
         assertTrue(rp.getAttributes().isEmpty());
@@ -92,7 +92,7 @@ class RadiusPacketTest {
         assertEquals(3, rp.getAttributes().size());
 
         rp.removeAttributes(6);
-        assertTrue(!rp.getAttributes().isEmpty());
+        assertFalse(rp.getAttributes().isEmpty());
         assertEquals(1, rp.getAttributes().size());
     }
 
@@ -107,7 +107,7 @@ class RadiusPacketTest {
         rp.removeLastAttribute(6);
         RadiusAttribute attribute = rp.getAttribute(6);
 
-        assertTrue(!rp.getAttributes().isEmpty());
+        assertFalse(rp.getAttributes().isEmpty());
         assertEquals(2, rp.getAttributes().size());
         assertEquals("Login-User", attribute.getDataString());
     }

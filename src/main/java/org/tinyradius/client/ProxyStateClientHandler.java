@@ -115,10 +115,8 @@ public class ProxyStateClientHandler extends ClientHandler {
             packet.removeLastAttribute(PROXY_STATE);
 
             request.trySuccess(packet);
-        } catch (IOException ioe) {
-            logger.error("communication/socket io error", ioe);
-        } catch (RadiusException re) {
-            logger.error("malformed Radius packet", re);
+        } catch (IOException | RadiusException e) {
+            logger.error("DatagramPacket handle error: ", e);
         }
     }
 }

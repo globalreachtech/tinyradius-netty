@@ -103,13 +103,8 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
                         logger.error("exception while handling packet", e);
                 }
             });
-
-
-        } catch (IOException ioe) {
-            // error while reading/writing socket
-            logger.error("communication error", ioe);
-        } catch (RadiusException re) {
-            logger.error("malformed Radius packet", re);
+        } catch (IOException | RadiusException e) {
+            logger.error("DatagramPacket handle error: ", e);
         }
     }
 }
