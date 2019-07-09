@@ -19,9 +19,6 @@ import static org.tinyradius.packet.AccessRequest.AUTH_PAP;
 
 class RadiusPacketEncoderTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(RadiusPacketEncoderTest.class);
-
-
     private static final SecureRandom random = new SecureRandom();
     private static Dictionary dictionary = DefaultDictionary.INSTANCE;
     private static final InetSocketAddress remoteAddress = new InetSocketAddress(0);
@@ -35,18 +32,10 @@ class RadiusPacketEncoderTest {
 
     @Test
     void getNextPacketIdentifier() {
-        int lastId, nextId = 0;
         for (int i = 0; i < 1000; i++) {
-            lastId = nextId;
-            nextId = RadiusPacketEncoder.nextPacketId();
-            try {
-                assertEquals(nextId, (lastId + 1) % 256);
-            } catch (Exception e) {
-                logger.warn("{}", nextId);
-                logger.warn("{}", lastId);
-                throw e;
-            }
-            assertTrue(nextId < 256);
+            final int next = RadiusPacketEncoder.nextPacketId();
+            assertTrue(next < 256);
+            assertTrue(next >= 0);
         }
     }
 
