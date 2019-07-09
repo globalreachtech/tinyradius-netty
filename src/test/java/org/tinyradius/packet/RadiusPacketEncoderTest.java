@@ -33,7 +33,13 @@ class RadiusPacketEncoderTest {
         for (int i = 0; i < 1000; i++) {
             lastId = nextId;
             nextId = RadiusPacketEncoder.nextPacketId();
-            assertEquals(nextId, (lastId + 1) % 256);
+            try {
+                assertEquals(nextId, (lastId + 1) % 256);
+            } catch (Exception e) {
+                System.out.println(nextId);
+                System.out.println(lastId);
+                throw e;
+            }
             assertTrue(nextId < 256);
         }
     }
