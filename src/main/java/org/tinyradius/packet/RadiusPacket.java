@@ -31,6 +31,7 @@ public class RadiusPacket {
 
     public static final int MAX_PACKET_LENGTH = 4096;
     public static final int HEADER_LENGTH = 20;
+    public static final int VENDOR_SPECIFIC_TYPE = 26;
 
     private final int packetType;
     private final int packetIdentifier;
@@ -164,7 +165,7 @@ public class RadiusPacket {
      * @param attribute RadiusAttribute to remove
      */
     public void removeAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() == -1) {
+        if (attribute.getVendorId() == -1 || attribute.getType() == VENDOR_SPECIFIC_TYPE) {
             this.attributes.remove(attribute);
         } else {
             // remove Vendor-Specific sub-attribute

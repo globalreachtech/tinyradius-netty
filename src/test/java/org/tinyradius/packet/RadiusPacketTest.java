@@ -8,15 +8,14 @@ import org.tinyradius.util.RadiusException;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 
 class RadiusPacketTest {
 
     @Test
     void doesNotMutateOriginalList() throws RadiusException {
-        final List<RadiusAttribute> attributes= Collections.emptyList();
+        final List<RadiusAttribute> attributes = Collections.emptyList();
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, attributes);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
 
@@ -55,4 +54,62 @@ class RadiusPacketTest {
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
                 ipV6Attributes.stream().map(RadiusAttribute::getDataString).toArray());
     }
+
+    @Test
+    void removeSpecificAttribute() {
+        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
+        RadiusAttribute ra = new RadiusAttribute(rp.getDictionary(), -1, 8, new byte[16]);
+        rp.addAttribute(ra);
+        assertTrue(!rp.getAttributes().isEmpty());
+        assertEquals(1, rp.getAttributes().size());
+
+        rp.removeAttribute(ra);
+        assertEquals(0, rp.getAttributes().size());
+    }
+
+    @Test
+    void removeSpecificVendorAttributes() throws RadiusException {
+        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
+        rp.addAttribute("WISPr-Location-ID", "myLocationId");
+        assertTrue(!rp.getAttributes().isEmpty());
+
+        rp.removeAttributes(14122, 1);
+        assertTrue(rp.getAttributes().isEmpty());
+
+        rp.addAttribute("WISPr-Location-ID", "myLocationId");
+        RadiusAttribute ra = rp.getAttribute(14122, 1);
+
+        rp.removeAttribute(ra);
+        assertEquals(0, rp.getAttributes().size());
+    }
+
+    @Test
+    void removeAttributesByType() throws RadiusException {
+        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
+        rp.addAttribute("Service-Type", "1");
+        rp.addAttribute("Service-Type", "2");
+        rp.addAttribute("User-Name", "user");
+        assertEquals(3, rp.getAttributes().size());
+
+        rp.removeAttributes(6);
+        assertTrue(!rp.getAttributes().isEmpty());
+        assertEquals(1, rp.getAttributes().size());
+    }
+
+    @Test
+    void removeLastAttributeForType() throws RadiusException {
+        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
+        rp.addAttribute("Service-Type", "1");
+        rp.addAttribute("Service-Type", "2");
+        rp.addAttribute("User-Name", "user");
+        assertEquals(3, rp.getAttributes().size());
+
+        rp.removeLastAttribute(6);
+        RadiusAttribute attribute = rp.getAttribute(6);
+
+        assertTrue(!rp.getAttributes().isEmpty());
+        assertEquals(2, rp.getAttributes().size());
+        assertEquals("Login-User", attribute.getDataString());
+    }
+
 }
