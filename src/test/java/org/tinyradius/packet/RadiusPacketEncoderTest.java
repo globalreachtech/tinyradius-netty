@@ -48,9 +48,29 @@ class RadiusPacketEncoderTest {
         AccessRequest request = new AccessRequest(dictionary, 1, authenticator, user, plaintextPw);
         request.setAuthProtocol(AccessRequest.AUTH_PAP);
         AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
-        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(encodedRequest, remoteAddress);
 
-        RadiusPacket radiusPacket = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, sharedSecret, null);
+        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(encodedRequest, remoteAddress);
+        RadiusPacket radiusPacket = RadiusPacketEncoder.fromRequestDatagram(dictionary, datagramPacket, sharedSecret);
+        String expectedPlaintextPw = ((AccessRequest) radiusPacket).getUserPassword();
+
+        assertArrayEquals(encodedRequest.getAttribute("User-Password").getData(), radiusPacket.getAttribute("User-Password").getData());
+        assertEquals(plaintextPw, expectedPlaintextPw);
+        assertEquals(encodedRequest.getAttribute("User-Name").getDataString(), radiusPacket.getAttribute("User-Name").getDataString());
+    }
+
+    @Test
+    void getRadiusPacketFromResponseDatagram() throws IOException, RadiusException {
+        String user = "user2";
+        String plaintextPw = "myPassword2";
+        String sharedSecret = "sharedSecret2";
+        InetSocketAddress remoteAddress = new InetSocketAddress(0);
+
+        AccessRequest request = new AccessRequest(dictionary, 2, authenticator, user, plaintextPw);
+        request.setAuthProtocol(AccessRequest.AUTH_PAP);
+        AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
+
+        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(encodedRequest, remoteAddress);
+        RadiusPacket radiusPacket = RadiusPacketEncoder.fromResponseDatagram(dictionary, datagramPacket, sharedSecret, encodedRequest);
         String expectedPlaintextPw = ((AccessRequest) radiusPacket).getUserPassword();
 
         assertArrayEquals(encodedRequest.getAttribute("User-Password").getData(), radiusPacket.getAttribute("User-Password").getData());
