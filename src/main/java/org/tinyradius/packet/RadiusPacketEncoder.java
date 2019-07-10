@@ -2,14 +2,12 @@ package org.tinyradius.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
 import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.attribute.AttributeBuilder;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -35,23 +33,21 @@ public class RadiusPacketEncoder {
         return nextPacketId.updateAndGet(i -> i >= 255 ? 0 : i + 1);
     }
 
-    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress address) throws IOException {
+    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress address) throws RadiusException {
         byte[] attributes = packet.getAttributeBytes();
-        int packetLength = HEADER_LENGTH + attributes.length;
-        if (packetLength > MAX_PACKET_LENGTH)
-            throw new RuntimeException("packet too long");
+        int length = HEADER_LENGTH + attributes.length;
+        if (length > MAX_PACKET_LENGTH)
+            throw new RadiusException("packet too long");
+        if (packet.getAuthenticator().length != 16)
+            throw new RadiusException("authenticator must be length 16");
 
-        ByteBuf buf = buffer(MAX_PACKET_LENGTH, MAX_PACKET_LENGTH);
-        try (ByteBufOutputStream outputStream = new ByteBufOutputStream(buf)) {
-            DataOutputStream dos = new DataOutputStream(outputStream);
-            dos.writeByte(packet.getPacketType());
-            dos.writeByte(packet.getPacketIdentifier());
-            dos.writeShort(packetLength);
-            dos.write(packet.getAuthenticator());
-            dos.write(attributes);
-            dos.flush();
-            return new DatagramPacket(buf, address);
-        }
+        ByteBuf buf = buffer(length, length);
+        buf.writeByte(packet.getPacketType());
+        buf.writeByte(packet.getPacketIdentifier());
+        buf.writeShort(length);
+        buf.writeBytes(packet.getAuthenticator());
+        buf.writeBytes(attributes);
+        return new DatagramPacket(buf, address);
     }
 
     /**

@@ -88,6 +88,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
 
                 RadiusPacket response = f.getNow();
 
+                // todo exception handling?
                 // send response
                 if (response != null) {
                     logger.info("sending response {} to {} with secret {}", response, remoteAddress, secret);

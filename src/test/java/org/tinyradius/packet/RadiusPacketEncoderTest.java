@@ -42,9 +42,8 @@ class RadiusPacketEncoderTest {
         }
     }
 
-
     @Test
-    void encodeRadiusPacket() throws IOException {
+    void encodeRadiusPacket() throws RadiusException {
         final InetSocketAddress address = new InetSocketAddress(random.nextInt(65535));
         RadiusPacket request = new AccountingRequest(dictionary, 1, authenticator);
         request.addAttribute(new RadiusAttribute(dictionary, -1, 33, "state1".getBytes(UTF_8)));
