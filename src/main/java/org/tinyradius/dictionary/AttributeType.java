@@ -94,7 +94,7 @@ public class AttributeType {
                 packetParser = RadiusAttribute::parse;
                 byteArrayConstructor = RadiusAttribute::new;
                 stringConstructor = (a, c, b, d) -> {
-                    throw new RuntimeException("cannot set the value of attribute " + attributeType + " as a string");
+                    throw new RadiusException("cannot set the value of attribute " + attributeType + " as a string");
                 };
         }
     }

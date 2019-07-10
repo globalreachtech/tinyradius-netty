@@ -5,6 +5,7 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
@@ -13,8 +14,6 @@ import static java.util.Objects.requireNonNull;
  * methods to access the fields of special attributes.
  */
 public class RadiusAttribute {
-
-    //todo implement equals/hashcode
 
     private final Dictionary dictionary;
     private final int type;
@@ -162,5 +161,22 @@ public class RadiusAttribute {
                 hex.append(digit);
             }
         return hex.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RadiusAttribute that = (RadiusAttribute) o;
+        return type == that.type &&
+                vendorId == that.vendorId &&
+                Arrays.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(type, vendorId);
+        result = 31 * result + Arrays.hashCode(data);
+        return result;
     }
 }

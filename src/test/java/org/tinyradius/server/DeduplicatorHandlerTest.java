@@ -22,9 +22,8 @@ class DeduplicatorHandlerTest {
     @Test
     void handlePacket() throws InterruptedException {
         final AtomicInteger id = new AtomicInteger();
-        final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         final NioDatagramChannel datagramChannel = new NioDatagramChannel();
-        eventLoopGroup.register(datagramChannel).syncUninterruptibly();
+        new NioEventLoopGroup(4).register(datagramChannel).syncUninterruptibly();
 
         final DeduplicatorHandler<RadiusPacket> deduplicatorHandler = new DeduplicatorHandler<>(
                 (channel, packet, remoteAddress, sharedSecret) -> {
