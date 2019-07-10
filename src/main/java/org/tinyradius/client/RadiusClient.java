@@ -150,7 +150,7 @@ public class RadiusClient<T extends DatagramChannel> {
             });
 
             return promise;
-        } catch (RadiusException | IOException e) {
+        } catch (IOException e) {
             return eventLoopGroup.next().newFailedFuture(e);
         }
     }

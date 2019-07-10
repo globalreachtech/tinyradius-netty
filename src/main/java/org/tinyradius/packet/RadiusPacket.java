@@ -41,8 +41,8 @@ public class RadiusPacket {
     private final Dictionary dictionary;
 
     /**
-     * Builds a Radius packet with the given type and identifier
-     * and without attributes.
+     * Builds a Radius packet with the given type and identifier,
+     * without attributes, and with null authenticator.
      *
      * @param dictionary custom dictionary to use
      * @param type       packet type
@@ -362,9 +362,8 @@ public class RadiusPacket {
      * Encodes this Radius packet
      *
      * @param sharedSecret shared secret to be used to encode this packet
-     * @throws RadiusException malformed packet
      */
-    public RadiusPacket encodeRequestPacket(String sharedSecret) throws RadiusException {
+    public RadiusPacket encodeRequestPacket(String sharedSecret) {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("no shared secret has been set");
 
@@ -438,11 +437,10 @@ public class RadiusPacket {
      * Generates a request authenticator for this packet. This request authenticator
      * is constructed as described in RFC 2865.
      *
-     * @param size length of random byte array
-     * @return array of random bytes
+     * @return 16 octets of random bytes
      */
-    protected byte[] randomBytes(int size) {
-        byte[] randomBytes = new byte[size];
+    protected byte[] random16Octets() {
+        byte[] randomBytes = new byte[16];
         random.nextBytes(randomBytes);
         return randomBytes;
     }

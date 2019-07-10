@@ -240,7 +240,7 @@ public class AccessRequest extends RadiusPacket {
     @Override
     protected AccessRequest encodeRequest(String sharedSecret) throws UnsupportedOperationException {
         // create authenticator only if needed
-        byte[] newAuthenticator = getAuthenticator() == null ? randomBytes(16) : getAuthenticator();
+        byte[] newAuthenticator = getAuthenticator() == null ? random16Octets() : getAuthenticator();
 
         final AccessRequest accessRequest = new AccessRequest(getDictionary(), getPacketIdentifier(), newAuthenticator, new ArrayList<>(getAttributes()));
 
@@ -268,7 +268,7 @@ public class AccessRequest extends RadiusPacket {
                             new RadiusAttribute(getDictionary(), -1, USER_PASSWORD,
                                     encodePapPassword(newAuthenticator, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
                 case AUTH_CHAP:
-                    byte[] challenge = randomBytes(16);
+                    byte[] challenge = random16Octets();
                     return Arrays.asList(
                             new RadiusAttribute(getDictionary(), -1, CHAP_CHALLENGE, challenge),
                             new RadiusAttribute(getDictionary(), -1, CHAP_PASSWORD,
