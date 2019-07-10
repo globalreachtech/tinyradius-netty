@@ -190,7 +190,7 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;org.tinyradius.packet.<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></h3>
-<code><a href="RadiusPacket.html#HEADER_LENGTH">HEADER_LENGTH</a>, <a href="RadiusPacket.html#MAX_PACKET_LENGTH">MAX_PACKET_LENGTH</a></code></li>
+<code><a href="RadiusPacket.html#HEADER_LENGTH">HEADER_LENGTH</a>, <a href="RadiusPacket.html#MAX_PACKET_LENGTH">MAX_PACKET_LENGTH</a>, <a href="RadiusPacket.html#VENDOR_SPECIFIC_TYPE">VENDOR_SPECIFIC_TYPE</a></code></li>
 </ul>
 </li>
 </ul>
@@ -339,7 +339,7 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.tinyradius.packet.<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></h3>
-<code><a href="RadiusPacket.html#addAttribute(java.lang.String,java.lang.String)">addAttribute</a>, <a href="RadiusPacket.html#addAttribute(org.tinyradius.attribute.RadiusAttribute)">addAttribute</a>, <a href="RadiusPacket.html#createHashedAuthenticator(java.lang.String,byte%5B%5D)">createHashedAuthenticator</a>, <a href="RadiusPacket.html#encodeRequestPacket(java.lang.String)">encodeRequestPacket</a>, <a href="RadiusPacket.html#encodeResponsePacket(java.lang.String,byte%5B%5D)">encodeResponsePacket</a>, <a href="RadiusPacket.html#generateRandomizedAuthenticator()">generateRandomizedAuthenticator</a>, <a href="RadiusPacket.html#getAttribute(int)">getAttribute</a>, <a href="RadiusPacket.html#getAttribute(int,int)">getAttribute</a>, <a href="RadiusPacket.html#getAttribute(java.lang.String)">getAttribute</a>, <a href="RadiusPacket.html#getAttributeBytes()">getAttributeBytes</a>, <a href="RadiusPacket.html#getAttributes()">getAttributes</a>, <a href="RadiusPacket.html#getAttributes(int)">getAttributes</a>, <a href="RadiusPacket.html#getAttributes(int,int)">getAttributes</a>, <a href="RadiusPacket.html#getAttributeValue(java.lang.String)">getAttributeValue</a>, <a href="RadiusPacket.html#getAuthenticator()">getAuthenticator</a>, <a href="RadiusPacket.html#getDictionary()">getDictionary</a>, <a href="RadiusPacket.html#getMd5Digest()">getMd5Digest</a>, <a href="RadiusPacket.html#getPacketIdentifier()">getPacketIdentifier</a>, <a href="RadiusPacket.html#getPacketType()">getPacketType</a>, <a href="RadiusPacket.html#getVendorAttributes(int)">getVendorAttributes</a>, <a href="RadiusPacket.html#removeAttribute(org.tinyradius.attribute.RadiusAttribute)">removeAttribute</a>, <a href="RadiusPacket.html#removeAttributes(int)">removeAttributes</a>, <a href="RadiusPacket.html#removeAttributes(int,int)">removeAttributes</a>, <a href="RadiusPacket.html#removeLastAttribute(int)">removeLastAttribute</a>, <a href="RadiusPacket.html#toString()">toString</a></code></li>
+<code><a href="RadiusPacket.html#addAttribute(java.lang.String,java.lang.String)">addAttribute</a>, <a href="RadiusPacket.html#addAttribute(org.tinyradius.attribute.RadiusAttribute)">addAttribute</a>, <a href="RadiusPacket.html#createHashedAuthenticator(java.lang.String,byte%5B%5D)">createHashedAuthenticator</a>, <a href="RadiusPacket.html#encodeRequestPacket(java.lang.String)">encodeRequestPacket</a>, <a href="RadiusPacket.html#encodeResponsePacket(java.lang.String,byte%5B%5D)">encodeResponsePacket</a>, <a href="RadiusPacket.html#getAttribute(int)">getAttribute</a>, <a href="RadiusPacket.html#getAttribute(int,int)">getAttribute</a>, <a href="RadiusPacket.html#getAttribute(java.lang.String)">getAttribute</a>, <a href="RadiusPacket.html#getAttributeBytes()">getAttributeBytes</a>, <a href="RadiusPacket.html#getAttributes()">getAttributes</a>, <a href="RadiusPacket.html#getAttributes(int)">getAttributes</a>, <a href="RadiusPacket.html#getAttributes(int,int)">getAttributes</a>, <a href="RadiusPacket.html#getAttributeValue(java.lang.String)">getAttributeValue</a>, <a href="RadiusPacket.html#getAuthenticator()">getAuthenticator</a>, <a href="RadiusPacket.html#getDictionary()">getDictionary</a>, <a href="RadiusPacket.html#getMd5Digest()">getMd5Digest</a>, <a href="RadiusPacket.html#getPacketIdentifier()">getPacketIdentifier</a>, <a href="RadiusPacket.html#getPacketType()">getPacketType</a>, <a href="RadiusPacket.html#getVendorAttributes(int)">getVendorAttributes</a>, <a href="RadiusPacket.html#random16Octets()">random16Octets</a>, <a href="RadiusPacket.html#removeAttribute(org.tinyradius.attribute.RadiusAttribute)">removeAttribute</a>, <a href="RadiusPacket.html#removeAttributes(int)">removeAttributes</a>, <a href="RadiusPacket.html#removeAttributes(int,int)">removeAttributes</a>, <a href="RadiusPacket.html#removeLastAttribute(int)">removeLastAttribute</a>, <a href="RadiusPacket.html#toString()">toString</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -618,8 +618,7 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
 <li class="blockList">
 <h4>verifyPassword</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;verifyPassword&#8203;(java.lang.String&nbsp;plaintext)
-                       throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a>,
-                              java.lang.UnsupportedOperationException</pre>
+                       throws java.lang.UnsupportedOperationException</pre>
 <div class="block">Verifies that the passed plain-text password matches the password
  (hash) send with this Access-Request packet. Works with both PAP
  and CHAP.</div>
@@ -629,8 +628,6 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the password is valid, false otherwise</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - password verification failed or not supported
-                         for auth protocol</dd>
 <dd><code>java.lang.UnsupportedOperationException</code></dd>
 </dl>
 </li>

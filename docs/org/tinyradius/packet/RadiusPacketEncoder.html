@@ -187,10 +187,10 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected static <a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromDatagram(org.tinyradius.dictionary.Dictionary,io.netty.channel.socket.DatagramPacket,java.lang.String,org.tinyradius.packet.RadiusPacket)">fromDatagram</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromDatagram(org.tinyradius.dictionary.Dictionary,io.netty.channel.socket.DatagramPacket,java.lang.String,int)">fromDatagram</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
             io.netty.channel.socket.DatagramPacket&nbsp;packet,
             java.lang.String&nbsp;sharedSecret,
-            <a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request)</code></th>
+            int&nbsp;requestPacketId)</code></th>
 <td class="colLast">
 <div class="block">Reads a Radius packet from the given input stream and
  creates an appropriate RadiusPacket descendant object.</div>
@@ -219,7 +219,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextPacketIdentifier()">getNextPacketIdentifier</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#nextPacketId()">nextPacketId</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Increment the next packet identifier to use.</div>
 </td>
@@ -273,13 +273,13 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getNextPacketIdentifier()">
+<a id="nextPacketId()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getNextPacketIdentifier</h4>
-<pre class="methodSignature">public static&nbsp;int&nbsp;getNextPacketIdentifier()</pre>
+<h4>nextPacketId</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;nextPacketId()</pre>
 <div class="block">Increment the next packet identifier to use.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -295,10 +295,10 @@ extends java.lang.Object</pre>
 <h4>toDatagram</h4>
 <pre class="methodSignature">public static&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;toDatagram&#8203;(<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
                                                                 java.net.InetSocketAddress&nbsp;address)
-                                                         throws java.io.IOException</pre>
+                                                         throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.io.IOException</code></dd>
+<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -360,7 +360,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="fromDatagram(org.tinyradius.dictionary.Dictionary,io.netty.channel.socket.DatagramPacket,java.lang.String,org.tinyradius.packet.RadiusPacket)">
+<a id="fromDatagram(org.tinyradius.dictionary.Dictionary,io.netty.channel.socket.DatagramPacket,java.lang.String,int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -369,7 +369,7 @@ extends java.lang.Object</pre>
 <pre class="methodSignature">protected static&nbsp;<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;fromDatagram&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
                                            io.netty.channel.socket.DatagramPacket&nbsp;packet,
                                            java.lang.String&nbsp;sharedSecret,
-                                           <a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request)
+                                           int&nbsp;requestPacketId)
                                     throws java.io.IOException,
                                            <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <div class="block">Reads a Radius packet from the given input stream and
@@ -381,8 +381,8 @@ extends java.lang.Object</pre>
 <dd><code>dictionary</code> - dictionary to use for attributes</dd>
 <dd><code>packet</code> - DatagramPacket to read packet from</dd>
 <dd><code>sharedSecret</code> - shared secret to be used to decode this packet</dd>
-<dd><code>request</code> - Radius request packet if this is a response packet to be
-                     decoded, null if this is a request packet to be decoded</dd>
+<dd><code>requestPacketId</code> - request packet Id if this is a response packet to be
+                        decoded, -1 if this is a request packet to be decoded</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>new RadiusPacket object</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
