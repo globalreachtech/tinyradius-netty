@@ -3,6 +3,7 @@ package org.tinyradius.packet;
 import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
@@ -10,13 +11,14 @@ import org.tinyradius.util.RadiusException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.packet.AccessRequest.AUTH_PAP;
 import static org.tinyradius.packet.PacketType.*;
+import static org.tinyradius.packet.RadiusPacketEncoder.createRadiusPacket;
 
 class RadiusPacketEncoderTest {
 
@@ -32,7 +34,7 @@ class RadiusPacketEncoderTest {
     }
 
     @Test
-    void getNextPacketIdentifier() {
+    void nextPacketId() {
         for (int i = 0; i < 1000; i++) {
             final int next = RadiusPacketEncoder.nextPacketId();
             assertTrue(next < 256);
@@ -43,11 +45,30 @@ class RadiusPacketEncoderTest {
 
     @Test
     void encodeRadiusPacket() throws IOException {
-        AccessRequest request = new AccessRequest(dictionary, 1, authenticator);
-        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(request, remoteAddress);
+        final InetSocketAddress address = new InetSocketAddress(random.nextInt(65535));
+        RadiusPacket request = new AccountingRequest(dictionary, 1, authenticator);
+        request.addAttribute(new RadiusAttribute(dictionary, -1, 33, "state1".getBytes(UTF_8)));
 
-        assertTrue(datagramPacket.content().isReadable());
-        assertEquals(remoteAddress, datagramPacket.recipient());
+        final RadiusPacket encoded = request.encodeRequest("mySecret");
+
+        DatagramPacket datagram = RadiusPacketEncoder.toDatagram(encoded, address);
+
+        assertEquals(address, datagram.recipient());
+        final byte[] packet = datagram.content().copy().array();
+
+        // packet
+        assertEquals(encoded.getPacketType(), packet[0]);
+        assertEquals(encoded.getPacketIdentifier(), packet[1]);
+        assertEquals(28, packet.length);
+        assertEquals(packet.length, packet[2] << 8 | packet[3]);
+        assertArrayEquals(encoded.getAuthenticator(), Arrays.copyOfRange(packet, 4, 20));
+
+        // attribute
+        final byte[] attributes = Arrays.copyOfRange(packet, 20, packet.length);
+        assertEquals(33, attributes[0]);
+        assertEquals(8, attributes.length);
+        assertEquals(attributes.length, attributes[1]);
+        assertEquals("state1", new String(Arrays.copyOfRange(attributes, 2, attributes.length)));
     }
 
     @Test
@@ -90,24 +111,25 @@ class RadiusPacketEncoderTest {
 
     @Test
     void createRequestRadiusPacket() {
-        List<Integer> packetTypes = new ArrayList<>();
-        packetTypes.add(ACCESS_REQUEST);
-        packetTypes.add(COA_REQUEST);
-        packetTypes.add(DISCONNECT_REQUEST);
-        packetTypes.add(ACCOUNTING_REQUEST);
-
-        RadiusPacket accessRequest = RadiusPacketEncoder.createRadiusPacket(dictionary, ACCESS_REQUEST, 1, authenticator, Collections.emptyList());
-        RadiusPacket coaRequest = RadiusPacketEncoder.createRadiusPacket(dictionary, COA_REQUEST, 2, authenticator, Collections.emptyList());
-        RadiusPacket disconnectRequest = RadiusPacketEncoder.createRadiusPacket(dictionary, DISCONNECT_REQUEST, 3, authenticator, Collections.emptyList());
-        RadiusPacket accountingRequest = RadiusPacketEncoder.createRadiusPacket(dictionary, ACCOUNTING_REQUEST, 4, authenticator, Collections.emptyList());
-        RadiusPacket radiusPacket = RadiusPacketEncoder.createRadiusPacket(dictionary, STATUS_REQUEST, 5, authenticator, Collections.emptyList());
+        RadiusPacket accessRequest = createRadiusPacket(dictionary, ACCESS_REQUEST, 1, authenticator, Collections.emptyList());
+        RadiusPacket coaRequest = createRadiusPacket(dictionary, COA_REQUEST, 2, authenticator, Collections.emptyList());
+        RadiusPacket disconnectRequest = createRadiusPacket(dictionary, DISCONNECT_REQUEST, 3, authenticator, Collections.emptyList());
+        RadiusPacket accountingRequest = createRadiusPacket(dictionary, ACCOUNTING_REQUEST, 4, authenticator, Collections.emptyList());
+        RadiusPacket radiusPacket = createRadiusPacket(dictionary, STATUS_REQUEST, 5, authenticator, Collections.emptyList());
 
         assertEquals(ACCESS_REQUEST, accessRequest.getPacketType());
-        assertEquals(COA_REQUEST, coaRequest.getPacketType());
-        assertEquals(DISCONNECT_REQUEST, disconnectRequest.getPacketType());
-        assertEquals(ACCOUNTING_REQUEST, accountingRequest.getPacketType());
-        assertFalse(packetTypes.contains(radiusPacket.getPacketType()));
-        assertEquals(STATUS_REQUEST, radiusPacket.getPacketType());
-    }
+        assertEquals(AccessRequest.class, accessRequest.getClass());
 
+        assertEquals(COA_REQUEST, coaRequest.getPacketType());
+        assertEquals(CoaRequest.class, coaRequest.getClass());
+
+        assertEquals(DISCONNECT_REQUEST, disconnectRequest.getPacketType());
+        assertEquals(CoaRequest.class, disconnectRequest.getClass());
+
+        assertEquals(ACCOUNTING_REQUEST, accountingRequest.getPacketType());
+        assertEquals(AccountingRequest.class, accountingRequest.getClass());
+
+        assertEquals(STATUS_REQUEST, radiusPacket.getPacketType());
+        assertEquals(RadiusPacket.class, radiusPacket.getClass());
+    }
 }

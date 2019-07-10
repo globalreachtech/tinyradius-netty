@@ -69,7 +69,7 @@ public class RadiusPacketEncoder {
      */
     public static RadiusPacket fromRequestDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret)
             throws IOException, RadiusException {
-        final RadiusPacket radiusPacket = fromDatagram(dictionary, datagram, sharedSecret, null);
+        final RadiusPacket radiusPacket = fromDatagram(dictionary, datagram, sharedSecret, -1);
         radiusPacket.checkAuthenticator(sharedSecret, new byte[16]);
 
         return radiusPacket;
@@ -96,7 +96,7 @@ public class RadiusPacketEncoder {
         if (request.getAuthenticator() == null)
             throw new RuntimeException("request authenticator not set");
 
-        final RadiusPacket radiusPacket = fromDatagram(dictionary, datagram, sharedSecret, request);
+        final RadiusPacket radiusPacket = fromDatagram(dictionary, datagram, sharedSecret, request.getPacketIdentifier());
         radiusPacket.checkAuthenticator(sharedSecret, request.getAuthenticator());
 
         return radiusPacket;
@@ -109,16 +109,16 @@ public class RadiusPacketEncoder {
      * Reads in all attributes and returns the object.
      * Decodes the encrypted fields and attributes of the packet.
      *
-     * @param dictionary   dictionary to use for attributes
-     * @param packet       DatagramPacket to read packet from
-     * @param sharedSecret shared secret to be used to decode this packet
-     * @param request      Radius request packet if this is a response packet to be
-     *                     decoded, null if this is a request packet to be decoded
+     * @param dictionary      dictionary to use for attributes
+     * @param packet          DatagramPacket to read packet from
+     * @param sharedSecret    shared secret to be used to decode this packet
+     * @param requestPacketId request packet Id if this is a response packet to be
+     *                        decoded, -1 if this is a request packet to be decoded
      * @return new RadiusPacket object
      * @throws IOException     IO error
      * @throws RadiusException packet malformed
      */
-    protected static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret, RadiusPacket request)
+    protected static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret, int requestPacketId)
             throws IOException, RadiusException {
 
         try (ByteBufInputStream in = new ByteBufInputStream(packet.content())) {
@@ -128,11 +128,11 @@ public class RadiusPacketEncoder {
 
             // read and check header
             int type = in.read() & 0x0ff;
-            int identifier = in.read() & 0x0ff;
+            int packetId = in.read() & 0x0ff;
             int length = (in.read() & 0x0ff) << 8 | (in.read() & 0x0ff);
 
-            if (request != null && request.getPacketIdentifier() != identifier)
-                throw new RadiusException("bad packet: invalid packet identifier (request: " + request.getPacketIdentifier() + ", response: " + identifier);
+            if (requestPacketId != -1 && requestPacketId != packetId)
+                throw new RadiusException("bad packet: invalid packet identifier (request: " + requestPacketId + ", response: " + packetId);
             if (length < HEADER_LENGTH)
                 throw new RadiusException("bad packet: packet too short (" + length + " bytes)");
             if (length > MAX_PACKET_LENGTH)
@@ -146,7 +146,7 @@ public class RadiusPacketEncoder {
 
             final List<RadiusAttribute> attributes = extractAttributes(attributeData, dictionary);
 
-            RadiusPacket rp = createRadiusPacket(dictionary, type, identifier, authenticator, attributes);
+            RadiusPacket rp = createRadiusPacket(dictionary, type, packetId, authenticator, attributes);
             rp.decodeAttributes(sharedSecret);
 
             return rp;
