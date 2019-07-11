@@ -111,42 +111,40 @@ public class RadiusPacketEncoder {
      * @param requestPacketId request packet Id if this is a response packet to be
      *                        decoded, -1 if this is a request packet to be decoded
      * @return new RadiusPacket object
-     * @throws IOException     IO error
      * @throws RadiusException packet malformed
      */
     protected static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret, int requestPacketId)
-            throws IOException, RadiusException {
+            throws RadiusException {
 
-        try (ByteBufInputStream in = new ByteBufInputStream(packet.content())) {
-            // check shared secret
-            if (sharedSecret == null || sharedSecret.isEmpty())
-                throw new RuntimeException("no shared secret has been set");
+        if (sharedSecret == null || sharedSecret.isEmpty())
+            throw new RuntimeException("no shared secret has been set");
 
-            // read and check header
-            int type = in.read() & 0x0ff;
-            int packetId = in.read() & 0x0ff;
-            int length = (in.read() & 0x0ff) << 8 | (in.read() & 0x0ff);
-
-            if (requestPacketId != -1 && requestPacketId != packetId)
-                throw new RadiusException("bad packet: invalid packet identifier (request: " + requestPacketId + ", response: " + packetId);
-            if (length < HEADER_LENGTH)
-                throw new RadiusException("bad packet: packet too short (" + length + " bytes)");
-            if (length > MAX_PACKET_LENGTH)
-                throw new RadiusException("bad packet: packet too long (" + length + " bytes)");
-
-            // read rest of packet
-            byte[] authenticator = new byte[16];
-            byte[] attributeData = new byte[length - HEADER_LENGTH];
-            in.read(authenticator);
-            in.read(attributeData);
-
-            final List<RadiusAttribute> attributes = extractAttributes(attributeData, dictionary);
-
-            RadiusPacket rp = createRadiusPacket(dictionary, type, packetId, authenticator, attributes);
-            rp.decodeAttributes(sharedSecret);
-
-            return rp;
+        ByteBuf content = packet.content();
+        if (content.readableBytes() < HEADER_LENGTH) {
+            throw new RuntimeException("readable bytes is less than header length");
         }
+
+        int type = content.readByte();
+        int packetId = content.readByte();
+        int length = content.readByte() << 8 | content.readByte();
+
+        if (requestPacketId != -1 && requestPacketId != packetId)
+            throw new RadiusException("bad packet: invalid packet identifier (request: " + requestPacketId + ", response: " + packetId);
+        if (length < HEADER_LENGTH)
+            throw new RadiusException("bad packet: packet too short (" + length + " bytes)");
+        if (length > MAX_PACKET_LENGTH)
+            throw new RadiusException("bad packet: packet too long (" + length + " bytes)");
+
+        byte[] authenticator = new byte[16];
+        byte[] attributeData = new byte[length - HEADER_LENGTH];
+        content.readBytes(authenticator);
+        content.readBytes(attributeData);
+
+        final List<RadiusAttribute> attributes = extractAttributes(attributeData, dictionary);
+        RadiusPacket rp = createRadiusPacket(dictionary, type, packetId, authenticator, attributes);
+        rp.decodeAttributes(sharedSecret);
+
+        return rp;
     }
 
     private static List<RadiusAttribute> extractAttributes(byte[] attributeData, Dictionary dictionary) throws RadiusException {
