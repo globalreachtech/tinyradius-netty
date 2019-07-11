@@ -92,7 +92,6 @@ public class RadiusPacketEncoder {
         radiusPacket.checkAuthenticator(sharedSecret, request.getAuthenticator());
 
         return radiusPacket;
-
     }
 
     /**

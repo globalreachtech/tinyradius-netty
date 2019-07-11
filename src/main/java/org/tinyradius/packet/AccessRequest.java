@@ -130,11 +130,9 @@ public class AccessRequest extends RadiusPacket {
      * @return user name
      */
     public String getUserName() {
-        List<RadiusAttribute> attrs = getAttributes(USER_NAME);
-        if (attrs.size() != 1)
-            throw new RuntimeException("exactly one User-Name attribute required");
-
-        return attrs.get(0).getDataString();
+        final RadiusAttribute attribute = getAttribute(USER_NAME);
+        return attribute == null ?
+                null : attribute.getDataString();
     }
 
     /**

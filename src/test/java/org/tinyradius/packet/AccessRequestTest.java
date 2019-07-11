@@ -56,7 +56,7 @@ class AccessRequestTest {
         assertNull(request.getAttribute("CHAP-Password"));
         assertEquals(request.getPacketType(), encoded.getPacketType());
         assertEquals(request.getPacketIdentifier(), encoded.getPacketIdentifier());
-        assertEquals(request.getAttribute("User-Name").getDataString(), encoded.getAttribute("User-Name").getDataString());
+        assertEquals(request.getUserName(), encoded.getUserName());
 
         assertNull(encoded.getAttribute("CHAP-Password"));
         assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").getData());
@@ -78,7 +78,7 @@ class AccessRequestTest {
         AccessRequest request = new AccessRequest(dictionary, nextPacketId(), authenticator, attributes);
 
         assertNull(request.getUserPassword());
-        assertEquals(user, request.getAttribute("User-Name").getDataString());
+        assertEquals(user, request.getUserName());
         assertArrayEquals(encodedPassword, request.getAttribute("User-Password").getData());
 
         request.decodeAttributes(sharedSecret);
@@ -100,7 +100,7 @@ class AccessRequestTest {
         assertNull(request.getAttribute("CHAP-Password"));
         assertEquals(request.getPacketType(), encoded.getPacketType());
         assertEquals(request.getPacketIdentifier(), encoded.getPacketIdentifier());
-        assertEquals(request.getAttribute("User-Name").getDataString(), encoded.getAttribute("User-Name").getDataString());
+        assertEquals(request.getUserName(), encoded.getUserName());
 
         // randomly generated, need to extract
         final byte[] chapChallenge = encoded.getAttribute("CHAP-Challenge").getData();

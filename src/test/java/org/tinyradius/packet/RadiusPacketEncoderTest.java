@@ -75,14 +75,13 @@ class RadiusPacketEncoderTest {
                 .encodeRequest(sharedSecret);
 
         DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(original, remoteAddress);
-
         RadiusPacket packet = RadiusPacketEncoder.fromRequestDatagram(dictionary, datagramPacket, sharedSecret);
 
         assertEquals(ACCESS_REQUEST, packet.getPacketType());
         assertTrue(packet instanceof AccessRequest);
         assertEquals(plaintextPw, ((AccessRequest) packet).getUserPassword());
         assertArrayEquals(original.getAttribute("User-Password").getData(), packet.getAttribute("User-Password").getData());
-        assertEquals(original.getAttribute("User-Name").getDataString(), packet.getAttribute("User-Name").getDataString());
+        assertEquals(original.getUserName(), packet.getAttribute("User-Name").getDataString());
     }
 
     @Test
@@ -113,7 +112,6 @@ class RadiusPacketEncoderTest {
         RadiusPacket coaRequest = createRadiusPacket(dictionary, COA_REQUEST, 2, authenticator, Collections.emptyList());
         RadiusPacket disconnectRequest = createRadiusPacket(dictionary, DISCONNECT_REQUEST, 3, authenticator, Collections.emptyList());
         RadiusPacket accountingRequest = createRadiusPacket(dictionary, ACCOUNTING_REQUEST, 4, authenticator, Collections.emptyList());
-        RadiusPacket radiusPacket = createRadiusPacket(dictionary, STATUS_REQUEST, 5, authenticator, Collections.emptyList());
 
         assertEquals(ACCESS_REQUEST, accessRequest.getPacketType());
         assertEquals(AccessRequest.class, accessRequest.getClass());
@@ -126,8 +124,5 @@ class RadiusPacketEncoderTest {
 
         assertEquals(ACCOUNTING_REQUEST, accountingRequest.getPacketType());
         assertEquals(AccountingRequest.class, accountingRequest.getClass());
-
-        assertEquals(STATUS_REQUEST, radiusPacket.getPacketType());
-        assertEquals(RadiusPacket.class, radiusPacket.getClass());
     }
 }
