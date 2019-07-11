@@ -29,7 +29,7 @@ class AccountingRequestTest {
         final byte[] expectedAuthenticator = RadiusUtils.makeRFC2866RequestAuthenticator(
                 sharedSecret, (byte) ACCOUNTING_REQUEST, (byte) 1, length, attributeBytes, 0, attributeBytes.length);
 
-        AccountingRequest encoded = request.encodeRequest(sharedSecret);
+        RadiusPacket encoded = request.encodeRequest(sharedSecret);
 
         assertEquals(request.getPacketType(), encoded.getPacketType());
         assertEquals(request.getPacketIdentifier(), encoded.getPacketIdentifier());
@@ -43,7 +43,7 @@ class AccountingRequestTest {
         String user = "myUser1";
         AccountingRequest request = new AccountingRequest(dictionary, 1, null, user, 7);
 
-        AccountingRequest encoded = request.encodeRequest(sharedSecret);
+        AccountingRequest encoded = (AccountingRequest) request.encodeRequest(sharedSecret);
         assertEquals(request.getUserName(), encoded.getUserName());
         assertEquals(ACCT_STATUS_TYPE_ACCOUNTING_ON, encoded.getAcctStatusType());
         assertEquals(request.getAcctStatusType(), encoded.getAcctStatusType());

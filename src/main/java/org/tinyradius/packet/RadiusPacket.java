@@ -21,6 +21,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.AttributeBuilder.create;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
+import static org.tinyradius.packet.RadiusPacketEncoder.createRadiusPacket;
 
 /**
  * A generic Radius packet. Subclasses provide convenience methods for special packet types.
@@ -382,7 +383,7 @@ public class RadiusPacket {
      */
     public RadiusPacket encodeResponse(String sharedSecret, byte[] requestAuthenticator) {
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, requestAuthenticator);
-        return new RadiusPacket(dictionary, packetType, packetIdentifier, authenticator, this.attributes);
+        return createRadiusPacket(dictionary, packetType, packetIdentifier, authenticator, attributes);
     }
 
     /**

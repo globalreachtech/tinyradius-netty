@@ -95,10 +95,4 @@ public class AccountingRequest extends RadiusPacket {
         return ra == null ?
                 -1 : ((IntegerAttribute) ra).getAttributeValueInt();
     }
-
-    @Override
-    public AccountingRequest encodeRequest(String sharedSecret) {
-        final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
-        return new AccountingRequest(getDictionary(), getPacketIdentifier(), authenticator, getAttributes());
-    }
 }
