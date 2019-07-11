@@ -1,14 +1,12 @@
 package org.tinyradius.packet;
 
 import io.netty.channel.socket.DatagramPacket;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -16,7 +14,6 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.packet.AccessRequest.AUTH_PAP;
 import static org.tinyradius.packet.PacketType.*;
 import static org.tinyradius.packet.RadiusPacketEncoder.createRadiusPacket;
 
@@ -66,7 +63,7 @@ class RadiusPacketEncoderTest {
     }
 
     @Test
-    void getRadiusPacketFromDatagram() throws RadiusException {
+    void fromRequestDatagram() throws RadiusException {
         String user = "user1";
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
@@ -82,25 +79,32 @@ class RadiusPacketEncoderTest {
         assertEquals(plaintextPw, ((AccessRequest) packet).getUserPassword());
         assertArrayEquals(original.getAttribute("User-Password").getData(), packet.getAttribute("User-Password").getData());
         assertEquals(original.getUserName(), packet.getAttribute("User-Name").getDataString());
+
+        // todo test with bad authenticator (will not work with AccessRequest as auth is random)
     }
 
     @Test
-    void getRadiusPacketFromResponseDatagram() throws RadiusException {
+    void fromResponseDatagram() throws RadiusException {
         String user = "user2";
         String plaintextPw = "myPassword2";
         String sharedSecret = "sharedSecret2";
 
-        AccessRequest request = new AccessRequest(dictionary, 2, null, user, plaintextPw);
-        request.setAuthProtocol(AUTH_PAP);
-        AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
+        final int id = random.nextInt(256);
 
-        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(encodedRequest, remoteAddress);
-        RadiusPacket radiusPacket = RadiusPacketEncoder.fromResponseDatagram(dictionary, datagramPacket, sharedSecret, encodedRequest);
-        String expectedPlaintextPw = ((AccessRequest) radiusPacket).getUserPassword();
+        final AccessRequest request = new AccessRequest(dictionary, id, null, user, plaintextPw);
+        final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
 
-        assertArrayEquals(encodedRequest.getAttribute("User-Password").getData(), radiusPacket.getAttribute("User-Password").getData());
-        assertEquals(plaintextPw, expectedPlaintextPw);
-        assertEquals(encodedRequest.getAttribute("User-Name").getDataString(), radiusPacket.getAttribute("User-Name").getDataString());
+        final RadiusPacket original = new RadiusPacket(dictionary, 2, id);
+        original.addAttribute(new RadiusAttribute(dictionary, -1, 33, "state3333".getBytes(UTF_8)));
+
+        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(original, remoteAddress);
+        RadiusPacket packet = RadiusPacketEncoder.fromResponseDatagram(dictionary, datagramPacket, sharedSecret, encodedRequest);
+
+        assertEquals(original.getPacketIdentifier(), packet.getPacketIdentifier());
+        assertEquals("state3333", packet.getAttribute(33).getDataString());
+        assertArrayEquals(original.getAuthenticator(), packet.getAuthenticator());
+
+        // todo test with different request packetId/auth
     }
 
     @Test

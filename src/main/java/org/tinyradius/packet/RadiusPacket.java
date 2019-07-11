@@ -369,8 +369,7 @@ public class RadiusPacket {
      * @return RadiusPacket with new authenticator and/or encoded attributes
      */
     public RadiusPacket encodeRequest(String sharedSecret) {
-        final byte[] hashedAuthenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
-        return new RadiusPacket(dictionary, packetType, packetIdentifier, hashedAuthenticator, this.attributes);
+        return encodeResponse(sharedSecret, new byte[16]);
     }
 
     /**
@@ -382,10 +381,6 @@ public class RadiusPacket {
      * @param requestAuthenticator request packet authenticator
      */
     public RadiusPacket encodeResponse(String sharedSecret, byte[] requestAuthenticator) {
-        if (sharedSecret == null || sharedSecret.isEmpty())
-            throw new IllegalArgumentException("no shared secret has been set");
-        requireNonNull(requestAuthenticator, "request authenticator not set");
-
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, requestAuthenticator);
         return new RadiusPacket(dictionary, packetType, packetIdentifier, authenticator, this.attributes);
     }
@@ -430,6 +425,7 @@ public class RadiusPacket {
      * @return new 16 byte response authenticator
      */
     protected byte[] createHashedAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
+        requireNonNull(requestAuthenticator, "request authenticator cannot be null");
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("shared secret cannot be null/empty");
 
