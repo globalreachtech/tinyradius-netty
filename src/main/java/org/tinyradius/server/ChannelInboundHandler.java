@@ -15,7 +15,6 @@ import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -103,7 +102,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
                         logger.error("exception while handling packet", e);
                 }
             });
-        } catch (IOException | RadiusException e) {
+        } catch (RadiusException e) {
             logger.error("DatagramPacket handle error: ", e);
         }
     }

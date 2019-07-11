@@ -16,7 +16,6 @@ import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -115,7 +114,7 @@ public class ProxyStateClientHandler extends ClientHandler {
             packet.removeLastAttribute(PROXY_STATE);
 
             request.trySuccess(packet);
-        } catch (IOException | RadiusException e) {
+        } catch (RadiusException e) {
             logger.error("DatagramPacket handle error: ", e);
         }
     }

@@ -14,7 +14,6 @@ import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Objects;
@@ -80,7 +79,7 @@ public class SimpleClientHandler extends ClientHandler {
             logger.info("Found request for response identifier => {}", identifier);
 
             request.response.trySuccess(resp);
-        } catch (IOException | RadiusException e) {
+        } catch (RadiusException e) {
             logger.error("DatagramPacket handle error: ", e);
             // let timeout complete the future, we may get correct reply later
         }

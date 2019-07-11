@@ -1,14 +1,12 @@
 package org.tinyradius.packet;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.attribute.AttributeBuilder;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,11 +58,10 @@ public class RadiusPacketEncoder {
      * @param datagram     DatagramPacket to read packet from
      * @param sharedSecret shared secret to be used to decode this packet
      * @return new RadiusPacket object
-     * @throws IOException     IO error
      * @throws RadiusException malformed packet
      */
     public static RadiusPacket fromRequestDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret)
-            throws IOException, RadiusException {
+            throws RadiusException {
         final RadiusPacket radiusPacket = fromDatagram(dictionary, datagram, sharedSecret, -1);
         radiusPacket.checkAuthenticator(sharedSecret, new byte[16]);
 
@@ -82,11 +79,10 @@ public class RadiusPacketEncoder {
      * @param sharedSecret shared secret to be used to decode this packet
      * @param request      Radius request packet
      * @return new RadiusPacket object
-     * @throws IOException     IO error
      * @throws RadiusException malformed packet
      */
     public static RadiusPacket fromResponseDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret, RadiusPacket request)
-            throws IOException, RadiusException {
+            throws RadiusException {
         requireNonNull(request, "request may not be null");
 
         if (request.getAuthenticator() == null)
@@ -113,7 +109,7 @@ public class RadiusPacketEncoder {
      * @return new RadiusPacket object
      * @throws RadiusException packet malformed
      */
-    protected static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret, int requestPacketId)
+    private static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret, int requestPacketId)
             throws RadiusException {
 
         if (sharedSecret == null || sharedSecret.isEmpty())

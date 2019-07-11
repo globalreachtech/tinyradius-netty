@@ -26,13 +26,6 @@ class RadiusPacketEncoderTest {
     private static Dictionary dictionary = DefaultDictionary.INSTANCE;
     private static final InetSocketAddress remoteAddress = new InetSocketAddress(0);
 
-    private byte[] authenticator = new byte[16];
-
-    @BeforeEach
-    void setup() {
-        random.nextBytes(authenticator);
-    }
-
     @Test
     void nextPacketId() {
         for (int i = 0; i < 1000; i++) {
@@ -43,9 +36,9 @@ class RadiusPacketEncoderTest {
     }
 
     @Test
-    void encodeRadiusPacket() throws RadiusException {
+    void toDatagram() throws RadiusException {
         final InetSocketAddress address = new InetSocketAddress(random.nextInt(65535));
-        RadiusPacket request = new AccountingRequest(dictionary, 1, authenticator);
+        RadiusPacket request = new AccountingRequest(dictionary, 1, null);
         request.addAttribute(new RadiusAttribute(dictionary, -1, 33, "state1".getBytes(UTF_8)));
 
         final RadiusPacket encoded = request.encodeRequest("mySecret");
@@ -53,44 +46,47 @@ class RadiusPacketEncoderTest {
         DatagramPacket datagram = RadiusPacketEncoder.toDatagram(encoded, address);
 
         assertEquals(address, datagram.recipient());
-        final byte[] packet = datagram.content().copy().array();
 
         // packet
+        final byte[] packet = datagram.content().array();
+        assertEquals(28, packet.length);
+
         assertEquals(encoded.getPacketType(), packet[0]);
         assertEquals(encoded.getPacketIdentifier(), packet[1]);
-        assertEquals(28, packet.length);
         assertEquals(packet.length, packet[2] << 8 | packet[3]);
         assertArrayEquals(encoded.getAuthenticator(), Arrays.copyOfRange(packet, 4, 20));
 
         // attribute
         final byte[] attributes = Arrays.copyOfRange(packet, 20, packet.length);
-        assertEquals(33, attributes[0]);
         assertEquals(8, attributes.length);
+
+        assertEquals(33, attributes[0]);
         assertEquals(attributes.length, attributes[1]);
         assertEquals("state1", new String(Arrays.copyOfRange(attributes, 2, attributes.length)));
     }
 
     @Test
-    void getRadiusPacketFromDatagram() throws IOException, RadiusException {
+    void getRadiusPacketFromDatagram() throws RadiusException {
         String user = "user1";
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequest request = new AccessRequest(dictionary, 1, null, user, plaintextPw);
-        request.setAuthProtocol(AUTH_PAP);
-        AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
+        AccessRequest original = new AccessRequest(dictionary, 1, null, user, plaintextPw)
+                .encodeRequest(sharedSecret);
 
-        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(encodedRequest, remoteAddress);
-        RadiusPacket radiusPacket = RadiusPacketEncoder.fromRequestDatagram(dictionary, datagramPacket, sharedSecret);
-        String expectedPlaintextPw = ((AccessRequest) radiusPacket).getUserPassword();
+        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(original, remoteAddress);
 
-        assertArrayEquals(encodedRequest.getAttribute("User-Password").getData(), radiusPacket.getAttribute("User-Password").getData());
-        assertEquals(plaintextPw, expectedPlaintextPw);
-        assertEquals(encodedRequest.getAttribute("User-Name").getDataString(), radiusPacket.getAttribute("User-Name").getDataString());
+        RadiusPacket packet = RadiusPacketEncoder.fromRequestDatagram(dictionary, datagramPacket, sharedSecret);
+
+        assertEquals(ACCESS_REQUEST, packet.getPacketType());
+        assertTrue(packet instanceof AccessRequest);
+        assertEquals(plaintextPw, ((AccessRequest) packet).getUserPassword());
+        assertArrayEquals(original.getAttribute("User-Password").getData(), packet.getAttribute("User-Password").getData());
+        assertEquals(original.getAttribute("User-Name").getDataString(), packet.getAttribute("User-Name").getDataString());
     }
 
     @Test
-    void getRadiusPacketFromResponseDatagram() throws IOException, RadiusException {
+    void getRadiusPacketFromResponseDatagram() throws RadiusException {
         String user = "user2";
         String plaintextPw = "myPassword2";
         String sharedSecret = "sharedSecret2";
@@ -110,6 +106,9 @@ class RadiusPacketEncoderTest {
 
     @Test
     void createRequestRadiusPacket() {
+        final byte[] authenticator = new byte[16];
+        random.nextBytes(authenticator);
+
         RadiusPacket accessRequest = createRadiusPacket(dictionary, ACCESS_REQUEST, 1, authenticator, Collections.emptyList());
         RadiusPacket coaRequest = createRadiusPacket(dictionary, COA_REQUEST, 2, authenticator, Collections.emptyList());
         RadiusPacket disconnectRequest = createRadiusPacket(dictionary, DISCONNECT_REQUEST, 3, authenticator, Collections.emptyList());

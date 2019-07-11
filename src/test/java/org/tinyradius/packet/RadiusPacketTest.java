@@ -14,7 +14,7 @@ import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 class RadiusPacketTest {
 
     @Test
-    void doesNotMutateOriginalList() throws RadiusException {
+    void doesNotMutateOriginalAttributeList() throws RadiusException {
         final List<RadiusAttribute> attributes = Collections.emptyList();
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, attributes);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
