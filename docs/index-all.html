@@ -274,12 +274,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/PacketType.html#COA_REQUEST">COA_REQUEST</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet">PacketType</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="org/tinyradius/packet/CoaRequest.html" title="class in org.tinyradius.packet"><span class="typeNameLink">CoaRequest</span></a> - Class in <a href="org/tinyradius/packet/package-summary.html">org.tinyradius.packet</a></dt>
-<dd>
-<div class="block">Represents CoA-Request and Disconnect-Request.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/CoaRequest.html#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,int,int,byte%5B%5D,java.util.List)">CoaRequest(Dictionary, int, int, byte[], List&lt;RadiusAttribute&gt;)</a></span> - Constructor for class org.tinyradius.packet.<a href="org/tinyradius/packet/CoaRequest.html" title="class in org.tinyradius.packet">CoaRequest</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/client/RadiusClient.html#communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,int)">communicate(RadiusPacket, RadiusEndpoint, int)</a></span> - Method in class org.tinyradius.client.<a href="org/tinyradius/client/RadiusClient.html" title="class in org.tinyradius.client">RadiusClient</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/attribute/AttributeBuilder.html#create(org.tinyradius.dictionary.Dictionary,int,int,byte%5B%5D)">create(Dictionary, int, int, byte[])</a></span> - Static method in class org.tinyradius.attribute.<a href="org/tinyradius/attribute/AttributeBuilder.html" title="class in org.tinyradius.attribute">AttributeBuilder</a></dt>
@@ -361,10 +355,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">AccessRequest overrides this method to generate a randomized authenticator as per RFC 2865
  and encode required attributes (i.e.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#encodeRequest(java.lang.String)">encodeRequest(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/CoaRequest.html#encodeRequest(java.lang.String)">encodeRequest(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/CoaRequest.html" title="class in org.tinyradius.packet">CoaRequest</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#encodeRequest(java.lang.String)">encodeRequest(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
 <dd>
 <div class="block">Encode request and generate authenticator.</div>
@@ -373,14 +363,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Sets and encrypts the User-Password attribute.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#encodeRequestPacket(java.lang.String)">encodeRequestPacket(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#encodeResponse(java.lang.String,byte%5B%5D)">encodeResponse(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
 <dd>
-<div class="block">Encodes this Radius packet</div>
-</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#encodeResponsePacket(java.lang.String,byte%5B%5D)">encodeResponsePacket(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
-<dd>
-<div class="block">Encodes this Radius response packet and sends it to the specified output
- stream.</div>
+<div class="block">Encode response and generator authenticator.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/attribute/RadiusAttribute.html#equals(java.lang.Object)">equals(Object)</a></span> - Method in class org.tinyradius.attribute.<a href="org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></dt>
 <dd>&nbsp;</dd>
@@ -396,11 +381,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/dictionary/DictionaryParser.FileResourceResolver.html#%3Cinit%3E()">FileResourceResolver()</a></span> - Constructor for class org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/DictionaryParser.FileResourceResolver.html" title="class in org.tinyradius.dictionary">DictionaryParser.FileResourceResolver</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacketEncoder.html#fromDatagram(org.tinyradius.dictionary.Dictionary,io.netty.channel.socket.DatagramPacket,java.lang.String,int)">fromDatagram(Dictionary, DatagramPacket, String, int)</a></span> - Static method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacketEncoder.html" title="class in org.tinyradius.packet">RadiusPacketEncoder</a></dt>
-<dd>
-<div class="block">Reads a Radius packet from the given input stream and
- creates an appropriate RadiusPacket descendant object.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacketEncoder.html#fromRequestDatagram(org.tinyradius.dictionary.Dictionary,io.netty.channel.socket.DatagramPacket,java.lang.String)">fromRequestDatagram(Dictionary, DatagramPacket, String)</a></span> - Static method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacketEncoder.html" title="class in org.tinyradius.packet">RadiusPacketEncoder</a></dt>
 <dd>
 <div class="block">Reads a Radius request packet from the given input stream and
@@ -1008,7 +988,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#setAcctStatusType(int)">setAcctStatusType(int)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
 <dd>
-<div class="block">Sets the Acct-Status-Type attribute of this Accountnig-Request.</div>
+<div class="block">Sets the Acct-Status-Type attribute of this Accounting-Request.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#setAuthProtocol(java.lang.String)">setAuthProtocol(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
 <dd>
