@@ -33,7 +33,7 @@ class DeduplicatorHandlerTest {
                 },
                 new HashedWheelTimer(), 1000);
 
-        final RadiusPacket request = new AccessRequest(dictionary, 100, null).encodeRequestPacket("test");
+        final RadiusPacket request = new AccessRequest(dictionary, 100, null).encodeRequest("test");
 
         // response id 0
         assertEquals(0, deduplicatorHandler

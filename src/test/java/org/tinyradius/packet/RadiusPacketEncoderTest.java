@@ -119,10 +119,10 @@ class RadiusPacketEncoderTest {
         assertEquals(AccessRequest.class, accessRequest.getClass());
 
         assertEquals(COA_REQUEST, coaRequest.getPacketType());
-        assertEquals(CoaRequest.class, coaRequest.getClass());
+        assertEquals(RadiusPacket.class, coaRequest.getClass());
 
         assertEquals(DISCONNECT_REQUEST, disconnectRequest.getPacketType());
-        assertEquals(CoaRequest.class, disconnectRequest.getClass());
+        assertEquals(RadiusPacket.class, disconnectRequest.getClass());
 
         assertEquals(ACCOUNTING_REQUEST, accountingRequest.getPacketType());
         assertEquals(AccountingRequest.class, accountingRequest.getClass());

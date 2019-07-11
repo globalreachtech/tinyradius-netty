@@ -92,7 +92,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
                 if (response != null) {
                     logger.info("sending response {} to {} with secret {}", response, remoteAddress, secret);
                     DatagramPacket packetOut = RadiusPacketEncoder.toDatagram(
-                            response.encodeResponsePacket(secret, requestAuthenticator),
+                            response.encodeResponse(secret, requestAuthenticator),
                             remoteAddress);
                     ctx.writeAndFlush(packetOut);
                 } else {

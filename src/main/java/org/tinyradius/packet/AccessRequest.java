@@ -238,7 +238,10 @@ public class AccessRequest extends RadiusPacket {
      * @throws UnsupportedOperationException auth type not supported
      */
     @Override
-    protected AccessRequest encodeRequest(String sharedSecret) throws UnsupportedOperationException {
+    public AccessRequest encodeRequest(String sharedSecret) throws UnsupportedOperationException {
+        if (sharedSecret == null || sharedSecret.isEmpty())
+            throw new IllegalArgumentException("shared secret cannot be null/empty");
+
         // create authenticator only if needed
         byte[] newAuthenticator = getAuthenticator() == null ? random16Octets() : getAuthenticator();
 

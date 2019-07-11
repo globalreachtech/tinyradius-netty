@@ -78,7 +78,7 @@ public class AccountingRequest extends RadiusPacket {
     }
 
     /**
-     * Sets the Acct-Status-Type attribute of this Accountnig-Request.
+     * Sets the Acct-Status-Type attribute of this Accounting-Request.
      *
      * @param acctStatusType ACCT_STATUS_TYPE_* to set
      */
@@ -99,7 +99,7 @@ public class AccountingRequest extends RadiusPacket {
     }
 
     @Override
-    protected AccountingRequest encodeRequest(String sharedSecret) {
+    public AccountingRequest encodeRequest(String sharedSecret) {
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
         return new AccountingRequest(getDictionary(), getPacketIdentifier(), authenticator, getAttributes());
     }

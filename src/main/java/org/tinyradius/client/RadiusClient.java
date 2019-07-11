@@ -17,7 +17,6 @@ import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -136,7 +135,7 @@ public class RadiusClient<T extends DatagramChannel> {
             Future<RadiusPacket> promise = clientHandler.processRequest(packet, endpoint, eventLoopGroup.next());
 
             final DatagramPacket packetOut = RadiusPacketEncoder.toDatagram(
-                    packet.encodeRequestPacket(endpoint.getSharedSecret()),
+                    packet.encodeRequest(endpoint.getSharedSecret()),
                     endpoint.getEndpointAddress());
 
             logger.debug("Sending packet to {}", endpoint.getEndpointAddress());

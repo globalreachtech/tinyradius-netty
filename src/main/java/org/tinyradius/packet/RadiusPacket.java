@@ -359,43 +359,35 @@ public class RadiusPacket {
     }
 
     /**
-     * Encodes this Radius packet
+     * Encode request and generate authenticator.
+     * <p>
+     * Base implementation generates hashed authenticator. This
+     * should be overridden for any specialized/subclassed packet types.
      *
-     * @param sharedSecret shared secret to be used to encode this packet
+     * @param sharedSecret shared secret that secures the communication
+     *                     with the other Radius server/client
+     * @return RadiusPacket with new authenticator and/or encoded attributes
      */
-    public RadiusPacket encodeRequestPacket(String sharedSecret) {
-        if (sharedSecret == null || sharedSecret.isEmpty())
-            throw new IllegalArgumentException("no shared secret has been set");
-
-        return encodeRequest(sharedSecret);
+    public RadiusPacket encodeRequest(String sharedSecret) {
+        final byte[] hashedAuthenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
+        return new RadiusPacket(dictionary, packetType, packetIdentifier, hashedAuthenticator, this.attributes);
     }
 
     /**
-     * Encodes this Radius response packet and sends it to the specified output
-     * stream.
+     * Encode response and generator authenticator.
+     * <p>
+     * Requires request authenticator to generator response authenticator.
      *
      * @param sharedSecret         shared secret to be used to encode this packet
-     * @param requestAuthenticator Radius request packet authenticator
+     * @param requestAuthenticator request packet authenticator
      */
-    public RadiusPacket encodeResponsePacket(String sharedSecret, byte[] requestAuthenticator) {
+    public RadiusPacket encodeResponse(String sharedSecret, byte[] requestAuthenticator) {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("no shared secret has been set");
         requireNonNull(requestAuthenticator, "request authenticator not set");
 
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, requestAuthenticator);
         return new RadiusPacket(dictionary, packetType, packetIdentifier, authenticator, this.attributes);
-    }
-
-    public String toString() {
-        StringBuilder s = new StringBuilder();
-        s.append(PacketType.getPacketTypeName(getPacketType()));
-        s.append(", ID ");
-        s.append(packetIdentifier);
-        for (RadiusAttribute attr : attributes) {
-            s.append("\n");
-            s.append(attr.toString());
-        }
-        return s.toString();
     }
 
     /**
@@ -419,21 +411,6 @@ public class RadiusPacket {
     }
 
     /**
-     * Encode request and generate authenticator.
-     * <p>
-     * Base implementation generates hashed authenticator. This
-     * should be overridden for any specialized/subclassed packet types.
-     *
-     * @param sharedSecret shared secret that secures the communication
-     *                     with the other Radius server/client
-     * @return RadiusPacket with new authenticator and/or encoded attributes
-     */
-    protected RadiusPacket encodeRequest(String sharedSecret) {
-        final byte[] hashedAuthenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
-        return new RadiusPacket(dictionary, packetType, packetIdentifier, hashedAuthenticator, this.attributes);
-    }
-
-    /**
      * Generates a request authenticator for this packet. This request authenticator
      * is constructed as described in RFC 2865.
      *
@@ -453,6 +430,9 @@ public class RadiusPacket {
      * @return new 16 byte response authenticator
      */
     protected byte[] createHashedAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
+        if (sharedSecret == null || sharedSecret.isEmpty())
+            throw new IllegalArgumentException("shared secret cannot be null/empty");
+
         byte[] attributes = getAttributeBytes();
         int packetLength = HEADER_LENGTH + attributes.length;
 
@@ -516,5 +496,17 @@ public class RadiusPacket {
         } catch (IOException e) {
             throw new RuntimeException(e); // should never happen
         }
+    }
+
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append(PacketType.getPacketTypeName(getPacketType()));
+        s.append(", ID ");
+        s.append(packetIdentifier);
+        for (RadiusAttribute attr : attributes) {
+            s.append("\n");
+            s.append(attr.toString());
+        }
+        return s.toString();
     }
 }
