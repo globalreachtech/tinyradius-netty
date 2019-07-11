@@ -89,11 +89,11 @@ public class RadiusPacket {
      */
     public RadiusPacket(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         if (type < 1 || type > 255)
-            throw new IllegalArgumentException("packet type out of bounds");
+            throw new IllegalArgumentException("packet type out of bounds: " + type);
         if (identifier < 0 || identifier > 255)
-            throw new IllegalArgumentException("packet identifier out of bounds");
+            throw new IllegalArgumentException("packet identifier out of bounds: " + identifier);
         if (authenticator != null && authenticator.length != 16)
-            throw new IllegalArgumentException("authenticator must be 16 octets");
+            throw new IllegalArgumentException("authenticator must be 16 octets, was: " + authenticator.length);
 
         this.packetType = type;
         this.packetIdentifier = identifier;

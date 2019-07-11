@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.buffer.Unpooled.buffer;
+import static java.lang.Byte.toUnsignedInt;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.packet.PacketType.*;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
@@ -119,12 +120,12 @@ public class RadiusPacketEncoder {
             throw new RuntimeException("readable bytes is less than header length");
         }
 
-        int type = content.readByte();
-        int packetId = content.readByte();
-        int length = content.readByte() << 8 | content.readByte();
+        int type = toUnsignedInt(content.readByte());
+        int packetId = toUnsignedInt(content.readByte());
+        int length = toUnsignedInt(content.readByte()) << 8 | toUnsignedInt(content.readByte());
 
         if (requestPacketId != -1 && requestPacketId != packetId)
-            throw new RadiusException("bad packet: invalid packet identifier (request: " + requestPacketId + ", response: " + packetId);
+            throw new RadiusException("bad packet: invalid packet identifier - request: " + requestPacketId + ", response: " + packetId);
         if (length < HEADER_LENGTH)
             throw new RadiusException("bad packet: packet too short (" + length + " bytes)");
         if (length > MAX_PACKET_LENGTH)
@@ -149,8 +150,8 @@ public class RadiusPacketEncoder {
         while (pos < attributeData.length) {
             if (pos + 1 >= attributeData.length)
                 throw new RadiusException("bad packet: attribute length out of bounds");
-            int attributeType = attributeData[pos] & 0x0ff;
-            int attributeLength = attributeData[pos + 1] & 0x0ff;
+            int attributeType = toUnsignedInt(attributeData[pos]);
+            int attributeLength = toUnsignedInt(attributeData[pos + 1]);
             if (attributeLength < 2)
                 throw new RadiusException("bad packet: invalid attribute length");
             RadiusAttribute a = AttributeBuilder.parse(dictionary, -1, attributeType, attributeData, pos);

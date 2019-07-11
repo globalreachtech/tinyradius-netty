@@ -7,6 +7,7 @@ import org.tinyradius.util.RadiusException;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static java.lang.Byte.toUnsignedInt;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -112,11 +113,11 @@ public class RadiusAttribute {
     }
 
     public static int readType(byte[] data, int offset) {
-        return data[offset] & 0x0ff;
+        return toUnsignedInt(data[offset]);
     }
 
     public static int readLength(byte[] data, int offset) {
-        return data[offset + 1] & 0x0ff;
+        return toUnsignedInt(data[offset + 1]);
     }
 
     public String toString() {
