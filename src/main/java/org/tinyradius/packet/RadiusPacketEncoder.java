@@ -176,12 +176,10 @@ public class RadiusPacketEncoder {
         switch (type) {
             case ACCESS_REQUEST:
                 return new AccessRequest(dictionary, identifier, authenticator, attributes);
-            case COA_REQUEST:
-                return new CoaRequest(dictionary, COA_REQUEST, identifier, authenticator, attributes);
-            case DISCONNECT_REQUEST:
-                return new CoaRequest(dictionary, DISCONNECT_REQUEST, identifier, authenticator, attributes);
             case ACCOUNTING_REQUEST:
                 return new AccountingRequest(dictionary, identifier, authenticator, attributes);
+            case COA_REQUEST:
+            case DISCONNECT_REQUEST:
             default:
                 return new RadiusPacket(dictionary, type, identifier, authenticator, attributes);
         }
