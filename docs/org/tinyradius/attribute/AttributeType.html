@@ -115,7 +115,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.dictionary</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.attribute</a></div>
 <h2 title="Class AttributeType" class="title">Class AttributeType</h2>
 </div>
 <div class="contentContainer">
@@ -123,7 +123,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>org.tinyradius.dictionary.AttributeType</li>
+<li>org.tinyradius.attribute.AttributeType</li>
 </ul>
 </li>
 </ul>
@@ -157,7 +157,7 @@ extends java.lang.Object</pre>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int,java.lang.String,java.lang.String)">AttributeType</a></span>&#8203;(int&nbsp;vendorId,
              int&nbsp;attributeType,
              java.lang.String&nbsp;name,
-             java.lang.String&nbsp;dataType)</code></th>
+             java.lang.String&nbsp;rawDataType)</code></th>
 <td class="colLast">
 <div class="block">Constructs a Vendor-Specific sub-attribute type.</div>
 </td>
@@ -197,7 +197,7 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../attribute/AttributeBuilder.ByteArrayConstructor.html" title="interface in org.tinyradius.attribute">AttributeBuilder.ByteArrayConstructor</a></code></td>
+<td class="colFirst"><code><a href="Attributes.ByteArrayConstructor.html" title="interface in org.tinyradius.attribute">Attributes.ByteArrayConstructor</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getByteArrayConstructor()">getByteArrayConstructor</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -217,7 +217,7 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="../attribute/AttributeBuilder.PacketParser.html" title="interface in org.tinyradius.attribute">AttributeBuilder.PacketParser</a></code></td>
+<td class="colFirst"><code><a href="Attributes.PacketParser.html" title="interface in org.tinyradius.attribute">Attributes.PacketParser</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPacketParser()">getPacketParser</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Retrieves the RadiusAttribute descendant class which represents
@@ -225,7 +225,7 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="../attribute/AttributeBuilder.StringConstructor.html" title="interface in org.tinyradius.attribute">AttributeBuilder.StringConstructor</a></code></td>
+<td class="colFirst"><code><a href="Attributes.StringConstructor.html" title="interface in org.tinyradius.attribute">Attributes.StringConstructor</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getStringConstructor()">getStringConstructor</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -295,14 +295,14 @@ extends java.lang.Object</pre>
 <pre>public&nbsp;AttributeType&#8203;(int&nbsp;vendorId,
                      int&nbsp;attributeType,
                      java.lang.String&nbsp;name,
-                     java.lang.String&nbsp;dataType)</pre>
+                     java.lang.String&nbsp;rawDataType)</pre>
 <div class="block">Constructs a Vendor-Specific sub-attribute type.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>vendorId</code> - vendor ID</dd>
 <dd><code>attributeType</code> - sub-attribute type code</dd>
 <dd><code>name</code> - sub-attribute name</dd>
-<dd><code>dataType</code> - string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix</dd>
+<dd><code>rawDataType</code> - string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix</dd>
 </dl>
 </li>
 </ul>
@@ -348,7 +348,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPacketParser</h4>
-<pre class="methodSignature">public&nbsp;<a href="../attribute/AttributeBuilder.PacketParser.html" title="interface in org.tinyradius.attribute">AttributeBuilder.PacketParser</a>&nbsp;getPacketParser()</pre>
+<pre class="methodSignature">public&nbsp;<a href="Attributes.PacketParser.html" title="interface in org.tinyradius.attribute">Attributes.PacketParser</a>&nbsp;getPacketParser()</pre>
 <div class="block">Retrieves the RadiusAttribute descendant class which represents
  attributes of this type.</div>
 <dl>
@@ -363,7 +363,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getByteArrayConstructor</h4>
-<pre class="methodSignature">public&nbsp;<a href="../attribute/AttributeBuilder.ByteArrayConstructor.html" title="interface in org.tinyradius.attribute">AttributeBuilder.ByteArrayConstructor</a>&nbsp;getByteArrayConstructor()</pre>
+<pre class="methodSignature">public&nbsp;<a href="Attributes.ByteArrayConstructor.html" title="interface in org.tinyradius.attribute">Attributes.ByteArrayConstructor</a>&nbsp;getByteArrayConstructor()</pre>
 </li>
 </ul>
 <a id="getStringConstructor()">
@@ -372,7 +372,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getStringConstructor</h4>
-<pre class="methodSignature">public&nbsp;<a href="../attribute/AttributeBuilder.StringConstructor.html" title="interface in org.tinyradius.attribute">AttributeBuilder.StringConstructor</a>&nbsp;getStringConstructor()</pre>
+<pre class="methodSignature">public&nbsp;<a href="Attributes.StringConstructor.html" title="interface in org.tinyradius.attribute">Attributes.StringConstructor</a>&nbsp;getStringConstructor()</pre>
 </li>
 </ul>
 <a id="getVendorId()">
