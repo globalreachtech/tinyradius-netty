@@ -190,7 +190,7 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;org.tinyradius.packet.<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></h3>
-<code><a href="RadiusPacket.html#HEADER_LENGTH">HEADER_LENGTH</a>, <a href="RadiusPacket.html#MAX_PACKET_LENGTH">MAX_PACKET_LENGTH</a>, <a href="RadiusPacket.html#VENDOR_SPECIFIC_TYPE">VENDOR_SPECIFIC_TYPE</a></code></li>
+<code><a href="RadiusPacket.html#HEADER_LENGTH">HEADER_LENGTH</a></code></li>
 </ul>
 </li>
 </ul>
@@ -229,9 +229,7 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
                  int&nbsp;identifier,
                  byte[]&nbsp;authenticator,
                  java.util.List&lt;<a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;attributes)</code></th>
-<td class="colLast">
-<div class="block">Constructs an empty Accounting-Request.</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -283,7 +281,7 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.tinyradius.packet.<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></h3>
-<code><a href="RadiusPacket.html#addAttribute(java.lang.String,java.lang.String)">addAttribute</a>, <a href="RadiusPacket.html#addAttribute(org.tinyradius.attribute.RadiusAttribute)">addAttribute</a>, <a href="RadiusPacket.html#checkAuthenticator(java.lang.String,byte%5B%5D)">checkAuthenticator</a>, <a href="RadiusPacket.html#createHashedAuthenticator(java.lang.String,byte%5B%5D)">createHashedAuthenticator</a>, <a href="RadiusPacket.html#decodeAttributes(java.lang.String)">decodeAttributes</a>, <a href="RadiusPacket.html#encodeRequest(java.lang.String)">encodeRequest</a>, <a href="RadiusPacket.html#encodeResponse(java.lang.String,byte%5B%5D)">encodeResponse</a>, <a href="RadiusPacket.html#getAttribute(int)">getAttribute</a>, <a href="RadiusPacket.html#getAttribute(int,int)">getAttribute</a>, <a href="RadiusPacket.html#getAttribute(java.lang.String)">getAttribute</a>, <a href="RadiusPacket.html#getAttributeBytes()">getAttributeBytes</a>, <a href="RadiusPacket.html#getAttributes()">getAttributes</a>, <a href="RadiusPacket.html#getAttributes(int)">getAttributes</a>, <a href="RadiusPacket.html#getAttributes(int,int)">getAttributes</a>, <a href="RadiusPacket.html#getAttributeValue(java.lang.String)">getAttributeValue</a>, <a href="RadiusPacket.html#getAuthenticator()">getAuthenticator</a>, <a href="RadiusPacket.html#getDictionary()">getDictionary</a>, <a href="RadiusPacket.html#getPacketIdentifier()">getPacketIdentifier</a>, <a href="RadiusPacket.html#getPacketType()">getPacketType</a>, <a href="RadiusPacket.html#getVendorAttributes(int)">getVendorAttributes</a>, <a href="RadiusPacket.html#random16Octets()">random16Octets</a>, <a href="RadiusPacket.html#removeAttribute(org.tinyradius.attribute.RadiusAttribute)">removeAttribute</a>, <a href="RadiusPacket.html#removeAttributes(int)">removeAttributes</a>, <a href="RadiusPacket.html#removeAttributes(int,int)">removeAttributes</a>, <a href="RadiusPacket.html#removeLastAttribute(int)">removeLastAttribute</a>, <a href="RadiusPacket.html#toString()">toString</a></code></li>
+<code><a href="RadiusPacket.html#addAttribute(java.lang.String,java.lang.String)">addAttribute</a>, <a href="RadiusPacket.html#addAttribute(org.tinyradius.attribute.RadiusAttribute)">addAttribute</a>, <a href="RadiusPacket.html#checkAuthenticator(java.lang.String,byte%5B%5D)">checkAuthenticator</a>, <a href="RadiusPacket.html#createHashedAuthenticator(java.lang.String,byte%5B%5D)">createHashedAuthenticator</a>, <a href="RadiusPacket.html#decodeAttributes(java.lang.String)">decodeAttributes</a>, <a href="RadiusPacket.html#encodeRequest(java.lang.String)">encodeRequest</a>, <a href="RadiusPacket.html#encodeResponse(java.lang.String,byte%5B%5D)">encodeResponse</a>, <a href="RadiusPacket.html#getAttribute(int)">getAttribute</a>, <a href="RadiusPacket.html#getAttribute(int,int)">getAttribute</a>, <a href="RadiusPacket.html#getAttribute(java.lang.String)">getAttribute</a>, <a href="RadiusPacket.html#getAttributeBytes()">getAttributeBytes</a>, <a href="RadiusPacket.html#getAttributes()">getAttributes</a>, <a href="RadiusPacket.html#getAttributes(int)">getAttributes</a>, <a href="RadiusPacket.html#getAttributes(int,int)">getAttributes</a>, <a href="RadiusPacket.html#getAttributeValue(java.lang.String)">getAttributeValue</a>, <a href="RadiusPacket.html#getAuthenticator()">getAuthenticator</a>, <a href="RadiusPacket.html#getDictionary()">getDictionary</a>, <a href="RadiusPacket.html#getPacketIdentifier()">getPacketIdentifier</a>, <a href="RadiusPacket.html#getPacketType()">getPacketType</a>, <a href="RadiusPacket.html#getVendorAttributes(int)">getVendorAttributes</a>, <a href="RadiusPacket.html#removeAttribute(org.tinyradius.attribute.RadiusAttribute)">removeAttribute</a>, <a href="RadiusPacket.html#removeAttributes(int)">removeAttributes</a>, <a href="RadiusPacket.html#removeAttributes(int,int)">removeAttributes</a>, <a href="RadiusPacket.html#removeLastAttribute(int)">removeLastAttribute</a>, <a href="RadiusPacket.html#toString()">toString</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -423,7 +421,6 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
                          int&nbsp;identifier,
                          byte[]&nbsp;authenticator,
                          java.util.List&lt;<a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;attributes)</pre>
-<div class="block">Constructs an empty Accounting-Request.</div>
 </li>
 </ul>
 </li>

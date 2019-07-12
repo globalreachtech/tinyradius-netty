@@ -138,9 +138,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Constructs an Accounting-Request packet to be sent to a Radius server.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,int,byte%5B%5D,java.util.List)">AccountingRequest(Dictionary, int, byte[], List&lt;RadiusAttribute&gt;)</a></span> - Constructor for class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
-<dd>
-<div class="block">Constructs an empty Accounting-Request.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#ACCT_STATUS_TYPE_ACCOUNTING_OFF">ACCT_STATUS_TYPE_ACCOUNTING_OFF</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#ACCT_STATUS_TYPE_ACCOUNTING_ON">ACCT_STATUS_TYPE_ACCOUNTING_ON</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
@@ -432,6 +430,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Returns all attributes of this packet that have got the
  given type and belong to the given vendor ID.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/attribute/RadiusAttribute.html#getAttributeType()">getAttributeType()</a></span> - Method in class org.tinyradius.attribute.<a href="org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/dictionary/Dictionary.html#getAttributeTypeByCode(int)">getAttributeTypeByCode(int)</a></span> - Method in interface org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></dt>
 <dd>
 <div class="block">Retrieves an attribute type by type code.</div>
@@ -457,8 +457,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Retrieves the attribute type with the given name.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/attribute/RadiusAttribute.html#getAttributeTypeObject()">getAttributeTypeObject()</a></span> - Method in class org.tinyradius.attribute.<a href="org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#getAttributeValue(java.lang.String)">getAttributeValue(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
 <dd>
 <div class="block">Returns the value of the Radius attribute of the given type or
@@ -683,7 +681,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">M</h2>
 <dl>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#MAX_PACKET_LENGTH">MAX_PACKET_LENGTH</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacketEncoder.html#MAX_PACKET_LENGTH">MAX_PACKET_LENGTH</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacketEncoder.html" title="class in org.tinyradius.packet">RadiusPacketEncoder</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/dictionary/MemoryDictionary.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">MemoryDictionary</span></a> - Class in <a href="org/tinyradius/dictionary/package-summary.html">org.tinyradius.dictionary</a></dt>
 <dd>
@@ -889,10 +887,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,io.netty.channel.ChannelHandler,io.netty.channel.ChannelHandler,int,int)">RadiusServer(EventLoopGroup, ChannelFactory&lt;T&gt;, InetAddress, ChannelHandler, ChannelHandler, int, int)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#random16Octets()">random16Octets()</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
-<dd>
-<div class="block">Generates a request authenticator for this packet.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/attribute/RadiusAttribute.html#readData(byte%5B%5D,int)">readData(byte[], int)</a></span> - Static method in class org.tinyradius.attribute.<a href="org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></dt>
 <dd>
 <div class="block">Reads in this attribute from the passed byte array.</div>
@@ -1053,8 +1047,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#validPort(int)">validPort(int)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/attribute/VendorSpecificAttribute.html#VENDOR_SPECIFIC">VENDOR_SPECIFIC</a></span> - Static variable in class org.tinyradius.attribute.<a href="org/tinyradius/attribute/VendorSpecificAttribute.html" title="class in org.tinyradius.attribute">VendorSpecificAttribute</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#VENDOR_SPECIFIC_TYPE">VENDOR_SPECIFIC_TYPE</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/attribute/VendorSpecificAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">VendorSpecificAttribute</span></a> - Class in <a href="org/tinyradius/attribute/package-summary.html">org.tinyradius.attribute</a></dt>
 <dd>
