@@ -144,6 +144,7 @@ public class RadiusPacketEncoder {
         return rp;
     }
 
+    // todo work off bytebuf instead of byte[]
     private static List<RadiusAttribute> extractAttributes(byte[] attributeData, Dictionary dictionary) throws RadiusException {
         List<RadiusAttribute> attributes = new ArrayList<>();
 

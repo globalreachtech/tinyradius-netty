@@ -130,9 +130,9 @@ class RadiusPacketEncoderTest {
     @Test
     void fromRequestDatagram() throws RadiusException {
         String user = "user1";
-        String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
+        // todo test other types
         AccountingRequest rawRequest = new AccountingRequest(dictionary, 250, null);
         rawRequest.setUserName(user);
         final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
@@ -140,11 +140,9 @@ class RadiusPacketEncoderTest {
         DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(request, remoteAddress);
         RadiusPacket packet = RadiusPacketEncoder.fromRequestDatagram(dictionary, datagramPacket, sharedSecret);
 
-        assertEquals(ACCESS_REQUEST, packet.getPacketType());
-        assertTrue(packet instanceof AccessRequest);
+        assertEquals(ACCOUNTING_REQUEST, packet.getPacketType());
+        assertTrue(packet instanceof AccountingRequest);
         assertEquals(rawRequest.getPacketIdentifier(), packet.getPacketIdentifier());
-        assertEquals(plaintextPw, ((AccessRequest) packet).getUserPassword());
-        assertArrayEquals(rawRequest.getAttribute("User-Password").getData(), packet.getAttribute("User-Password").getData());
         assertEquals(rawRequest.getUserName(), packet.getAttribute("User-Name").getDataString());
 
         // todo test with bad authenticator (will not work with AccessRequest as auth is random)
