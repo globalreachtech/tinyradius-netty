@@ -7,6 +7,8 @@ import java.net.Inet6Address;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import static java.lang.Byte.toUnsignedInt;
+
 /**
  * This class represents a Radius attribute for an IPv6 prefix.
  */
@@ -42,7 +44,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
         if (data == null || data.length != 18)
             throw new RuntimeException("ip attribute: expected 18 bytes attribute data");
         try {
-            final int prefix = (data[1] & 0xff);
+            final int prefix = toUnsignedInt(data[1]);
             final Inet6Address addr = (Inet6Address) Inet6Address.getByAddress(null, Arrays.copyOfRange(data, 2, data.length));
 
             return addr.getHostAddress() + "/" + prefix;

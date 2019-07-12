@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.lang.Byte.toUnsignedInt;
 import static org.tinyradius.attribute.AttributeBuilder.create;
 
 /**
@@ -25,21 +26,21 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
     private final List<RadiusAttribute> subAttributes;
 
-    public static VendorSpecificAttribute parse(Dictionary dictionary, int ignored,  byte[] data, int offset) throws RadiusException {
+    public static VendorSpecificAttribute parse(Dictionary dictionary, int ignored, byte[] data, int offset) throws RadiusException {
         int vsaCode = data[offset];
         if (vsaCode != VENDOR_SPECIFIC)
             throw new RadiusException("not a Vendor-Specific attribute");
 
         // todo check bounds for VSA header lengths
-        int vsaLen = ((int) data[offset + 1] & 0x0ff) - 6;
+        int vsaLen = toUnsignedInt(data[offset + 1]) - 6;
         if (vsaLen < 6)
             throw new RadiusException("Vendor-Specific attribute too short: " + vsaLen);
 
         // read vendor ID and vendor data
-        int vendorId = (unsignedByteToInt(data[offset + 2]) << 24
-                | unsignedByteToInt(data[offset + 3]) << 16
-                | unsignedByteToInt(data[offset + 4]) << 8
-                | unsignedByteToInt(data[offset + 5]));
+        int vendorId = (toUnsignedInt(data[offset + 2]) << 24
+                | toUnsignedInt(data[offset + 3]) << 16
+                | toUnsignedInt(data[offset + 4]) << 8
+                | toUnsignedInt(data[offset + 5]));
 
         final List<RadiusAttribute> subAttributes = extractAttributes(dictionary, data, offset, vsaLen, vendorId);
 
@@ -227,20 +228,16 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         while (pos < vsaLen) {
             if (pos + 1 >= vsaLen)
                 throw new RadiusException("Vendor-Specific attribute malformed");
-            int subtype = data[(offset + 6) + pos] & 0x0ff;
+            int subtype = toUnsignedInt(data[(offset + 6) + pos]);
             RadiusAttribute a = AttributeBuilder.parse(dictionary, vendorId, subtype, data, (offset + 6) + pos);
             attributes.add(a);
-            int sublength = data[(offset + 6) + pos + 1] & 0x0ff;
+            int sublength = toUnsignedInt(data[(offset + 6) + pos + 1]);
             pos += sublength;
         }
 
         if (pos != vsaLen)
             throw new RadiusException("Vendor-Specific attribute malformed");
         return attributes;
-    }
-
-    private static int unsignedByteToInt(byte b) {
-        return (int) b & 0xFF;
     }
 
     /**

@@ -6,6 +6,8 @@ import org.tinyradius.util.RadiusException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import static java.lang.Byte.toUnsignedInt;
+
 /**
  * This class represents a Radius attribute for an IP number.
  */
@@ -63,10 +65,10 @@ public class IpAttribute extends RadiusAttribute {
         byte[] data = getData();
         if (data == null || data.length != 4)
             throw new RuntimeException("expected 4 bytes attribute data");
-        return ((long) (data[0] & 0x0ff)) << 24
-                | (data[1] & 0x0ff) << 16
-                | (data[2] & 0x0ff) << 8
-                | (data[3] & 0x0ff);
+        return (long) toUnsignedInt(data[0]) << 24
+                | toUnsignedInt(data[1]) << 16
+                | toUnsignedInt(data[2]) << 8
+                | toUnsignedInt(data[3]);
     }
 
     /**

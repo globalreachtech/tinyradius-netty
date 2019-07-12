@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.lang.Byte.toUnsignedInt;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
@@ -65,7 +66,7 @@ public class SimpleClientHandler extends ClientHandler {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-        int identifier = packet.content().duplicate().skipBytes(1).readByte() & 0xff;
+        int identifier = toUnsignedInt(packet.content().duplicate().skipBytes(1).readByte());
         final RequestKey key = new RequestKey(identifier, packet.sender());
 
         final Request request = contexts.get(key);
