@@ -59,7 +59,7 @@ class RadiusPacketTest {
     @Test
     void removeSpecificAttribute() {
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
-        RadiusAttribute ra = createAttribute(rp.getDictionary(), -1, 8, new byte[16]);
+        RadiusAttribute ra = createAttribute(rp.getDictionary(), -1, 8, new byte[4]);
         rp.addAttribute(ra);
         assertFalse(rp.getAttributes().isEmpty());
         assertEquals(1, rp.getAttributes().size());
