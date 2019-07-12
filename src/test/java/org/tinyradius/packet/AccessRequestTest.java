@@ -4,7 +4,6 @@ import net.jradius.util.CHAP;
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
@@ -16,6 +15,7 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.RadiusPacketEncoder.nextPacketId;
 
 class AccessRequestTest {
@@ -72,8 +72,8 @@ class AccessRequestTest {
         byte[] encodedPassword = RadiusUtils.encodePapPassword(plaintextPw.getBytes(UTF_8), authenticator, sharedSecret);
 
         List<RadiusAttribute> attributes = Arrays.asList(
-                new StringAttribute(dictionary, -1, 1, user),
-                new RadiusAttribute(dictionary, -1, 2, encodedPassword));
+                createAttribute(dictionary, -1, 1, user),
+                createAttribute(dictionary, -1, 2, encodedPassword));
 
         AccessRequest request = new AccessRequest(dictionary, nextPacketId(), authenticator, attributes);
 
@@ -121,21 +121,21 @@ class AccessRequestTest {
         final byte[] password = CHAP.chapResponse((byte) chapId, plaintextPw.getBytes(UTF_8), challenge);
 
         AccessRequest goodRequest = new AccessRequest(dictionary, 1, null, Arrays.asList(
-                new RadiusAttribute(dictionary, -1, 60, challenge),
-                new RadiusAttribute(dictionary, -1, 3, password)));
+                createAttribute(dictionary, -1, 60, challenge),
+                createAttribute(dictionary, -1, 3, password)));
         goodRequest.decodeAttributes(null);
         assertTrue(goodRequest.verifyPassword(plaintextPw));
 
         AccessRequest badChallenge = new AccessRequest(dictionary, 1, null, Arrays.asList(
-                new RadiusAttribute(dictionary, -1, 60, random16Bytes()),
-                new RadiusAttribute(dictionary, -1, 3, password)));
+                createAttribute(dictionary, -1, 60, random16Bytes()),
+                createAttribute(dictionary, -1, 3, password)));
         badChallenge.decodeAttributes(null);
         assertFalse(badChallenge.verifyPassword(plaintextPw));
 
         password[0] = (byte) ((chapId + 1) % 256);
         AccessRequest badPassword = new AccessRequest(dictionary, 1, null, Arrays.asList(
-                new RadiusAttribute(dictionary, -1, 60, challenge),
-                new RadiusAttribute(dictionary, -1, 3, password)));
+                createAttribute(dictionary, -1, 60, challenge),
+                createAttribute(dictionary, -1, 3, password)));
         badPassword.decodeAttributes(null);
         assertFalse(badPassword.verifyPassword(plaintextPw));
     }

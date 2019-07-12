@@ -2,8 +2,8 @@ package org.tinyradius.packet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
@@ -14,6 +14,7 @@ import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.packet.Util.*;
 
@@ -99,7 +100,7 @@ public class AccessRequest extends RadiusPacket {
             throw new IllegalArgumentException("empty user name not allowed");
 
         removeAttributes(USER_NAME);
-        addAttribute(new StringAttribute(getDictionary(), -1, USER_NAME, userName));
+        addAttribute(createAttribute(getDictionary(), -1, USER_NAME, userName));
     }
 
     /**
@@ -266,13 +267,13 @@ public class AccessRequest extends RadiusPacket {
             switch (getAuthProtocol()) {
                 case AUTH_PAP:
                     return Collections.singletonList(
-                            new RadiusAttribute(getDictionary(), -1, USER_PASSWORD,
+                            createAttribute(getDictionary(), -1, USER_PASSWORD,
                                     encodePapPassword(newAuthenticator, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
                 case AUTH_CHAP:
                     byte[] challenge = random16Octets();
                     return Arrays.asList(
-                            new RadiusAttribute(getDictionary(), -1, CHAP_CHALLENGE, challenge),
-                            new RadiusAttribute(getDictionary(), -1, CHAP_PASSWORD,
+                            createAttribute(getDictionary(), -1, CHAP_CHALLENGE, challenge),
+                            createAttribute(getDictionary(), -1, CHAP_PASSWORD,
                                     computeChapPassword((byte) random.nextInt(256), password, challenge)));
                 case AUTH_MS_CHAP_V2:
                     throw new UnsupportedOperationException("encoding not supported for " + AUTH_MS_CHAP_V2);

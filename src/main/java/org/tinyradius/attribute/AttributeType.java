@@ -1,6 +1,5 @@
-package org.tinyradius.dictionary;
+package org.tinyradius.attribute;
 
-import org.tinyradius.attribute.*;
 import org.tinyradius.util.RadiusException;
 
 import java.util.HashMap;
@@ -17,9 +16,9 @@ public class AttributeType {
     private final int vendorId;
     private final int typeCode;
     private final String name;
-    private final AttributeBuilder.PacketParser packetParser;
-    private final AttributeBuilder.ByteArrayConstructor byteArrayConstructor;
-    private final AttributeBuilder.StringConstructor stringConstructor;
+    private final Attributes.PacketParser packetParser;
+    private final Attributes.ByteArrayConstructor byteArrayConstructor;
+    private final Attributes.StringConstructor stringConstructor;
     private final Map<Integer, String> enumeration = new HashMap<>();
 
     /**
@@ -39,20 +38,28 @@ public class AttributeType {
      * @param vendorId      vendor ID
      * @param attributeType sub-attribute type code
      * @param name          sub-attribute name
-     * @param dataType      string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
+     * @param rawDataType      string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
      */
-    public AttributeType(int vendorId, int attributeType, String name, String dataType) {
+    public AttributeType(int vendorId, int attributeType, String name, String rawDataType) {
         if (attributeType < 1 || attributeType > 255)
             throw new IllegalArgumentException("attribute type code out of bounds");
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("name is empty");
-        requireNonNull(dataType, "data type is null");
+        requireNonNull(rawDataType, "data type is null");
         this.vendorId = vendorId;
         this.typeCode = attributeType;
         this.name = name;
 
-        final String cleanDataType = dataType.toLowerCase();
-        switch (cleanDataType) {
+        final String dataType = rawDataType.toLowerCase();
+
+        if (dataType.equals("vsa") || attributeType == VENDOR_SPECIFIC) {
+            packetParser = VendorSpecificAttribute::parse;
+            byteArrayConstructor = VendorSpecificAttribute::new;
+            stringConstructor = VendorSpecificAttribute::new;
+            return;
+        }
+
+        switch (dataType) {
             case "string":
                 packetParser = StringAttribute::parse;
                 byteArrayConstructor = StringAttribute::new;
@@ -65,37 +72,25 @@ public class AttributeType {
                 stringConstructor = IntegerAttribute::new;
                 break;
             case "ipaddr":
-                packetParser = IpAttribute::parse;
-                byteArrayConstructor = IpAttribute::new;
-                stringConstructor = IpAttribute::new;
+                packetParser = IpAttribute.V4::parse;
+                byteArrayConstructor = IpAttribute.V4::new;
+                stringConstructor = IpAttribute.V4::new;
                 break;
             case "ipv6addr":
-                packetParser = Ipv6Attribute::parse;
-                byteArrayConstructor = Ipv6Attribute::new;
-                stringConstructor = Ipv6Attribute::new;
+                packetParser = IpAttribute.V6::parse;
+                byteArrayConstructor = IpAttribute.V6::new;
+                stringConstructor = IpAttribute.V6::new;
                 break;
             case "ipv6prefix":
                 packetParser = Ipv6PrefixAttribute::parse;
                 byteArrayConstructor = Ipv6PrefixAttribute::new;
                 stringConstructor = Ipv6PrefixAttribute::new;
                 break;
-            case "vsa":
             case "octets":
             default:
-                if (cleanDataType.equals("vsa") || attributeType == VENDOR_SPECIFIC) {
-                    packetParser = VendorSpecificAttribute::parse;
-                    byteArrayConstructor = VendorSpecificAttribute::new;
-                    stringConstructor = (a, c, b, d) -> {
-                        throw new RadiusException("Cannot instantiate VendorSpecificAttribute with attribute byte array directly");
-                    };
-                    return;
-                }
-
                 packetParser = RadiusAttribute::parse;
                 byteArrayConstructor = RadiusAttribute::new;
-                stringConstructor = (a, c, b, d) -> {
-                    throw new RadiusException("cannot set the value of attribute " + attributeType + " as a string");
-                };
+                stringConstructor = RadiusAttribute::new;
         }
     }
 
@@ -119,15 +114,15 @@ public class AttributeType {
      *
      * @return class
      */
-    public AttributeBuilder.PacketParser getPacketParser() {
+    public Attributes.PacketParser getPacketParser() {
         return packetParser;
     }
 
-    public AttributeBuilder.ByteArrayConstructor getByteArrayConstructor() {
+    public Attributes.ByteArrayConstructor getByteArrayConstructor() {
         return byteArrayConstructor;
     }
 
-    public AttributeBuilder.StringConstructor getStringConstructor() {
+    public Attributes.StringConstructor getStringConstructor() {
         return stringConstructor;
     }
 

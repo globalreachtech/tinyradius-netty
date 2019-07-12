@@ -9,12 +9,13 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 
 class RadiusPacketTest {
 
     @Test
-    void doesNotMutateOriginalAttributeList() throws RadiusException {
+    void doesNotMutateOriginalAttributeList() {
         final List<RadiusAttribute> attributes = Collections.emptyList();
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, attributes);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
@@ -24,14 +25,14 @@ class RadiusPacketTest {
     }
 
     @Test
-    void addAttribute() throws RadiusException {
+    void addAttribute() {
 
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, Collections.emptyList());
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
-        rp.addAttribute(new IpAttribute(rp.getDictionary(), -1, 8, 1234567));
-        rp.addAttribute(new Ipv6Attribute(rp.getDictionary(), -1, 168, "fe80::"));
-        rp.addAttribute(new Ipv6PrefixAttribute(rp.getDictionary(), -1, 97, "fe80::/64"));
-        rp.addAttribute(new Ipv6PrefixAttribute(rp.getDictionary(), -1, 97, "fe80::/128"));
+        rp.addAttribute(createAttribute(rp.getDictionary(), -1, 8, "192.168.0.1"));
+        rp.addAttribute(createAttribute(rp.getDictionary(), -1, 168, "fe80::"));
+        rp.addAttribute(createAttribute(rp.getDictionary(), -1, 97, "fe80::/64"));
+        rp.addAttribute(createAttribute(rp.getDictionary(), -1, 97, "fe80::/128"));
 
         final List<VendorSpecificAttribute> vendorAttributes = rp.getVendorAttributes(14122);
         assertEquals(1, vendorAttributes.size());
@@ -58,7 +59,7 @@ class RadiusPacketTest {
     @Test
     void removeSpecificAttribute() {
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
-        RadiusAttribute ra = new RadiusAttribute(rp.getDictionary(), -1, 8, new byte[16]);
+        RadiusAttribute ra = createAttribute(rp.getDictionary(), -1, 8, new byte[16]);
         rp.addAttribute(ra);
         assertFalse(rp.getAttributes().isEmpty());
         assertEquals(1, rp.getAttributes().size());
@@ -68,7 +69,7 @@ class RadiusPacketTest {
     }
 
     @Test
-    void removeSpecificVendorAttributes() throws RadiusException {
+    void removeSpecificVendorAttributes() {
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
         assertFalse(rp.getAttributes().isEmpty());
@@ -84,7 +85,7 @@ class RadiusPacketTest {
     }
 
     @Test
-    void removeAttributesByType() throws RadiusException {
+    void removeAttributesByType() {
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         rp.addAttribute("Service-Type", "1");
         rp.addAttribute("Service-Type", "2");
@@ -97,7 +98,7 @@ class RadiusPacketTest {
     }
 
     @Test
-    void removeLastAttributeForType() throws RadiusException {
+    void removeLastAttributeForType() {
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         rp.addAttribute("Service-Type", "1");
         rp.addAttribute("Service-Type", "2");

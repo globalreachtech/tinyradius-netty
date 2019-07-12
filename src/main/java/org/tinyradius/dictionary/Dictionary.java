@@ -1,5 +1,7 @@
 package org.tinyradius.dictionary;
 
+import org.tinyradius.attribute.AttributeType;
+
 /**
  * A dictionary retrieves AttributeType objects by name or
  * type code.

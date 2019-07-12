@@ -1,6 +1,5 @@
 package org.tinyradius.attribute;
 
-import org.tinyradius.dictionary.AttributeType;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
@@ -9,7 +8,7 @@ import org.tinyradius.util.RadiusException;
  */
 public class IntegerAttribute extends RadiusAttribute {
 
-    public static IntegerAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
+    static IntegerAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
         final int length = readLength(data, offset);
         if (length != 6)
             throw new RadiusException("integer attribute: expected length 6, packet declared " + length);
@@ -17,16 +16,16 @@ public class IntegerAttribute extends RadiusAttribute {
         return new IntegerAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
     }
 
-    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+    IntegerAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         super(dictionary, vendorId, type, data);
+    }
+
+    IntegerAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+        this(dictionary, vendorId, type, convertValue(value, dictionary, type, vendorId));
     }
 
     public IntegerAttribute(Dictionary dictionary, int vendorId, int type, int value) {
         this(dictionary, vendorId, type, convertValue(value));
-    }
-
-    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, String value) {
-        this(dictionary, vendorId, type, convertValue(value, dictionary, type, vendorId));
     }
 
     /**

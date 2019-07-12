@@ -2,7 +2,6 @@ package org.tinyradius.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.socket.DatagramPacket;
-import org.tinyradius.attribute.AttributeBuilder;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
@@ -15,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static io.netty.buffer.Unpooled.buffer;
 import static java.lang.Byte.toUnsignedInt;
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.attribute.Attributes.parseAttribute;
 import static org.tinyradius.packet.PacketType.*;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
 import static org.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
@@ -154,7 +154,7 @@ public class RadiusPacketEncoder {
             int attributeLength = toUnsignedInt(attributeData[pos + 1]);
             if (attributeLength < 2)
                 throw new RadiusException("bad packet: invalid attribute length");
-            RadiusAttribute a = AttributeBuilder.parse(dictionary, -1, attributeType, attributeData, pos);
+            RadiusAttribute a = parseAttribute(dictionary, -1, attributeType, attributeData, pos);
             attributes.add(a);
             pos += attributeLength;
         }

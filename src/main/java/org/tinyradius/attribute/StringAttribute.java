@@ -10,7 +10,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class StringAttribute extends RadiusAttribute {
 
-    public static StringAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
+    static StringAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
         final int length = readLength(data, offset);
         if (length < 3)
             throw new RadiusException("String attribute: expected length min 3, packet declared " + length);
@@ -18,11 +18,11 @@ public class StringAttribute extends RadiusAttribute {
         return new StringAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
     }
 
-    public StringAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+    StringAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         super(dictionary, vendorId, type, data);
     }
 
-    public StringAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+    StringAttribute(Dictionary dictionary, int vendorId, int type, String value) {
         this(dictionary, vendorId, type, value.getBytes(UTF_8));
     }
 

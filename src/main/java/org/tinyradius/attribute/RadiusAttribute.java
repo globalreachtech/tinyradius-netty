@@ -1,6 +1,5 @@
 package org.tinyradius.attribute;
 
-import org.tinyradius.dictionary.AttributeType;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
@@ -8,6 +7,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static java.lang.Byte.toUnsignedInt;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -30,7 +30,7 @@ public class RadiusAttribute {
      * @return RadiusAttribute object
      * @throws RadiusException if source data invalid or unable to create attribute for given attribute vendorId/type and data
      */
-    public static RadiusAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
+    static RadiusAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
         final int length = readLength(data, offset);
         if (length < 2)
             throw new RadiusException("Radius attribute: expected length min 2, packet declared " + length);
@@ -44,13 +44,17 @@ public class RadiusAttribute {
      * @param type
      * @param data
      */
-    public RadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+    RadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         this.dictionary = requireNonNull(dictionary, "dictionary not set");
         this.vendorId = vendorId;
         if (type < 0 || type > 255)
             throw new IllegalArgumentException("attribute type invalid: " + type);
         this.type = type;
         this.data = requireNonNull(data, "attribute data not set");
+    }
+
+    RadiusAttribute(Dictionary dictionary, int vendorId, int type, String data) {
+        this(dictionary, vendorId, type, data.getBytes(UTF_8));
     }
 
     /**

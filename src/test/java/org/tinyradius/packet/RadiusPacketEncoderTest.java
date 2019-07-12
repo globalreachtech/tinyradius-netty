@@ -2,7 +2,6 @@ package org.tinyradius.packet;
 
 import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
@@ -15,6 +14,7 @@ import java.util.Collections;
 import static java.lang.Byte.toUnsignedInt;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.*;
 import static org.tinyradius.packet.RadiusPacketEncoder.createRadiusPacket;
 
@@ -36,7 +36,7 @@ class RadiusPacketEncoderTest {
     @Test
     void toDatagramPacketTooLong() {
         RadiusPacket request = new RadiusPacket(dictionary, 200, 250);
-        request.addAttribute(new RadiusAttribute(dictionary, -1, 33, random.generateSeed(5000)));
+        request.addAttribute(createAttribute(dictionary, -1, 33, random.generateSeed(5000)));
 
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> RadiusPacketEncoder.toDatagram(request.encodeRequest("mySecret"), new InetSocketAddress(0)));
@@ -50,8 +50,8 @@ class RadiusPacketEncoderTest {
         RadiusPacket request = new RadiusPacket(dictionary, 200, 250);
 
         final byte[] proxyState = random.generateSeed(200);
-        request.addAttribute(new RadiusAttribute(dictionary, -1, 33, proxyState));
-        request.addAttribute(new RadiusAttribute(dictionary, -1, 33, random.generateSeed(2000)));
+        request.addAttribute(createAttribute(dictionary, -1, 33, proxyState));
+        request.addAttribute(createAttribute(dictionary, -1, 33, random.generateSeed(2000)));
 
         final RadiusPacket encoded = request.encodeRequest("mySecret");
 
@@ -112,7 +112,7 @@ class RadiusPacketEncoderTest {
         final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, id);
-        response.addAttribute(new RadiusAttribute(dictionary, -1, 33, "state3333".getBytes(UTF_8)));
+        response.addAttribute(createAttribute(dictionary, -1, 33, "state3333".getBytes(UTF_8)));
         final RadiusPacket encodedResponse = response.encodeResponse(sharedSecret, encodedRequest.getAuthenticator());
 
         DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(encodedResponse, remoteAddress);

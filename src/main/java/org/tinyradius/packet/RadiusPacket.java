@@ -2,7 +2,7 @@ package org.tinyradius.packet;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
-import org.tinyradius.dictionary.AttributeType;
+import org.tinyradius.attribute.AttributeType;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.AttributeBuilder.create;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 import static org.tinyradius.packet.RadiusPacketEncoder.createRadiusPacket;
 
@@ -146,7 +146,7 @@ public class RadiusPacket {
      * @param value    value of the attribute, for example "127.0.0.1"
      * @throws IllegalArgumentException if type name is unknown
      */
-    public void addAttribute(String typeName, String value) throws RadiusException {
+    public void addAttribute(String typeName, String value) {
         if (typeName == null || typeName.isEmpty())
             throw new IllegalArgumentException("type name is empty");
         if (value == null || value.isEmpty())
@@ -156,7 +156,7 @@ public class RadiusPacket {
         if (type == null)
             throw new IllegalArgumentException("unknown attribute type '" + typeName + "'");
 
-        RadiusAttribute attribute = create(getDictionary(), type.getVendorId(), type.getTypeCode(), value);
+        RadiusAttribute attribute = createAttribute(getDictionary(), type.getVendorId(), type.getTypeCode(), value);
         addAttribute(attribute);
     }
 
@@ -469,7 +469,7 @@ public class RadiusPacket {
     protected void decodeAttributes(String sharedSecret) throws RadiusException {
     }
 
-    protected MessageDigest getMd5Digest() {
+    MessageDigest getMd5Digest() {
         try {
             return MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException nsae) {

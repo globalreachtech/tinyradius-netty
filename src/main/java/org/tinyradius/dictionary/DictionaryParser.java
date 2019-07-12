@@ -2,6 +2,7 @@ package org.tinyradius.dictionary;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.attribute.AttributeType;
 
 import java.io.*;
 import java.nio.file.Files;

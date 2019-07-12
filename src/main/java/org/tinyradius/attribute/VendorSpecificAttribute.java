@@ -2,7 +2,6 @@ package org.tinyradius.attribute;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinyradius.dictionary.AttributeType;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
@@ -13,7 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.Byte.toUnsignedInt;
-import static org.tinyradius.attribute.AttributeBuilder.create;
+import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.attribute.Attributes.parseAttribute;
 
 /**
  * This class represents a "Vendor-Specific" attribute.
@@ -47,9 +47,12 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         return new VendorSpecificAttribute(dictionary, vendorId, subAttributes);
     }
 
-    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) throws RadiusException {
-        this(dictionary, vendorId,
-                extractAttributes(dictionary, data, 0, data.length, vendorId));
+    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int ignored, byte[] ignored2)  {
+        this(dictionary, vendorId, new ArrayList<>());
+    }
+
+    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int ignored, String ignored2)  {
+        this(dictionary, vendorId, new ArrayList<>());
     }
 
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, List<RadiusAttribute> subAttributes) {
@@ -99,7 +102,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         if (type.getVendorId() != getVendorId())
             throw new IllegalArgumentException("attribute type '" + name + "' does not belong to vendor ID " + getVendorId());
 
-        RadiusAttribute attribute = create(getDictionary(), getVendorId(), type.getTypeCode(), value);
+        RadiusAttribute attribute = createAttribute(getDictionary(), getVendorId(), type.getTypeCode(), value);
         addSubAttribute(attribute);
     }
 
@@ -229,7 +232,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
             if (pos + 1 >= vsaLen)
                 throw new RadiusException("Vendor-Specific attribute malformed");
             int subtype = toUnsignedInt(data[(offset + 6) + pos]);
-            RadiusAttribute a = AttributeBuilder.parse(dictionary, vendorId, subtype, data, (offset + 6) + pos);
+            RadiusAttribute a = parseAttribute(dictionary, vendorId, subtype, data, (offset + 6) + pos);
             attributes.add(a);
             int sublength = toUnsignedInt(data[(offset + 6) + pos + 1]);
             pos += sublength;

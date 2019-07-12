@@ -14,15 +14,15 @@ import static java.lang.Byte.toUnsignedInt;
  */
 public class Ipv6PrefixAttribute extends RadiusAttribute {
 
-    public static IpAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
+    static Ipv6PrefixAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
         final int length = readLength(data, offset);
         if (length < 4 || length > 20)
             throw new RadiusException("IPv6 prefix attribute: expected length min 4, max 20, packet declared " + length);
 
-        return new IpAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
+        return new Ipv6PrefixAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
     }
 
-    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+    Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         super(dictionary, vendorId, type, data);
     }
 
@@ -31,7 +31,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      *  @param type  attribute type code
      * @param value value, format: "ipv6 address"/prefix
      */
-    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+    Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, String value) {
         this(dictionary, vendorId, type, convertValue(value));
     }
 

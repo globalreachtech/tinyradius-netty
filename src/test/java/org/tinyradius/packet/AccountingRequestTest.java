@@ -2,12 +2,12 @@ package org.tinyradius.packet;
 
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.AccountingRequest.ACCT_STATUS_TYPE_ACCOUNTING_ON;
 import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
@@ -22,7 +22,7 @@ class AccountingRequestTest {
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
         AccountingRequest request = new AccountingRequest(dictionary, 1, null);
-        request.addAttribute(new RadiusAttribute(dictionary, -1, 1, user.getBytes(UTF_8)));
+        request.addAttribute(createAttribute(dictionary, -1, 1, user.getBytes(UTF_8)));
 
         final byte[] attributeBytes = request.getAttributeBytes();
         final int length = attributeBytes.length + HEADER_LENGTH;

@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 
 /**
  * ClientHandler that matches requests/response by appending Proxy-State attribute to
@@ -66,7 +67,7 @@ public class ProxyStateClientHandler extends ClientHandler {
     public Promise<RadiusPacket> processRequest(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
         // add Proxy-State attribute
         String requestId = nextProxyStateId();
-        packet.addAttribute(new RadiusAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes()));
+        packet.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes()));
 
         Promise<RadiusPacket> response = eventExecutor.newPromise();
         requests.put(requestId, response);

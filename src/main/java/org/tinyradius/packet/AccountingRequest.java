@@ -1,14 +1,15 @@
 package org.tinyradius.packet;
 
+import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.IntegerAttribute;
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.StringAttribute;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 
 /**
@@ -61,7 +62,7 @@ public class AccountingRequest extends RadiusPacket {
             throw new IllegalArgumentException("empty user name not allowed");
 
         removeAttributes(USER_NAME);
-        addAttribute(new StringAttribute(getDictionary(), -1, USER_NAME, userName));
+        addAttribute(createAttribute(getDictionary(), -1, USER_NAME, userName));
     }
 
     /**
