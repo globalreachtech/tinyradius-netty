@@ -1,5 +1,6 @@
 package org.tinyradius.packet;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -34,17 +35,30 @@ class RadiusPacketEncoderTest {
     }
 
     @Test
-    void toDatagramMaxPacketSize() {
-        // header 20 octets
-        // length max 4096
-        RadiusPacket request = new RadiusPacket(dictionary, 200, 250);
-        request.addAttribute(createAttribute(dictionary, -1, 33, random.generateSeed(198)));
+    void toDatagramMaxPacketSize() throws RadiusException {
+        // test max length 4096
+        RadiusPacket maxSizeRequest = new RadiusPacket(dictionary, 200, 250);
+        for (int i = 0; i < 20; i++) {
+            // add 200 octets per iteration (198 + 2-byte header)
+            maxSizeRequest.addAttribute(createAttribute(dictionary, -1, 33, random.generateSeed(198)));
+        }
+        maxSizeRequest.addAttribute(createAttribute(dictionary, -1, 33, random.generateSeed(74)));
 
-        // todo test at 4095/4096
+        final ByteBuf byteBuf = RadiusPacketEncoder
+                .toDatagram(maxSizeRequest.encodeRequest("mySecret"), new InetSocketAddress(0))
+                .content();
 
+        // 20-byte header + (20 * (198+2)) + (74+2)
+        assertEquals(4096, byteBuf.readableBytes());
+        final byte[] array = byteBuf.copy().array();
+        assertEquals(4096, toUnsignedInt(array[2]) << 8 | toUnsignedInt(array[3]));
+
+        // test length 4097
+        maxSizeRequest.removeLastAttribute(33);
+        maxSizeRequest.addAttribute(createAttribute(dictionary, -1, 33, random.generateSeed(75)));
 
         final RadiusException exception = assertThrows(RadiusException.class,
-                () -> RadiusPacketEncoder.toDatagram(request.encodeRequest("mySecret"), new InetSocketAddress(0)));
+                () -> RadiusPacketEncoder.toDatagram(maxSizeRequest.encodeRequest("mySecret"), new InetSocketAddress(0)));
 
         assertTrue(exception.getMessage().contains("packet too long"));
     }
@@ -85,25 +99,32 @@ class RadiusPacketEncoderTest {
     void fromBigRequestDatagram() throws RadiusException {
         String sharedSecret = "sharedSecret1";
 
-        RadiusPacket rawRequest = new RadiusPacket(dictionary, 200, 250);
+        // test max length 4096
+        AccountingRequest rawRequest = new AccountingRequest(dictionary, 250, null);
+        for (int i = 0; i < 20; i++) {
+            // add 200 octets per iteration (198 + 2-byte header)
+            rawRequest.addAttribute(createAttribute(dictionary, -1, 33, random.generateSeed(198)));
+        }
+        rawRequest.addAttribute(createAttribute(dictionary, -1, 33, random.generateSeed(74)));
 
-        final byte[] proxyState = random.generateSeed(2000);
-        final byte[] proxyState2 = random.generateSeed(10);
-        rawRequest.addAttribute(createAttribute(dictionary, -1, 33, proxyState));
-        rawRequest.addAttribute(createAttribute(dictionary, -1, 33, proxyState2));
-        final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
+        final RadiusPacket maxSizeRequest = rawRequest.encodeRequest(sharedSecret);
 
-        DatagramPacket datagram = RadiusPacketEncoder.toDatagram(request, new InetSocketAddress(0));
+        final DatagramPacket datagram = RadiusPacketEncoder
+                .toDatagram(maxSizeRequest, new InetSocketAddress(0));
+        assertEquals(4096, datagram.content().readableBytes());
+
         RadiusPacket result = RadiusPacketEncoder.fromRequestDatagram(dictionary, datagram, sharedSecret);
 
-        assertEquals(request.getPacketType(), result.getPacketType());
-        assertEquals(request.getPacketIdentifier(), result.getPacketIdentifier());
-        assertArrayEquals(request.getAuthenticator(), result.getAuthenticator());
-        assertArrayEquals(request.getAttributeBytes(), result.getAttributeBytes());
+        assertEquals(maxSizeRequest.getPacketType(), result.getPacketType());
+        assertEquals(maxSizeRequest.getPacketIdentifier(), result.getPacketIdentifier());
+        assertArrayEquals(maxSizeRequest.getAuthenticator(), result.getAuthenticator());
+        assertArrayEquals(maxSizeRequest.getAttributeBytes(), result.getAttributeBytes());
 
-        assertEquals(request.getAttributes(33).size(), result.getAttributes(33).size());
+        assertEquals(maxSizeRequest.getAttributes(33).size(), result.getAttributes(33).size());
 
         assertArrayEquals(datagram.content().array(), RadiusPacketEncoder.toDatagram(result, new InetSocketAddress(0)).content().array());
+
+        // todo test parse 4097 length packet
     }
 
     @Test
@@ -112,20 +133,19 @@ class RadiusPacketEncoderTest {
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccountingRequest original = new AccountingRequest(dictionary, 250, null);
-        original.setUserName(user);
-        final RadiusPacket radiusPacket = original.encodeRequest(sharedSecret);
+        AccountingRequest rawRequest = new AccountingRequest(dictionary, 250, null);
+        rawRequest.setUserName(user);
+        final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
 
-
-        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(original, remoteAddress);
+        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(request, remoteAddress);
         RadiusPacket packet = RadiusPacketEncoder.fromRequestDatagram(dictionary, datagramPacket, sharedSecret);
 
         assertEquals(ACCESS_REQUEST, packet.getPacketType());
         assertTrue(packet instanceof AccessRequest);
-        assertEquals(original.getPacketIdentifier(), packet.getPacketIdentifier());
+        assertEquals(rawRequest.getPacketIdentifier(), packet.getPacketIdentifier());
         assertEquals(plaintextPw, ((AccessRequest) packet).getUserPassword());
-        assertArrayEquals(original.getAttribute("User-Password").getData(), packet.getAttribute("User-Password").getData());
-        assertEquals(original.getUserName(), packet.getAttribute("User-Name").getDataString());
+        assertArrayEquals(rawRequest.getAttribute("User-Password").getData(), packet.getAttribute("User-Password").getData());
+        assertEquals(rawRequest.getUserName(), packet.getAttribute("User-Name").getDataString());
 
         // todo test with bad authenticator (will not work with AccessRequest as auth is random)
     }
