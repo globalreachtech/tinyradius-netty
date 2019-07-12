@@ -17,9 +17,10 @@ import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.Attributes.parseAttribute;
 import static org.tinyradius.packet.PacketType.*;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
-import static org.tinyradius.packet.RadiusPacket.MAX_PACKET_LENGTH;
 
 public class RadiusPacketEncoder {
+
+    public static final int MAX_PACKET_LENGTH = 4096;
 
     private static AtomicInteger nextPacketId = new AtomicInteger();
 

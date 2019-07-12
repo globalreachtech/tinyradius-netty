@@ -2,7 +2,6 @@ package org.tinyradius.packet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
@@ -242,7 +241,7 @@ public class AccessRequest extends RadiusPacket {
             throw new IllegalArgumentException("shared secret cannot be null/empty");
 
         // create authenticator only if needed
-        byte[] newAuthenticator = getAuthenticator() == null ? random16Octets() : getAuthenticator();
+        byte[] newAuthenticator = getAuthenticator() == null ? random16bytes() : getAuthenticator();
 
         final AccessRequest accessRequest = new AccessRequest(getDictionary(), getPacketIdentifier(), newAuthenticator, new ArrayList<>(getAttributes()));
 
@@ -270,7 +269,7 @@ public class AccessRequest extends RadiusPacket {
                             createAttribute(getDictionary(), -1, USER_PASSWORD,
                                     encodePapPassword(newAuthenticator, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
                 case AUTH_CHAP:
-                    byte[] challenge = random16Octets();
+                    byte[] challenge = random16bytes();
                     return Arrays.asList(
                             createAttribute(getDictionary(), -1, CHAP_CHALLENGE, challenge),
                             createAttribute(getDictionary(), -1, CHAP_PASSWORD,
@@ -382,5 +381,11 @@ public class AccessRequest extends RadiusPacket {
             md.update(b);
 
         return md.digest();
+    }
+
+    private byte[] random16bytes() {
+        byte[] randomBytes = new byte[16];
+        random.nextBytes(randomBytes);
+        return randomBytes;
     }
 }

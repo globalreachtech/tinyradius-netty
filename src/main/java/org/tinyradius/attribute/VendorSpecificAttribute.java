@@ -1,12 +1,12 @@
 package org.tinyradius.attribute;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -196,30 +196,26 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * Renders this attribute as a byte array.
      */
     @Override
-    public byte[] toByteArray() {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(255);
-        bos.write(VENDOR_SPECIFIC);
-        bos.write(0); // length placeholder
-        bos.write(getVendorId() >> 24 & 0x0ff);
-        bos.write(getVendorId() >> 16 & 0x0ff);
-        bos.write(getVendorId() >> 8 & 0x0ff);
-        bos.write(getVendorId() & 0x0ff);
+    public byte[] toByteArray()  {
+        final ByteBuf buffer = Unpooled.buffer();
 
-        // write sub-attributes
-        try {
-            for (RadiusAttribute subAttribute : subAttributes) {
-                bos.write(subAttribute.toByteArray());
-            }
-        } catch (IOException ioe) {
-            // occurs never
-            throw new RuntimeException("error writing data", ioe);
+        buffer.writeByte(VENDOR_SPECIFIC);
+        buffer.writeByte(0); // length placeholder
+        buffer.writeInt(getVendorId());
+//        buffer.writeByte(getVendorId() >> 24 & 0x0ff); todo check large numbers
+//        bos.write(getVendorId() >> 16 & 0x0ff);
+//        bos.write(getVendorId() >> 8 & 0x0ff);
+//        bos.write(getVendorId() & 0x0ff);
+
+        for (RadiusAttribute attribute : subAttributes) {
+            buffer.writeBytes(attribute.toByteArray());
         }
 
-        // check data length
-        byte[] attrData = bos.toByteArray();
+        byte[] attrData = buffer.copy().array();
+
         int len = attrData.length;
         if (len > 255)
-            throw new RuntimeException("Vendor-Specific attribute too long: " + bos.size());
+            throw new RuntimeException("Vendor-Specific attribute too long: " + len);
 
         attrData[1] = (byte) len;
         return attrData;

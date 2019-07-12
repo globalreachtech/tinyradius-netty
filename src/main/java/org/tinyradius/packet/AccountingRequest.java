@@ -1,6 +1,5 @@
 package org.tinyradius.packet;
 
-import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.IntegerAttribute;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
@@ -44,9 +43,6 @@ public class AccountingRequest extends RadiusPacket {
         this(dictionary, identifier, authenticator, new ArrayList<>());
     }
 
-    /**
-     * Constructs an empty Accounting-Request.
-     */
     public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCOUNTING_REQUEST, identifier, authenticator, attributes);
     }

@@ -46,7 +46,7 @@ public class IntegerAttribute extends RadiusAttribute {
     @Override
     public String getDataString() {
         int value = getAttributeValueInt();
-        AttributeType at = getAttributeTypeObject();
+        AttributeType at = getAttributeType();
         if (at != null) {
             String name = at.getEnumeration(value);
             if (name != null)

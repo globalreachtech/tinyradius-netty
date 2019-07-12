@@ -10,7 +10,6 @@ import org.tinyradius.util.RadiusException;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,11 +27,8 @@ import static org.tinyradius.packet.RadiusPacketEncoder.createRadiusPacket;
  */
 public class RadiusPacket {
 
-    private static final SecureRandom random = new SecureRandom();
-
-    public static final int MAX_PACKET_LENGTH = 4096;
     public static final int HEADER_LENGTH = 20;
-    public static final int VENDOR_SPECIFIC_TYPE = 26;
+    private static final int VENDOR_SPECIFIC_TYPE = 26;
 
     private final int packetType;
     private final int packetIdentifier;
@@ -127,10 +123,10 @@ public class RadiusPacket {
     public void addAttribute(RadiusAttribute attribute) {
         requireNonNull(attributes, "attribute is null");
 
-        // todo create new attribute with RP dictionary
-        if (attribute.getVendorId() == -1)
-            this.attributes.add(attribute);
-        else {
+        if (attribute.getVendorId() == -1) {
+            this.attributes.add(
+                    createAttribute(dictionary, attribute.getVendorId(), attribute.getType(), attribute.getData()));
+        } else {
             VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, attribute.getVendorId());
             vsa.addSubAttribute(attribute);
             this.attributes.add(vsa);
@@ -404,18 +400,6 @@ public class RadiusPacket {
      */
     public Dictionary getDictionary() {
         return dictionary;
-    }
-
-    /**
-     * Generates a request authenticator for this packet. This request authenticator
-     * is constructed as described in RFC 2865.
-     *
-     * @return 16 octets of random bytes
-     */
-    protected byte[] random16Octets() {
-        byte[] randomBytes = new byte[16];
-        random.nextBytes(randomBytes);
-        return randomBytes;
     }
 
     /**

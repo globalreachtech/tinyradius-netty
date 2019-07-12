@@ -50,7 +50,10 @@ public class RadiusAttribute {
         if (type < 0 || type > 255)
             throw new IllegalArgumentException("attribute type invalid: " + type);
         this.type = type;
-        this.data = requireNonNull(data, "attribute data not set");
+        requireNonNull(data, "attribute data not set");
+        if (data.length > 253)
+            throw new IllegalArgumentException("attribute data too long, max 255 octets, actual: " + data.length);
+        this.data = data;
     }
 
     RadiusAttribute(Dictionary dictionary, int vendorId, int type, String data) {
@@ -128,7 +131,7 @@ public class RadiusAttribute {
         String name;
 
         // determine attribute name
-        AttributeType at = getAttributeTypeObject();
+        AttributeType at = getAttributeType();
         if (at != null)
             name = at.getName();
         else if (getVendorId() != -1)
@@ -146,7 +149,7 @@ public class RadiusAttribute {
     /**
      * @return AttributeType object for (sub-)attribute or null
      */
-    public AttributeType getAttributeTypeObject() {
+    public AttributeType getAttributeType() {
         return dictionary.getAttributeTypeByCode(getVendorId(), getType());
     }
 
