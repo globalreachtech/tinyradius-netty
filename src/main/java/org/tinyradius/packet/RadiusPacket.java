@@ -1,13 +1,13 @@
 package org.tinyradius.packet;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.tinyradius.attribute.AttributeType;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
-import org.tinyradius.attribute.AttributeType;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -483,16 +483,13 @@ public class RadiusPacket {
      * @return byte array with encoded attributes
      */
     protected byte[] getAttributeBytes() {
-        try {
-            // todo use ByteBuffer?
-            ByteArrayOutputStream bos = new ByteArrayOutputStream(MAX_PACKET_LENGTH);
-            for (RadiusAttribute a : attributes) {
-                bos.write(a.toByteArray());
-            }
-            return bos.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e); // should never happen
+        final ByteBuf buffer = Unpooled.buffer();
+
+        for (RadiusAttribute attribute : attributes) {
+            buffer.writeBytes(attribute.toByteArray());
         }
+
+        return buffer.copy().array();
     }
 
     public String toString() {

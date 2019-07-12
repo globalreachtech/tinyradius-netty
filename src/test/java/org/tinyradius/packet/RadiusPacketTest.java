@@ -1,9 +1,10 @@
 package org.tinyradius.packet;
 
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.*;
+import org.tinyradius.attribute.IpAttribute;
+import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.util.RadiusException;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,34 +27,41 @@ class RadiusPacketTest {
 
     @Test
     void addAttribute() {
+        RadiusPacket packet = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, Collections.emptyList());
+        packet.addAttribute("WISPr-Location-ID", "myLocationId");
+        packet.addAttribute(new IpAttribute.V4(packet.getDictionary(), -1, 8, 1234567));
+        packet.addAttribute(createAttribute(packet.getDictionary(), -1, 168, "fe80::"));
+        packet.addAttribute(createAttribute(packet.getDictionary(), -1, 97, "fe80::/64"));
+        packet.addAttribute(createAttribute(packet.getDictionary(), -1, 97, "fe80::/128"));
 
-        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, Collections.emptyList());
-        rp.addAttribute("WISPr-Location-ID", "myLocationId");
-        rp.addAttribute(new IpAttribute.V4(rp.getDictionary(), -1, 8, 1234567));
-        rp.addAttribute(createAttribute(rp.getDictionary(), -1, 168, "fe80::"));
-        rp.addAttribute(createAttribute(rp.getDictionary(), -1, 97, "fe80::/64"));
-        rp.addAttribute(createAttribute(rp.getDictionary(), -1, 97, "fe80::/128"));
-
-        final List<VendorSpecificAttribute> vendorAttributes = rp.getVendorAttributes(14122);
+        final List<VendorSpecificAttribute> vendorAttributes = packet.getVendorAttributes(14122);
         assertEquals(1, vendorAttributes.size());
 
         final List<RadiusAttribute> wisprLocations = vendorAttributes.get(0).getSubAttributes();
         assertEquals(1, wisprLocations.size());
         assertEquals("myLocationId", wisprLocations.get(0).getDataString());
 
-        assertEquals("myLocationId", rp.getAttribute(14122, 1).getDataString());
-        final List<RadiusAttribute> wisprLocations2 = rp.getAttributes(14122, 1);
+        assertEquals("myLocationId", packet.getAttribute(14122, 1).getDataString());
+        final List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, 1);
         assertEquals(1, wisprLocations2.size());
         assertEquals("myLocationId", wisprLocations2.get(0).getDataString());
 
-        assertEquals("0.18.214.135", rp.getAttribute(8).getDataString());
-        assertEquals("0.18.214.135", rp.getAttribute("Framed-IP-Address").getDataString());
-        assertEquals("fe80:0:0:0:0:0:0:0", rp.getAttribute(168).getDataString());
-        assertEquals("fe80:0:0:0:0:0:0:0", rp.getAttribute("Framed-IPv6-Address").getDataString());
+        assertEquals("0.18.214.135", packet.getAttribute(8).getDataString());
+        assertEquals("0.18.214.135", packet.getAttribute("Framed-IP-Address").getDataString());
+        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute(168).getDataString());
+        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute("Framed-IPv6-Address").getDataString());
 
-        final List<RadiusAttribute> ipV6Attributes = rp.getAttributes(97);
+        final List<RadiusAttribute> ipV6Attributes = packet.getAttributes(97);
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
                 ipV6Attributes.stream().map(RadiusAttribute::getDataString).toArray());
+
+        assertEquals("Access-Request, ID 1\n" +
+                "Vendor-Specific: WISPr (14122)\n" +
+                "  WISPr-Location-ID: myLocationId\n" +
+                "Framed-IP-Address: 0.18.214.135\n" +
+                "Framed-IPv6-Address: fe80:0:0:0:0:0:0:0\n" +
+                "Framed-IPv6-Prefix: fe80:0:0:0:0:0:0:0/64\n" +
+                "Framed-IPv6-Prefix: fe80:0:0:0:0:0:0:0/128", packet.toString());
     }
 
     @Test
