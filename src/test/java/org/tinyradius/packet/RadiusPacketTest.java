@@ -29,7 +29,7 @@ class RadiusPacketTest {
 
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, Collections.emptyList());
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
-        rp.addAttribute(createAttribute(rp.getDictionary(), -1, 8, "192.168.0.1"));
+        rp.addAttribute(new IpAttribute.V4(rp.getDictionary(), -1, 8, 1234567));
         rp.addAttribute(createAttribute(rp.getDictionary(), -1, 168, "fe80::"));
         rp.addAttribute(createAttribute(rp.getDictionary(), -1, 97, "fe80::/64"));
         rp.addAttribute(createAttribute(rp.getDictionary(), -1, 97, "fe80::/128"));
