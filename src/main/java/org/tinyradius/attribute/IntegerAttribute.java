@@ -1,23 +1,18 @@
 package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
+
+import java.nio.ByteBuffer;
 
 /**
  * This class represents a Radius attribute which only contains a 32 bit integer.
  */
 public class IntegerAttribute extends RadiusAttribute {
 
-    static IntegerAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
-        final int length = readLength(data, offset);
-        if (length != 6)
-            throw new RadiusException("integer attribute: expected length 6, packet declared " + length);
-
-        return new IntegerAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
-    }
-
     IntegerAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         super(dictionary, vendorId, type, data);
+        if (data.length != 4)
+            throw new IllegalArgumentException("integer attribute value should be 4 octets, actual: " + data.length);
     }
 
     IntegerAttribute(Dictionary dictionary, int vendorId, int type, String value) {
@@ -34,9 +29,7 @@ public class IntegerAttribute extends RadiusAttribute {
      * @return a string
      */
     public int getAttributeValueInt() {
-        byte[] data = getData();
-        return (((data[0] & 0x0ff) << 24) | ((data[1] & 0x0ff) << 16) |
-                ((data[2] & 0x0ff) << 8) | (data[3] & 0x0ff));
+        return ByteBuffer.wrap(getData()).getInt();
     }
 
     /**

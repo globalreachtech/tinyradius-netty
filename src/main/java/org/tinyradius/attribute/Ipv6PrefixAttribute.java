@@ -1,7 +1,6 @@
 package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
 
 import java.net.Inet6Address;
 import java.net.UnknownHostException;
@@ -14,16 +13,10 @@ import static java.lang.Byte.toUnsignedInt;
  */
 public class Ipv6PrefixAttribute extends RadiusAttribute {
 
-    static Ipv6PrefixAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
-        final int length = readLength(data, offset);
-        if (length < 4 || length > 20)
-            throw new RadiusException("IPv6 prefix attribute: expected length min 4, max 20, packet declared " + length);
-
-        return new Ipv6PrefixAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
-    }
-
     Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         super(dictionary, vendorId, type, data);
+        if (data.length < 2 || data.length > 18)
+            throw new IllegalArgumentException("IPv6 prefix attribute: expected length min 4, max 20, packet declared " + data.length);
     }
 
     /**

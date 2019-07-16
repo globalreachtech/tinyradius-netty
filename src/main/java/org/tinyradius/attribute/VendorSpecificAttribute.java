@@ -2,8 +2,6 @@ package org.tinyradius.attribute;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
@@ -13,49 +11,40 @@ import java.util.stream.Collectors;
 
 import static java.lang.Byte.toUnsignedInt;
 import static org.tinyradius.attribute.Attributes.createAttribute;
-import static org.tinyradius.attribute.Attributes.parseAttribute;
+import static org.tinyradius.attribute.Attributes.extractAttributes;
 
 /**
  * This class represents a "Vendor-Specific" attribute.
  */
 public class VendorSpecificAttribute extends RadiusAttribute {
 
-    private static final Logger logger = LoggerFactory.getLogger(VendorSpecificAttribute.class);
-
     public static final int VENDOR_SPECIFIC = 26;
 
     private final List<RadiusAttribute> subAttributes;
 
-    public static VendorSpecificAttribute parse(Dictionary dictionary, int ignored, byte[] data, int offset) throws RadiusException {
-        int vsaCode = data[offset];
-        if (vsaCode != VENDOR_SPECIFIC)
-            throw new RadiusException("not a Vendor-Specific attribute");
-
-        // todo check bounds for VSA header lengths
-        int vsaLen = toUnsignedInt(data[offset + 1]) - 6;
-        if (vsaLen < 6)
-            throw new RadiusException("Vendor-Specific attribute too short: " + vsaLen);
-
-        // read vendor ID and vendor data
-        int vendorId = (toUnsignedInt(data[offset + 2]) << 24
-                | toUnsignedInt(data[offset + 3]) << 16
-                | toUnsignedInt(data[offset + 4]) << 8
-                | toUnsignedInt(data[offset + 5]));
-
-        final List<RadiusAttribute> subAttributes = extractAttributes(dictionary, data, offset, vsaLen, vendorId);
-
-        return new VendorSpecificAttribute(dictionary, vendorId, subAttributes);
+    /**
+     *
+     * @param dictionary
+     * @param ignoredVendorId vendorId ignored, parsed from data directly
+     * @param ignoredAttributeType attributeType ignored, should always be Vendor-Specific (26)
+     * @param data
+     */
+    VendorSpecificAttribute(Dictionary dictionary, int ignoredVendorId, int ignoredAttributeType, byte[] data) {
+        this(dictionary, extractVendorId(data), extractAttributes(dictionary, extractVendorId(data), data, 4));
     }
 
-    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int ignored, byte[] ignored2)  {
+    private static int extractVendorId(byte[] data) {
+        return toUnsignedInt(data[0]) << 24
+                | toUnsignedInt(data[1]) << 16
+                | toUnsignedInt(data[2]) << 8
+                | toUnsignedInt(data[3]);
+    }
+
+    VendorSpecificAttribute(Dictionary dictionary, int vendorId, int ignored, String ignored2) {
         this(dictionary, vendorId, new ArrayList<>());
     }
 
-    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int ignored, String ignored2)  {
-        this(dictionary, vendorId, new ArrayList<>());
-    }
-
-    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, List<RadiusAttribute> subAttributes) {
+    VendorSpecificAttribute(Dictionary dictionary, int vendorId, List<RadiusAttribute> subAttributes) {
         super(dictionary, vendorId, VENDOR_SPECIFIC, new byte[0]);
         this.subAttributes = subAttributes;
     }
@@ -196,7 +185,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * Renders this attribute as a byte array.
      */
     @Override
-    public byte[] toByteArray()  {
+    public byte[] toByteArray() {
         final ByteBuf buffer = Unpooled.buffer();
 
         buffer.writeByte(VENDOR_SPECIFIC);
@@ -219,24 +208,6 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
         attrData[1] = (byte) len;
         return attrData;
-    }
-
-    private static List<RadiusAttribute> extractAttributes(Dictionary dictionary, byte[] data, int offset, int vsaLen, int vendorId) throws RadiusException {
-        final ArrayList<RadiusAttribute> attributes = new ArrayList<>();
-        int pos = 0;
-        while (pos < vsaLen) {
-            if (pos + 1 >= vsaLen)
-                throw new RadiusException("Vendor-Specific attribute malformed");
-            int subtype = toUnsignedInt(data[(offset + 6) + pos]);
-            RadiusAttribute a = parseAttribute(dictionary, vendorId, subtype, data, (offset + 6) + pos);
-            attributes.add(a);
-            int sublength = toUnsignedInt(data[(offset + 6) + pos + 1]);
-            pos += sublength;
-        }
-
-        if (pos != vsaLen)
-            throw new RadiusException("Vendor-Specific attribute malformed");
-        return attributes;
     }
 
     /**

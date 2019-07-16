@@ -7,25 +7,24 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.buffer.Unpooled.buffer;
 import static java.lang.Byte.toUnsignedInt;
-import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.Attributes.parseAttribute;
+import static org.tinyradius.attribute.Attributes.extractAttributes;
 import static org.tinyradius.packet.PacketType.*;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
 
 public class RadiusPacketEncoder {
 
-    public static final int MAX_PACKET_LENGTH = 4096;
+    private static final int MAX_PACKET_LENGTH = 4096;
 
     private static AtomicInteger nextPacketId = new AtomicInteger();
 
     /**
-     * Increment the next packet identifier to use.
+     * Increment the next packet identifier.
      *
      * @return the next packet identifier to use
      */
@@ -51,10 +50,13 @@ public class RadiusPacketEncoder {
     }
 
     /**
-     * Reads a Radius request packet from the given input stream and
+     * Reads a Radius packet from the given input stream and
      * creates an appropriate RadiusPacket descendant object.
-     * Reads in all attributes and returns the object.
-     * Decodes the encrypted fields and attributes of the packet.
+     * <p>
+     * Decodes the encrypted fields and attributes of the packet, and checks
+     * authenticator if appropriate.
+     * <p>
+     * Same as calling {@link #fromDatagram(Dictionary, DatagramPacket, String, RadiusPacket)} with null RadiusPacket.
      *
      * @param dictionary   dictionary to use for attributes
      * @param datagram     DatagramPacket to read packet from
@@ -62,108 +64,67 @@ public class RadiusPacketEncoder {
      * @return new RadiusPacket object
      * @throws RadiusException malformed packet
      */
-    public static RadiusPacket fromRequestDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret)
-            throws RadiusException {
-        final RadiusPacket radiusPacket = fromDatagram(dictionary, datagram, sharedSecret, -1);
-        radiusPacket.checkAuthenticator(sharedSecret, new byte[16]);
-
-        return radiusPacket;
-    }
-
-    /**
-     * Reads a Radius response packet from the given input stream and
-     * creates an appropriate RadiusPacket descendant object.
-     * Reads in all attributes and returns the object.
-     * Checks the packet authenticator.
-     *
-     * @param dictionary   dictionary to use for attributes
-     * @param datagram     DatagramPacket to read packet from
-     * @param sharedSecret shared secret to be used to decode this packet
-     * @param request      Radius request packet
-     * @return new RadiusPacket object
-     * @throws RadiusException malformed packet
-     */
-    public static RadiusPacket fromResponseDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret, RadiusPacket request)
-            throws RadiusException {
-        requireNonNull(request, "request may not be null");
-
-        if (request.getAuthenticator() == null)
-            throw new RuntimeException("request authenticator not set");
-
-        final RadiusPacket radiusPacket = fromDatagram(dictionary, datagram, sharedSecret, request.getPacketIdentifier());
-        radiusPacket.checkAuthenticator(sharedSecret, request.getAuthenticator());
-
-        return radiusPacket;
+    public static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret) throws RadiusException {
+        return fromDatagram(dictionary, datagram, sharedSecret, null);
     }
 
     /**
      * Reads a Radius packet from the given input stream and
      * creates an appropriate RadiusPacket descendant object.
-     * Reads in all attributes and returns the object.
-     * Decodes the encrypted fields and attributes of the packet.
+     * <p>
+     * Decodes the encrypted fields and attributes of the packet, and checks
+     * authenticator if appropriate.
      *
-     * @param dictionary      dictionary to use for attributes
-     * @param packet          DatagramPacket to read packet from
-     * @param sharedSecret    shared secret to be used to decode this packet
-     * @param requestPacketId request packet Id if this is a response packet to be
-     *                        decoded, -1 if this is a request packet to be decoded
+     * @param dictionary   dictionary to use for attributes
+     * @param datagram     DatagramPacket to read packet from
+     * @param sharedSecret shared secret to be used to decode this packet
+     * @param request      associated request packet if parsing response,
+     *                     or null if parsing request
      * @return new RadiusPacket object
-     * @throws RadiusException packet malformed
+     * @throws RadiusException malformed packet
      */
-    private static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret, int requestPacketId)
+    public static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret, RadiusPacket request)
             throws RadiusException {
 
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new RuntimeException("no shared secret has been set");
 
-        ByteBuf content = packet.content();
-        if (content.readableBytes() < HEADER_LENGTH) {
-            throw new RuntimeException("readable bytes is less than header length");
+        final ByteBuffer content = datagram.content().nioBuffer();
+        if (content.remaining() < HEADER_LENGTH) {
+            throw new RadiusException("readable bytes is less than header length");
         }
 
-        int type = toUnsignedInt(content.readByte());
-        int packetId = toUnsignedInt(content.readByte());
-        int length = toUnsignedInt(content.readByte()) << 8 | toUnsignedInt(content.readByte());
+        int type = toUnsignedInt(content.get());
+        int packetId = toUnsignedInt(content.get());
+        int length = content.getShort();
 
-        if (requestPacketId != -1 && requestPacketId != packetId)
-            throw new RadiusException("bad packet: invalid packet identifier - request: " + requestPacketId + ", response: " + packetId);
+        if (request != null && request.getPacketIdentifier() != packetId)
+            throw new RadiusException("bad packet: invalid packet identifier - request: " + request.getPacketIdentifier() + ", response: " + packetId);
         if (length < HEADER_LENGTH)
             throw new RadiusException("bad packet: packet too short (" + length + " bytes)");
         if (length > MAX_PACKET_LENGTH)
             throw new RadiusException("bad packet: packet too long (" + length + " bytes)");
 
         byte[] authenticator = new byte[16];
-        byte[] attributeData = new byte[length - HEADER_LENGTH];
-        content.readBytes(authenticator);
-        content.readBytes(attributeData);
+        content.get(authenticator);
 
-        final List<RadiusAttribute> attributes = extractAttributes(attributeData, dictionary);
-        RadiusPacket rp = createRadiusPacket(dictionary, type, packetId, authenticator, attributes);
-        rp.decodeAttributes(sharedSecret);
+        if (content.remaining() != length - HEADER_LENGTH)
+            throw new RadiusException("bad packet: packet length mismatch");
+        System.out.println("content remaining " + content.remaining());
 
-        return rp;
-    }
 
-    // todo work off bytebuf instead of byte[]
-    private static List<RadiusAttribute> extractAttributes(byte[] attributeData, Dictionary dictionary) throws RadiusException {
-        List<RadiusAttribute> attributes = new ArrayList<>();
+        byte[] attributes = new byte[content.remaining()];
+        content.get(attributes);
 
-        int pos = 0;
-        while (pos < attributeData.length) {
-            if (pos + 1 >= attributeData.length)
-                throw new RadiusException("bad packet: attribute length out of bounds");
-            int attributeType = toUnsignedInt(attributeData[pos]);
-            int attributeLength = toUnsignedInt(attributeData[pos + 1]);
-            if (attributeLength < 2)
-                throw new RadiusException("bad packet: invalid attribute length");
-            RadiusAttribute a = parseAttribute(dictionary, -1, attributeType, attributeData, pos);
-            attributes.add(a);
-            pos += attributeLength;
-        }
+        System.out.println("content remaining " + content.remaining());
 
-        if (pos != attributeData.length)
-            throw new RadiusException("bad packet: attribute length mismatch");
-        return attributes;
+        final RadiusPacket radiusPacket = createRadiusPacket(dictionary, type, packetId, authenticator,
+                extractAttributes(dictionary, -1, attributes, 0));
+
+        radiusPacket.decode(sharedSecret, request == null ?
+                new byte[16] : request.getAuthenticator());
+
+        return radiusPacket;
     }
 
     /**

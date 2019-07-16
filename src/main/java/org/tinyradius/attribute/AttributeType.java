@@ -1,7 +1,5 @@
 package org.tinyradius.attribute;
 
-import org.tinyradius.util.RadiusException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +14,6 @@ public class AttributeType {
     private final int vendorId;
     private final int typeCode;
     private final String name;
-    private final Attributes.PacketParser packetParser;
     private final Attributes.ByteArrayConstructor byteArrayConstructor;
     private final Attributes.StringConstructor stringConstructor;
     private final Map<Integer, String> enumeration = new HashMap<>();
@@ -38,7 +35,7 @@ public class AttributeType {
      * @param vendorId      vendor ID
      * @param attributeType sub-attribute type code
      * @param name          sub-attribute name
-     * @param rawDataType      string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
+     * @param rawDataType   string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
      */
     public AttributeType(int vendorId, int attributeType, String name, String rawDataType) {
         if (attributeType < 1 || attributeType > 255)
@@ -53,7 +50,6 @@ public class AttributeType {
         final String dataType = rawDataType.toLowerCase();
 
         if (dataType.equals("vsa") || attributeType == VENDOR_SPECIFIC) {
-            packetParser = VendorSpecificAttribute::parse;
             byteArrayConstructor = VendorSpecificAttribute::new;
             stringConstructor = VendorSpecificAttribute::new;
             return;
@@ -61,34 +57,28 @@ public class AttributeType {
 
         switch (dataType) {
             case "string":
-                packetParser = StringAttribute::parse;
                 byteArrayConstructor = StringAttribute::new;
                 stringConstructor = StringAttribute::new;
                 break;
             case "integer":
             case "date":
-                packetParser = IntegerAttribute::parse;
                 byteArrayConstructor = IntegerAttribute::new;
                 stringConstructor = IntegerAttribute::new;
                 break;
             case "ipaddr":
-                packetParser = IpAttribute.V4::parse;
                 byteArrayConstructor = IpAttribute.V4::new;
                 stringConstructor = IpAttribute.V4::new;
                 break;
             case "ipv6addr":
-                packetParser = IpAttribute.V6::parse;
                 byteArrayConstructor = IpAttribute.V6::new;
                 stringConstructor = IpAttribute.V6::new;
                 break;
             case "ipv6prefix":
-                packetParser = Ipv6PrefixAttribute::parse;
                 byteArrayConstructor = Ipv6PrefixAttribute::new;
                 stringConstructor = Ipv6PrefixAttribute::new;
                 break;
             case "octets":
             default:
-                packetParser = RadiusAttribute::parse;
                 byteArrayConstructor = RadiusAttribute::new;
                 stringConstructor = RadiusAttribute::new;
         }
@@ -108,21 +98,11 @@ public class AttributeType {
         return name;
     }
 
-    /**
-     * Retrieves the RadiusAttribute descendant class which represents
-     * attributes of this type.
-     *
-     * @return class
-     */
-    public Attributes.PacketParser getPacketParser() {
-        return packetParser;
-    }
-
-    public Attributes.ByteArrayConstructor getByteArrayConstructor() {
+    Attributes.ByteArrayConstructor getByteArrayConstructor() {
         return byteArrayConstructor;
     }
 
-    public Attributes.StringConstructor getStringConstructor() {
+    Attributes.StringConstructor getStringConstructor() {
         return stringConstructor;
     }
 
@@ -170,11 +150,8 @@ public class AttributeType {
         enumeration.put(num, name);
     }
 
-    /**
-     * @return string for debugging
-     */
     public String toString() {
-        String s = getTypeCode() + "/" + getName() + ": " + packetParser.getClass();
+        String s = getTypeCode() + "/" + getName() + ": " + byteArrayConstructor.getClass();
         if (getVendorId() != -1)
             s += " (vendor " + getVendorId() + ")";
         return s;

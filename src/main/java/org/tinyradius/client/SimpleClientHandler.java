@@ -76,7 +76,7 @@ public class SimpleClientHandler extends ClientHandler {
         }
 
         try {
-            RadiusPacket resp = RadiusPacketEncoder.fromResponseDatagram(dictionary, packet, request.sharedSecret, request.packet);
+            RadiusPacket resp = RadiusPacketEncoder.fromDatagram(dictionary, packet, request.sharedSecret, request.packet);
             logger.info("Found request for response identifier => {}", identifier);
 
             request.response.trySuccess(resp);

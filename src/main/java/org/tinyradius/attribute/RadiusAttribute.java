@@ -1,12 +1,10 @@
 package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-import static java.lang.Byte.toUnsignedInt;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
@@ -26,23 +24,7 @@ public class RadiusAttribute {
      * @param dictionary Dictionary to use
      * @param vendorId   vendor ID or -1
      * @param data       source array to read data from
-     * @param offset     offset in array to start reading from
      * @return RadiusAttribute object
-     * @throws RadiusException if source data invalid or unable to create attribute for given attribute vendorId/type and data
-     */
-    static RadiusAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
-        final int length = readLength(data, offset);
-        if (length < 2)
-            throw new RadiusException("Radius attribute: expected length min 2, packet declared " + length);
-
-        return new RadiusAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset));
-    }
-
-    /**
-     * @param dictionary
-     * @param vendorId
-     * @param type
-     * @param data
      */
     RadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         this.dictionary = requireNonNull(dictionary, "dictionary not set");
@@ -105,26 +87,6 @@ public class RadiusAttribute {
         attr[1] = (byte) (2 + data.length);
         System.arraycopy(data, 0, attr, 2, data.length);
         return attr;
-    }
-
-    /**
-     * Reads in this attribute from the passed byte array.
-     *
-     * @param data   input data
-     * @param offset byte to start reading from
-     * @return
-     */
-    protected static byte[] readData(byte[] data, int offset) {
-        int length = readLength(data, offset);
-        return Arrays.copyOfRange(data, offset + 2, offset + length);
-    }
-
-    public static int readType(byte[] data, int offset) {
-        return toUnsignedInt(data[offset]);
-    }
-
-    public static int readLength(byte[] data, int offset) {
-        return toUnsignedInt(data[offset + 1]);
     }
 
     public String toString() {

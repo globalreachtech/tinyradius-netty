@@ -356,10 +356,9 @@ public class RadiusPacket {
     }
 
     /**
-     * Encode request and generate authenticator.
+     * Encode request and generate authenticator. Should be idempotent.
      * <p>
-     * Base implementation generates hashed authenticator. This
-     * should be overridden for any specialized/subclassed packet types.
+     * Base implementation generates hashed authenticator.
      *
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client
@@ -370,7 +369,7 @@ public class RadiusPacket {
     }
 
     /**
-     * Encode response and generator authenticator.
+     * Encode and generate authenticator. Should be idempotent.
      * <p>
      * Requires request authenticator to generator response authenticator.
      *
@@ -435,22 +434,12 @@ public class RadiusPacket {
      *                             otherwise set to 16 zero octets
      * @throws RadiusException if authenticator check fails
      */
-    protected void checkAuthenticator(String sharedSecret, byte[] requestAuthenticator) throws RadiusException {
+    protected void decode(String sharedSecret, byte[] requestAuthenticator) throws RadiusException {
         byte[] expectedAuth = createHashedAuthenticator(sharedSecret, requestAuthenticator);
         byte[] receivedAuth = getAuthenticator();
-
         if (receivedAuth.length != 16 ||
                 !Arrays.equals(expectedAuth, receivedAuth))
             throw new RadiusException("Authenticator check failed");
-    }
-
-    /**
-     * Can be overridden to decode attributes such as User-Password.
-     *
-     * @param sharedSecret used for decoding
-     * @throws RadiusException malformed packet
-     */
-    protected void decodeAttributes(String sharedSecret) throws RadiusException {
     }
 
     MessageDigest getMd5Digest() {

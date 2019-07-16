@@ -1,7 +1,12 @@
 package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static java.lang.Byte.toUnsignedInt;
 
 public class Attributes {
     /**
@@ -32,19 +37,25 @@ public class Attributes {
         return stringConstructor.newInstance(dictionary, vendorId, type, data);
     }
 
-    /**
-     * @param dictionary  Dictionary to use
-     * @param vendorId    vendor ID or -1
-     * @param type        attribute type
-     * @param sourceArray source array to read data from
-     * @param offset      offset in array to start reading from
-     * @return RadiusAttribute object
-     * @throws RadiusException if source data invalid or unable to create attribute for given attribute vendorId/type and data
-     */
-    public static RadiusAttribute parseAttribute(Dictionary dictionary, int vendorId, int type, byte[] sourceArray, int offset)
-            throws RadiusException {
-        final PacketParser packetParser = dictionary.getAttributeTypeByCode(vendorId, type).getPacketParser();
-        return packetParser.parse(dictionary, vendorId, sourceArray, offset);
+    public static List<RadiusAttribute> extractAttributes(Dictionary dictionary, int vendorId, byte[] data, int pos) {
+        final ArrayList<RadiusAttribute> attributes = new ArrayList<>();
+
+        // at least 2 octets left
+        while (data.length - pos >= 2) {
+            final int type = toUnsignedInt(data[pos]);
+            final int length = toUnsignedInt(data[pos + 1]); // max 255
+            final int expectedLen = length - 2;
+            if (expectedLen < 0)
+                throw new IllegalArgumentException("invalid attribute length " + length + ", must be >=2");
+            if (expectedLen > data.length - pos)
+                throw new IllegalArgumentException("invalid attribute length " + length + ", remaining bytes " + (data.length - pos));
+            attributes.add(createAttribute(dictionary, vendorId, type, Arrays.copyOfRange(data, pos + 2, pos + length)));
+            pos += length;
+        }
+
+        if (pos != data.length)
+            throw new IllegalArgumentException("attribute malformed");
+        return attributes;
     }
 
     public interface ByteArrayConstructor<T extends RadiusAttribute> {
@@ -53,9 +64,5 @@ public class Attributes {
 
     public interface StringConstructor<T extends RadiusAttribute> {
         T newInstance(Dictionary dictionary, int vendorId, int type, String data);
-    }
-
-    public interface PacketParser<T extends RadiusAttribute> {
-        T parse(Dictionary dictionary, int vendorId, byte[] sourceArray, int offset) throws RadiusException;
     }
 }

@@ -1,7 +1,6 @@
 package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -18,10 +17,6 @@ public class IpAttribute extends RadiusAttribute {
      */
     public static class V4 extends IpAttribute {
         static final int addressLength = 4;
-
-        static IpAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
-            return IpAttribute.parse(dictionary, vendorId, data, offset, addressLength);
-        }
 
         V4(Dictionary dictionary, int vendorId, int type, byte[] data) {
             super(dictionary, vendorId, type, data, addressLength);
@@ -49,6 +44,7 @@ public class IpAttribute extends RadiusAttribute {
                     | toUnsignedInt(data[1]) << 16
                     | toUnsignedInt(data[2]) << 8
                     | toUnsignedInt(data[3]);
+            // todo Integer.toUnsignedLong / ByteBuffer.getInt()
         }
 
         /**
@@ -73,10 +69,6 @@ public class IpAttribute extends RadiusAttribute {
     public static class V6 extends IpAttribute {
         static final int addressLength = 16;
 
-        static IpAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset) throws RadiusException {
-            return IpAttribute.parse(dictionary, vendorId, data, offset, addressLength);
-        }
-
         V6(Dictionary dictionary, int vendorId, int type, byte[] data) {
             super(dictionary, vendorId, type, data, addressLength);
         }
@@ -84,15 +76,6 @@ public class IpAttribute extends RadiusAttribute {
         V6(Dictionary dictionary, int vendorId, int type, String data) {
             super(dictionary, vendorId, type, data, addressLength);
         }
-    }
-
-    private static IpAttribute parse(Dictionary dictionary, int vendorId, byte[] data, int offset, int expectedLength) throws RadiusException {
-        final int length = readLength(data, offset);
-        if (length != expectedLength + 2)
-            throw new RadiusException("Ip Address attribute: expected length " + (expectedLength + 2) + ", packet declared " + length);
-
-        return new IpAttribute(dictionary, vendorId, readType(data, offset), readData(data, offset), expectedLength) {
-        };
     }
 
     private IpAttribute(Dictionary dictionary, int vendorId, int type, byte[] data, int addressLength) {

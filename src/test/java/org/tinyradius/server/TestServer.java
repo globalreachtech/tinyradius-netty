@@ -8,6 +8,8 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.*;
 import org.tinyradius.util.SecretProvider;
@@ -23,6 +25,8 @@ import java.net.InetSocketAddress;
  * packets with Access-Accept/Reject or Accounting-Response, respectively.
  */
 public class TestServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(TestServer.class);
 
     public static void main(String[] args) throws Exception {
 
@@ -41,17 +45,17 @@ public class TestServer {
 
             @Override
             public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest packet, InetSocketAddress remoteAddress, String sharedSecret) {
-                System.out.println("Received Access-Request:\n" + packet);
+                logger.info("Received Access-Request:\n" + packet);
                 final Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
                 super.handlePacket(channel, packet, remoteAddress, sharedSecret).addListener((Future<RadiusPacket> f) -> {
                     final RadiusPacket response = f.getNow();
                     if (response == null) {
-                        System.out.println("Ignore packet.");
+                        logger.info("Ignore packet.");
                         promise.tryFailure(f.cause());
                     } else {
                         if (response.getPacketType() == PacketType.ACCESS_ACCEPT)
                             response.addAttribute("Reply-Message", "Welcome " + packet.getUserName() + "!");
-                        System.out.println("Answer:\n" + response);
+                        logger.info("Answer:\n" + response);
                         promise.trySuccess(response);
                     }
                 });
@@ -73,9 +77,9 @@ public class TestServer {
         final Future<Void> future = server.start();
         future.addListener(future1 -> {
             if (future1.isSuccess()) {
-                System.out.println("Server started");
+                logger.info("Server started");
             } else {
-                System.out.println("Failed to start server: " + future1.cause());
+                logger.info("Failed to start server: " + future1.cause());
                 server.stop();
                 eventLoopGroup.shutdownGracefully();
             }

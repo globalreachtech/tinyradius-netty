@@ -14,4 +14,12 @@ class IntegerAttributeTest {
         final IntegerAttribute intAttr = new IntegerAttribute(DefaultDictionary.INSTANCE, -1, 27, bigValueSt);
         assertEquals(bigValueSt, intAttr.getDataString());
     }
+
+    @Test
+    void getAttributeValueInt() {
+    }
+
+    @Test
+    void getDataString() {
+    }
 }

@@ -4,12 +4,13 @@ import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
-import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
 
@@ -19,14 +20,17 @@ import static org.tinyradius.packet.RadiusPacketEncoder.nextPacketId;
  * TestClient shows how to send Radius Access-Request and Accounting-Request packets.
  */
 public class TestClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(TestClient.class);
+
     /**
      * Radius command line client.
      *
      * @param args [host, sharedSecret, username, password]
      */
-    public static void main(String[] args) throws RadiusException {
+    public static void main(String[] args) {
         if (args.length != 4) {
-            System.out.println("Usage: TestClient hostName sharedSecret userName password");
+            logger.info("Usage: TestClient hostName sharedSecret userName password");
             System.exit(1);
         }
 
@@ -58,10 +62,10 @@ public class TestClient {
         ar.addAttribute("WISPr-Redirection-URL", "http://www.sourceforge.net/");
         ar.addAttribute("WISPr-Location-ID", "net.sourceforge.ap1");
 
-        System.out.println("Packet before it is sent\n" + ar + "\n");
+        logger.info("Packet before it is sent\n" + ar + "\n");
         RadiusPacket response = rc.communicate(ar, authEndpoint, 3).syncUninterruptibly().getNow();
-        System.out.println("Packet after it was sent\n" + ar + "\n");
-        System.out.println("Response\n" + response + "\n");
+        logger.info("Packet after it was sent\n" + ar + "\n");
+        logger.info("Response\n" + response + "\n");
 
         // 2. Send Accounting-Request
         AccountingRequest acc = new AccountingRequest(dictionary, nextPacketId(), null, "mw", AccountingRequest.ACCT_STATUS_TYPE_START);
@@ -69,9 +73,9 @@ public class TestClient {
         acc.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
         acc.addAttribute("NAS-Port", "0");
 
-        System.out.println(acc + "\n");
+        logger.info(acc + "\n");
         response = rc.communicate(acc, acctEndpoint, 3).syncUninterruptibly().getNow();
-        System.out.println("Response: " + response);
+        logger.info("Response: " + response);
 
         rc.stop();
     }

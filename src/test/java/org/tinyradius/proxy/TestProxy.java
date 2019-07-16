@@ -5,6 +5,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinyradius.client.ProxyStateClientHandler;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -30,6 +32,8 @@ import java.net.UnknownHostException;
  * shared secret for the communication with connecting clients.
  */
 public class TestProxy {
+
+    private static final Logger logger = LoggerFactory.getLogger(TestProxy.class);
 
     public static void main(String[] args) throws Exception {
 
@@ -76,9 +80,9 @@ public class TestProxy {
         Future<Void> future = proxy.start();
         future.addListener(future1 -> {
             if (future1.isSuccess()) {
-                System.out.println("Server started.");
+                logger.info("Server started.");
             } else {
-                System.out.println("Failed to start server");
+                logger.info("Failed to start server");
                 future1.cause().printStackTrace();
             }
         });

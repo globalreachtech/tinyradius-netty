@@ -159,47 +159,17 @@ public class AccessRequest extends RadiusPacket {
 
 
     /**
-     * AccessRequest checkAuthenticator() is a NOOP.
+     * AccessRequest does not verify authenticator as they
+     * contain random bytes.
      * <p>
-     * There is no way to check request authenticators for
-     * authentication requests as they contain random bytes.
+     * Instead it checks the User-Password/Challenge attributes
+     * are present and attempts decryption.
      *
-     * @param sharedSecret         ignored
-     * @param requestAuthenticator ignored
+     * @param sharedSecret shared secret, only applicable for PAP
+     * @param ignored      ignored, not applicable for AccessRequest
      */
     @Override
-    protected void checkAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
-    }
-
-    /**
-     * Verifies that the passed plain-text password matches the password
-     * (hash) send with this Access-Request packet. Works with both PAP
-     * and CHAP.
-     *
-     * @param plaintext password to verify packet against
-     * @return true if the password is valid, false otherwise
-     */
-    public boolean verifyPassword(String plaintext) throws UnsupportedOperationException {
-        if (plaintext == null || plaintext.isEmpty())
-            throw new IllegalArgumentException("password is empty");
-        switch (getAuthProtocol()) {
-            case AUTH_CHAP:
-                return verifyChapPassword(plaintext);
-            case AUTH_MS_CHAP_V2:
-                throw new UnsupportedOperationException(AUTH_MS_CHAP_V2 + " verification not supported yet");
-            case AUTH_EAP:
-                throw new UnsupportedOperationException(AUTH_EAP + " verification not supported yet");
-            case AUTH_PAP:
-            default:
-                return getUserPassword().equals(plaintext);
-        }
-    }
-
-    /**
-     * Decrypts the User-Password attribute.
-     */
-    @Override
-    protected void decodeAttributes(String sharedSecret) throws RadiusException {
+    protected void decode(String sharedSecret, byte[] ignored) throws RadiusException {
         // detect auth protocol
         RadiusAttribute userPassword = getAttribute(USER_PASSWORD);
         RadiusAttribute chapPassword = getAttribute(CHAP_PASSWORD);
@@ -224,6 +194,30 @@ public class AccessRequest extends RadiusPacket {
             setAuthProtocol(AUTH_EAP);
         } else
             throw new RadiusException("Access-Request: User-Password or CHAP-Password/CHAP-Challenge missing");
+    }
+
+    /**
+     * Verifies that the passed plain-text password matches the password
+     * (hash) send with this Access-Request packet. Works with both PAP
+     * and CHAP.
+     *
+     * @param plaintext password to verify packet against
+     * @return true if the password is valid, false otherwise
+     */
+    public boolean verifyPassword(String plaintext) throws UnsupportedOperationException {
+        if (plaintext == null || plaintext.isEmpty())
+            throw new IllegalArgumentException("password is empty");
+        switch (getAuthProtocol()) {
+            case AUTH_CHAP:
+                return verifyChapPassword(plaintext);
+            case AUTH_MS_CHAP_V2:
+                throw new UnsupportedOperationException(AUTH_MS_CHAP_V2 + " verification not supported yet");
+            case AUTH_EAP:
+                throw new UnsupportedOperationException(AUTH_EAP + " verification not supported yet");
+            case AUTH_PAP:
+            default:
+                return getUserPassword().equals(plaintext);
+        }
     }
 
     /**
