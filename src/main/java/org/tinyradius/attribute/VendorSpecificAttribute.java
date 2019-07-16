@@ -190,11 +190,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
         buffer.writeByte(VENDOR_SPECIFIC);
         buffer.writeByte(0); // length placeholder
-        buffer.writeInt(getVendorId());
-//        buffer.writeByte(getVendorId() >> 24 & 0x0ff); todo check large numbers
-//        bos.write(getVendorId() >> 16 & 0x0ff);
-//        bos.write(getVendorId() >> 8 & 0x0ff);
-//        bos.write(getVendorId() & 0x0ff);
+        buffer.writeInt(getVendorId()); // todo check large numbers
 
         for (RadiusAttribute attribute : subAttributes) {
             buffer.writeBytes(attribute.toByteArray());
