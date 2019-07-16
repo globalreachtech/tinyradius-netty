@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -254,14 +254,6 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkAuthenticator(java.lang.String,byte%5B%5D)">checkAuthenticator</a></span>&#8203;(java.lang.String&nbsp;sharedSecret,
-                  byte[]&nbsp;requestAuthenticator)</code></th>
-<td class="colLast">
-<div class="block">Checks the request authenticator against the supplied shared secret.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createHashedAuthenticator(java.lang.String,byte%5B%5D)">createHashedAuthenticator</a></span>&#8203;(java.lang.String&nbsp;sharedSecret,
                          byte[]&nbsp;requestAuthenticator)</code></th>
@@ -269,29 +261,30 @@ extends java.lang.Object</pre>
 <div class="block">Creates an authenticator for a Radius response packet.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decodeAttributes(java.lang.String)">decodeAttributes</a></span>&#8203;(java.lang.String&nbsp;sharedSecret)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(java.lang.String,byte%5B%5D)">decode</a></span>&#8203;(java.lang.String&nbsp;sharedSecret,
+      byte[]&nbsp;requestAuthenticator)</code></th>
 <td class="colLast">
-<div class="block">Can be overridden to decode attributes such as User-Password.</div>
+<div class="block">Checks the request authenticator against the supplied shared secret.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#encodeRequest(java.lang.String)">encodeRequest</a></span>&#8203;(java.lang.String&nbsp;sharedSecret)</code></th>
 <td class="colLast">
 <div class="block">Encode request and generate authenticator.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#encodeResponse(java.lang.String,byte%5B%5D)">encodeResponse</a></span>&#8203;(java.lang.String&nbsp;sharedSecret,
               byte[]&nbsp;requestAuthenticator)</code></th>
 <td class="colLast">
-<div class="block">Encode response and generator authenticator.</div>
+<div class="block">Encode and generate authenticator.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttribute(int)">getAttribute</a></span>&#8203;(int&nbsp;type)</code></th>
 <td class="colLast">
@@ -299,7 +292,7 @@ extends java.lang.Object</pre>
  in the Radius packet.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttribute(int,int)">getAttribute</a></span>&#8203;(int&nbsp;vendorId,
             int&nbsp;type)</code></th>
@@ -308,35 +301,35 @@ extends java.lang.Object</pre>
  which may only occur once in the Radius packet.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttribute(java.lang.String)">getAttribute</a></span>&#8203;(java.lang.String&nbsp;type)</code></th>
 <td class="colLast">
 <div class="block">Returns a single Radius attribute of the given type name.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeBytes()">getAttributeBytes</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Encodes the attributes of this Radius packet to a byte array.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>java.util.List&lt;<a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributes()">getAttributes</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a list of all attributes belonging to this Radius packet.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>java.util.List&lt;<a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributes(int)">getAttributes</a></span>&#8203;(int&nbsp;type)</code></th>
 <td class="colLast">
 <div class="block">Returns all attributes of this packet of the given type.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>java.util.List&lt;<a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributes(int,int)">getAttributes</a></span>&#8203;(int&nbsp;vendorId,
              int&nbsp;attributeType)</code></th>
@@ -345,7 +338,7 @@ extends java.lang.Object</pre>
  given type and belong to the given vendor ID.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeValue(java.lang.String)">getAttributeValue</a></span>&#8203;(java.lang.String&nbsp;type)</code></th>
 <td class="colLast">
@@ -353,50 +346,50 @@ extends java.lang.Object</pre>
  null if there is no such attribute.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAuthenticator()">getAuthenticator</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns the authenticator for this Radius packet.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDictionary()">getDictionary</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPacketIdentifier()">getPacketIdentifier</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPacketType()">getPacketType</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>java.util.List&lt;<a href="../attribute/VendorSpecificAttribute.html" title="class in org.tinyradius.attribute">VendorSpecificAttribute</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVendorAttributes(int)">getVendorAttributes</a></span>&#8203;(int&nbsp;vendorId)</code></th>
 <td class="colLast">
 <div class="block">Returns the Vendor-Specific attribute(s) for the given vendor ID.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeAttribute(org.tinyradius.attribute.RadiusAttribute)">removeAttribute</a></span>&#8203;(<a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;attribute)</code></th>
 <td class="colLast">
 <div class="block">Removes the specified attribute from this packet.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeAttributes(int)">removeAttributes</a></span>&#8203;(int&nbsp;type)</code></th>
 <td class="colLast">
 <div class="block">Removes all attributes from this packet which have got the specified type.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeAttributes(int,int)">removeAttributes</a></span>&#8203;(int&nbsp;vendorId,
                 int&nbsp;typeCode)</code></th>
@@ -405,7 +398,7 @@ extends java.lang.Object</pre>
  type.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeLastAttribute(int)">removeLastAttribute</a></span>&#8203;(int&nbsp;type)</code></th>
 <td class="colLast">
@@ -413,7 +406,7 @@ extends java.lang.Object</pre>
  type from the packet.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
@@ -837,10 +830,9 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>encodeRequest</h4>
 <pre class="methodSignature">public&nbsp;<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;encodeRequest&#8203;(java.lang.String&nbsp;sharedSecret)</pre>
-<div class="block">Encode request and generate authenticator.
+<div class="block">Encode request and generate authenticator. Should be idempotent.
  <p>
- Base implementation generates hashed authenticator. This
- should be overridden for any specialized/subclassed packet types.</div>
+ Base implementation generates hashed authenticator.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>sharedSecret</code> - shared secret that secures the communication
@@ -858,7 +850,7 @@ extends java.lang.Object</pre>
 <h4>encodeResponse</h4>
 <pre class="methodSignature">public&nbsp;<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;encodeResponse&#8203;(java.lang.String&nbsp;sharedSecret,
                                    byte[]&nbsp;requestAuthenticator)</pre>
-<div class="block">Encode response and generator authenticator.
+<div class="block">Encode and generate authenticator. Should be idempotent.
  <p>
  Requires request authenticator to generator response authenticator.</div>
 <dl>
@@ -917,15 +909,15 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="checkAuthenticator(java.lang.String,byte[])">
+<a id="decode(java.lang.String,byte[])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>checkAuthenticator</h4>
-<pre class="methodSignature">protected&nbsp;void&nbsp;checkAuthenticator&#8203;(java.lang.String&nbsp;sharedSecret,
-                                  byte[]&nbsp;requestAuthenticator)
-                           throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<h4>decode</h4>
+<pre class="methodSignature">protected&nbsp;void&nbsp;decode&#8203;(java.lang.String&nbsp;sharedSecret,
+                      byte[]&nbsp;requestAuthenticator)
+               throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
 <div class="block">Checks the request authenticator against the supplied shared secret.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -934,23 +926,6 @@ extends java.lang.Object</pre>
                              otherwise set to 16 zero octets</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - if authenticator check fails</dd>
-</dl>
-</li>
-</ul>
-<a id="decodeAttributes(java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>decodeAttributes</h4>
-<pre class="methodSignature">protected&nbsp;void&nbsp;decodeAttributes&#8203;(java.lang.String&nbsp;sharedSecret)
-                         throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
-<div class="block">Can be overridden to decode attributes such as User-Password.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>sharedSecret</code> - used for decoding</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
