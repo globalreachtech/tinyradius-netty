@@ -5,11 +5,11 @@ import io.netty.buffer.Unpooled;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.lang.Byte.toUnsignedInt;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.attribute.Attributes.extractAttributes;
 
@@ -34,10 +34,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     }
 
     private static int extractVendorId(byte[] data) {
-        return toUnsignedInt(data[0]) << 24
-                | toUnsignedInt(data[1]) << 16
-                | toUnsignedInt(data[2]) << 8
-                | toUnsignedInt(data[3]);
+        return ByteBuffer.wrap(data).getInt(); // todo test
     }
 
     VendorSpecificAttribute(Dictionary dictionary, int vendorId, int ignored, String ignored2) {

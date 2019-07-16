@@ -12,14 +12,13 @@ import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.security.SecureRandom;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RadiusClientTest {
+class RadiusClientTest {
 
     private SecureRandom random = new SecureRandom();
     private static DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
@@ -35,16 +34,17 @@ public class RadiusClientTest {
     }
 
     @Test()
-    void communicateWithTimeout() throws UnknownHostException {
+    void communicateWithTimeout() {
         SimpleClientHandler handler = new SimpleClientHandler(timer, dictionary, 1000);
-        RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, handler, InetAddress.getLocalHost(), 11814);
+        RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, handler, null, 0);
 
         final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
         int maxAttempts = 3;
 
-        assertThrows(RadiusException.class,
+        final RadiusException radiusException = assertThrows(RadiusException.class,
                 () -> radiusClient.communicate(request, endpoint, maxAttempts).syncUninterruptibly());
 
+        assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
     }
 }
