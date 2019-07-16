@@ -113,32 +113,33 @@ public class RadiusClient<T extends DatagramChannel> {
         return send(packet, endpoint, 1, maxAttempts, promise);
     }
 
-    private Future<RadiusPacket> send(RadiusPacket packet, RadiusEndpoint endpoint, int attempts, int maxAttempts, Promise<RadiusPacket> promise) {
+    private Future<RadiusPacket> send(RadiusPacket packet, RadiusEndpoint endpoint, int attempts, int maxAttempts, Promise<RadiusPacket> initialPromise) {
+        // run first to add any identifiers/attributes needed
+        Future<RadiusPacket> promise = clientHandler.processRequest(packet, endpoint, eventLoopGroup.next());
 
         // TODO increase Acct-Delay-Time
         // this changes the packet authenticator and requires packetOut to be
         // calculated again (call makeDatagramPacket)
 
         // because netty promises don't support chaining
-        sendOnce(packet, endpoint).addListener((Future<RadiusPacket> attempt) -> {
-            if (attempt.isSuccess())
-                promise.trySuccess(attempt.getNow());
+        sendOnce(packet, endpoint, promise).addListener((Future<RadiusPacket> attempt) -> {
+            if (attempt.isSuccess()) {
+                initialPromise.trySuccess(attempt.getNow());
+                return;
+            }
             if (attempts >= maxAttempts) {
-                promise.tryFailure(new RadiusException("Max retries reached: " + maxAttempts));
+                initialPromise.tryFailure(new RadiusException("Max retries reached: " + maxAttempts));
             }
 
             logger.info(String.format("Retransmitting request for context %d", packet.getPacketIdentifier()));
-            send(packet, endpoint, attempts + 1, maxAttempts, promise);
+            send(packet, endpoint, attempts + 1, maxAttempts, initialPromise);
         });
 
-        return promise;
+        return initialPromise;
     }
 
-    private Future<RadiusPacket> sendOnce(RadiusPacket packet, RadiusEndpoint endpoint) {
+    private Future<RadiusPacket> sendOnce(RadiusPacket packet, RadiusEndpoint endpoint, Future<RadiusPacket> promise) {
         try {
-            // run first to add any identifiers/attributes needed
-            Future<RadiusPacket> promise = clientHandler.processRequest(packet, endpoint, eventLoopGroup.next());
-
             final DatagramPacket packetOut = RadiusPacketEncoder.toDatagram(
                     packet.encodeRequest(endpoint.getSharedSecret()),
                     endpoint.getEndpointAddress());
