@@ -109,13 +109,11 @@ public class RadiusClient<T extends DatagramChannel> {
     }
 
     public Future<RadiusPacket> communicate(RadiusPacket packet, RadiusEndpoint endpoint, int maxAttempts) {
-        final Map<Integer, Promise> promises = new ConcurrentHashMap<>();
-        return send(packet, endpoint, 1, maxAttempts, promises);
+        Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
+        return send(packet, endpoint, 1, maxAttempts, promise);
     }
 
-    private Future<RadiusPacket> send(RadiusPacket packet, RadiusEndpoint endpoint, int attempts, int maxAttempts, Map<Integer, Promise> promises) {
-        Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
-        promises.put(attempts, promise);
+    private Future<RadiusPacket> send(RadiusPacket packet, RadiusEndpoint endpoint, int attempts, int maxAttempts, Promise<RadiusPacket> promise) {
 
         // TODO increase Acct-Delay-Time
         // this changes the packet authenticator and requires packetOut to be
@@ -126,11 +124,11 @@ public class RadiusClient<T extends DatagramChannel> {
             if (attempt.isSuccess())
                 promise.trySuccess(attempt.getNow());
             if (attempts >= maxAttempts) {
-                promises.forEach((key, value) -> value.tryFailure(new RadiusException("Max retries reached: " + maxAttempts)));
+                promise.tryFailure(new RadiusException("Max retries reached: " + maxAttempts));
             }
 
             logger.info(String.format("Retransmitting request for context %d", packet.getPacketIdentifier()));
-            send(packet, endpoint, attempts + 1, maxAttempts, promises);
+            send(packet, endpoint, attempts + 1, maxAttempts, promise);
         });
 
         return promise;
