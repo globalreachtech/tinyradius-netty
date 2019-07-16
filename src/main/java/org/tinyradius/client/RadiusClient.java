@@ -19,6 +19,8 @@ import org.tinyradius.util.RadiusException;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.requireNonNull;
 
@@ -97,19 +99,23 @@ public class RadiusClient<T extends DatagramChannel> {
 
         final ChannelPromise promise = channel.newPromise();
 
-        final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
-        promiseCombiner.addAll(eventLoopGroup.register(channel), channel.bind(listenAddress));
-        promiseCombiner.finish(promise);
+        eventLoopGroup.submit(() -> {
+            final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
+            promiseCombiner.addAll(eventLoopGroup.register(channel), channel.bind(listenAddress));
+            promiseCombiner.finish(promise);
 
+        });
         return promise;
     }
 
     public Future<RadiusPacket> communicate(RadiusPacket packet, RadiusEndpoint endpoint, int maxAttempts) {
-        return send(packet, endpoint, 1, maxAttempts);
+        final Map<Integer, Promise> promises = new ConcurrentHashMap<>();
+        return send(packet, endpoint, 1, maxAttempts, promises);
     }
 
-    private Future<RadiusPacket> send(RadiusPacket packet, RadiusEndpoint endpoint, int attempts, int maxAttempts) {
+    private Future<RadiusPacket> send(RadiusPacket packet, RadiusEndpoint endpoint, int attempts, int maxAttempts, Map<Integer, Promise> promises) {
         Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
+        promises.put(attempts, promise);
 
         // TODO increase Acct-Delay-Time
         // this changes the packet authenticator and requires packetOut to be
@@ -119,11 +125,12 @@ public class RadiusClient<T extends DatagramChannel> {
         sendOnce(packet, endpoint).addListener((Future<RadiusPacket> attempt) -> {
             if (attempt.isSuccess())
                 promise.trySuccess(attempt.getNow());
-            if (attempts >= maxAttempts)
-                promise.tryFailure(new RadiusException("Max retries reached: " + maxAttempts)); //todo check obo error
+            if (attempts >= maxAttempts) {
+                promises.forEach((key, value) -> value.tryFailure(new RadiusException("Max retries reached: " + maxAttempts)));
+            }
 
             logger.info(String.format("Retransmitting request for context %d", packet.getPacketIdentifier()));
-            send(packet, endpoint, attempts + 1, maxAttempts);
+            send(packet, endpoint, attempts + 1, maxAttempts, promises);
         });
 
         return promise;
