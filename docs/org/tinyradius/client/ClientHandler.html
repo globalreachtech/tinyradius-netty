@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6};
+var data = {"i0":6,"i1":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -156,10 +156,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public abstract class <span class="typeNameLabel">ClientHandler</span>
 extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.DatagramPacket&gt;</pre>
-<div class="block">ChannelInboundHandler used by RadiusClient
- <p>
- Adds <a href="#processRequest(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,io.netty.util.concurrent.EventExecutor)"><code>processRequest(RadiusPacket, RadiusEndpoint, EventExecutor)</code></a> to log details of
- outbound requests so responses can be matched with corresponding requests.</div>
+<div class="block">ChannelInboundHandler used by RadiusClient</div>
 </li>
 </ul>
 </div>
@@ -219,12 +216,21 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>abstract io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#processRequest(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,io.netty.util.concurrent.EventExecutor)">processRequest</a></span>&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+<td class="colFirst"><code>abstract <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareRequest(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,io.netty.util.concurrent.Promise)">prepareRequest</a></span>&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
               <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
-              io.netty.util.concurrent.EventExecutor&nbsp;eventExecutor)</code></th>
+              io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</code></th>
 <td class="colLast">
 <div class="block">Preprocess RadiusPackets before they are sent.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>abstract void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scheduleRetry(java.lang.Runnable,int,io.netty.util.concurrent.Promise)">scheduleRetry</a></span>&#8203;(java.lang.Runnable&nbsp;retry,
+             int&nbsp;attempt,
+             io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</code></th>
+<td class="colLast">
+<div class="block">Schedule a retry in the future.</div>
 </td>
 </tr>
 </table>
@@ -298,15 +304,15 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="processRequest(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,io.netty.util.concurrent.EventExecutor)">
+<a id="prepareRequest(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,io.netty.util.concurrent.Promise)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
-<h4>processRequest</h4>
-<pre class="methodSignature">public abstract&nbsp;io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;processRequest&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
-                                                                              <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
-                                                                              io.netty.util.concurrent.EventExecutor&nbsp;eventExecutor)</pre>
+<h4>prepareRequest</h4>
+<pre class="methodSignature">public abstract&nbsp;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;prepareRequest&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+                                            <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
+                                            io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</pre>
 <div class="block">Preprocess RadiusPackets before they are sent. May mutate outbound packets.
  <p>
  Save state info about outgoing requests so handler has context when handling replies</div>
@@ -314,10 +320,33 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>packet</code> - request to send</dd>
 <dd><code>endpoint</code> - packet endpoint</dd>
-<dd><code>eventExecutor</code> - executor to use to create promise</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>promise of response which completes when server responds. Uses Promise instead Future,
  to allow requests to be timed out or cancelled by the caller</dd>
+</dl>
+</li>
+</ul>
+<a id="scheduleRetry(java.lang.Runnable,int,io.netty.util.concurrent.Promise)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>scheduleRetry</h4>
+<pre class="methodSignature">public abstract&nbsp;void&nbsp;scheduleRetry&#8203;(java.lang.Runnable&nbsp;retry,
+                                   int&nbsp;attempt,
+                                   io.netty.util.concurrent.Promise&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</pre>
+<div class="block">Schedule a retry in the future.
+ <p>
+ When retry is due to run, should also check if promise isDone() before running.
+ <p>
+ Implemented here instead of RadiusClient so custom scheduling / retry backoff
+ can be used depending on implementation, and actual retry can be deferred. Scheduling
+ and logic should be implemented here, while RadiusClient only deals with IO.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>retry</code> - runnable to invoke to retry</dd>
+<dd><code>attempt</code> - current attempt count</dd>
+<dd><code>promise</code> - request promise that resolves when a reponse is received</dd>
 </dl>
 </li>
 </ul>

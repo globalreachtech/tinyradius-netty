@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
+var data = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -187,25 +187,18 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Future&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,int)">communicate</a></span>&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
-           <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
-           int&nbsp;maxAttempts)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)">communicate</a></span>&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;originalPacket,
+           <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected io.netty.channel.ChannelFuture</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#listen(T,java.net.InetSocketAddress)">listen</a></span>&#8203;(<a href="RadiusClient.html" title="type parameter in RadiusClient">T</a>&nbsp;channel,
-      java.net.InetSocketAddress&nbsp;listenAddress)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code>io.netty.channel.ChannelFuture</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startChannel()">startChannel</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Registers the channel and binds to address.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
@@ -286,41 +279,21 @@ extends java.lang.Object</pre>
 <pre class="methodSignature">public&nbsp;io.netty.channel.ChannelFuture&nbsp;startChannel()</pre>
 <div class="block">Registers the channel and binds to address.
  <p>
- Also run implicitly if <a href="#communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,int)"><code>communicate(RadiusPacket, RadiusEndpoint, int)</code></a> is called.</div>
+ Also run implicitly if <a href="#communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)"><code>communicate(RadiusPacket, RadiusEndpoint)</code></a> is called.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>channelFuture of started channel socket</dd>
 </dl>
 </li>
 </ul>
-<a id="listen(io.netty.channel.socket.DatagramChannel,java.net.InetSocketAddress)">
-<!--   -->
-</a><a id="listen(T,java.net.InetSocketAddress)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>listen</h4>
-<pre class="methodSignature">protected&nbsp;io.netty.channel.ChannelFuture&nbsp;listen&#8203;(<a href="RadiusClient.html" title="type parameter in RadiusClient">T</a>&nbsp;channel,
-                                                java.net.InetSocketAddress&nbsp;listenAddress)</pre>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>channel</code> - to listen on</dd>
-<dd><code>listenAddress</code> - the address to bind to</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>channel that resolves after it is bound to address and registered with eventLoopGroup</dd>
-</dl>
-</li>
-</ul>
-<a id="communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,int)">
+<a id="communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>communicate</h4>
-<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;communicate&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
-                                                                 <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
-                                                                 int&nbsp;maxAttempts)</pre>
+<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;communicate&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;originalPacket,
+                                                                 <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</pre>
 </li>
 </ul>
 </li>
