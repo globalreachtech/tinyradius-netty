@@ -32,7 +32,7 @@ public abstract class AuthHandler implements RequestHandler<AccessRequest> {
             int type = password != null && packet.verifyPassword(password) ?
                     ACCESS_ACCEPT : ACCESS_REJECT;
 
-            RadiusPacket answer = new RadiusPacket(packet.getDictionary(), type, packet.getPacketIdentifier());
+            RadiusPacket answer = new RadiusPacket(packet.getDictionary(), type, packet.getIdentifier());
             packet.getAttributes(33)
                     .forEach(answer::addAttribute);
 

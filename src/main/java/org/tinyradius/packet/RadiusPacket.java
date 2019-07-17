@@ -30,8 +30,8 @@ public class RadiusPacket {
     public static final int HEADER_LENGTH = 20;
     private static final int VENDOR_SPECIFIC_TYPE = 26;
 
-    private final int packetType;
-    private final int packetIdentifier;
+    private final int type;
+    private final int identifier;
     private final List<RadiusAttribute> attributes;
     private final byte[] authenticator;
 
@@ -91,8 +91,8 @@ public class RadiusPacket {
         if (authenticator != null && authenticator.length != 16)
             throw new IllegalArgumentException("authenticator must be 16 octets, was: " + authenticator.length);
 
-        this.packetType = type;
-        this.packetIdentifier = identifier;
+        this.type = type;
+        this.identifier = identifier;
         this.authenticator = authenticator;
         this.attributes = new ArrayList<>(attributes); // catch nulls, avoid mutating original list
         this.dictionary = requireNonNull(dictionary, "dictionary is null");
@@ -101,15 +101,15 @@ public class RadiusPacket {
     /**
      * @return Radius packet identifier
      */
-    public int getPacketIdentifier() {
-        return packetIdentifier;
+    public int getIdentifier() {
+        return identifier;
     }
 
     /**
      * @return Radius packet type
      */
-    public int getPacketType() {
-        return packetType;
+    public int getType() {
+        return type;
     }
 
     /**
@@ -378,7 +378,7 @@ public class RadiusPacket {
      */
     public RadiusPacket encodeResponse(String sharedSecret, byte[] requestAuthenticator) {
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, requestAuthenticator);
-        return createRadiusPacket(dictionary, packetType, packetIdentifier, authenticator, attributes);
+        return createRadiusPacket(dictionary, type, identifier, authenticator, attributes);
     }
 
     /**
@@ -417,8 +417,8 @@ public class RadiusPacket {
         int packetLength = HEADER_LENGTH + attributes.length;
 
         MessageDigest md5 = getMd5Digest();
-        md5.update((byte) getPacketType());
-        md5.update((byte) getPacketIdentifier());
+        md5.update((byte) getType());
+        md5.update((byte) getIdentifier());
         md5.update((byte) (packetLength >> 8));
         md5.update((byte) (packetLength & 0x0ff));
         md5.update(requestAuthenticator);
@@ -467,9 +467,9 @@ public class RadiusPacket {
 
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append(PacketType.getPacketTypeName(getPacketType()));
+        s.append(PacketType.getPacketTypeName(getType()));
         s.append(", ID ");
-        s.append(packetIdentifier);
+        s.append(identifier);
         for (RadiusAttribute attr : attributes) {
             s.append("\n");
             s.append(attr.toString());

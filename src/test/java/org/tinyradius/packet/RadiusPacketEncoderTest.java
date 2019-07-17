@@ -88,8 +88,8 @@ class RadiusPacketEncoderTest {
         final byte[] packet = datagram.content().array();
         assertEquals(420, packet.length);
 
-        assertEquals(encoded.getPacketType(), toUnsignedInt(packet[0]));
-        assertEquals(encoded.getPacketIdentifier(), toUnsignedInt(packet[1]));
+        assertEquals(encoded.getType(), toUnsignedInt(packet[0]));
+        assertEquals(encoded.getIdentifier(), toUnsignedInt(packet[1]));
         assertEquals(packet.length, toUnsignedInt(packet[2]) << 8 | toUnsignedInt(packet[3]));
         assertArrayEquals(encoded.getAuthenticator(), Arrays.copyOfRange(packet, 4, 20));
 
@@ -115,8 +115,8 @@ class RadiusPacketEncoderTest {
 
         RadiusPacket result = RadiusPacketEncoder.fromDatagram(dictionary, datagram, sharedSecret);
 
-        assertEquals(maxSizeRequest.getPacketType(), result.getPacketType());
-        assertEquals(maxSizeRequest.getPacketIdentifier(), result.getPacketIdentifier());
+        assertEquals(maxSizeRequest.getType(), result.getType());
+        assertEquals(maxSizeRequest.getIdentifier(), result.getIdentifier());
         assertArrayEquals(maxSizeRequest.getAuthenticator(), result.getAuthenticator());
         assertArrayEquals(maxSizeRequest.getAttributeBytes(), result.getAttributeBytes());
 
@@ -170,9 +170,9 @@ class RadiusPacketEncoderTest {
         DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(request, remoteAddress);
         RadiusPacket packet = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, sharedSecret);
 
-        assertEquals(ACCOUNTING_REQUEST, packet.getPacketType());
+        assertEquals(ACCOUNTING_REQUEST, packet.getType());
         assertTrue(packet instanceof AccountingRequest);
-        assertEquals(rawRequest.getPacketIdentifier(), packet.getPacketIdentifier());
+        assertEquals(rawRequest.getIdentifier(), packet.getIdentifier());
         assertEquals(rawRequest.getUserName(), packet.getAttribute("User-Name").getDataString());
 
         // todo test with bad authenticator (will not work with AccessRequest as auth is random)
@@ -196,7 +196,7 @@ class RadiusPacketEncoderTest {
         DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(encodedResponse, remoteAddress);
         RadiusPacket packet = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, sharedSecret, encodedRequest);
 
-        assertEquals(encodedResponse.getPacketIdentifier(), packet.getPacketIdentifier());
+        assertEquals(encodedResponse.getIdentifier(), packet.getIdentifier());
         assertEquals("state3333", new String(packet.getAttribute(33).getData()));
         assertArrayEquals(encodedResponse.getAuthenticator(), packet.getAuthenticator());
 
@@ -213,16 +213,16 @@ class RadiusPacketEncoderTest {
         RadiusPacket disconnectRequest = createRadiusPacket(dictionary, DISCONNECT_REQUEST, 3, authenticator, Collections.emptyList());
         RadiusPacket accountingRequest = createRadiusPacket(dictionary, ACCOUNTING_REQUEST, 4, authenticator, Collections.emptyList());
 
-        assertEquals(ACCESS_REQUEST, accessRequest.getPacketType());
+        assertEquals(ACCESS_REQUEST, accessRequest.getType());
         assertEquals(AccessRequest.class, accessRequest.getClass());
 
-        assertEquals(COA_REQUEST, coaRequest.getPacketType());
+        assertEquals(COA_REQUEST, coaRequest.getType());
         assertEquals(RadiusPacket.class, coaRequest.getClass());
 
-        assertEquals(DISCONNECT_REQUEST, disconnectRequest.getPacketType());
+        assertEquals(DISCONNECT_REQUEST, disconnectRequest.getType());
         assertEquals(RadiusPacket.class, disconnectRequest.getClass());
 
-        assertEquals(ACCOUNTING_REQUEST, accountingRequest.getPacketType());
+        assertEquals(ACCOUNTING_REQUEST, accountingRequest.getType());
         assertEquals(AccountingRequest.class, accountingRequest.getClass());
     }
 }

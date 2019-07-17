@@ -53,7 +53,7 @@ public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandl
         if (!isPacketDuplicate(packet, remoteAddress))
             return requestHandler.handlePacket(channel, packet, remoteAddress, sharedSecret);
 
-        logger.info("ignore duplicate packet, id: {}, remote address: {}", packet.getPacketIdentifier(), remoteAddress);
+        logger.info("ignore duplicate packet, id: {}, remote address: {}", packet.getIdentifier(), remoteAddress);
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
         promise.trySuccess(null);
         return promise;
@@ -72,7 +72,7 @@ public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandl
      * @return true if it is duplicate
      */
     private boolean isPacketDuplicate(RadiusPacket packet, InetSocketAddress address) {
-        Packet p = new Packet(packet.getPacketIdentifier(), address, packet.getAuthenticator());
+        Packet p = new Packet(packet.getIdentifier(), address, packet.getAuthenticator());
 
         if (packets.contains(p))
             return true;

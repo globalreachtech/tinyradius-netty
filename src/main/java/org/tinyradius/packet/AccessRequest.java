@@ -237,7 +237,7 @@ public class AccessRequest extends RadiusPacket {
         // create authenticator only if needed
         byte[] newAuthenticator = getAuthenticator() == null ? random16bytes() : getAuthenticator();
 
-        final AccessRequest accessRequest = new AccessRequest(getDictionary(), getPacketIdentifier(), newAuthenticator, new ArrayList<>(getAttributes()));
+        final AccessRequest accessRequest = new AccessRequest(getDictionary(), getIdentifier(), newAuthenticator, new ArrayList<>(getAttributes()));
 
         // encode attributes (User-Password attribute needs the new authenticator)
         encodeRequestAttributes(newAuthenticator, sharedSecret).forEach(a -> {

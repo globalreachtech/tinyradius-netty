@@ -98,6 +98,6 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
      * @return packet to send back to client
      */
     protected RadiusPacket handleServerResponse(Dictionary dictionary, RadiusPacket packet) {
-        return new RadiusPacket(dictionary, packet.getPacketType(), packet.getPacketIdentifier(), packet.getAttributes());
+        return new RadiusPacket(dictionary, packet.getType(), packet.getIdentifier(), packet.getAttributes());
     }
 }

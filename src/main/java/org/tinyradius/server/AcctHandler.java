@@ -17,7 +17,7 @@ public class AcctHandler implements RequestHandler<AccountingRequest> {
 
     @Override
     public Promise<RadiusPacket> handlePacket(Channel channel, AccountingRequest packet, InetSocketAddress remoteAddress, String sharedSecret) {
-        RadiusPacket answer = new RadiusPacket(packet.getDictionary(), ACCOUNTING_RESPONSE, packet.getPacketIdentifier());
+        RadiusPacket answer = new RadiusPacket(packet.getDictionary(), ACCOUNTING_RESPONSE, packet.getIdentifier());
         packet.getAttributes(33)
                 .forEach(answer::addAttribute);
 

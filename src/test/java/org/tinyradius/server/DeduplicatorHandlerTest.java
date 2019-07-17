@@ -39,7 +39,7 @@ class DeduplicatorHandlerTest {
         assertEquals(0, deduplicatorHandler
                 .handlePacket(datagramChannel, request, null, null)
                 .syncUninterruptibly().getNow()
-                .getPacketIdentifier());
+                .getIdentifier());
 
         // duplicate - return null
         assertNull(deduplicatorHandler
@@ -53,7 +53,7 @@ class DeduplicatorHandlerTest {
         assertEquals(1, deduplicatorHandler
                 .handlePacket(datagramChannel, request, null, null)
                 .syncUninterruptibly().getNow()
-                .getPacketIdentifier());
+                .getIdentifier());
 
         // duplicate - return null
         assertNull(deduplicatorHandler

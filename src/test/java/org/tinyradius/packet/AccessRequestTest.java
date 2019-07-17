@@ -54,8 +54,8 @@ class AccessRequestTest {
 
         assertNull(request.getAttribute("User-Password"));
         assertNull(request.getAttribute("CHAP-Password"));
-        assertEquals(request.getPacketType(), encoded.getPacketType());
-        assertEquals(request.getPacketIdentifier(), encoded.getPacketIdentifier());
+        assertEquals(request.getType(), encoded.getType());
+        assertEquals(request.getIdentifier(), encoded.getIdentifier());
         assertEquals(request.getUserName(), encoded.getUserName());
 
         assertNull(encoded.getAttribute("CHAP-Password"));
@@ -98,8 +98,8 @@ class AccessRequestTest {
 
         assertNull(request.getAttribute("User-Password"));
         assertNull(request.getAttribute("CHAP-Password"));
-        assertEquals(request.getPacketType(), encoded.getPacketType());
-        assertEquals(request.getPacketIdentifier(), encoded.getPacketIdentifier());
+        assertEquals(request.getType(), encoded.getType());
+        assertEquals(request.getIdentifier(), encoded.getIdentifier());
         assertEquals(request.getUserName(), encoded.getUserName());
 
         // randomly generated, need to extract

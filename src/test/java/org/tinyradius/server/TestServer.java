@@ -53,7 +53,7 @@ public class TestServer {
                         logger.info("Ignore packet.");
                         promise.tryFailure(f.cause());
                     } else {
-                        if (response.getPacketType() == PacketType.ACCESS_ACCEPT)
+                        if (response.getType() == PacketType.ACCESS_ACCEPT)
                             response.addAttribute("Reply-Message", "Welcome " + packet.getUserName() + "!");
                         logger.info("Answer:\n" + response);
                         promise.trySuccess(response);

@@ -69,7 +69,7 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
 
             // check channelHandler packet type restrictions
             if (!packetClass.isInstance(request)) {
-                logger.info("handler only accepts {}, unknown Radius packet type: {}", packetClass.getName(), request.getPacketType());
+                logger.info("handler only accepts {}, unknown Radius packet type: {}", packetClass.getName(), request.getType());
                 return;
             }
 

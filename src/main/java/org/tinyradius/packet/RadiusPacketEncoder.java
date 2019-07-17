@@ -41,8 +41,8 @@ public class RadiusPacketEncoder {
             throw new RadiusException("authenticator must be length 16");
 
         ByteBuf buf = buffer(length, length);
-        buf.writeByte(packet.getPacketType());
-        buf.writeByte(packet.getPacketIdentifier());
+        buf.writeByte(packet.getType());
+        buf.writeByte(packet.getIdentifier());
         buf.writeShort(length);
         buf.writeBytes(packet.getAuthenticator());
         buf.writeBytes(attributes);
@@ -98,8 +98,8 @@ public class RadiusPacketEncoder {
         int packetId = toUnsignedInt(content.get());
         int length = content.getShort();
 
-        if (request != null && request.getPacketIdentifier() != packetId)
-            throw new RadiusException("bad packet: invalid packet identifier - request: " + request.getPacketIdentifier() + ", response: " + packetId);
+        if (request != null && request.getIdentifier() != packetId)
+            throw new RadiusException("bad packet: invalid packet identifier - request: " + request.getIdentifier() + ", response: " + packetId);
         if (length < HEADER_LENGTH)
             throw new RadiusException("bad packet: packet too short (" + length + " bytes)");
         if (length > MAX_PACKET_LENGTH)
