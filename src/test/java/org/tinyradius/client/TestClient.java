@@ -42,11 +42,11 @@ public class TestClient {
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
         final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
-
+        final HashedWheelTimer hashedWheelTimer = new HashedWheelTimer();
         RadiusClient<NioDatagramChannel> rc = new RadiusClient<>(
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new SimpleClientHandler(new HashedWheelTimer(), dictionary, 30000),
+                new SimpleClientHandler(hashedWheelTimer, dictionary, 3, 1000),
                 null, 0);
         rc.startChannel().syncUninterruptibly();
 
@@ -63,7 +63,7 @@ public class TestClient {
         ar.addAttribute("WISPr-Location-ID", "net.sourceforge.ap1");
 
         logger.info("Packet before it is sent\n" + ar + "\n");
-        RadiusPacket response = rc.communicate(ar, authEndpoint, 3).syncUninterruptibly().getNow();
+        RadiusPacket response = rc.communicate(ar, authEndpoint).syncUninterruptibly().getNow();
         logger.info("Packet after it was sent\n" + ar + "\n");
         logger.info("Response\n" + response + "\n");
 
@@ -74,7 +74,7 @@ public class TestClient {
         acc.addAttribute("NAS-Port", "0");
 
         logger.info(acc + "\n");
-        response = rc.communicate(acc, acctEndpoint, 3).syncUninterruptibly().getNow();
+        response = rc.communicate(acc, acctEndpoint).syncUninterruptibly().getNow();
         logger.info("Response: " + response);
 
         rc.stop();

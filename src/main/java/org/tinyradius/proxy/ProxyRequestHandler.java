@@ -34,7 +34,7 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
 
     private final RadiusClient<?> radiusClient;
 
-    public ProxyRequestHandler(RadiusClient<?> radiusClient) {
+    protected ProxyRequestHandler(RadiusClient<?> radiusClient) {
         this.radiusClient = radiusClient;
     }
 
@@ -82,7 +82,7 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
 
         logger.info("proxy packet to " + serverEndpoint.getEndpointAddress());
 
-        radiusClient.communicate(packet, serverEndpoint, 3)
+        radiusClient.communicate(packet, serverEndpoint)
                 .addListener((Future<RadiusPacket> f) ->
                         promise.trySuccess(handleServerResponse(packet.getDictionary(), f.getNow())));
 

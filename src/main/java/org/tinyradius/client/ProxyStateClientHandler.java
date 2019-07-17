@@ -2,9 +2,8 @@ package org.tinyradius.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.Timeout;
 import io.netty.util.Timer;
-import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +38,8 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     private final Dictionary dictionary;
     private final Timer timer;
-    private final int timeoutMs;
+    private final int maxAttempts;
+    private final int retryWait;
     private final SecretProvider secretProvider;
 
     private final Map<String, Promise<RadiusPacket>> requests = new ConcurrentHashMap<>();
@@ -47,15 +47,15 @@ public class ProxyStateClientHandler extends ClientHandler {
     /**
      * @param dictionary     to decode packet incoming DatagramPackets to RadiusPackets
      * @param timer          set timeout handlers if no responses received after timeout
-     * @param timeoutMs      time to wait for responses in MS
      * @param secretProvider lookup shared secret for decoding response for upstream server.
      *                       Unlike packetIdentifier, Proxy-State is stored in attribute rather than the second octet,
      *                       so requires decoding first before we can lookup any context.
      */
-    public ProxyStateClientHandler(Dictionary dictionary, Timer timer, int timeoutMs, SecretProvider secretProvider) {
+    public ProxyStateClientHandler(Dictionary dictionary, Timer timer, SecretProvider secretProvider, int maxAttempts, int retryWait) {
         this.dictionary = dictionary;
         this.timer = timer;
-        this.timeoutMs = timeoutMs;
+        this.maxAttempts = maxAttempts;
+        this.retryWait = retryWait;
         this.secretProvider = secretProvider;
     }
 
@@ -64,23 +64,31 @@ public class ProxyStateClientHandler extends ClientHandler {
     }
 
     @Override
-    public Promise<RadiusPacket> processRequest(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
+    public RadiusPacket prepareRequest(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> promise) {
         // add Proxy-State attribute
-        String requestId = nextProxyStateId();
-        packet.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes()));
 
-        Promise<RadiusPacket> response = eventExecutor.newPromise();
-        requests.put(requestId, response);
+        final RadiusPacket radiusPacket = new RadiusPacket(packet.getDictionary(), packet.getPacketType(), packet.getPacketIdentifier(), packet.getAuthenticator(), packet.getAttributes());
 
-        final Timeout timeout = timer.newTimeout(
-                t -> response.tryFailure(new RadiusException("Timeout occurred")), timeoutMs, MILLISECONDS);
+        final String requestId = nextProxyStateId();
+        radiusPacket.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes()));
 
-        response.addListener(f -> {
-            requests.remove(requestId);
-            timeout.cancel();
-        });
+        requests.put(requestId, promise);
 
-        return response;
+        promise.addListener(f -> requests.remove(requestId));
+
+        return radiusPacket;
+    }
+
+    @Override
+    public void scheduleRetry(TimerTask retryTask, int attempt, Promise<RadiusPacket> request) {
+        if (request.isDone())
+            return;
+
+        if (attempt >= maxAttempts)
+            timer.newTimeout(t -> request.tryFailure(new RadiusException("Client send failed, max retries reached: " + maxAttempts)),
+                    retryWait, MILLISECONDS);
+        else
+            timer.newTimeout(retryTask, retryWait, MILLISECONDS);
     }
 
     @Override

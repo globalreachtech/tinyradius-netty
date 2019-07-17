@@ -25,16 +25,15 @@ class ProxyStateClientHandlerTest {
         int id = new SecureRandom().nextInt(256);
         HashedWheelTimer timer = new HashedWheelTimer();
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-        ProxyStateClientHandler handler = new ProxyStateClientHandler(dictionary, timer, 1000, address -> "secret");
+        ProxyStateClientHandler handler = new ProxyStateClientHandler(dictionary, timer, address -> "secret", 3, 1000);
 
-        final RadiusPacket packet = new AccessRequest(dictionary, id, null).encodeRequest("test");
+        final RadiusPacket originalPacket = new AccessRequest(dictionary, id, null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
 
-        handler.processRequest(packet, endpoint, eventLoopGroup.next());
+        final RadiusPacket packet = handler.prepareRequest(originalPacket, endpoint, eventLoopGroup.next().newPromise());
 
         List<RadiusAttribute> attributes = packet.getAttributes();
         assertEquals(1, attributes.size());
         assertNotNull(packet.getAttribute("Proxy-State"));
-
     }
 }

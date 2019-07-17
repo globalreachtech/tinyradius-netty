@@ -35,15 +35,14 @@ class RadiusClientTest {
 
     @Test()
     void communicateWithTimeout() {
-        SimpleClientHandler handler = new SimpleClientHandler(timer, dictionary, 1000);
+        SimpleClientHandler handler = new SimpleClientHandler(timer, dictionary, 3, 1000);
         RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, handler, null, 0);
 
         final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
-        int maxAttempts = 3;
 
         final RadiusException radiusException = assertThrows(RadiusException.class,
-                () -> radiusClient.communicate(request, endpoint, maxAttempts).syncUninterruptibly());
+                () -> radiusClient.communicate(request, endpoint).syncUninterruptibly());
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
     }

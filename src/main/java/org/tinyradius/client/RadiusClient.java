@@ -20,6 +20,7 @@ import org.tinyradius.util.RadiusException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import static java.lang.Byte.toUnsignedInt;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -71,7 +72,7 @@ public class RadiusClient<T extends DatagramChannel> {
     /**
      * Registers the channel and binds to address.
      * <p>
-     * Also run implicitly if {@link #communicate(RadiusPacket, RadiusEndpoint, int)} is called.
+     * Also run implicitly if {@link #communicate(RadiusPacket, RadiusEndpoint)} is called.
      *
      * @return channelFuture of started channel socket
      */
@@ -105,60 +106,43 @@ public class RadiusClient<T extends DatagramChannel> {
         return promise;
     }
 
-    public Future<RadiusPacket> communicate(RadiusPacket packet, RadiusEndpoint endpoint, int maxAttempts) {
-        Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
+    public Future<RadiusPacket> communicate(RadiusPacket originalPacket, RadiusEndpoint endpoint) {
+        final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
         promise.addListener(f -> {
             if (!f.isSuccess())
-                logger.error("Client sending failed: {}", f.cause().getMessage());
+                logger.error("{}", f.cause().getMessage());
         });
 
-        // todo init channel first, fail fast
-        // no point saying request fail if all requests are going to fail cos channel not set up
+        final RadiusPacket request = clientHandler.prepareRequest(originalPacket, endpoint, promise);
+
+        try {
+            final DatagramPacket datagram = RadiusPacketEncoder.toDatagram(
+                    request.encodeRequest(endpoint.getSharedSecret()),
+                    endpoint.getEndpointAddress());
+            logger.info("Preparing send: {}", request);
+
+            // todo init channel first, fail fast
+            // no point saying request fail if all requests are going to fail cos channel not set up
 
 //        startChannel().addListener((ChannelFuture f) ->
-//                send(packet, endpoint, 1, maxAttempts, promise));
-        send(packet, endpoint, 1, maxAttempts, promise);
+//                send(request, endpoint, 1, maxAttempts, promise));
+            send(datagram, 1, promise);
+
+        } catch (RadiusException e) {
+            promise.tryFailure(e);
+        }
 
         return promise;
     }
 
-    private void send(RadiusPacket packet, RadiusEndpoint endpoint, int attempts, int maxAttempts, Promise<RadiusPacket> initialPromise) {
-        // run first to add any identifiers/attributes needed
-        Future<RadiusPacket> attemptPromise = clientHandler.processRequest(packet, endpoint, eventLoopGroup.next());
-        try {
-            final DatagramPacket packetOut = RadiusPacketEncoder.toDatagram(
-                    packet.encodeRequest(endpoint.getSharedSecret()),
-                    endpoint.getEndpointAddress());
-            logger.info("Sending: {}", packet);
-
-            sendOnce(packetOut, endpoint);
-
-            // because netty promises don't support chaining
-            attemptPromise.addListener((Future<RadiusPacket> attempt) -> {
-                if (attempt.isSuccess()) {
-                    initialPromise.trySuccess(attempt.getNow());
-                    return;
-                }
-                if (attempts >= maxAttempts) {
-                    initialPromise.tryFailure(new RadiusException("Max retries reached: " + maxAttempts));
-                    return;
-                }
-
-                logger.info("Retransmitting packet {}", packet.getPacketIdentifier());
-                send(packet, endpoint, attempts + 1, maxAttempts, initialPromise);
-            });
-
-        } catch (RadiusException e) {
-            initialPromise.tryFailure(e);
-        }
-    }
-
-    private void sendOnce(DatagramPacket packetOut, RadiusEndpoint endpoint) {
-        logger.debug("Sending packet to {}", endpoint.getEndpointAddress());
+    private void send(DatagramPacket datagram, int attempt, Promise<RadiusPacket> requestPromise) {
+        logger.info("Attempt {}, sending packet {} to {}", attempt, toUnsignedInt(datagram.content().getByte(1)), datagram.recipient());
         if (logger.isDebugEnabled())
-            logger.debug("\n" + ByteBufUtil.prettyHexDump(packetOut.content()));
+            logger.debug("\n" + ByteBufUtil.prettyHexDump(datagram.content()));
 
         startChannel().addListener((ChannelFuture f) ->
-                f.channel().writeAndFlush(packetOut));
+                f.channel().writeAndFlush(datagram));
+
+        clientHandler.scheduleRetry(t -> send(datagram, attempt + 1, requestPromise), attempt, requestPromise);
     }
 }

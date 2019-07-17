@@ -2,9 +2,8 @@ package org.tinyradius.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.Timeout;
 import io.netty.util.Timer;
-import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,32 +35,40 @@ public class SimpleClientHandler extends ClientHandler {
 
     private final Timer timer;
     private final Dictionary dictionary;
-    private final int timeoutMs;
+    private final int maxAttempts;
+    private final int retryWait;
 
     private final Map<RequestKey, Request> contexts = new ConcurrentHashMap<>();
 
-    public SimpleClientHandler(Timer timer, Dictionary dictionary, int timeoutMs) {
+    public SimpleClientHandler(Timer timer, Dictionary dictionary, int maxAttempts, int retryWait) {
         this.timer = timer;
         this.dictionary = dictionary;
-        this.timeoutMs = timeoutMs;
+        this.maxAttempts = maxAttempts;
+        this.retryWait = retryWait;
     }
 
     @Override
-    public Promise<RadiusPacket> processRequest(RadiusPacket packet, RadiusEndpoint endpoint, EventExecutor eventExecutor) {
+    public RadiusPacket prepareRequest(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> promise) {
 
         final RequestKey key = new RequestKey(packet.getPacketIdentifier(), endpoint.getEndpointAddress());
-        final Request request = new Request(endpoint.getSharedSecret(), packet, eventExecutor.newPromise());
+        final Request request = new Request(endpoint.getSharedSecret(), packet, promise);
         contexts.put(key, request);
 
-        final Timeout timeout = timer.newTimeout(
-                t -> request.response.tryFailure(new RadiusException("Timeout occurred")), timeoutMs, MILLISECONDS);
+        promise.addListener(f -> contexts.remove(key));
 
-        request.response.addListener(f -> {
-            contexts.remove(key);
-            timeout.cancel();
-        });
+        return packet;
+    }
 
-        return request.response;
+    @Override
+    public void scheduleRetry(TimerTask retryTask, int attempt, Promise<RadiusPacket> request) {
+        if (request.isDone())
+            return;
+
+        if (attempt >= maxAttempts)
+            timer.newTimeout(t -> request.tryFailure(new RadiusException("Client send failed, max retries reached: " + maxAttempts)),
+                    retryWait, MILLISECONDS);
+        else
+            timer.newTimeout(retryTask, retryWait, MILLISECONDS);
     }
 
     @Override

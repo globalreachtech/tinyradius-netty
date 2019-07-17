@@ -50,7 +50,7 @@ public class TestProxy {
             return remote.getAddress().getHostAddress().equals("127.0.0.1") ?
                     "proxytest" : null;
         };
-        final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(dictionary, timer, 3000, secretProvider);
+        final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(dictionary, timer, secretProvider, 3, 1000);
         RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, clientHandler, null, 11814);
 
         final ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(radiusClient) {
