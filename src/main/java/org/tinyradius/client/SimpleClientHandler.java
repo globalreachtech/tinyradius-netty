@@ -3,7 +3,6 @@ package org.tinyradius.client;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timer;
-import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,15 +59,16 @@ public class SimpleClientHandler extends ClientHandler {
     }
 
     @Override
-    public void scheduleRetry(TimerTask retryTask, int attempt, Promise<RadiusPacket> request) {
-        if (request.isDone())
-            return;
+    public void scheduleRetry(Runnable retry, int attempt, Promise<RadiusPacket> promise) {
+        timer.newTimeout(t -> {
+            if (promise.isDone())
+                return;
 
-        if (attempt >= maxAttempts)
-            timer.newTimeout(t -> request.tryFailure(new RadiusException("Client send failed, max retries reached: " + maxAttempts)),
-                    retryWait, MILLISECONDS);
-        else
-            timer.newTimeout(retryTask, retryWait, MILLISECONDS);
+            if (attempt >= maxAttempts)
+                promise.tryFailure(new RadiusException("Client send failed, max retries reached: " + maxAttempts));
+            else
+                retry.run();
+        }, retryWait, MILLISECONDS);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class SimpleClientHandler extends ClientHandler {
             RadiusPacket resp = RadiusPacketEncoder.fromDatagram(dictionary, packet, request.sharedSecret, request.packet);
             logger.info("Found request for response identifier => {}", identifier);
 
-            request.response.trySuccess(resp);
+            request.promise.trySuccess(resp);
         } catch (RadiusException e) {
             logger.error("DatagramPacket handle error: ", e);
             // let timeout complete the future, we may get correct reply later
@@ -121,12 +121,12 @@ public class SimpleClientHandler extends ClientHandler {
 
         private final String sharedSecret;
         private final RadiusPacket packet;
-        private final Promise<RadiusPacket> response;
+        private final Promise<RadiusPacket> promise;
 
-        Request(String sharedSecret, RadiusPacket packet, Promise<RadiusPacket> response) {
+        Request(String sharedSecret, RadiusPacket packet, Promise<RadiusPacket> promise) {
             this.sharedSecret = sharedSecret;
             this.packet = packet;
-            this.response = response;
+            this.promise = promise;
         }
     }
 }

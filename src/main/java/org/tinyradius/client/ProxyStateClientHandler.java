@@ -80,15 +80,16 @@ public class ProxyStateClientHandler extends ClientHandler {
     }
 
     @Override
-    public void scheduleRetry(TimerTask retryTask, int attempt, Promise<RadiusPacket> request) {
-        if (request.isDone())
-            return;
+    public void scheduleRetry(Runnable retry, int attempt, Promise<RadiusPacket> promise) {
+        timer.newTimeout(t -> {
+            if (promise.isDone())
+                return;
 
-        if (attempt >= maxAttempts)
-            timer.newTimeout(t -> request.tryFailure(new RadiusException("Client send failed, max retries reached: " + maxAttempts)),
-                    retryWait, MILLISECONDS);
-        else
-            timer.newTimeout(retryTask, retryWait, MILLISECONDS);
+            if (attempt >= maxAttempts)
+                promise.tryFailure(new RadiusException("Client send failed, max retries reached: " + maxAttempts));
+            else
+                retry.run();
+        }, retryWait, MILLISECONDS);
     }
 
     @Override

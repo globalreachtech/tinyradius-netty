@@ -143,6 +143,6 @@ public class RadiusClient<T extends DatagramChannel> {
         startChannel().addListener((ChannelFuture f) ->
                 f.channel().writeAndFlush(datagram));
 
-        clientHandler.scheduleRetry(t -> send(datagram, attempt + 1, requestPromise), attempt, requestPromise);
+        clientHandler.scheduleRetry(() -> send(datagram, attempt + 1, requestPromise), attempt, requestPromise);
     }
 }

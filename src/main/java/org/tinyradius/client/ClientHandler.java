@@ -2,7 +2,6 @@ package org.tinyradius.client;
 
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
@@ -26,12 +25,17 @@ public abstract class ClientHandler extends SimpleChannelInboundHandler<Datagram
 
 
     /**
-     * Based on current attempt count, decide whether to schedule a
-     * retry and when.
+     * Schedule a retry in the future.
+     * <p>
+     * When retry is due to run, should also check if promise isDone() before running.
+     * <p>
+     * Implemented here instead of RadiusClient so custom scheduling / retry backoff
+     * can be used depending on implementation, and actual retry can be deferred. Scheduling
+     * and logic should be implemented here, while RadiusClient only deals with IO.
      *
-     * @param retryTask
-     * @param attempt
-     * @param request
+     * @param retry runnable to invoke to retry
+     * @param attempt current attempt count
+     * @param promise request promise that resolves when a reponse is received
      */
-    public abstract void scheduleRetry(TimerTask retryTask, int attempt, Promise<RadiusPacket> request);
+    public abstract void scheduleRetry(Runnable retry, int attempt, Promise<RadiusPacket> promise);
 }
