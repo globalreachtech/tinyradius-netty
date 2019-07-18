@@ -20,7 +20,7 @@ class ProxyStateClientHandlerTest {
 
     private static DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
 
-    @Test()
+    @Test
     void processRequestCreateProxyStateAttribute() {
         int id = new SecureRandom().nextInt(256);
         HashedWheelTimer timer = new HashedWheelTimer();

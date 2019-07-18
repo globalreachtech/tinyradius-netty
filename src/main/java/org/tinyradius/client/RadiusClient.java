@@ -9,7 +9,6 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-import io.netty.util.concurrent.PromiseCombiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.packet.RadiusPacket;
@@ -93,16 +92,14 @@ public class RadiusClient<T extends DatagramChannel> {
      * @return channel that resolves after it is bound to address and registered with eventLoopGroup
      */
     private ChannelFuture listen(final T channel, final InetSocketAddress listenAddress) {
-
         channel.pipeline().addLast(clientHandler);
 
         final ChannelPromise promise = channel.newPromise();
 
-        eventLoopGroup.submit(() -> {
-            final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
-            promiseCombiner.addAll(eventLoopGroup.register(channel), channel.bind(listenAddress));
-            promiseCombiner.finish(promise);
-        });
+        final ChannelFuture register = eventLoopGroup.register(channel);
+        register.addListener(f -> channel.bind(listenAddress)
+                .addListener(g -> promise.trySuccess()));
+        // todo error handling
         return promise;
     }
 
@@ -121,12 +118,7 @@ public class RadiusClient<T extends DatagramChannel> {
                     endpoint.getEndpointAddress());
             logger.info("Preparing send: {}", request);
 
-            // todo init channel first, fail fast
-            // no point saying request fail if all requests are going to fail cos channel not set up
-
-//        startChannel().addListener((ChannelFuture f) ->
-//                send(request, endpoint, 1, maxAttempts, promise));
-            send(datagram, 1, promise);
+            startChannel().addListener(f -> send(datagram, 1, promise));
 
         } catch (RadiusException e) {
             promise.tryFailure(e);
@@ -136,6 +128,7 @@ public class RadiusClient<T extends DatagramChannel> {
     }
 
     private void send(DatagramPacket datagram, int attempt, Promise<RadiusPacket> requestPromise) {
+        logger.info(String.valueOf(datagram.content().readableBytes()));
         logger.info("Attempt {}, sending packet {} to {}", attempt, toUnsignedInt(datagram.content().getByte(1)), datagram.recipient());
         if (logger.isDebugEnabled())
             logger.debug("\n" + ByteBufUtil.prettyHexDump(datagram.content()));
