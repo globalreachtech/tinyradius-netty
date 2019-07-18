@@ -9,10 +9,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class StringAttribute extends RadiusAttribute {
 
+    // todo make public and add docs to recommend using builder
     StringAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         super(dictionary, vendorId, type, data);
         if (data.length < 1)
-            throw new IllegalArgumentException("String attribute value should be 1-253 octets, actual: " + data.length);
+            throw new IllegalArgumentException("String attribute value should be min 1 octets, actual: " + data.length);
     }
 
     StringAttribute(Dictionary dictionary, int vendorId, int type, String value) {

@@ -33,6 +33,10 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         this(dictionary, extractVendorId(data), extractAttributes(dictionary, extractVendorId(data), data, 4));
     }
 
+    /**
+     * @param data byte array, length minimum 4
+     * @return vendorId
+     */
     private static int extractVendorId(byte[] data) {
         return ByteBuffer.wrap(data).getInt(); // todo test
     }

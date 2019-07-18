@@ -12,6 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class StringAttributeTest {
 
     @Test
+    void dataBadSizes() {
+        new StringAttribute(DefaultDictionary.INSTANCE, -1, 1, "");
+
+    }
+
+    @Test
     void getDataValue() {
         final String s = new Date().toString();
         final StringAttribute stringAttribute = new StringAttribute(DefaultDictionary.INSTANCE, -1, 1, s);

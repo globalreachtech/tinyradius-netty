@@ -34,7 +34,7 @@ public class RadiusAttribute {
         this.type = type;
         requireNonNull(data, "attribute data not set");
         if (data.length > 253)
-            throw new IllegalArgumentException("attribute data too long, max 255 octets, actual: " + data.length);
+            throw new IllegalArgumentException("attribute data too long, max 253 octets, actual: " + data.length);
         this.data = data;
     }
 
