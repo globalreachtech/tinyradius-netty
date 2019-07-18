@@ -89,7 +89,8 @@ public class SimpleClientHandler extends ClientHandler {
             request.promise.trySuccess(resp);
         } catch (RadiusException e) {
             logger.error("DatagramPacket handle error: ", e);
-            // let timeout complete the future, we may get correct reply later
+        } finally {
+            packet.release();
         }
     }
 

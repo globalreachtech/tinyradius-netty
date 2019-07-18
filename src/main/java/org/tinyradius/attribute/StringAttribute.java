@@ -13,7 +13,7 @@ public class StringAttribute extends RadiusAttribute {
     StringAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         super(dictionary, vendorId, type, data);
         if (data.length < 1)
-            throw new IllegalArgumentException("String attribute value should be min 1 octets, actual: " + data.length);
+            throw new IllegalArgumentException("String attribute value should be min 1 octet, actual: " + data.length);
     }
 
     StringAttribute(Dictionary dictionary, int vendorId, int type, String value) {

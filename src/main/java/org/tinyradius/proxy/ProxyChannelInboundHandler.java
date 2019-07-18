@@ -5,7 +5,6 @@ import io.netty.util.concurrent.Future;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.ChannelInboundHandler;
-import org.tinyradius.server.RequestHandler;
 import org.tinyradius.util.Lifecycle;
 import org.tinyradius.util.SecretProvider;
 
@@ -22,11 +21,10 @@ public class ProxyChannelInboundHandler extends ChannelInboundHandler<RadiusPack
      *                       as the handler is expected to manage the socket for proxying.
      * @param timer          handle timeouts if requests take too long to be processed
      * @param secretProvider lookup sharedSecret given remote address
-     * @param <H>            implements RequestHandler and Lifecycle
      */
-    public <H extends RequestHandler<RadiusPacket> & Lifecycle> ProxyChannelInboundHandler(
+    public ProxyChannelInboundHandler(
             Dictionary dictionary,
-            H requestHandler,
+            LifecycleRequestHandler<RadiusPacket> requestHandler,
             Timer timer,
             SecretProvider secretProvider) {
         super(dictionary, requestHandler, timer, secretProvider, RadiusPacket.class);

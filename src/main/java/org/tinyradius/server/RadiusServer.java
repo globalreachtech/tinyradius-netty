@@ -21,7 +21,7 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusServer.class);
 
-    protected final ChannelFactory<T> factory;
+    private final ChannelFactory<T> factory;
     protected final EventLoopGroup eventLoopGroup;
     private final ChannelHandler authHandler;
     private final ChannelHandler acctHandler;
@@ -113,13 +113,9 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
 
         final ChannelPromise promise = channel.newPromise();
 
-        eventLoopGroup.submit(() -> {
-
-            final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
-            promiseCombiner.addAll(eventLoopGroup.register(channel), channel.bind(listenAddress));
-            promiseCombiner.finish(promise);
-
-        });
+        eventLoopGroup.register(channel)
+                .addListener(f -> channel.bind(listenAddress)
+                        .addListener(g -> promise.trySuccess()));
 
         return promise;
     }

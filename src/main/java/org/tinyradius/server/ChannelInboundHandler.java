@@ -104,6 +104,8 @@ public class ChannelInboundHandler<T extends RadiusPacket> extends SimpleChannel
             });
         } catch (RadiusException e) {
             logger.error("DatagramPacket handle error: ", e);
+        } finally {
+            datagramPacket.release();
         }
     }
 }

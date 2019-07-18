@@ -9,7 +9,7 @@ import org.tinyradius.util.Lifecycle;
 /**
  * Deduplicator derived from {@link DeduplicatorHandler} that allows any RadiusPacket type and implements Lifecycle.
  */
-public class ProxyDeduplicatorHandler extends DeduplicatorHandler<RadiusPacket> implements Lifecycle {
+public class ProxyDeduplicatorHandler extends DeduplicatorHandler<RadiusPacket> implements LifecycleRequestHandler<RadiusPacket> {
 
     private final Lifecycle requestHandler;
 

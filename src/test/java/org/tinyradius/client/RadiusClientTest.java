@@ -4,6 +4,7 @@ import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.ResourceLeakDetector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -15,6 +16,7 @@ import org.tinyradius.util.RadiusException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 
+import static io.netty.util.ResourceLeakDetector.Level.PARANOID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,6 +29,10 @@ class RadiusClientTest {
     private HashedWheelTimer timer = new HashedWheelTimer();
     private NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
     private ReflectiveChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
+
+    static {
+        ResourceLeakDetector.setLevel(PARANOID);
+    }
 
     @BeforeEach
     void setup() {

@@ -6,15 +6,16 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import java.util.Date;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class StringAttributeTest {
 
     @Test
     void dataBadSizes() {
-        new StringAttribute(DefaultDictionary.INSTANCE, -1, 1, "");
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new StringAttribute(DefaultDictionary.INSTANCE, -1, 1, ""));
 
+        assertTrue(exception.getMessage().toLowerCase().contains("min 1 octet"));
     }
 
     @Test

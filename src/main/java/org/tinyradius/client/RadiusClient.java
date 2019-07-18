@@ -82,8 +82,7 @@ public class RadiusClient<T extends DatagramChannel> {
         if (channel == null)
             channel = factory.newChannel();
 
-        channelFuture = listen(channel, new InetSocketAddress(listenAddress, port));
-        return channelFuture;
+        return channelFuture = listen(channel, new InetSocketAddress(listenAddress, port));
     }
 
     /**
@@ -96,19 +95,16 @@ public class RadiusClient<T extends DatagramChannel> {
 
         final ChannelPromise promise = channel.newPromise();
 
-        final ChannelFuture register = eventLoopGroup.register(channel);
-        register.addListener(f -> channel.bind(listenAddress)
-                .addListener(g -> promise.trySuccess()));
+        eventLoopGroup.register(channel)
+                .addListener(f -> channel.bind(listenAddress)
+                        .addListener(g -> promise.trySuccess()));
+
         // todo error handling
         return promise;
     }
 
     public Future<RadiusPacket> communicate(RadiusPacket originalPacket, RadiusEndpoint endpoint) {
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
-        promise.addListener(f -> {
-            if (!f.isSuccess())
-                logger.error("{}", f.cause().getMessage());
-        });
 
         final RadiusPacket request = clientHandler.prepareRequest(originalPacket, endpoint, promise);
 
@@ -116,6 +112,15 @@ public class RadiusClient<T extends DatagramChannel> {
             final DatagramPacket datagram = RadiusPacketEncoder.toDatagram(
                     request.encodeRequest(endpoint.getSharedSecret()),
                     endpoint.getEndpointAddress());
+
+            promise.addListener(f -> {
+                if (!f.isSuccess())
+                    logger.error("{}", f.cause().getMessage());
+                datagram.release();
+                if (datagram.refCnt() != 0)
+                    logger.error("buffer leak? datagram refCnt should be 0, actual: {}", datagram.refCnt());
+            });
+
             logger.info("Preparing send: {}", request);
 
             startChannel().addListener(f -> send(datagram, 1, promise));
@@ -128,13 +133,12 @@ public class RadiusClient<T extends DatagramChannel> {
     }
 
     private void send(DatagramPacket datagram, int attempt, Promise<RadiusPacket> requestPromise) {
-        logger.info(String.valueOf(datagram.content().readableBytes()));
         logger.info("Attempt {}, sending packet {} to {}", attempt, toUnsignedInt(datagram.content().getByte(1)), datagram.recipient());
         if (logger.isDebugEnabled())
             logger.debug("\n" + ByteBufUtil.prettyHexDump(datagram.content()));
 
-        startChannel().addListener((ChannelFuture f) ->
-                f.channel().writeAndFlush(datagram));
+        // inc refCnt so msg isn't released after sending and can reuse for retries
+        channel.writeAndFlush(datagram.retain());
 
         clientHandler.scheduleRetry(() -> send(datagram, attempt + 1, requestPromise), attempt, requestPromise);
     }
