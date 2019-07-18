@@ -31,6 +31,7 @@ class ProxyStateClientHandlerTest {
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
 
         final RadiusPacket packet = handler.prepareRequest(originalPacket, endpoint, eventLoopGroup.next().newPromise());
+        timer.stop();
 
         List<RadiusAttribute> attributes = packet.getAttributes();
         assertEquals(1, attributes.size());

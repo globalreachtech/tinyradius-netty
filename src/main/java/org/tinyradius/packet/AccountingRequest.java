@@ -90,6 +90,6 @@ public class AccountingRequest extends RadiusPacket {
     public int getAcctStatusType() {
         RadiusAttribute ra = getAttribute(ACCT_STATUS_TYPE);
         return ra == null ?
-                -1 : ((IntegerAttribute) ra).getAttributeValueInt();
+                -1 : (int) ((IntegerAttribute) ra).getAttributeValueInt();
     }
 }

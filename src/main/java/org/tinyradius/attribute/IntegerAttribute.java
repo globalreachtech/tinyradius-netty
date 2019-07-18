@@ -28,8 +28,8 @@ public class IntegerAttribute extends RadiusAttribute {
      *
      * @return a string
      */
-    public int getAttributeValueInt() {
-        return ByteBuffer.wrap(getData()).getInt();
+    public long getAttributeValueInt() {
+        return ByteBuffer.wrap(getData()).getInt() & 0xFFFFFFFFL;
     }
 
     /**
@@ -38,7 +38,7 @@ public class IntegerAttribute extends RadiusAttribute {
      */
     @Override
     public String getDataString() {
-        int value = getAttributeValueInt();
+        long value = getAttributeValueInt();
         AttributeType at = getAttributeType();
         if (at != null) {
             String name = at.getEnumeration(value);
@@ -46,7 +46,7 @@ public class IntegerAttribute extends RadiusAttribute {
                 return name;
         }
         // Radius uses only unsigned values....
-        return Long.toString(((long) value & 0xffffffffL));
+        return Long.toString((value & 0xffffffffL));
     }
 
     /**
@@ -54,7 +54,7 @@ public class IntegerAttribute extends RadiusAttribute {
      *
      * @throws NumberFormatException if value is not a number and constant cannot be resolved
      */
-    private static byte[] convertValue(int value) {
+    private static byte[] convertValue(Integer value) {
         byte[] data = new byte[4];
         data[0] = (byte) (value >> 24 & 0x0ff);
         data[1] = (byte) (value >> 16 & 0x0ff);
@@ -77,7 +77,7 @@ public class IntegerAttribute extends RadiusAttribute {
         }
 
         // Radius uses only unsigned integers for this the parser should consider as Long to parse high bit correctly...
-        return convertValue((int) Long.parseLong(value));
+        return convertValue(Integer.parseUnsignedInt(value));
     }
 
     private static boolean isOverflow(String value) {
