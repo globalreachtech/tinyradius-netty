@@ -22,4 +22,39 @@ class IntegerAttributeTest {
     @Test
     void getDataString() {
     }
+
+    @Test
+    void dataTooShort() {
+        int type = 10;
+        byte[] data = new byte[2];
+
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new IntegerAttribute(DefaultDictionary.INSTANCE, -1, type, data));
+
+        assertTrue(exception.getMessage().toLowerCase().contains("integer attribute value should be 4 octets"));
+    }
+
+    @Test
+    void dataTooLong() {
+        int type = 10;
+        byte[] data = new byte[5];
+
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new IntegerAttribute(DefaultDictionary.INSTANCE, -1, type, data));
+
+        assertTrue(exception.getMessage().toLowerCase().contains("integer attribute value should be 4 octets"));
+    }
+
+    @Test
+    void dataStringTooLong() {
+        int type = 27;
+        final long bigValue = 0xffffffffffL;
+        final String bigValueSt = Long.toString(bigValue);
+
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new IntegerAttribute(DefaultDictionary.INSTANCE, -1, type, bigValueSt));
+
+        assertTrue(exception.getMessage().toLowerCase().contains("integer attribute value should be 4 octets"));
+    }
+
 }

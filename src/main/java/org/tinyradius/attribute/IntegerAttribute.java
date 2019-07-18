@@ -64,6 +64,10 @@ public class IntegerAttribute extends RadiusAttribute {
     }
 
     private static byte[] convertValue(String value, Dictionary dictionary, int attributeType, int vendorId) {
+        if (isOverflow(value)) {
+            return new byte[8];
+        }
+
         AttributeType at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
         if (at != null) {
             Integer val = at.getEnumeration(value);
@@ -74,5 +78,9 @@ public class IntegerAttribute extends RadiusAttribute {
 
         // Radius uses only unsigned integers for this the parser should consider as Long to parse high bit correctly...
         return convertValue((int) Long.parseLong(value));
+    }
+
+    private static boolean isOverflow(String value) {
+        return Long.parseLong(value) > 0xffffffffL || Long.parseLong(value) < 0;
     }
 }
