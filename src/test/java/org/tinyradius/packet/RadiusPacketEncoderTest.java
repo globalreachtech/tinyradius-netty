@@ -205,22 +205,15 @@ class RadiusPacketEncoderTest {
 
     @Test
     void createRequestRadiusPacket() {
-        final byte[] authenticator = new byte[16];
-        random.nextBytes(authenticator);
-
-        RadiusPacket accessRequest = createRadiusPacket(dictionary, ACCESS_REQUEST, 1, authenticator, Collections.emptyList());
-        RadiusPacket coaRequest = createRadiusPacket(dictionary, COA_REQUEST, 2, authenticator, Collections.emptyList());
-        RadiusPacket disconnectRequest = createRadiusPacket(dictionary, DISCONNECT_REQUEST, 3, authenticator, Collections.emptyList());
-        RadiusPacket accountingRequest = createRadiusPacket(dictionary, ACCOUNTING_REQUEST, 4, authenticator, Collections.emptyList());
+        RadiusPacket accessRequest = createRadiusPacket(dictionary, ACCESS_REQUEST, 1, null, Collections.emptyList());
+        RadiusPacket coaRequest = createRadiusPacket(dictionary, COA_REQUEST, 2, null, Collections.emptyList());
+        RadiusPacket accountingRequest = createRadiusPacket(dictionary, ACCOUNTING_REQUEST, 3, null, Collections.emptyList());
 
         assertEquals(ACCESS_REQUEST, accessRequest.getType());
         assertEquals(AccessRequest.class, accessRequest.getClass());
 
         assertEquals(COA_REQUEST, coaRequest.getType());
         assertEquals(RadiusPacket.class, coaRequest.getClass());
-
-        assertEquals(DISCONNECT_REQUEST, disconnectRequest.getType());
-        assertEquals(RadiusPacket.class, disconnectRequest.getClass());
 
         assertEquals(ACCOUNTING_REQUEST, accountingRequest.getType());
         assertEquals(AccountingRequest.class, accountingRequest.getClass());
