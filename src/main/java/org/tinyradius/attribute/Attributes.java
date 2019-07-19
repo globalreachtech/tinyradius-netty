@@ -19,8 +19,11 @@ public class Attributes {
      * @return RadiusAttribute object
      */
     public static RadiusAttribute createAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
-        final ByteArrayConstructor byteArrayConstructor = dictionary.getAttributeTypeByCode(vendorId, type).getByteArrayConstructor();
-        return byteArrayConstructor.newInstance(dictionary, vendorId, type, data);
+        final AttributeType attributeType = dictionary.getAttributeTypeByCode(vendorId, type);
+        if (attributeType != null)
+            return attributeType.create(dictionary, data);
+
+        return new RadiusAttribute(dictionary, vendorId, type, data);
     }
 
     /**
@@ -33,8 +36,11 @@ public class Attributes {
      * @return RadiusAttribute object
      */
     public static RadiusAttribute createAttribute(Dictionary dictionary, int vendorId, int type, String data) {
-        final StringConstructor stringConstructor = dictionary.getAttributeTypeByCode(vendorId, type).getStringConstructor();
-        return stringConstructor.newInstance(dictionary, vendorId, type, data);
+        final AttributeType attributeType = dictionary.getAttributeTypeByCode(vendorId, type);
+        if (attributeType != null)
+            return attributeType.create(dictionary, data);
+
+        return new RadiusAttribute(dictionary, vendorId, type, data);
     }
 
     public static List<RadiusAttribute> extractAttributes(Dictionary dictionary, int vendorId, byte[] data, int pos) {
@@ -56,13 +62,5 @@ public class Attributes {
         if (pos != data.length)
             throw new IllegalArgumentException("attribute malformed");
         return attributes;
-    }
-
-    public interface ByteArrayConstructor<T extends RadiusAttribute> {
-        T newInstance(Dictionary dictionary, int vendorId, int type, byte[] data);
-    }
-
-    public interface StringConstructor<T extends RadiusAttribute> {
-        T newInstance(Dictionary dictionary, int vendorId, int type, String data);
     }
 }

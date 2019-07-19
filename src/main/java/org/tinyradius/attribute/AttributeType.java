@@ -1,5 +1,8 @@
 package org.tinyradius.attribute;
 
+import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.RadiusPacket;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,9 +17,13 @@ public class AttributeType {
     private final int vendorId;
     private final int typeCode;
     private final String name;
-    private final Attributes.ByteArrayConstructor byteArrayConstructor;
-    private final Attributes.StringConstructor stringConstructor;
-    private final Map<Integer, String> enumeration = new HashMap<>();
+
+    private final String dataType;
+    private final ByteArrayConstructor byteArrayConstructor;
+    private final StringConstructor stringConstructor;
+
+    private final Map<Integer, String> int2str = new HashMap<>();
+    private final Map<String, Integer> str2int = new HashMap<>();
 
     /**
      * Create a new attribute type.
@@ -47,7 +54,7 @@ public class AttributeType {
         this.typeCode = attributeType;
         this.name = name;
 
-        final String dataType = rawDataType.toLowerCase();
+        dataType = rawDataType.toLowerCase();
 
         if (dataType.equals("vsa") || attributeType == VENDOR_SPECIFIC) {
             byteArrayConstructor = VendorSpecificAttribute::new;
@@ -84,6 +91,14 @@ public class AttributeType {
         }
     }
 
+    public RadiusAttribute create(Dictionary dictionary, byte[] data) {
+        return byteArrayConstructor.newInstance(dictionary, vendorId, typeCode, data);
+    }
+
+    public RadiusAttribute create(Dictionary dictionary, String data) {
+        return stringConstructor.newInstance(dictionary, vendorId, typeCode, data);
+    }
+
     /**
      * @return Radius type code for this attribute e.g. '1' (for User-Name)
      */
@@ -98,19 +113,15 @@ public class AttributeType {
         return name;
     }
 
-    Attributes.ByteArrayConstructor getByteArrayConstructor() {
-        return byteArrayConstructor;
-    }
-
-    Attributes.StringConstructor getStringConstructor() {
-        return stringConstructor;
-    }
-
     /**
      * @return vendor ID or -1 if not applicable
      */
     public int getVendorId() {
         return vendorId;
+    }
+
+    public String getDataType() {
+        return dataType;
     }
 
     /**
@@ -120,7 +131,7 @@ public class AttributeType {
      * is unknown.
      */
     public String getEnumeration(int value) {
-        return enumeration.get(value);
+        return int2str.get(value);
     }
 
     /**
@@ -129,13 +140,7 @@ public class AttributeType {
      * an enumeration, or null if it is not or if the string value is unknown.
      */
     public Integer getEnumeration(String value) {
-        if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("value is empty");
-        for (Map.Entry<Integer, String> e : enumeration.entrySet()) {
-            if (e.getValue().equals(value))
-                return e.getKey();
-        }
-        return null;
+        return str2int.get(value);
     }
 
     /**
@@ -147,13 +152,22 @@ public class AttributeType {
     public void addEnumerationValue(int num, String name) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("name is empty");
-        enumeration.put(num, name);
+        int2str.put(num, name);
+        str2int.put(name, num);
     }
 
     public String toString() {
-        String s = getTypeCode() + "/" + getName() + ": " + byteArrayConstructor.getClass();
+        String s = getTypeCode() + "/" + getName() + ": " + dataType;
         if (getVendorId() != -1)
             s += " (vendor " + getVendorId() + ")";
         return s;
+    }
+
+    public interface ByteArrayConstructor<T extends RadiusAttribute> {
+        T newInstance(Dictionary dictionary, int vendorId, int type, byte[] data);
+    }
+
+    public interface StringConstructor<T extends RadiusAttribute> {
+        T newInstance(Dictionary dictionary, int vendorId, int type, String data);
     }
 }

@@ -18,7 +18,7 @@ public class RadiusAttribute {
     private final int type;
     private final byte[] value;
 
-    private final int vendorId; //only for Vendor-Specific attributes and their sub-attributes
+    private final int vendorId; // for Vendor-Specific (sub)attributes, otherwise -1
 
     /**
      * @param dictionary Dictionary to use

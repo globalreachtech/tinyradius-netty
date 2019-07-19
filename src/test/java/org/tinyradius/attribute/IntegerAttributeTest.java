@@ -11,60 +11,85 @@ class IntegerAttributeTest {
     private Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
-    void maxUnsignedInt() {
-        final long maxValue = 0xffffffffL;
-        final String maxValueStr = Long.toString(maxValue); // 2^32 - 1 = 4294967295
-        final IntegerAttribute attribute = new IntegerAttribute(dictionary, -1, 27, maxValueStr);
+    void intMaxUnsigned() {
+        final IntegerAttribute attribute = new IntegerAttribute(dictionary, -1, 27, -1);
 
         assertEquals(-1, attribute.getValueInt());
-        assertEquals(maxValueStr, attribute.getValueString());
-        assertEquals(maxValue, attribute.getValueLong());
+        assertEquals(0xffffffffL, attribute.getValueLong());
+        assertEquals("4294967295", attribute.getValueString());
     }
 
     @Test
-    void maxSignedInt() {
+    void intMaxSigned() {
         final int value = Integer.MAX_VALUE;
         final IntegerAttribute attribute = new IntegerAttribute(dictionary, -1, 27, value);
+
+        assertEquals(value, attribute.getValueInt());
         assertEquals(value, attribute.getValueLong());
         assertEquals(String.valueOf(value), attribute.getValueString());
     }
 
     @Test
-    void dataTooShort() {
-        int type = 10;
-        byte[] data = new byte[2];
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> new IntegerAttribute(dictionary, -1, type, data));
-        assertTrue(exception.getMessage().toLowerCase().contains("integer attribute value should be 4 octets"));
+    void bytesOk() {
+        final byte[] bytes = new byte[]{0, 0, (byte) 0xff, (byte) 0xff};
+        final IntegerAttribute attribute = new IntegerAttribute(dictionary, -1, 10, bytes);
+        assertEquals(65535, attribute.getValueInt());
+        assertEquals(65535, attribute.getValueLong());
+        assertEquals("65535", attribute.getValueString());
     }
 
     @Test
-    void dataTooLong() {
-        int type = 10;
-        byte[] data = new byte[5];
+    void bytesTooShort() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> new IntegerAttribute(dictionary, -1, type, data));
-        assertTrue(exception.getMessage().toLowerCase().contains("integer attribute value should be 4 octets"));
+                () -> new IntegerAttribute(dictionary, -1, 10, new byte[2]));
+        assertTrue(exception.getMessage().toLowerCase().contains("should be 4 octets"));
     }
 
     @Test
-    void dataStringTooLong() {
-        int type = 27;
-        final long bigValue = 0xffffffffffL;
-        final String bigValueSt = Long.toString(bigValue);
+    void bytesTooLong() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> new IntegerAttribute(dictionary, -1, type, bigValueSt));
-        assertTrue(exception.getMessage().toLowerCase().contains("integer attribute value should be 4 octets"));
+                () -> new IntegerAttribute(dictionary, -1, 10, new byte[5]));
+        assertTrue(exception.getMessage().toLowerCase().contains("should be 4 octets"));
     }
 
     @Test
-    void convertFromByteToInt() {
-        int type = 27;
-        final long bigValue = Integer.MAX_VALUE + 1L;
-        final String bigValueSt = Long.toString(bigValue);
-        IntegerAttribute integerAttribute = new IntegerAttribute(dictionary, -1, type, bigValueSt);
-        assertEquals(bigValue, integerAttribute.getValueLong());
-        // not sure what this is testing - similar conditions as first test?
+    void stringOk() {
+        final IntegerAttribute attribute = new IntegerAttribute(dictionary, -1, 10, "12345");
+        assertEquals(12345, attribute.getValueInt());
+        assertEquals(12345, attribute.getValueLong());
+        assertEquals("12345", attribute.getValueString());
     }
 
+    @Test
+    void stringTooBig() {
+        final NumberFormatException exception = assertThrows(NumberFormatException.class,
+                () -> new IntegerAttribute(dictionary, -1, 27, Long.toString(0xffffffffffL)));
+
+        assertTrue(exception.getMessage().toLowerCase().contains("exceeds range"));
+    }
+
+    @Test
+    void stringEmpty() {
+        final NumberFormatException exception = assertThrows(NumberFormatException.class,
+                () -> new IntegerAttribute(dictionary, -1, 27, ""));
+
+        assertTrue(exception.getMessage().toLowerCase().contains("for input string: \"\""));
+    }
+
+    @Test
+    void stringEnum() {
+        final IntegerAttribute attribute = new IntegerAttribute(dictionary, -1, 6, "Login-User");
+
+        assertEquals(1, attribute.getValueInt());
+        assertEquals(1, attribute.getValueLong());
+        assertEquals("Login-User", attribute.getValueString());
+    }
+
+    @Test
+    void stringInvalid() {
+        final NumberFormatException exception = assertThrows(NumberFormatException.class,
+                () -> new IntegerAttribute(dictionary, -1, 6, "badString"));
+
+        assertTrue(exception.getMessage().toLowerCase().contains("for input string: \"badstring\""));
+    }
 }
