@@ -23,12 +23,8 @@ public class IpAttribute extends RadiusAttribute {
             super(dictionary, vendorId, type, data);
         }
 
-        V4(Dictionary dictionary, int vendorId, int type, String data) {
+        public V4(Dictionary dictionary, int vendorId, int type, String data) {
             super(dictionary, vendorId, type, data);
-        }
-
-        public V4(Dictionary dictionary, int vendorId, int type, long value) {
-            this(dictionary, vendorId, type, convertIpV4(value));
         }
 
         /**
@@ -44,21 +40,6 @@ public class IpAttribute extends RadiusAttribute {
                     | toUnsignedInt(data[2]) << 8
                     | toUnsignedInt(data[3]);
             // todo Integer.toUnsignedLong / ByteBuffer.getInt()
-        }
-
-        /**
-         * Sets the IP number represented by this IpAttribute
-         * as a 32 bit unsigned number.
-         *
-         * @param ip IP address as 32-bit unsigned number
-         */
-        private static byte[] convertIpV4(long ip) {
-            byte[] data = new byte[4];
-            data[0] = (byte) ((ip >> 24) & 0x0ff);
-            data[1] = (byte) ((ip >> 16) & 0x0ff);
-            data[2] = (byte) ((ip >> 8) & 0x0ff);
-            data[3] = (byte) (ip & 0x0ff);
-            return data;
         }
     }
 
@@ -96,6 +77,9 @@ public class IpAttribute extends RadiusAttribute {
     }
 
     private static byte[] convertIp(String value) {
+        if (value.isEmpty()) {
+            throw new RuntimeException("address can't be empty");
+        }
         try {
             return InetAddress.getByName(value).getAddress();
         } catch (UnknownHostException e) {
