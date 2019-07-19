@@ -119,8 +119,6 @@ public class ProxyStateClientHandler extends ClientHandler {
                 return;
             }
 
-            logger.info("Found connection (proxyState) {} for packet => {}", proxyStateId, packet);
-
             packet.removeLastAttribute(PROXY_STATE);
 
             request.trySuccess(packet);

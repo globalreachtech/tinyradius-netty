@@ -9,6 +9,7 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,8 +57,7 @@ class RadiusPacketEncoderTest {
                 .content();
 
         assertEquals(4096, byteBuf.readableBytes());
-        final byte[] array = byteBuf.copy().array();
-        assertEquals(4096, toUnsignedInt(array[2]) << 8 | toUnsignedInt(array[3]));
+        assertEquals(4096, byteBuf.getShort(2));
 
         // test length 4097
         RadiusPacket oversizeRequest = new RadiusPacket(dictionary, 200, 250);
@@ -67,6 +67,8 @@ class RadiusPacketEncoderTest {
                 () -> RadiusPacketEncoder.toDatagram(oversizeRequest.encodeRequest("mySecret"), new InetSocketAddress(0)));
 
         assertTrue(exception.getMessage().contains("packet too long"));
+
+        byteBuf.release();
     }
 
     @Test
@@ -90,7 +92,7 @@ class RadiusPacketEncoderTest {
 
         assertEquals(encoded.getType(), toUnsignedInt(packet[0]));
         assertEquals(encoded.getIdentifier(), toUnsignedInt(packet[1]));
-        assertEquals(packet.length, toUnsignedInt(packet[2]) << 8 | toUnsignedInt(packet[3]));
+        assertEquals(packet.length, ByteBuffer.wrap(packet).getShort(2));
         assertArrayEquals(encoded.getAuthenticator(), Arrays.copyOfRange(packet, 4, 20));
 
         // attribute
@@ -99,6 +101,8 @@ class RadiusPacketEncoderTest {
 
         assertEquals(33, attributes[0]);
         assertArrayEquals(proxyState, Arrays.copyOfRange(attributes, 2, toUnsignedInt(attributes[1])));
+
+        datagram.release();
     }
 
     @Test

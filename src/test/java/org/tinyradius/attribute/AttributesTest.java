@@ -13,8 +13,4 @@ class AttributesTest {
     @Test
     void createAttribute() {
     }
-
-    @Test
-    void testCreateAttribute() {
-    }
 }

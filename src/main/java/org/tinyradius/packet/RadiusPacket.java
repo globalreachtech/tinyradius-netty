@@ -417,7 +417,7 @@ public class RadiusPacket {
         md5.update((byte) getType());
         md5.update((byte) getIdentifier());
         md5.update((byte) (packetLength >> 8));
-        md5.update((byte) (packetLength & 0x0ff));
+        md5.update((byte) (packetLength & 0xff));
         md5.update(requestAuthenticator);
         md5.update(attributes);
         return md5.digest(sharedSecret.getBytes(UTF_8));

@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IntegerAttributeTest {
 
-    private Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
     void intMaxUnsigned() {

@@ -8,7 +8,6 @@ import java.security.SecureRandom;
 
 import static java.lang.Byte.toUnsignedInt;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.Attributes.createAttribute;
 
 class RadiusAttributeTest {
 
@@ -18,7 +17,7 @@ class RadiusAttributeTest {
     @Test
     void createMaxSizeAttribute() {
         // 253 octets ok
-        final RadiusAttribute maxSizeAttribute = createAttribute(dictionary, -1, 2, random.generateSeed(253));
+        final RadiusAttribute maxSizeAttribute = new RadiusAttribute(dictionary, -1, 2, random.generateSeed(253));
         final byte[] bytes = maxSizeAttribute.toByteArray();
 
         assertEquals(0xFF, toUnsignedInt(bytes[1]));
@@ -27,7 +26,7 @@ class RadiusAttributeTest {
 
         // 254 octets not ok
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                createAttribute(dictionary, -1, 2, random.generateSeed(254)));
+                new RadiusAttribute(dictionary, -1, 2, random.generateSeed(254)));
 
         assertTrue(exception.getMessage().contains("too long"));
     }

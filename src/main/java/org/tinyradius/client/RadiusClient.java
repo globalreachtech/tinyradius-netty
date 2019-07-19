@@ -114,8 +114,11 @@ public class RadiusClient<T extends DatagramChannel> {
                     endpoint.getEndpointAddress());
 
             promise.addListener(f -> {
-                if (!f.isSuccess())
+                if (f.isSuccess())
+                    logger.info("Response received, packet: {}", f.getNow());
+                else
                     logger.error("{}", f.cause().getMessage());
+
                 datagram.release();
                 if (datagram.refCnt() != 0)
                     logger.error("buffer leak? datagram refCnt should be 0, actual: {}", datagram.refCnt());
