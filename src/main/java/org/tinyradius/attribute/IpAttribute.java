@@ -36,10 +36,8 @@ public class IpAttribute extends RadiusAttribute {
          *
          * @return IP number
          */
-        public long getDataLong() {
-            byte[] data = getData();
-            if (data == null || data.length != 4)
-                throw new RuntimeException("expected 4 bytes attribute data");
+        public long getValueLong() {
+            byte[] data = getValue();
             return (long) toUnsignedInt(data[0]) << 24
                     | toUnsignedInt(data[1]) << 16
                     | toUnsignedInt(data[2]) << 8
@@ -89,9 +87,9 @@ public class IpAttribute extends RadiusAttribute {
     }
 
     @Override
-    public String getDataString() {
-        try {
-            return InetAddress.getByAddress(getData()).getHostAddress();
+    public String getValueString() {
+        try { // todo clean data on constructor instead of check on read
+            return InetAddress.getByAddress(getValue()).getHostAddress();
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("bad address", e);
         }

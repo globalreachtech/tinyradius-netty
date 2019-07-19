@@ -59,7 +59,7 @@ class AccessRequestTest {
         assertEquals(request.getUserName(), encoded.getUserName());
 
         assertNull(encoded.getAttribute("CHAP-Password"));
-        assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").getData());
+        assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").getValue());
     }
 
     @Test
@@ -79,7 +79,7 @@ class AccessRequestTest {
 
         assertNull(request.getUserPassword());
         assertEquals(user, request.getUserName());
-        assertArrayEquals(encodedPassword, request.getAttribute("User-Password").getData());
+        assertArrayEquals(encodedPassword, request.getAttribute("User-Password").getValue());
 
         request.decode(sharedSecret, null);
 
@@ -103,8 +103,8 @@ class AccessRequestTest {
         assertEquals(request.getUserName(), encoded.getUserName());
 
         // randomly generated, need to extract
-        final byte[] chapChallenge = encoded.getAttribute("CHAP-Challenge").getData();
-        final byte[] chapPassword = encoded.getAttribute("CHAP-Password").getData();
+        final byte[] chapChallenge = encoded.getAttribute("CHAP-Challenge").getValue();
+        final byte[] chapPassword = encoded.getAttribute("CHAP-Password").getValue();
 
         final byte[] expectedChapPassword = CHAP.chapResponse(chapPassword[0], plaintextPw.getBytes(UTF_8), chapChallenge);
 

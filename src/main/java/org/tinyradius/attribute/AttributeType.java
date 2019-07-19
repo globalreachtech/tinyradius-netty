@@ -119,7 +119,7 @@ public class AttributeType {
      * is an enumeration, or null if it is not or if the integer value
      * is unknown.
      */
-    public String getEnumeration(long value) {
+    public String getEnumeration(int value) {
         return enumeration.get(value);
     }
 

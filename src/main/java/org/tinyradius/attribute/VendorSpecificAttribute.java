@@ -115,15 +115,12 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     }
 
     /**
-     * Returns all sub-attributes of this attribut which have the given type.
+     * Returns all sub-attributes of this attribute which have the given type.
      *
      * @param attributeType type of sub-attributes to get
      * @return list of RadiusAttribute objects, does not return null
      */
     public List<RadiusAttribute> getSubAttributes(int attributeType) {
-        if (attributeType < 1 || attributeType > 255)
-            throw new IllegalArgumentException("sub-attribute type out of bounds");
-
         return subAttributes.stream()
                 .filter(sa -> sa.getType() == attributeType)
                 .collect(Collectors.toList());
@@ -179,7 +176,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     public String getSubAttributeValue(String type) {
         RadiusAttribute attr = getSubAttribute(type);
         return attr == null ?
-                null : attr.getDataString();
+                null : attr.getValueString();
     }
 
     /**

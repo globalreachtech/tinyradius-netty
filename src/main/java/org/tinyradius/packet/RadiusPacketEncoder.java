@@ -110,13 +110,9 @@ public class RadiusPacketEncoder {
 
         if (content.remaining() != length - HEADER_LENGTH)
             throw new RadiusException("bad packet: packet length mismatch");
-        System.out.println("content remaining " + content.remaining());
-
 
         byte[] attributes = new byte[content.remaining()];
         content.get(attributes);
-
-        System.out.println("content remaining " + content.remaining());
 
         final RadiusPacket radiusPacket = createRadiusPacket(dictionary, type, packetId, authenticator,
                 extractAttributes(dictionary, -1, attributes, 0));
@@ -141,8 +137,6 @@ public class RadiusPacketEncoder {
                 return new AccessRequest(dictionary, identifier, authenticator, attributes);
             case ACCOUNTING_REQUEST:
                 return new AccountingRequest(dictionary, identifier, authenticator, attributes);
-            case COA_REQUEST:
-            case DISCONNECT_REQUEST:
             default:
                 return new RadiusPacket(dictionary, type, identifier, authenticator, attributes);
         }

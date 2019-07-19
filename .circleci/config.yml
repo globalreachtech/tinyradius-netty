@@ -27,8 +27,6 @@ jobs:
 
       - run: ./gradlew test
 
-      - run:
-          when: always
-          command: ./gradlew jacocoTestReport coveralls
+      - run: ./gradlew jacocoTestReport coveralls
 
 #      - run: ./gradlew bintrayUpload

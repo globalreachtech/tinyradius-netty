@@ -3,7 +3,6 @@ package org.tinyradius.client;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Timer;
-import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 
@@ -65,12 +65,12 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     @Override
     public RadiusPacket prepareRequest(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> promise) {
-        // add Proxy-State attribute
 
-        final RadiusPacket radiusPacket = new RadiusPacket(packet.getDictionary(), packet.getType(), packet.getIdentifier(), packet.getAuthenticator(), packet.getAttributes());
+        final RadiusPacket radiusPacket = new RadiusPacket(
+                packet.getDictionary(), packet.getType(), packet.getIdentifier(), packet.getAuthenticator(), packet.getAttributes());
 
         final String requestId = nextProxyStateId();
-        radiusPacket.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes()));
+        radiusPacket.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
 
         requests.put(requestId, promise);
 
@@ -107,10 +107,10 @@ public class ProxyStateClientHandler extends ClientHandler {
             // retrieve my Proxy-State attribute (the last)
             List<RadiusAttribute> proxyStates = packet.getAttributes(PROXY_STATE);
             if (proxyStates.isEmpty())
-                throw new RadiusException("proxy packet without Proxy-State attribute");
+                logger.warn("Received proxy packet without Proxy-State attribute, ignoring...");
 
             RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
-            String proxyStateId = new String(proxyState.getData());
+            String proxyStateId = new String(proxyState.getValue(), UTF_8);
 
             final Promise<RadiusPacket> request = requests.get(proxyStateId);
 

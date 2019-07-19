@@ -16,37 +16,36 @@ public class RadiusAttribute {
 
     private final Dictionary dictionary;
     private final int type;
-    private final byte[] data;
+    private final byte[] value;
 
     private final int vendorId; //only for Vendor-Specific attributes and their sub-attributes
 
     /**
      * @param dictionary Dictionary to use
      * @param vendorId   vendor ID or -1
-     * @param data       source array to read data from
-     * @return RadiusAttribute object
+     * @param value      value of attribute as byte array
      */
-    RadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+    RadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] value) {
         this.dictionary = requireNonNull(dictionary, "dictionary not set");
         this.vendorId = vendorId;
         if (type < 0 || type > 255)
             throw new IllegalArgumentException("attribute type invalid: " + type);
         this.type = type;
-        requireNonNull(data, "attribute data not set");
-        if (data.length > 253)
-            throw new IllegalArgumentException("attribute data too long, max 253 octets, actual: " + data.length);
-        this.data = data;
+        requireNonNull(value, "attribute data not set");
+        if (value.length > 253)
+            throw new IllegalArgumentException("attribute data too long, max 253 octets, actual: " + value.length);
+        this.value = value;
     }
 
-    RadiusAttribute(Dictionary dictionary, int vendorId, int type, String data) {
-        this(dictionary, vendorId, type, data.getBytes(UTF_8));
+    RadiusAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+        this(dictionary, vendorId, type, value.getBytes(UTF_8));
     }
 
     /**
      * @return attribute data as raw bytes
      */
-    public byte[] getData() {
-        return data;
+    public byte[] getValue() {
+        return value;
     }
 
     /**
@@ -59,8 +58,8 @@ public class RadiusAttribute {
     /**
      * @return value of this attribute as a string.
      */
-    public String getDataString() {
-        return getHexString(data);
+    public String getValueString() {
+        return getHexString(value); // todo getValueString should be inverse of string constructor
     }
 
     /**
@@ -82,30 +81,31 @@ public class RadiusAttribute {
      */
     public byte[] toByteArray() {
 
-        byte[] attr = new byte[2 + data.length];
+        byte[] attr = new byte[2 + value.length];
         attr[0] = (byte) getType();
-        attr[1] = (byte) (2 + data.length);
-        System.arraycopy(data, 0, attr, 2, data.length);
+        attr[1] = (byte) (2 + value.length);
+        System.arraycopy(value, 0, attr, 2, value.length);
         return attr;
     }
 
     public String toString() {
-        String name;
+        StringBuilder name = new StringBuilder();
+
+        // indent sub attributes
+        if (getVendorId() != -1)
+            name.append("  ");
 
         // determine attribute name
         AttributeType at = getAttributeType();
         if (at != null)
-            name = at.getName();
+            name.append(at.getName());
         else if (getVendorId() != -1)
-            name = "Unknown-Sub-Attribute-" + getType();
+            name.append("Unknown-Sub-Attribute-").append(getType());
         else
-            name = "Unknown-Attribute-" + getType();
+            name.append("Unknown-Attribute-").append(getType());
 
-        // indent sub attributes
-        if (getVendorId() != -1)
-            name = "  " + name;
 
-        return name + ": " + getDataString();
+        return name.append(": ").append(getValueString()).toString();
     }
 
     /**
@@ -133,6 +133,7 @@ public class RadiusAttribute {
         return hex.toString();
     }
 
+    // do not remove - for removing from list of attributes
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -140,13 +141,13 @@ public class RadiusAttribute {
         RadiusAttribute that = (RadiusAttribute) o;
         return type == that.type &&
                 vendorId == that.vendorId &&
-                Arrays.equals(data, that.data);
+                Arrays.equals(value, that.value);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(type, vendorId);
-        result = 31 * result + Arrays.hashCode(data);
+        result = 31 * result + Arrays.hashCode(value);
         return result;
     }
 }

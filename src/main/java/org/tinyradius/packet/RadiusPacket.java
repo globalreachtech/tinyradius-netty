@@ -125,7 +125,7 @@ public class RadiusPacket {
 
         if (attribute.getVendorId() == -1) {
             this.attributes.add(
-                    createAttribute(dictionary, attribute.getVendorId(), attribute.getType(), attribute.getData()));
+                    createAttribute(dictionary, attribute.getVendorId(), attribute.getType(), attribute.getValue()));
         } else {
             VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, attribute.getVendorId());
             vsa.addSubAttribute(attribute);
@@ -230,9 +230,6 @@ public class RadiusPacket {
      * @return list of RadiusAttribute objects, does not return null
      */
     public List<RadiusAttribute> getAttributes(int type) {
-        if (type < 1 || type > 255)
-            throw new IllegalArgumentException("attribute type out of bounds");
-
         return attributes.stream()
                 .filter(a -> a.getType() == type)
                 .collect(Collectors.toList());
@@ -338,7 +335,7 @@ public class RadiusPacket {
     public String getAttributeValue(String type) {
         RadiusAttribute attr = getAttribute(type);
         return attr == null ?
-                null : attr.getDataString();
+                null : attr.getValueString();
     }
 
     /**

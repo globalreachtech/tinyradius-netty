@@ -132,7 +132,7 @@ public class AccessRequest extends RadiusPacket {
     public String getUserName() {
         final RadiusAttribute attribute = getAttribute(USER_NAME);
         return attribute == null ?
-                null : attribute.getDataString();
+                null : attribute.getValueString();
     }
 
     /**
@@ -180,16 +180,16 @@ public class AccessRequest extends RadiusPacket {
 
         if (userPassword != null) {
             setAuthProtocol(AUTH_PAP);
-            this.password = decodePapPassword(userPassword.getData(), sharedSecret.getBytes(UTF_8));
+            this.password = decodePapPassword(userPassword.getValue(), sharedSecret.getBytes(UTF_8));
         } else if (chapPassword != null) {
             setAuthProtocol(AUTH_CHAP);
-            this.chapPassword = chapPassword.getData();
+            this.chapPassword = chapPassword.getValue();
             this.chapChallenge = chapChallenge != null ?
-                    chapChallenge.getData() : getAuthenticator();
+                    chapChallenge.getValue() : getAuthenticator();
         } else if (msChapChallenge != null && msChap2Response != null) {
             setAuthProtocol(AUTH_MS_CHAP_V2);
-            this.chapPassword = msChap2Response.getData();
-            this.chapChallenge = msChapChallenge.getData();
+            this.chapPassword = msChap2Response.getValue();
+            this.chapChallenge = msChapChallenge.getValue();
         } else if (eapMessage.size() > 0) {
             setAuthProtocol(AUTH_EAP);
         } else

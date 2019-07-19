@@ -4,6 +4,8 @@ import org.tinyradius.dictionary.Dictionary;
 
 import java.nio.ByteBuffer;
 
+import static java.lang.Integer.toUnsignedLong;
+
 /**
  * This class represents a Radius attribute which only contains a 32 bit integer.
  */
@@ -24,12 +26,21 @@ public class IntegerAttribute extends RadiusAttribute {
     }
 
     /**
-     * Returns the string value of this attribute.
+     * Returns the long value of this attribute.
      *
-     * @return a string
+     * @return a long
      */
-    public long getAttributeValueInt() {
-        return ByteBuffer.wrap(getData()).getInt() & 0xFFFFFFFFL;
+    public long getValueLong() {
+        return toUnsignedLong(getValueInt());
+    }
+
+    /**
+     * Returns the int value of this attribute.
+     *
+     * @return a int
+     */
+    public int getValueInt() {
+        return ByteBuffer.wrap(getValue()).getInt();
     }
 
     /**
@@ -37,8 +48,8 @@ public class IntegerAttribute extends RadiusAttribute {
      * Tries to resolve enumerations.
      */
     @Override
-    public String getDataString() {
-        long value = getAttributeValueInt();
+    public String getValueString() {
+        int value = getValueInt();
         AttributeType at = getAttributeType();
         if (at != null) {
             String name = at.getEnumeration(value);
@@ -46,7 +57,7 @@ public class IntegerAttribute extends RadiusAttribute {
                 return name;
         }
         // Radius uses only unsigned values....
-        return Long.toString((value & 0xffffffffL));
+        return Long.toString(toUnsignedLong(value));
     }
 
     /**

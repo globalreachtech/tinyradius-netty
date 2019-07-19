@@ -173,7 +173,7 @@ class RadiusPacketEncoderTest {
         assertEquals(ACCOUNTING_REQUEST, packet.getType());
         assertTrue(packet instanceof AccountingRequest);
         assertEquals(rawRequest.getIdentifier(), packet.getIdentifier());
-        assertEquals(rawRequest.getUserName(), packet.getAttribute("User-Name").getDataString());
+        assertEquals(rawRequest.getUserName(), packet.getAttribute("User-Name").getValueString());
 
         // todo test with bad authenticator (will not work with AccessRequest as auth is random)
     }
@@ -197,7 +197,7 @@ class RadiusPacketEncoderTest {
         RadiusPacket packet = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, sharedSecret, encodedRequest);
 
         assertEquals(encodedResponse.getIdentifier(), packet.getIdentifier());
-        assertEquals("state3333", new String(packet.getAttribute(33).getData()));
+        assertEquals("state3333", new String(packet.getAttribute(33).getValue()));
         assertArrayEquals(encodedResponse.getAuthenticator(), packet.getAuthenticator());
 
         // todo test with different request packetId/auth

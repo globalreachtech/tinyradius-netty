@@ -21,7 +21,7 @@ public class StringAttribute extends RadiusAttribute {
     }
 
     @Override
-    public String getDataString() {
-        return new String(getData(), UTF_8);
+    public String getValueString() {
+        return new String(getValue(), UTF_8);
     }
 }

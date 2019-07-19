@@ -32,8 +32,8 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      * Returns the attribute value (IP number) as a string of the format "xx.xx.xx.xx".
      */
     @Override
-    public String getDataString() {
-        final byte[] data = getData();
+    public String getValueString() {
+        final byte[] data = getValue();
         if (data == null || data.length != 18)
             throw new RuntimeException("ip attribute: expected 18 bytes attribute data");
         try {

@@ -39,21 +39,21 @@ class RadiusPacketTest {
 
         final List<RadiusAttribute> wisprLocations = vendorAttributes.get(0).getSubAttributes();
         assertEquals(1, wisprLocations.size());
-        assertEquals("myLocationId", wisprLocations.get(0).getDataString());
+        assertEquals("myLocationId", wisprLocations.get(0).getValueString());
 
-        assertEquals("myLocationId", packet.getAttribute(14122, 1).getDataString());
+        assertEquals("myLocationId", packet.getAttribute(14122, 1).getValueString());
         final List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, 1);
         assertEquals(1, wisprLocations2.size());
-        assertEquals("myLocationId", wisprLocations2.get(0).getDataString());
+        assertEquals("myLocationId", wisprLocations2.get(0).getValueString());
 
-        assertEquals("0.18.214.135", packet.getAttribute(8).getDataString());
-        assertEquals("0.18.214.135", packet.getAttribute("Framed-IP-Address").getDataString());
-        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute(168).getDataString());
-        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute("Framed-IPv6-Address").getDataString());
+        assertEquals("0.18.214.135", packet.getAttribute(8).getValueString());
+        assertEquals("0.18.214.135", packet.getAttribute("Framed-IP-Address").getValueString());
+        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute(168).getValueString());
+        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute("Framed-IPv6-Address").getValueString());
 
         final List<RadiusAttribute> ipV6Attributes = packet.getAttributes(97);
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
-                ipV6Attributes.stream().map(RadiusAttribute::getDataString).toArray());
+                ipV6Attributes.stream().map(RadiusAttribute::getValueString).toArray());
 
         assertEquals("Access-Request, ID 1\n" +
                 "Vendor-Specific: WISPr (14122)\n" +
@@ -118,7 +118,7 @@ class RadiusPacketTest {
 
         assertFalse(rp.getAttributes().isEmpty());
         assertEquals(2, rp.getAttributes().size());
-        assertEquals("Login-User", attribute.getDataString());
+        assertEquals("Login-User", attribute.getValueString());
     }
 
 }

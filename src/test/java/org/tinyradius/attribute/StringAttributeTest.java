@@ -23,7 +23,7 @@ class StringAttributeTest {
         final String s = new Date().toString();
         final StringAttribute stringAttribute = new StringAttribute(DefaultDictionary.INSTANCE, -1, 1, s);
 
-        assertEquals(s, stringAttribute.getDataString());
-        assertArrayEquals(s.getBytes(UTF_8), stringAttribute.getData());
+        assertEquals(s, stringAttribute.getValueString());
+        assertArrayEquals(s.getBytes(UTF_8), stringAttribute.getValue());
     }
 }

@@ -69,7 +69,7 @@ public class AccountingRequest extends RadiusPacket {
     public String getUserName() {
         final RadiusAttribute attribute = getAttribute(USER_NAME);
         return attribute == null ?
-                null : attribute.getDataString();
+                null : attribute.getValueString();
     }
 
     /**
@@ -90,6 +90,6 @@ public class AccountingRequest extends RadiusPacket {
     public int getAcctStatusType() {
         RadiusAttribute ra = getAttribute(ACCT_STATUS_TYPE);
         return ra == null ?
-                -1 : (int) ((IntegerAttribute) ra).getAttributeValueInt();
+                -1 : ((IntegerAttribute) ra).getValueInt();
     }
 }

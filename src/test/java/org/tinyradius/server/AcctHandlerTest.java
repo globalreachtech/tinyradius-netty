@@ -36,7 +36,7 @@ class AcctHandlerTest {
         request.addAttribute(createAttribute(dictionary, -1, 33, "state2".getBytes(UTF_8)));
         assertEquals(ACCOUNTING_REQUEST, request.getType());
         assertEquals(Arrays.asList("state1", "state2"), request.getAttributes().stream()
-                .map(RadiusAttribute::getData)
+                .map(RadiusAttribute::getValue)
                 .map(String::new)
                 .collect(Collectors.toList()));
 
@@ -46,7 +46,7 @@ class AcctHandlerTest {
         assertEquals(id, response.getIdentifier());
         assertEquals(ACCOUNTING_RESPONSE, response.getType());
         assertEquals(Arrays.asList("state1", "state2"), response.getAttributes().stream()
-                .map(RadiusAttribute::getData)
+                .map(RadiusAttribute::getValue)
                 .map(String::new)
                 .collect(Collectors.toList()));
     }
