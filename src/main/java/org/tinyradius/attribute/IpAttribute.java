@@ -12,18 +12,19 @@ import static java.lang.Byte.toUnsignedInt;
  */
 public class IpAttribute extends RadiusAttribute {
 
+    private String hostAddress;
+
     /**
      *
      */
     public static class V4 extends IpAttribute {
-        static final int addressLength = 4;
 
         V4(Dictionary dictionary, int vendorId, int type, byte[] data) {
-            super(dictionary, vendorId, type, data, addressLength);
+            super(dictionary, vendorId, type, data);
         }
 
         V4(Dictionary dictionary, int vendorId, int type, String data) {
-            super(dictionary, vendorId, type, data, addressLength);
+            super(dictionary, vendorId, type, data);
         }
 
         public V4(Dictionary dictionary, int vendorId, int type, long value) {
@@ -65,34 +66,33 @@ public class IpAttribute extends RadiusAttribute {
      *
      */
     public static class V6 extends IpAttribute {
-        static final int addressLength = 16;
 
         V6(Dictionary dictionary, int vendorId, int type, byte[] data) {
-            super(dictionary, vendorId, type, data, addressLength);
+            super(dictionary, vendorId, type, data);
         }
 
         V6(Dictionary dictionary, int vendorId, int type, String data) {
-            super(dictionary, vendorId, type, data, addressLength);
+            super(dictionary, vendorId, type, data);
         }
     }
 
-    private IpAttribute(Dictionary dictionary, int vendorId, int type, byte[] data, int addressLength) {
+    private IpAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         super(dictionary, vendorId, type, data);
-        if (data.length != addressLength)
-            throw new IllegalArgumentException("Expected address length " + addressLength + ", actual length " + data.length);
+
+        try {
+            hostAddress = InetAddress.getByAddress(data).getHostAddress();
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("bad address", e);
+        }
     }
 
-    private IpAttribute(Dictionary dictionary, int vendorId, int type, String data, int addressLength) {
-        this(dictionary, vendorId, type, convertIp(data), addressLength);
+    private IpAttribute(Dictionary dictionary, int vendorId, int type, String data) {
+        this(dictionary, vendorId, type, convertIp(data));
     }
 
     @Override
     public String getValueString() {
-        try { // todo clean data on constructor instead of check on read
-            return InetAddress.getByAddress(getValue()).getHostAddress();
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("bad address", e);
-        }
+        return hostAddress;
     }
 
     private static byte[] convertIp(String value) {
