@@ -14,7 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static io.netty.buffer.Unpooled.buffer;
 import static java.lang.Byte.toUnsignedInt;
 import static org.tinyradius.attribute.Attributes.extractAttributes;
-import static org.tinyradius.packet.PacketType.*;
+import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
+import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
 
 public class RadiusPacketEncoder {

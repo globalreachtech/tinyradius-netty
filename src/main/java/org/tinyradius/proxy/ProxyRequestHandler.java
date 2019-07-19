@@ -9,8 +9,6 @@ import org.tinyradius.client.ProxyStateClientHandler;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.RequestHandler;
-import org.tinyradius.util.Lifecycle;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 

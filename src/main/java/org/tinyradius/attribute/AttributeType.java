@@ -1,7 +1,6 @@
 package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.RadiusPacket;
 
 import java.util.HashMap;
 import java.util.Map;
