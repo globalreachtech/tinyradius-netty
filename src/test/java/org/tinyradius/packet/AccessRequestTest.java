@@ -16,6 +16,7 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.packet.AccessRequest.pad;
 import static org.tinyradius.packet.RadiusPacketEncoder.nextPacketId;
 
 class AccessRequestTest {
@@ -144,5 +145,19 @@ class AccessRequestTest {
         byte[] randomBytes = new byte[16];
         random.nextBytes(randomBytes);
         return randomBytes;
+    }
+
+    @Test
+    void testPad() {
+        assertEquals(16, pad(new byte[0]).length);
+        assertEquals(16, pad(new byte[1]).length);
+        assertEquals(16, pad(new byte[2]).length);
+        assertEquals(16, pad(new byte[15]).length);
+        assertEquals(16, pad(new byte[16]).length);
+        assertEquals(32, pad(new byte[17]).length);
+        assertEquals(32, pad(new byte[18]).length);
+        assertEquals(32, pad(new byte[31]).length);
+        assertEquals(32, pad(new byte[32]).length);
+        assertEquals(48, pad(new byte[33]).length);
     }
 }

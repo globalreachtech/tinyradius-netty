@@ -15,7 +15,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
-import static org.tinyradius.packet.Util.*;
 
 /**
  * This class represents an Access-Request Radius packet.
@@ -284,21 +283,20 @@ public class AccessRequest extends RadiusPacket {
      * @param sharedSecret shared secret
      * @return the byte array containing the encrypted password
      */
-    private byte[] encodePapPassword(byte[] newAuthenticator, byte[] userPass, byte[] sharedSecret) {
+    private byte[] encodePapPassword(byte[] authenticator, byte[] userPass, byte[] sharedSecret) {
         requireNonNull(userPass, "userPass cannot be null");
         requireNonNull(sharedSecret, "sharedSecret cannot be null");
 
-        byte[] C = newAuthenticator;
-        byte[] P = pad(userPass, C.length);
-        byte[] result = new byte[P.length];
+        byte[] ciphertext = authenticator;
+        byte[] P = pad(userPass);
+        final ByteBuffer buffer = ByteBuffer.allocate(P.length);
 
-        for (int i = 0; i < P.length; i += C.length) {
-            C = compute(sharedSecret, C);
-            C = xor(P, i, C.length, C, 0, C.length);
-            System.arraycopy(C, 0, result, i, C.length);
+        for (int i = 0; i < P.length; i += 16) {
+            ciphertext = xor16(P, i, md5(sharedSecret, ciphertext));
+            buffer.put(ciphertext);
         }
 
-        return result;
+        return buffer.array();
     }
 
     /**
@@ -309,24 +307,21 @@ public class AccessRequest extends RadiusPacket {
      * @return decrypted password
      */
     private String decodePapPassword(byte[] encryptedPass, byte[] sharedSecret) throws RadiusException {
-        if (encryptedPass == null || encryptedPass.length < 16) {
-            // PAP passwords require at least 16 bytes
-            logger.warn("invalid Radius packet: User-Password attribute with malformed PAP password, length = "
-                    + (encryptedPass == null ? 0 : encryptedPass.length) + ", but length must be greater than 15");
+        if (encryptedPass.length < 16) {
+            // PAP passwords require at least 16 bytes, or multiples thereof
+            logger.warn("malformed packet: User-Password attribute length must be greater than 15, actual {}", encryptedPass.length);
             throw new RadiusException("malformed User-Password attribute");
         }
 
-        byte[] result = new byte[encryptedPass.length];
-        byte[] C = this.getAuthenticator();
+        final ByteBuffer buffer = ByteBuffer.allocate(encryptedPass.length);
+        byte[] ciphertext = this.getAuthenticator();
 
-        for (int i = 0; i < encryptedPass.length; i += C.length) {
-            C = compute(sharedSecret, C);
-            C = xor(encryptedPass, i, C.length, C, 0, C.length);
-            System.arraycopy(C, 0, result, i, C.length);
-            System.arraycopy(encryptedPass, i, C, 0, C.length);
+        for (int i = 0; i < encryptedPass.length; i += 16) {
+            buffer.put(xor16(encryptedPass, i, md5(sharedSecret, ciphertext)));
+            ciphertext = Arrays.copyOfRange(encryptedPass, i, 16);
         }
 
-        return getStringFromUtf8(result);
+        return stripNullPadding(new String(buffer.array(), UTF_8));
     }
 
     /**
@@ -368,18 +363,54 @@ public class AccessRequest extends RadiusPacket {
         return false;
     }
 
-    private byte[] compute(byte[]... values) {
+    private byte[] md5(byte[] a, byte[] b) {
         MessageDigest md = getMd5Digest();
-
-        for (byte[] b : values)
-            md.update(b);
-
-        return md.digest();
+        md.update(a);
+        return md.digest(b);
     }
 
     private byte[] random16bytes() {
         byte[] randomBytes = new byte[16];
         random.nextBytes(randomBytes);
         return randomBytes;
+    }
+
+    private static byte[] xor16(byte[] src1, int src1offset, byte[] src2) {
+
+        byte[] dst = new byte[16];
+
+        requireNonNull(src1, "src1 is null");
+        requireNonNull(src2, "src2 is null");
+
+        if (src1offset < 0)
+            throw new IndexOutOfBoundsException("src1offset is less than 0");
+        if ((src1offset + 16) > src1.length)
+            throw new IndexOutOfBoundsException("bytes in src1 is less than src1offset plus 16");
+        if (16 > src2.length)
+            throw new IndexOutOfBoundsException("bytes in src2 is less than 16");
+
+        for (int i = 0; i < 16; i++) {
+            dst[i] = (byte) (src1[i + src1offset] ^ src2[i]);
+        }
+
+        return dst;
+    }
+
+    static byte[] pad(byte[] val) {
+        requireNonNull(val, "value cannot be null");
+
+        int length1 = Math.max(
+                (int) (Math.ceil((double) val.length / 16) * 16), 16);
+
+        byte[] padded = new byte[length1];
+
+        System.arraycopy(val, 0, padded, 0, val.length);
+
+        return padded;
+    }
+
+    private static String stripNullPadding(String s) {
+        int i = s.indexOf('\0');
+        return (i > 0) ? s.substring(0, i) : s;
     }
 }

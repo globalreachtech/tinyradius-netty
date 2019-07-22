@@ -34,8 +34,6 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
     @Override
     public String getValueString() {
         final byte[] data = getValue();
-        if (data == null || data.length != 18)
-            throw new RuntimeException("ip attribute: expected 18 bytes attribute data");
         try {
             final int prefix = toUnsignedInt(data[1]);
             final Inet6Address addr = (Inet6Address) Inet6Address.getByAddress(null, Arrays.copyOfRange(data, 2, data.length));
@@ -44,7 +42,6 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("bad IPv6 prefix", e);
         }
-
     }
 
     /**

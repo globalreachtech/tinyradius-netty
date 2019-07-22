@@ -89,7 +89,7 @@ public class RadiusPacket {
         if (identifier < 0 || identifier > 255)
             throw new IllegalArgumentException("packet identifier out of bounds: " + identifier);
         if (authenticator != null && authenticator.length != 16)
-            throw new IllegalArgumentException("authenticator must be 16 octets, was: " + authenticator.length);
+            throw new IllegalArgumentException("authenticator must be 16 octets, actual: " + authenticator.length);
 
         this.type = type;
         this.identifier = identifier;
@@ -388,7 +388,7 @@ public class RadiusPacket {
      * @return authenticator, 16 bytes
      */
     public byte[] getAuthenticator() {
-        return authenticator;
+        return authenticator == null ? null : authenticator.clone();
     }
 
     /**
