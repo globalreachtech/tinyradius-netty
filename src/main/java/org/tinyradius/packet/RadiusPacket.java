@@ -20,7 +20,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
-import static org.tinyradius.packet.PacketType.*;
 import static org.tinyradius.packet.RadiusPacketEncoder.createRadiusPacket;
 
 /**
@@ -123,12 +122,6 @@ public class RadiusPacket {
      */
     public void addAttribute(RadiusAttribute attribute) {
         requireNonNull(attributes, "attribute is null");
-
-        //ipv6 prefix attributes only allowed in ACCESS_REQUEST, ACCESS_ACCEPT AND ACCOUNTING_REQUEST PACKETS
-        if ((attribute.getType() == 123 || attribute.getType() == 97) &&
-                (getType() != ACCESS_REQUEST && type != ACCESS_ACCEPT && type != ACCOUNTING_REQUEST)) {
-            throw new RuntimeException("IPv6 prefix not allowed in packet");
-        }
 
         if (attribute.getVendorId() == -1) {
             this.attributes.add(

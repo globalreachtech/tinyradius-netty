@@ -3,17 +3,12 @@ package org.tinyradius.attribute;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccessRequest;
-import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.RadiusPacket;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.packet.PacketType.ACCESS_REJECT;
 
 class Ipv6PrefixAttributeTest {
 
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private Ipv6PrefixAttribute attribute;
 
     @Test
     void minAttributeLength() {
@@ -42,38 +37,15 @@ class Ipv6PrefixAttributeTest {
     }
 
     @Test
-    void addFramedIpv6PrefixToAccessRequestPacket() {
-        String user = "user";
-        String plaintextPw = "myPassword";
-        RadiusPacket packet = new AccessRequest(dictionary, 1, null, user, plaintextPw);
-        attribute = new Ipv6PrefixAttribute(packet.getDictionary(), -1, 97, new byte[4]);
-        packet.addAttribute(attribute);
-
-        assertEquals(attribute, packet.getAttribute("Framed-IPv6-Prefix"));
+    void getValueString() {
+        final Ipv6PrefixAttribute attribute = new Ipv6PrefixAttribute(dictionary, -1, 97, "2001:db8:ac10:fe01:0:0:0:0/0");
+        assertEquals("2001:db8:ac10:fe01:0:0:0:0/0", attribute.getValueString());
     }
 
     @Test
-    void addDelegatedIpv6PrefixToAcceptRejectPacket() {
-        RadiusPacket packet = new RadiusPacket(dictionary, ACCESS_REJECT, 3);
-        attribute = new Ipv6PrefixAttribute(packet.getDictionary(), -1, 123, new byte[4]);
-
-        final RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> packet.addAttribute(attribute));
-
-        assertTrue(exception.getMessage().toLowerCase().contains("ipv6 prefix not allowed in packet"));
-    }
-
-    @Test
-    void addDelegatedIpv6PrefixToAccountingRequestPacket() {
-        String user = "user";
-        RadiusPacket packet = new AccountingRequest(DefaultDictionary.INSTANCE, 12, null, user, AccountingRequest.ACCT_STATUS_TYPE_ACCOUNTING_ON);
-        attribute = new Ipv6PrefixAttribute(packet.getDictionary(), -1, 123, new byte[4]);
-        packet.addAttribute(attribute);
-
-        assertEquals(attribute, packet.getAttribute("Delegated-Ipv6-Prefix"));
-    }
-
-    @Test
-    void getDataString() {
+    void getValueStringEmpty() {
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new Ipv6PrefixAttribute(dictionary, -1, 97, ""));
+        assertTrue(exception.getMessage().toLowerCase().contains("bad ipv6 address"));
     }
 }
