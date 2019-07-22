@@ -399,10 +399,10 @@ public class AccessRequest extends RadiusPacket {
     static byte[] pad(byte[] val) {
         requireNonNull(val, "value cannot be null");
 
-        int length1 = Math.max(
+        int length = Math.max(
                 (int) (Math.ceil((double) val.length / 16) * 16), 16);
 
-        byte[] padded = new byte[length1];
+        byte[] padded = new byte[length];
 
         System.arraycopy(val, 0, padded, 0, val.length);
 

@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
  */
 public class IpAttribute extends RadiusAttribute {
 
-    private final InetAddress inetAddress;
+    private final String inetAddress;
 
     /**
      * IPv4 Address
@@ -48,7 +48,7 @@ public class IpAttribute extends RadiusAttribute {
     private IpAttribute(Dictionary dictionary, int vendorId, int type, InetAddress data, Class<? extends InetAddress> clazz) {
         super(dictionary, vendorId, type, data.getAddress());
 
-        this.inetAddress = data;
+        this.inetAddress = data.getHostAddress();
 
         if (!clazz.isInstance(data))
             throw new IllegalArgumentException("Expected " + clazz.getSimpleName() + ", actual " + data.getClass().getSimpleName());
@@ -56,7 +56,7 @@ public class IpAttribute extends RadiusAttribute {
 
     @Override
     public String getValueString() {
-        return inetAddress.getHostAddress();
+        return inetAddress;
     }
 
     private static InetAddress convert(String value) {

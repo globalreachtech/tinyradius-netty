@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.tinyradius.packet.PacketType.*;
 
-public class PacketTypeTest {
+class PacketTypeTest {
 
     @Test
     void getAccessPacketType() {
