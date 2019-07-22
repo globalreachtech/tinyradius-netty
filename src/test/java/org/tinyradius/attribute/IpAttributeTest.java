@@ -14,7 +14,7 @@ class IpAttributeTest {
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
-    void maxIpV4UnsignedIntAsString() {
+    void maxIpV4AsString() {
         final long maxValue = 0xffffffffL;
         final String maxValueStr = Long.toString(maxValue); // 2^32 - 1 = 4294967295
         final IpAttribute.V4 attribute = new IpAttribute.V4(dictionary, -1, 8, maxValueStr);
@@ -37,6 +37,12 @@ class IpAttributeTest {
                 () -> new IpAttribute.V4(dictionary, -1, 8, new byte[5]));
 
         assertTrue(exception.getMessage().toLowerCase().contains("bad address"));
+    }
+
+    @Test
+    void ipV4AsString() {
+        final IpAttribute.V4 attribute = new IpAttribute.V4(dictionary, -1, 8, "192.168.0.1");
+        assertEquals("192.168.0.1", attribute.getValueString());
     }
 
     @Test
@@ -71,21 +77,32 @@ class IpAttributeTest {
     @Test
     void ipV6StringTooLong() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> new IpAttribute.V6(dictionary, -1, 8, "200112:0DB8:AC10:FE01:0000:0000:0000:0000"));
+                () -> new IpAttribute.V6(dictionary, -1, 8, "20011:0DB8:AC10:FE01:0000:0000:0000:0000"));
         assertTrue(exception.getMessage().toLowerCase().contains("bad address"));
     }
 
     @Test
     void ipV6StringTooShort() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> new IpAttribute.V6(dictionary, -1, 8, "200112:FE01:0000:0000:0000:0000"));
+                () -> new IpAttribute.V6(dictionary, -1, 8, "2001:FE01:0000:0000:0000:0000"));
         assertTrue(exception.getMessage().toLowerCase().contains("bad address"));
     }
 
     @Test
     void ipV6StringIsEmpty() {
-        final RuntimeException exception = assertThrows(RuntimeException.class,
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> new IpAttribute.V6(dictionary, -1, 8, ""));
         assertTrue(exception.getMessage().toLowerCase().contains("address can't be empty"));
+    }
+
+    @Test
+    void mismatchIpVersions(){
+        final IllegalArgumentException v6Exception = assertThrows(IllegalArgumentException.class,
+                () -> new IpAttribute.V6(dictionary, -1, 8, "192.168.0.1"));
+        assertTrue(v6Exception.getMessage().toLowerCase().contains("expected inet6address"));
+
+        final IllegalArgumentException v4Exception = assertThrows(IllegalArgumentException.class,
+                () -> new IpAttribute.V4(dictionary, -1, 8, "2001:4860:4860::8888"));
+        assertTrue(v4Exception.getMessage().toLowerCase().contains("expected inet4address"));
     }
 }
