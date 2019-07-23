@@ -26,7 +26,7 @@ class VendorSpecificAttributeTest {
     @Test
     void parseVendorIdZero() {
         VendorSpecificAttribute vendorSpecificAttribute =
-                new VendorSpecificAttribute(DefaultDictionary.INSTANCE, 1, 1, new byte[4]);
+                new VendorSpecificAttribute(dictionary, 1, 1, new byte[4]);
 
         assertEquals(26, vendorSpecificAttribute.getType());
         assertEquals(0, vendorSpecificAttribute.getVendorId());
@@ -36,7 +36,7 @@ class VendorSpecificAttributeTest {
     void parseVendorIdUnsignedIntMax() {
         final byte[] bytes = {(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
         VendorSpecificAttribute vendorSpecificAttribute =
-                new VendorSpecificAttribute(DefaultDictionary.INSTANCE, 1, 1, bytes);
+                new VendorSpecificAttribute(dictionary, 1, 1, bytes);
 
         assertEquals(26, vendorSpecificAttribute.getType());
         assertEquals(-1, vendorSpecificAttribute.getVendorId());
@@ -79,7 +79,7 @@ class VendorSpecificAttributeTest {
 
     @Test
     void vsaToByteArrayLargestUnsignedVendorId() {
-        RadiusAttribute radiusAttribute = createAttribute(DefaultDictionary.INSTANCE, Integer.parseUnsignedInt("4294967295"), 1, new byte[4]);
+        RadiusAttribute radiusAttribute = createAttribute(dictionary, Integer.parseUnsignedInt("4294967295"), 1, new byte[4]);
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, Integer.parseUnsignedInt("4294967295"), new ArrayList<>());
         vendorSpecificAttribute.addSubAttribute(radiusAttribute);
         assertEquals(1, vendorSpecificAttribute.getSubAttributes().size());
