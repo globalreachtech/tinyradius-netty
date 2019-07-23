@@ -58,9 +58,9 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
             byte[] ipData = InetAddress.getByName(tokens[0]).getAddress();
             final BitSet bitSet = BitSet.valueOf(ipData);
 
-            bitSet.set(prefixBits, bitSet.size(), false); // bits beyond Prefix-Length must be 0
+            // todo cleanup
+            bitSet.set(Math.min(prefixBits, bitSet.length()), bitSet.length(), false); // bits beyond Prefix-Length must be 0
             byte[] maskedIpData = bitSet.toByteArray();
-
 
             final ByteBuffer buffer = ByteBuffer.allocate(2 + prefixBytes); // max 18
             buffer.put((byte) 0);
@@ -88,8 +88,8 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
 
         try {
             final int prefix = toUnsignedInt(data[1]);
-            final byte[] addressArray = ByteBuffer.allocate(16)
-                    .put(data, 2, declaredPrefixBits).array(); // only get declared bits, ignore rest of address
+            final byte[] addressArray = ByteBuffer.allocate(16) // todo use BitSet and mask rest of address
+                    .put(data, 2, declaredPrefixBytes).array(); // only get declared bits, ignore rest of address
 
             return InetAddress.getByAddress(addressArray).getHostAddress() + "/" + prefix;
         } catch (UnknownHostException e) {

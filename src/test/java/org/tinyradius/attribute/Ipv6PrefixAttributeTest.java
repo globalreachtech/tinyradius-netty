@@ -56,4 +56,11 @@ class Ipv6PrefixAttributeTest {
     void foo() {
         createAttribute(dictionary, -1, 97, "fe80::/64"); // todo
     }
+
+    @Test
+    void foo2() {
+        createAttribute(dictionary, -1, 97, "fe80::/64");
+    }
+
+
 }
