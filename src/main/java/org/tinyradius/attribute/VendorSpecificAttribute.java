@@ -197,8 +197,8 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         byte[] attrData = buffer.copy().array();
 
         int len = attrData.length;
-        if (len > 255)
-            throw new RuntimeException("Vendor-Specific attribute too long: " + len);
+        if (len < 7 || len > 255)
+            throw new RuntimeException("Vendor-Specific attribute is of incorrect length: " + len);
 
         attrData[1] = (byte) len;
         return attrData;

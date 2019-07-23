@@ -74,6 +74,16 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
+    void vsaToByteArrayLargestUnsignedVendorId() {
+        RadiusAttribute radiusAttribute = createAttribute(DefaultDictionary.INSTANCE, Integer.parseUnsignedInt("4294967295"), 1, new byte[4]);
+        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, Integer.parseUnsignedInt("4294967295"), new ArrayList<>());
+        vendorSpecificAttribute.addSubAttribute(radiusAttribute);
+        assertEquals(1, vendorSpecificAttribute.getSubAttributes().size());
+        byte[] bytes = vendorSpecificAttribute.toByteArray();
+        assertEquals(12, bytes.length);
+    }
+
+    @Test
     void vsaToByteArrayTooLong() throws RadiusException {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         RadiusAttribute radiusAttribute = new RadiusAttribute(dictionary, 14122, 26, new byte[253]);
@@ -82,6 +92,13 @@ class VendorSpecificAttributeTest {
         assertEquals(2, vendorSpecificAttribute.getSubAttributes().size());
 
         Exception exception = assertThrows(RuntimeException.class, vendorSpecificAttribute::toByteArray);
-        assertTrue(exception.getMessage().toLowerCase().contains("vendor-specific attribute too long"));
+        assertTrue(exception.getMessage().toLowerCase().contains("attribute is of incorrect length"));
+    }
+
+    @Test
+    void vsaToByteArrayWithNoSubAttributes() {
+        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
+        Exception exception = assertThrows(RuntimeException.class, vendorSpecificAttribute::toByteArray);
+        assertTrue(exception.getMessage().toLowerCase().contains("attribute is of incorrect length"));
     }
 }
