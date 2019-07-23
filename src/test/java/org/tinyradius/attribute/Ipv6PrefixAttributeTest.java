@@ -92,7 +92,6 @@ class Ipv6PrefixAttributeTest {
         bytes[1] = 17; // 17 bits require 3 bytes;
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> createAttribute(dictionary, -1, 97, bytes));
-        exception.printStackTrace();
         assertTrue(exception.getMessage().toLowerCase().contains("actual byte array only has space for 16 bits"));
         assertTrue(exception.getMessage().toLowerCase().contains("prefix-length declared 17 bits"));
     }

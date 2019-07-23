@@ -37,7 +37,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * @return vendorId
      */
     private static int extractVendorId(byte[] data) {
-        return ByteBuffer.wrap(data).getInt(); // todo test
+        return ByteBuffer.wrap(data).getInt(); // todo test with 0xffffffff
     }
 
     VendorSpecificAttribute(Dictionary dictionary, int vendorId, int ignored, String ignored2) {

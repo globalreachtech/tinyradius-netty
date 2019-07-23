@@ -162,11 +162,10 @@ class RadiusPacketEncoderTest {
     }
 
     @Test
-    void fromDatagram() throws RadiusException {
+    void accountingRequestFromDatagram() throws RadiusException {
         String user = "user1";
         String sharedSecret = "sharedSecret1";
 
-        // todo test other types
         AccountingRequest rawRequest = new AccountingRequest(dictionary, 250, null);
         rawRequest.setUserName(user);
         final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
@@ -178,8 +177,49 @@ class RadiusPacketEncoderTest {
         assertTrue(packet instanceof AccountingRequest);
         assertEquals(rawRequest.getIdentifier(), packet.getIdentifier());
         assertEquals(rawRequest.getUserName(), packet.getAttribute("User-Name").getValueString());
+    }
 
-        // todo test with bad authenticator (will not work with AccessRequest as auth is random)
+    @Test
+    void accountingRequestBadAuthFromDatagram() throws RadiusException {
+        String user = "user1";
+        String sharedSecret = "sharedSecret1";
+
+        AccountingRequest rawRequest = new AccountingRequest(dictionary, 250, null);
+        rawRequest.setUserName(user);
+        final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
+
+        DatagramPacket originalDatagram = RadiusPacketEncoder.toDatagram(request, remoteAddress);
+
+        final byte[] array = originalDatagram.content().array();
+        array[4] = 0; // corrupt authenticator
+
+        final DatagramPacket datagramPacket = new DatagramPacket(Unpooled.wrappedBuffer(array), originalDatagram.recipient());
+
+        final RadiusException radiusException = assertThrows(RadiusException.class,
+                () -> RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, sharedSecret));
+
+        assertTrue(radiusException.getMessage().toLowerCase().contains("authenticator check failed"));
+    }
+
+    @Test
+    void accessRequestFromDatagram() throws RadiusException {
+        String user = "user1";
+        String password = "myPassword";
+        String sharedSecret = "sharedSecret1";
+
+        AccessRequest rawRequest = new AccessRequest(dictionary, 250, null, user, password);
+        final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
+
+        DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(request, remoteAddress);
+        RadiusPacket radiusPacket = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, sharedSecret);
+
+        assertEquals(ACCESS_REQUEST, radiusPacket.getType());
+        assertTrue(radiusPacket instanceof AccessRequest);
+
+        AccessRequest packet = (AccessRequest) radiusPacket;
+        assertEquals(rawRequest.getIdentifier(), packet.getIdentifier());
+        assertEquals(rawRequest.getUserName(), packet.getAttribute("User-Name").getValueString());
+        assertEquals(rawRequest.getUserPassword(), packet.getUserPassword());
     }
 
     @Test
