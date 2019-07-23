@@ -18,8 +18,6 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
 
     Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         this(dictionary, vendorId, type, convertValue(data), data);
-        if (data.length < 2 || data.length > 18)
-            throw new IllegalArgumentException("IPv6 Prefix body should be 2-18 octets (2-octet header + actual prefix), actual: " + data.length);
     }
 
     /**
@@ -47,7 +45,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
 
     private static byte[] convertValue(String value) {
         if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("bad IPv6 prefix empty : " + value);
+            throw new IllegalArgumentException("Invalid IPv6 prefix (empty): " + value);
         try {
             final String[] tokens = value.split("/");
 
@@ -61,12 +59,13 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
             final BitSet bitSet = BitSet.valueOf(ipData);
 
             bitSet.set(prefixBits, bitSet.size(), false); // bits beyond Prefix-Length must be 0
+            byte[] maskedIpData = bitSet.toByteArray();
 
 
             final ByteBuffer buffer = ByteBuffer.allocate(2 + prefixBytes); // max 18
             buffer.put((byte) 0);
             buffer.put((byte) prefixBits);
-            buffer.put(bitSet.toByteArray(), 0, prefixBytes);
+            buffer.put(maskedIpData, 0, Math.min(prefixBits, maskedIpData.length)); // maskedIpData is trimmed
 
             return buffer.array();
         } catch (UnknownHostException e) {
@@ -75,6 +74,8 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
     }
 
     private static String convertValue(byte[] data) {
+        if (data.length < 2 || data.length > 18)
+            throw new IllegalArgumentException("IPv6 Prefix body should be 2-18 octets (2-octet header + max 16 octet address), actual: " + data.length);
         final int declaredPrefixBits = toUnsignedInt(data[1]); // bits
         if (declaredPrefixBits > 128)
             throw new IllegalArgumentException("IPv6 Prefix Prefix-Length should be no greater than 128 bits, declared: " + declaredPrefixBits);

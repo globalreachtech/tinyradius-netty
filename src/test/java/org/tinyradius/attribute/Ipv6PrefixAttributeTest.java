@@ -5,6 +5,7 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 
 class Ipv6PrefixAttributeTest {
 
@@ -26,14 +27,15 @@ class Ipv6PrefixAttributeTest {
     void LessThanMinAttributeLength() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> new Ipv6PrefixAttribute(dictionary, -1, 97, new byte[1]));
-        assertTrue(exception.getMessage().toLowerCase().contains("expected length min 4, max 20"));
+        exception.printStackTrace();
+        assertTrue(exception.getMessage().toLowerCase().contains("should be 2-18 octets"));
     }
 
     @Test
     void MoreThanMaxAttributeLength() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> new Ipv6PrefixAttribute(dictionary, -1, 97, new byte[20]));
-        assertTrue(exception.getMessage().toLowerCase().contains("expected length min 4, max 20"));
+        assertTrue(exception.getMessage().toLowerCase().contains("should be 2-18 octets"));
     }
 
     @Test
@@ -46,6 +48,12 @@ class Ipv6PrefixAttributeTest {
     void getValueStringEmpty() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> new Ipv6PrefixAttribute(dictionary, -1, 97, ""));
-        assertTrue(exception.getMessage().toLowerCase().contains("bad ipv6 address"));
+        exception.printStackTrace();
+        assertTrue(exception.getMessage().toLowerCase().contains("invalid ipv6 prefix"));
+    }
+
+    @Test
+    void foo() {
+        createAttribute(dictionary, -1, 97, "fe80::/64"); // todo
     }
 }
