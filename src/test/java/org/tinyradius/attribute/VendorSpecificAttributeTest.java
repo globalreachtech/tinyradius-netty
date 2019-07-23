@@ -1,6 +1,5 @@
 package org.tinyradius.attribute;
 
-import net.jradius.packet.attribute.SubAttribute;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.util.RadiusException;
@@ -8,17 +7,19 @@ import org.tinyradius.util.RadiusException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 
 class VendorSpecificAttributeTest {
 
     private static DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
-    void toByteArray() {
-
-        // normal Attributes, we can check in constructor we aren't passing in too big a byte array
-        // VSA we manipulate sub-attributes, and only get array when we call toByteArray()
-        // todo test size isn't too big
+    void createVsa() {
+        String data = "myLocationId";
+        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, 2, data);
+        vendorSpecificAttribute.addSubAttribute(createAttribute(dictionary, 14122, 2, data));
+        assertTrue(!vendorSpecificAttribute.getSubAttributes().isEmpty());
+        assertEquals(data, vendorSpecificAttribute.getSubAttribute(2).getValueString());
     }
 
     @Test
@@ -29,51 +30,52 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void getVsaSubAttributeByType() {
-        final VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
-        final VendorSpecificAttribute subAttribute = new VendorSpecificAttribute(dictionary, 14122, 12, "Wisp");
-        assertEquals(26, subAttribute.getType());
-        vendorSpecificAttribute.addSubAttribute(subAttribute);
-        assertTrue(!vendorSpecificAttribute.getSubAttributes().isEmpty());
-        assertEquals(subAttribute, vendorSpecificAttribute.getSubAttribute(26));
-    }
-
-    @Test
     void getVsaSubAttributeValueStringByAttributeType() throws RadiusException {
-        final VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
+        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
         assertTrue(!vendorSpecificAttribute.getSubAttributes().isEmpty());
+
         RadiusAttribute subAttribute = vendorSpecificAttribute.getSubAttribute("WISPr-Location-ID");
-        String subAttributeValue = vendorSpecificAttribute.getSubAttributeValue(subAttribute.getAttributeType().getName());
-        assertEquals("myLocationId", subAttributeValue);
+        assertEquals("myLocationId", vendorSpecificAttribute.getSubAttributeValue(subAttribute.getAttributeType().getName()));
     }
 
     @Test
     void getVsaSubAttributeValueStringByName() throws RadiusException {
-        final VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
+        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
         assertTrue(!vendorSpecificAttribute.getSubAttributes().isEmpty());
-        RadiusAttribute subAttribute = vendorSpecificAttribute.getSubAttribute("WISPr-Location-ID");
-        assertEquals("myLocationId", subAttribute.getValueString());
+        assertEquals("myLocationId", vendorSpecificAttribute.getSubAttribute("WISPr-Location-ID").getValueString());
     }
 
     @Test
     void addNonVsaSubAttribute() {
-        final VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
+        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         Exception exception = assertThrows(RuntimeException.class, () -> vendorSpecificAttribute.addSubAttribute("User-Password", "password"));
         assertTrue(exception.getMessage().toLowerCase().contains("is not a vendor-specific sub-attribute"));
     }
 
     @Test
     void addEmptySubAttribute() {
-        final VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
+        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         Exception exception = assertThrows(RuntimeException.class, () -> vendorSpecificAttribute.addSubAttribute("", "myLocationId"));
         assertTrue(exception.getMessage().toLowerCase().contains("type name is empty"));
     }
 
     @Test
-    void vsaTooByteArrayTooLong() throws RadiusException {
-        final VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
+    void vsaToByteArray() throws RadiusException {
+        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
+        RadiusAttribute radiusAttribute = new RadiusAttribute(dictionary, 14122, 26, new byte[8]);
+        vendorSpecificAttribute.addSubAttribute(radiusAttribute);
+        vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
+        assertEquals(2, vendorSpecificAttribute.getSubAttributes().size());
+
+        byte[] bytes = vendorSpecificAttribute.toByteArray();
+        assertEquals(bytes.length, bytes[1]);
+    }
+
+    @Test
+    void vsaToByteArrayTooLong() throws RadiusException {
+        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         RadiusAttribute radiusAttribute = new RadiusAttribute(dictionary, 14122, 26, new byte[253]);
         vendorSpecificAttribute.addSubAttribute(radiusAttribute);
         vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
