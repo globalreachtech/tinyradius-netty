@@ -1,5 +1,6 @@
 package org.tinyradius.attribute;
 
+import net.jradius.packet.attribute.SubAttribute;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.util.RadiusException;
@@ -28,7 +29,7 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void getVendorSpecificSubAttribute() {
+    void getVsaSubAttributeByType() {
         final VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         final VendorSpecificAttribute subAttribute = new VendorSpecificAttribute(dictionary, 14122, 12, "Wisp");
         assertEquals(26, subAttribute.getType());
@@ -38,11 +39,22 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void getVendorSpecificSubAttributeByName() throws RadiusException {
+    void getVsaSubAttributeValueStringByAttributeType() throws RadiusException {
         final VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
         assertTrue(!vendorSpecificAttribute.getSubAttributes().isEmpty());
-        assertEquals(1, vendorSpecificAttribute.getSubAttributes().get(0).getAttributeType().getTypeCode());
+        RadiusAttribute subAttribute = vendorSpecificAttribute.getSubAttribute("WISPr-Location-ID");
+        String subAttributeValue = vendorSpecificAttribute.getSubAttributeValue(subAttribute.getAttributeType().getName());
+        assertEquals("myLocationId", subAttributeValue);
+    }
+
+    @Test
+    void getVsaSubAttributeValueStringByName() throws RadiusException {
+        final VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
+        vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
+        assertTrue(!vendorSpecificAttribute.getSubAttributes().isEmpty());
+        RadiusAttribute subAttribute = vendorSpecificAttribute.getSubAttribute("WISPr-Location-ID");
+        assertEquals("myLocationId", subAttribute.getValueString());
     }
 
     @Test

@@ -24,16 +24,15 @@ class Ipv6PrefixAttributeTest {
 
     @Test
     void LessThanMinAttributeLength() {
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        assertThrows(ArrayIndexOutOfBoundsException.class,
                 () -> new Ipv6PrefixAttribute(dictionary, -1, 97, new byte[1]));
-        assertTrue(exception.getMessage().toLowerCase().contains("expected length min 4, max 20"));
     }
 
     @Test
     void MoreThanMaxAttributeLength() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> new Ipv6PrefixAttribute(dictionary, -1, 97, new byte[20]));
-        assertTrue(exception.getMessage().toLowerCase().contains("expected length min 4, max 20"));
+        assertTrue(exception.getMessage().toLowerCase().contains("body should be 2-18 octets"));
     }
 
     @Test
@@ -46,6 +45,6 @@ class Ipv6PrefixAttributeTest {
     void getValueStringEmpty() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> new Ipv6PrefixAttribute(dictionary, -1, 97, ""));
-        assertTrue(exception.getMessage().toLowerCase().contains("bad ipv6 address"));
+        assertTrue(exception.getMessage().toLowerCase().contains("bad ipv6 prefix"));
     }
 }
