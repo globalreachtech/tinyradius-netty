@@ -25,9 +25,8 @@ class Ipv6PrefixAttributeTest {
 
     @Test
     void LessThanMinAttributeLength() {
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> new Ipv6PrefixAttribute(dictionary, -1, 97, new byte[1]));
-        exception.printStackTrace();
         assertTrue(exception.getMessage().toLowerCase().contains("should be 2-18 octets"));
     }
 
@@ -48,7 +47,6 @@ class Ipv6PrefixAttributeTest {
     void getValueStringEmpty() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> new Ipv6PrefixAttribute(dictionary, -1, 97, ""));
-        exception.printStackTrace();
         assertTrue(exception.getMessage().toLowerCase().contains("invalid ipv6 prefix"));
     }
 

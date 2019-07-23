@@ -23,9 +23,8 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     private final List<RadiusAttribute> subAttributes;
 
     /**
-     *
      * @param dictionary
-     * @param ignoredVendorId vendorId ignored, parsed from data directly
+     * @param ignoredVendorId      vendorId ignored, parsed from data directly
      * @param ignoredAttributeType attributeType ignored, should always be Vendor-Specific (26)
      * @param data
      */
@@ -85,12 +84,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
             throw new IllegalArgumentException("value is empty");
 
         AttributeType type = getDictionary().getAttributeTypeByName(name);
-        if (type == null)
-            throw new IllegalArgumentException("unknown attribute type '" + name + "'");
-        if (type.getVendorId() == -1)
-            throw new IllegalArgumentException("attribute type '" + name + "' is not a Vendor-Specific sub-attribute");
-        if (type.getVendorId() != getVendorId())
-            throw new IllegalArgumentException("attribute type '" + name + "' does not belong to vendor ID " + getVendorId());
+        validateSubAttributeType(name, type);
 
         RadiusAttribute attribute = createAttribute(getDictionary(), getVendorId(), type.getTypeCode(), value);
         addSubAttribute(attribute);
@@ -155,12 +149,18 @@ public class VendorSpecificAttribute extends RadiusAttribute {
             throw new IllegalArgumentException("type name is empty");
 
         AttributeType t = getDictionary().getAttributeTypeByName(type);
-        if (t == null)
-            throw new IllegalArgumentException("unknown attribute type name '" + type + "'");
-        if (t.getVendorId() != getVendorId())
-            throw new IllegalArgumentException("vendor ID mismatch");
+        validateSubAttributeType(null, t);
 
         return getSubAttribute(t.getTypeCode());
+    }
+
+    private void validateSubAttributeType(String name, AttributeType type) {
+        if (type == null)
+            throw new IllegalArgumentException("unknown attribute type name'" + name + "'");
+        if (type.getVendorId() == -1)
+            throw new IllegalArgumentException("attribute type '" + name + "' is not a Vendor-Specific sub-attribute");
+        if (type.getVendorId() != getVendorId())
+            throw new IllegalArgumentException("attribute type '" + name + "' does not belong to vendor ID " + getVendorId());
     }
 
     /**
