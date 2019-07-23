@@ -5,6 +5,7 @@ import org.tinyradius.dictionary.Dictionary;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.BitSet;
 
 import static java.lang.Byte.toUnsignedInt;
@@ -17,7 +18,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
     private final String prefix;
 
     Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
-        this(dictionary, vendorId, type, convertValue(data), data);
+        this(dictionary, vendorId, type, convertValue(data), toUnsignedInt(data[1]));
     }
 
     /**
@@ -27,73 +28,77 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      * @param value value, format: "ipv6 address"/prefix
      */
     Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, String value) {
-        this(dictionary, vendorId, type, value, convertValue(value));
+        this(dictionary, vendorId, type, convertValue(value), Integer.parseInt(value.split("/")[1]));
     }
 
-    private Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, String string, byte[] bytes) {
-        super(dictionary, vendorId, type, bytes);
-        this.prefix = string;
+    private Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, InetAddress address, int prefixLength) {
+        super(dictionary, vendorId, type, convertAndCheck(address, prefixLength));
+        this.prefix = address.getHostAddress() + "/" + prefixLength;
     }
 
     /**
-     * Returns the attribute value (IP number) as a string of the format "xx.xx.xx.xx".
+     * Returns the attribute value as a string of the format "x:x:x:x:x:x:x:x/yy".
      */
     @Override
     public String getValueString() {
         return prefix;
     }
 
-    private static byte[] convertValue(String value) {
+    private static byte[] convertAndCheck(InetAddress address, int prefixLength) {
+        if (prefixLength > 128 || prefixLength < 0)
+            throw new IllegalArgumentException("IPv6 Prefix Prefix-Length should be between 0 and 128, declared: " + prefixLength);
+
+        final BitSet bitSet = BitSet.valueOf(address.getAddress());
+        final int bitSetLength = bitSet.length();
+
+        // ensure bits beyond Prefix-Length are zero
+        if (bitSetLength > prefixLength)
+            throw new IllegalArgumentException("Prefix-Length is " + prefixLength + ", actual address has prefix length " + bitSetLength +
+                    ", bits outside of the Prefix-Length must be zero.");
+
+        final int prefixBytes = (int) Math.ceil((double) prefixLength / 8); // bytes needed to hold bits
+
+        byte[] addressBytes = bitSet.toByteArray();
+
+        return ByteBuffer.allocate(2 + prefixBytes)
+                .put((byte) 0)
+                .put((byte) prefixLength)
+                .put(addressBytes)
+                .array();
+    }
+
+    private static InetAddress convertValue(String value) {
         if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("Invalid IPv6 prefix (empty): " + value);
+            throw new IllegalArgumentException("Invalid IPv6 prefix, empty: " + value);
         try {
             final String[] tokens = value.split("/");
 
             if (tokens.length != 2)
-                throw new IllegalArgumentException("Invalid IPv6 prefix: " + value);
+                throw new IllegalArgumentException("Invalid IPv6 prefix expression, should be in format 'prefix/length': " + value);
 
-            final int prefixBits = Integer.parseInt(tokens[1]);
-            final int prefixBytes = (int) Math.ceil((double) prefixBits / 8); // bytes needed to hold bits
-
-            byte[] ipData = InetAddress.getByName(tokens[0]).getAddress();
-            final BitSet bitSet = BitSet.valueOf(ipData);
-
-            // todo cleanup
-            bitSet.set(Math.min(prefixBits, bitSet.length()), bitSet.length(), false); // bits beyond Prefix-Length must be 0
-            byte[] maskedIpData = bitSet.toByteArray();
-
-            final ByteBuffer buffer = ByteBuffer.allocate(2 + prefixBytes); // max 18
-            buffer.put((byte) 0);
-            buffer.put((byte) prefixBits);
-            buffer.put(maskedIpData, 0, Math.min(prefixBits, maskedIpData.length)); // maskedIpData is trimmed
-
-            return buffer.array();
+            return InetAddress.getByName(tokens[0]);
         } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("bad IPv6 address : " + value, e);
+            throw new IllegalArgumentException("bad IPv6 prefix, invalid IPv6 address: " + value, e);
         }
     }
 
-    private static String convertValue(byte[] data) {
+    private static InetAddress convertValue(byte[] data) {
         if (data.length < 2 || data.length > 18)
             throw new IllegalArgumentException("IPv6 Prefix body should be 2-18 octets (2-octet header + max 16 octet address), actual: " + data.length);
-        final int declaredPrefixBits = toUnsignedInt(data[1]); // bits
-        if (declaredPrefixBits > 128)
-            throw new IllegalArgumentException("IPv6 Prefix Prefix-Length should be no greater than 128 bits, declared: " + declaredPrefixBits);
 
-        final int declaredPrefixBytes = (int) Math.ceil((double) declaredPrefixBits / 8);
-        final int availablePrefixBytes = data.length - 2;
+        final int prefixLength = toUnsignedInt(data[1]);
+        final int availablePrefixBits = (data.length - 2) * 8;
 
-        if (availablePrefixBytes < declaredPrefixBytes)
-            throw new IllegalArgumentException("IPv6 Prefix Prefix-Length declared " + declaredPrefixBits + " bits, actual byte array has space for " + availablePrefixBytes + " bytes, cannot hold declared Prefix-Length");
+        if (availablePrefixBits < prefixLength)
+            throw new IllegalArgumentException("IPv6 Prefix Prefix-Length declared " + prefixLength + " bits, " +
+                    "actual byte array only has space for " + availablePrefixBits + " bits");
 
         try {
-            final int prefix = toUnsignedInt(data[1]);
-            final byte[] addressArray = ByteBuffer.allocate(16) // todo use BitSet and mask rest of address
-                    .put(data, 2, declaredPrefixBytes).array(); // only get declared bits, ignore rest of address
-
-            return InetAddress.getByAddress(addressArray).getHostAddress() + "/" + prefix;
+            final byte[] array = ByteBuffer.allocate(16).put(data, 2, data.length - 2).array();
+            return InetAddress.getByAddress(array);
         } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("bad IPv6 prefix", e);
+            throw new IllegalArgumentException("bad IPv6 prefix, invalid IPv6 address: "
+                    + Arrays.toString(Arrays.copyOfRange(data, 2, data.length)), e);
         }
     }
 }
