@@ -2,8 +2,8 @@ package org.tinyradius.attribute;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.util.RadiusException;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,36 +14,40 @@ class VendorSpecificAttributeTest {
     private static DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
-    void createVsa() {
+    void addSubAttributeOk() {
         String data = "myLocationId";
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, 2, data);
         vendorSpecificAttribute.addSubAttribute(createAttribute(dictionary, 14122, 2, data));
-        assertTrue(!vendorSpecificAttribute.getSubAttributes().isEmpty());
+
+        assertEquals(1, vendorSpecificAttribute.getSubAttributes().size());
         assertEquals(data, vendorSpecificAttribute.getSubAttribute(2).getValueString());
     }
 
     @Test
-    void getVendorSpecificType() {
+    void parseVendorIdZero() {
         VendorSpecificAttribute vendorSpecificAttribute =
                 new VendorSpecificAttribute(DefaultDictionary.INSTANCE, 1, 1, new byte[4]);
+
         assertEquals(26, vendorSpecificAttribute.getType());
+        assertEquals(0, vendorSpecificAttribute.getVendorId());
     }
 
     @Test
-    void getVsaSubAttributeValueStringByAttributeType() throws RadiusException {
-        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
-        vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
-        assertTrue(!vendorSpecificAttribute.getSubAttributes().isEmpty());
+    void parseVendorIdUnsignedIntMax() {
+        final byte[] bytes = {(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
+        VendorSpecificAttribute vendorSpecificAttribute =
+                new VendorSpecificAttribute(DefaultDictionary.INSTANCE, 1, 1, bytes);
 
-        RadiusAttribute subAttribute = vendorSpecificAttribute.getSubAttribute("WISPr-Location-ID");
-        assertEquals("myLocationId", vendorSpecificAttribute.getSubAttributeValue(subAttribute.getAttributeType().getName()));
+        assertEquals(26, vendorSpecificAttribute.getType());
+        assertEquals(-1, vendorSpecificAttribute.getVendorId());
     }
 
     @Test
-    void getVsaSubAttributeValueStringByName() throws RadiusException {
+    void getVsaSubAttributeValueStringByName() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
-        assertTrue(!vendorSpecificAttribute.getSubAttributes().isEmpty());
+
+        assertFalse(vendorSpecificAttribute.getSubAttributes().isEmpty());
         assertEquals("myLocationId", vendorSpecificAttribute.getSubAttribute("WISPr-Location-ID").getValueString());
     }
 
@@ -62,7 +66,7 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void vsaToByteArray() throws RadiusException {
+    void vsaToByteArray() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         RadiusAttribute radiusAttribute = new RadiusAttribute(dictionary, 14122, 26, new byte[8]);
         vendorSpecificAttribute.addSubAttribute(radiusAttribute);
@@ -79,26 +83,29 @@ class VendorSpecificAttributeTest {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, Integer.parseUnsignedInt("4294967295"), new ArrayList<>());
         vendorSpecificAttribute.addSubAttribute(radiusAttribute);
         assertEquals(1, vendorSpecificAttribute.getSubAttributes().size());
+
         byte[] bytes = vendorSpecificAttribute.toByteArray();
         assertEquals(12, bytes.length);
+        assertEquals(-1, ByteBuffer.wrap(bytes).getInt(2));
+        // int unsigned max == -1 signed
     }
 
     @Test
-    void vsaToByteArrayTooLong() throws RadiusException {
+    void vsaToByteArrayTooLong() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
-        RadiusAttribute radiusAttribute = new RadiusAttribute(dictionary, 14122, 26, new byte[253]);
-        vendorSpecificAttribute.addSubAttribute(radiusAttribute);
+        vendorSpecificAttribute.addSubAttribute(new RadiusAttribute(dictionary, 14122, 26, new byte[253]));
         vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
         assertEquals(2, vendorSpecificAttribute.getSubAttributes().size());
 
         Exception exception = assertThrows(RuntimeException.class, vendorSpecificAttribute::toByteArray);
-        assertTrue(exception.getMessage().toLowerCase().contains("attribute is of incorrect length"));
+        exception.printStackTrace();
+        assertTrue(exception.getMessage().toLowerCase().contains("should be less than 256 octets"));
     }
 
     @Test
     void vsaToByteArrayWithNoSubAttributes() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         Exception exception = assertThrows(RuntimeException.class, vendorSpecificAttribute::toByteArray);
-        assertTrue(exception.getMessage().toLowerCase().contains("attribute is of incorrect length"));
+        assertTrue(exception.getMessage().toLowerCase().contains("should be greater than 6 octets"));
     }
 }

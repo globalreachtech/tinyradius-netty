@@ -3,7 +3,6 @@ package org.tinyradius.attribute;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * @return vendorId
      */
     private static int extractVendorId(byte[] data) {
-        return ByteBuffer.wrap(data).getInt(); // todo test with 0xffffffff
+        return ByteBuffer.wrap(data).getInt();
     }
 
     VendorSpecificAttribute(Dictionary dictionary, int vendorId, int ignored, String ignored2) {
@@ -77,14 +76,13 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * @param value value of the sub-attribute
      * @throws IllegalArgumentException invalid sub-attribute name or value
      */
-    public void addSubAttribute(String name, String value) throws RadiusException {
+    public void addSubAttribute(String name, String value) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("type name is empty");
         if (value == null || value.isEmpty())
             throw new IllegalArgumentException("value is empty");
 
-        AttributeType type = getDictionary().getAttributeTypeByName(name);
-        validateSubAttributeType(name, type);
+        AttributeType type = lookupAttributeType(name);
 
         RadiusAttribute attribute = createAttribute(getDictionary(), getVendorId(), type.getTypeCode(), value);
         addSubAttribute(attribute);
@@ -148,35 +146,18 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         if (type == null || type.isEmpty())
             throw new IllegalArgumentException("type name is empty");
 
-        AttributeType t = getDictionary().getAttributeTypeByName(type);
-        validateSubAttributeType(null, t);
-
-        return getSubAttribute(t.getTypeCode());
+        return getSubAttribute(lookupAttributeType(type).getTypeCode());
     }
 
-    private void validateSubAttributeType(String name, AttributeType type) {
+    private AttributeType lookupAttributeType(String name) {
+        final AttributeType type = getDictionary().getAttributeTypeByName(name);
         if (type == null)
             throw new IllegalArgumentException("unknown attribute type name'" + name + "'");
         if (type.getVendorId() == -1)
             throw new IllegalArgumentException("attribute type '" + name + "' is not a Vendor-Specific sub-attribute");
         if (type.getVendorId() != getVendorId())
             throw new IllegalArgumentException("attribute type '" + name + "' does not belong to vendor ID " + getVendorId());
-    }
-
-    /**
-     * Returns the value of the Radius attribute of the given type or null if
-     * there is no such attribute.
-     *
-     * @param type attribute type name
-     * @return value of the attribute as a string or null if there is no such
-     * attribute
-     * @throws IllegalArgumentException if the type name is unknown
-     * @throws RuntimeException         attribute occurs multiple times
-     */
-    public String getSubAttributeValue(String type) {
-        RadiusAttribute attr = getSubAttribute(type);
-        return attr == null ?
-                null : attr.getValueString();
+        return type;
     }
 
     /**
@@ -188,20 +169,24 @@ public class VendorSpecificAttribute extends RadiusAttribute {
 
         buffer.writeByte(VENDOR_SPECIFIC);
         buffer.writeByte(0); // length placeholder
-        buffer.writeInt(getVendorId()); // todo check large numbers
+        buffer.writeInt(getVendorId());
 
         for (RadiusAttribute attribute : subAttributes) {
             buffer.writeBytes(attribute.toByteArray());
         }
 
-        byte[] attrData = buffer.copy().array();
+        byte[] array = buffer.copy().array();
 
-        int len = attrData.length;
-        if (len < 7 || len > 255)
-            throw new RuntimeException("Vendor-Specific attribute is of incorrect length: " + len);
+        int len = array.length;
 
-        attrData[1] = (byte) len;
-        return attrData;
+        if (len < 7)
+            throw new RuntimeException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
+
+        if (len > 255)
+            throw new RuntimeException("Vendor-Specific attribute should be less than 256 octets, actual: " + len);
+
+        array[1] = (byte) len;
+        return array;
     }
 
     /**

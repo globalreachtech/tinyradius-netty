@@ -51,5 +51,6 @@ class RadiusClientTest {
                 () -> radiusClient.communicate(request, endpoint).syncUninterruptibly());
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
+        radiusClient.stop();
     }
 }
