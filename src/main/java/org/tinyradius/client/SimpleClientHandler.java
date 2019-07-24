@@ -2,7 +2,6 @@ package org.tinyradius.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.Byte.toUnsignedInt;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * ClientHandler that uses packetIdentifier and remote address to uniquely identify request/responses.
@@ -32,18 +30,12 @@ public class SimpleClientHandler extends ClientHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleClientHandler.class);
 
-    private final Timer timer;
     private final Dictionary dictionary;
-    private final int maxAttempts;
-    private final int retryWait;
 
     private final Map<RequestKey, Request> contexts = new ConcurrentHashMap<>();
 
-    public SimpleClientHandler(Timer timer, Dictionary dictionary, int maxAttempts, int retryWait) {
-        this.timer = timer;
+    public SimpleClientHandler(Dictionary dictionary) {
         this.dictionary = dictionary;
-        this.maxAttempts = maxAttempts;
-        this.retryWait = retryWait;
     }
 
     @Override
@@ -56,19 +48,6 @@ public class SimpleClientHandler extends ClientHandler {
         promise.addListener(f -> contexts.remove(key));
 
         return packet;
-    }
-
-    @Override
-    public void scheduleRetry(Runnable retry, int attempt, Promise<RadiusPacket> promise) {
-        timer.newTimeout(t -> {
-            if (promise.isDone())
-                return;
-
-            if (attempt >= maxAttempts)
-                promise.tryFailure(new RadiusException("Client send failed, max retries reached: " + maxAttempts));
-            else
-                retry.run();
-        }, retryWait, MILLISECONDS);
     }
 
     @Override

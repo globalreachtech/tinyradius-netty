@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.ProxyStateClientHandler;
 import org.tinyradius.client.RadiusClient;
+import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
@@ -50,8 +51,9 @@ public class TestProxy {
             return remote.getAddress().getHostAddress().equals("127.0.0.1") ?
                     "proxytest" : null;
         };
-        final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(dictionary, timer, secretProvider, 3, 1000);
-        RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, clientHandler, null, 11814);
+        final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(dictionary, secretProvider);
+        final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 1000);
+        RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, clientHandler, retryStrategy, null, 11814);
 
         final ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(radiusClient) {
             @Override

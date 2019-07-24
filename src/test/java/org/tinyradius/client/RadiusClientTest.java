@@ -7,6 +7,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.ResourceLeakDetector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.RadiusPacket;
@@ -41,8 +42,9 @@ class RadiusClientTest {
 
     @Test()
     void communicateWithTimeout() {
-        SimpleClientHandler handler = new SimpleClientHandler(timer, dictionary, 3, 1000);
-        RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, handler, null, 0);
+        SimpleClientHandler handler = new SimpleClientHandler(dictionary);
+        final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 1000);
+        RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, handler, retryStrategy, null, 0);
 
         final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");

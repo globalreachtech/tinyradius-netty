@@ -98,7 +98,6 @@ class VendorSpecificAttributeTest {
         assertEquals(2, vendorSpecificAttribute.getSubAttributes().size());
 
         Exception exception = assertThrows(RuntimeException.class, vendorSpecificAttribute::toByteArray);
-        exception.printStackTrace();
         assertTrue(exception.getMessage().toLowerCase().contains("should be less than 256 octets"));
     }
 

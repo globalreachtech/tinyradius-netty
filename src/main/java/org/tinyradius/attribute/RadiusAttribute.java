@@ -3,6 +3,7 @@ package org.tinyradius.attribute;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
@@ -141,5 +142,12 @@ public class RadiusAttribute {
         return type == that.type &&
                 vendorId == that.vendorId &&
                 Arrays.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(type, vendorId);
+        result = 31 * result + Arrays.hashCode(value);
+        return result;
     }
 }

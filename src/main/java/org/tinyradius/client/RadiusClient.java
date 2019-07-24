@@ -11,6 +11,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.client.retry.RetryStrategy;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusEndpoint;
@@ -38,6 +39,7 @@ public class RadiusClient<T extends DatagramChannel> {
     private final ChannelFactory<T> factory;
     private final EventLoopGroup eventLoopGroup;
     private final ClientHandler clientHandler;
+    private final RetryStrategy retryStrategy;
     private final InetAddress listenAddress;
     private final int port;
 
@@ -52,10 +54,16 @@ public class RadiusClient<T extends DatagramChannel> {
      * @param listenAddress  local address to bind to, will be wildcard address if null
      * @param port           port to bind to, or set to 0 to let system choose
      */
-    public RadiusClient(EventLoopGroup eventLoopGroup, ChannelFactory<T> factory, ClientHandler clientHandler, InetAddress listenAddress, int port) {
+    public RadiusClient(EventLoopGroup eventLoopGroup,
+                        ChannelFactory<T> factory,
+                        ClientHandler clientHandler,
+                        RetryStrategy retryStrategy,
+                        InetAddress listenAddress,
+                        int port) {
         this.factory = requireNonNull(factory, "factory cannot be null");
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
         this.clientHandler = clientHandler;
+        this.retryStrategy = retryStrategy;
         this.listenAddress = listenAddress;
         this.port = port;
     }
@@ -143,6 +151,6 @@ public class RadiusClient<T extends DatagramChannel> {
         // inc refCnt so msg isn't released after sending and can reuse for retries
         channel.writeAndFlush(datagram.retain());
 
-        clientHandler.scheduleRetry(() -> send(datagram, attempt + 1, requestPromise), attempt, requestPromise);
+        retryStrategy.scheduleRetry(() -> send(datagram, attempt + 1, requestPromise), attempt, requestPromise);
     }
 }

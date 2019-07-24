@@ -2,7 +2,6 @@ package org.tinyradius.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 
 /**
@@ -37,25 +35,18 @@ public class ProxyStateClientHandler extends ClientHandler {
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
 
     private final Dictionary dictionary;
-    private final Timer timer;
-    private final int maxAttempts;
-    private final int retryWait;
     private final SecretProvider secretProvider;
 
     private final Map<String, Promise<RadiusPacket>> requests = new ConcurrentHashMap<>();
 
     /**
      * @param dictionary     to decode packet incoming DatagramPackets to RadiusPackets
-     * @param timer          set timeout handlers if no responses received after timeout
      * @param secretProvider lookup shared secret for decoding response for upstream server.
      *                       Unlike packetIdentifier, Proxy-State is stored in attribute rather than the second octet,
      *                       so requires decoding first before we can lookup any context.
      */
-    public ProxyStateClientHandler(Dictionary dictionary, Timer timer, SecretProvider secretProvider, int maxAttempts, int retryWait) {
+    public ProxyStateClientHandler(Dictionary dictionary, SecretProvider secretProvider) {
         this.dictionary = dictionary;
-        this.timer = timer;
-        this.maxAttempts = maxAttempts;
-        this.retryWait = retryWait;
         this.secretProvider = secretProvider;
     }
 
@@ -80,23 +71,10 @@ public class ProxyStateClientHandler extends ClientHandler {
     }
 
     @Override
-    public void scheduleRetry(Runnable retry, int attempt, Promise<RadiusPacket> promise) {
-        timer.newTimeout(t -> {
-            if (promise.isDone())
-                return;
-
-            if (attempt >= maxAttempts)
-                promise.tryFailure(new RadiusException("Client send failed, max retries reached: " + maxAttempts));
-            else
-                retry.run();
-        }, retryWait, MILLISECONDS);
-    }
-
-    @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
         String secret = secretProvider.getSharedSecret(datagramPacket.sender());
         if (secret == null) {
-            logger.info("ignoring packet from unknown server {} received on local address {}",
+            logger.info("Ignoring packet - unknown sender {} received on local address {}",
                     datagramPacket.sender(), datagramPacket.recipient());
             return;
         }
@@ -107,7 +85,7 @@ public class ProxyStateClientHandler extends ClientHandler {
             // retrieve my Proxy-State attribute (the last)
             List<RadiusAttribute> proxyStates = packet.getAttributes(PROXY_STATE);
             if (proxyStates.isEmpty())
-                logger.warn("Received proxy packet without Proxy-State attribute, ignoring...");
+                logger.warn("Ignoring packet - no Proxy-State attribute");
 
             RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
             String proxyStateId = new String(proxyState.getValue(), UTF_8);
@@ -115,7 +93,7 @@ public class ProxyStateClientHandler extends ClientHandler {
             final Promise<RadiusPacket> request = requests.get(proxyStateId);
 
             if (request == null) {
-                logger.info("Request context not found for received packet, ignoring...");
+                logger.info("Ignoring packet - request context not found");
                 return;
             }
 
