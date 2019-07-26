@@ -147,6 +147,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public static class <span class="typeNameLabel">IpAttribute.V4</span>
 extends <a href="IpAttribute.html" title="class in org.tinyradius.attribute">IpAttribute</a></pre>
+<div class="block">IPv4 Address</div>
 </li>
 </ul>
 </div>
@@ -184,10 +185,10 @@ extends <a href="IpAttribute.html" title="class in org.tinyradius.attribute">IpA
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,int,int,long)">V4</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,int,int,java.lang.String)">V4</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
   int&nbsp;vendorId,
   int&nbsp;type,
-  long&nbsp;value)</code></th>
+  java.lang.String&nbsp;data)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -209,11 +210,9 @@ extends <a href="IpAttribute.html" title="class in org.tinyradius.attribute">IpA
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDataLong()">getDataLong</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns the IP number as a 32 bit unsigned number.</div>
-</td>
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getValueInt()">getValueInt</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -221,14 +220,14 @@ extends <a href="IpAttribute.html" title="class in org.tinyradius.attribute">IpA
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.tinyradius.attribute.<a href="IpAttribute.html" title="class in org.tinyradius.attribute">IpAttribute</a></h3>
-<code><a href="IpAttribute.html#getDataString()">getDataString</a></code></li>
+<code><a href="IpAttribute.html#getValueString()">getValueString</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.org.tinyradius.attribute.RadiusAttribute">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.tinyradius.attribute.<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></h3>
-<code><a href="RadiusAttribute.html#equals(java.lang.Object)">equals</a>, <a href="RadiusAttribute.html#getAttributeType()">getAttributeType</a>, <a href="RadiusAttribute.html#getData()">getData</a>, <a href="RadiusAttribute.html#getDictionary()">getDictionary</a>, <a href="RadiusAttribute.html#getType()">getType</a>, <a href="RadiusAttribute.html#getVendorId()">getVendorId</a>, <a href="RadiusAttribute.html#hashCode()">hashCode</a>, <a href="RadiusAttribute.html#toByteArray()">toByteArray</a>, <a href="RadiusAttribute.html#toString()">toString</a></code></li>
+<code><a href="RadiusAttribute.html#equals(java.lang.Object)">equals</a>, <a href="RadiusAttribute.html#getAttributeType()">getAttributeType</a>, <a href="RadiusAttribute.html#getDictionary()">getDictionary</a>, <a href="RadiusAttribute.html#getType()">getType</a>, <a href="RadiusAttribute.html#getValue()">getValue</a>, <a href="RadiusAttribute.html#getVendorId()">getVendorId</a>, <a href="RadiusAttribute.html#hashCode()">hashCode</a>, <a href="RadiusAttribute.html#toByteArray()">toByteArray</a>, <a href="RadiusAttribute.html#toString()">toString</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -253,7 +252,7 @@ extends <a href="IpAttribute.html" title="class in org.tinyradius.attribute">IpA
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.tinyradius.dictionary.Dictionary,int,int,long)">
+<a id="&lt;init&gt;(org.tinyradius.dictionary.Dictionary,int,int,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -262,7 +261,7 @@ extends <a href="IpAttribute.html" title="class in org.tinyradius.attribute">IpA
 <pre>public&nbsp;V4&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
           int&nbsp;vendorId,
           int&nbsp;type,
-          long&nbsp;value)</pre>
+          java.lang.String&nbsp;data)</pre>
 </li>
 </ul>
 </li>
@@ -275,19 +274,13 @@ extends <a href="IpAttribute.html" title="class in org.tinyradius.attribute">IpA
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getDataLong()">
+<a id="getValueInt()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>getDataLong</h4>
-<pre class="methodSignature">public&nbsp;long&nbsp;getDataLong()</pre>
-<div class="block">Returns the IP number as a 32 bit unsigned number. The number is
- returned in a long because Java does not support unsigned ints.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>IP number</dd>
-</dl>
+<h4>getValueInt</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getValueInt()</pre>
 </li>
 </ul>
 </li>

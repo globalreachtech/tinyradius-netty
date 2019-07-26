@@ -160,9 +160,10 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.ClientHandler,java.net.InetAddress,int)">RadiusClient</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetAddress,int)">RadiusClient</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
             io.netty.channel.ChannelFactory&lt;<a href="RadiusClient.html" title="type parameter in RadiusClient">T</a>&gt;&nbsp;factory,
-            <a href="ClientHandler.html" title="class in org.tinyradius.client">ClientHandler</a>&nbsp;clientHandler,
+            <a href="handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a>&nbsp;clientHandler,
+            <a href="retry/RetryStrategy.html" title="interface in org.tinyradius.client.retry">RetryStrategy</a>&nbsp;retryStrategy,
             java.net.InetAddress&nbsp;listenAddress,
             int&nbsp;port)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -229,7 +230,7 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.ClientHandler,java.net.InetAddress,int)">
+<a id="&lt;init&gt;(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetAddress,int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -237,7 +238,8 @@ extends java.lang.Object</pre>
 <h4>RadiusClient</h4>
 <pre>public&nbsp;RadiusClient&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
                     io.netty.channel.ChannelFactory&lt;<a href="RadiusClient.html" title="type parameter in RadiusClient">T</a>&gt;&nbsp;factory,
-                    <a href="ClientHandler.html" title="class in org.tinyradius.client">ClientHandler</a>&nbsp;clientHandler,
+                    <a href="handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a>&nbsp;clientHandler,
+                    <a href="retry/RetryStrategy.html" title="interface in org.tinyradius.client.retry">RetryStrategy</a>&nbsp;retryStrategy,
                     java.net.InetAddress&nbsp;listenAddress,
                     int&nbsp;port)</pre>
 <dl>

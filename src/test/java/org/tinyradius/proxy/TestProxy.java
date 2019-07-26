@@ -7,12 +7,14 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinyradius.client.ProxyStateClientHandler;
 import org.tinyradius.client.RadiusClient;
+import org.tinyradius.client.handler.ProxyStateClientHandler;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.proxy.handler.ProxyDeduplicatorHandler;
+import org.tinyradius.proxy.handler.ProxyRequestHandler;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.SecretProvider;
 
@@ -75,7 +77,7 @@ public class TestProxy {
                 eventLoopGroup,
                 channelFactory,
                 null,
-                new ProxyChannelInboundHandler(dictionary, proxyDeduplicatorHandler, timer, secretProvider),
+                new ProxyHandlerAdapter(dictionary, proxyDeduplicatorHandler, timer, secretProvider),
                 11812, 11813);
 
 

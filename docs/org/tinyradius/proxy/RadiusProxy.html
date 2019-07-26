@@ -165,7 +165,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;org.tinyradius.server.<a href="../server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></h3>
-<code><a href="../server/RadiusServer.html#eventLoopGroup">eventLoopGroup</a>, <a href="../server/RadiusServer.html#factory">factory</a></code></li>
+<code><a href="../server/RadiusServer.html#eventLoopGroup">eventLoopGroup</a></code></li>
 </ul>
 </li>
 </ul>
@@ -184,10 +184,10 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,org.tinyradius.proxy.ProxyChannelInboundHandler,int,int)">RadiusProxy</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,org.tinyradius.proxy.ProxyHandlerAdapter,int,int)">RadiusProxy</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
            io.netty.channel.ChannelFactory&lt;<a href="RadiusProxy.html" title="type parameter in RadiusProxy">T</a>&gt;&nbsp;factory,
            java.net.InetAddress&nbsp;listenAddress,
-           <a href="ProxyChannelInboundHandler.html" title="class in org.tinyradius.proxy">ProxyChannelInboundHandler</a>&nbsp;channelInboundHandler,
+           <a href="ProxyHandlerAdapter.html" title="class in org.tinyradius.proxy">ProxyHandlerAdapter</a>&nbsp;channelInboundHandler,
            int&nbsp;authPort,
            int&nbsp;acctPort)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -255,7 +255,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,org.tinyradius.proxy.ProxyChannelInboundHandler,int,int)">
+<a id="&lt;init&gt;(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,org.tinyradius.proxy.ProxyHandlerAdapter,int,int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -264,7 +264,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <pre>public&nbsp;RadiusProxy&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
                    io.netty.channel.ChannelFactory&lt;<a href="RadiusProxy.html" title="type parameter in RadiusProxy">T</a>&gt;&nbsp;factory,
                    java.net.InetAddress&nbsp;listenAddress,
-                   <a href="ProxyChannelInboundHandler.html" title="class in org.tinyradius.proxy">ProxyChannelInboundHandler</a>&nbsp;channelInboundHandler,
+                   <a href="ProxyHandlerAdapter.html" title="class in org.tinyradius.proxy">ProxyHandlerAdapter</a>&nbsp;channelInboundHandler,
                    int&nbsp;authPort,
                    int&nbsp;acctPort)</pre>
 <dl>

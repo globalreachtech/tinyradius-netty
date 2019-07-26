@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -247,32 +247,24 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 <td class="colFirst"><code>java.util.List&lt;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSubAttributes(int)">getSubAttributes</a></span>&#8203;(int&nbsp;attributeType)</code></th>
 <td class="colLast">
-<div class="block">Returns all sub-attributes of this attribut which have the given type.</div>
+<div class="block">Returns all sub-attributes of this attribute which have the given type.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSubAttributeValue(java.lang.String)">getSubAttributeValue</a></span>&#8203;(java.lang.String&nbsp;type)</code></th>
-<td class="colLast">
-<div class="block">Returns the value of the Radius attribute of the given type or null if
- there is no such attribute.</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeSubAttribute(org.tinyradius.attribute.RadiusAttribute)">removeSubAttribute</a></span>&#8203;(<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;attribute)</code></th>
 <td class="colLast">
 <div class="block">Removes the specified sub-attribute from this attribute.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toByteArray()">toByteArray</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Renders this attribute as a byte array.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">
@@ -285,7 +277,7 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.tinyradius.attribute.<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></h3>
-<code><a href="RadiusAttribute.html#equals(java.lang.Object)">equals</a>, <a href="RadiusAttribute.html#getAttributeType()">getAttributeType</a>, <a href="RadiusAttribute.html#getData()">getData</a>, <a href="RadiusAttribute.html#getDataString()">getDataString</a>, <a href="RadiusAttribute.html#getDictionary()">getDictionary</a>, <a href="RadiusAttribute.html#getType()">getType</a>, <a href="RadiusAttribute.html#getVendorId()">getVendorId</a>, <a href="RadiusAttribute.html#hashCode()">hashCode</a></code></li>
+<code><a href="RadiusAttribute.html#equals(java.lang.Object)">equals</a>, <a href="RadiusAttribute.html#getAttributeType()">getAttributeType</a>, <a href="RadiusAttribute.html#getDictionary()">getDictionary</a>, <a href="RadiusAttribute.html#getType()">getType</a>, <a href="RadiusAttribute.html#getValue()">getValue</a>, <a href="RadiusAttribute.html#getValueString()">getValueString</a>, <a href="RadiusAttribute.html#getVendorId()">getVendorId</a>, <a href="RadiusAttribute.html#hashCode()">hashCode</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -379,8 +371,7 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 <li class="blockList">
 <h4>addSubAttribute</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addSubAttribute&#8203;(java.lang.String&nbsp;name,
-                            java.lang.String&nbsp;value)
-                     throws <a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+                            java.lang.String&nbsp;value)</pre>
 <div class="block">Adds a sub-attribute with the specified name to this attribute.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -388,7 +379,6 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 <dd><code>value</code> - value of the sub-attribute</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.IllegalArgumentException</code> - invalid sub-attribute name or value</dd>
-<dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -427,7 +417,7 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 <li class="blockList">
 <h4>getSubAttributes</h4>
 <pre class="methodSignature">public&nbsp;java.util.List&lt;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;getSubAttributes&#8203;(int&nbsp;attributeType)</pre>
-<div class="block">Returns all sub-attributes of this attribut which have the given type.</div>
+<div class="block">Returns all sub-attributes of this attribute which have the given type.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>attributeType</code> - type of sub-attributes to get</dd>
@@ -471,27 +461,6 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 <dd>RadiusAttribute object or null if there is no such attribute</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.RuntimeException</code> - if the attribute occurs multiple times</dd>
-</dl>
-</li>
-</ul>
-<a id="getSubAttributeValue(java.lang.String)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getSubAttributeValue</h4>
-<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;getSubAttributeValue&#8203;(java.lang.String&nbsp;type)</pre>
-<div class="block">Returns the value of the Radius attribute of the given type or null if
- there is no such attribute.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>type</code> - attribute type name</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>value of the attribute as a string or null if there is no such
- attribute</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.lang.IllegalArgumentException</code> - if the type name is unknown</dd>
-<dd><code>java.lang.RuntimeException</code> - attribute occurs multiple times</dd>
 </dl>
 </li>
 </ul>

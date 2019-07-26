@@ -38,7 +38,7 @@ public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> impl
     public RadiusProxy(EventLoopGroup eventLoopGroup,
                        ChannelFactory<T> factory,
                        InetAddress listenAddress,
-                       ProxyChannelInboundHandler channelInboundHandler,
+                       ProxyHandlerAdapter channelInboundHandler,
                        int authPort, int acctPort) {
         super(eventLoopGroup, factory, listenAddress, channelInboundHandler, channelInboundHandler, authPort, acctPort);
         this.channelInboundHandler = channelInboundHandler;

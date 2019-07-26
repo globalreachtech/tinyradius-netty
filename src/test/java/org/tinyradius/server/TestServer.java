@@ -11,7 +11,14 @@ import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.packet.*;
+import org.tinyradius.packet.AccessRequest;
+import org.tinyradius.packet.AccountingRequest;
+import org.tinyradius.packet.PacketType;
+import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.server.handler.AcctHandler;
+import org.tinyradius.server.handler.AuthHandler;
+import org.tinyradius.server.handler.DeduplicatorHandler;
+import org.tinyradius.server.handler.RequestHandler;
 import org.tinyradius.util.SecretProvider;
 
 import java.net.InetSocketAddress;
@@ -70,8 +77,8 @@ public class TestServer {
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 null,
-                new ChannelInboundHandler<>(dictionary, authHandler, timer, secretProvider, AccessRequest.class),
-                new ChannelInboundHandler<>(dictionary, acctHandler, timer, secretProvider, AccountingRequest.class),
+                new HandlerAdapter<>(dictionary, authHandler, timer, secretProvider, AccessRequest.class),
+                new HandlerAdapter<>(dictionary, acctHandler, timer, secretProvider, AccountingRequest.class),
                 11812, 11813);
 
         final Future<Void> future = server.start();

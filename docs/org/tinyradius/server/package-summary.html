@@ -114,21 +114,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <table class="typeSummary">
-<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Interface</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="RequestHandler.html" title="interface in org.tinyradius.server">RequestHandler</a>&lt;T extends <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</th>
-<td class="colLast">&nbsp;</td>
-</tr>
-</tbody>
-</table>
-</li>
-<li class="blockList">
-<table class="typeSummary">
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Class</th>
@@ -136,34 +121,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="AcctHandler.html" title="class in org.tinyradius.server">AcctHandler</a></th>
-<td class="colLast">
-<div class="block">A reference implementation of AccountingRequest handler that responds to all Accounting-Request
- with standard Accounting-Response.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="AuthHandler.html" title="class in org.tinyradius.server">AuthHandler</a></th>
-<td class="colLast">
-<div class="block">Reference implementation of AccessRequest handler that returns Access-Accept/Reject
- depending on whether <a href="AuthHandler.html#getUserPassword(java.lang.String)"><code>AuthHandler.getUserPassword(String)</code></a> matches password in Access-Request.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="ChannelInboundHandler.html" title="class in org.tinyradius.server">ChannelInboundHandler</a>&lt;T extends <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</th>
+<th class="colFirst" scope="row"><a href="HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a>&lt;T extends <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</th>
 <td class="colLast">
 <div class="block">SimpleChannelInboundHandler implementation that converts between RadiusPackets
  and DatagramPackets.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="DeduplicatorHandler.html" title="class in org.tinyradius.server">DeduplicatorHandler</a>&lt;T extends <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</th>
-<td class="colLast">
-<div class="block">Handler that wraps around another handler and deduplicates requests, returning
- null if duplicate.</div>
-</td>
-</tr>
-<tr class="altColor">
 <th class="colFirst" scope="row"><a href="RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a>&lt;T extends io.netty.channel.socket.DatagramChannel&gt;</th>
 <td class="colLast">
 <div class="block">Implements a simple Radius server.</div>

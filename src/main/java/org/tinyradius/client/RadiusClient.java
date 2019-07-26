@@ -11,6 +11,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.client.handler.ClientHandler;
 import org.tinyradius.client.retry.RetryStrategy;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusPacketEncoder;
