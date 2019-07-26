@@ -82,7 +82,7 @@ class AccessRequestTest {
         assertEquals(user, request.getUserName());
         assertArrayEquals(encodedPassword, request.getAttribute("User-Password").getValue());
 
-        request.decode(sharedSecret, null);
+        request.verify(sharedSecret, null);
 
         assertEquals(plaintextPw, request.getUserPassword());
     }
@@ -124,20 +124,20 @@ class AccessRequestTest {
         AccessRequest goodRequest = new AccessRequest(dictionary, 1, null, Arrays.asList(
                 createAttribute(dictionary, -1, 60, challenge),
                 createAttribute(dictionary, -1, 3, password)));
-        goodRequest.decode(null, null);
+        goodRequest.verify(null, null);
         assertTrue(goodRequest.verifyPassword(plaintextPw));
 
         AccessRequest badChallenge = new AccessRequest(dictionary, 1, null, Arrays.asList(
                 createAttribute(dictionary, -1, 60, random16Bytes()),
                 createAttribute(dictionary, -1, 3, password)));
-        badChallenge.decode(null, null);
+        badChallenge.verify(null, null);
         assertFalse(badChallenge.verifyPassword(plaintextPw));
 
         password[0] = (byte) ((chapId + 1) % 256);
         AccessRequest badPassword = new AccessRequest(dictionary, 1, null, Arrays.asList(
                 createAttribute(dictionary, -1, 60, challenge),
                 createAttribute(dictionary, -1, 3, password)));
-        badPassword.decode(null, null);
+        badPassword.verify(null, null);
         assertFalse(badPassword.verifyPassword(plaintextPw));
     }
 

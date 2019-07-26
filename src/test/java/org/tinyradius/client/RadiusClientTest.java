@@ -1,11 +1,13 @@
 package org.tinyradius.client;
 
+import io.netty.channel.ChannelFactory;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.ResourceLeakDetector;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -18,26 +20,30 @@ import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 
 import static io.netty.util.ResourceLeakDetector.Level.PARANOID;
+import static io.netty.util.ResourceLeakDetector.Level.SIMPLE;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RadiusClientTest {
 
-    private SecureRandom random = new SecureRandom();
-    private static DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
+    private final SecureRandom random = new SecureRandom();
+    private final static DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
 
-    private int id;
-    private HashedWheelTimer timer = new HashedWheelTimer();
-    private NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-    private ReflectiveChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
+    private final ChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
 
-    static {
+    private static final HashedWheelTimer timer = new HashedWheelTimer();
+    private static final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+
+    @BeforeAll
+    static void beforeAll(){
         ResourceLeakDetector.setLevel(PARANOID);
     }
 
-    @BeforeEach
-    void setup() {
-        id = random.nextInt(256);
+    @AfterAll
+    static void afterAll() {
+        timer.stop();
+        eventLoopGroup.shutdownGracefully();
+        ResourceLeakDetector.setLevel(SIMPLE);
     }
 
     @Test()
@@ -46,7 +52,7 @@ class RadiusClientTest {
         final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 1000);
         RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, handler, retryStrategy, null, 0);
 
-        final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
+        final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
 
         final RadiusException radiusException = assertThrows(RadiusException.class,

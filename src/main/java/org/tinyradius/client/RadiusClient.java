@@ -119,7 +119,7 @@ public class RadiusClient<T extends DatagramChannel> {
         try {
             final DatagramPacket datagram = RadiusPacketEncoder.toDatagram(
                     request.encodeRequest(endpoint.getSharedSecret()),
-                    endpoint.getEndpointAddress());
+                    endpoint.getAddress());
 
             promise.addListener(f -> {
                 if (f.isSuccess())

@@ -431,7 +431,7 @@ public class RadiusPacket {
      *                             otherwise set to 16 zero octets
      * @throws RadiusException if authenticator check fails
      */
-    protected void decode(String sharedSecret, byte[] requestAuthenticator) throws RadiusException {
+    public void verify(String sharedSecret, byte[] requestAuthenticator) throws RadiusException {
         byte[] expectedAuth = createHashedAuthenticator(sharedSecret, requestAuthenticator);
         byte[] receivedAuth = getAuthenticator();
         if (receivedAuth.length != 16 ||
@@ -442,8 +442,8 @@ public class RadiusPacket {
     MessageDigest getMd5Digest() {
         try {
             return MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException nsae) {
-            throw new RuntimeException(nsae); // never happen
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e); // never happen
         }
     }
 

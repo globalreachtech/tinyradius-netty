@@ -168,7 +168,7 @@ public class AccessRequest extends RadiusPacket {
      * @param ignored      ignored, not applicable for AccessRequest
      */
     @Override
-    protected void decode(String sharedSecret, byte[] ignored) throws RadiusException {
+    public void verify(String sharedSecret, byte[] ignored) throws RadiusException {
         // detect auth protocol
         RadiusAttribute userPassword = getAttribute(USER_PASSWORD);
         RadiusAttribute chapPassword = getAttribute(CHAP_PASSWORD);

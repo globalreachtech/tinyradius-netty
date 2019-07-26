@@ -37,7 +37,7 @@ public class ProxyStateClientHandler extends ClientHandler {
     private final Dictionary dictionary;
     private final SecretProvider secretProvider;
 
-    private final Map<String, Promise<RadiusPacket>> requests = new ConcurrentHashMap<>();
+    private final Map<String, Request> requests = new ConcurrentHashMap<>();
 
     /**
      * @param dictionary     to decode packet incoming DatagramPackets to RadiusPackets
@@ -62,48 +62,76 @@ public class ProxyStateClientHandler extends ClientHandler {
 
         final String requestId = nextProxyStateId();
         radiusPacket.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
+        final RadiusPacket encodedRequest = radiusPacket.encodeRequest(endpoint.getSharedSecret());
 
-        requests.put(requestId, promise);
+        requests.put(requestId, new Request(
+                endpoint.getSharedSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), promise));
 
         promise.addListener(f -> requests.remove(requestId));
 
-        return radiusPacket;
+        return encodedRequest;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
-        String secret = secretProvider.getSharedSecret(datagramPacket.sender());
-        if (secret == null) {
-            logger.info("Ignoring packet - unknown sender {} received on local address {}",
-                    datagramPacket.sender(), datagramPacket.recipient());
-            return;
-        }
-
         try {
-            RadiusPacket packet = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, secret);
-
-            // retrieve my Proxy-State attribute (the last)
-            List<RadiusAttribute> proxyStates = packet.getAttributes(PROXY_STATE);
-            if (proxyStates.isEmpty())
-                logger.warn("Ignoring packet - no Proxy-State attribute");
-
-            RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
-            String proxyStateId = new String(proxyState.getValue(), UTF_8);
-
-            final Promise<RadiusPacket> request = requests.get(proxyStateId);
-
-            if (request == null) {
-                logger.info("Ignoring packet - request context not found");
-                return;
-            }
-
-            packet.removeLastAttribute(PROXY_STATE);
-
-            request.trySuccess(packet);
-        } catch (RadiusException e) {
-            logger.error("DatagramPacket handle error: ", e);
+            processResponse(datagramPacket);
+        } catch (Exception e) {
+            logger.warn("DatagramPacket handle error: ", e);
         } finally {
             datagramPacket.release();
+        }
+    }
+
+    /**
+     * Processes DatagramPacket. Unlike the netty callback, this does not swallow exceptions.
+     *
+     * @param datagramPacket datagram received
+     * @throws RadiusException malformed packet
+     */
+    void processResponse(DatagramPacket datagramPacket) throws RadiusException {
+        String secret = secretProvider.getSharedSecret(datagramPacket.sender());
+        if (secret == null)
+            throw new RadiusException("Ignoring packet - unknown sender " + datagramPacket.sender() +
+                    " received on local address " + datagramPacket.recipient());
+
+        RadiusPacket response = RadiusPacketEncoder.fromDatagramUnverified(dictionary, datagramPacket);
+
+        // retrieve my Proxy-State attribute (the last)
+        List<RadiusAttribute> proxyStates = response.getAttributes(PROXY_STATE);
+        if (proxyStates.isEmpty())
+            throw new RadiusException("Ignoring packet - no Proxy-State attribute");
+
+        RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
+        String proxyStateId = new String(proxyState.getValue(), UTF_8);
+
+        final Request request = requests.get(proxyStateId);
+
+        if (request == null)
+            throw new RadiusException("Ignoring packet - request context not found");
+
+        if (response.getIdentifier() != request.identifier)
+            throw new RadiusException("Ignoring packet - identifier mismatch, request ID " + request.identifier +
+                    ", response ID " + response.getIdentifier());
+
+        response.verify(request.sharedSecret, request.authenticator);
+
+        response.removeLastAttribute(PROXY_STATE);
+        request.promise.trySuccess(response);
+    }
+
+    private static class Request {
+
+        private final String sharedSecret;
+        private final byte[] authenticator;
+        private final int identifier;
+        private final Promise<RadiusPacket> promise;
+
+        Request(String sharedSecret, byte[] authenticator, int identifier, Promise<RadiusPacket> promise) {
+            this.sharedSecret = sharedSecret;
+            this.authenticator = authenticator;
+            this.identifier = identifier;
+            this.promise = promise;
         }
     }
 }

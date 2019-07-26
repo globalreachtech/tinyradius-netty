@@ -15,6 +15,8 @@ public abstract class ClientHandler extends SimpleChannelInboundHandler<Datagram
      * Preprocess RadiusPackets before they are sent. May mutate outbound packets.
      * <p>
      * Save state info about outgoing requests so handler has context when handling replies
+     * <p>
+     * Ensure that you also return the encoded packet, typically with the shared secret available in RadiusEndpoint.
      *
      * @param packet   request to send
      * @param endpoint packet endpoint

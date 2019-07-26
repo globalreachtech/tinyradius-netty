@@ -39,15 +39,17 @@ public class SimpleClientHandler extends ClientHandler {
     }
 
     @Override
-    public RadiusPacket prepareRequest(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> promise) {
+    public RadiusPacket prepareRequest(RadiusPacket original, RadiusEndpoint endpoint, Promise<RadiusPacket> promise) {
 
-        final RequestKey key = new RequestKey(packet.getIdentifier(), endpoint.getEndpointAddress());
-        final Request request = new Request(endpoint.getSharedSecret(), packet, promise);
+        final RadiusPacket encoded = original.encodeRequest(endpoint.getSharedSecret());
+
+        final RequestKey key = new RequestKey(encoded.getIdentifier(), endpoint.getAddress());
+        final Request request = new Request(endpoint.getSharedSecret(), encoded, promise);
         contexts.put(key, request);
 
         promise.addListener(f -> contexts.remove(key));
 
-        return packet;
+        return encoded;
     }
 
     @Override

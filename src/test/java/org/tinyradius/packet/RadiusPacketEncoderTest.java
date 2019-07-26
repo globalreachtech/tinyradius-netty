@@ -243,8 +243,6 @@ class RadiusPacketEncoderTest {
         assertEquals(encodedResponse.getIdentifier(), packet.getIdentifier());
         assertEquals("state3333", new String(packet.getAttribute(33).getValue()));
         assertArrayEquals(encodedResponse.getAuthenticator(), packet.getAuthenticator());
-
-        // todo test with different request packetId/auth
     }
 
     @Test

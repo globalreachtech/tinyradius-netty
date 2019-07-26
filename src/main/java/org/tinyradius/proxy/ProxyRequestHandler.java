@@ -78,7 +78,7 @@ public abstract class ProxyRequestHandler implements LifecycleRequestHandler<Rad
             return promise;
         }
 
-        logger.info("proxy packet to " + serverEndpoint.getEndpointAddress());
+        logger.info("proxy packet to " + serverEndpoint.getAddress());
 
         radiusClient.communicate(packet, serverEndpoint)
                 .addListener((Future<RadiusPacket> f) ->
