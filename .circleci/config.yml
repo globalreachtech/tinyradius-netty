@@ -28,7 +28,7 @@ jobs:
       - run: ./gradlew test
 
       - store_test_results:
-          path: build/reports/tests/test
+          path: build/test-results/test/
 
       - run: ./gradlew jacocoTestReport coveralls
 
