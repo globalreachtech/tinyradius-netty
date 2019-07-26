@@ -23,7 +23,8 @@ class DeduplicatorHandlerTest {
     void handlePacket() throws InterruptedException {
         final AtomicInteger id = new AtomicInteger();
         final NioDatagramChannel datagramChannel = new NioDatagramChannel();
-        new NioEventLoopGroup(4).register(datagramChannel).syncUninterruptibly();
+        final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);
+        eventExecutors.register(datagramChannel).syncUninterruptibly();
 
         final DeduplicatorHandler<RadiusPacket> deduplicatorHandler = new DeduplicatorHandler<>(
                 (channel, packet, remoteAddress, sharedSecret) -> {
@@ -31,7 +32,7 @@ class DeduplicatorHandlerTest {
                     promise.trySuccess(new RadiusPacket(DefaultDictionary.INSTANCE, 2, id.getAndIncrement()));
                     return promise;
                 },
-                new HashedWheelTimer(), 1000);
+                new HashedWheelTimer(), 500);
 
         final RadiusPacket request = new AccessRequest(dictionary, 100, null).encodeRequest("test");
 
@@ -47,7 +48,7 @@ class DeduplicatorHandlerTest {
                 .syncUninterruptibly().getNow());
 
         // wait for cache to timeout
-        Thread.sleep(1500);
+        Thread.sleep(1000);
 
         // response id 1
         assertEquals(1, deduplicatorHandler
@@ -59,5 +60,7 @@ class DeduplicatorHandlerTest {
         assertNull(deduplicatorHandler
                 .handlePacket(datagramChannel, request, null, null)
                 .syncUninterruptibly().getNow());
+
+        eventExecutors.shutdownGracefully();
     }
 }

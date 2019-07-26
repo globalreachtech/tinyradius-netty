@@ -21,19 +21,21 @@ import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
 
 class AcctHandlerTest {
 
-    private Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private SecureRandom random = new SecureRandom();
+    private final Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private final SecureRandom random = new SecureRandom();
 
     @Test
     void handlePacket() {
         final int id = random.nextInt(256);
+        final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);
 
         final NioDatagramChannel datagramChannel = new NioDatagramChannel();
-        new NioEventLoopGroup(4).register(datagramChannel).syncUninterruptibly();
+        eventExecutors.register(datagramChannel).syncUninterruptibly();
 
-        final AccountingRequest request = new AccountingRequest(dictionary, id, null);
-        request.addAttribute(createAttribute(dictionary, -1, 33, "state1".getBytes(UTF_8)));
-        request.addAttribute(createAttribute(dictionary, -1, 33, "state2".getBytes(UTF_8)));
+        final AccountingRequest request = new AccountingRequest(dictionary, id, null, Arrays.asList(
+                createAttribute(dictionary, -1, 33, "state1".getBytes(UTF_8)),
+                createAttribute(dictionary, -1, 33, "state2".getBytes(UTF_8))));
+
         assertEquals(ACCOUNTING_REQUEST, request.getType());
         assertEquals(Arrays.asList("state1", "state2"), request.getAttributes().stream()
                 .map(RadiusAttribute::getValue)
@@ -49,5 +51,7 @@ class AcctHandlerTest {
                 .map(RadiusAttribute::getValue)
                 .map(String::new)
                 .collect(Collectors.toList()));
+
+        eventExecutors.shutdownGracefully();
     }
 }
