@@ -73,7 +73,7 @@ public class TestServer {
 
         RequestHandler<AccountingRequest> acctHandler = new DeduplicatorHandler<>(new AcctHandler(), timer, 30000);
 
-        final RadiusServer<NioDatagramChannel> server = new RadiusServer<>(
+        final RadiusServer server = new RadiusServer(
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 null,

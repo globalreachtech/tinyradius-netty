@@ -62,7 +62,7 @@ class RadiusClientTest {
                 () -> radiusClient.communicate(request, endpoint).syncUninterruptibly());
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
-        assertEquals(3, retryStrategy.getCount());
+        assertEquals(3, retryStrategy.count.get());
         radiusClient.stop();
     }
 
@@ -73,20 +73,16 @@ class RadiusClientTest {
 
     private static class SimpleRetryStrategyHelper extends SimpleRetryStrategy {
 
-        private final AtomicInteger requestCount = new AtomicInteger();
+        private final AtomicInteger count = new AtomicInteger();
 
         SimpleRetryStrategyHelper(Timer timer, int maxAttempts, int retryWait) {
             super(timer, maxAttempts, retryWait);
         }
 
-        int getCount() {
-            return requestCount.intValue();
-        }
-
         @Override
         public void scheduleRetry(Runnable retry, int totalAttempts, Promise<RadiusPacket> promise) {
             super.scheduleRetry(retry, totalAttempts, promise);
-            requestCount.getAndIncrement();
+            count.getAndIncrement();
         }
     }
 }

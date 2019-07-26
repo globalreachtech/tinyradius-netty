@@ -18,11 +18,11 @@ import static java.util.Objects.requireNonNull;
 /**
  * Implements a simple Radius server.
  */
-public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
+public class RadiusServer implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusServer.class);
 
-    private final ChannelFactory<T> factory;
+    private final ChannelFactory<? extends DatagramChannel> factory;
     protected final EventLoopGroup eventLoopGroup;
     private final ChannelHandler authHandler;
     private final ChannelHandler acctHandler;
@@ -30,8 +30,8 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
     private final int acctPort;
 
     private final InetAddress listenAddress;
-    private T authChannel = null;
-    private T acctChannel = null;
+    private DatagramChannel authChannel = null;
+    private DatagramChannel acctChannel = null;
 
     private Future<Void> serverStatus = null;
 
@@ -45,7 +45,7 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
      * @param acctPort       port to bind to, or set to 0 to let system choose
      */
     public RadiusServer(EventLoopGroup eventLoopGroup,
-                        ChannelFactory<T> factory,
+                        ChannelFactory<? extends DatagramChannel> factory,
                         InetAddress listenAddress,
                         ChannelHandler authHandler,
                         ChannelHandler acctHandler,
@@ -117,7 +117,7 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
      * @param listenAddress the address to bind to
      * @return channelFuture of started channel socket
      */
-    protected ChannelFuture listen(final T channel, final InetSocketAddress listenAddress) {
+    protected ChannelFuture listen(final DatagramChannel channel, final InetSocketAddress listenAddress) {
         requireNonNull(channel, "channel cannot be null");
         requireNonNull(listenAddress, "listenAddress cannot be null");
 
@@ -130,13 +130,13 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
         return promise;
     }
 
-    protected T getAuthChannel() {
+    protected DatagramChannel getAuthChannel() {
         if (authChannel == null)
             authChannel = factory.newChannel();
         return authChannel;
     }
 
-    protected T getAcctChannel() {
+    protected DatagramChannel getAcctChannel() {
         if (acctChannel == null)
             acctChannel = factory.newChannel();
         return acctChannel;

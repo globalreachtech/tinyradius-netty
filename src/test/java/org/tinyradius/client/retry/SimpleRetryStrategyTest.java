@@ -22,6 +22,15 @@ class SimpleRetryStrategyTest {
         eventLoopGroup.shutdownGracefully();
     }
 
+    private static void waitTimer() {
+        while (timer.pendingTimeouts() != 0) {
+            try {
+                Thread.sleep(110);
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
     @Test
     void retryFailIfMaxAttempts() {
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
@@ -35,14 +44,14 @@ class SimpleRetryStrategyTest {
         assertEquals(1, timer.pendingTimeouts());
         waitTimer();
 
-        assertEquals(1, mockRetry.getCount());
+        assertEquals(1, mockRetry.count.get());
 
         // totalAttempts >= maxAttempts
         retryStrategy.scheduleRetry(mockRetry, 2, promise);
         assertEquals(1, timer.pendingTimeouts());
         waitTimer();
 
-        assertEquals(1, mockRetry.getCount()); // unchanged
+        assertEquals(1, mockRetry.count.get()); // unchanged
         assertFalse(promise.isSuccess());
         assertTrue(promise.cause().getMessage().toLowerCase().contains("max retries reached"));
     }
@@ -52,14 +61,14 @@ class SimpleRetryStrategyTest {
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
         final MockRetry mockRetry = new MockRetry();
 
-        final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 0);
+        final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 100);
 
         // first retry runs
         retryStrategy.scheduleRetry(mockRetry, 1, promise);
         assertEquals(1, timer.pendingTimeouts());
         waitTimer();
 
-        assertEquals(1, mockRetry.getCount());
+        assertEquals(1, mockRetry.count.get());
     }
 
     @Test
@@ -77,17 +86,7 @@ class SimpleRetryStrategyTest {
 
         waitTimer();
 
-        assertEquals(0, mockRetry.getCount()); // verify retry did not run
-
-    }
-
-    private static void waitTimer() {
-        while (timer.pendingTimeouts() != 0) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignored) {
-            }
-        }
+        assertEquals(0, mockRetry.count.get()); // verify retry did not run
     }
 
     private static class MockRetry implements Runnable {
@@ -97,10 +96,6 @@ class SimpleRetryStrategyTest {
         @Override
         public void run() {
             count.incrementAndGet();
-        }
-
-        int getCount() {
-            return count.intValue();
         }
     }
 }

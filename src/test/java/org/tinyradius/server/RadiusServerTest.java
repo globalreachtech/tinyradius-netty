@@ -30,7 +30,7 @@ class RadiusServerTest {
     void serverStart() throws InterruptedException {
         final MockHandler authHandler = new MockHandler();
         final MockHandler acctHandler = new MockHandler();
-        final RadiusServer<NioDatagramChannel> server = new RadiusServer<>(
+        final RadiusServer server = new RadiusServer(
                 eventExecutors, channelFactory, null, authHandler, acctHandler, 0, 0);
 
         // not registered with eventLoop

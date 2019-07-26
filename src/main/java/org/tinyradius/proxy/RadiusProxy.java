@@ -20,7 +20,7 @@ import java.net.InetAddress;
  * <p>
  * You have to provide a handler that handles incoming requests.
  */
-public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> implements Lifecycle {
+public class RadiusProxy extends RadiusServer implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusProxy.class);
 
@@ -37,7 +37,7 @@ public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> impl
      * @param acctPort              port to bind to, or set to 0 to let system choose
      */
     public RadiusProxy(EventLoopGroup eventLoopGroup,
-                       ChannelFactory<T> factory,
+                       ChannelFactory<? extends DatagramChannel> factory,
                        InetAddress listenAddress,
                        ProxyHandlerAdapter channelInboundHandler,
                        int authPort, int acctPort) {

@@ -73,7 +73,7 @@ public class TestProxy {
 
         final ProxyDeduplicatorHandler proxyDeduplicatorHandler = new ProxyDeduplicatorHandler(proxyRequestHandler, timer, 30000);
 
-        final RadiusProxy<NioDatagramChannel> proxy = new RadiusProxy<>(
+        final RadiusProxy proxy = new RadiusProxy(
                 eventLoopGroup,
                 channelFactory,
                 null,
