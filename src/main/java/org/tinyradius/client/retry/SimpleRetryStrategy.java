@@ -26,12 +26,12 @@ public class SimpleRetryStrategy implements RetryStrategy {
     }
 
     @Override
-    public void scheduleRetry(Runnable retry, int attempt, Promise<RadiusPacket> promise) {
+    public void scheduleRetry(Runnable retry, int totalAttempts, Promise<RadiusPacket> promise) {
         timer.newTimeout(t -> {
             if (promise.isDone())
                 return;
 
-            if (attempt > maxAttempts)
+            if (totalAttempts >= maxAttempts)
                 promise.tryFailure(new RadiusException("Client send failed, max retries reached: " + maxAttempts));
             else
                 retry.run();

@@ -50,7 +50,7 @@ public class SimpleClientHandler extends ClientHandler {
     }
 
     @Override
-    void handleResponse(DatagramPacket packet) throws RadiusException {
+    protected void handleResponse(DatagramPacket packet) throws RadiusException {
         int identifier = toUnsignedInt(packet.content().duplicate().skipBytes(1).readByte());
 
         final Request request = contexts.get(requestKey(packet.sender(), identifier));

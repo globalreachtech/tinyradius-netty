@@ -71,7 +71,7 @@ public class ProxyStateClientHandler extends ClientHandler {
         return encodedRequest;
     }
 
-    void handleResponse(DatagramPacket datagramPacket) throws RadiusException {
+    protected void handleResponse(DatagramPacket datagramPacket) throws RadiusException {
         String secret = secretProvider.getSharedSecret(datagramPacket.sender());
         if (secret == null)
             throw new RadiusException("Ignoring packet - unknown sender " + datagramPacket.sender() +

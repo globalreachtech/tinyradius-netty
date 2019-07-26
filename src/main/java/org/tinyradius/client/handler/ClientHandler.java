@@ -37,7 +37,7 @@ public abstract class ClientHandler extends SimpleChannelInboundHandler<Datagram
      * @param datagramPacket datagram received
      * @throws RadiusException malformed packet
      */
-    abstract void handleResponse(DatagramPacket datagramPacket) throws RadiusException;
+    protected abstract void handleResponse(DatagramPacket datagramPacket) throws RadiusException;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {

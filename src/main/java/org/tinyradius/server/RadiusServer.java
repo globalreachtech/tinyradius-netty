@@ -67,6 +67,8 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
         final Promise<Void> status = eventLoopGroup.next().newPromise();
 
         final PromiseCombiner promiseCombiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
+
+        // todo error handling/timeout?
         promiseCombiner.addAll(listenAuth(), listenAcct());
         promiseCombiner.finish(status);
 

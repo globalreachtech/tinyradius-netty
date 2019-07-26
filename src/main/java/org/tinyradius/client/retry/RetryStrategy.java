@@ -15,8 +15,8 @@ public interface RetryStrategy {
      * and logic should be implemented here, while RadiusClient only deals with IO.
      *
      * @param retry   runnable to invoke to retry
-     * @param attempt current attempt count
+     * @param totalAttempts current attempt count
      * @param promise request promise that resolves when a reponse is received
      */
-    void scheduleRetry(Runnable retry, int attempt, Promise<RadiusPacket> promise);
+    void scheduleRetry(Runnable retry, int totalAttempts, Promise<RadiusPacket> promise);
 }

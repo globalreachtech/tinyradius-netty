@@ -6,6 +6,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.ResourceLeakDetector;
+import io.netty.util.Timer;
+import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -19,11 +21,11 @@ import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.util.ResourceLeakDetector.Level.PARANOID;
 import static io.netty.util.ResourceLeakDetector.Level.SIMPLE;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RadiusClientTest {
 
@@ -36,7 +38,7 @@ class RadiusClientTest {
     private static final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
     @BeforeAll
-    static void beforeAll(){
+    static void beforeAll() {
         ResourceLeakDetector.setLevel(PARANOID);
     }
 
@@ -50,7 +52,7 @@ class RadiusClientTest {
     @Test()
     void communicateWithTimeout() {
         SimpleClientHandler handler = new SimpleClientHandler(dictionary);
-        final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 1000);
+        final SimpleRetryStrategyHelper retryStrategy = new SimpleRetryStrategyHelper(timer, 3, 100);
         RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, handler, retryStrategy, null, 0);
 
         final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
@@ -60,6 +62,31 @@ class RadiusClientTest {
                 () -> radiusClient.communicate(request, endpoint).syncUninterruptibly());
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
+        assertEquals(3, retryStrategy.getCount());
         radiusClient.stop();
+    }
+
+    @Test
+    void communicateSuccess() {
+        // todo
+    }
+
+    private static class SimpleRetryStrategyHelper extends SimpleRetryStrategy {
+
+        private final AtomicInteger requestCount = new AtomicInteger();
+
+        SimpleRetryStrategyHelper(Timer timer, int maxAttempts, int retryWait) {
+            super(timer, maxAttempts, retryWait);
+        }
+
+        int getCount() {
+            return requestCount.intValue();
+        }
+
+        @Override
+        public void scheduleRetry(Runnable retry, int totalAttempts, Promise<RadiusPacket> promise) {
+            super.scheduleRetry(retry, totalAttempts, promise);
+            requestCount.getAndIncrement();
+        }
     }
 }

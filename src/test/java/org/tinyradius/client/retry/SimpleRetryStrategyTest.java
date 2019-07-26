@@ -30,15 +30,15 @@ class SimpleRetryStrategyTest {
 
         final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 2, 0);
 
-        // attempt == maxAttempt
-        retryStrategy.scheduleRetry(mockRetry, 2, promise);
+        // totalAttempts < maxAttempts
+        retryStrategy.scheduleRetry(mockRetry, 1, promise);
         assertEquals(1, timer.pendingTimeouts());
         waitTimer();
 
         assertEquals(1, mockRetry.getCount());
 
-        // attempt > maxAttempt
-        retryStrategy.scheduleRetry(mockRetry, 3, promise);
+        // totalAttempts >= maxAttempts
+        retryStrategy.scheduleRetry(mockRetry, 2, promise);
         assertEquals(1, timer.pendingTimeouts());
         waitTimer();
 
@@ -92,7 +92,7 @@ class SimpleRetryStrategyTest {
 
     private static class MockRetry implements Runnable {
 
-        private AtomicInteger count = new AtomicInteger(0);
+        private final AtomicInteger count = new AtomicInteger(0);
 
         @Override
         public void run() {
