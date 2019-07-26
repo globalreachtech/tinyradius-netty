@@ -84,9 +84,10 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
             acctChannel.close();
     }
 
-    protected int validPort(int port) {
-        if (port < 1 || port > 65535)
+    private int validPort(int port) {
+        if (port < 0 || port > 65535)
             throw new IllegalArgumentException("bad port number");
+        // allow port 0 to let system choose
         return port;
     }
 

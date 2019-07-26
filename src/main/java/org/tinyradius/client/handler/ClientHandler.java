@@ -45,8 +45,6 @@ public abstract class ClientHandler extends SimpleChannelInboundHandler<Datagram
             handleResponse(datagramPacket);
         } catch (Exception e) {
             logger.warn("DatagramPacket handle error: ", e);
-        } finally {
-            datagramPacket.release();
         }
     }
 }
