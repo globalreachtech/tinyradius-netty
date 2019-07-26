@@ -38,13 +38,13 @@ public abstract class ProxyRequestHandler implements LifecycleRequestHandler<Rad
 
     @Override
     public Future<Void> start() {
-        return radiusClient.startChannel();
+        return radiusClient.start();
     }
 
     @Override
-    public void stop() {
+    public Future<Void> stop() {
         logger.info("stopping Radius proxy listener");
-        radiusClient.stop();
+        return radiusClient.stop();
     }
 
     /**

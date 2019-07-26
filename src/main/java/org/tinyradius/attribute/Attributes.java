@@ -43,6 +43,13 @@ public class Attributes {
         return new RadiusAttribute(dictionary, vendorId, type, data);
     }
 
+    /**
+     * @param dictionary
+     * @param vendorId
+     * @param data
+     * @param pos
+     * @return
+     */
     public static List<RadiusAttribute> extractAttributes(Dictionary dictionary, int vendorId, byte[] data, int pos) {
         final ArrayList<RadiusAttribute> attributes = new ArrayList<>();
 

@@ -3,6 +3,7 @@ package org.tinyradius.server;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
 import org.slf4j.Logger;
@@ -65,23 +66,29 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
 
         final Promise<Void> status = eventLoopGroup.next().newPromise();
 
-        eventLoopGroup.submit(() -> {
-            final PromiseCombiner promiseCombiner = new PromiseCombiner(eventLoopGroup.next());
-            promiseCombiner.addAll(listenAuth(), listenAcct());
-            promiseCombiner.finish(status);
-        });
+        final PromiseCombiner promiseCombiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
+        promiseCombiner.addAll(listenAuth(), listenAcct());
+        promiseCombiner.finish(status);
 
         this.serverStatus = status;
         return status;
     }
 
     @Override
-    public void stop() {
+    public Future<Void> stop() {
         logger.info("stopping Radius server");
+
+        final Promise<Void> promise = eventLoopGroup.next().newPromise();
+        final PromiseCombiner promiseCombiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
+
         if (authChannel != null)
-            authChannel.close();
+            promiseCombiner.add(authChannel.close());
+
         if (acctChannel != null)
-            acctChannel.close();
+            promiseCombiner.add(acctChannel.close());
+
+        promiseCombiner.finish(promise);
+        return promise;
     }
 
     private int validPort(int port) {
@@ -91,13 +98,13 @@ public class RadiusServer<T extends DatagramChannel> implements Lifecycle {
         return port;
     }
 
-    protected ChannelFuture listenAuth() {
+    private ChannelFuture listenAuth() {
         logger.info("starting RadiusAuthListener on port " + authPort);
-        getAcctChannel().pipeline().addLast(authHandler);
+        getAuthChannel().pipeline().addLast(authHandler);
         return listen(getAuthChannel(), new InetSocketAddress(listenAddress, authPort));
     }
 
-    protected ChannelFuture listenAcct() {
+    private ChannelFuture listenAcct() {
         logger.info("starting RadiusAcctListener on port " + acctPort);
         getAcctChannel().pipeline().addLast(acctHandler);
         return listen(getAcctChannel(), new InetSocketAddress(listenAddress, acctPort));

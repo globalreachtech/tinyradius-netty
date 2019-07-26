@@ -4,6 +4,7 @@ import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
 import org.slf4j.Logger;
@@ -48,20 +49,23 @@ public class RadiusProxy<T extends DatagramChannel> extends RadiusServer<T> impl
     public Future<Void> start() {
         Promise<Void> promise = eventLoopGroup.next().newPromise();
 
-        eventLoopGroup.submit(() -> {
-            final PromiseCombiner combiner = new PromiseCombiner(eventLoopGroup.next());
-            combiner.addAll(super.start(), channelInboundHandler.start());
-            combiner.finish(promise);
-        });
+        final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
+        combiner.addAll(super.start(), channelInboundHandler.start());
+        combiner.finish(promise);
 
         return promise;
     }
 
     @Override
-    public void stop() {
+    public Future<Void> stop() {
         logger.info("stopping Radius proxy");
-        channelInboundHandler.stop();
-        super.stop();
-    }
 
+        final Promise<Void> promise = eventLoopGroup.next().newPromise();
+
+        final PromiseCombiner promiseCombiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
+        promiseCombiner.addAll(channelInboundHandler.stop(), super.stop());
+        promiseCombiner.finish(promise);
+
+        return promise;
+    }
 }

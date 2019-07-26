@@ -29,7 +29,7 @@ public class ProxyDeduplicatorHandler extends DeduplicatorHandler<RadiusPacket> 
     }
 
     @Override
-    public void stop() {
-        requestHandler.stop();
+    public Future<Void> stop() {
+        return requestHandler.stop();
     }
 }

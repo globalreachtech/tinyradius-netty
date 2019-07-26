@@ -15,6 +15,7 @@ import org.tinyradius.client.handler.ClientHandler;
 import org.tinyradius.client.retry.RetryStrategy;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusPacketEncoder;
+import org.tinyradius.util.Lifecycle;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
@@ -33,7 +34,7 @@ import static java.util.Objects.requireNonNull;
  * This object is thread safe, but requires a packet manager to avoid confusion with the mapping of request
  * and result packets.
  */
-public class RadiusClient<T extends DatagramChannel> {
+public class RadiusClient<T extends DatagramChannel> implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusClient.class);
 
@@ -70,21 +71,14 @@ public class RadiusClient<T extends DatagramChannel> {
     }
 
     /**
-     * Closes channel socket
-     */
-    public void stop() {
-        if (channel != null)
-            channel.close();
-    }
-
-    /**
      * Registers the channel and binds to address.
      * <p>
      * Also run implicitly if {@link #communicate(RadiusPacket, RadiusEndpoint)} is called.
      *
      * @return channelFuture of started channel socket
      */
-    public ChannelFuture startChannel() {
+    @Override
+    public Future<Void> start() {
         if (this.channelFuture != null)
             return this.channelFuture;
 
@@ -92,6 +86,15 @@ public class RadiusClient<T extends DatagramChannel> {
             channel = factory.newChannel();
 
         return channelFuture = listen(channel, new InetSocketAddress(listenAddress, port));
+    }
+
+    /**
+     * Closes channel socket
+     */
+    public Future<Void> stop() {
+        if (channel != null)
+            return channel.close();
+        return eventLoopGroup.next().newSucceededFuture(null);
     }
 
     /**
@@ -135,7 +138,7 @@ public class RadiusClient<T extends DatagramChannel> {
 
             logger.info("Preparing send: {}", request);
 
-            startChannel().addListener(f -> send(datagram, 1, promise));
+            start().addListener(f -> send(datagram, 1, promise));
 
         } catch (RadiusException e) {
             promise.tryFailure(e);

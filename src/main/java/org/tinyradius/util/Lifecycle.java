@@ -14,6 +14,6 @@ public interface Lifecycle {
     /**
      * Shutdown and close resources. Does not guarantee when shutdown is complete.
      */
-    void stop();
+    Future<Void> stop();
 
 }

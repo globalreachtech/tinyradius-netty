@@ -51,7 +51,7 @@ public class TestClient {
                 new SimpleClientHandler(dictionary),
                 new SimpleRetryStrategy(timer, 3, 1000),
                 null, 0);
-        rc.startChannel().syncUninterruptibly();
+        rc.start().syncUninterruptibly();
 
         final RadiusEndpoint authEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1812), shared);
         final RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1813), shared);
