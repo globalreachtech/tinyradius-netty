@@ -130,9 +130,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
+</dl>
 <hr>
 <pre>public class <span class="typeNameLabel">RadiusClient&lt;T extends io.netty.channel.socket.DatagramChannel&gt;</span>
-extends java.lang.Object</pre>
+extends java.lang.Object
+implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></pre>
 <div class="block">This object represents a simple Radius client which communicates with
  a specified Radius server. You can use a single instance of this object
  to authenticate or account different users with the same Radius server
@@ -193,14 +198,14 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>io.netty.channel.ChannelFuture</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startChannel()">startChannel</a></span>()</code></th>
+<td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start()">start</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Registers the channel and binds to address.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Closes channel socket</div>
@@ -262,29 +267,35 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="start()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>start</h4>
+<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;start()</pre>
+<div class="block">Registers the channel and binds to address.
+ <p>
+ Also run implicitly if <a href="#communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)"><code>communicate(RadiusPacket, RadiusEndpoint)</code></a> is called.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/Lifecycle.html#start()">start</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>channelFuture of started channel socket</dd>
+</dl>
+</li>
+</ul>
 <a id="stop()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;stop()</pre>
+<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;stop()</pre>
 <div class="block">Closes channel socket</div>
-</li>
-</ul>
-<a id="startChannel()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>startChannel</h4>
-<pre class="methodSignature">public&nbsp;io.netty.channel.ChannelFuture&nbsp;startChannel()</pre>
-<div class="block">Registers the channel and binds to address.
- <p>
- Also run implicitly if <a href="#communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)"><code>communicate(RadiusPacket, RadiusEndpoint)</code></a> is called.</div>
 <dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>channelFuture of started channel socket</dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/Lifecycle.html#stop()">stop</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
 </dl>
 </li>
 </ul>

@@ -184,7 +184,7 @@ implements <a href="RetryStrategy.html" title="interface in org.tinyradius.clien
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scheduleRetry(java.lang.Runnable,int,io.netty.util.concurrent.Promise)">scheduleRetry</a></span>&#8203;(java.lang.Runnable&nbsp;retry,
-             int&nbsp;attempt,
+             int&nbsp;totalAttempts,
              io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</code></th>
 <td class="colLast">
 <div class="block">Schedule a retry in the future.</div>
@@ -248,7 +248,7 @@ implements <a href="RetryStrategy.html" title="interface in org.tinyradius.clien
 <li class="blockList">
 <h4>scheduleRetry</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;scheduleRetry&#8203;(java.lang.Runnable&nbsp;retry,
-                          int&nbsp;attempt,
+                          int&nbsp;totalAttempts,
                           io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="RetryStrategy.html#scheduleRetry(java.lang.Runnable,int,io.netty.util.concurrent.Promise)">RetryStrategy</a></code></span></div>
 <div class="block">Schedule a retry in the future.
@@ -263,7 +263,7 @@ implements <a href="RetryStrategy.html" title="interface in org.tinyradius.clien
 <dd><code><a href="RetryStrategy.html#scheduleRetry(java.lang.Runnable,int,io.netty.util.concurrent.Promise)">scheduleRetry</a></code>&nbsp;in interface&nbsp;<code><a href="RetryStrategy.html" title="interface in org.tinyradius.client.retry">RetryStrategy</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>retry</code> - runnable to invoke to retry</dd>
-<dd><code>attempt</code> - current attempt count</dd>
+<dd><code>totalAttempts</code> - current attempt count</dd>
 <dd><code>promise</code> - request promise that resolves when a reponse is received</dd>
 </dl>
 </li>

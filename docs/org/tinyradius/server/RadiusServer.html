@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -116,14 +116,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.server</a></div>
-<h2 title="Class RadiusServer" class="title">Class RadiusServer&lt;T extends io.netty.channel.socket.DatagramChannel&gt;</h2>
+<h2 title="Class RadiusServer" class="title">Class RadiusServer</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>org.tinyradius.server.RadiusServer&lt;T&gt;</li>
+<li>org.tinyradius.server.RadiusServer</li>
 </ul>
 </li>
 </ul>
@@ -139,7 +139,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../proxy/RadiusProxy.html" title="class in org.tinyradius.proxy">RadiusProxy</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">RadiusServer&lt;T extends io.netty.channel.socket.DatagramChannel&gt;</span>
+<pre>public class <span class="typeNameLabel">RadiusServer</span>
 extends java.lang.Object
 implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></pre>
 <div class="block">Implements a simple Radius server.</div>
@@ -187,7 +187,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,io.netty.channel.ChannelHandler,io.netty.channel.ChannelHandler,int,int)">RadiusServer</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
-            io.netty.channel.ChannelFactory&lt;<a href="RadiusServer.html" title="type parameter in RadiusServer">T</a>&gt;&nbsp;factory,
+            io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
             java.net.InetAddress&nbsp;listenAddress,
             io.netty.channel.ChannelHandler&nbsp;authHandler,
             io.netty.channel.ChannelHandler&nbsp;acctHandler,
@@ -214,49 +214,34 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>protected <a href="RadiusServer.html" title="type parameter in RadiusServer">T</a></code></td>
+<td class="colFirst"><code>protected io.netty.channel.socket.DatagramChannel</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAcctChannel()">getAcctChannel</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected <a href="RadiusServer.html" title="type parameter in RadiusServer">T</a></code></td>
+<td class="colFirst"><code>protected io.netty.channel.socket.DatagramChannel</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAuthChannel()">getAuthChannel</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected io.netty.channel.ChannelFuture</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#listen(T,java.net.InetSocketAddress)">listen</a></span>&#8203;(<a href="RadiusServer.html" title="type parameter in RadiusServer">T</a>&nbsp;channel,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#listen(io.netty.channel.socket.DatagramChannel,java.net.InetSocketAddress)">listen</a></span>&#8203;(io.netty.channel.socket.DatagramChannel&nbsp;channel,
       java.net.InetSocketAddress&nbsp;listenAddress)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>protected io.netty.channel.ChannelFuture</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#listenAcct()">listenAcct</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>protected io.netty.channel.ChannelFuture</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#listenAuth()">listenAuth</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i5" class="rowColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start()">start</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Initialize dependencies.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Shutdown and close resources.</div>
 </td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>protected int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#validPort(int)">validPort</a></span>&#8203;(int&nbsp;port)</code></th>
-<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -308,7 +293,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <li class="blockList">
 <h4>RadiusServer</h4>
 <pre>public&nbsp;RadiusServer&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
-                    io.netty.channel.ChannelFactory&lt;<a href="RadiusServer.html" title="type parameter in RadiusServer">T</a>&gt;&nbsp;factory,
+                    io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
                     java.net.InetAddress&nbsp;listenAddress,
                     io.netty.channel.ChannelHandler&nbsp;authHandler,
                     io.netty.channel.ChannelHandler&nbsp;acctHandler,
@@ -359,7 +344,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;stop()</pre>
+<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;stop()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/Lifecycle.html#stop()">Lifecycle</a></code></span></div>
 <div class="block">Shutdown and close resources. Does not guarantee when shutdown is complete.</div>
 <dl>
@@ -368,42 +353,13 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 </dl>
 </li>
 </ul>
-<a id="validPort(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>validPort</h4>
-<pre class="methodSignature">protected&nbsp;int&nbsp;validPort&#8203;(int&nbsp;port)</pre>
-</li>
-</ul>
-<a id="listenAuth()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>listenAuth</h4>
-<pre class="methodSignature">protected&nbsp;io.netty.channel.ChannelFuture&nbsp;listenAuth()</pre>
-</li>
-</ul>
-<a id="listenAcct()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>listenAcct</h4>
-<pre class="methodSignature">protected&nbsp;io.netty.channel.ChannelFuture&nbsp;listenAcct()</pre>
-</li>
-</ul>
 <a id="listen(io.netty.channel.socket.DatagramChannel,java.net.InetSocketAddress)">
-<!--   -->
-</a><a id="listen(T,java.net.InetSocketAddress)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>listen</h4>
-<pre class="methodSignature">protected&nbsp;io.netty.channel.ChannelFuture&nbsp;listen&#8203;(<a href="RadiusServer.html" title="type parameter in RadiusServer">T</a>&nbsp;channel,
+<pre class="methodSignature">protected&nbsp;io.netty.channel.ChannelFuture&nbsp;listen&#8203;(io.netty.channel.socket.DatagramChannel&nbsp;channel,
                                                 java.net.InetSocketAddress&nbsp;listenAddress)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -420,7 +376,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <ul class="blockList">
 <li class="blockList">
 <h4>getAuthChannel</h4>
-<pre class="methodSignature">protected&nbsp;<a href="RadiusServer.html" title="type parameter in RadiusServer">T</a>&nbsp;getAuthChannel()</pre>
+<pre class="methodSignature">protected&nbsp;io.netty.channel.socket.DatagramChannel&nbsp;getAuthChannel()</pre>
 </li>
 </ul>
 <a id="getAcctChannel()">
@@ -429,7 +385,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getAcctChannel</h4>
-<pre class="methodSignature">protected&nbsp;<a href="RadiusServer.html" title="type parameter in RadiusServer">T</a>&nbsp;getAcctChannel()</pre>
+<pre class="methodSignature">protected&nbsp;io.netty.channel.socket.DatagramChannel&nbsp;getAcctChannel()</pre>
 </li>
 </ul>
 </li>

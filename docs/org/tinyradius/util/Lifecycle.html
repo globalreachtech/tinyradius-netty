@@ -128,7 +128,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../proxy/handler/ProxyDeduplicatorHandler.html" title="class in org.tinyradius.proxy.handler">ProxyDeduplicatorHandler</a></code>, <code><a href="../proxy/ProxyHandlerAdapter.html" title="class in org.tinyradius.proxy">ProxyHandlerAdapter</a></code>, <code><a href="../proxy/handler/ProxyRequestHandler.html" title="class in org.tinyradius.proxy.handler">ProxyRequestHandler</a></code>, <code><a href="../proxy/RadiusProxy.html" title="class in org.tinyradius.proxy">RadiusProxy</a></code>, <code><a href="../server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></code></dd>
+<dd><code><a href="../proxy/handler/ProxyDeduplicatorHandler.html" title="class in org.tinyradius.proxy.handler">ProxyDeduplicatorHandler</a></code>, <code><a href="../proxy/ProxyHandlerAdapter.html" title="class in org.tinyradius.proxy">ProxyHandlerAdapter</a></code>, <code><a href="../proxy/handler/ProxyRequestHandler.html" title="class in org.tinyradius.proxy.handler">ProxyRequestHandler</a></code>, <code><a href="../client/RadiusClient.html" title="class in org.tinyradius.client">RadiusClient</a></code>, <code><a href="../proxy/RadiusProxy.html" title="class in org.tinyradius.proxy">RadiusProxy</a></code>, <code><a href="../server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></code></dd>
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">Lifecycle</span></pre>
@@ -160,7 +160,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Shutdown and close resources.</div>
@@ -203,7 +203,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockListLast">
 <li class="blockList">
 <h4>stop</h4>
-<pre class="methodSignature">void&nbsp;stop()</pre>
+<pre class="methodSignature">io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;stop()</pre>
 <div class="block">Shutdown and close resources. Does not guarantee when shutdown is complete.</div>
 </li>
 </ul>

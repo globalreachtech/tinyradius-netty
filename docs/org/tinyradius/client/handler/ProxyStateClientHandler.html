@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
+var data = {"i0":10,"i1":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -220,6 +220,13 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleResponse(io.netty.channel.socket.DatagramPacket)">handleResponse</a></span>&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagramPacket)</code></th>
+<td class="colLast">
+<div class="block">Processes DatagramPacket.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareRequest(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,io.netty.util.concurrent.Promise)">prepareRequest</a></span>&#8203;(<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
               <a href="../../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
@@ -317,7 +324,7 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <a id="prepareRequest(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,io.netty.util.concurrent.Promise)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>prepareRequest</h4>
 <pre class="methodSignature">public&nbsp;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;prepareRequest&#8203;(<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
@@ -338,6 +345,26 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>promise of response which completes when server responds. Uses Promise instead Future,
  to allow requests to be timed out or cancelled by the caller</dd>
+</dl>
+</li>
+</ul>
+<a id="handleResponse(io.netty.channel.socket.DatagramPacket)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>handleResponse</h4>
+<pre class="methodSignature">protected&nbsp;void&nbsp;handleResponse&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagramPacket)
+                       throws <a href="../../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="ClientHandler.html#handleResponse(io.netty.channel.socket.DatagramPacket)">ClientHandler</a></code></span></div>
+<div class="block">Processes DatagramPacket. This does not swallow exceptions.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="ClientHandler.html#handleResponse(io.netty.channel.socket.DatagramPacket)">handleResponse</a></code>&nbsp;in class&nbsp;<code><a href="ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>datagramPacket</code> - datagram received</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>

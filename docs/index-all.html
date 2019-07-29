@@ -604,6 +604,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/HandlerAdapter.html#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,org.tinyradius.server.handler.RequestHandler,io.netty.util.Timer,org.tinyradius.util.SecretProvider,java.lang.Class)">HandlerAdapter(Dictionary, RequestHandler&lt;T&gt;, Timer, SecretProvider, Class&lt;T&gt;)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/ClientHandler.html#handleResponse(io.netty.channel.socket.DatagramPacket)">handleResponse(DatagramPacket)</a></span> - Method in class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></dt>
+<dd>
+<div class="block">Processes DatagramPacket.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/ProxyStateClientHandler.html#handleResponse(io.netty.channel.socket.DatagramPacket)">handleResponse(DatagramPacket)</a></span> - Method in class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/ProxyStateClientHandler.html" title="class in org.tinyradius.client.handler">ProxyStateClientHandler</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/SimpleClientHandler.html#handleResponse(io.netty.channel.socket.DatagramPacket)">handleResponse(DatagramPacket)</a></span> - Method in class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/SimpleClientHandler.html" title="class in org.tinyradius.client.handler">SimpleClientHandler</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/proxy/handler/ProxyRequestHandler.html#handleServerResponse(org.tinyradius.dictionary.Dictionary,org.tinyradius.packet.RadiusPacket)">handleServerResponse(Dictionary, RadiusPacket)</a></span> - Method in class org.tinyradius.proxy.handler.<a href="org/tinyradius/proxy/handler/ProxyRequestHandler.html" title="class in org.tinyradius.proxy.handler">ProxyRequestHandler</a></dt>
 <dd>
 <div class="block">Sends an answer to a proxied packet back to the original host.</div>
@@ -652,11 +660,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/proxy/handler/LifecycleRequestHandler.html" title="interface in org.tinyradius.proxy.handler"><span class="typeNameLink">LifecycleRequestHandler</span></a>&lt;<a href="org/tinyradius/proxy/handler/LifecycleRequestHandler.html" title="type parameter in LifecycleRequestHandler">T</a> extends <a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt; - Interface in <a href="org/tinyradius/proxy/handler/package-summary.html">org.tinyradius.proxy.handler</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#listen(T,java.net.InetSocketAddress)">listen(T, InetSocketAddress)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#listenAcct()">listenAcct()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#listenAuth()">listenAuth()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#listen(io.netty.channel.socket.DatagramChannel,java.net.InetSocketAddress)">listen(DatagramChannel, InetSocketAddress)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a id="I:M">
@@ -857,18 +861,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacketEncoder.html#%3Cinit%3E()">RadiusPacketEncoder()</a></span> - Constructor for class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacketEncoder.html" title="class in org.tinyradius.packet">RadiusPacketEncoder</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="org/tinyradius/proxy/RadiusProxy.html" title="class in org.tinyradius.proxy"><span class="typeNameLink">RadiusProxy</span></a>&lt;<a href="org/tinyradius/proxy/RadiusProxy.html" title="type parameter in RadiusProxy">T</a> extends io.netty.channel.socket.DatagramChannel&gt; - Class in <a href="org/tinyradius/proxy/package-summary.html">org.tinyradius.proxy</a></dt>
+<dt><a href="org/tinyradius/proxy/RadiusProxy.html" title="class in org.tinyradius.proxy"><span class="typeNameLink">RadiusProxy</span></a> - Class in <a href="org/tinyradius/proxy/package-summary.html">org.tinyradius.proxy</a></dt>
 <dd>
 <div class="block">This class implements a basic Radius proxy that receives Radius packets
  and forwards them to a Radius server.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/proxy/RadiusProxy.html#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,org.tinyradius.proxy.ProxyHandlerAdapter,int,int)">RadiusProxy(EventLoopGroup, ChannelFactory&lt;T&gt;, InetAddress, ProxyHandlerAdapter, int, int)</a></span> - Constructor for class org.tinyradius.proxy.<a href="org/tinyradius/proxy/RadiusProxy.html" title="class in org.tinyradius.proxy">RadiusProxy</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/proxy/RadiusProxy.html#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,org.tinyradius.proxy.ProxyHandlerAdapter,int,int)">RadiusProxy(EventLoopGroup, ChannelFactory&lt;? extends DatagramChannel&gt;, InetAddress, ProxyHandlerAdapter, int, int)</a></span> - Constructor for class org.tinyradius.proxy.<a href="org/tinyradius/proxy/RadiusProxy.html" title="class in org.tinyradius.proxy">RadiusProxy</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server"><span class="typeNameLink">RadiusServer</span></a>&lt;<a href="org/tinyradius/server/RadiusServer.html" title="type parameter in RadiusServer">T</a> extends io.netty.channel.socket.DatagramChannel&gt; - Class in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
+<dt><a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server"><span class="typeNameLink">RadiusServer</span></a> - Class in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
 <dd>
 <div class="block">Implements a simple Radius server.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,io.netty.channel.ChannelHandler,io.netty.channel.ChannelHandler,int,int)">RadiusServer(EventLoopGroup, ChannelFactory&lt;T&gt;, InetAddress, ChannelHandler, ChannelHandler, int, int)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,io.netty.channel.ChannelHandler,io.netty.channel.ChannelHandler,int,int)">RadiusServer(EventLoopGroup, ChannelFactory&lt;? extends DatagramChannel&gt;, InetAddress, ChannelHandler, ChannelHandler, int, int)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#removeAttribute(org.tinyradius.attribute.RadiusAttribute)">removeAttribute(RadiusAttribute)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
 <dd>
@@ -949,6 +953,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/client/retry/SimpleRetryStrategy.html#%3Cinit%3E(io.netty.util.Timer,int,int)">SimpleRetryStrategy(Timer, int, int)</a></span> - Constructor for class org.tinyradius.client.retry.<a href="org/tinyradius/client/retry/SimpleRetryStrategy.html" title="class in org.tinyradius.client.retry">SimpleRetryStrategy</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/client/RadiusClient.html#start()">start()</a></span> - Method in class org.tinyradius.client.<a href="org/tinyradius/client/RadiusClient.html" title="class in org.tinyradius.client">RadiusClient</a></dt>
+<dd>
+<div class="block">Registers the channel and binds to address.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/proxy/handler/ProxyDeduplicatorHandler.html#start()">start()</a></span> - Method in class org.tinyradius.proxy.handler.<a href="org/tinyradius/proxy/handler/ProxyDeduplicatorHandler.html" title="class in org.tinyradius.proxy.handler">ProxyDeduplicatorHandler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/proxy/handler/ProxyRequestHandler.html#start()">start()</a></span> - Method in class org.tinyradius.proxy.handler.<a href="org/tinyradius/proxy/handler/ProxyRequestHandler.html" title="class in org.tinyradius.proxy.handler">ProxyRequestHandler</a></dt>
@@ -962,10 +970,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="org/tinyradius/util/Lifecycle.html#start()">start()</a></span> - Method in interface org.tinyradius.util.<a href="org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></dt>
 <dd>
 <div class="block">Initialize dependencies.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/client/RadiusClient.html#startChannel()">startChannel()</a></span> - Method in class org.tinyradius.client.<a href="org/tinyradius/client/RadiusClient.html" title="class in org.tinyradius.client">RadiusClient</a></dt>
-<dd>
-<div class="block">Registers the channel and binds to address.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/PacketType.html#STATUS_ACCEPT">STATUS_ACCEPT</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet">PacketType</a></dt>
 <dd>&nbsp;</dd>
@@ -1030,8 +1034,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h2 class="title">V</h2>
 <dl>
 <dt><span class="memberNameLink"><a href="org/tinyradius/attribute/IpAttribute.V4.html#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,int,int,java.lang.String)">V4(Dictionary, int, int, String)</a></span> - Constructor for class org.tinyradius.attribute.<a href="org/tinyradius/attribute/IpAttribute.V4.html" title="class in org.tinyradius.attribute">IpAttribute.V4</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#validPort(int)">validPort(int)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/attribute/VendorSpecificAttribute.html#VENDOR_SPECIFIC">VENDOR_SPECIFIC</a></span> - Static variable in class org.tinyradius.attribute.<a href="org/tinyradius/attribute/VendorSpecificAttribute.html" title="class in org.tinyradius.attribute">VendorSpecificAttribute</a></dt>
 <dd>&nbsp;</dd>

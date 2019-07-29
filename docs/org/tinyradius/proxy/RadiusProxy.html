@@ -116,17 +116,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.proxy</a></div>
-<h2 title="Class RadiusProxy" class="title">Class RadiusProxy&lt;T extends io.netty.channel.socket.DatagramChannel&gt;</h2>
+<h2 title="Class RadiusProxy" class="title">Class RadiusProxy</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../server/RadiusServer.html" title="class in org.tinyradius.server">org.tinyradius.server.RadiusServer</a>&lt;T&gt;</li>
+<li><a href="../server/RadiusServer.html" title="class in org.tinyradius.server">org.tinyradius.server.RadiusServer</a></li>
 <li>
 <ul class="inheritance">
-<li>org.tinyradius.proxy.RadiusProxy&lt;T&gt;</li>
+<li>org.tinyradius.proxy.RadiusProxy</li>
 </ul>
 </li>
 </ul>
@@ -140,8 +140,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">RadiusProxy&lt;T extends io.netty.channel.socket.DatagramChannel&gt;</span>
-extends <a href="../server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a>&lt;T&gt;
+<pre>public class <span class="typeNameLabel">RadiusProxy</span>
+extends <a href="../server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a>
 implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></pre>
 <div class="block">This class implements a basic Radius proxy that receives Radius packets
  and forwards them to a Radius server.
@@ -185,7 +185,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,org.tinyradius.proxy.ProxyHandlerAdapter,int,int)">RadiusProxy</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
-           io.netty.channel.ChannelFactory&lt;<a href="RadiusProxy.html" title="type parameter in RadiusProxy">T</a>&gt;&nbsp;factory,
+           io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
            java.net.InetAddress&nbsp;listenAddress,
            <a href="ProxyHandlerAdapter.html" title="class in org.tinyradius.proxy">ProxyHandlerAdapter</a>&nbsp;channelInboundHandler,
            int&nbsp;authPort,
@@ -218,7 +218,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Shutdown and close resources.</div>
@@ -230,7 +230,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.tinyradius.server.<a href="../server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></h3>
-<code><a href="../server/RadiusServer.html#getAcctChannel()">getAcctChannel</a>, <a href="../server/RadiusServer.html#getAuthChannel()">getAuthChannel</a>, <a href="../server/RadiusServer.html#listen(T,java.net.InetSocketAddress)">listen</a>, <a href="../server/RadiusServer.html#listenAcct()">listenAcct</a>, <a href="../server/RadiusServer.html#listenAuth()">listenAuth</a>, <a href="../server/RadiusServer.html#validPort(int)">validPort</a></code></li>
+<code><a href="../server/RadiusServer.html#getAcctChannel()">getAcctChannel</a>, <a href="../server/RadiusServer.html#getAuthChannel()">getAuthChannel</a>, <a href="../server/RadiusServer.html#listen(io.netty.channel.socket.DatagramChannel,java.net.InetSocketAddress)">listen</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -262,7 +262,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <li class="blockList">
 <h4>RadiusProxy</h4>
 <pre>public&nbsp;RadiusProxy&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
-                   io.netty.channel.ChannelFactory&lt;<a href="RadiusProxy.html" title="type parameter in RadiusProxy">T</a>&gt;&nbsp;factory,
+                   io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
                    java.net.InetAddress&nbsp;listenAddress,
                    <a href="ProxyHandlerAdapter.html" title="class in org.tinyradius.proxy">ProxyHandlerAdapter</a>&nbsp;channelInboundHandler,
                    int&nbsp;authPort,
@@ -303,7 +303,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../util/Lifecycle.html#start()">start</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../server/RadiusServer.html#start()">start</a></code>&nbsp;in class&nbsp;<code><a href="../server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a>&lt;<a href="RadiusProxy.html" title="type parameter in RadiusProxy">T</a> extends io.netty.channel.socket.DatagramChannel&gt;</code></dd>
+<dd><code><a href="../server/RadiusServer.html#start()">start</a></code>&nbsp;in class&nbsp;<code><a href="../server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>future completes when required resources have been set up.</dd>
 </dl>
@@ -315,14 +315,14 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <ul class="blockListLast">
 <li class="blockList">
 <h4>stop</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;stop()</pre>
+<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;stop()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/Lifecycle.html#stop()">Lifecycle</a></code></span></div>
 <div class="block">Shutdown and close resources. Does not guarantee when shutdown is complete.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../util/Lifecycle.html#stop()">stop</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../server/RadiusServer.html#stop()">stop</a></code>&nbsp;in class&nbsp;<code><a href="../server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a>&lt;<a href="RadiusProxy.html" title="type parameter in RadiusProxy">T</a> extends io.netty.channel.socket.DatagramChannel&gt;</code></dd>
+<dd><code><a href="../server/RadiusServer.html#stop()">stop</a></code>&nbsp;in class&nbsp;<code><a href="../server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></code></dd>
 </dl>
 </li>
 </ul>
