@@ -1,23 +1,29 @@
 package org.tinyradius.proxy.handler;
 
+import io.netty.channel.ChannelFactory;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.RadiusClient;
+import org.tinyradius.client.handler.ClientHandler;
 import org.tinyradius.client.handler.SimpleClientHandler;
+import org.tinyradius.client.retry.RetryStrategy;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.handler.AcctHandler;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -43,11 +49,16 @@ public class ProxyRequestHandlerTest {
             null, 0);
 
     @Test
-    void handleServerResponse() {
+    void handleSuccessfulPacket() {
         final int id = random.nextInt(256);
         eventExecutors.register(datagramChannel).syncUninterruptibly();
+        MockClient radiusClient = new MockClient(eventExecutors,
+                new ReflectiveChannelFactory<>(NioDatagramChannel.class),
+                new SimpleClientHandler(dictionary),
+                new SimpleRetryStrategy(timer, 3, 1000),
+                null, 0);
 
-        ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(client) {
+        ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(radiusClient) {
             @Override
             public RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
                 return new RadiusEndpoint(new InetSocketAddress(0), "shared");
@@ -64,10 +75,7 @@ public class ProxyRequestHandlerTest {
                 .map(String::new)
                 .collect(Collectors.toList()));
 
-        RadiusPacket response = new AcctHandler().handlePacket(datagramChannel, packet, null, "")
-                .syncUninterruptibly().getNow();
-
-        proxyRequestHandler.handleServerResponse(dictionary, response);
+        RadiusPacket response = proxyRequestHandler.handlePacket(datagramChannel, packet, new InetSocketAddress(0), "shared").syncUninterruptibly().getNow();
 
         assertEquals(id, response.getIdentifier());
         assertEquals(ACCOUNTING_RESPONSE, response.getType());
@@ -130,4 +138,19 @@ public class ProxyRequestHandlerTest {
         assertTrue(radiusException.getMessage().toLowerCase().contains("server not found"));
         eventExecutors.shutdownGracefully();
     }
+
+    private class MockClient extends RadiusClient<DatagramChannel> {
+
+        MockClient(EventLoopGroup eventLoopGroup, ChannelFactory<DatagramChannel> factory, ClientHandler clientHandler, RetryStrategy retryStrategy, InetAddress listenAddress, int port) {
+            super(eventLoopGroup, factory, clientHandler, retryStrategy, listenAddress, port);
+        }
+
+        public Promise<RadiusPacket> communicate(RadiusPacket originalPacket, RadiusEndpoint endpoint) {
+            Promise<RadiusPacket> promise = eventExecutors.next().newPromise();
+            RadiusPacket radiusPacket = new RadiusPacket(originalPacket.getDictionary(), ACCOUNTING_RESPONSE, originalPacket.getIdentifier(), originalPacket.getAttributes());
+            promise.trySuccess(radiusPacket);
+            return promise;
+        }
+    }
+
 }
