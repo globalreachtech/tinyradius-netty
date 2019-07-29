@@ -8,13 +8,17 @@
 [![Coverage Status](https://coveralls.io/repos/github/globalreachtech/tinyradius-netty/badge.svg)](https://coveralls.io/github/globalreachtech/tinyradius-netty)
 
 tinyradius-netty is a fork of the TinyRadius Radius library, with some significant changes:
-- Uses netty for asynchronous IO, timeouts thread management
+- Use netty for asynchronous IO, timeouts, thread management
 - Most methods return (netty) Promises
-- Uses slf4j instead of commons-logging
-- Updated to use Generics and Java 8 language features
-- Proxy uses Client to handle requests upstream and connection management
+- Use slf4j instead of commons-logging
+- Use Generics and Java 8 language features
+- Proxy uses Client to handle requests upstream, retries, and connection management
 - More immutability
 - More tests
+
+## Download
+- Direct from GitHub
+- https://bintray.com/globalreachtech/grt-maven/tinyradius-netty
 
 ## License
 Copyright Matthias Wuttke (mw@teuto.net) and contributors.
