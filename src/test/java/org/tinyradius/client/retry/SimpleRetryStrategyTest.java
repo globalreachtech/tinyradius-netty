@@ -19,7 +19,7 @@ class SimpleRetryStrategyTest {
     @AfterAll
     static void afterAll() {
         timer.stop();
-        eventLoopGroup.shutdownGracefully();
+        eventLoopGroup.shutdownGracefully().syncUninterruptibly();
     }
 
     private static void waitTimer() {

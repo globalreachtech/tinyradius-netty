@@ -1,5 +1,6 @@
 package org.tinyradius.proxy;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import org.tinyradius.dictionary.Dictionary;
@@ -12,9 +13,10 @@ import org.tinyradius.util.SecretProvider;
 /**
  * ChannelInboundHandler that allows any RadiusPacket type and implements Lifecycle.
  */
+@ChannelHandler.Sharable
 public class ProxyHandlerAdapter extends HandlerAdapter<RadiusPacket> implements Lifecycle {
 
-    private final Lifecycle requestHandler;
+    private final LifecycleRequestHandler requestHandler;
 
     /**
      * @param dictionary     for encoding/decoding RadiusPackets

@@ -61,6 +61,6 @@ class DeduplicatorHandlerTest {
                 .handlePacket(datagramChannel, request, null, null)
                 .syncUninterruptibly().getNow());
 
-        eventExecutors.shutdownGracefully();
+        eventExecutors.shutdownGracefully().syncUninterruptibly();
     }
 }

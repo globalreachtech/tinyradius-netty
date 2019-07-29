@@ -8,6 +8,8 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Promise;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.RadiusClient;
@@ -27,6 +29,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -34,24 +37,34 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.*;
 
-public class ProxyRequestHandlerTest {
-    private final Dictionary dictionary = DefaultDictionary.INSTANCE;
+class ProxyRequestHandlerTest {
+    private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
 
-    private final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);
-    private final HashedWheelTimer timer = new HashedWheelTimer();
-    private final NioDatagramChannel datagramChannel = new NioDatagramChannel();
+    private static final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);
+    private static final HashedWheelTimer timer = new HashedWheelTimer();
+    private static final NioDatagramChannel datagramChannel = new NioDatagramChannel();
 
-    private final RadiusClient<NioDatagramChannel> client = new RadiusClient<>(eventExecutors,
+    private static final RadiusClient<NioDatagramChannel> client = new RadiusClient<>(eventExecutors,
             new ReflectiveChannelFactory<>(NioDatagramChannel.class),
             new SimpleClientHandler(dictionary),
             new SimpleRetryStrategy(timer, 3, 1000),
             null, 0);
 
+    @BeforeAll
+    static void beforeAll(){
+        eventExecutors.register(datagramChannel).syncUninterruptibly();
+    }
+
+    @AfterAll
+    static void afterAll(){
+        timer.stop();
+        eventExecutors.shutdownGracefully().syncUninterruptibly();
+    }
+
     @Test
     void handleSuccessfulPacket() {
         final int id = random.nextInt(256);
-        eventExecutors.register(datagramChannel).syncUninterruptibly();
         MockClient radiusClient = new MockClient(eventExecutors,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new SimpleClientHandler(dictionary),
@@ -83,14 +96,11 @@ public class ProxyRequestHandlerTest {
                 .map(RadiusAttribute::getValue)
                 .map(String::new)
                 .collect(Collectors.toList()));
-
-        eventExecutors.shutdownGracefully();
     }
 
     @Test
     void handlePacketWithTimeout() {
         final int id = random.nextInt(256);
-        eventExecutors.register(datagramChannel).syncUninterruptibly();
 
         ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(client) {
             @Override
@@ -112,7 +122,6 @@ public class ProxyRequestHandlerTest {
     @Test
     void handlePacketNullServerEndPoint() {
         final int id = random.nextInt(256);
-        eventExecutors.register(datagramChannel).syncUninterruptibly();
 
         ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(client) {
             @Override
@@ -121,25 +130,15 @@ public class ProxyRequestHandlerTest {
             }
         };
 
-        final AccountingRequest packet = new AccountingRequest(dictionary, id, null, Arrays.asList(
-                createAttribute(dictionary, -1, 33, "state1".getBytes(UTF_8)),
-                createAttribute(dictionary, -1, 33, "state2".getBytes(UTF_8))));
-
-        assertEquals(ACCOUNTING_REQUEST, packet.getType());
-        assertEquals(Arrays.asList("state1", "state2"), packet.getAttributes().stream()
-                .map(RadiusAttribute::getValue)
-                .map(String::new)
-                .collect(Collectors.toList()));
-
+        final AccountingRequest packet = new AccountingRequest(dictionary, id, null, Collections.emptyList());
 
         final RadiusException radiusException = assertThrows(RadiusException.class,
                 () -> proxyRequestHandler.handlePacket(datagramChannel, packet, new InetSocketAddress(0), "shared").syncUninterruptibly());
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("server not found"));
-        eventExecutors.shutdownGracefully();
     }
 
-    private class MockClient extends RadiusClient<DatagramChannel> {
+    private static class MockClient extends RadiusClient<DatagramChannel> {
 
         MockClient(EventLoopGroup eventLoopGroup, ChannelFactory<DatagramChannel> factory, ClientHandler clientHandler, RetryStrategy retryStrategy, InetAddress listenAddress, int port) {
             super(eventLoopGroup, factory, clientHandler, retryStrategy, listenAddress, port);

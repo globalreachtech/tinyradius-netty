@@ -45,7 +45,7 @@ class RadiusClientTest {
     @AfterAll
     static void afterAll() {
         timer.stop();
-        eventLoopGroup.shutdownGracefully();
+        eventLoopGroup.shutdownGracefully().syncUninterruptibly();
         ResourceLeakDetector.setLevel(SIMPLE);
     }
 

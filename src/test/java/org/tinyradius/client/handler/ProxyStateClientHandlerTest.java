@@ -31,7 +31,7 @@ class ProxyStateClientHandlerTest {
 
     @AfterAll
     static void afterAll() {
-        eventLoopGroup.shutdownGracefully();
+        eventLoopGroup.shutdownGracefully().syncUninterruptibly();
     }
 
     @Test

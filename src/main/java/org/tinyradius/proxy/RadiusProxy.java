@@ -24,13 +24,13 @@ public class RadiusProxy extends RadiusServer implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusProxy.class);
 
-    private final Lifecycle channelInboundHandler;
+    private final ProxyHandlerAdapter handlerAdapter;
 
     /**
      * @param eventLoopGroup        for both channel IO and processing
      * @param factory               to create new Channel
      * @param listenAddress         local address to bind to, will be wildcard address if null
-     * @param channelInboundHandler ProxyChannelInboundHandler to handle requests received on both authPort
+     * @param handlerAdapter ProxyChannelInboundHandler to handle requests received on both authPort
      *                              and acctPort. Should also implement {@link Lifecycle} as the handler is
      *                              expected to manage the socket for proxying.
      * @param authPort              port to bind to, or set to 0 to let system choose
@@ -39,10 +39,10 @@ public class RadiusProxy extends RadiusServer implements Lifecycle {
     public RadiusProxy(EventLoopGroup eventLoopGroup,
                        ChannelFactory<? extends DatagramChannel> factory,
                        InetAddress listenAddress,
-                       ProxyHandlerAdapter channelInboundHandler,
+                       ProxyHandlerAdapter handlerAdapter,
                        int authPort, int acctPort) {
-        super(eventLoopGroup, factory, listenAddress, channelInboundHandler, channelInboundHandler, authPort, acctPort);
-        this.channelInboundHandler = channelInboundHandler;
+        super(eventLoopGroup, factory, listenAddress, handlerAdapter, handlerAdapter, authPort, acctPort);
+        this.handlerAdapter = handlerAdapter;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class RadiusProxy extends RadiusServer implements Lifecycle {
         Promise<Void> promise = eventLoopGroup.next().newPromise();
 
         final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
-        combiner.addAll(super.start(), channelInboundHandler.start());
+        combiner.addAll(super.start(), handlerAdapter.start());
         combiner.finish(promise);
 
         return promise;
@@ -63,7 +63,7 @@ public class RadiusProxy extends RadiusServer implements Lifecycle {
         final Promise<Void> promise = eventLoopGroup.next().newPromise();
 
         final PromiseCombiner promiseCombiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
-        promiseCombiner.addAll(channelInboundHandler.stop(), super.stop());
+        promiseCombiner.addAll(handlerAdapter.stop(), super.stop());
         promiseCombiner.finish(promise);
 
         return promise;

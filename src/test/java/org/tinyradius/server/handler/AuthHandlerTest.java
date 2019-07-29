@@ -28,7 +28,7 @@ class AuthHandlerTest {
 
     @AfterAll
     static void afterAll() {
-        eventExecutors.shutdownGracefully();
+        eventExecutors.shutdownGracefully().syncUninterruptibly();
     }
 
     private final AuthHandler authHandler = new AuthHandler() {

@@ -52,6 +52,6 @@ class AcctHandlerTest {
                 .map(String::new)
                 .collect(Collectors.toList()));
 
-        eventExecutors.shutdownGracefully();
+        eventExecutors.shutdownGracefully().syncUninterruptibly();
     }
 }

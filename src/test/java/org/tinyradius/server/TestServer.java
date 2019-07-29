@@ -96,8 +96,7 @@ public class TestServer {
 
         server.stop();
 
-        eventLoopGroup.shutdownGracefully()
-                .awaitUninterruptibly();
+        eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
     }
 
 }

@@ -95,7 +95,6 @@ public class TestProxy {
 
         proxy.stop();
 
-        eventLoopGroup.shutdownGracefully()
-                .awaitUninterruptibly();
+        eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
     }
 }

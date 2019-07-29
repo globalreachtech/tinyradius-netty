@@ -130,13 +130,13 @@ public class RadiusServer implements Lifecycle {
         return promise;
     }
 
-    protected DatagramChannel getAuthChannel() {
+    public DatagramChannel getAuthChannel() {
         if (authChannel == null)
             authChannel = factory.newChannel();
         return authChannel;
     }
 
-    protected DatagramChannel getAcctChannel() {
+    public DatagramChannel getAcctChannel() {
         if (acctChannel == null)
             acctChannel = factory.newChannel();
         return acctChannel;
