@@ -34,18 +34,18 @@ import static java.util.Objects.requireNonNull;
  * This object is thread safe, but requires a packet manager to avoid confusion with the mapping of request
  * and result packets.
  */
-public class RadiusClient<T extends DatagramChannel> implements Lifecycle {
+public class RadiusClient implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusClient.class);
 
-    private final ChannelFactory<T> factory;
+    private final ChannelFactory<? extends DatagramChannel> factory;
     private final EventLoopGroup eventLoopGroup;
     private final ClientHandler clientHandler;
     private final RetryStrategy retryStrategy;
     private final InetAddress listenAddress;
     private final int port;
 
-    private T channel = null;
+    private DatagramChannel channel = null;
 
     private ChannelFuture channelFuture;
 
@@ -57,7 +57,7 @@ public class RadiusClient<T extends DatagramChannel> implements Lifecycle {
      * @param port           port to bind to, or set to 0 to let system choose
      */
     public RadiusClient(EventLoopGroup eventLoopGroup,
-                        ChannelFactory<T> factory,
+                        ChannelFactory<? extends DatagramChannel> factory,
                         ClientHandler clientHandler,
                         RetryStrategy retryStrategy,
                         InetAddress listenAddress,
@@ -85,7 +85,8 @@ public class RadiusClient<T extends DatagramChannel> implements Lifecycle {
         if (channel == null)
             channel = factory.newChannel();
 
-        return channelFuture = listen(channel, new InetSocketAddress(listenAddress, port));
+        return channelFuture = listen(channel, new InetSocketAddress(listenAddress, port))
+                .addListener(f -> logger.info("RadiusClient started"));
     }
 
     /**
@@ -102,7 +103,7 @@ public class RadiusClient<T extends DatagramChannel> implements Lifecycle {
      * @param listenAddress the address to bind to
      * @return channel that resolves after it is bound to address and registered with eventLoopGroup
      */
-    private ChannelFuture listen(final T channel, final InetSocketAddress listenAddress) {
+    private ChannelFuture listen(final DatagramChannel channel, final InetSocketAddress listenAddress) {
         channel.pipeline().addLast(clientHandler);
 
         final ChannelPromise promise = channel.newPromise();
@@ -121,24 +122,29 @@ public class RadiusClient<T extends DatagramChannel> implements Lifecycle {
         final RadiusPacket request = clientHandler.prepareRequest(originalPacket, endpoint, promise);
 
         try {
-            final DatagramPacket datagram = RadiusPacketEncoder.toDatagram(
-                    request.encodeRequest(endpoint.getSharedSecret()),
-                    endpoint.getAddress());
+            final DatagramPacket datagram = RadiusPacketEncoder
+                    .toDatagram(request.encodeRequest(endpoint.getSharedSecret()), endpoint.getAddress());
 
-            promise.addListener(f -> {
-                if (f.isSuccess())
-                    logger.info("Response received, packet: {}", f.getNow());
-                else
-                    logger.error("{}", f.cause().getMessage());
+            start().addListener(s -> {
+                if (!s.isSuccess()) {
+                    promise.tryFailure(s.cause());
+                    return;
+                }
 
-                datagram.release();
-                if (datagram.refCnt() != 0)
-                    logger.error("buffer leak? datagram refCnt should be 0, actual: {}", datagram.refCnt());
+                logger.info("Preparing send: {}", request);
+                send(datagram, 1, promise);
+
+                promise.addListener(f -> {
+                    if (f.isSuccess())
+                        logger.info("Response received, packet: {}", f.getNow());
+                    else
+                        logger.error("{}", f.cause().getMessage());
+
+                    datagram.release();
+                    if (datagram.refCnt() != 0)
+                        logger.error("buffer leak? datagram refCnt should be 0, actual: {}", datagram.refCnt());
+                });
             });
-
-            logger.info("Preparing send: {}", request);
-
-            start().addListener(f -> send(datagram, 1, promise));
 
         } catch (RadiusException e) {
             promise.tryFailure(e);

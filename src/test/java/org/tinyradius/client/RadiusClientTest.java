@@ -3,14 +3,17 @@ package org.tinyradius.client;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.Timer;
+import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.client.handler.ClientHandler;
 import org.tinyradius.client.handler.SimpleClientHandler;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -53,7 +56,7 @@ class RadiusClientTest {
     void communicateWithTimeout() {
         SimpleClientHandler handler = new SimpleClientHandler(dictionary);
         final SimpleRetryStrategyHelper retryStrategy = new SimpleRetryStrategyHelper(timer, 3, 100);
-        RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, handler, retryStrategy, null, 0);
+        RadiusClient radiusClient = new RadiusClient(eventLoopGroup, channelFactory, handler, retryStrategy, null, 0);
 
         final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
@@ -63,12 +66,30 @@ class RadiusClientTest {
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
         assertEquals(3, retryStrategy.count.get());
-        radiusClient.stop();
+        radiusClient.stop().syncUninterruptibly();
     }
 
     @Test
     void communicateSuccess() {
-        // todo
+        final int id = random.nextInt(256);
+        final RadiusPacket response = new RadiusPacket(DefaultDictionary.INSTANCE, 2, id);
+        final MockClientHandler mockClientHandler = new MockClientHandler(response);
+        final SimpleRetryStrategyHelper simpleRetryStrategyHelper = new SimpleRetryStrategyHelper(timer, 3, 1000);
+
+        final RadiusClient radiusClient = new RadiusClient(
+                eventLoopGroup, channelFactory, mockClientHandler, simpleRetryStrategyHelper, null, 0);
+
+        final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
+
+        final Future<RadiusPacket> future = radiusClient.communicate(request, new RadiusEndpoint(new InetSocketAddress(0), "mySecret"));
+        assertFalse(future.isDone());
+
+        mockClientHandler.handleResponse(null);
+        assertTrue(future.isSuccess());
+
+        assertSame(response, future.getNow());
+
+        radiusClient.stop().syncUninterruptibly();
     }
 
     private static class SimpleRetryStrategyHelper extends SimpleRetryStrategy {
@@ -83,6 +104,27 @@ class RadiusClientTest {
         public void scheduleRetry(Runnable retry, int totalAttempts, Promise<RadiusPacket> promise) {
             super.scheduleRetry(retry, totalAttempts, promise);
             count.getAndIncrement();
+        }
+    }
+
+    private static class MockClientHandler extends ClientHandler {
+
+        private RadiusPacket response;
+        private Promise<RadiusPacket> promise;
+
+        private MockClientHandler(RadiusPacket response) {
+            this.response = response;
+        }
+
+        @Override
+        public RadiusPacket prepareRequest(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> promise) {
+            this.promise = promise;
+            return packet;
+        }
+
+        @Override
+        protected void handleResponse(DatagramPacket datagramPacket) {
+            promise.trySuccess(response);
         }
     }
 }

@@ -55,7 +55,7 @@ public class TestProxy {
         };
         final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(dictionary, secretProvider);
         final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 1000);
-        RadiusClient<NioDatagramChannel> radiusClient = new RadiusClient<>(eventLoopGroup, channelFactory, clientHandler, retryStrategy, null, 11814);
+        RadiusClient radiusClient = new RadiusClient(eventLoopGroup, channelFactory, clientHandler, retryStrategy, null, 11814);
 
         final ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(radiusClient) {
             @Override
@@ -93,7 +93,7 @@ public class TestProxy {
 
         System.in.read();
 
-        proxy.stop();
+        proxy.stop().syncUninterruptibly();
 
         eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
     }

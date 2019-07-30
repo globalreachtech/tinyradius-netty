@@ -87,14 +87,14 @@ public class TestServer {
                 logger.info("Server started");
             } else {
                 logger.info("Failed to start server: " + future1.cause());
-                server.stop();
+                server.stop().syncUninterruptibly();
                 eventLoopGroup.shutdownGracefully();
             }
         });
 
         System.in.read();
 
-        server.stop();
+        server.stop().syncUninterruptibly();
 
         eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
     }

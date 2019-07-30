@@ -30,9 +30,9 @@ public abstract class ProxyRequestHandler implements LifecycleRequestHandler<Rad
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyRequestHandler.class);
 
-    private final RadiusClient<?> radiusClient;
+    private final RadiusClient radiusClient;
 
-    protected ProxyRequestHandler(RadiusClient<?> radiusClient) {
+    protected ProxyRequestHandler(RadiusClient radiusClient) {
         this.radiusClient = radiusClient;
     }
 

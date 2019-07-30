@@ -45,7 +45,7 @@ public class TestClient {
 
         final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
         final HashedWheelTimer timer = new HashedWheelTimer();
-        RadiusClient<NioDatagramChannel> rc = new RadiusClient<>(
+        RadiusClient rc = new RadiusClient(
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new SimpleClientHandler(dictionary),
@@ -80,7 +80,7 @@ public class TestClient {
         response = rc.communicate(acc, acctEndpoint).syncUninterruptibly().getNow();
         logger.info("Response: " + response);
 
-        rc.stop();
+        rc.stop().syncUninterruptibly();
     }
 
 }

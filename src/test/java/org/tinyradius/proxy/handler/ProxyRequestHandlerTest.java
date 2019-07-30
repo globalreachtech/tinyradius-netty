@@ -45,19 +45,19 @@ class ProxyRequestHandlerTest {
     private static final HashedWheelTimer timer = new HashedWheelTimer();
     private static final NioDatagramChannel datagramChannel = new NioDatagramChannel();
 
-    private static final RadiusClient<NioDatagramChannel> client = new RadiusClient<>(eventExecutors,
+    private static final RadiusClient client = new RadiusClient(eventExecutors,
             new ReflectiveChannelFactory<>(NioDatagramChannel.class),
             new SimpleClientHandler(dictionary),
             new SimpleRetryStrategy(timer, 3, 1000),
             null, 0);
 
     @BeforeAll
-    static void beforeAll(){
+    static void beforeAll() {
         eventExecutors.register(datagramChannel).syncUninterruptibly();
     }
 
     @AfterAll
-    static void afterAll(){
+    static void afterAll() {
         timer.stop();
         eventExecutors.shutdownGracefully().syncUninterruptibly();
     }
@@ -138,7 +138,7 @@ class ProxyRequestHandlerTest {
         assertTrue(radiusException.getMessage().toLowerCase().contains("server not found"));
     }
 
-    private static class MockClient extends RadiusClient<DatagramChannel> {
+    private static class MockClient extends RadiusClient {
 
         MockClient(EventLoopGroup eventLoopGroup, ChannelFactory<DatagramChannel> factory, ClientHandler clientHandler, RetryStrategy retryStrategy, InetAddress listenAddress, int port) {
             super(eventLoopGroup, factory, clientHandler, retryStrategy, listenAddress, port);
