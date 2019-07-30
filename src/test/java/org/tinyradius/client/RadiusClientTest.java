@@ -92,6 +92,24 @@ class RadiusClientTest {
         radiusClient.stop().syncUninterruptibly();
     }
 
+    @Test
+    void badDatagramEncode() {
+        final int id = random.nextInt(256);
+        final MockClientHandler mockClientHandler = new MockClientHandler(null);
+
+        final RadiusClient radiusClient = new RadiusClient(
+                eventLoopGroup, channelFactory, mockClientHandler, null, null, 0);
+
+        final RadiusPacket request = new RadiusPacket(dictionary, 1, id);
+
+        final Future<RadiusPacket> future = radiusClient.communicate(request, new RadiusEndpoint(null, null));
+
+        assertTrue(future.isDone());
+        assertTrue(future.cause().getMessage().toLowerCase().contains("missing authenticator"));
+
+        radiusClient.stop().syncUninterruptibly();
+    }
+
     private static class SimpleRetryStrategyHelper extends SimpleRetryStrategy {
 
         private final AtomicInteger count = new AtomicInteger();

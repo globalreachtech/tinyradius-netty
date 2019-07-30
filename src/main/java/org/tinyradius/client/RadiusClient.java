@@ -122,8 +122,7 @@ public class RadiusClient implements Lifecycle {
         final RadiusPacket request = clientHandler.prepareRequest(originalPacket, endpoint, promise);
 
         try {
-            final DatagramPacket datagram = RadiusPacketEncoder
-                    .toDatagram(request.encodeRequest(endpoint.getSharedSecret()), endpoint.getAddress());
+            final DatagramPacket datagram = RadiusPacketEncoder.toDatagram(request, endpoint.getAddress());
 
             start().addListener(s -> {
                 if (!s.isSuccess()) {

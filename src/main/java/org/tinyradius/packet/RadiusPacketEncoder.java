@@ -37,9 +37,11 @@ public class RadiusPacketEncoder {
         byte[] attributes = packet.getAttributeBytes();
         int length = HEADER_LENGTH + attributes.length;
         if (length > MAX_PACKET_LENGTH)
-            throw new RadiusException("packet too long");
+            throw new RadiusException("Packet too long");
+        if (packet.getAuthenticator() == null)
+            throw new RadiusException("Missing authenticator");
         if (packet.getAuthenticator().length != 16)
-            throw new RadiusException("authenticator must be length 16");
+            throw new RadiusException("Authenticator must be length 16");
 
         ByteBuf buf = buffer(length, length);
         buf.writeByte(packet.getType());
