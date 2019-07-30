@@ -1,5 +1,6 @@
 package org.tinyradius.server;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -55,7 +56,11 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
 
     public void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
         try {
-            handleRequest(ctx, datagramPacket);
+            handleRequest(ctx.channel(), datagramPacket).addListener(f -> {
+                if (f.isSuccess())
+                    ctx.writeAndFlush(f.getNow());
+            });
+
         } catch (RadiusException e) {
             logger.error("DatagramPacket handle error: ", e);
         }
@@ -67,7 +72,7 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
      * @param datagramPacket datagram received
      * @throws RadiusException malformed packet
      */
-    protected void handleRequest(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws RadiusException {
+    protected Future<DatagramPacket> handleRequest(Channel channel, DatagramPacket datagramPacket) throws RadiusException {
         InetSocketAddress localAddress = datagramPacket.recipient();
         InetSocketAddress remoteAddress = datagramPacket.sender();
 
@@ -77,38 +82,37 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
 
         // parse packet
         RadiusPacket request = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, secret);
-        logger.info("Received packet from {} on local address {}: {}", remoteAddress, localAddress, request);
+        logger.info("Received packet from {} on local address {} - {}", remoteAddress, localAddress, request);
 
         // check channelHandler packet type restrictions
         if (!packetClass.isInstance(request))
             throw new RadiusException("Handler only accepts " + packetClass.getSimpleName() + ", actual packet " + request.getClass().getSimpleName());
 
-        final byte[] requestAuthenticator = request.getAuthenticator(); // save ref in case request is mutated
+        final byte[] requestAuth = request.getAuthenticator(); // save ref in case request is mutated
 
         logger.trace("about to call handlePacket()");
-        final Promise<RadiusPacket> promise = requestHandler.handlePacket(ctx.channel(), packetClass.cast(request), remoteAddress, secret);
+        final Promise<RadiusPacket> handlerResult = requestHandler.handlePacket(channel, packetClass.cast(request), remoteAddress, secret);
 
         // so futures don't stay in memory forever if never completed
-        Timeout timeout = timer.newTimeout(t -> promise.tryFailure(new RadiusException("timeout while generating client response")),
+        Timeout timeout = timer.newTimeout(t -> handlerResult.tryFailure(new RadiusException("timeout while generating client response")),
                 10, SECONDS);
 
-        promise.addListener((Future<RadiusPacket> f) -> {
+        final Promise<DatagramPacket> datagramResult = channel.eventLoop().newPromise();
+
+        handlerResult.addListener((Future<RadiusPacket> f) -> {
             timeout.cancel();
 
-            RadiusPacket response = f.getNow();
-
-            if (response != null) {
-                logger.info("sending response {} to {} with secret {}", response, remoteAddress, secret);
-                DatagramPacket packetOut = RadiusPacketEncoder.toDatagram(
-                        response.encodeResponse(secret, requestAuthenticator),
-                        remoteAddress);
-                ctx.writeAndFlush(packetOut);
+            if (f.isSuccess()) {
+                logger.info("Preparing response for {}", remoteAddress);
+                datagramResult.trySuccess(RadiusPacketEncoder.toDatagram(
+                        f.getNow().encodeResponse(secret, requestAuth),
+                        remoteAddress, localAddress));
             } else {
-                logger.info("no response sent");
-                Throwable e = f.cause();
-                if (e != null)
-                    logger.error("exception while handling packet", e);
+                logger.error("Exception while handling packet", f.cause());
+                datagramResult.tryFailure(f.cause());
             }
         });
+
+        return datagramResult;
     }
 }

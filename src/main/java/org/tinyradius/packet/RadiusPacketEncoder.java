@@ -33,7 +33,25 @@ public class RadiusPacketEncoder {
         return nextPacketId.updateAndGet(i -> i >= 255 ? 0 : i + 1);
     }
 
-    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress address) throws RadiusException {
+    /**
+     *
+     * @param packet
+     * @param recipient
+     * @return
+     * @throws RadiusException
+     */
+    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient) throws RadiusException {
+        return toDatagram(packet, recipient, null);
+    }
+
+    /**
+     * @param packet
+     * @param recipient
+     * @param sender    nullable
+     * @return
+     * @throws RadiusException
+     */
+    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient, InetSocketAddress sender) throws RadiusException {
         byte[] attributes = packet.getAttributeBytes();
         int length = HEADER_LENGTH + attributes.length;
         if (length > MAX_PACKET_LENGTH)
@@ -49,7 +67,7 @@ public class RadiusPacketEncoder {
         buf.writeShort(length);
         buf.writeBytes(packet.getAuthenticator());
         buf.writeBytes(attributes);
-        return new DatagramPacket(buf, address);
+        return new DatagramPacket(buf, recipient, sender);
     }
 
     /**
