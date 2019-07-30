@@ -1,6 +1,8 @@
 package org.tinyradius.client.handler;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -35,7 +37,7 @@ class ProxyStateClientHandlerTest {
     }
 
     @Test
-    void processRequestCreateProxyStateAttribute() {
+    void outboundAppendNewProxyState() {
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(dictionary, address -> "secret");
         int id = random.nextInt(256);
 
@@ -134,6 +136,16 @@ class ProxyStateClientHandlerTest {
                         badId.encodeResponse(secret, requestAuth), endpoint.getAddress())));
 
         assertTrue(exception.getMessage().toLowerCase().contains("authenticator check failed"));
+    }
+
+    @Test
+    void responseUnknownSender() {
+        final ProxyStateClientHandler proxyStateClientHandler = new ProxyStateClientHandler(null, address -> null);
+
+        final RadiusException exception = assertThrows(RadiusException.class,
+                () -> proxyStateClientHandler.handleResponse(
+                        new DatagramPacket(Unpooled.buffer(), new InetSocketAddress(0))));
+        assertTrue(exception.getMessage().toLowerCase().contains("unknown sender"));
     }
 
     @Test

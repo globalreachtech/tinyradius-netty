@@ -54,10 +54,9 @@ public class SimpleClientHandler extends ClientHandler {
         int identifier = toUnsignedInt(packet.content().duplicate().skipBytes(1).readByte());
 
         final Request request = contexts.get(requestKey(packet.sender(), identifier));
-        if (request == null) {
-            logger.info("Request context not found for received packet, ignoring...");
-            return;
-        }
+        if (request == null)
+            throw new RadiusException("Request context not found for received packet, ignoring...");
+
         RadiusPacket resp = RadiusPacketEncoder.fromDatagram(dictionary, packet, request.sharedSecret, request.packet);
         logger.info("Found request for response identifier => {}", identifier);
 

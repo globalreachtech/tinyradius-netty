@@ -66,7 +66,7 @@ class RadiusPacketEncoderTest {
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> RadiusPacketEncoder.toDatagram(oversizeRequest.encodeRequest("mySecret"), new InetSocketAddress(0)));
 
-        assertTrue(exception.getMessage().contains("packet too long"));
+        assertTrue(exception.getMessage().toLowerCase().contains("packet too long"));
 
         byteBuf.release();
     }

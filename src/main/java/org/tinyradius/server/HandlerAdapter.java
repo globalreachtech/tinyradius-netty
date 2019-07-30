@@ -55,54 +55,60 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
 
     public void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
         try {
-            InetSocketAddress localAddress = datagramPacket.recipient();
-            InetSocketAddress remoteAddress = datagramPacket.sender();
-
-            String secret = secretProvider.getSharedSecret(remoteAddress);
-            if (secret == null) {
-                logger.info("ignoring packet from unknown client {} received on local address {}", remoteAddress, localAddress);
-                return;
-            }
-
-            // parse packet
-            RadiusPacket request = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, secret);
-            logger.info("received packet from {} on local address {}: {}", remoteAddress, localAddress, request);
-
-            // check channelHandler packet type restrictions
-            if (!packetClass.isInstance(request)) {
-                logger.info("handler only accepts {}, unknown Radius packet type: {}", packetClass.getName(), request.getType());
-                return;
-            }
-
-            final byte[] requestAuthenticator = request.getAuthenticator(); // save ref in case request is mutated
-
-            logger.trace("about to call handlePacket()");
-            final Promise<RadiusPacket> promise = requestHandler.handlePacket(ctx.channel(), packetClass.cast(request), remoteAddress, secret);
-
-            // so futures don't stay in memory forever if never completed
-            Timeout timeout = timer.newTimeout(t -> promise.tryFailure(new RadiusException("timeout while generating client response")),
-                    10, SECONDS);
-
-            promise.addListener((Future<RadiusPacket> f) -> {
-                timeout.cancel();
-
-                RadiusPacket response = f.getNow();
-
-                if (response != null) {
-                    logger.info("sending response {} to {} with secret {}", response, remoteAddress, secret);
-                    DatagramPacket packetOut = RadiusPacketEncoder.toDatagram(
-                            response.encodeResponse(secret, requestAuthenticator),
-                            remoteAddress);
-                    ctx.writeAndFlush(packetOut);
-                } else {
-                    logger.info("no response sent");
-                    Throwable e = f.cause();
-                    if (e != null)
-                        logger.error("exception while handling packet", e);
-                }
-            });
+            handleRequest(ctx, datagramPacket);
         } catch (RadiusException e) {
             logger.error("DatagramPacket handle error: ", e);
         }
+    }
+
+    /**
+     * Processes DatagramPacket. This does not swallow exceptions.
+     *
+     * @param datagramPacket datagram received
+     * @throws RadiusException malformed packet
+     */
+    protected void handleRequest(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws RadiusException {
+        InetSocketAddress localAddress = datagramPacket.recipient();
+        InetSocketAddress remoteAddress = datagramPacket.sender();
+
+        String secret = secretProvider.getSharedSecret(remoteAddress);
+        if (secret == null)
+            throw new RadiusException("ignoring packet from unknown client " + remoteAddress + " received on local address " + localAddress);
+
+        // parse packet
+        RadiusPacket request = RadiusPacketEncoder.fromDatagram(dictionary, datagramPacket, secret);
+        logger.info("Received packet from {} on local address {}: {}", remoteAddress, localAddress, request);
+
+        // check channelHandler packet type restrictions
+        if (!packetClass.isInstance(request))
+            throw new RadiusException("Handler only accepts " + packetClass.getSimpleName() + ", actual packet " + request.getClass().getSimpleName());
+
+        final byte[] requestAuthenticator = request.getAuthenticator(); // save ref in case request is mutated
+
+        logger.trace("about to call handlePacket()");
+        final Promise<RadiusPacket> promise = requestHandler.handlePacket(ctx.channel(), packetClass.cast(request), remoteAddress, secret);
+
+        // so futures don't stay in memory forever if never completed
+        Timeout timeout = timer.newTimeout(t -> promise.tryFailure(new RadiusException("timeout while generating client response")),
+                10, SECONDS);
+
+        promise.addListener((Future<RadiusPacket> f) -> {
+            timeout.cancel();
+
+            RadiusPacket response = f.getNow();
+
+            if (response != null) {
+                logger.info("sending response {} to {} with secret {}", response, remoteAddress, secret);
+                DatagramPacket packetOut = RadiusPacketEncoder.toDatagram(
+                        response.encodeResponse(secret, requestAuthenticator),
+                        remoteAddress);
+                ctx.writeAndFlush(packetOut);
+            } else {
+                logger.info("no response sent");
+                Throwable e = f.cause();
+                if (e != null)
+                    logger.error("exception while handling packet", e);
+            }
+        });
     }
 }
