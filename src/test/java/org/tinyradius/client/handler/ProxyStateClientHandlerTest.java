@@ -188,7 +188,7 @@ class ProxyStateClientHandlerTest {
         // channel read again lookup fails
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handler.handleResponse(RadiusPacketEncoder.toDatagram(
-                        goodResponse.encodeResponse(secret, requestAuthenticator), endpoint.getAddress())));
+                        goodResponse, endpoint.getAddress())));
 
         assertTrue(exception.getMessage().toLowerCase().contains("request context not found"));
 

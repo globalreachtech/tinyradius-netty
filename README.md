@@ -15,10 +15,6 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
 - More immutability
 - More tests
 
-## Download
-- Direct from GitHub
-- https://bintray.com/globalreachtech/grt-maven/tinyradius-netty
-
 ## License
 Copyright Matthias Wuttke (mw@teuto.net) and contributors.
 

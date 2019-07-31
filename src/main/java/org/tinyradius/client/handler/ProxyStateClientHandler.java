@@ -99,6 +99,8 @@ public class ProxyStateClientHandler extends ClientHandler {
         response.verify(request.sharedSecret, request.authenticator);
 
         response.removeLastAttribute(PROXY_STATE);
+
+        logger.info("Found request for response identifier => {}", response.getIdentifier());
         request.promise.trySuccess(response);
     }
 

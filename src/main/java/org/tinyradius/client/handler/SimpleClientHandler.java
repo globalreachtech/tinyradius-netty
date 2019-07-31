@@ -64,7 +64,7 @@ public class SimpleClientHandler extends ClientHandler {
     }
 
     private static String requestKey(InetSocketAddress address, int packetId) {
-        return address.getHostString() + ":" + packetId;
+        return address.getHostString() + ":" + address.getPort() + ":" + packetId;
     }
 
     private static class Request {

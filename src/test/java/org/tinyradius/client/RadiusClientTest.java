@@ -14,7 +14,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.client.handler.ClientHandler;
-import org.tinyradius.client.handler.SimpleClientHandler;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.AccessRequest;
@@ -54,9 +53,8 @@ class RadiusClientTest {
 
     @Test()
     void communicateWithTimeout() {
-        SimpleClientHandler handler = new SimpleClientHandler(dictionary);
         final SimpleRetryStrategyHelper retryStrategy = new SimpleRetryStrategyHelper(timer, 3, 100);
-        RadiusClient radiusClient = new RadiusClient(eventLoopGroup, channelFactory, handler, retryStrategy, null, 0);
+        RadiusClient radiusClient = new RadiusClient(eventLoopGroup, channelFactory, new MockClientHandler(null), retryStrategy, null, 0);
 
         final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
