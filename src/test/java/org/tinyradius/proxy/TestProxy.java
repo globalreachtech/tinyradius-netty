@@ -4,14 +4,15 @@ import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
-import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.ProxyStateClientHandler;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
+import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.proxy.handler.ProxyDeduplicatorHandler;
 import org.tinyradius.proxy.handler.ProxyRequestHandler;
@@ -41,7 +42,9 @@ public class TestProxy {
     public static void main(String[] args) throws Exception {
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-        final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
+        final Dictionary dictionary = DefaultDictionary.INSTANCE;
+        final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
+
         ReflectiveChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
 
         HashedWheelTimer timer = new HashedWheelTimer();
@@ -53,9 +56,10 @@ public class TestProxy {
             return remote.getAddress().getHostAddress().equals("127.0.0.1") ?
                     "proxytest" : null;
         };
-        final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(dictionary, secretProvider);
+        final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(packetEncoder, secretProvider);
         final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 1000);
-        RadiusClient radiusClient = new RadiusClient(eventLoopGroup, channelFactory, clientHandler, retryStrategy, null, 11814);
+        RadiusClient radiusClient = new RadiusClient(
+                packetEncoder, eventLoopGroup, channelFactory, clientHandler, retryStrategy, new InetSocketAddress(11814));
 
         final ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(radiusClient) {
             @Override
@@ -76,13 +80,10 @@ public class TestProxy {
         final RadiusProxy proxy = new RadiusProxy(
                 eventLoopGroup,
                 channelFactory,
-                null,
-                new ProxyHandlerAdapter(dictionary, proxyDeduplicatorHandler, timer, secretProvider),
-                11812, 11813);
+                new ProxyHandlerAdapter(packetEncoder, proxyDeduplicatorHandler, timer, secretProvider),
+                new InetSocketAddress(11812), new InetSocketAddress(11813));
 
-
-        Future<Void> future = proxy.start();
-        future.addListener(future1 -> {
+        proxy.start().addListener(future1 -> {
             if (future1.isSuccess()) {
                 logger.info("Server started.");
             } else {

@@ -5,6 +5,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.proxy.handler.ProxyRequestHandler;
 import org.tinyradius.util.RadiusEndpoint;
@@ -14,13 +15,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProxyHandlerAdapterTest {
 
+    private final PacketEncoder packetEncoder = new PacketEncoder(DefaultDictionary.INSTANCE);
+
     @Test
     void lifecycleCommands() {
         final HashedWheelTimer timer = new HashedWheelTimer();
         final MockProxyRequestHandler mockProxyRequestHandler = new MockProxyRequestHandler();
 
         final ProxyHandlerAdapter proxyHandlerAdapter =
-                new ProxyHandlerAdapter(DefaultDictionary.INSTANCE, mockProxyRequestHandler, timer, a -> "mysecret");
+                new ProxyHandlerAdapter(packetEncoder, mockProxyRequestHandler, timer, a -> "mysecret");
 
         assertFalse(mockProxyRequestHandler.isStarted);
 

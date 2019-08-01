@@ -16,8 +16,8 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
+import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.server.handler.RequestHandler;
 import org.tinyradius.util.RadiusException;
 
@@ -32,6 +32,7 @@ class HandlerAdapterTest {
     private static final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
 
     @AfterAll
     static void afterAll() {
@@ -42,7 +43,7 @@ class HandlerAdapterTest {
     @Test
     void unknownClient() {
         final HandlerAdapter<AccountingRequest> handlerAdapter = new HandlerAdapter<>(
-                dictionary, null, timer, address -> null, AccountingRequest.class);
+                packetEncoder, null, timer, address -> null, AccountingRequest.class);
         final DatagramPacket datagramPacket = new DatagramPacket(Unpooled.buffer(0), new InetSocketAddress(0));
 
         final RadiusException exception = assertThrows(RadiusException.class,
@@ -57,10 +58,10 @@ class HandlerAdapterTest {
     void unhandledPacketType() throws RadiusException {
         final String secret = "mySecret";
         final RadiusPacket radiusPacket = new AccountingRequest(dictionary, 1, null).encodeRequest(secret);
-        final DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(radiusPacket, new InetSocketAddress(0));
+        final DatagramPacket datagramPacket = packetEncoder.toDatagram(radiusPacket, new InetSocketAddress(0));
 
         final HandlerAdapter<AccessRequest> handlerAdapter = new HandlerAdapter<>(
-                dictionary, null, timer, address -> secret, AccessRequest.class);
+                packetEncoder, null, timer, address -> secret, AccessRequest.class);
 
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handlerAdapter.handleRequest(null, datagramPacket));
@@ -74,11 +75,11 @@ class HandlerAdapterTest {
     void requestHandlerError() throws RadiusException, InterruptedException {
         final String secret = "mySecret";
         final RadiusPacket radiusPacket = new RadiusPacket(dictionary, 3, 1).encodeRequest(secret);
-        final DatagramPacket request = RadiusPacketEncoder.toDatagram(radiusPacket, new InetSocketAddress(0));
+        final DatagramPacket request = packetEncoder.toDatagram(radiusPacket, new InetSocketAddress(0));
         final MockRequestHandler mockRequestHandler = new MockRequestHandler();
 
         final HandlerAdapter<RadiusPacket> handlerAdapter = new HandlerAdapter<>(
-                dictionary, mockRequestHandler, timer, address -> secret, RadiusPacket.class);
+                packetEncoder, mockRequestHandler, timer, address -> secret, RadiusPacket.class);
 
         final NioDatagramChannel channel = channelFactory.newChannel();
         eventExecutors.register(channel).syncUninterruptibly();
@@ -104,11 +105,11 @@ class HandlerAdapterTest {
         final InetSocketAddress serverAddress = new InetSocketAddress(0);
         final InetSocketAddress clientAddress = new InetSocketAddress(1);
 
-        final DatagramPacket request = RadiusPacketEncoder.toDatagram(requestPacket, serverAddress, clientAddress);
+        final DatagramPacket request = packetEncoder.toDatagram(requestPacket, serverAddress, clientAddress);
         final MockRequestHandler mockRequestHandler = new MockRequestHandler();
 
         final HandlerAdapter<RadiusPacket> handlerAdapter = new HandlerAdapter<>(
-                dictionary, mockRequestHandler, timer, address -> secret, RadiusPacket.class);
+                packetEncoder, mockRequestHandler, timer, address -> secret, RadiusPacket.class);
 
         final NioDatagramChannel channel = channelFactory.newChannel();
         eventExecutors.register(channel).syncUninterruptibly();
@@ -123,7 +124,7 @@ class HandlerAdapterTest {
 
         assertTrue(response.isSuccess());
         assertArrayEquals(response.getNow().content().array(),
-                RadiusPacketEncoder.toDatagram(responsePacket, clientAddress, serverAddress).content().array());
+                packetEncoder.toDatagram(responsePacket, clientAddress, serverAddress).content().array());
     }
 
     private static class MockRequestHandler implements RequestHandler<RadiusPacket> {

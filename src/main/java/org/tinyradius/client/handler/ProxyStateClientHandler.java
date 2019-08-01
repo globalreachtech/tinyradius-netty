@@ -5,9 +5,8 @@ import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
@@ -33,19 +32,19 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
 
-    private final Dictionary dictionary;
+    private final PacketEncoder packetEncoder;
     private final SecretProvider secretProvider;
 
     private final Map<String, Request> requests = new ConcurrentHashMap<>();
 
     /**
-     * @param dictionary     to decode packet incoming DatagramPackets to RadiusPackets
+     * @param packetEncoder  to decode packet incoming DatagramPackets to RadiusPackets
      * @param secretProvider lookup shared secret for decoding response for upstream server.
      *                       Unlike packetIdentifier, Proxy-State is stored in attribute rather than the second octet,
      *                       so requires decoding first before we can lookup any context.
      */
-    public ProxyStateClientHandler(Dictionary dictionary, SecretProvider secretProvider) {
-        this.dictionary = dictionary;
+    public ProxyStateClientHandler(PacketEncoder packetEncoder, SecretProvider secretProvider) {
+        this.packetEncoder = packetEncoder;
         this.secretProvider = secretProvider;
     }
 
@@ -77,7 +76,7 @@ public class ProxyStateClientHandler extends ClientHandler {
             throw new RadiusException("Ignoring packet - unknown sender " + datagramPacket.sender() +
                     " received on local address " + datagramPacket.recipient());
 
-        RadiusPacket response = RadiusPacketEncoder.fromDatagramUnverified(dictionary, datagramPacket);
+        RadiusPacket response = packetEncoder.fromDatagramUnverified(datagramPacket);
 
         // retrieve my Proxy-State attribute (the last)
         List<RadiusAttribute> proxyStates = response.getAttributes(PROXY_STATE);

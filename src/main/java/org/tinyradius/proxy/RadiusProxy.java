@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.util.Lifecycle;
 
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 /**
  * This class implements a basic Radius proxy that receives Radius packets
@@ -27,21 +27,20 @@ public class RadiusProxy extends RadiusServer implements Lifecycle {
     private final ProxyHandlerAdapter handlerAdapter;
 
     /**
-     * @param eventLoopGroup        for both channel IO and processing
-     * @param factory               to create new Channel
-     * @param listenAddress         local address to bind to, will be wildcard address if null
+     * @param eventLoopGroup for both channel IO and processing
+     * @param factory        to create new Channel
      * @param handlerAdapter ProxyChannelInboundHandler to handle requests received on both authPort
-     *                              and acctPort. Should also implement {@link Lifecycle} as the handler is
-     *                              expected to manage the socket for proxying.
-     * @param authPort              port to bind to, or set to 0 to let system choose
-     * @param acctPort              port to bind to, or set to 0 to let system choose
+     *                       and acctPort. Should also implement {@link Lifecycle} as the handler is
+     *                       expected to manage the socket for proxying.
+     * @param authSocket     port to bind to, or set to 0 to let system choose
+     * @param acctSocket     port to bind to, or set to 0 to let system choose
      */
     public RadiusProxy(EventLoopGroup eventLoopGroup,
                        ChannelFactory<? extends DatagramChannel> factory,
-                       InetAddress listenAddress,
                        ProxyHandlerAdapter handlerAdapter,
-                       int authPort, int acctPort) {
-        super(eventLoopGroup, factory, listenAddress, handlerAdapter, handlerAdapter, authPort, acctPort);
+                       InetSocketAddress authSocket,
+                       InetSocketAddress acctSocket) {
+        super(eventLoopGroup, factory, handlerAdapter, handlerAdapter, authSocket, acctSocket);
         this.handlerAdapter = handlerAdapter;
     }
 

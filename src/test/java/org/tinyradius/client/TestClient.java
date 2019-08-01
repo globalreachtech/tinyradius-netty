@@ -11,12 +11,13 @@ import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
+import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
 
-import static org.tinyradius.packet.RadiusPacketEncoder.nextPacketId;
+import static org.tinyradius.packet.RadiusPackets.nextPacketId;
 
 /**
  * TestClient shows how to send Radius Access-Request and Accounting-Request packets.
@@ -44,13 +45,15 @@ public class TestClient {
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
         final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
+        final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
         final HashedWheelTimer timer = new HashedWheelTimer();
         RadiusClient rc = new RadiusClient(
+                packetEncoder,
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new SimpleClientHandler(dictionary),
+                new SimpleClientHandler(packetEncoder),
                 new SimpleRetryStrategy(timer, 3, 1000),
-                null, 0);
+                new InetSocketAddress(0));
         rc.start().syncUninterruptibly();
 
         final RadiusEndpoint authEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1812), shared);

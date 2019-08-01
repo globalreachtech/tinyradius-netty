@@ -8,8 +8,8 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.dictionary.DefaultDictionary;
 
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -30,7 +30,8 @@ class RadiusProxyTest {
         final MockProxyHandlerAdapter mockProxyHandlerAdapter = new MockProxyHandlerAdapter();
 
         final RadiusProxy server = new RadiusProxy(
-                eventExecutors, channelFactory, null, mockProxyHandlerAdapter, 0, 0);
+                eventExecutors, channelFactory, mockProxyHandlerAdapter,
+                new InetSocketAddress(0), new InetSocketAddress(0));
 
         assertFalse(mockProxyHandlerAdapter.isStarted);
 
@@ -83,7 +84,7 @@ class RadiusProxyTest {
         private boolean isStarted = false;
 
         private MockProxyHandlerAdapter() {
-            super(DefaultDictionary.INSTANCE, null, null, null);
+            super(null, null, null, null);
         }
 
         @Override

@@ -21,11 +21,11 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
+import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -39,17 +39,20 @@ import static org.tinyradius.packet.PacketType.*;
 
 class ProxyRequestHandlerTest {
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private static final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
     private final SecureRandom random = new SecureRandom();
 
     private static final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);
     private static final HashedWheelTimer timer = new HashedWheelTimer();
     private static final NioDatagramChannel datagramChannel = new NioDatagramChannel();
 
-    private static final RadiusClient client = new RadiusClient(eventExecutors,
+    private static final RadiusClient client = new RadiusClient(
+            packetEncoder,
+            eventExecutors,
             new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-            new SimpleClientHandler(dictionary),
+            new SimpleClientHandler(packetEncoder),
             new SimpleRetryStrategy(timer, 3, 1000),
-            null, 0);
+            new InetSocketAddress(0));
 
     @BeforeAll
     static void beforeAll() {
@@ -67,9 +70,8 @@ class ProxyRequestHandlerTest {
         final int id = random.nextInt(256);
         MockClient radiusClient = new MockClient(eventExecutors,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new SimpleClientHandler(dictionary),
-                new SimpleRetryStrategy(timer, 3, 1000),
-                null, 0);
+                new SimpleClientHandler(packetEncoder),
+                new SimpleRetryStrategy(timer, 3, 1000));
 
         ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(radiusClient) {
             @Override
@@ -140,8 +142,8 @@ class ProxyRequestHandlerTest {
 
     private static class MockClient extends RadiusClient {
 
-        MockClient(EventLoopGroup eventLoopGroup, ChannelFactory<DatagramChannel> factory, ClientHandler clientHandler, RetryStrategy retryStrategy, InetAddress listenAddress, int port) {
-            super(eventLoopGroup, factory, clientHandler, retryStrategy, listenAddress, port);
+        MockClient(EventLoopGroup eventLoopGroup, ChannelFactory<DatagramChannel> factory, ClientHandler clientHandler, RetryStrategy retryStrategy) {
+            super(packetEncoder, eventLoopGroup, factory, clientHandler, retryStrategy, new InetSocketAddress(0));
         }
 
         public Promise<RadiusPacket> communicate(RadiusPacket originalPacket, RadiusEndpoint endpoint) {

@@ -10,6 +10,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,7 +32,7 @@ class RadiusServerTest {
         final MockHandler authHandler = new MockHandler();
         final MockHandler acctHandler = new MockHandler();
         final RadiusServer server = new RadiusServer(
-                eventExecutors, channelFactory, null, authHandler, acctHandler, 0, 0);
+                eventExecutors, channelFactory, authHandler, acctHandler, new InetSocketAddress(0), new InetSocketAddress(0));
 
         // not registered with eventLoop
         assertFalse(server.getAcctChannel().isRegistered());

@@ -17,7 +17,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.AccessRequest.pad;
-import static org.tinyradius.packet.RadiusPacketEncoder.nextPacketId;
+import static org.tinyradius.packet.RadiusPackets.nextPacketId;
 
 class AccessRequestTest {
 

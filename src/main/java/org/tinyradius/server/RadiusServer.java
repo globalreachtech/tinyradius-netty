@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.util.Lifecycle;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import static java.util.Objects.requireNonNull;
@@ -26,10 +25,9 @@ public class RadiusServer implements Lifecycle {
     protected final EventLoopGroup eventLoopGroup;
     private final ChannelHandler authHandler;
     private final ChannelHandler acctHandler;
-    private final int authPort;
-    private final int acctPort;
+    private final InetSocketAddress authSocket;
+    private final InetSocketAddress acctSocket;
 
-    private final InetAddress listenAddress;
     private DatagramChannel authChannel = null;
     private DatagramChannel acctChannel = null;
 
@@ -38,25 +36,23 @@ public class RadiusServer implements Lifecycle {
     /**
      * @param eventLoopGroup for both channel IO and processing
      * @param factory        to create new Channel
-     * @param listenAddress  local address to bind to, will be wildcard address if null
      * @param authHandler    ChannelHandler to handle requests received on authPort
      * @param acctHandler    ChannelHandler to handle requests received on acctPort
-     * @param authPort       port to bind to, or set to 0 to let system choose
-     * @param acctPort       port to bind to, or set to 0 to let system choose
+     * @param authSocket
+     * @param acctSocket
      */
     public RadiusServer(EventLoopGroup eventLoopGroup,
                         ChannelFactory<? extends DatagramChannel> factory,
-                        InetAddress listenAddress,
                         ChannelHandler authHandler,
                         ChannelHandler acctHandler,
-                        int authPort, int acctPort) {
+                        InetSocketAddress authSocket,
+                        InetSocketAddress acctSocket) {
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
         this.factory = requireNonNull(factory, "factory cannot be null");
         this.authHandler = authHandler;
         this.acctHandler = acctHandler;
-        this.authPort = validPort(authPort);
-        this.acctPort = validPort(acctPort);
-        this.listenAddress = listenAddress;
+        this.authSocket = authSocket;
+        this.acctSocket = acctSocket;
     }
 
     @Override
@@ -93,23 +89,16 @@ public class RadiusServer implements Lifecycle {
         return promise;
     }
 
-    private int validPort(int port) {
-        if (port < 0 || port > 65535)
-            throw new IllegalArgumentException("bad port number");
-        // allow port 0 to let system choose
-        return port;
-    }
-
     private ChannelFuture listenAuth() {
-        logger.info("starting RadiusAuthListener on port " + authPort);
+        logger.info("starting RadiusAuthListener on port " + authSocket.getPort());
         getAuthChannel().pipeline().addLast(authHandler);
-        return listen(getAuthChannel(), new InetSocketAddress(listenAddress, authPort));
+        return listen(getAuthChannel(), authSocket);
     }
 
     private ChannelFuture listenAcct() {
-        logger.info("starting RadiusAcctListener on port " + acctPort);
+        logger.info("starting RadiusAcctListener on port " + acctSocket.getPort());
         getAcctChannel().pipeline().addLast(acctHandler);
-        return listen(getAcctChannel(), new InetSocketAddress(listenAddress, acctPort));
+        return listen(getAcctChannel(), acctSocket);
     }
 
     /**

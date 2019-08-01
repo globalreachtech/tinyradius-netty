@@ -13,13 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.handler.ClientHandler;
 import org.tinyradius.client.retry.RetryStrategy;
+import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.Lifecycle;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import static java.lang.Byte.toUnsignedInt;
@@ -38,12 +37,12 @@ public class RadiusClient implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusClient.class);
 
+    private final PacketEncoder packetEncoder;
     private final ChannelFactory<? extends DatagramChannel> factory;
     private final EventLoopGroup eventLoopGroup;
     private final ClientHandler clientHandler;
     private final RetryStrategy retryStrategy;
-    private final InetAddress listenAddress;
-    private final int port;
+    private final InetSocketAddress listenAddress;
 
     private DatagramChannel channel = null;
 
@@ -53,21 +52,20 @@ public class RadiusClient implements Lifecycle {
      * @param eventLoopGroup for both channel IO and processing
      * @param factory        to create new Channel
      * @param clientHandler  to log outgoing packets and handle incoming packets/responses
-     * @param listenAddress  local address to bind to, will be wildcard address if null
-     * @param port           port to bind to, or set to 0 to let system choose
+     * @param listenAddress  local address to bind to
      */
-    public RadiusClient(EventLoopGroup eventLoopGroup,
+    public RadiusClient(PacketEncoder packetEncoder,
+                        EventLoopGroup eventLoopGroup,
                         ChannelFactory<? extends DatagramChannel> factory,
                         ClientHandler clientHandler,
                         RetryStrategy retryStrategy,
-                        InetAddress listenAddress,
-                        int port) {
+                        InetSocketAddress listenAddress) {
+        this.packetEncoder = packetEncoder;
         this.factory = requireNonNull(factory, "factory cannot be null");
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
         this.clientHandler = clientHandler;
         this.retryStrategy = retryStrategy;
         this.listenAddress = listenAddress;
-        this.port = port;
     }
 
     /**
@@ -85,7 +83,7 @@ public class RadiusClient implements Lifecycle {
         if (channel == null)
             channel = factory.newChannel();
 
-        return channelFuture = listen(channel, new InetSocketAddress(listenAddress, port))
+        return channelFuture = listen(channel, listenAddress)
                 .addListener(f -> logger.info("RadiusClient started"));
     }
 
@@ -120,9 +118,10 @@ public class RadiusClient implements Lifecycle {
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
         final RadiusPacket request = clientHandler.prepareRequest(originalPacket, endpoint, promise);
+        // todo return datagram
 
         try {
-            final DatagramPacket datagram = RadiusPacketEncoder.toDatagram(request, endpoint.getAddress());
+            final DatagramPacket datagram = packetEncoder.toDatagram(request, endpoint.getAddress());
 
             start().addListener(s -> {
                 if (!s.isSuccess()) {

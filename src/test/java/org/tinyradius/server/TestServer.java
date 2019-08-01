@@ -11,10 +11,7 @@ import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.packet.AccessRequest;
-import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.PacketType;
-import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.*;
 import org.tinyradius.server.handler.AcctHandler;
 import org.tinyradius.server.handler.AuthHandler;
 import org.tinyradius.server.handler.DeduplicatorHandler;
@@ -37,7 +34,7 @@ public class TestServer {
 
     public static void main(String[] args) throws Exception {
 
-        final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
+        final PacketEncoder packetEncoder = new PacketEncoder(DefaultDictionary.INSTANCE);
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         final Timer timer = new HashedWheelTimer();
 
@@ -76,10 +73,9 @@ public class TestServer {
         final RadiusServer server = new RadiusServer(
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                null,
-                new HandlerAdapter<>(dictionary, authHandler, timer, secretProvider, AccessRequest.class),
-                new HandlerAdapter<>(dictionary, acctHandler, timer, secretProvider, AccountingRequest.class),
-                11812, 11813);
+                new HandlerAdapter<>(packetEncoder, authHandler, timer, secretProvider, AccessRequest.class),
+                new HandlerAdapter<>(packetEncoder, acctHandler, timer, secretProvider, AccountingRequest.class),
+                new InetSocketAddress(11812), new InetSocketAddress(11813));
 
         final Future<Void> future = server.start();
         future.addListener(future1 -> {

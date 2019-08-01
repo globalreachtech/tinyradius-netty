@@ -20,7 +20,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
-import static org.tinyradius.packet.RadiusPacketEncoder.createRadiusPacket;
+import static org.tinyradius.packet.RadiusPackets.createRadiusPacket;
 
 /**
  * A generic Radius packet. Subclasses provide convenience methods for special packet types.

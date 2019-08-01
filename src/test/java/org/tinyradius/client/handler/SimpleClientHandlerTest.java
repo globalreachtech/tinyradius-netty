@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
+import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
@@ -23,6 +23,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
 class SimpleClientHandlerTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
     private static final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
     @AfterAll
@@ -32,9 +33,9 @@ class SimpleClientHandlerTest {
 
     @Test
     void noContextFound() throws RadiusException {
-        final SimpleClientHandler handler = new SimpleClientHandler(dictionary);
+        final SimpleClientHandler handler = new SimpleClientHandler(packetEncoder);
         final RadiusPacket radiusPacket = new RadiusPacket(dictionary, 2, 1).encodeResponse("foo", new byte[16]);
-        final DatagramPacket datagramPacket = RadiusPacketEncoder.toDatagram(
+        final DatagramPacket datagramPacket = packetEncoder.toDatagram(
                 radiusPacket, new InetSocketAddress(0), new InetSocketAddress(1));
 
         final RadiusException exception = assertThrows(RadiusException.class,
@@ -50,7 +51,7 @@ class SimpleClientHandlerTest {
         final int id = new SecureRandom().nextInt(256);
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
-        final SimpleClientHandler handler = new SimpleClientHandler(dictionary);
+        final SimpleClientHandler handler = new SimpleClientHandler(packetEncoder);
         final AccessRequest request = new AccessRequest(dictionary, id, null, "myUser", "myPassword");
 
         final RadiusPacket encodedRequest = handler.prepareRequest(request, new RadiusEndpoint(new InetSocketAddress(12345), secret), promise);
@@ -61,7 +62,7 @@ class SimpleClientHandlerTest {
                 .encodeResponse(secret, encodedRequest.getAuthenticator());
 
         // ignore packet from wrong port
-        final DatagramPacket badDatagram = RadiusPacketEncoder.toDatagram(response, new InetSocketAddress(0), new InetSocketAddress(9999));
+        final DatagramPacket badDatagram = packetEncoder.toDatagram(response, new InetSocketAddress(0), new InetSocketAddress(9999));
 
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handler.handleResponse(badDatagram));
@@ -70,7 +71,7 @@ class SimpleClientHandlerTest {
         assertFalse(promise.isDone());
 
         // correct port
-        final DatagramPacket goodDatagram = RadiusPacketEncoder.toDatagram(response, new InetSocketAddress(0), new InetSocketAddress(12345));
+        final DatagramPacket goodDatagram = packetEncoder.toDatagram(response, new InetSocketAddress(0), new InetSocketAddress(12345));
         handler.handleResponse(goodDatagram);
 
         assertTrue(promise.isDone());

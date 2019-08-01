@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.AccessRequest;
+import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketEncoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
@@ -26,6 +26,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
 class ProxyStateClientHandlerTest {
 
     private final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
+    private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
     private final SecureRandom random = new SecureRandom();
     private static final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
@@ -38,7 +39,7 @@ class ProxyStateClientHandlerTest {
 
     @Test
     void outboundAppendNewProxyState() {
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(dictionary, address -> "secret");
+        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder, address -> "secret");
         int id = random.nextInt(256);
 
         final RadiusPacket originalRequest = new AccessRequest(dictionary, id, null).encodeRequest("test");
@@ -67,12 +68,12 @@ class ProxyStateClientHandlerTest {
     void responseNoProxyState() {
         final String secret = "mySecret";
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(dictionary, address -> secret);
+        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder, address -> secret);
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket noAttributeResponse = new RadiusPacket(dictionary, 2, 1);
         final RadiusException exception = assertThrows(RadiusException.class,
-                () -> handler.handleResponse(RadiusPacketEncoder.toDatagram(
+                () -> handler.handleResponse(packetEncoder.toDatagram(
                         noAttributeResponse.encodeResponse(secret, requestAuth), endpoint.getAddress())));
 
         assertTrue(exception.getMessage().toLowerCase().contains("no proxy-state attribute"));
@@ -82,13 +83,13 @@ class ProxyStateClientHandlerTest {
     void responseProxyStateNotFound() {
         final String secret = "mySecret";
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(dictionary, address -> secret);
+        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder, address -> secret);
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket invalidProxyStateResponse = new RadiusPacket(dictionary, 2, 1,
                 Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, "unknownProxyState")));
         final RadiusException exception = assertThrows(RadiusException.class,
-                () -> handler.handleResponse(RadiusPacketEncoder.toDatagram(
+                () -> handler.handleResponse(packetEncoder.toDatagram(
                         invalidProxyStateResponse.encodeResponse(secret, requestAuth), endpoint.getAddress())));
 
         assertTrue(exception.getMessage().toLowerCase().contains("request context not found"));
@@ -98,7 +99,7 @@ class ProxyStateClientHandlerTest {
     void responseIdentifierMismatch() {
         final String secret = "mySecret";
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(dictionary, address -> secret);
+        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder, address -> secret);
         final byte[] requestAuth = random.generateSeed(16);
 
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
@@ -110,7 +111,7 @@ class ProxyStateClientHandlerTest {
                 Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, requestProxyState)));
 
         final RadiusException exception = assertThrows(RadiusException.class,
-                () -> handler.handleResponse(RadiusPacketEncoder.toDatagram(
+                () -> handler.handleResponse(packetEncoder.toDatagram(
                         badId.encodeResponse(secret, requestAuth), endpoint.getAddress())));
 
         assertTrue(exception.getMessage().toLowerCase().contains("identifier mismatch"));
@@ -120,7 +121,7 @@ class ProxyStateClientHandlerTest {
     void responseAuthVerifyFail() {
         final String secret = "mySecret";
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(dictionary, address -> secret);
+        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder, address -> secret);
         final byte[] requestAuth = random.generateSeed(16);
 
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
@@ -132,7 +133,7 @@ class ProxyStateClientHandlerTest {
                 Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, requestProxyState)));
 
         final RadiusException exception = assertThrows(RadiusException.class,
-                () -> handler.handleResponse(RadiusPacketEncoder.toDatagram(
+                () -> handler.handleResponse(packetEncoder.toDatagram(
                         badId.encodeResponse(secret, requestAuth), endpoint.getAddress())));
 
         assertTrue(exception.getMessage().toLowerCase().contains("authenticator check failed"));
@@ -152,7 +153,7 @@ class ProxyStateClientHandlerTest {
     void channelReadIsStateful() throws RadiusException {
         final String secret = "mySecret";
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(dictionary, address -> secret);
+        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder, address -> secret);
 
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
@@ -171,7 +172,7 @@ class ProxyStateClientHandlerTest {
                 Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, requestProxyState)))
                 .encodeResponse(secret, requestAuthenticator);
 
-        handler.handleResponse(RadiusPacketEncoder.toDatagram(
+        handler.handleResponse(packetEncoder.toDatagram(
                 goodResponse, endpoint.getAddress()));
 
         final RadiusPacket decodedResponse = promise.getNow();
@@ -187,7 +188,7 @@ class ProxyStateClientHandlerTest {
 
         // channel read again lookup fails
         final RadiusException exception = assertThrows(RadiusException.class,
-                () -> handler.handleResponse(RadiusPacketEncoder.toDatagram(
+                () -> handler.handleResponse(packetEncoder.toDatagram(
                         goodResponse, endpoint.getAddress())));
 
         assertTrue(exception.getMessage().toLowerCase().contains("request context not found"));

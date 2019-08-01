@@ -4,9 +4,8 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPacketEncoder;
+import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
@@ -28,11 +27,14 @@ public class SimpleClientHandler extends ClientHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleClientHandler.class);
 
-    private final Dictionary dictionary;
+    private final PacketEncoder packetEncoder;
     private final Map<String, Request> contexts = new ConcurrentHashMap<>();
 
-    public SimpleClientHandler(Dictionary dictionary) {
-        this.dictionary = dictionary;
+    /**
+     * @param packetEncoder
+     */
+    public SimpleClientHandler(PacketEncoder packetEncoder) {
+        this.packetEncoder = packetEncoder;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class SimpleClientHandler extends ClientHandler {
         if (request == null)
             throw new RadiusException("Request context not found for received packet, ignoring...");
 
-        RadiusPacket resp = RadiusPacketEncoder.fromDatagram(dictionary, packet, request.sharedSecret, request.packet);
+        RadiusPacket resp = packetEncoder.fromDatagram(packet, request.sharedSecret, request.packet);
         logger.info("Found request for response identifier => {}", identifier);
 
         request.promise.trySuccess(resp);

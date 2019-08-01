@@ -17,6 +17,7 @@ import org.tinyradius.client.handler.ClientHandler;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.AccessRequest;
+import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
@@ -33,6 +34,7 @@ class RadiusClientTest {
 
     private final SecureRandom random = new SecureRandom();
     private final static DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
+    private final static PacketEncoder packetEncoder = new PacketEncoder(dictionary);
 
     private final ChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
 
@@ -54,7 +56,8 @@ class RadiusClientTest {
     @Test()
     void communicateWithTimeout() {
         final SimpleRetryStrategyHelper retryStrategy = new SimpleRetryStrategyHelper(timer, 3, 100);
-        RadiusClient radiusClient = new RadiusClient(eventLoopGroup, channelFactory, new MockClientHandler(null), retryStrategy, null, 0);
+        RadiusClient radiusClient = new RadiusClient(
+                packetEncoder, eventLoopGroup, channelFactory, new MockClientHandler(null), retryStrategy, new InetSocketAddress(0));
 
         final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
@@ -75,7 +78,7 @@ class RadiusClientTest {
         final SimpleRetryStrategyHelper simpleRetryStrategyHelper = new SimpleRetryStrategyHelper(timer, 3, 1000);
 
         final RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, channelFactory, mockClientHandler, simpleRetryStrategyHelper, null, 0);
+                packetEncoder, eventLoopGroup, channelFactory, mockClientHandler, simpleRetryStrategyHelper, new InetSocketAddress(0));
 
         final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
 
@@ -96,7 +99,7 @@ class RadiusClientTest {
         final MockClientHandler mockClientHandler = new MockClientHandler(null);
 
         final RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, channelFactory, mockClientHandler, null, null, 0);
+                packetEncoder, eventLoopGroup, channelFactory, mockClientHandler, null, new InetSocketAddress(0));
 
         final RadiusPacket request = new RadiusPacket(dictionary, 1, id);
 
