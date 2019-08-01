@@ -291,10 +291,12 @@ implements <a href="LifecycleRequestHandler.html" title="interface in org.tinyra
 <h4>stop</h4>
 <pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;stop()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../util/Lifecycle.html#stop()">Lifecycle</a></code></span></div>
-<div class="block">Shutdown and close resources. Does not guarantee when shutdown is complete.</div>
+<div class="block">Shutdown and close resources.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../util/Lifecycle.html#stop()">stop</a></code>&nbsp;in interface&nbsp;<code><a href="../../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>future completes when resources shutdown</dd>
 </dl>
 </li>
 </ul>

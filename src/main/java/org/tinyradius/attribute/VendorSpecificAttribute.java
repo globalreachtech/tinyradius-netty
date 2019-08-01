@@ -51,6 +51,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     /**
      * Constructs a new Vendor-Specific attribute to be sent.
      *
+     * @param dictionary dictionary to use for (sub)attributes
      * @param vendorId vendor ID of the sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId) {

@@ -12,7 +12,9 @@ public interface Lifecycle {
     Future<Void> start();
 
     /**
-     * Shutdown and close resources. Does not guarantee when shutdown is complete.
+     * Shutdown and close resources.
+     *
+     * @return future completes when resources shutdown
      */
     Future<Void> stop();
 

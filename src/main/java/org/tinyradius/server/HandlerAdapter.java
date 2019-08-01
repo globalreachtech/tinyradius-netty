@@ -68,7 +68,9 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
     /**
      * Processes DatagramPacket. This does not swallow exceptions.
      *
+     * @param channel
      * @param datagramPacket datagram received
+     * @return
      * @throws RadiusException malformed packet
      */
     protected Future<DatagramPacket> handleRequest(Channel channel, DatagramPacket datagramPacket) throws RadiusException {

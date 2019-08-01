@@ -197,7 +197,7 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,org.tinyradius.util.SecretProvider)">ProxyStateClientHandler</a></span>&#8203;(<a href="../../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.packet.PacketEncoder,org.tinyradius.util.SecretProvider)">ProxyStateClientHandler</a></span>&#8203;(<a href="../../packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
                        <a href="../../util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -294,17 +294,17 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.tinyradius.dictionary.Dictionary,org.tinyradius.util.SecretProvider)">
+<a id="&lt;init&gt;(org.tinyradius.packet.PacketEncoder,org.tinyradius.util.SecretProvider)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ProxyStateClientHandler</h4>
-<pre>public&nbsp;ProxyStateClientHandler&#8203;(<a href="../../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+<pre>public&nbsp;ProxyStateClientHandler&#8203;(<a href="../../packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
                                <a href="../../util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dictionary</code> - to decode packet incoming DatagramPackets to RadiusPackets</dd>
+<dd><code>packetEncoder</code> - to decode packet incoming DatagramPackets to RadiusPackets</dd>
 <dd><code>secretProvider</code> - lookup shared secret for decoding response for upstream server.
                        Unlike packetIdentifier, Proxy-State is stored in attribute rather than the second octet,
                        so requires decoding first before we can lookup any context.</dd>
@@ -342,6 +342,7 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>packet</code> - request to send</dd>
 <dd><code>endpoint</code> - packet endpoint</dd>
+<dd><code>promise</code> - promise placeholder that represents overarching request (including retries)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>promise of response which completes when server responds. Uses Promise instead Future,
  to allow requests to be timed out or cancelled by the caller</dd>

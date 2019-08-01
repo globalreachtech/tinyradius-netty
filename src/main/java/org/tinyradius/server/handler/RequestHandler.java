@@ -13,11 +13,11 @@ public interface RequestHandler<T extends RadiusPacket> {
      * can also implement this and wrap around underlying handlers.
      *
      * @param channel       socket which received packet
-     * @param packet        incoming packet, can be RadiusPacket or subclass
+     * @param request       incoming packet, can be RadiusPacket or subclass
      * @param remoteAddress remote address the packet was sent by
      * @param sharedSecret  shared secret associated with remoteAddress
      * @return Promise of RadiusPacket or null for no response. Uses Promise instead Future,
      * so requests to be timed out or cancelled by the caller
      */
-    Promise<RadiusPacket> handlePacket(Channel channel, T packet, InetSocketAddress remoteAddress, String sharedSecret);
+    Promise<RadiusPacket> handlePacket(Channel channel, T request, InetSocketAddress remoteAddress, String sharedSecret);
 }

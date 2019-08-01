@@ -326,6 +326,7 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>packet</code> - request to send</dd>
 <dd><code>endpoint</code> - packet endpoint</dd>
+<dd><code>promise</code> - promise placeholder that represents overarching request (including retries)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>promise of response which completes when server responds. Uses Promise instead Future,
  to allow requests to be timed out or cancelled by the caller</dd>

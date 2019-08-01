@@ -66,11 +66,11 @@ public abstract class ProxyRequestHandler implements LifecycleRequestHandler<Rad
      * is added to the packet in the "Proxy-State" attribute.
      */
     @Override
-    public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket packet, InetSocketAddress remoteAddress, String sharedSecret) {
+    public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket request, InetSocketAddress remoteAddress, String sharedSecret) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
 
         RadiusEndpoint clientEndpoint = new RadiusEndpoint(remoteAddress, sharedSecret);
-        RadiusEndpoint serverEndpoint = getProxyServer(packet, clientEndpoint);
+        RadiusEndpoint serverEndpoint = getProxyServer(request, clientEndpoint);
 
         if (serverEndpoint == null) {
             logger.info("server not found for client proxy request, ignoring");
@@ -80,10 +80,10 @@ public abstract class ProxyRequestHandler implements LifecycleRequestHandler<Rad
 
         logger.info("proxy packet to " + serverEndpoint.getAddress());
 
-        radiusClient.communicate(packet, serverEndpoint)
+        radiusClient.communicate(request, serverEndpoint)
                 .addListener((Future<RadiusPacket> f) -> {
                     if (f.isSuccess())
-                        promise.trySuccess(handleServerResponse(packet.getDictionary(), f.getNow()));
+                        promise.trySuccess(handleServerResponse(request.getDictionary(), f.getNow()));
                     else
                         promise.tryFailure(f.cause());
                 });

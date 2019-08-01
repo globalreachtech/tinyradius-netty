@@ -132,7 +132,7 @@ class HandlerAdapterTest {
         private Promise<RadiusPacket> promise;
 
         @Override
-        public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket packet, InetSocketAddress remoteAddress, String sharedSecret) {
+        public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket request, InetSocketAddress remoteAddress, String sharedSecret) {
             return promise = channel.eventLoop().newPromise();
         }
     }

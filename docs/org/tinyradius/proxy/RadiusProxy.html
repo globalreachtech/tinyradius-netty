@@ -184,12 +184,11 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,org.tinyradius.proxy.ProxyHandlerAdapter,int,int)">RadiusProxy</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.proxy.ProxyHandlerAdapter,java.net.InetSocketAddress,java.net.InetSocketAddress)">RadiusProxy</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
            io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
-           java.net.InetAddress&nbsp;listenAddress,
-           <a href="ProxyHandlerAdapter.html" title="class in org.tinyradius.proxy">ProxyHandlerAdapter</a>&nbsp;channelInboundHandler,
-           int&nbsp;authPort,
-           int&nbsp;acctPort)</code></th>
+           <a href="ProxyHandlerAdapter.html" title="class in org.tinyradius.proxy">ProxyHandlerAdapter</a>&nbsp;handlerAdapter,
+           java.net.InetSocketAddress&nbsp;authSocket,
+           java.net.InetSocketAddress&nbsp;acctSocket)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -255,7 +254,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,org.tinyradius.proxy.ProxyHandlerAdapter,int,int)">
+<a id="&lt;init&gt;(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.proxy.ProxyHandlerAdapter,java.net.InetSocketAddress,java.net.InetSocketAddress)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -263,20 +262,18 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <h4>RadiusProxy</h4>
 <pre>public&nbsp;RadiusProxy&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
                    io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
-                   java.net.InetAddress&nbsp;listenAddress,
-                   <a href="ProxyHandlerAdapter.html" title="class in org.tinyradius.proxy">ProxyHandlerAdapter</a>&nbsp;channelInboundHandler,
-                   int&nbsp;authPort,
-                   int&nbsp;acctPort)</pre>
+                   <a href="ProxyHandlerAdapter.html" title="class in org.tinyradius.proxy">ProxyHandlerAdapter</a>&nbsp;handlerAdapter,
+                   java.net.InetSocketAddress&nbsp;authSocket,
+                   java.net.InetSocketAddress&nbsp;acctSocket)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventLoopGroup</code> - for both channel IO and processing</dd>
 <dd><code>factory</code> - to create new Channel</dd>
-<dd><code>listenAddress</code> - local address to bind to, will be wildcard address if null</dd>
-<dd><code>channelInboundHandler</code> - ProxyChannelInboundHandler to handle requests received on both authPort
-                              and acctPort. Should also implement <a href="../util/Lifecycle.html" title="interface in org.tinyradius.util"><code>Lifecycle</code></a> as the handler is
-                              expected to manage the socket for proxying.</dd>
-<dd><code>authPort</code> - port to bind to, or set to 0 to let system choose</dd>
-<dd><code>acctPort</code> - port to bind to, or set to 0 to let system choose</dd>
+<dd><code>handlerAdapter</code> - ProxyChannelInboundHandler to handle requests received on both authPort
+                       and acctPort. Should also implement <a href="../util/Lifecycle.html" title="interface in org.tinyradius.util"><code>Lifecycle</code></a> as the handler is
+                       expected to manage the socket for proxying.</dd>
+<dd><code>authSocket</code> - port to bind to, or set to 0 to let system choose</dd>
+<dd><code>acctSocket</code> - port to bind to, or set to 0 to let system choose</dd>
 </dl>
 </li>
 </ul>
@@ -317,12 +314,14 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <h4>stop</h4>
 <pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;stop()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/Lifecycle.html#stop()">Lifecycle</a></code></span></div>
-<div class="block">Shutdown and close resources. Does not guarantee when shutdown is complete.</div>
+<div class="block">Shutdown and close resources.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../util/Lifecycle.html#stop()">stop</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../server/RadiusServer.html#stop()">stop</a></code>&nbsp;in class&nbsp;<code><a href="../server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>future completes when resources shutdown</dd>
 </dl>
 </li>
 </ul>

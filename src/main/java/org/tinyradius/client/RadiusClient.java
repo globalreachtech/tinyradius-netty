@@ -52,6 +52,7 @@ public class RadiusClient implements Lifecycle {
      * @param eventLoopGroup for both channel IO and processing
      * @param factory        to create new Channel
      * @param clientHandler  to log outgoing packets and handle incoming packets/responses
+     * @param retryStrategy  retry strategy for scheduling retries and timeouts
      * @param listenAddress  local address to bind to
      */
     public RadiusClient(PacketEncoder packetEncoder,
@@ -118,10 +119,10 @@ public class RadiusClient implements Lifecycle {
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
         final RadiusPacket request = clientHandler.prepareRequest(originalPacket, endpoint, promise);
-        // todo return datagram
+        // todo return datagram/bytebuf?
 
         try {
-            final DatagramPacket datagram = packetEncoder.toDatagram(request, endpoint.getAddress());
+            final DatagramPacket datagram = packetEncoder.toDatagram(request, endpoint.getAddress(), listenAddress);
 
             start().addListener(s -> {
                 if (!s.isSuccess()) {

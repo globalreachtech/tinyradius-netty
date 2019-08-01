@@ -44,11 +44,11 @@ public class Attributes {
     }
 
     /**
-     * @param dictionary
-     * @param vendorId
-     * @param data
-     * @param pos
-     * @return
+     * @param dictionary dictionary to create attribute
+     * @param vendorId vendor Id to set attributes
+     * @param data byte array to parse
+     * @param pos position in byte array at which to parse
+     * @return list of RadiusAttributes
      */
     public static List<RadiusAttribute> extractAttributes(Dictionary dictionary, int vendorId, byte[] data, int pos) {
         final ArrayList<RadiusAttribute> attributes = new ArrayList<>();

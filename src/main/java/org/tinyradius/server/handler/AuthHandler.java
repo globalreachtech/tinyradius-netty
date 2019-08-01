@@ -25,15 +25,15 @@ public abstract class AuthHandler implements RequestHandler<AccessRequest> {
     public abstract String getUserPassword(String userName);
 
     @Override
-    public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest packet, InetSocketAddress remoteAddress, String sharedSecret) {
+    public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest request, InetSocketAddress remoteAddress, String sharedSecret) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
         try {
-            String password = getUserPassword(packet.getUserName());
-            int type = password != null && packet.verifyPassword(password) ?
+            String password = getUserPassword(request.getUserName());
+            int type = password != null && request.verifyPassword(password) ?
                     ACCESS_ACCEPT : ACCESS_REJECT;
 
-            RadiusPacket answer = new RadiusPacket(packet.getDictionary(), type, packet.getIdentifier());
-            packet.getAttributes(33)
+            RadiusPacket answer = new RadiusPacket(request.getDictionary(), type, request.getIdentifier());
+            request.getAttributes(33)
                     .forEach(answer::addAttribute);
 
             promise.trySuccess(answer);

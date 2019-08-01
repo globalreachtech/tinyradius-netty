@@ -26,6 +26,7 @@ public abstract class ClientHandler extends SimpleChannelInboundHandler<Datagram
      *
      * @param packet   request to send
      * @param endpoint packet endpoint
+     * @param promise promise placeholder that represents overarching request (including retries)
      * @return promise of response which completes when server responds. Uses Promise instead Future,
      * to allow requests to be timed out or cancelled by the caller
      */

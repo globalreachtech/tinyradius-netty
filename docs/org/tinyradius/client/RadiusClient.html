@@ -116,14 +116,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.client</a></div>
-<h2 title="Class RadiusClient" class="title">Class RadiusClient&lt;T extends io.netty.channel.socket.DatagramChannel&gt;</h2>
+<h2 title="Class RadiusClient" class="title">Class RadiusClient</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>org.tinyradius.client.RadiusClient&lt;T&gt;</li>
+<li>org.tinyradius.client.RadiusClient</li>
 </ul>
 </li>
 </ul>
@@ -135,7 +135,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">RadiusClient&lt;T extends io.netty.channel.socket.DatagramChannel&gt;</span>
+<pre>public class <span class="typeNameLabel">RadiusClient</span>
 extends java.lang.Object
 implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></pre>
 <div class="block">This object represents a simple Radius client which communicates with
@@ -165,12 +165,12 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetAddress,int)">RadiusClient</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
-            io.netty.channel.ChannelFactory&lt;<a href="RadiusClient.html" title="type parameter in RadiusClient">T</a>&gt;&nbsp;factory,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.packet.PacketEncoder,io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetSocketAddress)">RadiusClient</a></span>&#8203;(<a href="../packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
+            io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+            io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
             <a href="handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a>&nbsp;clientHandler,
             <a href="retry/RetryStrategy.html" title="interface in org.tinyradius.client.retry">RetryStrategy</a>&nbsp;retryStrategy,
-            java.net.InetAddress&nbsp;listenAddress,
-            int&nbsp;port)</code></th>
+            java.net.InetSocketAddress&nbsp;listenAddress)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -235,25 +235,25 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetAddress,int)">
+<a id="&lt;init&gt;(org.tinyradius.packet.PacketEncoder,io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetSocketAddress)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>RadiusClient</h4>
-<pre>public&nbsp;RadiusClient&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
-                    io.netty.channel.ChannelFactory&lt;<a href="RadiusClient.html" title="type parameter in RadiusClient">T</a>&gt;&nbsp;factory,
+<pre>public&nbsp;RadiusClient&#8203;(<a href="../packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
+                    io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+                    io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
                     <a href="handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a>&nbsp;clientHandler,
                     <a href="retry/RetryStrategy.html" title="interface in org.tinyradius.client.retry">RetryStrategy</a>&nbsp;retryStrategy,
-                    java.net.InetAddress&nbsp;listenAddress,
-                    int&nbsp;port)</pre>
+                    java.net.InetSocketAddress&nbsp;listenAddress)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventLoopGroup</code> - for both channel IO and processing</dd>
 <dd><code>factory</code> - to create new Channel</dd>
 <dd><code>clientHandler</code> - to log outgoing packets and handle incoming packets/responses</dd>
-<dd><code>listenAddress</code> - local address to bind to, will be wildcard address if null</dd>
-<dd><code>port</code> - port to bind to, or set to 0 to let system choose</dd>
+<dd><code>retryStrategy</code> - retry strategy for scheduling retries and timeouts</dd>
+<dd><code>listenAddress</code> - local address to bind to</dd>
 </dl>
 </li>
 </ul>
@@ -296,6 +296,8 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../util/Lifecycle.html#stop()">stop</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>future completes when resources shutdown</dd>
 </dl>
 </li>
 </ul>

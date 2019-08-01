@@ -155,7 +155,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handlePacket(io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></span>&#8203;(io.netty.channel.Channel&nbsp;channel,
-            <a href="RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;packet,
+            <a href="RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;request,
             java.net.InetSocketAddress&nbsp;remoteAddress,
             java.lang.String&nbsp;sharedSecret)</code></th>
 <td class="colLast">
@@ -188,7 +188,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>handlePacket</h4>
 <pre class="methodSignature">io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket&#8203;(io.netty.channel.Channel&nbsp;channel,
-                                                            <a href="RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;packet,
+                                                            <a href="RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;request,
                                                             java.net.InetSocketAddress&nbsp;remoteAddress,
                                                             java.lang.String&nbsp;sharedSecret)</pre>
 <div class="block">Handles the received Radius packet and constructs a response. Filters/Deduplicators
@@ -196,7 +196,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>channel</code> - socket which received packet</dd>
-<dd><code>packet</code> - incoming packet, can be RadiusPacket or subclass</dd>
+<dd><code>request</code> - incoming packet, can be RadiusPacket or subclass</dd>
 <dd><code>remoteAddress</code> - remote address the packet was sent by</dd>
 <dd><code>sharedSecret</code> - shared secret associated with remoteAddress</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

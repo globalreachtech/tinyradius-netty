@@ -200,7 +200,7 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.dictionary.Dictionary)">SimpleClientHandler</a></span>&#8203;(<a href="../../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.packet.PacketEncoder)">SimpleClientHandler</a></span>&#8203;(<a href="../../packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -296,13 +296,17 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.tinyradius.dictionary.Dictionary)">
+<a id="&lt;init&gt;(org.tinyradius.packet.PacketEncoder)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SimpleClientHandler</h4>
-<pre>public&nbsp;SimpleClientHandler&#8203;(<a href="../../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary)</pre>
+<pre>public&nbsp;SimpleClientHandler&#8203;(<a href="../../packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>packetEncoder</code> - </dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -336,6 +340,7 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>original</code> - request to send</dd>
 <dd><code>endpoint</code> - packet endpoint</dd>
+<dd><code>promise</code> - promise placeholder that represents overarching request (including retries)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>promise of response which completes when server responds. Uses Promise instead Future,
  to allow requests to be timed out or cancelled by the caller</dd>

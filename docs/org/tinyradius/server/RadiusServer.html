@@ -186,13 +186,12 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,io.netty.channel.ChannelHandler,io.netty.channel.ChannelHandler,int,int)">RadiusServer</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,io.netty.channel.ChannelHandler,io.netty.channel.ChannelHandler,java.net.InetSocketAddress,java.net.InetSocketAddress)">RadiusServer</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
             io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
-            java.net.InetAddress&nbsp;listenAddress,
             io.netty.channel.ChannelHandler&nbsp;authHandler,
             io.netty.channel.ChannelHandler&nbsp;acctHandler,
-            int&nbsp;authPort,
-            int&nbsp;acctPort)</code></th>
+            java.net.InetSocketAddress&nbsp;authSocket,
+            java.net.InetSocketAddress&nbsp;acctSocket)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -214,12 +213,12 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>protected io.netty.channel.socket.DatagramChannel</code></td>
+<td class="colFirst"><code>io.netty.channel.socket.DatagramChannel</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAcctChannel()">getAcctChannel</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected io.netty.channel.socket.DatagramChannel</code></td>
+<td class="colFirst"><code>io.netty.channel.socket.DatagramChannel</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAuthChannel()">getAuthChannel</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -286,7 +285,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,java.net.InetAddress,io.netty.channel.ChannelHandler,io.netty.channel.ChannelHandler,int,int)">
+<a id="&lt;init&gt;(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,io.netty.channel.ChannelHandler,io.netty.channel.ChannelHandler,java.net.InetSocketAddress,java.net.InetSocketAddress)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -294,20 +293,18 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <h4>RadiusServer</h4>
 <pre>public&nbsp;RadiusServer&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
                     io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
-                    java.net.InetAddress&nbsp;listenAddress,
                     io.netty.channel.ChannelHandler&nbsp;authHandler,
                     io.netty.channel.ChannelHandler&nbsp;acctHandler,
-                    int&nbsp;authPort,
-                    int&nbsp;acctPort)</pre>
+                    java.net.InetSocketAddress&nbsp;authSocket,
+                    java.net.InetSocketAddress&nbsp;acctSocket)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventLoopGroup</code> - for both channel IO and processing</dd>
 <dd><code>factory</code> - to create new Channel</dd>
-<dd><code>listenAddress</code> - local address to bind to, will be wildcard address if null</dd>
 <dd><code>authHandler</code> - ChannelHandler to handle requests received on authPort</dd>
 <dd><code>acctHandler</code> - ChannelHandler to handle requests received on acctPort</dd>
-<dd><code>authPort</code> - port to bind to, or set to 0 to let system choose</dd>
-<dd><code>acctPort</code> - port to bind to, or set to 0 to let system choose</dd>
+<dd><code>authSocket</code> - </dd>
+<dd><code>acctSocket</code> - </dd>
 </dl>
 </li>
 </ul>
@@ -346,10 +343,12 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <h4>stop</h4>
 <pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;stop()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/Lifecycle.html#stop()">Lifecycle</a></code></span></div>
-<div class="block">Shutdown and close resources. Does not guarantee when shutdown is complete.</div>
+<div class="block">Shutdown and close resources.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../util/Lifecycle.html#stop()">stop</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>future completes when resources shutdown</dd>
 </dl>
 </li>
 </ul>
@@ -376,7 +375,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <ul class="blockList">
 <li class="blockList">
 <h4>getAuthChannel</h4>
-<pre class="methodSignature">protected&nbsp;io.netty.channel.socket.DatagramChannel&nbsp;getAuthChannel()</pre>
+<pre class="methodSignature">public&nbsp;io.netty.channel.socket.DatagramChannel&nbsp;getAuthChannel()</pre>
 </li>
 </ul>
 <a id="getAcctChannel()">
@@ -385,7 +384,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getAcctChannel</h4>
-<pre class="methodSignature">protected&nbsp;io.netty.channel.socket.DatagramChannel&nbsp;getAcctChannel()</pre>
+<pre class="methodSignature">public&nbsp;io.netty.channel.socket.DatagramChannel&nbsp;getAcctChannel()</pre>
 </li>
 </ul>
 </li>

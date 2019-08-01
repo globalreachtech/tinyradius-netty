@@ -16,9 +16,9 @@ import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
 public class AcctHandler implements RequestHandler<AccountingRequest> {
 
     @Override
-    public Promise<RadiusPacket> handlePacket(Channel channel, AccountingRequest packet, InetSocketAddress remoteAddress, String sharedSecret) {
-        RadiusPacket answer = new RadiusPacket(packet.getDictionary(), ACCOUNTING_RESPONSE, packet.getIdentifier());
-        packet.getAttributes(33)
+    public Promise<RadiusPacket> handlePacket(Channel channel, AccountingRequest request, InetSocketAddress remoteAddress, String sharedSecret) {
+        RadiusPacket answer = new RadiusPacket(request.getDictionary(), ACCOUNTING_RESPONSE, request.getIdentifier());
+        request.getAttributes(33)
                 .forEach(answer::addAttribute);
 
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();

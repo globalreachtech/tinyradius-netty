@@ -48,17 +48,17 @@ public class TestServer {
             }
 
             @Override
-            public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest packet, InetSocketAddress remoteAddress, String sharedSecret) {
-                logger.info("Received Access-Request:\n" + packet);
+            public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest request, InetSocketAddress remoteAddress, String sharedSecret) {
+                logger.info("Received Access-Request:\n" + request);
                 final Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
-                super.handlePacket(channel, packet, remoteAddress, sharedSecret).addListener((Future<RadiusPacket> f) -> {
+                super.handlePacket(channel, request, remoteAddress, sharedSecret).addListener((Future<RadiusPacket> f) -> {
                     final RadiusPacket response = f.getNow();
                     if (response == null) {
                         logger.info("Ignore packet.");
                         promise.tryFailure(f.cause());
                     } else {
                         if (response.getType() == PacketType.ACCESS_ACCEPT)
-                            response.addAttribute("Reply-Message", "Welcome " + packet.getUserName() + "!");
+                            response.addAttribute("Reply-Message", "Welcome " + request.getUserName() + "!");
                         logger.info("Answer:\n" + response);
                         promise.trySuccess(response);
                     }
