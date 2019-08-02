@@ -8,7 +8,11 @@ import java.util.List;
 
 import static java.lang.Byte.toUnsignedInt;
 
+/**
+ * Helper class to create and extract attributes.
+ */
 public class Attributes {
+
     /**
      * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
      *
@@ -45,9 +49,9 @@ public class Attributes {
 
     /**
      * @param dictionary dictionary to create attribute
-     * @param vendorId vendor Id to set attributes
-     * @param data byte array to parse
-     * @param pos position in byte array at which to parse
+     * @param vendorId   vendor Id to set attributes
+     * @param data       byte array to parse
+     * @param pos        position in byte array at which to parse
      * @return list of RadiusAttributes
      */
     public static List<RadiusAttribute> extractAttributes(Dictionary dictionary, int vendorId, byte[] data, int pos) {

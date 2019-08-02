@@ -7,8 +7,5 @@
  * RadiusPackets and handles incoming packets and sending responses.
  * <p>
  * ChannelInboundHandler uses underlying RequestHandler for logic to handle RadiusPackets.
- * <p>
- * Basic implementations of Accounting and Access RequestHandlers are included
- * for the most trivial use cases. A simple DeduplicatorHandler is also included.
  */
 package org.tinyradius.server;

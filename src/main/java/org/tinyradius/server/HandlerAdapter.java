@@ -23,7 +23,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * SimpleChannelInboundHandler implementation that converts between RadiusPackets
  * and DatagramPackets. Acts as an adapter so RequestHandlers dont have to be
- * concerned with Datagrams.
+ * concerned with {@link DatagramPacket}, and can work with {@link RadiusPacket}
+ * directly.
  *
  * @param <T> RadiusPacket types that this Channel can accept
  */

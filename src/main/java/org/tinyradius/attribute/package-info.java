@@ -1,6 +1,5 @@
 /**
- * Classes for Radius attributes and Radius
- * attribute types.
+ * Classes for Radius attributes and Radius attribute types.
  * <p>
  * The classes RadiusAttribute, StringAttribute, IntegerAttribute and
  * IpAttribute implement general Radius attribute data types and manage

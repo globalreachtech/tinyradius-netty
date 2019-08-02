@@ -6,7 +6,8 @@ import org.tinyradius.packet.RadiusPacket;
 public interface RetryStrategy {
 
     /**
-     * Schedule a retry in the future.
+     * Schedule a retry in the future. Invoked immediately after a request is sent
+     * to schedule next retry.
      * <p>
      * When retry is due to run, should also check if promise isDone() before running.
      * <p>
@@ -16,7 +17,7 @@ public interface RetryStrategy {
      *
      * @param retry   runnable to invoke to retry
      * @param totalAttempts current attempt count
-     * @param promise request promise that resolves when a reponse is received
+     * @param promise request promise that resolves when a response is received
      */
     void scheduleRetry(Runnable retry, int totalAttempts, Promise<RadiusPacket> promise);
 }
