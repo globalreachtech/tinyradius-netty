@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.handler.ClientHandler;
 import org.tinyradius.client.retry.RetryStrategy;
-import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.Lifecycle;
 import org.tinyradius.util.RadiusEndpoint;
@@ -37,7 +36,6 @@ public class RadiusClient implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusClient.class);
 
-    private final PacketEncoder packetEncoder;
     private final ChannelFactory<? extends DatagramChannel> factory;
     private final EventLoopGroup eventLoopGroup;
     private final ClientHandler clientHandler;
@@ -55,13 +53,11 @@ public class RadiusClient implements Lifecycle {
      * @param retryStrategy  retry strategy for scheduling retries and timeouts
      * @param listenAddress  local address to bind to
      */
-    public RadiusClient(PacketEncoder packetEncoder,
-                        EventLoopGroup eventLoopGroup,
+    public RadiusClient(EventLoopGroup eventLoopGroup,
                         ChannelFactory<? extends DatagramChannel> factory,
                         ClientHandler clientHandler,
                         RetryStrategy retryStrategy,
                         InetSocketAddress listenAddress) {
-        this.packetEncoder = packetEncoder;
         this.factory = requireNonNull(factory, "factory cannot be null");
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
         this.clientHandler = clientHandler;
@@ -118,11 +114,8 @@ public class RadiusClient implements Lifecycle {
     public Future<RadiusPacket> communicate(RadiusPacket originalPacket, RadiusEndpoint endpoint) {
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
-        final RadiusPacket request = clientHandler.prepareRequest(originalPacket, endpoint, promise);
-        // todo return datagram/bytebuf?
-
         try {
-            final DatagramPacket datagram = packetEncoder.toDatagram(request, endpoint.getAddress(), listenAddress);
+            final DatagramPacket datagram = clientHandler.prepareDatagram(originalPacket, endpoint, listenAddress, promise);
 
             start().addListener(s -> {
                 if (!s.isSuccess()) {
@@ -130,7 +123,7 @@ public class RadiusClient implements Lifecycle {
                     return;
                 }
 
-                logger.info("Preparing send: {}", request);
+                logger.info("Preparing send to {}", endpoint.getAddress());
                 send(datagram, 1, promise);
 
                 promise.addListener(f -> {

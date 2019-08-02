@@ -15,6 +15,14 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
 - More immutability
 - More tests
 
+## Documentation
+
+[Javadocs](https://globalreachtech.github.io/tinyradius-netty/)
+
+- Dictionary
+    - Parses dictionary files in same format as FreeRadius
+    
+
 ## License
 Copyright Matthias Wuttke (mw@teuto.net) and contributors.
 

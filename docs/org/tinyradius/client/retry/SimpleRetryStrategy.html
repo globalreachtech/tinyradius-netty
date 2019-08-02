@@ -225,8 +225,8 @@ implements <a href="RetryStrategy.html" title="interface in org.tinyradius.clien
                            int&nbsp;retryWait)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>timer</code> - </dd>
-<dd><code>maxAttempts</code> - </dd>
+<dd><code>timer</code> - netty timer for timing out requests</dd>
+<dd><code>maxAttempts</code> - max number of attempts to try before returning failure</dd>
 <dd><code>retryWait</code> - time to wait before next retry, in milliseconds</dd>
 </dl>
 </li>

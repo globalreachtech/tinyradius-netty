@@ -10,6 +10,8 @@ import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
+import java.net.InetSocketAddress;
+
 /**
  * ChannelInboundHandler used by RadiusClient
  */
@@ -26,11 +28,13 @@ public abstract class ClientHandler extends SimpleChannelInboundHandler<Datagram
      *
      * @param packet   request to send
      * @param endpoint packet endpoint
-     * @param promise promise placeholder that represents overarching request (including retries)
+     * @param sender   source socket for datagram
+     * @param promise  promise placeholder that represents overarching request (including retries)
      * @return promise of response which completes when server responds. Uses Promise instead Future,
      * to allow requests to be timed out or cancelled by the caller
+     * @throws RadiusException if packet could not be encoded/serialized to datagram
      */
-    public abstract RadiusPacket prepareRequest(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> promise);
+    public abstract DatagramPacket prepareDatagram(RadiusPacket packet, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException;
 
     /**
      * Processes DatagramPacket. This does not swallow exceptions.

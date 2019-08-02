@@ -9,6 +9,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 
+/**
+ * Utils for creating new RadiusPackets
+ */
 public class RadiusPackets {
     private static AtomicInteger nextPacketId = new AtomicInteger();
 
@@ -26,7 +29,11 @@ public class RadiusPackets {
      * appropriate packet is created. Also sets the type, and the
      * the packet identifier.
      *
-     * @param type packet type
+     * @param dictionary    custom dictionary to use
+     * @param type          packet type
+     * @param identifier    packet identifier
+     * @param authenticator authenticator for packet, nullable
+     * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
     public static RadiusPacket createRadiusPacket(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {

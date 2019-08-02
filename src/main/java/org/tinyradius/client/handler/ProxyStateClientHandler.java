@@ -11,6 +11,7 @@ import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,7 +54,7 @@ public class ProxyStateClientHandler extends ClientHandler {
     }
 
     @Override
-    public RadiusPacket prepareRequest(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> promise) {
+    public DatagramPacket prepareDatagram(RadiusPacket packet, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
 
         final RadiusPacket radiusPacket = new RadiusPacket(
                 packet.getDictionary(), packet.getType(), packet.getIdentifier(), packet.getAuthenticator(), packet.getAttributes());
@@ -67,7 +68,7 @@ public class ProxyStateClientHandler extends ClientHandler {
 
         promise.addListener(f -> requests.remove(requestId));
 
-        return encodedRequest;
+        return packetEncoder.toDatagram(encodedRequest, endpoint.getAddress(), sender);
     }
 
     protected void handleResponse(DatagramPacket datagramPacket) throws RadiusException {
@@ -76,7 +77,7 @@ public class ProxyStateClientHandler extends ClientHandler {
             throw new RadiusException("Ignoring packet - unknown sender " + datagramPacket.sender() +
                     " received on local address " + datagramPacket.recipient());
 
-        RadiusPacket response = packetEncoder.fromDatagramUnverified(datagramPacket);
+        RadiusPacket response = packetEncoder.fromDatagram(datagramPacket);
 
         // retrieve my Proxy-State attribute (the last)
         List<RadiusAttribute> proxyStates = response.getAttributes(PROXY_STATE);

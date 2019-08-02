@@ -59,7 +59,7 @@ public class TestProxy {
         final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(packetEncoder, secretProvider);
         final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 1000);
         RadiusClient radiusClient = new RadiusClient(
-                packetEncoder, eventLoopGroup, channelFactory, clientHandler, retryStrategy, new InetSocketAddress(11814));
+                eventLoopGroup, channelFactory, clientHandler, retryStrategy, new InetSocketAddress(11814));
 
         final ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(radiusClient) {
             @Override

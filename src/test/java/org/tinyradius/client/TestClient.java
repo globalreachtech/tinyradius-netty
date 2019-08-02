@@ -48,7 +48,6 @@ public class TestClient {
         final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
         final HashedWheelTimer timer = new HashedWheelTimer();
         RadiusClient rc = new RadiusClient(
-                packetEncoder,
                 eventLoopGroup,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new SimpleClientHandler(packetEncoder),

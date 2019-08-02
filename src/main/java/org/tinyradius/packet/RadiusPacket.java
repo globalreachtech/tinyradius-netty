@@ -53,10 +53,10 @@ public class RadiusPacket {
      * Builds a Radius packet with the given type and identifier
      * and without attributes.
      *
-     * @param dictionary custom dictionary to use
-     * @param type       packet type
-     * @param identifier packet identifier
-     * @param authenticator authenticator for packet, can be null if creating packet manually (not deserializing)
+     * @param dictionary    custom dictionary to use
+     * @param type          packet type
+     * @param identifier    packet identifier
+     * @param authenticator authenticator for packet, nullable
      */
     public RadiusPacket(Dictionary dictionary, int type, int identifier, byte[] authenticator) {
         this(dictionary, type, identifier, authenticator, new ArrayList<>());
@@ -69,6 +69,7 @@ public class RadiusPacket {
      * @param dictionary custom dictionary to use
      * @param type       packet type
      * @param identifier packet identifier
+     * @param attributes list of attributes for packet
      */
     public RadiusPacket(Dictionary dictionary, int type, int identifier, List<RadiusAttribute> attributes) {
         this(dictionary, type, identifier, null, attributes);
@@ -373,7 +374,7 @@ public class RadiusPacket {
      *
      * @param sharedSecret         shared secret to be used to encode this packet
      * @param requestAuthenticator request packet authenticator
-     * @return
+     * @return new RadiusPacket instance with same properties and valid authenticator
      */
     public RadiusPacket encodeResponse(String sharedSecret, byte[] requestAuthenticator) {
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, requestAuthenticator);

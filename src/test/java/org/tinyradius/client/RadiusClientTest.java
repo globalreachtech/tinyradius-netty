@@ -57,7 +57,7 @@ class RadiusClientTest {
     void communicateWithTimeout() {
         final SimpleRetryStrategyHelper retryStrategy = new SimpleRetryStrategyHelper(timer, 3, 100);
         RadiusClient radiusClient = new RadiusClient(
-                packetEncoder, eventLoopGroup, channelFactory, new MockClientHandler(null), retryStrategy, new InetSocketAddress(0));
+                eventLoopGroup, channelFactory, new MockClientHandler(null), retryStrategy, new InetSocketAddress(0));
 
         final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
@@ -78,7 +78,7 @@ class RadiusClientTest {
         final SimpleRetryStrategyHelper simpleRetryStrategyHelper = new SimpleRetryStrategyHelper(timer, 3, 1000);
 
         final RadiusClient radiusClient = new RadiusClient(
-                packetEncoder, eventLoopGroup, channelFactory, mockClientHandler, simpleRetryStrategyHelper, new InetSocketAddress(0));
+                eventLoopGroup, channelFactory, mockClientHandler, simpleRetryStrategyHelper, new InetSocketAddress(0));
 
         final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
 
@@ -99,7 +99,7 @@ class RadiusClientTest {
         final MockClientHandler mockClientHandler = new MockClientHandler(null);
 
         final RadiusClient radiusClient = new RadiusClient(
-                packetEncoder, eventLoopGroup, channelFactory, mockClientHandler, null, new InetSocketAddress(0));
+                eventLoopGroup, channelFactory, mockClientHandler, null, new InetSocketAddress(0));
 
         final RadiusPacket request = new RadiusPacket(dictionary, 1, id);
 
@@ -136,9 +136,9 @@ class RadiusClientTest {
         }
 
         @Override
-        public RadiusPacket prepareRequest(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> promise) {
+        public DatagramPacket prepareDatagram(RadiusPacket packet, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
             this.promise = promise;
-            return packet;
+            return packetEncoder.toDatagram(packet, endpoint.getAddress(), sender);
         }
 
         @Override

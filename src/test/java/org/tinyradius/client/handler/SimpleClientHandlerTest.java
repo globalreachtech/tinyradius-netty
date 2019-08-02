@@ -54,7 +54,9 @@ class SimpleClientHandlerTest {
         final SimpleClientHandler handler = new SimpleClientHandler(packetEncoder);
         final AccessRequest request = new AccessRequest(dictionary, id, null, "myUser", "myPassword");
 
-        final RadiusPacket encodedRequest = handler.prepareRequest(request, new RadiusEndpoint(new InetSocketAddress(12345), secret), promise);
+        final DatagramPacket datagram = handler.prepareDatagram(request, new RadiusEndpoint(new InetSocketAddress(12345), secret), null, promise);
+
+        final RadiusPacket encodedRequest = packetEncoder.fromDatagram(datagram);
         assertFalse(promise.isDone());
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, id, Collections.singletonList(

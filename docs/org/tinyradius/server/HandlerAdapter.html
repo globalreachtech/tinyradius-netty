@@ -349,7 +349,10 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <div class="block">Processes DatagramPacket. This does not swallow exceptions.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>channel</code> - socket on which request was received</dd>
 <dd><code>datagramPacket</code> - datagram received</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Future that completes when request is handled. Can contain DatagramPacket response</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>

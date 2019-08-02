@@ -55,19 +55,19 @@ public class AccessRequest extends RadiusPacket {
     private static final int MS_CHAP2_RESPONSE = 25;
 
     /**
-     * @param dictionary
-     * @param identifier
-     * @param authenticator
+     * @param dictionary    custom dictionary to use
+     * @param identifier    packet identifier
+     * @param authenticator authenticator for packet, nullable
      */
     public AccessRequest(Dictionary dictionary, int identifier, byte[] authenticator) {
         this(dictionary, identifier, authenticator, new ArrayList<>());
     }
 
     /**
-     * @param dictionary
-     * @param identifier
-     * @param authenticator
-     * @param attributes
+     * @param dictionary    custom dictionary to use
+     * @param identifier    packet identifier
+     * @param authenticator authenticator for packet, nullable
+     * @param attributes    list of attributes for packet
      */
     public AccessRequest(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
@@ -78,8 +78,11 @@ public class AccessRequest extends RadiusPacket {
      * code, identifier and adds an User-Name and an
      * User-Password attribute (PAP).
      *
-     * @param userName     user name
-     * @param userPassword user password
+     * @param dictionary    custom dictionary to use
+     * @param identifier    packet identifier
+     * @param authenticator authenticator for packet, nullable
+     * @param userName      user name
+     * @param userPassword  user password
      */
     public AccessRequest(Dictionary dictionary, int identifier, byte[] authenticator, String userName, String userPassword) {
         this(dictionary, identifier, authenticator);
@@ -249,18 +252,20 @@ public class AccessRequest extends RadiusPacket {
     /**
      * Sets and encrypts the User-Password attribute.
      *
-     * @param sharedSecret shared secret that secures the communication
-     *                     with the other Radius server/client
+     * @param authenticator authenticator to use to encode PAP password,
+     *                      nullable if using different auth protocol
+     * @param sharedSecret  shared secret that secures the communication
+     *                      with the other Radius server/client
      * @return List of RadiusAttributes to override
      * @throws UnsupportedOperationException auth protocol not supported
      */
-    protected List<RadiusAttribute> encodeRequestAttributes(byte[] newAuthenticator, String sharedSecret) throws UnsupportedOperationException {
+    protected List<RadiusAttribute> encodeRequestAttributes(byte[] authenticator, String sharedSecret) throws UnsupportedOperationException {
         if (password != null && !password.isEmpty())
             switch (getAuthProtocol()) {
                 case AUTH_PAP:
                     return Collections.singletonList(
                             createAttribute(getDictionary(), -1, USER_PASSWORD,
-                                    encodePapPassword(newAuthenticator, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
+                                    encodePapPassword(authenticator, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
                 case AUTH_CHAP:
                     byte[] challenge = random16bytes();
                     return Arrays.asList(

@@ -14,10 +14,9 @@ public class SimpleRetryStrategy implements RetryStrategy {
     private final int retryWait;
 
     /**
-     *
-     * @param timer
-     * @param maxAttempts
-     * @param retryWait time to wait before next retry, in milliseconds
+     * @param timer       netty timer for timing out requests
+     * @param maxAttempts max number of attempts to try before returning failure
+     * @param retryWait   time to wait before next retry, in milliseconds
      */
     public SimpleRetryStrategy(Timer timer, int maxAttempts, int retryWait) {
         this.timer = timer;

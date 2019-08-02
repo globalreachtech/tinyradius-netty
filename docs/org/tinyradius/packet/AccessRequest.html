@@ -261,7 +261,7 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#encodeRequestAttributes(byte%5B%5D,java.lang.String)">encodeRequestAttributes</a></span>&#8203;(byte[]&nbsp;newAuthenticator,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#encodeRequestAttributes(byte%5B%5D,java.lang.String)">encodeRequestAttributes</a></span>&#8203;(byte[]&nbsp;authenticator,
                        java.lang.String&nbsp;sharedSecret)</code></th>
 <td class="colLast">
 <div class="block">Sets and encrypts the User-Password attribute.</div>
@@ -440,9 +440,9 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
                      byte[]&nbsp;authenticator)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dictionary</code> - </dd>
-<dd><code>identifier</code> - </dd>
-<dd><code>authenticator</code> - </dd>
+<dd><code>dictionary</code> - custom dictionary to use</dd>
+<dd><code>identifier</code> - packet identifier</dd>
+<dd><code>authenticator</code> - authenticator for packet, nullable</dd>
 </dl>
 </li>
 </ul>
@@ -458,10 +458,10 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
                      java.util.List&lt;<a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;attributes)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dictionary</code> - </dd>
-<dd><code>identifier</code> - </dd>
-<dd><code>authenticator</code> - </dd>
-<dd><code>attributes</code> - </dd>
+<dd><code>dictionary</code> - custom dictionary to use</dd>
+<dd><code>identifier</code> - packet identifier</dd>
+<dd><code>authenticator</code> - authenticator for packet, nullable</dd>
+<dd><code>attributes</code> - list of attributes for packet</dd>
 </dl>
 </li>
 </ul>
@@ -481,6 +481,9 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
  User-Password attribute (PAP).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dictionary</code> - custom dictionary to use</dd>
+<dd><code>identifier</code> - packet identifier</dd>
+<dd><code>authenticator</code> - authenticator for packet, nullable</dd>
 <dd><code>userName</code> - user name</dd>
 <dd><code>userPassword</code> - user password</dd>
 </dl>
@@ -659,14 +662,16 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
 <ul class="blockListLast">
 <li class="blockList">
 <h4>encodeRequestAttributes</h4>
-<pre class="methodSignature">protected&nbsp;java.util.List&lt;<a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;encodeRequestAttributes&#8203;(byte[]&nbsp;newAuthenticator,
+<pre class="methodSignature">protected&nbsp;java.util.List&lt;<a href="../attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;encodeRequestAttributes&#8203;(byte[]&nbsp;authenticator,
                                                                   java.lang.String&nbsp;sharedSecret)
                                                            throws java.lang.UnsupportedOperationException</pre>
 <div class="block">Sets and encrypts the User-Password attribute.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>authenticator</code> - authenticator to use to encode PAP password,
+                      nullable if using different auth protocol</dd>
 <dd><code>sharedSecret</code> - shared secret that secures the communication
-                     with the other Radius server/client</dd>
+                      with the other Radius server/client</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of RadiusAttributes to override</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

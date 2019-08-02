@@ -165,8 +165,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.packet.PacketEncoder,io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetSocketAddress)">RadiusClient</a></span>&#8203;(<a href="../packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
-            io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetSocketAddress)">RadiusClient</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
             io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
             <a href="handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a>&nbsp;clientHandler,
             <a href="retry/RetryStrategy.html" title="interface in org.tinyradius.client.retry">RetryStrategy</a>&nbsp;retryStrategy,
@@ -235,14 +234,13 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.tinyradius.packet.PacketEncoder,io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetSocketAddress)">
+<a id="&lt;init&gt;(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetSocketAddress)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>RadiusClient</h4>
-<pre>public&nbsp;RadiusClient&#8203;(<a href="../packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
-                    io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+<pre>public&nbsp;RadiusClient&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
                     io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
                     <a href="handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a>&nbsp;clientHandler,
                     <a href="retry/RetryStrategy.html" title="interface in org.tinyradius.client.retry">RetryStrategy</a>&nbsp;retryStrategy,

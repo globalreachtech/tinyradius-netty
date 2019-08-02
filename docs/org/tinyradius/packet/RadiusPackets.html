@@ -133,6 +133,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public class <span class="typeNameLabel">RadiusPackets</span>
 extends java.lang.Object</pre>
+<div class="block">Utils for creating new RadiusPackets</div>
 </li>
 </ul>
 </div>
@@ -265,7 +266,11 @@ extends java.lang.Object</pre>
  the packet identifier.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dictionary</code> - custom dictionary to use</dd>
 <dd><code>type</code> - packet type</dd>
+<dd><code>identifier</code> - packet identifier</dd>
+<dd><code>authenticator</code> - authenticator for packet, nullable</dd>
+<dd><code>attributes</code> - list of attributes for packet</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>RadiusPacket object</dd>
 </dl>

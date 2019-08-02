@@ -31,14 +31,14 @@ public class SimpleClientHandler extends ClientHandler {
     private final Map<String, Request> contexts = new ConcurrentHashMap<>();
 
     /**
-     * @param packetEncoder
+     * @param packetEncoder to convert between datagram and packet
      */
     public SimpleClientHandler(PacketEncoder packetEncoder) {
         this.packetEncoder = packetEncoder;
     }
 
     @Override
-    public RadiusPacket prepareRequest(RadiusPacket original, RadiusEndpoint endpoint, Promise<RadiusPacket> promise) {
+    public DatagramPacket prepareDatagram(RadiusPacket original, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
 
         final RadiusPacket encoded = original.encodeRequest(endpoint.getSharedSecret());
 
@@ -48,7 +48,7 @@ public class SimpleClientHandler extends ClientHandler {
 
         promise.addListener(f -> contexts.remove(key));
 
-        return encoded;
+        return packetEncoder.toDatagram(encoded, endpoint.getAddress(), sender);
     }
 
     @Override

@@ -38,23 +38,26 @@ class ProxyStateClientHandlerTest {
     }
 
     @Test
-    void outboundAppendNewProxyState() {
+    void outboundAppendNewProxyState() throws RadiusException {
+        final String secret = "test";
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder, address -> "secret");
         int id = random.nextInt(256);
 
-        final RadiusPacket originalRequest = new AccessRequest(dictionary, id, null).encodeRequest("test");
-        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
+        final RadiusPacket originalRequest = new AccessRequest(dictionary, id, null).encodeRequest(secret);
+        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
-        final RadiusPacket processedPacket1 = handler.prepareRequest(originalRequest, endpoint, eventLoopGroup.next().newPromise());
+        final DatagramPacket datagram1 = handler.prepareDatagram(originalRequest, endpoint, null, eventLoopGroup.next().newPromise());
 
+        final RadiusPacket processedPacket1 = packetEncoder.fromDatagram(datagram1);
         List<RadiusAttribute> attributes1 = processedPacket1.getAttributes();
         assertEquals(1, attributes1.size());
         final byte[] proxyState1 = processedPacket1.getAttribute("Proxy-State").getValue();
 
         assertEquals("1", new String(proxyState1, UTF_8));
 
-        final RadiusPacket processedPacket2 = handler.prepareRequest(processedPacket1, endpoint, eventLoopGroup.next().newPromise());
+        final DatagramPacket datagram2 = handler.prepareDatagram(processedPacket1, endpoint, null, eventLoopGroup.next().newPromise());
 
+        final RadiusPacket processedPacket2 = packetEncoder.fromDatagram(datagram2);
         final List<RadiusAttribute> attributes2 = processedPacket2.getAttributes();
         assertEquals(1, attributes1.size());
         assertEquals(2, attributes2.size());
@@ -96,15 +99,16 @@ class ProxyStateClientHandlerTest {
     }
 
     @Test
-    void responseIdentifierMismatch() {
+    void responseIdentifierMismatch() throws RadiusException {
         final String secret = "mySecret";
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder, address -> secret);
         final byte[] requestAuth = random.generateSeed(16);
 
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
-        final RadiusPacket preparedRequest = handler.prepareRequest(
-                new RadiusPacket(dictionary, 1, 1), endpoint, promise);
+        final DatagramPacket datagram = handler.prepareDatagram(
+                new RadiusPacket(dictionary, 1, 1), endpoint, null, promise);
+        final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
         final RadiusPacket badId = new RadiusPacket(dictionary, 2, 99,
@@ -118,15 +122,16 @@ class ProxyStateClientHandlerTest {
     }
 
     @Test
-    void responseAuthVerifyFail() {
+    void responseAuthVerifyFail() throws RadiusException {
         final String secret = "mySecret";
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder, address -> secret);
         final byte[] requestAuth = random.generateSeed(16);
 
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
-        final RadiusPacket preparedRequest = handler.prepareRequest(
-                new RadiusPacket(dictionary, 1, 1), endpoint, promise);
+        final DatagramPacket datagram = handler.prepareDatagram(
+                new RadiusPacket(dictionary, 1, 1), endpoint, null, promise);
+        final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
         final RadiusPacket badId = new RadiusPacket(dictionary, 2, 1,
@@ -158,8 +163,9 @@ class ProxyStateClientHandlerTest {
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
         // process packet out
-        final RadiusPacket preparedRequest = handler.prepareRequest(
-                new RadiusPacket(dictionary, 1, 1), endpoint, promise);
+        final DatagramPacket datagram = handler.prepareDatagram(
+                new RadiusPacket(dictionary, 1, 1), endpoint, null, promise);
+        final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
 
         // capture request details
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();

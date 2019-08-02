@@ -36,10 +36,10 @@ public class RadiusServer implements Lifecycle {
     /**
      * @param eventLoopGroup for both channel IO and processing
      * @param factory        to create new Channel
-     * @param authHandler    ChannelHandler to handle requests received on authPort
-     * @param acctHandler    ChannelHandler to handle requests received on acctPort
-     * @param authSocket
-     * @param acctSocket
+     * @param authHandler    ChannelHandler to handle requests received on authSocket
+     * @param acctHandler    ChannelHandler to handle requests received on acctSocket
+     * @param authSocket     socket to listen on for auth requests
+     * @param acctSocket     socket to listen on for accounting requests
      */
     public RadiusServer(EventLoopGroup eventLoopGroup,
                         ChannelFactory<? extends DatagramChannel> factory,

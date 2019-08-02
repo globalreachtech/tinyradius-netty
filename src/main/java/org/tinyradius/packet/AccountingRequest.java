@@ -30,6 +30,9 @@ public class AccountingRequest extends RadiusPacket {
     /**
      * Constructs an Accounting-Request packet to be sent to a Radius server.
      *
+     * @param dictionary     custom dictionary to use
+     * @param identifier     packet identifier
+     * @param authenticator  authenticator for packet, nullable
      * @param userName       user name
      * @param acctStatusType ACCT_STATUS_TYPE_*
      */
@@ -85,7 +88,7 @@ public class AccountingRequest extends RadiusPacket {
     }
 
     /**
-     * @return
+     * @return Acct-Status-Type value
      */
     public int getAcctStatusType() {
         RadiusAttribute ra = getAttribute(ACCT_STATUS_TYPE);

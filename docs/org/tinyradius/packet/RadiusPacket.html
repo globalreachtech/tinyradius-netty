@@ -494,6 +494,7 @@ extends java.lang.Object</pre>
 <dd><code>dictionary</code> - custom dictionary to use</dd>
 <dd><code>type</code> - packet type</dd>
 <dd><code>identifier</code> - packet identifier</dd>
+<dd><code>authenticator</code> - authenticator for packet, nullable</dd>
 </dl>
 </li>
 </ul>
@@ -514,6 +515,7 @@ extends java.lang.Object</pre>
 <dd><code>dictionary</code> - custom dictionary to use</dd>
 <dd><code>type</code> - packet type</dd>
 <dd><code>identifier</code> - packet identifier</dd>
+<dd><code>attributes</code> - list of attributes for packet</dd>
 </dl>
 </li>
 </ul>
@@ -857,6 +859,8 @@ extends java.lang.Object</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>sharedSecret</code> - shared secret to be used to encode this packet</dd>
 <dd><code>requestAuthenticator</code> - request packet authenticator</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>new RadiusPacket instance with same properties and valid authenticator</dd>
 </dl>
 </li>
 </ul>

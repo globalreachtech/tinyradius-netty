@@ -395,6 +395,9 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
 <div class="block">Constructs an Accounting-Request packet to be sent to a Radius server.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dictionary</code> - custom dictionary to use</dd>
+<dd><code>identifier</code> - packet identifier</dd>
+<dd><code>authenticator</code> - authenticator for packet, nullable</dd>
 <dd><code>userName</code> - user name</dd>
 <dd><code>acctStatusType</code> - ACCT_STATUS_TYPE_*</dd>
 </dl>
@@ -484,6 +487,7 @@ extends <a href="RadiusPacket.html" title="class in org.tinyradius.packet">Radiu
 <pre class="methodSignature">public&nbsp;int&nbsp;getAcctStatusType()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
+<dd>Acct-Status-Type value</dd>
 </dl>
 </li>
 </ul>

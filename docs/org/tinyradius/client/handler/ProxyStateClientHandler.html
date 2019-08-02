@@ -227,10 +227,11 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareRequest(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,io.netty.util.concurrent.Promise)">prepareRequest</a></span>&#8203;(<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
-              <a href="../../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
-              io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</code></th>
+<td class="colFirst"><code>io.netty.channel.socket.DatagramPacket</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareDatagram(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,java.net.InetSocketAddress,io.netty.util.concurrent.Promise)">prepareDatagram</a></span>&#8203;(<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+               <a href="../../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
+               java.net.InetSocketAddress&nbsp;sender,
+               io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</code></th>
 <td class="colLast">
 <div class="block">Preprocess RadiusPackets before they are sent.</div>
 </td>
@@ -321,16 +322,18 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="prepareRequest(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,io.netty.util.concurrent.Promise)">
+<a id="prepareDatagram(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,java.net.InetSocketAddress,io.netty.util.concurrent.Promise)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>prepareRequest</h4>
-<pre class="methodSignature">public&nbsp;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;prepareRequest&#8203;(<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
-                                   <a href="../../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
-                                   io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="ClientHandler.html#prepareRequest(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,io.netty.util.concurrent.Promise)">ClientHandler</a></code></span></div>
+<h4>prepareDatagram</h4>
+<pre class="methodSignature">public&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;prepareDatagram&#8203;(<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+                                                              <a href="../../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
+                                                              java.net.InetSocketAddress&nbsp;sender,
+                                                              io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)
+                                                       throws <a href="../../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="ClientHandler.html#prepareDatagram(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,java.net.InetSocketAddress,io.netty.util.concurrent.Promise)">ClientHandler</a></code></span></div>
 <div class="block">Preprocess RadiusPackets before they are sent. May mutate outbound packets.
  <p>
  Save state info about outgoing requests so handler has context when handling replies
@@ -338,14 +341,17 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
  Ensure that you also return the encoded packet, typically with the shared secret available in RadiusEndpoint.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="ClientHandler.html#prepareRequest(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,io.netty.util.concurrent.Promise)">prepareRequest</a></code>&nbsp;in class&nbsp;<code><a href="ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></code></dd>
+<dd><code><a href="ClientHandler.html#prepareDatagram(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,java.net.InetSocketAddress,io.netty.util.concurrent.Promise)">prepareDatagram</a></code>&nbsp;in class&nbsp;<code><a href="ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>packet</code> - request to send</dd>
 <dd><code>endpoint</code> - packet endpoint</dd>
+<dd><code>sender</code> - source socket for datagram</dd>
 <dd><code>promise</code> - promise placeholder that represents overarching request (including retries)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>promise of response which completes when server responds. Uses Promise instead Future,
  to allow requests to be timed out or cancelled by the caller</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - if packet could not be encoded/serialized to datagram</dd>
 </dl>
 </li>
 </ul>

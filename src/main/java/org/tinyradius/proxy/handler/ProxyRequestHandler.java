@@ -96,7 +96,8 @@ public abstract class ProxyRequestHandler implements LifecycleRequestHandler<Rad
      * Retrieves the RadiusProxyConnection object from the cache employing
      * the Proxy-State attribute.
      *
-     * @param packet response received from server
+     * @param dictionary dictionary for new packet to use
+     * @param packet     response received from server
      * @return packet to send back to client
      */
     protected RadiusPacket handleServerResponse(Dictionary dictionary, RadiusPacket packet) {

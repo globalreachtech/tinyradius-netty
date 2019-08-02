@@ -47,7 +47,6 @@ class ProxyRequestHandlerTest {
     private static final NioDatagramChannel datagramChannel = new NioDatagramChannel();
 
     private static final RadiusClient client = new RadiusClient(
-            packetEncoder,
             eventExecutors,
             new ReflectiveChannelFactory<>(NioDatagramChannel.class),
             new SimpleClientHandler(packetEncoder),
@@ -143,7 +142,7 @@ class ProxyRequestHandlerTest {
     private static class MockClient extends RadiusClient {
 
         MockClient(EventLoopGroup eventLoopGroup, ChannelFactory<DatagramChannel> factory, ClientHandler clientHandler, RetryStrategy retryStrategy) {
-            super(packetEncoder, eventLoopGroup, factory, clientHandler, retryStrategy, new InetSocketAddress(0));
+            super(eventLoopGroup, factory, clientHandler, retryStrategy, new InetSocketAddress(0));
         }
 
         public Promise<RadiusPacket> communicate(RadiusPacket originalPacket, RadiusEndpoint endpoint) {

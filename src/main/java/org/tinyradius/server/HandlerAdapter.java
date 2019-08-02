@@ -56,7 +56,7 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
     public void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
         try {
             handleRequest(ctx.channel(), datagramPacket).addListener(f -> {
-                if (f.isSuccess())
+                if (f.isSuccess() && f.getNow() != null)
                     ctx.writeAndFlush(f.getNow());
             });
 
@@ -68,9 +68,9 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
     /**
      * Processes DatagramPacket. This does not swallow exceptions.
      *
-     * @param channel
+     * @param channel        socket on which request was received
      * @param datagramPacket datagram received
-     * @return
+     * @return Future that completes when request is handled. Can contain DatagramPacket response
      * @throws RadiusException malformed packet
      */
     protected Future<DatagramPacket> handleRequest(Channel channel, DatagramPacket datagramPacket) throws RadiusException {
