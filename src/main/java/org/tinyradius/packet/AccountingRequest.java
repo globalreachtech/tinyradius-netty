@@ -95,9 +95,4 @@ public class AccountingRequest extends RadiusPacket {
         return ra == null ?
                 -1 : ((IntegerAttribute) ra).getValueInt();
     }
-
-    @Override
-    public RadiusPacket encodeResponse(String sharedSecret, byte[] requestAuthenticator) {
-        throw new UnsupportedOperationException();
-    }
 }
