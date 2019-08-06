@@ -162,7 +162,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.DatagramPacket&gt;</pre>
 <div class="block">SimpleChannelInboundHandler implementation that converts between RadiusPackets
  and DatagramPackets. Acts as an adapter so RequestHandlers dont have to be
- concerned with Datagrams.</div>
+ concerned with <code>DatagramPacket</code>, and can work with <a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet"><code>RadiusPacket</code></a>
+ directly.</div>
 </li>
 </ul>
 </div>

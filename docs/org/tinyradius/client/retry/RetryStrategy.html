@@ -183,7 +183,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">void&nbsp;scheduleRetry&#8203;(java.lang.Runnable&nbsp;retry,
                    int&nbsp;totalAttempts,
                    io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</pre>
-<div class="block">Schedule a retry in the future.
+<div class="block">Schedule a retry in the future. Invoked immediately after a request is sent
+ to schedule next retry.
  <p>
  When retry is due to run, should also check if promise isDone() before running.
  <p>
@@ -194,7 +195,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>retry</code> - runnable to invoke to retry</dd>
 <dd><code>totalAttempts</code> - current attempt count</dd>
-<dd><code>promise</code> - request promise that resolves when a reponse is received</dd>
+<dd><code>promise</code> - request promise that resolves when a response is received</dd>
 </dl>
 </li>
 </ul>

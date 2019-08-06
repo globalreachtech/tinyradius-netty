@@ -249,6 +249,11 @@ public class AccessRequest extends RadiusPacket {
         return accessRequest;
     }
 
+    @Override
+    public RadiusPacket encodeResponse(String sharedSecret, byte[] requestAuthenticator) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Sets and encrypts the User-Password attribute.
      *

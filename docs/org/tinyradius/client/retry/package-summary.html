@@ -96,6 +96,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h1 title="Package" class="title">Package&nbsp;org.tinyradius.client.retry</h1>
 </div>
 <div class="contentContainer">
+<section role="region"><a id="package.description">
+<!--   -->
+</a>
+<div class="block"><a href="RetryStrategy.html" title="interface in org.tinyradius.client.retry"><code>RetryStrategy</code></a> schedules a retry in the future
+ and handles timeouts.
+ <p>
+ <a href="RetryStrategy.html#scheduleRetry(java.lang.Runnable,int,io.netty.util.concurrent.Promise)"><code>RetryStrategy.scheduleRetry(java.lang.Runnable, int, io.netty.util.concurrent.Promise&lt;org.tinyradius.packet.RadiusPacket&gt;)</code></a> is invoked after
+ every client request is sent to schedule a retry or timeout check in the future.
+ <p>
+ A naive version is implemented which waits fixed timeout and after a set
+ max attempts, fails the request promise. Custom implementations can be built
+ for exponential backoff.</div>
+</section>
 <ul class="blockList">
 <li class="blockList">
 <table class="typeSummary">

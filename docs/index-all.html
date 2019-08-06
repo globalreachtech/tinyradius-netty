@@ -193,7 +193,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Adds the given vendor to the dictionary.</div>
 </dd>
 <dt><a href="org/tinyradius/attribute/Attributes.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">Attributes</span></a> - Class in <a href="org/tinyradius/attribute/package-summary.html">org.tinyradius.attribute</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Helper class to create and extract attributes.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/attribute/Attributes.html#%3Cinit%3E()">Attributes()</a></span> - Constructor for class org.tinyradius.attribute.<a href="org/tinyradius/attribute/Attributes.html" title="class in org.tinyradius.attribute">Attributes</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/attribute/AttributeType.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">AttributeType</span></a> - Class in <a href="org/tinyradius/attribute/package-summary.html">org.tinyradius.attribute</a></dt>
@@ -338,6 +340,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Sets and encrypts the User-Password attribute.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#encodeResponse(java.lang.String,byte%5B%5D)">encodeResponse(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#encodeResponse(java.lang.String,byte%5B%5D)">encodeResponse(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#encodeResponse(java.lang.String,byte%5B%5D)">encodeResponse(String, byte[])</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
 <dd>
 <div class="block">Encode and generate authenticator.</div>
@@ -693,7 +699,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPackets.html#nextPacketId()">nextPacketId()</a></span> - Static method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPackets.html" title="class in org.tinyradius.packet">RadiusPackets</a></dt>
 <dd>
-<div class="block">Increment the next packet identifier.</div>
+<div class="block">Increment and return the next packet identifier, between 0 and 255</div>
 </dd>
 </dl>
 <a id="I:O">
@@ -709,8 +715,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/attribute/package-summary.html">org.tinyradius.attribute</a> - package org.tinyradius.attribute</dt>
 <dd>
-<div class="block">Classes for Radius attributes and Radius
- attribute types.</div>
+<div class="block">Classes for Radius attributes and Radius attribute types.</div>
 </dd>
 <dt><a href="org/tinyradius/client/package-summary.html">org.tinyradius.client</a> - package org.tinyradius.client</dt>
 <dd>
@@ -722,7 +727,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Handlers that convert RadiusPackets to datagrams and handles incoming datagrams.</div>
 </dd>
 <dt><a href="org/tinyradius/client/retry/package-summary.html">org.tinyradius.client.retry</a> - package org.tinyradius.client.retry</dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><a href="org/tinyradius/client/retry/RetryStrategy.html" title="interface in org.tinyradius.client.retry"><code>RetryStrategy</code></a> schedules a retry in the future
+ and handles timeouts.</div>
+</dd>
 <dt><a href="org/tinyradius/dictionary/package-summary.html">org.tinyradius.dictionary</a> - package org.tinyradius.dictionary</dt>
 <dd>
 <div class="block">Interfaces and classes that manage
@@ -745,7 +753,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  ChannelHandlers for incoming packets.</div>
 </dd>
 <dt><a href="org/tinyradius/server/handler/package-summary.html">org.tinyradius.server.handler</a> - package org.tinyradius.server.handler</dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Callback handlers that are invoked when a packet is received.</div>
+</dd>
 <dt><a href="org/tinyradius/util/package-summary.html">org.tinyradius.util</a> - package org.tinyradius.util</dt>
 <dd>&nbsp;</dd>
 </dl>

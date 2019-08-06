@@ -16,7 +16,7 @@ public class RadiusPackets {
     private static AtomicInteger nextPacketId = new AtomicInteger();
 
     /**
-     * Increment the next packet identifier.
+     * Increment and return the next packet identifier, between 0 and 255
      *
      * @return the next packet identifier to use
      */

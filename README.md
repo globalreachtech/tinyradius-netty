@@ -21,27 +21,43 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
 
 ### Dictionary
  - Parses dictionary files in same format as [FreeRadius dictionaries](https://github.com/FreeRADIUS/freeradius-server/tree/master/share/dictionary).
- - `DefaultDictionary.INSTANCE` uses a very limited subset that's included in the classpath.
- - Use `DictionaryParser` to parse custom resources.
+ - `DefaultDictionary` uses a very limited subset that's included in the classpath.
+   - Singleton is available at `DefaultDictionary.INSTANCE`
+ - `DictionaryParser` parses custom resources and takes a `ResourceResolver` parameter.
    - `FileResourceResolver` and `ClasspathResourceResolver` resolves resources on file system and classpath respectively. Dictionaries can include other files to parse, and paths are resolved differently in each case.
  - Results of dictionary parses are stored as `AttributeType`.
 
 ### Attribute
  - `RadiusAttribute` is used for octets attributes and attributes without a dictionary entry or specific subtype.
-   - Attribute subtypes store the same data, but have convenience methods for maniupulation and stricter data validation.
+   - Attribute subtypes such as `IntegerAttribute` store the same data, but have convenience methods for maniupulation and stricter data validation.
  - `AttributeType` contains the attribute type, name, data type, and enumeration of valid values if appropriate.
- - `AttributeType` has methods to create attributes directly for that type.
-   - If only the attribute type ID is known, rather than the AttributeType object, use `Attributes.createAttribute` which will create a basic `RadiusAttribute` if no dictionary entry is found.
+   - A `create()` method is used to create attributes directly for that type.
+   - If only the attribute type ID is known, rather than the AttributeType object, use `Attributes.createAttribute()` which will create a basic `RadiusAttribute`. This is safer as it will always successfully create an attribute even if there's no dictionary entry for the type ID.
  - `VendorSpecificAttribute` stores lists of vendor-specific attributes instead of attribute data itself, and serializes its data by concatenating byte array representations of subattributes with its type/vendorId/length header.
 
 ### Packet
  - `RadiusPacket` represents packet and associated data.
- 
+   - Subtype packets are included with convenience methods.
+   - `encodeRequest()` and `encodeResponse()` return a new copy of the current RadiusPacket with the Authenticator.
+   - `AccessRequest` is also included which has a different way of encoding/verifying the packet Authenticator compared to other Radius request/response types and encodes the appropriate password attributes.
+ - `RadiusPackets` contains utils for creating packets and using a more specific subclass where possible, and for generating a valid packet identifier.
+ - `PacketType` contains list of constants of packet types. It's intentionally not an enum to allow for types that aren't included in the list / added in the future.
+ - `PacketEncoder` contains methods for converting to/from netty Datagram and ByteBufs.
 
 ### Client
+ - `RadiusClient` manages setting up sockets and netty, and the plumbing for the `communicate()` method to return a `Future<RadiusPacket>`
+ - `RetryStrategy` contains a method which is called after every request is sent, with a Runnable to retry the request. The retry runnable is then scheduled or timeout triggered depending on the implementation.
+ - `ClientHandler` is a thin wrapper around Netty SimpleChannelInboundHandler with two methods to be implemented.
+   - `prepareDatagram()` takes a RadiusPacket and returns the Datagram that will be sent.
+     - The same datagram contents are reused for retries. If retries should be different, considering making multiple calls to `RadiusClient#communicate()` and implementing retries manually.
+     - A Promise is passed into the handler - this represents an open request, awaiting a response. The Promise should be stored so it can be looked up and completed when a valid response is received. It should also be removed after a timeout to avoid memory leaks. 
+   - `handleResponse()` takes a Datagram as input.
+     - If a corresponding request is found, the open promise for that request should be completed and removed from the store.
+   - `ProxyStateClientHandler` appends a `Proxy-State` attribute to the packet and uses that to lookup requests.
+   - `SimpleClientHandler` uses the remote socket and packet identifier to lookup requests.
 
 ### Server
-    
+  - `RadiusServer`
 
 ## License
 Copyright Matthias Wuttke (mw@teuto.net) and contributors.
