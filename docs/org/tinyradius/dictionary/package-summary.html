@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,9 +26,7 @@
     catch(err) {
     }
 //-->
-var pathtoroot = "../../../";
-var useModuleDirectories = true;
-loadScripts(document, 'script');</script>
+var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -45,7 +42,7 @@ loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,13 +52,21 @@ loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/client/retry/package-summary.html">Prev&nbsp;Package</a></li>
+<li><a href="../../../org/tinyradius/packet/package-summary.html">Next&nbsp;Package</a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/dictionary/package-summary.html" target="_top">Frames</a></li>
+<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" disabled="disabled">
-<input type="reset" id="reset" value="reset" disabled="disabled">
+<li><span>SEARCH:&nbsp;</span>
+<input type="text" id="search" value=" " disabled="disabled">
+<input type="reset" id="reset" value=" " disabled="disabled">
 </li>
 </ul>
 <div>
@@ -96,9 +101,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h1 title="Package" class="title">Package&nbsp;org.tinyradius.dictionary</h1>
 </div>
 <div class="contentContainer">
-<section role="region"><a id="package.description">
-<!--   -->
-</a>
+<section role="region">
 <div class="block">Interfaces and classes that manage
  a dictionary of Radius attribute types.
  <p>
@@ -138,18 +141,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></th>
+<th class="colFirst" scope="row"><a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></th>
 <td class="colLast">
 <div class="block">A dictionary retrieves AttributeType objects by name or
  type code.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="DictionaryParser.ResourceResolver.html" title="interface in org.tinyradius.dictionary">DictionaryParser.ResourceResolver</a></th>
+<th class="colFirst" scope="row"><a href="../../../org/tinyradius/dictionary/DictionaryParser.ResourceResolver.html" title="interface in org.tinyradius.dictionary">DictionaryParser.ResourceResolver</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="WritableDictionary.html" title="interface in org.tinyradius.dictionary">WritableDictionary</a></th>
+<th class="colFirst" scope="row"><a href="../../../org/tinyradius/dictionary/WritableDictionary.html" title="interface in org.tinyradius.dictionary">WritableDictionary</a></th>
 <td class="colLast">
 <div class="block">A dictionary that is not read-only.</div>
 </td>
@@ -166,7 +169,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="DefaultDictionary.html" title="class in org.tinyradius.dictionary">DefaultDictionary</a></th>
+<th class="colFirst" scope="row"><a href="../../../org/tinyradius/dictionary/DefaultDictionary.html" title="class in org.tinyradius.dictionary">DefaultDictionary</a></th>
 <td class="colLast">
 <div class="block">The default dictionary is a singleton object containing
  a dictionary in the memory that is filled on application
@@ -176,21 +179,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="DictionaryParser.html" title="class in org.tinyradius.dictionary">DictionaryParser</a></th>
+<th class="colFirst" scope="row"><a href="../../../org/tinyradius/dictionary/DictionaryParser.html" title="class in org.tinyradius.dictionary">DictionaryParser</a></th>
 <td class="colLast">
 <div class="block">Parses a dictionary in "Radiator format" and fills a WritableDictionary.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="DictionaryParser.ClasspathResourceResolver.html" title="class in org.tinyradius.dictionary">DictionaryParser.ClasspathResourceResolver</a></th>
+<th class="colFirst" scope="row"><a href="../../../org/tinyradius/dictionary/DictionaryParser.ClasspathResourceResolver.html" title="class in org.tinyradius.dictionary">DictionaryParser.ClasspathResourceResolver</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="DictionaryParser.FileResourceResolver.html" title="class in org.tinyradius.dictionary">DictionaryParser.FileResourceResolver</a></th>
+<th class="colFirst" scope="row"><a href="../../../org/tinyradius/dictionary/DictionaryParser.FileResourceResolver.html" title="class in org.tinyradius.dictionary">DictionaryParser.FileResourceResolver</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="MemoryDictionary.html" title="class in org.tinyradius.dictionary">MemoryDictionary</a></th>
+<th class="colFirst" scope="row"><a href="../../../org/tinyradius/dictionary/MemoryDictionary.html" title="class in org.tinyradius.dictionary">MemoryDictionary</a></th>
 <td class="colLast">
 <div class="block">A dictionary that keeps the values and names in hash maps
  in the memory.</div>
@@ -213,7 +216,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -223,8 +226,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/client/retry/package-summary.html">Prev&nbsp;Package</a></li>
+<li><a href="../../../org/tinyradius/packet/package-summary.html">Next&nbsp;Package</a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/dictionary/package-summary.html" target="_top">Frames</a></li>
+<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--

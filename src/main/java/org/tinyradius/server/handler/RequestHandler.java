@@ -3,10 +3,11 @@ package org.tinyradius.server.handler;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.util.Lifecycle;
 
 import java.net.InetSocketAddress;
 
-public interface RequestHandler<T extends RadiusPacket> {
+public interface RequestHandler<T extends RadiusPacket> extends Lifecycle {
 
     /**
      * Handles the received Radius packet and constructs a response. Filters/Deduplicators

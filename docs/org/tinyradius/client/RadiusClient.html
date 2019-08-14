@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,15 +26,13 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var methods = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../";
-var useModuleDirectories = true;
-loadScripts(document, 'script');</script>
+var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -51,7 +48,7 @@ loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -61,13 +58,21 @@ loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li>Prev&nbsp;Class</li>
+<li>Next&nbsp;Class</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/client/RadiusClient.html" target="_top">Frames</a></li>
+<li><a href="RadiusClient.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" disabled="disabled">
-<input type="reset" id="reset" value="reset" disabled="disabled">
+<li><span>SEARCH:&nbsp;</span>
+<input type="text" id="search" value=" " disabled="disabled">
+<input type="reset" id="reset" value=" " disabled="disabled">
 </li>
 </ul>
 <div>
@@ -115,7 +120,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.client</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../org/tinyradius/client/package-summary.html">org.tinyradius.client</a></div>
 <h2 title="Class RadiusClient" class="title">Class RadiusClient</h2>
 </div>
 <div class="contentContainer">
@@ -132,12 +137,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
 </dl>
 <hr>
+<br>
 <pre>public class <span class="typeNameLabel">RadiusClient</span>
 extends java.lang.Object
-implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></pre>
+implements <a href="../../../org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></pre>
 <div class="block">This object represents a simple Radius client which communicates with
  a specified Radius server. You can use a single instance of this object
  to authenticate or account different users with the same Radius server
@@ -165,10 +171,10 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetSocketAddress)">RadiusClient</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/client/RadiusClient.html#RadiusClient-io.netty.channel.EventLoopGroup-io.netty.channel.ChannelFactory-org.tinyradius.client.handler.ClientHandler-org.tinyradius.client.retry.RetryStrategy-java.net.InetSocketAddress-">RadiusClient</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
             io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
-            <a href="handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a>&nbsp;clientHandler,
-            <a href="retry/RetryStrategy.html" title="interface in org.tinyradius.client.retry">RetryStrategy</a>&nbsp;retryStrategy,
+            <a href="../../../org/tinyradius/client/handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a>&nbsp;clientHandler,
+            <a href="../../../org/tinyradius/client/retry/RetryStrategy.html" title="interface in org.tinyradius.client.retry">RetryStrategy</a>&nbsp;retryStrategy,
             java.net.InetSocketAddress&nbsp;listenAddress)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -191,21 +197,21 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>io.netty.util.concurrent.Future&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)">communicate</a></span>&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;originalPacket,
-           <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</code></th>
+<td class="colFirst"><code>io.netty.util.concurrent.Future&lt;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/client/RadiusClient.html#communicate-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-">communicate</a></span>&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;originalPacket,
+           <a href="../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start()">start</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/client/RadiusClient.html#start--">start</a></span>&#8203;()</code></th>
 <td class="colLast">
 <div class="block">Registers the channel and binds to address.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/client/RadiusClient.html#stop--">stop</a></span>&#8203;()</code></th>
 <td class="colLast">
 <div class="block">Closes channel socket</div>
 </td>
@@ -234,7 +240,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(io.netty.channel.EventLoopGroup,io.netty.channel.ChannelFactory,org.tinyradius.client.handler.ClientHandler,org.tinyradius.client.retry.RetryStrategy,java.net.InetSocketAddress)">
+<a id="RadiusClient-io.netty.channel.EventLoopGroup-io.netty.channel.ChannelFactory-org.tinyradius.client.handler.ClientHandler-org.tinyradius.client.retry.RetryStrategy-java.net.InetSocketAddress-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -242,8 +248,8 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <h4>RadiusClient</h4>
 <pre>public&nbsp;RadiusClient&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
                     io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
-                    <a href="handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a>&nbsp;clientHandler,
-                    <a href="retry/RetryStrategy.html" title="interface in org.tinyradius.client.retry">RetryStrategy</a>&nbsp;retryStrategy,
+                    <a href="../../../org/tinyradius/client/handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a>&nbsp;clientHandler,
+                    <a href="../../../org/tinyradius/client/retry/RetryStrategy.html" title="interface in org.tinyradius.client.retry">RetryStrategy</a>&nbsp;retryStrategy,
                     java.net.InetSocketAddress&nbsp;listenAddress)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -265,48 +271,48 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="start()">
+<a id="start--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>start</h4>
-<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;start()</pre>
+<pre>public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;start&#8203;()</pre>
 <div class="block">Registers the channel and binds to address.
  <p>
- Also run implicitly if <a href="#communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)"><code>communicate(RadiusPacket, RadiusEndpoint)</code></a> is called.</div>
+ Also run implicitly if <a href="../../../org/tinyradius/client/RadiusClient.html#communicate-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-"><code>communicate(RadiusPacket, RadiusEndpoint)</code></a> is called.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../util/Lifecycle.html#start()">start</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/Lifecycle.html#start--">start</a></code>&nbsp;in interface&nbsp;<code><a href="../../../org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>channelFuture of started channel socket</dd>
 </dl>
 </li>
 </ul>
-<a id="stop()">
+<a id="stop--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;stop()</pre>
+<pre>public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;stop&#8203;()</pre>
 <div class="block">Closes channel socket</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../util/Lifecycle.html#stop()">stop</a></code>&nbsp;in interface&nbsp;<code><a href="../util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/Lifecycle.html#stop--">stop</a></code>&nbsp;in interface&nbsp;<code><a href="../../../org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>future completes when resources shutdown</dd>
 </dl>
 </li>
 </ul>
-<a id="communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)">
+<a id="communicate-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>communicate</h4>
-<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;communicate&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;originalPacket,
-                                                                 <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</pre>
+<pre>public&nbsp;io.netty.util.concurrent.Future&lt;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;communicate&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;originalPacket,
+                                                                 <a href="../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</pre>
 </li>
 </ul>
 </li>
@@ -329,7 +335,7 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -339,8 +345,16 @@ implements <a href="../util/Lifecycle.html" title="interface in org.tinyradius.u
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li>Prev&nbsp;Class</li>
+<li>Next&nbsp;Class</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/client/RadiusClient.html" target="_top">Frames</a></li>
+<li><a href="RadiusClient.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--

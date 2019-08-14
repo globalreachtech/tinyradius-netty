@@ -1,4 +1,4 @@
-package org.tinyradius.proxy.handler;
+package org.tinyradius.server.handler;
 
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
@@ -38,6 +38,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.*;
 
 class ProxyRequestHandlerTest {
+
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private static final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
     private final SecureRandom random = new SecureRandom();

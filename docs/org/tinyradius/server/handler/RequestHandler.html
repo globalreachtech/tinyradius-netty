@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,15 +26,13 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6};
+var methods = {"i0":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../";
-var useModuleDirectories = true;
-loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -51,7 +48,7 @@ loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="../../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -61,13 +58,21 @@ loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/tinyradius/server/handler/ProxyRequestHandler.html" title="class in org.tinyradius.server.handler"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li>Next&nbsp;Class</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/tinyradius/server/handler/RequestHandler.html" target="_top">Frames</a></li>
+<li><a href="RequestHandler.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" disabled="disabled">
-<input type="reset" id="reset" value="reset" disabled="disabled">
+<li><span>SEARCH:&nbsp;</span>
+<input type="text" id="search" value=" " disabled="disabled">
+<input type="reset" id="reset" value=" " disabled="disabled">
 </li>
 </ul>
 <div>
@@ -115,23 +120,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.server.handler</a></div>
-<h2 title="Interface RequestHandler" class="title">Interface RequestHandler&lt;T extends <a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</h2>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../org/tinyradius/server/handler/package-summary.html">org.tinyradius.server.handler</a></div>
+<h2 title="Interface RequestHandler" class="title">Interface RequestHandler&lt;T extends <a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt>All Known Subinterfaces:</dt>
-<dd><code><a href="../../proxy/handler/LifecycleRequestHandler.html" title="interface in org.tinyradius.proxy.handler">LifecycleRequestHandler</a>&lt;T&gt;</code></dd>
+<dt>All Superinterfaces:</dt>
+<dd><code><a href="../../../../org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="AcctHandler.html" title="class in org.tinyradius.server.handler">AcctHandler</a></code>, <code><a href="AuthHandler.html" title="class in org.tinyradius.server.handler">AuthHandler</a></code>, <code><a href="DeduplicatorHandler.html" title="class in org.tinyradius.server.handler">DeduplicatorHandler</a></code>, <code><a href="../../proxy/handler/ProxyDeduplicatorHandler.html" title="class in org.tinyradius.proxy.handler">ProxyDeduplicatorHandler</a></code>, <code><a href="../../proxy/handler/ProxyRequestHandler.html" title="class in org.tinyradius.proxy.handler">ProxyRequestHandler</a></code></dd>
+<dd><code><a href="../../../../org/tinyradius/server/handler/AcctHandler.html" title="class in org.tinyradius.server.handler">AcctHandler</a></code>, <code><a href="../../../../org/tinyradius/server/handler/AuthHandler.html" title="class in org.tinyradius.server.handler">AuthHandler</a></code>, <code><a href="../../../../org/tinyradius/server/handler/DeduplicatorHandler.html" title="class in org.tinyradius.server.handler">DeduplicatorHandler</a></code>, <code><a href="../../../../org/tinyradius/server/handler/ProxyRequestHandler.html" title="class in org.tinyradius.server.handler">ProxyRequestHandler</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">RequestHandler&lt;T extends <a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</span></pre>
+<br>
+<pre>public interface <span class="typeNameLabel">RequestHandler&lt;T extends <a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</span>
+extends <a href="../../../../org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></pre>
 </li>
 </ul>
 </div>
@@ -153,9 +160,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handlePacket(io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">handlePacket</a></span>&#8203;(io.netty.channel.Channel&nbsp;channel,
-            <a href="RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;request,
+<td class="colFirst"><code>io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-java.lang.String-">handlePacket</a></span>&#8203;(io.netty.channel.Channel&nbsp;channel,
+            <a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;request,
             java.net.InetSocketAddress&nbsp;remoteAddress,
             java.lang.String&nbsp;sharedSecret)</code></th>
 <td class="colLast">
@@ -163,6 +170,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.org.tinyradius.util.Lifecycle">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;org.tinyradius.util.<a href="../../../../org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></h3>
+<code><a href="../../../../org/tinyradius/util/Lifecycle.html#start--">start</a>, <a href="../../../../org/tinyradius/util/Lifecycle.html#stop--">stop</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -179,16 +193,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="handlePacket(io.netty.channel.Channel,org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.lang.String)">
+<a id="handlePacket-io.netty.channel.Channel-org.tinyradius.packet.RadiusPacket-java.net.InetSocketAddress-java.lang.String-">
 <!--   -->
-</a><a id="handlePacket(io.netty.channel.Channel,T,java.net.InetSocketAddress,java.lang.String)">
+</a><a id="handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>handlePacket</h4>
-<pre class="methodSignature">io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket&#8203;(io.netty.channel.Channel&nbsp;channel,
-                                                            <a href="RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;request,
+<pre>io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket&#8203;(io.netty.channel.Channel&nbsp;channel,
+                                                            <a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;request,
                                                             java.net.InetSocketAddress&nbsp;remoteAddress,
                                                             java.lang.String&nbsp;sharedSecret)</pre>
 <div class="block">Handles the received Radius packet and constructs a response. Filters/Deduplicators
@@ -225,7 +239,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="../../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -235,8 +249,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/tinyradius/server/handler/ProxyRequestHandler.html" title="class in org.tinyradius.server.handler"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li>Next&nbsp;Class</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/tinyradius/server/handler/RequestHandler.html" target="_top">Frames</a></li>
+<li><a href="RequestHandler.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--

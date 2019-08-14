@@ -4,8 +4,6 @@ org.tinyradius.client.handler
 org.tinyradius.client.retry
 org.tinyradius.dictionary
 org.tinyradius.packet
-org.tinyradius.proxy
-org.tinyradius.proxy.handler
 org.tinyradius.server
 org.tinyradius.server.handler
 org.tinyradius.util

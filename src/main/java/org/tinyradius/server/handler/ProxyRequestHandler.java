@@ -1,4 +1,4 @@
-package org.tinyradius.proxy.handler;
+package org.tinyradius.server.handler;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Future;
@@ -26,7 +26,7 @@ import java.net.InetSocketAddress;
  * This implementation expects {@link #getProxyServer(RadiusPacket, RadiusEndpoint)} to lookup
  * endpoint to forward requests to.
  */
-public abstract class ProxyRequestHandler implements LifecycleRequestHandler<RadiusPacket> {
+public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket>, org.tinyradius.util.Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyRequestHandler.class);
 

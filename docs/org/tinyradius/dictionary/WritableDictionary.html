@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,15 +26,13 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6};
+var methods = {"i0":6,"i1":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../";
-var useModuleDirectories = true;
-loadScripts(document, 'script');</script>
+var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -51,7 +48,7 @@ loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -61,13 +58,21 @@ loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/dictionary/MemoryDictionary.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li>Next&nbsp;Class</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/dictionary/WritableDictionary.html" target="_top">Frames</a></li>
+<li><a href="WritableDictionary.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" disabled="disabled">
-<input type="reset" id="reset" value="reset" disabled="disabled">
+<li><span>SEARCH:&nbsp;</span>
+<input type="text" id="search" value=" " disabled="disabled">
+<input type="reset" id="reset" value=" " disabled="disabled">
 </li>
 </ul>
 <div>
@@ -115,7 +120,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.dictionary</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../org/tinyradius/dictionary/package-summary.html">org.tinyradius.dictionary</a></div>
 <h2 title="Interface WritableDictionary" class="title">Interface WritableDictionary</h2>
 </div>
 <div class="contentContainer">
@@ -124,15 +129,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Superinterfaces:</dt>
-<dd><code><a href="Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="DefaultDictionary.html" title="class in org.tinyradius.dictionary">DefaultDictionary</a></code>, <code><a href="MemoryDictionary.html" title="class in org.tinyradius.dictionary">MemoryDictionary</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/dictionary/DefaultDictionary.html" title="class in org.tinyradius.dictionary">DefaultDictionary</a></code>, <code><a href="../../../org/tinyradius/dictionary/MemoryDictionary.html" title="class in org.tinyradius.dictionary">MemoryDictionary</a></code></dd>
 </dl>
 <hr>
+<br>
 <pre>public interface <span class="typeNameLabel">WritableDictionary</span>
-extends <a href="Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></pre>
+extends <a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></pre>
 <div class="block">A dictionary that is not read-only. Provides methods
  to add entries to the dictionary.</div>
 </li>
@@ -157,14 +163,14 @@ extends <a href="Dictionary.html" title="interface in org.tinyradius.dictionary"
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addAttributeType(org.tinyradius.attribute.AttributeType)">addAttributeType</a></span>&#8203;(<a href="../attribute/AttributeType.html" title="class in org.tinyradius.attribute">AttributeType</a>&nbsp;attributeType)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/dictionary/WritableDictionary.html#addAttributeType-org.tinyradius.attribute.AttributeType-">addAttributeType</a></span>&#8203;(<a href="../../../org/tinyradius/attribute/AttributeType.html" title="class in org.tinyradius.attribute">AttributeType</a>&nbsp;attributeType)</code></th>
 <td class="colLast">
 <div class="block">Adds an AttributeType object to the dictionary.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addVendor(int,java.lang.String)">addVendor</a></span>&#8203;(int&nbsp;vendorId,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/dictionary/WritableDictionary.html#addVendor-int-java.lang.String-">addVendor</a></span>&#8203;(int&nbsp;vendorId,
          java.lang.String&nbsp;vendorName)</code></th>
 <td class="colLast">
 <div class="block">Adds the given vendor to the dictionary.</div>
@@ -175,8 +181,8 @@ extends <a href="Dictionary.html" title="interface in org.tinyradius.dictionary"
 <li class="blockList"><a id="methods.inherited.from.class.org.tinyradius.dictionary.Dictionary">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;org.tinyradius.dictionary.<a href="Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></h3>
-<code><a href="Dictionary.html#getAttributeTypeByCode(int)">getAttributeTypeByCode</a>, <a href="Dictionary.html#getAttributeTypeByCode(int,int)">getAttributeTypeByCode</a>, <a href="Dictionary.html#getAttributeTypeByName(java.lang.String)">getAttributeTypeByName</a>, <a href="Dictionary.html#getVendorId(java.lang.String)">getVendorId</a>, <a href="Dictionary.html#getVendorName(int)">getVendorName</a></code></li>
+<h3>Methods inherited from interface&nbsp;org.tinyradius.dictionary.<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></h3>
+<code><a href="../../../org/tinyradius/dictionary/Dictionary.html#getAttributeTypeByCode-int-">getAttributeTypeByCode</a>, <a href="../../../org/tinyradius/dictionary/Dictionary.html#getAttributeTypeByCode-int-int-">getAttributeTypeByCode</a>, <a href="../../../org/tinyradius/dictionary/Dictionary.html#getAttributeTypeByName-java.lang.String-">getAttributeTypeByName</a>, <a href="../../../org/tinyradius/dictionary/Dictionary.html#getVendorId-java.lang.String-">getVendorId</a>, <a href="../../../org/tinyradius/dictionary/Dictionary.html#getVendorName-int-">getVendorName</a></code></li>
 </ul>
 </li>
 </ul>
@@ -194,13 +200,13 @@ extends <a href="Dictionary.html" title="interface in org.tinyradius.dictionary"
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="addVendor(int,java.lang.String)">
+<a id="addVendor-int-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addVendor</h4>
-<pre class="methodSignature">void&nbsp;addVendor&#8203;(int&nbsp;vendorId,
+<pre>void&nbsp;addVendor&#8203;(int&nbsp;vendorId,
                java.lang.String&nbsp;vendorName)</pre>
 <div class="block">Adds the given vendor to the dictionary.</div>
 <dl>
@@ -210,13 +216,13 @@ extends <a href="Dictionary.html" title="interface in org.tinyradius.dictionary"
 </dl>
 </li>
 </ul>
-<a id="addAttributeType(org.tinyradius.attribute.AttributeType)">
+<a id="addAttributeType-org.tinyradius.attribute.AttributeType-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>addAttributeType</h4>
-<pre class="methodSignature">void&nbsp;addAttributeType&#8203;(<a href="../attribute/AttributeType.html" title="class in org.tinyradius.attribute">AttributeType</a>&nbsp;attributeType)</pre>
+<pre>void&nbsp;addAttributeType&#8203;(<a href="../../../org/tinyradius/attribute/AttributeType.html" title="class in org.tinyradius.attribute">AttributeType</a>&nbsp;attributeType)</pre>
 <div class="block">Adds an AttributeType object to the dictionary.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -244,7 +250,7 @@ extends <a href="Dictionary.html" title="interface in org.tinyradius.dictionary"
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -254,8 +260,16 @@ extends <a href="Dictionary.html" title="interface in org.tinyradius.dictionary"
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/dictionary/MemoryDictionary.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li>Next&nbsp;Class</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/dictionary/WritableDictionary.html" target="_top">Frames</a></li>
+<li><a href="WritableDictionary.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--

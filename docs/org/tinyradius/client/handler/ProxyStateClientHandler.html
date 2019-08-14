@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,15 +26,13 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
+var methods = {"i0":10,"i1":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../";
-var useModuleDirectories = true;
-loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -51,7 +48,7 @@ loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="../../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -61,13 +58,21 @@ loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/tinyradius/client/handler/ClientHandler.html" title="class in org.tinyradius.client.handler"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../org/tinyradius/client/handler/SimpleClientHandler.html" title="class in org.tinyradius.client.handler"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/tinyradius/client/handler/ProxyStateClientHandler.html" target="_top">Frames</a></li>
+<li><a href="ProxyStateClientHandler.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" disabled="disabled">
-<input type="reset" id="reset" value="reset" disabled="disabled">
+<li><span>SEARCH:&nbsp;</span>
+<input type="text" id="search" value=" " disabled="disabled">
+<input type="reset" id="reset" value=" " disabled="disabled">
 </li>
 </ul>
 <div>
@@ -88,7 +93,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -115,7 +120,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.client.handler</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../org/tinyradius/client/handler/package-summary.html">org.tinyradius.client.handler</a></div>
 <h2 title="Class ProxyStateClientHandler" class="title">Class ProxyStateClientHandler</h2>
 </div>
 <div class="contentContainer">
@@ -132,7 +137,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.DatagramPacket&gt;</li>
 <li>
 <ul class="inheritance">
-<li><a href="ClientHandler.html" title="class in org.tinyradius.client.handler">org.tinyradius.client.handler.ClientHandler</a></li>
+<li><a href="../../../../org/tinyradius/client/handler/ClientHandler.html" title="class in org.tinyradius.client.handler">org.tinyradius.client.handler.ClientHandler</a></li>
 <li>
 <ul class="inheritance">
 <li>org.tinyradius.client.handler.ProxyStateClientHandler</li>
@@ -150,13 +155,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
-<dl>
-<dt>All Implemented Interfaces:</dt>
-<dd><code>io.netty.channel.ChannelHandler</code>, <code>io.netty.channel.ChannelInboundHandler</code></dd>
-</dl>
 <hr>
+<br>
 <pre>public class <span class="typeNameLabel">ProxyStateClientHandler</span>
-extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></pre>
+extends <a href="../../../../org/tinyradius/client/handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></pre>
 <div class="block">ClientHandler that matches requests/response by appending Proxy-State attribute to
  outbound packets. This avoids problem with mismatched requests/responses when using
  packetIdentifier, which is limited to 256 unique IDs.</div>
@@ -197,8 +199,8 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.packet.PacketEncoder,org.tinyradius.util.SecretProvider)">ProxyStateClientHandler</a></span>&#8203;(<a href="../../packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
-                       <a href="../../util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/handler/ProxyStateClientHandler.html#ProxyStateClientHandler-org.tinyradius.packet.PacketEncoder-org.tinyradius.util.SecretProvider-">ProxyStateClientHandler</a></span>&#8203;(<a href="../../../../org/tinyradius/packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
+                       <a href="../../../../org/tinyradius/util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -221,42 +223,28 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleResponse(io.netty.channel.socket.DatagramPacket)">handleResponse</a></span>&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagramPacket)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/handler/ProxyStateClientHandler.html#handleResponse-io.netty.channel.socket.DatagramPacket-">handleResponse</a></span>&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagramPacket)</code></th>
 <td class="colLast">
 <div class="block">Processes DatagramPacket.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>io.netty.channel.socket.DatagramPacket</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareDatagram(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,java.net.InetSocketAddress,io.netty.util.concurrent.Promise)">prepareDatagram</a></span>&#8203;(<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
-               <a href="../../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/handler/ProxyStateClientHandler.html#prepareDatagram-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-java.net.InetSocketAddress-io.netty.util.concurrent.Promise-">prepareDatagram</a></span>&#8203;(<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+               <a href="../../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
                java.net.InetSocketAddress&nbsp;sender,
-               io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</code></th>
+               io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</code></th>
 <td class="colLast">
 <div class="block">Preprocess RadiusPackets before they are sent.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.org.tinyradius.client.handler.ClientHandler">
+<li class="blockList"><a id="methods.inherited.from.class.io.netty.channel.ChannelHandler">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;org.tinyradius.client.handler.<a href="ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></h3>
-<code><a href="ClientHandler.html#channelRead0(io.netty.channel.ChannelHandlerContext,io.netty.channel.socket.DatagramPacket)">channelRead0</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.io.netty.channel.SimpleChannelInboundHandler">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;io.netty.channel.SimpleChannelInboundHandler</h3>
-<code>acceptInboundMessage, channelRead</code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.io.netty.channel.ChannelInboundHandlerAdapter">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;io.netty.channel.ChannelInboundHandlerAdapter</h3>
-<code>channelActive, channelInactive, channelReadComplete, channelRegistered, channelUnregistered, channelWritabilityChanged, exceptionCaught, userEventTriggered</code></li>
+<h3>Methods inherited from interface&nbsp;io.netty.channel.ChannelHandler</h3>
+<code>handlerAdded, handlerRemoved</code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.io.netty.channel.ChannelHandlerAdapter">
@@ -266,6 +254,20 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <code>ensureNotSharable, handlerAdded, handlerRemoved, isSharable</code></li>
 </ul>
 <ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.io.netty.channel.ChannelInboundHandlerAdapter">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;io.netty.channel.ChannelInboundHandlerAdapter</h3>
+<code>channelActive, channelInactive, channelReadComplete, channelRegistered, channelUnregistered, channelWritabilityChanged, exceptionCaught, userEventTriggered</code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.org.tinyradius.client.handler.ClientHandler">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.tinyradius.client.handler.<a href="../../../../org/tinyradius/client/handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></h3>
+<code><a href="../../../../org/tinyradius/client/handler/ClientHandler.html#channelRead0-io.netty.channel.ChannelHandlerContext-io.netty.channel.socket.DatagramPacket-">channelRead0</a></code></li>
+</ul>
+<ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
@@ -273,11 +275,11 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
 </ul>
 <ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.io.netty.channel.ChannelHandler">
+<li class="blockList"><a id="methods.inherited.from.class.io.netty.channel.SimpleChannelInboundHandler">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;io.netty.channel.ChannelHandler</h3>
-<code>handlerAdded, handlerRemoved</code></li>
+<h3>Methods inherited from class&nbsp;io.netty.channel.SimpleChannelInboundHandler</h3>
+<code>acceptInboundMessage, channelRead</code></li>
 </ul>
 </li>
 </ul>
@@ -295,14 +297,14 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.tinyradius.packet.PacketEncoder,org.tinyradius.util.SecretProvider)">
+<a id="ProxyStateClientHandler-org.tinyradius.packet.PacketEncoder-org.tinyradius.util.SecretProvider-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ProxyStateClientHandler</h4>
-<pre>public&nbsp;ProxyStateClientHandler&#8203;(<a href="../../packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
-                               <a href="../../util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</pre>
+<pre>public&nbsp;ProxyStateClientHandler&#8203;(<a href="../../../../org/tinyradius/packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
+                               <a href="../../../../org/tinyradius/util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>packetEncoder</code> - to decode packet incoming DatagramPackets to RadiusPackets</dd>
@@ -322,18 +324,18 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="prepareDatagram(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,java.net.InetSocketAddress,io.netty.util.concurrent.Promise)">
+<a id="prepareDatagram-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-java.net.InetSocketAddress-io.netty.util.concurrent.Promise-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>prepareDatagram</h4>
-<pre class="methodSignature">public&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;prepareDatagram&#8203;(<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
-                                                              <a href="../../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
+<pre>public&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;prepareDatagram&#8203;(<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+                                                              <a href="../../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
                                                               java.net.InetSocketAddress&nbsp;sender,
-                                                              io.netty.util.concurrent.Promise&lt;<a href="../../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)
-                                                       throws <a href="../../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="ClientHandler.html#prepareDatagram(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,java.net.InetSocketAddress,io.netty.util.concurrent.Promise)">ClientHandler</a></code></span></div>
+                                                              io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)
+                                                       throws <a href="../../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../org/tinyradius/client/handler/ClientHandler.html#prepareDatagram-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-java.net.InetSocketAddress-io.netty.util.concurrent.Promise-">ClientHandler</a></code></span></div>
 <div class="block">Preprocess RadiusPackets before they are sent. May mutate outbound packets.
  <p>
  Save state info about outgoing requests so handler has context when handling replies
@@ -341,7 +343,7 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
  Ensure that you also return the encoded packet, typically with the shared secret available in RadiusEndpoint.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="ClientHandler.html#prepareDatagram(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint,java.net.InetSocketAddress,io.netty.util.concurrent.Promise)">prepareDatagram</a></code>&nbsp;in class&nbsp;<code><a href="ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></code></dd>
+<dd><code><a href="../../../../org/tinyradius/client/handler/ClientHandler.html#prepareDatagram-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-java.net.InetSocketAddress-io.netty.util.concurrent.Promise-">prepareDatagram</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/tinyradius/client/handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>packet</code> - request to send</dd>
 <dd><code>endpoint</code> - packet endpoint</dd>
@@ -351,27 +353,27 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <dd>promise of response which completes when server responds. Uses Promise instead Future,
  to allow requests to be timed out or cancelled by the caller</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - if packet could not be encoded/serialized to datagram</dd>
+<dd><code><a href="../../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - if packet could not be encoded/serialized to datagram</dd>
 </dl>
 </li>
 </ul>
-<a id="handleResponse(io.netty.channel.socket.DatagramPacket)">
+<a id="handleResponse-io.netty.channel.socket.DatagramPacket-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>handleResponse</h4>
-<pre class="methodSignature">protected&nbsp;void&nbsp;handleResponse&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagramPacket)
-                       throws <a href="../../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="ClientHandler.html#handleResponse(io.netty.channel.socket.DatagramPacket)">ClientHandler</a></code></span></div>
+<pre>protected&nbsp;void&nbsp;handleResponse&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagramPacket)
+                       throws <a href="../../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../org/tinyradius/client/handler/ClientHandler.html#handleResponse-io.netty.channel.socket.DatagramPacket-">ClientHandler</a></code></span></div>
 <div class="block">Processes DatagramPacket. This does not swallow exceptions.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="ClientHandler.html#handleResponse(io.netty.channel.socket.DatagramPacket)">handleResponse</a></code>&nbsp;in class&nbsp;<code><a href="ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></code></dd>
+<dd><code><a href="../../../../org/tinyradius/client/handler/ClientHandler.html#handleResponse-io.netty.channel.socket.DatagramPacket-">handleResponse</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/tinyradius/client/handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>datagramPacket</code> - datagram received</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
+<dd><code><a href="../../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
@@ -395,7 +397,7 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="../../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -405,8 +407,16 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/tinyradius/client/handler/ClientHandler.html" title="class in org.tinyradius.client.handler"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../org/tinyradius/client/handler/SimpleClientHandler.html" title="class in org.tinyradius.client.handler"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/tinyradius/client/handler/ProxyStateClientHandler.html" target="_top">Frames</a></li>
+<li><a href="ProxyStateClientHandler.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -426,7 +436,7 @@ extends <a href="ClientHandler.html" title="class in org.tinyradius.client.handl
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

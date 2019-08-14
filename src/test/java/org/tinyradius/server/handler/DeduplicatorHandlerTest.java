@@ -3,17 +3,19 @@ package org.tinyradius.server.handler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.util.RadiusEndpoint;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DeduplicatorHandlerTest {
 
@@ -62,5 +64,49 @@ class DeduplicatorHandlerTest {
                 .syncUninterruptibly().getNow());
 
         eventExecutors.shutdownGracefully().syncUninterruptibly();
+    }
+
+
+    @Test
+    void lifecycleCommands() {
+        final HashedWheelTimer timer = new HashedWheelTimer();
+        final MockProxyRequestHandler mockProxyRequestHandler = new MockProxyRequestHandler();
+        final DeduplicatorHandler proxyDeduplicatorHandler = new DeduplicatorHandler<>(mockProxyRequestHandler, timer, 1000);
+
+        assertFalse(mockProxyRequestHandler.isStarted);
+
+        proxyDeduplicatorHandler.start().syncUninterruptibly();
+        assertTrue(mockProxyRequestHandler.isStarted);
+
+        proxyDeduplicatorHandler.stop().syncUninterruptibly();
+        assertFalse(mockProxyRequestHandler.isStarted);
+
+        timer.stop();
+    }
+
+    private static class MockProxyRequestHandler extends ProxyRequestHandler {
+
+        private boolean isStarted = false;
+
+        private MockProxyRequestHandler() {
+            super(null);
+        }
+
+        @Override
+        public RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
+            return null;
+        }
+
+        @Override
+        public Future<Void> start() {
+            isStarted = true;
+            return GlobalEventExecutor.INSTANCE.newSucceededFuture(null);
+        }
+
+        @Override
+        public Future<Void> stop() {
+            isStarted = false;
+            return GlobalEventExecutor.INSTANCE.newSucceededFuture(null);
+        }
     }
 }

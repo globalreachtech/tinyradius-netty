@@ -1,4 +1,4 @@
-package org.tinyradius.proxy;
+package org.tinyradius;
 
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -14,8 +14,10 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.proxy.handler.ProxyDeduplicatorHandler;
-import org.tinyradius.proxy.handler.ProxyRequestHandler;
+import org.tinyradius.server.HandlerAdapter;
+import org.tinyradius.server.RadiusServer;
+import org.tinyradius.server.handler.DeduplicatorHandler;
+import org.tinyradius.server.handler.ProxyRequestHandler;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.SecretProvider;
 
@@ -75,12 +77,13 @@ public class TestProxy {
             }
         };
 
-        final ProxyDeduplicatorHandler proxyDeduplicatorHandler = new ProxyDeduplicatorHandler(proxyRequestHandler, timer, 30000);
+        final DeduplicatorHandler<RadiusPacket> proxyDeduplicatorHandler = new DeduplicatorHandler<>(proxyRequestHandler, timer, 30000);
 
-        final RadiusProxy proxy = new RadiusProxy(
+        final RadiusServer proxy = new RadiusServer(
                 eventLoopGroup,
                 channelFactory,
-                new ProxyHandlerAdapter(packetEncoder, proxyDeduplicatorHandler, timer, secretProvider),
+                new HandlerAdapter<>(packetEncoder, proxyDeduplicatorHandler, timer, secretProvider, RadiusPacket.class),
+                new HandlerAdapter<>(packetEncoder, proxyDeduplicatorHandler, timer, secretProvider, RadiusPacket.class),
                 new InetSocketAddress(11812), new InetSocketAddress(11813));
 
         proxy.start().addListener(future1 -> {

@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,15 +26,13 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../";
-var useModuleDirectories = true;
-loadScripts(document, 'script');</script>
+var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -51,7 +48,7 @@ loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -61,13 +58,21 @@ loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/attribute/StringAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li>Next&nbsp;Class</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/attribute/VendorSpecificAttribute.html" target="_top">Frames</a></li>
+<li><a href="VendorSpecificAttribute.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" disabled="disabled">
-<input type="reset" id="reset" value="reset" disabled="disabled">
+<li><span>SEARCH:&nbsp;</span>
+<input type="text" id="search" value=" " disabled="disabled">
+<input type="reset" id="reset" value=" " disabled="disabled">
 </li>
 </ul>
 <div>
@@ -115,7 +120,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.attribute</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../org/tinyradius/attribute/package-summary.html">org.tinyradius.attribute</a></div>
 <h2 title="Class VendorSpecificAttribute" class="title">Class VendorSpecificAttribute</h2>
 </div>
 <div class="contentContainer">
@@ -123,7 +128,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">org.tinyradius.attribute.RadiusAttribute</a></li>
+<li><a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">org.tinyradius.attribute.RadiusAttribute</a></li>
 <li>
 <ul class="inheritance">
 <li>org.tinyradius.attribute.VendorSpecificAttribute</li>
@@ -136,8 +141,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
+<br>
 <pre>public class <span class="typeNameLabel">VendorSpecificAttribute</span>
-extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></pre>
+extends <a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></pre>
 <div class="block">This class represents a "Vendor-Specific" attribute.</div>
 </li>
 </ul>
@@ -161,7 +167,7 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VENDOR_SPECIFIC">VENDOR_SPECIFIC</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#VENDOR_SPECIFIC">VENDOR_SPECIFIC</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -182,7 +188,7 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.dictionary.Dictionary,int)">VendorSpecificAttribute</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#VendorSpecificAttribute-org.tinyradius.dictionary.Dictionary-int-">VendorSpecificAttribute</a></span>&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
                        int&nbsp;vendorId)</code></th>
 <td class="colLast">
 <div class="block">Constructs a new Vendor-Specific attribute to be sent.</div>
@@ -208,7 +214,7 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addSubAttribute(java.lang.String,java.lang.String)">addSubAttribute</a></span>&#8203;(java.lang.String&nbsp;name,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#addSubAttribute-java.lang.String-java.lang.String-">addSubAttribute</a></span>&#8203;(java.lang.String&nbsp;name,
                java.lang.String&nbsp;value)</code></th>
 <td class="colLast">
 <div class="block">Adds a sub-attribute with the specified name to this attribute.</div>
@@ -216,75 +222,75 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addSubAttribute(org.tinyradius.attribute.RadiusAttribute)">addSubAttribute</a></span>&#8203;(<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;attribute)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#addSubAttribute-org.tinyradius.attribute.RadiusAttribute-">addSubAttribute</a></span>&#8203;(<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;attribute)</code></th>
 <td class="colLast">
 <div class="block">Adds a sub-attribute to this attribute.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSubAttribute(int)">getSubAttribute</a></span>&#8203;(int&nbsp;type)</code></th>
+<td class="colFirst"><code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#getSubAttribute-int-">getSubAttribute</a></span>&#8203;(int&nbsp;type)</code></th>
 <td class="colLast">
 <div class="block">Returns a sub-attribute of the given type which may only occur once in
  this attribute.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSubAttribute(java.lang.String)">getSubAttribute</a></span>&#8203;(java.lang.String&nbsp;type)</code></th>
+<td class="colFirst"><code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#getSubAttribute-java.lang.String-">getSubAttribute</a></span>&#8203;(java.lang.String&nbsp;type)</code></th>
 <td class="colLast">
 <div class="block">Returns a single sub-attribute of the given type name.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>java.util.List&lt;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSubAttributes()">getSubAttributes</a></span>()</code></th>
+<td class="colFirst"><code>java.util.List&lt;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#getSubAttributes--">getSubAttributes</a></span>&#8203;()</code></th>
 <td class="colLast">
 <div class="block">Returns the list of sub-attributes.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>java.util.List&lt;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSubAttributes(int)">getSubAttributes</a></span>&#8203;(int&nbsp;attributeType)</code></th>
+<td class="colFirst"><code>java.util.List&lt;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#getSubAttributes-int-">getSubAttributes</a></span>&#8203;(int&nbsp;attributeType)</code></th>
 <td class="colLast">
 <div class="block">Returns all sub-attributes of this attribute which have the given type.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeSubAttribute(org.tinyradius.attribute.RadiusAttribute)">removeSubAttribute</a></span>&#8203;(<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;attribute)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#removeSubAttribute-org.tinyradius.attribute.RadiusAttribute-">removeSubAttribute</a></span>&#8203;(<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;attribute)</code></th>
 <td class="colLast">
 <div class="block">Removes the specified sub-attribute from this attribute.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toByteArray()">toByteArray</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#toByteArray--">toByteArray</a></span>&#8203;()</code></th>
 <td class="colLast">
 <div class="block">Renders this attribute as a byte array.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#toString--">toString</a></span>&#8203;()</code></th>
 <td class="colLast">
 <div class="block">Returns a string representation for debugging.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.org.tinyradius.attribute.RadiusAttribute">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;org.tinyradius.attribute.<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></h3>
-<code><a href="RadiusAttribute.html#equals(java.lang.Object)">equals</a>, <a href="RadiusAttribute.html#getAttributeType()">getAttributeType</a>, <a href="RadiusAttribute.html#getDictionary()">getDictionary</a>, <a href="RadiusAttribute.html#getType()">getType</a>, <a href="RadiusAttribute.html#getValue()">getValue</a>, <a href="RadiusAttribute.html#getValueString()">getValueString</a>, <a href="RadiusAttribute.html#getVendorId()">getVendorId</a>, <a href="RadiusAttribute.html#hashCode()">hashCode</a></code></li>
-</ul>
-<ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
 <code>clone, finalize, getClass, notify, notifyAll, wait, wait, wait</code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.org.tinyradius.attribute.RadiusAttribute">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></h3>
+<code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#equals-java.lang.Object-">equals</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getAttributeType--">getAttributeType</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getDictionary--">getDictionary</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getType--">getType</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getValue--">getValue</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getValueString--">getValueString</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getVendorId--">getVendorId</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#hashCode--">hashCode</a></code></li>
 </ul>
 </li>
 </ul>
@@ -325,13 +331,13 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.tinyradius.dictionary.Dictionary,int)">
+<a id="VendorSpecificAttribute-org.tinyradius.dictionary.Dictionary-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>VendorSpecificAttribute</h4>
-<pre>public&nbsp;VendorSpecificAttribute&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+<pre>public&nbsp;VendorSpecificAttribute&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
                                int&nbsp;vendorId)</pre>
 <div class="block">Constructs a new Vendor-Specific attribute to be sent.</div>
 <dl>
@@ -351,13 +357,13 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="addSubAttribute(org.tinyradius.attribute.RadiusAttribute)">
+<a id="addSubAttribute-org.tinyradius.attribute.RadiusAttribute-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addSubAttribute</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;addSubAttribute&#8203;(<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;attribute)</pre>
+<pre>public&nbsp;void&nbsp;addSubAttribute&#8203;(<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;attribute)</pre>
 <div class="block">Adds a sub-attribute to this attribute.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -365,13 +371,13 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 </dl>
 </li>
 </ul>
-<a id="addSubAttribute(java.lang.String,java.lang.String)">
+<a id="addSubAttribute-java.lang.String-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addSubAttribute</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;addSubAttribute&#8203;(java.lang.String&nbsp;name,
+<pre>public&nbsp;void&nbsp;addSubAttribute&#8203;(java.lang.String&nbsp;name,
                             java.lang.String&nbsp;value)</pre>
 <div class="block">Adds a sub-attribute with the specified name to this attribute.</div>
 <dl>
@@ -383,13 +389,13 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 </dl>
 </li>
 </ul>
-<a id="removeSubAttribute(org.tinyradius.attribute.RadiusAttribute)">
+<a id="removeSubAttribute-org.tinyradius.attribute.RadiusAttribute-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>removeSubAttribute</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;removeSubAttribute&#8203;(<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;attribute)</pre>
+<pre>public&nbsp;void&nbsp;removeSubAttribute&#8203;(<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;attribute)</pre>
 <div class="block">Removes the specified sub-attribute from this attribute.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -397,13 +403,13 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 </dl>
 </li>
 </ul>
-<a id="getSubAttributes()">
+<a id="getSubAttributes--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSubAttributes</h4>
-<pre class="methodSignature">public&nbsp;java.util.List&lt;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;getSubAttributes()</pre>
+<pre>public&nbsp;java.util.List&lt;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;getSubAttributes&#8203;()</pre>
 <div class="block">Returns the list of sub-attributes.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -411,13 +417,13 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 </dl>
 </li>
 </ul>
-<a id="getSubAttributes(int)">
+<a id="getSubAttributes-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSubAttributes</h4>
-<pre class="methodSignature">public&nbsp;java.util.List&lt;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;getSubAttributes&#8203;(int&nbsp;attributeType)</pre>
+<pre>public&nbsp;java.util.List&lt;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;getSubAttributes&#8203;(int&nbsp;attributeType)</pre>
 <div class="block">Returns all sub-attributes of this attribute which have the given type.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -427,13 +433,13 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 </dl>
 </li>
 </ul>
-<a id="getSubAttribute(int)">
+<a id="getSubAttribute-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSubAttribute</h4>
-<pre class="methodSignature">public&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;getSubAttribute&#8203;(int&nbsp;type)</pre>
+<pre>public&nbsp;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;getSubAttribute&#8203;(int&nbsp;type)</pre>
 <div class="block">Returns a sub-attribute of the given type which may only occur once in
  this attribute.</div>
 <dl>
@@ -447,13 +453,13 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 </dl>
 </li>
 </ul>
-<a id="getSubAttribute(java.lang.String)">
+<a id="getSubAttribute-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getSubAttribute</h4>
-<pre class="methodSignature">public&nbsp;<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;getSubAttribute&#8203;(java.lang.String&nbsp;type)</pre>
+<pre>public&nbsp;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&nbsp;getSubAttribute&#8203;(java.lang.String&nbsp;type)</pre>
 <div class="block">Returns a single sub-attribute of the given type name.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -465,33 +471,33 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 </dl>
 </li>
 </ul>
-<a id="toByteArray()">
+<a id="toByteArray--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>toByteArray</h4>
-<pre class="methodSignature">public&nbsp;byte[]&nbsp;toByteArray()</pre>
+<pre>public&nbsp;byte[]&nbsp;toByteArray&#8203;()</pre>
 <div class="block">Renders this attribute as a byte array.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="RadiusAttribute.html#toByteArray()">toByteArray</a></code>&nbsp;in class&nbsp;<code><a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toByteArray--">toByteArray</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>entire attribute (including headers) as byte array</dd>
 </dl>
 </li>
 </ul>
-<a id="toString()">
+<a id="toString--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
-<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;toString()</pre>
+<pre>public&nbsp;java.lang.String&nbsp;toString&#8203;()</pre>
 <div class="block">Returns a string representation for debugging.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="RadiusAttribute.html#toString()">toString</a></code>&nbsp;in class&nbsp;<code><a href="RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toString--">toString</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -515,7 +521,7 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -525,8 +531,16 @@ extends <a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/attribute/StringAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li>Next&nbsp;Class</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/attribute/VendorSpecificAttribute.html" target="_top">Frames</a></li>
+<li><a href="VendorSpecificAttribute.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--

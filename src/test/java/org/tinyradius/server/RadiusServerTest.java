@@ -3,12 +3,14 @@ package org.tinyradius.server;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ReflectiveChannelFactory;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.packet.RadiusPacket;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -34,6 +36,9 @@ class RadiusServerTest {
         final RadiusServer server = new RadiusServer(
                 eventExecutors, channelFactory, authHandler, acctHandler, new InetSocketAddress(0), new InetSocketAddress(0));
 
+        assertFalse(authHandler.isStarted);
+        assertFalse(acctHandler.isStarted);
+
         // not registered with eventLoop
         assertFalse(server.getAcctChannel().isRegistered());
         assertFalse(server.getAuthChannel().isRegistered());
@@ -48,6 +53,9 @@ class RadiusServerTest {
         assertEquals(Collections.singletonList(TAIL_CONTEXT), server.getAuthChannel().pipeline().names());
 
         server.start().syncUninterruptibly();
+
+        assertTrue(authHandler.isStarted);
+        assertTrue(acctHandler.isStarted);
 
         // registered with eventLoop
         assertTrue(server.getAcctChannel().isRegistered());
@@ -65,6 +73,9 @@ class RadiusServerTest {
         server.stop().syncUninterruptibly();
         Thread.sleep(500);
 
+        assertFalse(authHandler.isStarted);
+        assertFalse(acctHandler.isStarted);
+
         // not registered with eventLoop
         assertFalse(server.getAcctChannel().isRegistered());
         assertFalse(server.getAuthChannel().isRegistered());
@@ -74,13 +85,31 @@ class RadiusServerTest {
         assertEquals(Collections.singletonList(TAIL_CONTEXT), server.getAuthChannel().pipeline().names());
     }
 
-    private static class MockHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+    private static class MockHandler extends HandlerAdapter<RadiusPacket> {
 
         private final AtomicInteger count = new AtomicInteger();
+        private boolean isStarted = false;
+
+        MockHandler() {
+            super(null, null, null, null, null);
+        }
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
+        public void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
             count.incrementAndGet();
+        }
+
+
+        @Override
+        public Future<Void> start() {
+            isStarted = true;
+            return GlobalEventExecutor.INSTANCE.newSucceededFuture(null);
+        }
+
+        @Override
+        public Future<Void> stop() {
+            isStarted = false;
+            return GlobalEventExecutor.INSTANCE.newSucceededFuture(null);
         }
     }
 }

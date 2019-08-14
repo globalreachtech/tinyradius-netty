@@ -9,6 +9,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -127,13 +128,46 @@ class HandlerAdapterTest {
                 packetEncoder.toDatagram(responsePacket, clientAddress, serverAddress).content().array());
     }
 
+    @Test
+    void lifecycleCommands() {
+        final HashedWheelTimer timer = new HashedWheelTimer();
+        final MockRequestHandler mockProxyRequestHandler = new MockRequestHandler();
+
+        final HandlerAdapter proxyHandlerAdapter =
+                new HandlerAdapter<>(packetEncoder, mockProxyRequestHandler, timer, a -> "mysecret", RadiusPacket.class);
+
+        assertFalse(mockProxyRequestHandler.isStarted);
+
+        proxyHandlerAdapter.start().syncUninterruptibly();
+        assertTrue(mockProxyRequestHandler.isStarted);
+
+        proxyHandlerAdapter.stop().syncUninterruptibly();
+        assertFalse(mockProxyRequestHandler.isStarted);
+
+        timer.stop();
+    }
+
     private static class MockRequestHandler implements RequestHandler<RadiusPacket> {
 
         private Promise<RadiusPacket> promise;
+        private boolean isStarted = false;
 
         @Override
         public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket request, InetSocketAddress remoteAddress, String sharedSecret) {
             return promise = channel.eventLoop().newPromise();
+        }
+
+
+        @Override
+        public Future<Void> start() {
+            isStarted = true;
+            return GlobalEventExecutor.INSTANCE.newSucceededFuture(null);
+        }
+
+        @Override
+        public Future<Void> stop() {
+            isStarted = false;
+            return GlobalEventExecutor.INSTANCE.newSucceededFuture(null);
         }
     }
 }

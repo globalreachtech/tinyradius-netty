@@ -1,4 +1,4 @@
-package org.tinyradius.client;
+package org.tinyradius;
 
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -6,6 +6,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.SimpleClientHandler;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;

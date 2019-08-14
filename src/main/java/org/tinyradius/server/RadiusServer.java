@@ -1,6 +1,9 @@
 package org.tinyradius.server;
 
-import io.netty.channel.*;
+import io.netty.channel.ChannelFactory;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelPromise;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ImmediateEventExecutor;
@@ -21,15 +24,14 @@ public class RadiusServer implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusServer.class);
 
-    private final ChannelFactory<? extends DatagramChannel> factory;
     protected final EventLoopGroup eventLoopGroup;
-    private final ChannelHandler authHandler;
-    private final ChannelHandler acctHandler;
+    private final HandlerAdapter authHandler;
+    private final HandlerAdapter acctHandler;
     private final InetSocketAddress authSocket;
     private final InetSocketAddress acctSocket;
 
-    private DatagramChannel authChannel = null;
-    private DatagramChannel acctChannel = null;
+    private final DatagramChannel authChannel;
+    private final DatagramChannel acctChannel;
 
     private Future<Void> serverStatus = null;
 
@@ -43,16 +45,17 @@ public class RadiusServer implements Lifecycle {
      */
     public RadiusServer(EventLoopGroup eventLoopGroup,
                         ChannelFactory<? extends DatagramChannel> factory,
-                        ChannelHandler authHandler,
-                        ChannelHandler acctHandler,
+                        HandlerAdapter authHandler,
+                        HandlerAdapter acctHandler,
                         InetSocketAddress authSocket,
                         InetSocketAddress acctSocket) {
         this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
-        this.factory = requireNonNull(factory, "factory cannot be null");
         this.authHandler = authHandler;
         this.acctHandler = acctHandler;
         this.authSocket = authSocket;
         this.acctSocket = acctSocket;
+        this.authChannel = factory.newChannel();
+        this.acctChannel = factory.newChannel();
     }
 
     @Override
@@ -60,13 +63,12 @@ public class RadiusServer implements Lifecycle {
         if (this.serverStatus != null)
             return this.serverStatus;
 
-        final Promise<Void> status = eventLoopGroup.next().newPromise();
-
-        final PromiseCombiner promiseCombiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
+        Promise<Void> status = eventLoopGroup.next().newPromise();
 
         // todo error handling/timeout?
-        promiseCombiner.addAll(listenAuth(), listenAcct());
-        promiseCombiner.finish(status);
+        final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
+        combiner.addAll(listenAuth(), listenAcct(), authHandler.start(), acctHandler.start());
+        combiner.finish(status);
 
         this.serverStatus = status;
         return status;
@@ -77,13 +79,10 @@ public class RadiusServer implements Lifecycle {
         logger.info("stopping Radius server");
 
         final Promise<Void> promise = eventLoopGroup.next().newPromise();
+
         final PromiseCombiner promiseCombiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
-
-        if (authChannel != null)
-            promiseCombiner.add(authChannel.close());
-
-        if (acctChannel != null)
-            promiseCombiner.add(acctChannel.close());
+        promiseCombiner.addAll(
+                authChannel.close(), acctChannel.close(), authHandler.stop(), acctHandler.stop());
 
         promiseCombiner.finish(promise);
         return promise;
@@ -91,14 +90,14 @@ public class RadiusServer implements Lifecycle {
 
     private ChannelFuture listenAuth() {
         logger.info("starting RadiusAuthListener on port " + authSocket.getPort());
-        getAuthChannel().pipeline().addLast(authHandler);
-        return listen(getAuthChannel(), authSocket);
+        authChannel.pipeline().addLast(authHandler);
+        return listen(authChannel, authSocket);
     }
 
     private ChannelFuture listenAcct() {
         logger.info("starting RadiusAcctListener on port " + acctSocket.getPort());
-        getAcctChannel().pipeline().addLast(acctHandler);
-        return listen(getAcctChannel(), acctSocket);
+        acctChannel.pipeline().addLast(acctHandler);
+        return listen(acctChannel, acctSocket);
     }
 
     /**
@@ -120,15 +119,10 @@ public class RadiusServer implements Lifecycle {
     }
 
     public DatagramChannel getAuthChannel() {
-        if (authChannel == null)
-            authChannel = factory.newChannel();
         return authChannel;
     }
 
     public DatagramChannel getAcctChannel() {
-        if (acctChannel == null)
-            acctChannel = factory.newChannel();
         return acctChannel;
     }
-
 }

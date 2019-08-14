@@ -1,4 +1,4 @@
-package org.tinyradius.server;
+package org.tinyradius;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ReflectiveChannelFactory;
@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.*;
+import org.tinyradius.server.HandlerAdapter;
+import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.handler.AcctHandler;
 import org.tinyradius.server.handler.AuthHandler;
 import org.tinyradius.server.handler.DeduplicatorHandler;
