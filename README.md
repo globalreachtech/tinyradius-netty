@@ -8,7 +8,7 @@
 
 tinyradius-netty is a fork of the TinyRadius Radius library, with some significant changes:
 - Use netty for asynchronous IO, timeouts, thread management
-- Most methods return (netty) Promises
+- Most methods return Promises
 - Use slf4j instead of commons-logging
 - Use Generics and Java 8 language features
 - Proxy uses Client to handle requests upstream, retries, and connection management
@@ -61,16 +61,10 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
   - `HandlerAdapter` is a wrapper around Netty SimpleChannelInboundHandler that converts Datagram to RadiusPacket and performs low level validation.
     - It calls a RequestHandler for business logic processing, and if the handler returns a packet, the Adapter replies with that as a response.
     - A `Class<T extends RadiusPacket>` parameter can be used to limit what subclasses of RadiusPacket this can handle, otherwise ignore the packet.
-  - `RequestHandler` handles RadiusPackets. It's a generic interface, so can be used to handle only particular subtypes of RadiusPackets together with the HandlerAdapter parameter.
+  - `RequestHandler` handles RadiusPackets. It's a generic interface, so can be used to handle only particular subtypes of RadiusPackets together with the HandlerAdapter parameter. Also extends `Lifecycle`, so implementations can have start/stop methods.
     - `AcctHandler` and `AuthHandler` are example implementations for handling Accounting-Request and Access-Requests respectively - they can be extended with more business logic.
     - `DeduplicatorHandler` also uses RequestHandler interface, but wraps around another Handler and doesn't return anything if a duplicate request is received within specified time period.
-
-### Proxy
- - `LifecycleRequestHandler` extends RequestHandler, but adds start/stop methods.
-   - `ProxyDeduplicatorHandler` is similar to DeduplicatorHandler but provides start/stop to the underlying handler.
-   - `ProxyRequestHandler` handles incoming requests, but instead of processing directly or delegating, proxies the request using an instance of RadiusClient. This is where the main proxying processing is done. 
- - `ProxyHandlerAdapter` is similar to HandlerAdapter, but delegates start/stop methods to underlying LifecycleRequestHandler.
- - `RadiusProxy` is similar to RadiusServer, but delegates start/stop methods to underlying ProxyHandlerAdapter.
+    - `ProxyRequestHandler` handles incoming requests, but instead of processing directly or delegating, proxies the request using an instance of RadiusClient. This is where the main proxying processing is done. 
 
 ## License
 Copyright Matthias Wuttke (mw@teuto.net) and contributors.
