@@ -26,7 +26,7 @@ import java.net.InetSocketAddress;
  * This implementation expects {@link #getProxyServer(RadiusPacket, RadiusEndpoint)} to lookup
  * endpoint to forward requests to.
  */
-public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket>, org.tinyradius.util.Lifecycle {
+public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket> {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyRequestHandler.class);
 
