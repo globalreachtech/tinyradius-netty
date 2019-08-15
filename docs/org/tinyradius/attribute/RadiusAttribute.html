@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -171,46 +171,58 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getAttributeKey--">getAttributeKey</a></span>&#8203;()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../org/tinyradius/attribute/AttributeType.html" title="class in org.tinyradius.attribute">AttributeType</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getAttributeType--">getAttributeType</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getDictionary--">getDictionary</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getType--">getType</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getValue--">getValue</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getValueString--">getValueString</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getVendorId--">getVendorId</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#hashCode--">hashCode</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toByteArray--">toByteArray</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>java.util.Set&lt;java.util.Map.Entry&lt;java.lang.String,java.lang.String&gt;&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toEntrySet--">toEntrySet</a></span>&#8203;()</code></th>
+<td class="colLast">
+<div class="block">Returns set of entry of Attribute name and Value as string.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toString--">toString</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
@@ -327,6 +339,31 @@ extends java.lang.Object</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
+</dl>
+</li>
+</ul>
+<a id="getAttributeKey--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAttributeKey</h4>
+<pre>public&nbsp;java.lang.String&nbsp;getAttributeKey&#8203;()</pre>
+</li>
+</ul>
+<a id="toEntrySet--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toEntrySet</h4>
+<pre>public&nbsp;java.util.Set&lt;java.util.Map.Entry&lt;java.lang.String,java.lang.String&gt;&gt;&nbsp;toEntrySet&#8203;()</pre>
+<div class="block">Returns set of entry of Attribute name and Value as string.
+ Size is generally 1, except in case of VendorSpecificAttribute
+ where it is aggregate of sub-attributes.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Set of String/String Entry</dd>
 </dl>
 </li>
 </ul>

@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -271,6 +271,13 @@ extends <a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="
 </td>
 </tr>
 <tr id="i8" class="altColor">
+<td class="colFirst"><code>java.util.Set&lt;java.util.Map.Entry&lt;java.lang.String,java.lang.String&gt;&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#toEntrySet--">toEntrySet</a></span>&#8203;()</code></th>
+<td class="colLast">
+<div class="block">Returns set of entry of Attribute name and Value as string.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html#toString--">toString</a></span>&#8203;()</code></th>
 <td class="colLast">
@@ -290,7 +297,7 @@ extends <a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></h3>
-<code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#equals-java.lang.Object-">equals</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getAttributeType--">getAttributeType</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getDictionary--">getDictionary</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getType--">getType</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getValue--">getValue</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getValueString--">getValueString</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getVendorId--">getVendorId</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#hashCode--">hashCode</a></code></li>
+<code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#equals-java.lang.Object-">equals</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getAttributeKey--">getAttributeKey</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getAttributeType--">getAttributeType</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getDictionary--">getDictionary</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getType--">getType</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getValue--">getValue</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getValueString--">getValueString</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getVendorId--">getVendorId</a>, <a href="../../../org/tinyradius/attribute/RadiusAttribute.html#hashCode--">hashCode</a></code></li>
 </ul>
 </li>
 </ul>
@@ -490,7 +497,7 @@ extends <a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="
 <a id="toString--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>toString</h4>
 <pre>public&nbsp;java.lang.String&nbsp;toString&#8203;()</pre>
@@ -498,6 +505,25 @@ extends <a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toString--">toString</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="toEntrySet--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toEntrySet</h4>
+<pre>public&nbsp;java.util.Set&lt;java.util.Map.Entry&lt;java.lang.String,java.lang.String&gt;&gt;&nbsp;toEntrySet&#8203;()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toEntrySet--">RadiusAttribute</a></code></span></div>
+<div class="block">Returns set of entry of Attribute name and Value as string.
+ Size is generally 1, except in case of VendorSpecificAttribute
+ where it is aggregate of sub-attributes.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toEntrySet--">toEntrySet</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Set of String/String Entry</dd>
 </dl>
 </li>
 </ul>

@@ -2,8 +2,7 @@ package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.Dictionary;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
@@ -95,17 +94,32 @@ public class RadiusAttribute {
         if (getVendorId() != -1)
             name.append("  ");
 
-        // determine attribute name
-        AttributeType at = getAttributeType();
-        if (at != null)
-            name.append(at.getName());
-        else if (getVendorId() != -1)
-            name.append("Unknown-Sub-Attribute-").append(getType());
-        else
-            name.append("Unknown-Attribute-").append(getType());
-
+        name.append(getAttributeKey());
 
         return name.append(": ").append(getValueString()).toString();
+    }
+
+    public String getAttributeKey() {
+        AttributeType at = getAttributeType();
+        if (at != null)
+            return at.getName();
+        else if (getVendorId() != -1)
+            return "Unknown-Sub-Attribute-" + getType();
+        else
+            return "Unknown-Attribute-" + getType();
+    }
+
+    /**
+     * Returns set of entry of Attribute name and Value as string.
+     * Size is generally 1, except in case of VendorSpecificAttribute
+     * where it is aggregate of sub-attributes.
+     *
+     * @return Set of String/String Entry
+     */
+    public Set<Map.Entry<String, String>> toEntrySet() {
+        final Set<Map.Entry<String, String>> set = new HashSet<>();
+        set.add(new AbstractMap.SimpleEntry<>(getAttributeKey(), getValueString()));
+        return set;
     }
 
     /**

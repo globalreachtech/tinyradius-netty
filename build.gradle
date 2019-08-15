@@ -60,8 +60,8 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
+    user = 'horaceli'
+    key = '87a60118bd15090713bad20c6f47bcd2f99d3c34'
     publications = ['mavenJava']
     pkg {
         repo = 'grt-maven'

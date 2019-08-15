@@ -5,8 +5,7 @@ import io.netty.buffer.Unpooled;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.tinyradius.attribute.Attributes.createAttribute;
@@ -22,10 +21,10 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     private final List<RadiusAttribute> subAttributes;
 
     /**
-     * @param dictionary
+     * @param dictionary           dictionary to use for (sub)attributes
      * @param ignoredVendorId      vendorId ignored, parsed from data directly
      * @param ignoredAttributeType attributeType ignored, should always be Vendor-Specific (26)
-     * @param data
+     * @param data                 data to parse for vendorId and sub-attributes
      */
     VendorSpecificAttribute(Dictionary dictionary, int ignoredVendorId, int ignoredAttributeType, byte[] data) {
         this(dictionary, extractVendorId(data), extractAttributes(dictionary, extractVendorId(data), data, 4));
@@ -52,7 +51,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
      * Constructs a new Vendor-Specific attribute to be sent.
      *
      * @param dictionary dictionary to use for (sub)attributes
-     * @param vendorId vendor ID of the sub-attributes
+     * @param vendorId   vendor ID of the sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId) {
         this(dictionary, vendorId, new ArrayList<>());
@@ -211,5 +210,12 @@ public class VendorSpecificAttribute extends RadiusAttribute {
             sb.append(sa.toString());
         }
         return sb.toString();
+    }
+
+    @Override
+    public Set<Map.Entry<String, String>> toEntrySet() {
+        final Set<Map.Entry<String, String>> set = new HashSet<>();
+        subAttributes.forEach(a -> set.addAll(a.toEntrySet()));
+        return set;
     }
 }
