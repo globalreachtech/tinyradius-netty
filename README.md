@@ -24,7 +24,7 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
  - `DefaultDictionary` uses a very limited subset that's included in the classpath.
    - Singleton is available at `DefaultDictionary.INSTANCE`
  - `DictionaryParser` parses custom resources and takes a `ResourceResolver` parameter.
-   - `FileResourceResolver` and `ClasspathResourceResolver` resolves resources on file system and classpath respectively. Dictionaries can include other files to parse, and paths are resolved differently in each case.
+   - Factory methods `newFileParser()` and `newClasspathParser()` resolves resources on file system and classpath respectively. Dictionaries can include other files to parse, and paths are resolved differently in each case.
  - Results of dictionary parses are stored as `AttributeType`.
 
 ### Attribute
