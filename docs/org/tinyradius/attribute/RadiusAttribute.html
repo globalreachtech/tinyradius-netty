@@ -211,16 +211,16 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code>byte[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toByteArray--">toByteArray</a></span>&#8203;()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code>java.util.Set&lt;java.util.Map.Entry&lt;java.lang.String,java.lang.String&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toEntrySet--">toEntrySet</a></span>&#8203;()</code></th>
+<td class="colFirst"><code>java.util.Map&lt;java.lang.String,java.lang.String&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toAttributeMap--">toAttributeMap</a></span>&#8203;()</code></th>
 <td class="colLast">
 <div class="block">Returns set of entry of Attribute name and Value as string.</div>
 </td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toByteArray--">toByteArray</a></span>&#8203;()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
@@ -351,13 +351,13 @@ extends java.lang.Object</pre>
 <pre>public&nbsp;java.lang.String&nbsp;getAttributeKey&#8203;()</pre>
 </li>
 </ul>
-<a id="toEntrySet--">
+<a id="toAttributeMap--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>toEntrySet</h4>
-<pre>public&nbsp;java.util.Set&lt;java.util.Map.Entry&lt;java.lang.String,java.lang.String&gt;&gt;&nbsp;toEntrySet&#8203;()</pre>
+<h4>toAttributeMap</h4>
+<pre>public&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;toAttributeMap&#8203;()</pre>
 <div class="block">Returns set of entry of Attribute name and Value as string.
  Size is generally 1, except in case of VendorSpecificAttribute
  where it is aggregate of sub-attributes.</div>

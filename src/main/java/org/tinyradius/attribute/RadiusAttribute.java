@@ -115,10 +115,10 @@ public class RadiusAttribute {
      *
      * @return Set of String/String Entry
      */
-    public Set<Map.Entry<String, String>> toEntrySet() {
-        final Set<Map.Entry<String, String>> set = new HashSet<>();
-        set.add(new AbstractMap.SimpleEntry<>(getAttributeKey(), getValueString()));
-        return set;
+    public Map<String, String> toAttributeMap() {
+        final HashMap<String, String> map = new HashMap<>();
+        map.put(getAttributeKey(), getValueString());
+        return map;
     }
 
     /**

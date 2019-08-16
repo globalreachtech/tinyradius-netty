@@ -208,9 +208,9 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     }
 
     @Override
-    public Set<Map.Entry<String, String>> toEntrySet() {
-        final Set<Map.Entry<String, String>> set = new HashSet<>();
-        subAttributes.forEach(a -> set.addAll(a.toEntrySet()));
-        return set;
+    public Map<String, String> toAttributeMap() {
+        final HashMap<String, String> map = new HashMap<>();
+        subAttributes.forEach(a -> map.putAll(a.toAttributeMap()));
+        return map;
     }
 }

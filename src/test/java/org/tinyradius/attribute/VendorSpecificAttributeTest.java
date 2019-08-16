@@ -110,12 +110,12 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void testToEntrySet() {
+    void testToMap() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
         vendorSpecificAttribute.addSubAttribute("WISPr-Location-Name", "myLocationName");
 
-        assertEquals("[WISPr-Location-ID=myLocationId, WISPr-Location-Name=myLocationName]", vendorSpecificAttribute.toEntrySet().toString());
+        assertEquals("{WISPr-Location-Name=myLocationName, WISPr-Location-ID=myLocationId}", vendorSpecificAttribute.toAttributeMap().toString());
     }
 
     @Test
