@@ -22,6 +22,7 @@ public class RadiusAttribute {
     /**
      * @param dictionary Dictionary to use
      * @param vendorId   vendor ID or -1
+     * @param type       attribute type code
      * @param value      value of attribute as byte array
      */
     RadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] value) {
@@ -36,6 +37,12 @@ public class RadiusAttribute {
         this.value = value;
     }
 
+    /**
+     * @param dictionary Dictionary to use
+     * @param vendorId   vendor ID or -1
+     * @param type       attribute type code
+     * @param value      value of attribute as hex string
+     */
     RadiusAttribute(Dictionary dictionary, int vendorId, int type, String value) {
         this(dictionary, vendorId, type, DatatypeConverter.parseHexBinary(value));
     }
@@ -55,7 +62,7 @@ public class RadiusAttribute {
     }
 
     /**
-     * @return value of this attribute as a string.
+     * @return value of this attribute as a hex string.
      */
     public String getValueString() {
         return DatatypeConverter.printHexBinary(value);

@@ -91,7 +91,7 @@ class ProxyStateClientHandlerTest {
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket invalidProxyStateResponse = new RadiusPacket(dictionary, 2, 1,
-                Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, "unknownProxyState")));
+                Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, "123abc")));
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handler.handleResponse(packetEncoder.toDatagram(
                         invalidProxyStateResponse.encodeResponse(secret, requestAuth), endpoint.getAddress())));
