@@ -176,7 +176,6 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         }
 
         byte[] array = buffer.copy().array();
-
         int len = array.length;
 
         if (len < 7)
@@ -197,17 +196,13 @@ public class VendorSpecificAttribute extends RadiusAttribute {
         sb.append("Vendor-Specific: ");
         String vendorName = getDictionary().getVendorName(getVendorId());
         if (vendorName != null) {
-            sb.append(vendorName);
-            sb.append(" (");
-            sb.append(getVendorId());
-            sb.append(")");
+            sb.append(vendorName)
+                    .append(" (").append(getVendorId()).append(")");
         } else {
-            sb.append("vendor ID ");
-            sb.append(getVendorId());
+            sb.append("vendor ID ").append(getVendorId());
         }
         for (RadiusAttribute sa : getSubAttributes()) {
-            sb.append("\n");
-            sb.append(sa.toString());
+            sb.append("\n  ").append(sa.toString());
         }
         return sb.toString();
     }

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.tinyradius.client.handler.ClientHandler;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
@@ -33,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RadiusClientTest {
 
     private final SecureRandom random = new SecureRandom();
-    private final static DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
+    private final static Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final static PacketEncoder packetEncoder = new PacketEncoder(dictionary);
 
     private final ChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);

@@ -24,6 +24,14 @@ public class DictionaryParser {
         this.resourceResolver = resourceResolver;
     }
 
+    public static DictionaryParser newClasspathParser() {
+        return new DictionaryParser(new ClasspathResourceResolver());
+    }
+
+    public static DictionaryParser newFileParser() {
+        return new DictionaryParser(new FileResourceResolver());
+    }
+
     /**
      * Returns a new dictionary filled with the contents
      * from the given input stream.
@@ -32,7 +40,7 @@ public class DictionaryParser {
      * @return dictionary object
      * @throws IOException parse error reading from input
      */
-    public Dictionary parseDictionary(String resource) throws IOException {
+    public WritableDictionary parseDictionary(String resource) throws IOException {
         WritableDictionary d = new MemoryDictionary();
         parseDictionary(d, resource);
         return d;
@@ -45,7 +53,7 @@ public class DictionaryParser {
      * @param resource   location of resource, resolved depending on {@link ResourceResolver}
      * @throws IOException parse error reading from input
      */
-    void parseDictionary(WritableDictionary dictionary, String resource) throws IOException {
+    public void parseDictionary(WritableDictionary dictionary, String resource) throws IOException {
         try (InputStream inputStream = resourceResolver.openStream(resource);
              BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
 
@@ -166,14 +174,13 @@ public class DictionaryParser {
             logger.warn("included file '{}' not found, line {}, {}", includeFile, lineNum, currentResource);
     }
 
-
     public interface ResourceResolver {
         String resolve(String currentResource, String nextResource);
 
         InputStream openStream(String resource);
     }
 
-    public static class FileResourceResolver implements ResourceResolver {
+    private static class FileResourceResolver implements ResourceResolver {
 
         @Override
         public String resolve(String currentResource, String nextResource) {
@@ -197,7 +204,7 @@ public class DictionaryParser {
         }
     }
 
-    public static class ClasspathResourceResolver implements ResourceResolver {
+    private static class ClasspathResourceResolver implements ResourceResolver {
         @Override
         public String resolve(String currentResource, String nextResource) {
             final String path = Paths.get(currentResource).getParent().resolve(nextResource).toString();

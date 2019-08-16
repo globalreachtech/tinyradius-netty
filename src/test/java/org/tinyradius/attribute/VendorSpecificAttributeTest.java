@@ -2,6 +2,7 @@ package org.tinyradius.attribute;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
 
 class VendorSpecificAttributeTest {
 
-    private static DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
+    private static Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
     void addSubAttributeOk() {
@@ -106,5 +107,25 @@ class VendorSpecificAttributeTest {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         Exception exception = assertThrows(RuntimeException.class, vendorSpecificAttribute::toByteArray);
         assertTrue(exception.getMessage().toLowerCase().contains("should be greater than 6 octets"));
+    }
+
+    @Test
+    void testToEntrySet() {
+        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
+        vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
+        vendorSpecificAttribute.addSubAttribute("WISPr-Location-Name", "myLocationName");
+
+        assertEquals("[WISPr-Location-ID=myLocationId, WISPr-Location-Name=myLocationName]", vendorSpecificAttribute.toEntrySet().toString());
+    }
+
+    @Test
+    void testToString() {
+        VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
+        vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
+        vendorSpecificAttribute.addSubAttribute("WISPr-Location-Name", "myLocationName");
+
+        assertEquals("Vendor-Specific: WISPr (14122)\n" +
+                "  WISPr-Location-ID: myLocationId\n" +
+                "  WISPr-Location-Name: myLocationName", vendorSpecificAttribute.toString());
     }
 }

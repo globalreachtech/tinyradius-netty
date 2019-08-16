@@ -30,4 +30,16 @@ class RadiusAttributeTest {
 
         assertTrue(exception.getMessage().contains("too long"));
     }
+
+    @Test
+    void testToEntrySet() {
+        final RadiusAttribute attribute = new RadiusAttribute(dictionary, -1, 2, "123456");
+        assertEquals("[User-Password=123456]", attribute.toEntrySet().toString());
+    }
+
+    @Test
+    void testToString() {
+        final RadiusAttribute attribute = new RadiusAttribute(dictionary, -1, 2, "123456");
+        assertEquals("User-Password: 123456", attribute.toString());
+    }
 }

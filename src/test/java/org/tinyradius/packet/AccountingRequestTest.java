@@ -3,6 +3,7 @@ package org.tinyradius.packet;
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -14,7 +15,7 @@ import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
 
 class AccountingRequestTest {
 
-    private static DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
+    private static Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
     void encodeAccountingRequest() {

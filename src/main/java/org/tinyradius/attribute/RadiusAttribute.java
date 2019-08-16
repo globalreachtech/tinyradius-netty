@@ -2,9 +2,9 @@ package org.tinyradius.attribute;
 
 import org.tinyradius.dictionary.Dictionary;
 
+import javax.xml.bind.DatatypeConverter;
 import java.util.*;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -37,7 +37,7 @@ public class RadiusAttribute {
     }
 
     RadiusAttribute(Dictionary dictionary, int vendorId, int type, String value) {
-        this(dictionary, vendorId, type, value.getBytes(UTF_8));
+        this(dictionary, vendorId, type, DatatypeConverter.parseHexBinary(value));
     }
 
     /**
@@ -58,7 +58,7 @@ public class RadiusAttribute {
      * @return value of this attribute as a string.
      */
     public String getValueString() {
-        return getHexString(value); // todo getValueString should be inverse of string constructor
+        return DatatypeConverter.printHexBinary(value);
     }
 
     /**
@@ -88,15 +88,7 @@ public class RadiusAttribute {
     }
 
     public String toString() {
-        StringBuilder name = new StringBuilder();
-
-        // indent sub attributes
-        if (getVendorId() != -1)
-            name.append("  ");
-
-        name.append(getAttributeKey());
-
-        return name.append(": ").append(getValueString()).toString();
+        return getAttributeKey() + ": " + getValueString();
     }
 
     public String getAttributeKey() {
@@ -127,24 +119,6 @@ public class RadiusAttribute {
      */
     public AttributeType getAttributeType() {
         return dictionary.getAttributeTypeByCode(getVendorId(), getType());
-    }
-
-    /**
-     * Returns the byte array as a hex string in the format "0x1234".
-     *
-     * @param data byte array
-     * @return hex string
-     */
-    private static String getHexString(byte[] data) {
-        StringBuilder hex = new StringBuilder("0x");
-        if (data != null)
-            for (byte datum : data) {
-                String digit = Integer.toString(datum & 0x0ff, 16);
-                if (digit.length() < 2)
-                    hex.append('0');
-                hex.append(digit);
-            }
-        return hex.toString();
     }
 
     // do not remove - for removing from list of attributes

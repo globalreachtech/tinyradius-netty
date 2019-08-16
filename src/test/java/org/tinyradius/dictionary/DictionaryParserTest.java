@@ -41,7 +41,7 @@ class DictionaryParserTest {
 
     @Test
     void classpathIncludeDictionary() throws IOException {
-        final DictionaryParser parser = new DictionaryParser(new DictionaryParser.ClasspathResourceResolver());
+        final DictionaryParser parser = DictionaryParser.newClasspathParser();
 
         final Dictionary dictionary = parser.parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
 
@@ -53,7 +53,7 @@ class DictionaryParserTest {
 
     @Test
     void fileSystemIncludeDictionary() throws IOException {
-        final DictionaryParser parser = new DictionaryParser(new DictionaryParser.FileResourceResolver());
+        final DictionaryParser parser = DictionaryParser.newFileParser();
 
         final Dictionary dictionary = parser.parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
 

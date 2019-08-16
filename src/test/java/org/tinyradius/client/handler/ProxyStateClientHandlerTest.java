@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
@@ -25,7 +26,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
 
 class ProxyStateClientHandlerTest {
 
-    private final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
+    private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
     private final SecureRandom random = new SecureRandom();
     private static final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);

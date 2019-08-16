@@ -10,6 +10,7 @@ import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.SimpleClientHandler;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.PacketEncoder;
@@ -45,7 +46,7 @@ public class TestClient {
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
-        final DefaultDictionary dictionary = DefaultDictionary.INSTANCE;
+        final Dictionary dictionary = DefaultDictionary.INSTANCE;
         final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
         final HashedWheelTimer timer = new HashedWheelTimer();
         RadiusClient rc = new RadiusClient(
