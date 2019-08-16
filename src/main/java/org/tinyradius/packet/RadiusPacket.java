@@ -10,10 +10,7 @@ import org.tinyradius.util.RadiusException;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -463,6 +460,15 @@ public class RadiusPacket {
         }
 
         return buffer.copy().array();
+    }
+
+    /**
+     * @return Map of attribute key-value
+     */
+    public Map<String, String> getAttributeMap() {
+        final HashMap<String, String> map = new HashMap<>();
+        attributes.forEach(a -> map.putAll(a.toAttributeMap()));
+        return map;
     }
 
     public String toString() {
