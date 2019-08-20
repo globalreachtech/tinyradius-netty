@@ -71,6 +71,7 @@ public class ProxyStateClientHandler extends ClientHandler {
         return packetEncoder.toDatagram(encodedRequest, endpoint.getAddress(), sender);
     }
 
+    @Override
     protected void handleResponse(DatagramPacket datagramPacket) throws RadiusException {
         String secret = secretProvider.getSharedSecret(datagramPacket.sender());
         if (secret == null)
