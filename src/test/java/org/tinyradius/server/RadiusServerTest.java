@@ -34,7 +34,7 @@ class RadiusServerTest {
         final MockHandler authHandler = new MockHandler();
         final MockHandler acctHandler = new MockHandler();
         final RadiusServer server = new RadiusServer(
-                eventExecutors, channelFactory, authHandler, acctHandler, new InetSocketAddress(0), new InetSocketAddress(0));
+                eventExecutors, channelFactory, authHandler, acctHandler, new InetSocketAddress(1024), new InetSocketAddress(1025));
 
         assertFalse(authHandler.isStarted);
         assertFalse(acctHandler.isStarted);
