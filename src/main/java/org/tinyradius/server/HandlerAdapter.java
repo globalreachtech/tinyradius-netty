@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.handler.RequestHandler;
-import org.tinyradius.util.Lifecycle;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.util.SecretProvider;
 
@@ -29,7 +28,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  *
  * @param <T> RadiusPacket types that this Channel can accept
  */
-public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInboundHandler<DatagramPacket> implements Lifecycle {
+public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private static final Logger logger = LoggerFactory.getLogger(HandlerAdapter.class);
 
@@ -117,15 +116,5 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
         });
 
         return datagramResult;
-    }
-
-    @Override
-    public Future<Void> start() {
-        return requestHandler.start();
-    }
-
-    @Override
-    public Future<Void> stop() {
-        return requestHandler.stop();
     }
 }

@@ -67,7 +67,7 @@ public class RadiusServer implements Lifecycle {
 
         // todo error handling/timeout?
         final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
-        combiner.addAll(listenAuth(), listenAcct(), authHandler.start(), acctHandler.start());
+        combiner.addAll(listenAuth(), listenAcct());
         combiner.finish(status);
 
         this.serverStatus = status;
@@ -81,8 +81,7 @@ public class RadiusServer implements Lifecycle {
         final Promise<Void> promise = eventLoopGroup.next().newPromise();
 
         final PromiseCombiner promiseCombiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
-        promiseCombiner.addAll(
-                authChannel.close(), acctChannel.close(), authHandler.stop(), acctHandler.stop());
+        promiseCombiner.addAll(authChannel.close(), acctChannel.close());
 
         promiseCombiner.finish(promise);
         return promise;

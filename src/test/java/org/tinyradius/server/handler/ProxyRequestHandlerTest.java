@@ -62,6 +62,7 @@ class ProxyRequestHandlerTest {
     @AfterAll
     static void afterAll() {
         timer.stop();
+        client.stop();
         eventExecutors.shutdownGracefully().syncUninterruptibly();
     }
 

@@ -2,7 +2,6 @@ package org.tinyradius.server.handler;
 
 import io.netty.channel.Channel;
 import io.netty.util.Timer;
-import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,16 +110,5 @@ public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandl
             result = 31 * result + Arrays.hashCode(authenticator);
             return result;
         }
-    }
-
-
-    @Override
-    public Future<Void> start() {
-        return requestHandler.start();
-    }
-
-    @Override
-    public Future<Void> stop() {
-        return requestHandler.stop();
     }
 }

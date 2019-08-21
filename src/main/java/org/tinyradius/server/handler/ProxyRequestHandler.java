@@ -36,17 +36,6 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
         this.radiusClient = radiusClient;
     }
 
-    @Override
-    public Future<Void> start() {
-        return radiusClient.start();
-    }
-
-    @Override
-    public Future<Void> stop() {
-        logger.info("stopping Radius proxy listener");
-        return radiusClient.stop();
-    }
-
     /**
      * This method must be implemented to return a RadiusEndpoint
      * if the given packet is to be proxied. The endpoint represents the
