@@ -17,7 +17,7 @@ import java.net.InetSocketAddress;
 /**
  * RadiusServer handler that proxies packets to destination.
  * <p>
- * Depends on RadiusClient to proxy packets. {@link #start()} is used to initialize the client.
+ * Depends on RadiusClient to proxy packets.
  * <p>
  * RadiusClient port should be set to proxy port, which will be used to communicate
  * with upstream servers. RadiusClient should also use a variant of {@link ProxyStateClientHandler}
