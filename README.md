@@ -61,7 +61,7 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
   - `HandlerAdapter` is a wrapper around Netty SimpleChannelInboundHandler that converts Datagram to RadiusPacket and performs low level validation.
     - It calls a RequestHandler for business logic processing, and if the handler returns a packet, the Adapter replies with that as a response.
     - A `Class<T extends RadiusPacket>` parameter can be used to limit what subclasses of RadiusPacket this can handle, otherwise ignore the packet.
-  - `RequestHandler` handles RadiusPackets. It's a generic interface, so can be used to handle only particular subtypes of RadiusPackets together with the HandlerAdapter parameter. Also extends `Lifecycle`, so implementations can have start/stop methods.
+  - `RequestHandler` handles RadiusPackets. It's a generic interface, so can be used to handle only particular subtypes of RadiusPackets together with the HandlerAdapter parameter.
     - `AcctHandler` and `AuthHandler` are example implementations for handling Accounting-Request and Access-Requests respectively - they can be extended with more business logic.
     - `DeduplicatorHandler` also uses RequestHandler interface, but wraps around another Handler and doesn't return anything if a duplicate request is received within specified time period.
     - `ProxyRequestHandler` handles incoming requests, but instead of processing directly or delegating, proxies the request using an instance of RadiusClient. This is where the main proxying processing is done. 

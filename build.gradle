@@ -71,7 +71,7 @@ bintray {
         licenses = ['LGPL-2.1']
         vcsUrl = 'https://github.com/globalreachtech/tinyradius-netty.git'
         version {
-            name = '1.0.7'
+            name = '1.0.8'
             released = new Date()
 //            mavenCentralSync {
 //                user = 'userToken' //OSS user token
@@ -124,7 +124,7 @@ publishing {
             }
             groupId 'com.globalreachtech'
             artifactId 'tinyradius-netty'
-            version '1.0.7'
+            version '1.0.8'
             pom.withXml {
                 asNode().children().last() + pomConfig
             }
