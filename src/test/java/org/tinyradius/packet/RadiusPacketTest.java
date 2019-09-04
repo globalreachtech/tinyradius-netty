@@ -8,6 +8,7 @@ import org.tinyradius.dictionary.DefaultDictionary;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
@@ -121,4 +122,28 @@ class RadiusPacketTest {
         assertEquals("Login-User", attribute.getValueString());
     }
 
+    @Test
+    void testGetAttributeMap() {
+
+        RadiusPacket radiusPacket = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
+
+        radiusPacket.addAttribute("Service-Type", "999");
+        radiusPacket.addAttribute("Filter-Id", "abc");
+        radiusPacket.addAttribute("Reply-Message", "foobar");
+
+        VendorSpecificAttribute vsa = new VendorSpecificAttribute(DefaultDictionary.INSTANCE, 14122);
+        vsa.addSubAttribute("WISPr-Logoff-URL", "111");
+        vsa.addSubAttribute("WISPr-Logoff-URL", "222");
+        radiusPacket.addAttribute(vsa);
+
+        Map<String, String> attributeMap = radiusPacket.getAttributeMap();
+
+        assertEquals("999", attributeMap.get("Service-Type"));
+        assertEquals("abc", attributeMap.get("Filter-Id"));
+        assertEquals("foobar", attributeMap.get("Reply-Message"));
+        assertEquals("222", attributeMap.get("WISPr-Logoff-URL"));
+        // getAttributes only gets the last subAttribute of VendorSpecificAttribute
+
+        assertEquals(4, attributeMap.size());
+    }
 }

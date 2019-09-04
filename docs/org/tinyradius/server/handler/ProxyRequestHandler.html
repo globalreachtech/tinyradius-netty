@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0": 6, "i1": 10, "i2": 10};
+var methods = {"i0":6,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -137,10 +137,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-    <dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html"
-                 title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a
-            href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code>
-    </dd>
+<dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></dd>
 </dl>
 <hr>
 <br>
@@ -149,7 +146,7 @@ extends java.lang.Object
 implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</pre>
 <div class="block">RadiusServer handler that proxies packets to destination.
  <p>
-     Depends on RadiusClient to proxy packets.
+ Depends on RadiusClient to proxy packets.
  <p>
  RadiusClient port should be set to proxy port, which will be used to communicate
  with upstream servers. RadiusClient should also use a variant of <a href="../../../../org/tinyradius/client/handler/ProxyStateClientHandler.html" title="class in org.tinyradius.client.handler"><code>ProxyStateClientHandler</code></a>
