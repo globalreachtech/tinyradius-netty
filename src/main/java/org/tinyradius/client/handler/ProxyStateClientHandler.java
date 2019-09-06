@@ -9,7 +9,6 @@ import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
-import org.tinyradius.util.SecretProvider;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -34,19 +33,14 @@ public class ProxyStateClientHandler extends ClientHandler {
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
 
     private final PacketEncoder packetEncoder;
-    private final SecretProvider secretProvider;
 
     private final Map<String, Request> requests = new ConcurrentHashMap<>();
 
     /**
      * @param packetEncoder  to decode packet incoming DatagramPackets to RadiusPackets
-     * @param secretProvider lookup shared secret for decoding response for upstream server.
-     *                       Unlike packetIdentifier, Proxy-State is stored in attribute rather than the second octet,
-     *                       so requires decoding first before we can lookup any context.
      */
-    public ProxyStateClientHandler(PacketEncoder packetEncoder, SecretProvider secretProvider) {
+    public ProxyStateClientHandler(PacketEncoder packetEncoder) {
         this.packetEncoder = packetEncoder;
-        this.secretProvider = secretProvider;
     }
 
     private String nextProxyStateId() {
@@ -73,11 +67,6 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     @Override
     protected void handleResponse(DatagramPacket datagramPacket) throws RadiusException {
-        String secret = secretProvider.getSharedSecret(datagramPacket.sender());
-        if (secret == null)
-            throw new RadiusException("Ignoring packet - unknown sender " + datagramPacket.sender() +
-                    " received on local address " + datagramPacket.recipient());
-
         RadiusPacket response = packetEncoder.fromDatagram(datagramPacket);
 
         // retrieve my Proxy-State attribute (the last)

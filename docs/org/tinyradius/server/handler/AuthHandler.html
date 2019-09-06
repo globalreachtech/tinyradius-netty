@@ -196,10 +196,10 @@ implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.htm
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/server/handler/AuthHandler.html#handlePacket-io.netty.channel.Channel-org.tinyradius.packet.AccessRequest-java.net.InetSocketAddress-java.lang.String-">handlePacket</a></span>&#8203;(io.netty.channel.Channel&nbsp;channel,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/server/handler/AuthHandler.html#handlePacket-io.netty.channel.Channel-org.tinyradius.packet.AccessRequest-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">handlePacket</a></span>&#8203;(io.netty.channel.Channel&nbsp;channel,
             <a href="../../../../org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a>&nbsp;request,
             java.net.InetSocketAddress&nbsp;remoteAddress,
-            java.lang.String&nbsp;sharedSecret)</code></th>
+            <a href="../../../../org/tinyradius/util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</code></th>
 <td class="colLast">
 <div class="block">Handles the received Radius packet and constructs a response.</div>
 </td>
@@ -263,7 +263,7 @@ implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.htm
 </dl>
 </li>
 </ul>
-<a id="handlePacket-io.netty.channel.Channel-org.tinyradius.packet.AccessRequest-java.net.InetSocketAddress-java.lang.String-">
+<a id="handlePacket-io.netty.channel.Channel-org.tinyradius.packet.AccessRequest-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -272,18 +272,18 @@ implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.htm
 <pre>public&nbsp;io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket&#8203;(io.netty.channel.Channel&nbsp;channel,
                                                                    <a href="../../../../org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a>&nbsp;request,
                                                                    java.net.InetSocketAddress&nbsp;remoteAddress,
-                                                                   java.lang.String&nbsp;sharedSecret)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-java.lang.String-">RequestHandler</a></code></span></div>
+                                                                   <a href="../../../../org/tinyradius/util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">RequestHandler</a></code></span></div>
 <div class="block">Handles the received Radius packet and constructs a response. Filters/Deduplicators
  can also implement this and wrap around underlying handlers.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-java.lang.String-">handlePacket</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a>&gt;</code></dd>
+<dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">handlePacket</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>channel</code> - socket which received packet</dd>
 <dd><code>request</code> - incoming packet, can be RadiusPacket or subclass</dd>
 <dd><code>remoteAddress</code> - remote address the packet was sent by</dd>
-<dd><code>sharedSecret</code> - shared secret associated with remoteAddress</dd>
+<dd><code>secretProvider</code> - shared secret associated with remoteAddress</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Promise of RadiusPacket or null for no response. Uses Promise instead Future,
  so requests to be timed out or cancelled by the caller</dd>

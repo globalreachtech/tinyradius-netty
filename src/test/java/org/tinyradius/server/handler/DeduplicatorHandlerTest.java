@@ -27,7 +27,7 @@ class DeduplicatorHandlerTest {
         eventExecutors.register(datagramChannel).syncUninterruptibly();
 
         final DeduplicatorHandler<RadiusPacket> deduplicatorHandler = new DeduplicatorHandler<>(
-                (channel, packet, remoteAddress, sharedSecret) -> {
+                (channel, packet, remoteAddress, secretProvider) -> {
                     final Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
                     promise.trySuccess(new RadiusPacket(DefaultDictionary.INSTANCE, 2, id.getAndIncrement()));
                     return promise;

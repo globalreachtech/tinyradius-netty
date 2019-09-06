@@ -55,7 +55,7 @@ class AuthHandlerTest {
                 .map(String::new)
                 .collect(Collectors.toList()));
 
-        final RadiusPacket response = authHandler.handlePacket(datagramChannel, request, null, "")
+        final RadiusPacket response = authHandler.handlePacket(datagramChannel, request, null, a -> "")
                 .syncUninterruptibly().getNow();
 
         assertEquals(id, response.getIdentifier());
@@ -83,7 +83,7 @@ class AuthHandlerTest {
                 .map(String::new)
                 .collect(Collectors.toList()));
 
-        final RadiusPacket response = authHandler.handlePacket(datagramChannel, request, null, "")
+        final RadiusPacket response = authHandler.handlePacket(datagramChannel, request, null, a -> "")
                 .syncUninterruptibly().getNow();
 
         assertEquals(id, response.getIdentifier());

@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.util.SecretProvider;
 
 import java.net.InetSocketAddress;
 
@@ -25,7 +26,7 @@ public abstract class AuthHandler implements RequestHandler<AccessRequest> {
     public abstract String getUserPassword(String userName);
 
     @Override
-    public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest request, InetSocketAddress remoteAddress, String sharedSecret) {
+    public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest request, InetSocketAddress remoteAddress, SecretProvider secretProvider) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
         try {
             String password = getUserPassword(request.getUserName());

@@ -11,6 +11,7 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.SecretProvider;
 
 import java.net.InetSocketAddress;
 
@@ -55,10 +56,10 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
      * is added to the packet in the "Proxy-State" attribute.
      */
     @Override
-    public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket request, InetSocketAddress remoteAddress, String sharedSecret) {
+    public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket request, InetSocketAddress remoteAddress, SecretProvider secretProvider) {
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
 
-        RadiusEndpoint clientEndpoint = new RadiusEndpoint(remoteAddress, sharedSecret);
+        RadiusEndpoint clientEndpoint = new RadiusEndpoint(remoteAddress, secretProvider.getSharedSecret(remoteAddress));
         RadiusEndpoint serverEndpoint = getProxyServer(request, clientEndpoint);
 
         if (serverEndpoint == null) {

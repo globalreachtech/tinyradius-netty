@@ -20,6 +20,7 @@ import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.handler.RequestHandler;
 import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.SecretProvider;
 
 import java.net.InetSocketAddress;
 
@@ -132,7 +133,7 @@ class HandlerAdapterTest {
         private Promise<RadiusPacket> promise;
 
         @Override
-        public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket request, InetSocketAddress remoteAddress, String sharedSecret) {
+        public Promise<RadiusPacket> handlePacket(Channel channel, RadiusPacket request, InetSocketAddress remoteAddress, SecretProvider secretProvider) {
             return promise = channel.eventLoop().newPromise();
         }
     }

@@ -42,7 +42,7 @@ class AcctHandlerTest {
                 .map(String::new)
                 .collect(Collectors.toList()));
 
-        final RadiusPacket response = new AcctHandler().handlePacket(datagramChannel, request, null, "")
+        final RadiusPacket response = new AcctHandler().handlePacket(datagramChannel, request, null, a -> "")
                 .syncUninterruptibly().getNow();
 
         assertEquals(id, response.getIdentifier());

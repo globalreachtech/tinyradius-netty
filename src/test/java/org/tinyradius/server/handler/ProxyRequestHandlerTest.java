@@ -91,7 +91,7 @@ class ProxyRequestHandlerTest {
                 .map(String::new)
                 .collect(Collectors.toList()));
 
-        RadiusPacket response = proxyRequestHandler.handlePacket(datagramChannel, packet, new InetSocketAddress(0), "shared").syncUninterruptibly().getNow();
+        RadiusPacket response = proxyRequestHandler.handlePacket(datagramChannel, packet, new InetSocketAddress(0), a -> "shared").syncUninterruptibly().getNow();
 
         assertEquals(id, response.getIdentifier());
         assertEquals(ACCOUNTING_RESPONSE, response.getType());
@@ -117,7 +117,7 @@ class ProxyRequestHandlerTest {
         assertEquals("user", packet.getUserName());
 
         final RadiusException radiusException = assertThrows(RadiusException.class,
-                () -> proxyRequestHandler.handlePacket(datagramChannel, packet, new InetSocketAddress(0), "shared").syncUninterruptibly().getNow());
+                () -> proxyRequestHandler.handlePacket(datagramChannel, packet, new InetSocketAddress(0), a -> "shared").syncUninterruptibly().getNow());
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
     }
@@ -136,7 +136,7 @@ class ProxyRequestHandlerTest {
         final AccountingRequest packet = new AccountingRequest(dictionary, id, null, Collections.emptyList());
 
         final RadiusException radiusException = assertThrows(RadiusException.class,
-                () -> proxyRequestHandler.handlePacket(datagramChannel, packet, new InetSocketAddress(0), "shared").syncUninterruptibly());
+                () -> proxyRequestHandler.handlePacket(datagramChannel, packet, new InetSocketAddress(0), a -> "shared").syncUninterruptibly());
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("server not found"));
     }

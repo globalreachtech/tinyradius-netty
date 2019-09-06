@@ -58,7 +58,7 @@ public class TestProxy {
             return remote.getAddress().getHostAddress().equals("127.0.0.1") ?
                     "proxytest" : null;
         };
-        final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(packetEncoder, secretProvider);
+        final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(packetEncoder);
         final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 1000);
         RadiusClient radiusClient = new RadiusClient(
                 eventLoopGroup, channelFactory, clientHandler, retryStrategy, new InetSocketAddress(11814));

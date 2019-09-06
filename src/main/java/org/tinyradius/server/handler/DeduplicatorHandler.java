@@ -6,6 +6,7 @@ import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.util.SecretProvider;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -45,13 +46,13 @@ public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandl
      * @param channel       socket which received packet
      * @param request        the packet
      * @param remoteAddress remote address the packet was sent by
-     * @param sharedSecret  shared secret associated with remoteAddress
+     * @param secretProvider  shared secret associated with remoteAddress
      * @return null if packet is considered duplicate, otherwise delegates to underlying handler.
      */
     @Override
-    public Promise<RadiusPacket> handlePacket(Channel channel, T request, InetSocketAddress remoteAddress, String sharedSecret) {
+    public Promise<RadiusPacket> handlePacket(Channel channel, T request, InetSocketAddress remoteAddress, SecretProvider secretProvider) {
         if (!isPacketDuplicate(request, remoteAddress))
-            return requestHandler.handlePacket(channel, request, remoteAddress, sharedSecret);
+            return requestHandler.handlePacket(channel, request, remoteAddress, secretProvider);
 
         logger.info("ignore duplicate packet, id: {}, remote address: {}", request.getIdentifier(), remoteAddress);
         Promise<RadiusPacket> promise = channel.eventLoop().newPromise();

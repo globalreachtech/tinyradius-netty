@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.util.SecretProvider;
 
 import java.net.InetSocketAddress;
 
@@ -16,7 +17,7 @@ import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
 public class AcctHandler implements RequestHandler<AccountingRequest> {
 
     @Override
-    public Promise<RadiusPacket> handlePacket(Channel channel, AccountingRequest request, InetSocketAddress remoteAddress, String sharedSecret) {
+    public Promise<RadiusPacket> handlePacket(Channel channel, AccountingRequest request, InetSocketAddress remoteAddress, SecretProvider secretProvider) {
         RadiusPacket answer = new RadiusPacket(request.getDictionary(), ACCOUNTING_RESPONSE, request.getIdentifier());
         request.getAttributes(33)
                 .forEach(answer::addAttribute);

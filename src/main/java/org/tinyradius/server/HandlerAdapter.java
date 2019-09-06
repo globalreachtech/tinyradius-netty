@@ -93,7 +93,7 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
         final byte[] requestAuth = request.getAuthenticator(); // save ref in case request is mutated
 
         logger.trace("about to call handlePacket()");
-        final Promise<RadiusPacket> handlerResult = requestHandler.handlePacket(channel, packetClass.cast(request), remoteAddress, secret);
+        final Promise<RadiusPacket> handlerResult = requestHandler.handlePacket(channel, packetClass.cast(request), remoteAddress, secretProvider);
 
         // so futures don't stay in memory forever if never completed
         Timeout timeout = timer.newTimeout(t -> handlerResult.tryFailure(new RadiusException("timeout while generating client response")),
