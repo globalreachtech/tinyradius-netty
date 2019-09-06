@@ -436,7 +436,7 @@ public class RadiusPacket {
         byte[] receivedAuth = getAuthenticator();
         if (receivedAuth.length != 16 ||
                 !Arrays.equals(expectedAuth, receivedAuth))
-            throw new RadiusException("Authenticator check failed");
+            throw new RadiusException("Authenticator check failed (bad authenticator or shared secret)");
     }
 
     MessageDigest getMd5Digest() {

@@ -146,16 +146,6 @@ class ProxyStateClientHandlerTest {
     }
 
     @Test
-    void responseUnknownSender() {
-        final ProxyStateClientHandler proxyStateClientHandler = new ProxyStateClientHandler(packetEncoder);
-
-        final RadiusException exception = assertThrows(RadiusException.class,
-                () -> proxyStateClientHandler.handleResponse(
-                        new DatagramPacket(Unpooled.buffer(), new InetSocketAddress(0))));
-        assertTrue(exception.getMessage().toLowerCase().contains("unknown sender"));
-    }
-
-    @Test
     void channelReadIsStateful() throws RadiusException {
         final String secret = "mySecret";
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
