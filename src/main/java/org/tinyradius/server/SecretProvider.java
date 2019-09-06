@@ -1,4 +1,4 @@
-package org.tinyradius.util;
+package org.tinyradius.server;
 
 import java.net.InetSocketAddress;
 

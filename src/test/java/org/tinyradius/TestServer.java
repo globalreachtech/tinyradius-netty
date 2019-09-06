@@ -18,7 +18,7 @@ import org.tinyradius.server.handler.AcctHandler;
 import org.tinyradius.server.handler.AuthHandler;
 import org.tinyradius.server.handler.DeduplicatorHandler;
 import org.tinyradius.server.handler.RequestHandler;
-import org.tinyradius.util.SecretProvider;
+import org.tinyradius.server.SecretProvider;
 
 import java.net.InetSocketAddress;
 

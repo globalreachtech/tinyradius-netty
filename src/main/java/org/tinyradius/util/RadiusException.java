@@ -21,7 +21,4 @@ public class RadiusException extends Exception {
     public RadiusException(Throwable cause) {
         super(cause);
     }
-
-    private static final long serialVersionUID = 2201204523946051388L;
-
 }

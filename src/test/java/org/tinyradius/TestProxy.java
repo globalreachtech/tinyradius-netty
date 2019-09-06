@@ -19,7 +19,7 @@ import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.handler.DeduplicatorHandler;
 import org.tinyradius.server.handler.ProxyRequestHandler;
 import org.tinyradius.util.RadiusEndpoint;
-import org.tinyradius.util.SecretProvider;
+import org.tinyradius.server.SecretProvider;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;

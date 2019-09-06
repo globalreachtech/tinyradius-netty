@@ -199,8 +199,7 @@ extends <a href="../../../../org/tinyradius/client/handler/ClientHandler.html" t
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/handler/ProxyStateClientHandler.html#ProxyStateClientHandler-org.tinyradius.packet.PacketEncoder-org.tinyradius.util.SecretProvider-">ProxyStateClientHandler</a></span>&#8203;(<a href="../../../../org/tinyradius/packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
-                       <a href="../../../../org/tinyradius/util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/handler/ProxyStateClientHandler.html#ProxyStateClientHandler-org.tinyradius.packet.PacketEncoder-">ProxyStateClientHandler</a></span>&#8203;(<a href="../../../../org/tinyradius/packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -297,20 +296,16 @@ extends <a href="../../../../org/tinyradius/client/handler/ClientHandler.html" t
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="ProxyStateClientHandler-org.tinyradius.packet.PacketEncoder-org.tinyradius.util.SecretProvider-">
+<a id="ProxyStateClientHandler-org.tinyradius.packet.PacketEncoder-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ProxyStateClientHandler</h4>
-<pre>public&nbsp;ProxyStateClientHandler&#8203;(<a href="../../../../org/tinyradius/packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
-                               <a href="../../../../org/tinyradius/util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</pre>
+<pre>public&nbsp;ProxyStateClientHandler&#8203;(<a href="../../../../org/tinyradius/packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>packetEncoder</code> - to decode packet incoming DatagramPackets to RadiusPackets</dd>
-<dd><code>secretProvider</code> - lookup shared secret for decoding response for upstream server.
-                       Unlike packetIdentifier, Proxy-State is stored in attribute rather than the second octet,
-                       so requires decoding first before we can lookup any context.</dd>
 </dl>
 </li>
 </ul>

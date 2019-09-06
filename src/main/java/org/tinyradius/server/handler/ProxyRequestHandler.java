@@ -11,7 +11,7 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
-import org.tinyradius.util.SecretProvider;
+import org.tinyradius.server.SecretProvider;
 
 import java.net.InetSocketAddress;
 

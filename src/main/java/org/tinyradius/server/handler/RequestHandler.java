@@ -3,7 +3,7 @@ package org.tinyradius.server.handler;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.util.SecretProvider;
+import org.tinyradius.server.SecretProvider;
 
 import java.net.InetSocketAddress;
 

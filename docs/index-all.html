@@ -486,7 +486,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/util/RadiusEndpoint.html#getSharedSecret--">getSharedSecret()</a></span> - Method in class org.tinyradius.util.<a href="org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/util/SecretProvider.html#getSharedSecret-java.net.InetSocketAddress-">getSharedSecret(InetSocketAddress)</a></span> - Method in interface org.tinyradius.util.<a href="org/tinyradius/util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/SecretProvider.html#getSharedSecret-java.net.InetSocketAddress-">getSharedSecret(InetSocketAddress)</a></span> - Method in interface org.tinyradius.server.<a href="org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a></dt>
 <dd>
 <div class="block">Returns the shared secret used to communicate with the client/host with the
  passed IP address or null if the client is not allowed at this server.</div>
@@ -590,17 +590,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">H</h2>
 <dl>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/AuthHandler.html#handlePacket-io.netty.channel.Channel-org.tinyradius.packet.AccessRequest-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">handlePacket(Channel, AccessRequest, InetSocketAddress, SecretProvider)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/AuthHandler.html" title="class in org.tinyradius.server.handler">AuthHandler</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/AuthHandler.html#handlePacket-io.netty.channel.Channel-org.tinyradius.packet.AccessRequest-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">handlePacket(Channel, AccessRequest, InetSocketAddress, SecretProvider)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/AuthHandler.html" title="class in org.tinyradius.server.handler">AuthHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/AcctHandler.html#handlePacket-io.netty.channel.Channel-org.tinyradius.packet.AccountingRequest-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">handlePacket(Channel, AccountingRequest, InetSocketAddress, SecretProvider)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/AcctHandler.html" title="class in org.tinyradius.server.handler">AcctHandler</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/AcctHandler.html#handlePacket-io.netty.channel.Channel-org.tinyradius.packet.AccountingRequest-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">handlePacket(Channel, AccountingRequest, InetSocketAddress, SecretProvider)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/AcctHandler.html" title="class in org.tinyradius.server.handler">AcctHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/ProxyRequestHandler.html#handlePacket-io.netty.channel.Channel-org.tinyradius.packet.RadiusPacket-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">handlePacket(Channel, RadiusPacket, InetSocketAddress, SecretProvider)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/ProxyRequestHandler.html" title="class in org.tinyradius.server.handler">ProxyRequestHandler</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/ProxyRequestHandler.html#handlePacket-io.netty.channel.Channel-org.tinyradius.packet.RadiusPacket-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">handlePacket(Channel, RadiusPacket, InetSocketAddress, SecretProvider)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/ProxyRequestHandler.html" title="class in org.tinyradius.server.handler">ProxyRequestHandler</a></dt>
 <dd>
 <div class="block">Proxies the given packet to the server given in the proxy connection.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/DeduplicatorHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">handlePacket(Channel, T, InetSocketAddress, SecretProvider)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/DeduplicatorHandler.html" title="class in org.tinyradius.server.handler">DeduplicatorHandler</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/DeduplicatorHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">handlePacket(Channel, T, InetSocketAddress, SecretProvider)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/DeduplicatorHandler.html" title="class in org.tinyradius.server.handler">DeduplicatorHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">handlePacket(Channel, T, InetSocketAddress, SecretProvider)</a></span> - Method in interface org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">handlePacket(Channel, T, InetSocketAddress, SecretProvider)</a></span> - Method in interface org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a></dt>
 <dd>
 <div class="block">Handles the received Radius packet and constructs a response.</div>
 </dd>
@@ -609,7 +609,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">SimpleChannelInboundHandler implementation that converts between RadiusPackets
  and DatagramPackets.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/HandlerAdapter.html#HandlerAdapter-org.tinyradius.packet.PacketEncoder-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-org.tinyradius.util.SecretProvider-java.lang.Class-">HandlerAdapter(PacketEncoder, RequestHandler&lt;T&gt;, Timer, SecretProvider, Class&lt;T&gt;)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/HandlerAdapter.html#HandlerAdapter-org.tinyradius.packet.PacketEncoder-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-org.tinyradius.server.SecretProvider-java.lang.Class-">HandlerAdapter(PacketEncoder, RequestHandler&lt;T&gt;, Timer, SecretProvider, Class&lt;T&gt;)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/HandlerAdapter.html#handleRequest-io.netty.channel.Channel-io.netty.channel.socket.DatagramPacket-">handleRequest(Channel, DatagramPacket)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a></dt>
 <dd>
@@ -800,7 +800,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">ClientHandler that matches requests/response by appending Proxy-State attribute to
  outbound packets.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/ProxyStateClientHandler.html#ProxyStateClientHandler-org.tinyradius.packet.PacketEncoder-org.tinyradius.util.SecretProvider-">ProxyStateClientHandler(PacketEncoder, SecretProvider)</a></span> - Constructor for class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/ProxyStateClientHandler.html" title="class in org.tinyradius.client.handler">ProxyStateClientHandler</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/ProxyStateClientHandler.html#ProxyStateClientHandler-org.tinyradius.packet.PacketEncoder-">ProxyStateClientHandler(PacketEncoder)</a></span> - Constructor for class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/ProxyStateClientHandler.html" title="class in org.tinyradius.client.handler">ProxyStateClientHandler</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a id="I:R">
@@ -917,7 +917,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/client/retry/SimpleRetryStrategy.html#scheduleRetry-java.lang.Runnable-int-io.netty.util.concurrent.Promise-">scheduleRetry(Runnable, int, Promise&lt;RadiusPacket&gt;)</a></span> - Method in class org.tinyradius.client.retry.<a href="org/tinyradius/client/retry/SimpleRetryStrategy.html" title="class in org.tinyradius.client.retry">SimpleRetryStrategy</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="org/tinyradius/util/SecretProvider.html" title="interface in org.tinyradius.util"><span class="typeNameLink">SecretProvider</span></a> - Interface in <a href="org/tinyradius/util/package-summary.html">org.tinyradius.util</a></dt>
+<dt><a href="org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server"><span class="typeNameLink">SecretProvider</span></a> - Interface in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#setAcctStatusType-int-">setAcctStatusType(int)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
 <dd>

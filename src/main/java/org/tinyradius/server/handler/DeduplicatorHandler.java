@@ -6,7 +6,7 @@ import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.util.SecretProvider;
+import org.tinyradius.server.SecretProvider;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;

@@ -20,7 +20,6 @@ import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.handler.RequestHandler;
 import org.tinyradius.util.RadiusException;
-import org.tinyradius.util.SecretProvider;
 
 import java.net.InetSocketAddress;
 

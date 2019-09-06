@@ -156,10 +156,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">handlePacket</a></span>&#8203;(io.netty.channel.Channel&nbsp;channel,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">handlePacket</a></span>&#8203;(io.netty.channel.Channel&nbsp;channel,
             <a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;request,
             java.net.InetSocketAddress&nbsp;remoteAddress,
-            <a href="../../../../org/tinyradius/util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</code></th>
+            <a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&nbsp;secretProvider)</code></th>
 <td class="colLast">
 <div class="block">Handles the received Radius packet and constructs a response.</div>
 </td>
@@ -181,9 +181,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="handlePacket-io.netty.channel.Channel-org.tinyradius.packet.RadiusPacket-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">
+<a id="handlePacket-io.netty.channel.Channel-org.tinyradius.packet.RadiusPacket-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">
 <!--   -->
-</a><a id="handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.util.SecretProvider-">
+</a><a id="handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -192,7 +192,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;handlePacket&#8203;(io.netty.channel.Channel&nbsp;channel,
                                                             <a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="type parameter in RequestHandler">T</a>&nbsp;request,
                                                             java.net.InetSocketAddress&nbsp;remoteAddress,
-                                                            <a href="../../../../org/tinyradius/util/SecretProvider.html" title="interface in org.tinyradius.util">SecretProvider</a>&nbsp;secretProvider)</pre>
+                                                            <a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&nbsp;secretProvider)</pre>
 <div class="block">Handles the received Radius packet and constructs a response. Filters/Deduplicators
  can also implement this and wrap around underlying handlers.</div>
 <dl>
