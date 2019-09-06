@@ -1,8 +1,6 @@
 package org.tinyradius.server;
 
 import io.netty.channel.ChannelFactory;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.util.concurrent.Future;
@@ -11,20 +9,16 @@ import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinyradius.util.Lifecycle;
 
 import java.net.InetSocketAddress;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Implements a simple Radius server.
  */
-public class RadiusServer implements Lifecycle {
+public class RadiusServer extends AbstractListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusServer.class);
 
-    protected final EventLoopGroup eventLoopGroup;
     private final HandlerAdapter authHandler;
     private final HandlerAdapter acctHandler;
     private final InetSocketAddress authSocket;
@@ -49,7 +43,7 @@ public class RadiusServer implements Lifecycle {
                         HandlerAdapter acctHandler,
                         InetSocketAddress authSocket,
                         InetSocketAddress acctSocket) {
-        this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
+        super(eventLoopGroup);
         this.authHandler = authHandler;
         this.acctHandler = acctHandler;
         this.authSocket = authSocket;
@@ -67,7 +61,9 @@ public class RadiusServer implements Lifecycle {
 
         // todo error handling/timeout?
         final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
-        combiner.addAll(listenAuth(), listenAcct());
+        combiner.addAll(
+                listen(authChannel, authSocket, authHandler),
+                listen(acctChannel, acctSocket, acctHandler));
         combiner.finish(status);
 
         this.serverStatus = status;
@@ -80,40 +76,13 @@ public class RadiusServer implements Lifecycle {
 
         final Promise<Void> promise = eventLoopGroup.next().newPromise();
 
-        final PromiseCombiner promiseCombiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
-        promiseCombiner.addAll(authChannel.close(), acctChannel.close());
+        final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
+        if (authChannel.isRegistered())
+            combiner.add(authChannel.close());
+        if (acctChannel.isRegistered())
+            combiner.add(acctChannel.close());
 
-        promiseCombiner.finish(promise);
-        return promise;
-    }
-
-    private ChannelFuture listenAuth() {
-        logger.info("starting RadiusAuthListener on port " + authSocket.getPort());
-        authChannel.pipeline().addLast(authHandler);
-        return listen(authChannel, authSocket);
-    }
-
-    private ChannelFuture listenAcct() {
-        logger.info("starting RadiusAcctListener on port " + acctSocket.getPort());
-        acctChannel.pipeline().addLast(acctHandler);
-        return listen(acctChannel, acctSocket);
-    }
-
-    /**
-     * @param channel       to listen on
-     * @param listenAddress the address to bind to
-     * @return channelFuture of started channel socket
-     */
-    protected ChannelFuture listen(final DatagramChannel channel, final InetSocketAddress listenAddress) {
-        requireNonNull(channel, "channel cannot be null");
-        requireNonNull(listenAddress, "listenAddress cannot be null");
-
-        final ChannelPromise promise = channel.newPromise();
-
-        eventLoopGroup.register(channel)
-                .addListener(f -> channel.bind(listenAddress)
-                        .addListener(g -> promise.trySuccess()));
-
+        combiner.finish(promise);
         return promise;
     }
 

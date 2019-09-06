@@ -147,7 +147,7 @@ class ProxyStateClientHandlerTest {
 
     @Test
     void responseUnknownSender() {
-        final ProxyStateClientHandler proxyStateClientHandler = new ProxyStateClientHandler(null);
+        final ProxyStateClientHandler proxyStateClientHandler = new ProxyStateClientHandler(packetEncoder);
 
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> proxyStateClientHandler.handleResponse(

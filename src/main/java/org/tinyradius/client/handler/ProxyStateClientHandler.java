@@ -31,9 +31,7 @@ public class ProxyStateClientHandler extends ClientHandler {
     private static final int PROXY_STATE = 33;
 
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
-
     private final PacketEncoder packetEncoder;
-
     private final Map<String, Request> requests = new ConcurrentHashMap<>();
 
     /**

@@ -3,7 +3,6 @@ package org.tinyradius.client;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
@@ -14,14 +13,13 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.client.handler.ClientHandler;
 import org.tinyradius.client.retry.RetryStrategy;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.util.Lifecycle;
+import org.tinyradius.server.AbstractListener;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
 
 import static java.lang.Byte.toUnsignedInt;
-import static java.util.Objects.requireNonNull;
 
 /**
  * This object represents a simple Radius client which communicates with
@@ -32,17 +30,15 @@ import static java.util.Objects.requireNonNull;
  * This object is thread safe, but requires a packet manager to avoid confusion with the mapping of request
  * and result packets.
  */
-public class RadiusClient implements Lifecycle {
+public class RadiusClient extends AbstractListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusClient.class);
 
-    private final ChannelFactory<? extends DatagramChannel> factory;
-    private final EventLoopGroup eventLoopGroup;
     private final ClientHandler clientHandler;
     private final RetryStrategy retryStrategy;
     private final InetSocketAddress listenAddress;
 
-    private DatagramChannel channel = null;
+    private final DatagramChannel channel;
 
     private ChannelFuture channelFuture;
 
@@ -58,8 +54,8 @@ public class RadiusClient implements Lifecycle {
                         ClientHandler clientHandler,
                         RetryStrategy retryStrategy,
                         InetSocketAddress listenAddress) {
-        this.factory = requireNonNull(factory, "factory cannot be null");
-        this.eventLoopGroup = requireNonNull(eventLoopGroup, "eventLoopGroup cannot be null");
+        super(eventLoopGroup);
+        channel = factory.newChannel();
         this.clientHandler = clientHandler;
         this.retryStrategy = retryStrategy;
         this.listenAddress = listenAddress;
@@ -77,38 +73,12 @@ public class RadiusClient implements Lifecycle {
         if (this.channelFuture != null)
             return this.channelFuture;
 
-        if (channel == null)
-            channel = factory.newChannel();
-
-        return channelFuture = listen(channel, listenAddress)
-                .addListener(f -> logger.info("RadiusClient started"));
+        return channelFuture = listen(channel, listenAddress, clientHandler);
     }
 
-    /**
-     * Closes channel socket
-     */
     public Future<Void> stop() {
-        if (channel != null)
-            return channel.close();
-        return eventLoopGroup.next().newSucceededFuture(null);
-    }
-
-    /**
-     * @param channel       to listen on
-     * @param listenAddress the address to bind to
-     * @return channel that resolves after it is bound to address and registered with eventLoopGroup
-     */
-    private ChannelFuture listen(final DatagramChannel channel, final InetSocketAddress listenAddress) {
-        channel.pipeline().addLast(clientHandler);
-
-        final ChannelPromise promise = channel.newPromise();
-
-        eventLoopGroup.register(channel)
-                .addListener(f -> channel.bind(listenAddress)
-                        .addListener(g -> promise.trySuccess()));
-
-        // todo error handling
-        return promise;
+        return channel.isRegistered() ?
+                channel.close() : eventLoopGroup.next().newSucceededFuture(null);
     }
 
     public Future<RadiusPacket> communicate(RadiusPacket originalPacket, RadiusEndpoint endpoint) {
