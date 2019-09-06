@@ -104,7 +104,7 @@ class RadiusClientTest {
 
         final RadiusPacket request = new RadiusPacket(dictionary, 1, id);
 
-        final Future<RadiusPacket> future = radiusClient.communicate(request, new RadiusEndpoint(null, null));
+        final Future<RadiusPacket> future = radiusClient.communicate(request, new RadiusEndpoint(new InetSocketAddress(0), ""));
 
         assertTrue(future.isDone());
         assertTrue(future.cause().getMessage().toLowerCase().contains("missing authenticator"));
