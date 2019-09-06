@@ -4,7 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.AttributeType;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,7 +23,7 @@ public class DictionaryParser {
 
     private final ResourceResolver resourceResolver;
 
-    public DictionaryParser(ResourceResolver resourceResolver) {
+    private DictionaryParser(ResourceResolver resourceResolver) {
         this.resourceResolver = resourceResolver;
     }
 
@@ -177,7 +180,7 @@ public class DictionaryParser {
     public interface ResourceResolver {
         String resolve(String currentResource, String nextResource);
 
-        InputStream openStream(String resource);
+        InputStream openStream(String resource) throws IOException;
     }
 
     private static class FileResourceResolver implements ResourceResolver {
@@ -190,17 +193,12 @@ public class DictionaryParser {
         }
 
         @Override
-        public InputStream openStream(String resource) {
-            try {
-                final Path path = Paths.get(resource);
-                if (Files.exists(path))
-                    return Files.newInputStream(path);
+        public InputStream openStream(String resource) throws IOException {
+            final Path path = Paths.get(resource);
+            if (Files.exists(path))
+                return Files.newInputStream(path);
 
-                logger.warn("could not open stream, file not found: {}", resource);
-            } catch (IOException e) {
-                logger.warn("io exception opening file: {}", resource, e);
-            }
-            return new ByteArrayInputStream(new byte[0]);
+            throw new IOException("could not open stream, file not found: " + resource);
         }
     }
 
@@ -213,13 +211,12 @@ public class DictionaryParser {
         }
 
         @Override
-        public InputStream openStream(String resource) {
+        public InputStream openStream(String resource) throws IOException {
             final InputStream stream = this.getClass().getClassLoader().getResourceAsStream(resource);
             if (stream != null)
                 return stream;
 
-            logger.warn("could not open stream, classpath resource not found: {}", resource);
-            return new ByteArrayInputStream(new byte[0]);
+            throw new IOException("could not open stream, classpath resource not found: " + resource);
         }
     }
 }
