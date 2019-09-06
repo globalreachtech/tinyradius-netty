@@ -102,6 +102,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">A</h2>
 <dl>
+<dt><a href="org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server"><span class="typeNameLink">AbstractListener</span></a> - Class in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/AbstractListener.html#AbstractListener-io.netty.channel.EventLoopGroup-">AbstractListener(EventLoopGroup)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">AbstractListener</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/PacketType.html#ACCESS_ACCEPT">ACCESS_ACCEPT</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet">PacketType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/PacketType.html#ACCESS_CHALLENGE">ACCESS_CHALLENGE</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet">PacketType</a></dt>
@@ -347,7 +351,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/attribute/RadiusAttribute.html#equals-java.lang.Object-">equals(Object)</a></span> - Method in class org.tinyradius.attribute.<a href="org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#eventLoopGroup">eventLoopGroup</a></span> - Variable in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/AbstractListener.html#eventLoopGroup">eventLoopGroup</a></span> - Variable in class org.tinyradius.server.<a href="org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">AbstractListener</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/attribute/Attributes.html#extractAttributes-org.tinyradius.dictionary.Dictionary-int-byte:A-int-">extractAttributes(Dictionary, int, byte[], int)</a></span> - Static method in class org.tinyradius.attribute.<a href="org/tinyradius/attribute/Attributes.html" title="class in org.tinyradius.attribute">Attributes</a></dt>
 <dd>&nbsp;</dd>
@@ -667,9 +671,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">L</h2>
 <dl>
-<dt><a href="org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util"><span class="typeNameLink">Lifecycle</span></a> - Interface in <a href="org/tinyradius/util/package-summary.html">org.tinyradius.util</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#listen-io.netty.channel.socket.DatagramChannel-java.net.InetSocketAddress-">listen(DatagramChannel, InetSocketAddress)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/AbstractListener.html#listen-io.netty.channel.socket.DatagramChannel-java.net.SocketAddress-io.netty.channel.ChannelHandler-">listen(DatagramChannel, SocketAddress, ChannelHandler)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">AbstractListener</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a id="I:M">
@@ -954,12 +956,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Registers the channel and binds to address.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#start--">start()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/util/Lifecycle.html#start--">start()</a></span> - Method in interface org.tinyradius.util.<a href="org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/AbstractListener.html#start--">start()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">AbstractListener</a></dt>
 <dd>
 <div class="block">Initialize dependencies.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#start--">start()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/PacketType.html#STATUS_ACCEPT">STATUS_ACCEPT</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet">PacketType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/PacketType.html#STATUS_CLIENT">STATUS_CLIENT</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet">PacketType</a></dt>
@@ -971,15 +973,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/PacketType.html#STATUS_SERVER">STATUS_SERVER</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet">PacketType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/client/RadiusClient.html#stop--">stop()</a></span> - Method in class org.tinyradius.client.<a href="org/tinyradius/client/RadiusClient.html" title="class in org.tinyradius.client">RadiusClient</a></dt>
-<dd>
-<div class="block">Closes channel socket</div>
-</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#stop--">stop()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/util/Lifecycle.html#stop--">stop()</a></span> - Method in interface org.tinyradius.util.<a href="org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/AbstractListener.html#stop--">stop()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">AbstractListener</a></dt>
 <dd>
 <div class="block">Shutdown and close resources.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/RadiusServer.html#stop--">stop()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server">RadiusServer</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/attribute/StringAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">StringAttribute</span></a> - Class in <a href="org/tinyradius/attribute/package-summary.html">org.tinyradius.attribute</a></dt>
 <dd>
 <div class="block">This class represents a Radius attribute which only contains a string.</div>

@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -94,13 +94,13 @@ var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#fields.inherited.from.class.org.tinyradius.server.AbstractListener">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -128,22 +128,22 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
+<li><a href="../../../org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">org.tinyradius.server.AbstractListener</a></li>
+<li>
+<ul class="inheritance">
 <li>org.tinyradius.server.RadiusServer</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
-<dl>
-<dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
-</dl>
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">RadiusServer</span>
-extends java.lang.Object
-implements <a href="../../../org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></pre>
+extends <a href="../../../org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">AbstractListener</a></pre>
 <div class="block">Implements a simple Radius server.</div>
 </li>
 </ul>
@@ -158,19 +158,13 @@ implements <a href="../../../org/tinyradius/util/Lifecycle.html" title="interfac
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary">
-<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Field</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected io.netty.channel.EventLoopGroup</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RadiusServer.html#eventLoopGroup">eventLoopGroup</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-</table>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.org.tinyradius.server.AbstractListener">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.tinyradius.server.<a href="../../../org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">AbstractListener</a></h3>
+<code><a href="../../../org/tinyradius/server/AbstractListener.html#eventLoopGroup">eventLoopGroup</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -225,19 +219,13 @@ implements <a href="../../../org/tinyradius/util/Lifecycle.html" title="interfac
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>protected io.netty.channel.ChannelFuture</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RadiusServer.html#listen-io.netty.channel.socket.DatagramChannel-java.net.InetSocketAddress-">listen</a></span>&#8203;(io.netty.channel.socket.DatagramChannel&nbsp;channel,
-      java.net.InetSocketAddress&nbsp;listenAddress)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RadiusServer.html#start--">start</a></span>&#8203;()</code></th>
 <td class="colLast">
 <div class="block">Initialize dependencies.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>io.netty.util.concurrent.Future&lt;java.lang.Void&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RadiusServer.html#stop--">stop</a></span>&#8203;()</code></th>
 <td class="colLast">
@@ -245,6 +233,13 @@ implements <a href="../../../org/tinyradius/util/Lifecycle.html" title="interfac
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.org.tinyradius.server.AbstractListener">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.tinyradius.server.<a href="../../../org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">AbstractListener</a></h3>
+<code><a href="../../../org/tinyradius/server/AbstractListener.html#listen-io.netty.channel.socket.DatagramChannel-java.net.SocketAddress-io.netty.channel.ChannelHandler-">listen</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
@@ -261,25 +256,6 @@ implements <a href="../../../org/tinyradius/util/Lifecycle.html" title="interfac
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ FIELD DETAIL =========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="field.detail">
-<!--   -->
-</a>
-<h3>Field Detail</h3>
-<a id="eventLoopGroup">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>eventLoopGroup</h4>
-<pre>protected final&nbsp;io.netty.channel.EventLoopGroup eventLoopGroup</pre>
-</li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section role="region">
 <ul class="blockList">
@@ -327,11 +303,11 @@ implements <a href="../../../org/tinyradius/util/Lifecycle.html" title="interfac
 <li class="blockList">
 <h4>start</h4>
 <pre>public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;start&#8203;()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../org/tinyradius/util/Lifecycle.html#start--">Lifecycle</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../org/tinyradius/server/AbstractListener.html#start--">AbstractListener</a></code></span></div>
 <div class="block">Initialize dependencies.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/Lifecycle.html#start--">start</a></code>&nbsp;in interface&nbsp;<code><a href="../../../org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/server/AbstractListener.html#start--">start</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">AbstractListener</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>future completes when required resources have been set up.</dd>
 </dl>
@@ -344,30 +320,13 @@ implements <a href="../../../org/tinyradius/util/Lifecycle.html" title="interfac
 <li class="blockList">
 <h4>stop</h4>
 <pre>public&nbsp;io.netty.util.concurrent.Future&lt;java.lang.Void&gt;&nbsp;stop&#8203;()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../org/tinyradius/util/Lifecycle.html#stop--">Lifecycle</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../org/tinyradius/server/AbstractListener.html#stop--">AbstractListener</a></code></span></div>
 <div class="block">Shutdown and close resources.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../org/tinyradius/util/Lifecycle.html#stop--">stop</a></code>&nbsp;in interface&nbsp;<code><a href="../../../org/tinyradius/util/Lifecycle.html" title="interface in org.tinyradius.util">Lifecycle</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/server/AbstractListener.html#stop--">stop</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">AbstractListener</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>future completes when resources shutdown</dd>
-</dl>
-</li>
-</ul>
-<a id="listen-io.netty.channel.socket.DatagramChannel-java.net.InetSocketAddress-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>listen</h4>
-<pre>protected&nbsp;io.netty.channel.ChannelFuture&nbsp;listen&#8203;(io.netty.channel.socket.DatagramChannel&nbsp;channel,
-                                                java.net.InetSocketAddress&nbsp;listenAddress)</pre>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>channel</code> - to listen on</dd>
-<dd><code>listenAddress</code> - the address to bind to</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>channelFuture of started channel socket</dd>
 </dl>
 </li>
 </ul>
@@ -449,13 +408,13 @@ implements <a href="../../../org/tinyradius/util/Lifecycle.html" title="interfac
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#fields.inherited.from.class.org.tinyradius.server.AbstractListener">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

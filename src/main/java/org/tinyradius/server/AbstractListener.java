@@ -22,8 +22,9 @@ public abstract class AbstractListener {
     }
 
     /**
-     * @param channel       to listen on
-     * @param listenAddress the address to bind to
+     * @param channel        to listen on
+     * @param listenAddress  the address to bind to
+     * @param channelHandler handler to attach to end of channel pipeline
      * @return channel that resolves after it is bound to address and registered with eventLoopGroup
      */
     protected ChannelFuture listen(DatagramChannel channel, SocketAddress listenAddress, ChannelHandler channelHandler) {
