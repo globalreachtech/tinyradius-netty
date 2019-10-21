@@ -1,6 +1,7 @@
 package org.tinyradius.util;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
@@ -24,5 +25,19 @@ public class RadiusEndpoint {
 
     public String getSharedSecret() {
         return sharedSecret;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RadiusEndpoint endpoint = (RadiusEndpoint) o;
+        return address.equals(endpoint.address) &&
+                sharedSecret.equals(endpoint.sharedSecret);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(address, sharedSecret);
     }
 }
