@@ -1,6 +1,5 @@
 package org.tinyradius.client.handler;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.Promise;
@@ -47,18 +46,21 @@ class ProxyStateClientHandlerTest {
         final RadiusPacket originalRequest = new AccessRequest(dictionary, id, null).encodeRequest(secret);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
+        // process once
         final DatagramPacket datagram1 = handler.prepareDatagram(originalRequest, endpoint, null, eventLoopGroup.next().newPromise());
-
         final RadiusPacket processedPacket1 = packetEncoder.fromDatagram(datagram1);
         List<RadiusAttribute> attributes1 = processedPacket1.getAttributes();
+
+        // check proxy-state added
         assertEquals(1, attributes1.size());
         final byte[] proxyState1 = processedPacket1.getAttribute("Proxy-State").getValue();
-
         assertEquals("1", new String(proxyState1, UTF_8));
 
+        // process again
         final DatagramPacket datagram2 = handler.prepareDatagram(processedPacket1, endpoint, null, eventLoopGroup.next().newPromise());
-
         final RadiusPacket processedPacket2 = packetEncoder.fromDatagram(datagram2);
+
+        // check another proxy-state added
         final List<RadiusAttribute> attributes2 = processedPacket2.getAttributes();
         assertEquals(1, attributes1.size());
         assertEquals(2, attributes2.size());
@@ -69,16 +71,48 @@ class ProxyStateClientHandlerTest {
     }
 
     @Test
-    void responseNoProxyState() {
-        final String secret = "mySecret";
-        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
+    void responseSenderNull() {
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusPacket noAttributeResponse = new RadiusPacket(dictionary, 2, 1);
+        final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handler.handleResponse(packetEncoder.toDatagram(
-                        noAttributeResponse.encodeResponse(secret, requestAuth), endpoint.getAddress())));
+                        response.encodeResponse("mySecret", requestAuth), new InetSocketAddress(0))));
+
+        assertTrue(exception.getMessage().toLowerCase().contains("sender is null"));
+    }
+
+    @Test
+    void responseInvalidSharedSecret() {
+        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final byte[] requestAuth = random.generateSeed(16);
+
+        final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
+        final RadiusException exception = assertThrows(RadiusException.class,
+                () -> handler.handleResponse(packetEncoder.toDatagram(
+                        response.encodeResponse("mySecret", requestAuth), new InetSocketAddress(0), new InetSocketAddress(1))));
+
+        assertTrue(exception.getMessage().toLowerCase().contains("shared secret lookup failed"));
+    }
+
+    @Test
+    void responseNoProxyState() {
+        final String secret = "mySecret";
+        final InetSocketAddress remoteAddress = new InetSocketAddress(123);
+        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final byte[] requestAuth = random.generateSeed(16);
+
+        // dont care about actually preparing/sending packet, just need to add remoteAddress-secret mapping to handler
+        try {
+            handler.prepareDatagram(null, new RadiusEndpoint(remoteAddress, secret), null, null);
+        } catch (Exception ignored) {
+        }
+
+        final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
+        final RadiusException exception = assertThrows(RadiusException.class,
+                () -> handler.handleResponse(packetEncoder.toDatagram(
+                        response.encodeResponse(secret, requestAuth), new InetSocketAddress(0), remoteAddress)));
 
         assertTrue(exception.getMessage().toLowerCase().contains("no proxy-state attribute"));
     }
@@ -86,15 +120,21 @@ class ProxyStateClientHandlerTest {
     @Test
     void responseProxyStateNotFound() {
         final String secret = "mySecret";
-        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
+        final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusPacket invalidProxyStateResponse = new RadiusPacket(dictionary, 2, 1,
+        // dont care about actually preparing/sending packet, just need to add remoteAddress-secret mapping to handler
+        try {
+            handler.prepareDatagram(null, new RadiusEndpoint(remoteAddress, secret), null, null);
+        } catch (Exception ignored) {
+        }
+
+        final RadiusPacket response = new RadiusPacket(dictionary, 2, 1,
                 Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, "123abc")));
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handler.handleResponse(packetEncoder.toDatagram(
-                        invalidProxyStateResponse.encodeResponse(secret, requestAuth), endpoint.getAddress())));
+                        response.encodeResponse(secret, requestAuth), new InetSocketAddress(0), remoteAddress)));
 
         assertTrue(exception.getMessage().toLowerCase().contains("request context not found"));
     }
@@ -102,13 +142,13 @@ class ProxyStateClientHandlerTest {
     @Test
     void responseIdentifierMismatch() throws RadiusException {
         final String secret = "mySecret";
-        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
+        final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
-        final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
+        // add remoteAddress-secret and identifier mapping to handler
         final DatagramPacket datagram = handler.prepareDatagram(
-                new RadiusPacket(dictionary, 1, 1), endpoint, null, promise);
+                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), null, eventLoopGroup.next().newPromise());
         final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
@@ -117,7 +157,7 @@ class ProxyStateClientHandlerTest {
 
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handler.handleResponse(packetEncoder.toDatagram(
-                        badId.encodeResponse(secret, requestAuth), endpoint.getAddress())));
+                        badId.encodeResponse(secret, requestAuth), new InetSocketAddress(0), remoteAddress)));
 
         assertTrue(exception.getMessage().toLowerCase().contains("identifier mismatch"));
     }
@@ -125,13 +165,13 @@ class ProxyStateClientHandlerTest {
     @Test
     void responseAuthVerifyFail() throws RadiusException {
         final String secret = "mySecret";
-        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
+        final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
-        final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
+        // add remoteAddress-secret and identifier mapping to handler
         final DatagramPacket datagram = handler.prepareDatagram(
-                new RadiusPacket(dictionary, 1, 1), endpoint, null, promise);
+                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), null, eventLoopGroup.next().newPromise());
         final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
@@ -140,7 +180,7 @@ class ProxyStateClientHandlerTest {
 
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handler.handleResponse(packetEncoder.toDatagram(
-                        badId.encodeResponse(secret, requestAuth), endpoint.getAddress())));
+                        badId.encodeResponse(secret, requestAuth), new InetSocketAddress(0), remoteAddress)));
 
         assertTrue(exception.getMessage().toLowerCase().contains("authenticator check failed"));
     }
@@ -148,14 +188,14 @@ class ProxyStateClientHandlerTest {
     @Test
     void channelReadIsStateful() throws RadiusException {
         final String secret = "mySecret";
-        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
+        final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
 
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
         // process packet out
         final DatagramPacket datagram = handler.prepareDatagram(
-                new RadiusPacket(dictionary, 1, 1), endpoint, null, promise);
+                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), null, promise);
         final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
 
         // capture request details
@@ -170,7 +210,7 @@ class ProxyStateClientHandlerTest {
                 .encodeResponse(secret, requestAuthenticator);
 
         handler.handleResponse(packetEncoder.toDatagram(
-                goodResponse, endpoint.getAddress()));
+                goodResponse, new InetSocketAddress(1), remoteAddress));
 
         final RadiusPacket decodedResponse = promise.getNow();
         assertTrue(promise.isDone());
@@ -186,7 +226,7 @@ class ProxyStateClientHandlerTest {
         // channel read again lookup fails
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handler.handleResponse(packetEncoder.toDatagram(
-                        goodResponse, endpoint.getAddress())));
+                        goodResponse, new InetSocketAddress(0), remoteAddress)));
 
         assertTrue(exception.getMessage().toLowerCase().contains("request context not found"));
 

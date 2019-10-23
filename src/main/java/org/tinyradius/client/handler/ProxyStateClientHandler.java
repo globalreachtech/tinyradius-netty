@@ -33,12 +33,12 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
     private final PacketEncoder packetEncoder;
-    private final Map<SocketAddress, String> secrets = new ConcurrentHashMap<>();
 
+    private final Map<SocketAddress, String> secrets = new ConcurrentHashMap<>();
     private final Map<String, Request> requests = new ConcurrentHashMap<>();
 
     /**
-     * @param packetEncoder  to decode packet incoming DatagramPackets to RadiusPackets
+     * @param packetEncoder to decode packet incoming DatagramPackets to RadiusPackets
      */
     public ProxyStateClientHandler(PacketEncoder packetEncoder) {
         this.packetEncoder = packetEncoder;
@@ -69,10 +69,14 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     @Override
     protected void handleResponse(DatagramPacket datagramPacket) throws RadiusException {
-        String secret = secrets.get(datagramPacket.sender());
-        if (secret == null)
-            throw new RadiusException("Ignoring response - unknown sender " + datagramPacket.sender() +
-                    " received on local address " + datagramPacket.recipient() + " (shared secret lookup failed)");
+        final InetSocketAddress sender = datagramPacket.sender();
+
+        if (sender == null)
+            throw new RadiusException("Ignoring response - sender is null (local address " + datagramPacket.recipient() + ")");
+
+        if (secrets.get(sender) == null)
+            throw new RadiusException("Ignoring response - unknown sender " + sender +
+                    ", shared secret lookup failed (local address " + datagramPacket.recipient() + ")");
 
         RadiusPacket response = packetEncoder.fromDatagram(datagramPacket);
 

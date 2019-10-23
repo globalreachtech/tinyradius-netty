@@ -79,7 +79,8 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
 
         String secret = secretProvider.getSharedSecret(remoteAddress);
         if (secret == null)
-            throw new RadiusException("Ignoring request from client " + remoteAddress + " received on local address " + localAddress + " (shared secret lookup failed)");
+            throw new RadiusException("Ignoring request from unknown client " + remoteAddress +
+                    ", shared secret lookup failed (local address " + localAddress + ")");
 
         // parse packet
         RadiusPacket request = packetEncoder.fromDatagram(datagramPacket, secret);
@@ -91,11 +92,10 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
 
         final byte[] requestAuth = request.getAuthenticator(); // save ref in case request is mutated
 
-        logger.trace("about to call handlePacket()");
         final Promise<RadiusPacket> handlerResult = requestHandler.handlePacket(channel, packetClass.cast(request), remoteAddress, secretProvider);
 
         // so futures don't stay in memory forever if never completed
-        Timeout timeout = timer.newTimeout(t -> handlerResult.tryFailure(new RadiusException("timeout while generating client response")),
+        Timeout timeout = timer.newTimeout(t -> handlerResult.tryFailure(new RadiusException("Timeout while generating client response")),
                 10, SECONDS);
 
         final Promise<DatagramPacket> datagramResult = channel.eventLoop().newPromise();
