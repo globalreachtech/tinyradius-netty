@@ -49,6 +49,7 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
      * proxied
      */
     public abstract RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client);
+    // todo refactor this out?
 
     /**
      * Proxies the given packet to the server given in the proxy connection.

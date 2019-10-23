@@ -34,6 +34,7 @@ public class ProxyStateClientHandler extends ClientHandler {
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
     private final PacketEncoder packetEncoder;
 
+    // todo how to stop these from growing too big?
     private final Map<SocketAddress, String> secrets = new ConcurrentHashMap<>();
     private final Map<String, Request> requests = new ConcurrentHashMap<>();
 
