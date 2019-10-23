@@ -79,7 +79,7 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
 
         String secret = secretProvider.getSharedSecret(remoteAddress);
         if (secret == null)
-            throw new RadiusException("ignoring packet from unknown client " + remoteAddress + " received on local address " + localAddress);
+            throw new RadiusException("Ignoring request from client " + remoteAddress + " received on local address " + localAddress + " (shared secret lookup failed)");
 
         // parse packet
         RadiusPacket request = packetEncoder.fromDatagram(datagramPacket, secret);

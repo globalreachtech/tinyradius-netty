@@ -63,12 +63,12 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
         RadiusEndpoint serverEndpoint = getProxyServer(request, clientEndpoint);
 
         if (serverEndpoint == null) {
-            logger.info("server not found for client proxy request, ignoring");
-            promise.tryFailure(new RadiusException("server not found for client proxy request"));
+            logger.info("Server not found for client proxy request, ignoring");
+            promise.tryFailure(new RadiusException("Server not found for client proxy request"));
             return promise;
         }
 
-        logger.info("proxy packet to " + serverEndpoint.getAddress());
+        logger.info("Proxy packet to " + serverEndpoint.getAddress());
 
         radiusClient.communicate(request, serverEndpoint)
                 .addListener((Future<RadiusPacket> f) -> {

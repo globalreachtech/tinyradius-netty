@@ -11,6 +11,7 @@ import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +33,8 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
     private final PacketEncoder packetEncoder;
+    private final Map<SocketAddress, String> secrets = new ConcurrentHashMap<>();
+
     private final Map<String, Request> requests = new ConcurrentHashMap<>();
 
     /**
@@ -47,6 +50,7 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     @Override
     public DatagramPacket prepareDatagram(RadiusPacket packet, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
+        secrets.put(endpoint.getAddress(), endpoint.getSharedSecret());
 
         final RadiusPacket radiusPacket = new RadiusPacket(
                 packet.getDictionary(), packet.getType(), packet.getIdentifier(), packet.getAuthenticator(), packet.getAttributes());
@@ -65,12 +69,17 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     @Override
     protected void handleResponse(DatagramPacket datagramPacket) throws RadiusException {
+        String secret = secrets.get(datagramPacket.sender());
+        if (secret == null)
+            throw new RadiusException("Ignoring response - unknown sender " + datagramPacket.sender() +
+                    " received on local address " + datagramPacket.recipient() + " (shared secret lookup failed)");
+
         RadiusPacket response = packetEncoder.fromDatagram(datagramPacket);
 
         // retrieve my Proxy-State attribute (the last)
         List<RadiusAttribute> proxyStates = response.getAttributes(PROXY_STATE);
         if (proxyStates.isEmpty())
-            throw new RadiusException("Ignoring packet - no Proxy-State attribute");
+            throw new RadiusException("Ignoring response - no Proxy-State attribute");
 
         RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
         String proxyStateId = new String(proxyState.getValue(), UTF_8);
@@ -78,10 +87,10 @@ public class ProxyStateClientHandler extends ClientHandler {
         final Request request = requests.get(proxyStateId);
 
         if (request == null)
-            throw new RadiusException("Ignoring packet - request context not found");
+            throw new RadiusException("Ignoring response - request context not found");
 
         if (response.getIdentifier() != request.identifier)
-            throw new RadiusException("Ignoring packet - identifier mismatch, request ID " + request.identifier +
+            throw new RadiusException("Ignoring response - identifier mismatch, request ID " + request.identifier +
                     ", response ID " + response.getIdentifier());
 
         response.verify(request.sharedSecret, request.authenticator);

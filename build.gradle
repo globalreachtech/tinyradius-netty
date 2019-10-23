@@ -73,11 +73,6 @@ bintray {
         version {
             name = '1.0.12'
             released = new Date()
-//            mavenCentralSync {
-//                user = 'userToken' //OSS user token
-//                password = 'paasword' //OSS user password
-//            }
-
         }
     }
 }
