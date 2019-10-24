@@ -27,14 +27,14 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  *
  * @param <T> RadiusPacket types that this Channel can accept
  */
-public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInboundHandler<DatagramPacket> {
+public class HandlerAdapter<T extends RadiusPacket, S extends SecretProvider> extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private static final Logger logger = LoggerFactory.getLogger(HandlerAdapter.class);
 
     private final PacketEncoder packetEncoder;
-    private final RequestHandler<T> requestHandler;
+    private final RequestHandler<T, S> requestHandler;
     private final Timer timer;
-    private final SecretProvider secretProvider;
+    private final S secretProvider;
     private final Class<T> packetClass;
 
     /**
@@ -45,7 +45,7 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
      * @param packetClass    restrict RadiusPacket subtypes that can be processed by handler, otherwise will be dropped.
      *                       If all types of RadiusPackets are allowed, use {@link RadiusPacket}
      */
-    public HandlerAdapter(PacketEncoder packetEncoder, RequestHandler<T> requestHandler, Timer timer, SecretProvider secretProvider, Class<T> packetClass) {
+    public HandlerAdapter(PacketEncoder packetEncoder, RequestHandler<T, S> requestHandler, Timer timer, S secretProvider, Class<T> packetClass) {
         this.packetEncoder = packetEncoder;
         this.requestHandler = requestHandler;
         this.timer = timer;
@@ -56,12 +56,13 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
     public void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
         try {
             handleRequest(ctx.channel(), datagramPacket).addListener(f -> {
+                // don't respond if processing/authenticator error
                 if (f.isSuccess() && f.getNow() != null)
                     ctx.writeAndFlush(f.getNow());
             });
 
         } catch (RadiusException e) {
-            logger.error("DatagramPacket handle error: ", e);
+            logger.error("Dropping request, datagramPacket handle error: ", e);
         }
     }
 
@@ -104,10 +105,15 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
             timeout.cancel();
 
             if (f.isSuccess()) {
-                logger.info("Preparing response for {}", remoteAddress);
-                datagramResult.trySuccess(packetEncoder.toDatagram(
-                        f.getNow().encodeResponse(secret, requestAuth),
-                        remoteAddress, localAddress));
+                final RadiusPacket response = f.getNow();
+                if (response != null) {
+                    logger.info("Handler success, preparing response for {}", remoteAddress);
+                    datagramResult.trySuccess(packetEncoder.toDatagram(
+                            response.encodeResponse(secret, requestAuth),
+                            remoteAddress, localAddress));
+                } else {
+                    logger.info("Handler success, nothing to send.");
+                }
             } else {
                 logger.error("Exception while handling packet", f.cause());
                 datagramResult.tryFailure(f.cause());
@@ -115,5 +121,10 @@ public class HandlerAdapter<T extends RadiusPacket> extends SimpleChannelInbound
         });
 
         return datagramResult;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(" + requestHandler.toString() + ")";
     }
 }
