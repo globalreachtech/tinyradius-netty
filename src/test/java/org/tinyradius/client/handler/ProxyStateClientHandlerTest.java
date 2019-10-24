@@ -84,19 +84,6 @@ class ProxyStateClientHandlerTest {
     }
 
     @Test
-    void responseInvalidSharedSecret() {
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
-        final byte[] requestAuth = random.generateSeed(16);
-
-        final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
-        final RadiusException exception = assertThrows(RadiusException.class,
-                () -> handler.handleResponse(packetEncoder.toDatagram(
-                        response.encodeResponse("mySecret", requestAuth), new InetSocketAddress(0), new InetSocketAddress(1))));
-
-        assertTrue(exception.getMessage().toLowerCase().contains("shared secret lookup failed"));
-    }
-
-    @Test
     void responseNoProxyState() {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
@@ -152,14 +139,37 @@ class ProxyStateClientHandlerTest {
         final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
-        final RadiusPacket badId = new RadiusPacket(dictionary, 2, 99,
+        final RadiusPacket response = new RadiusPacket(dictionary, 2, 99,
                 Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, requestProxyState)));
 
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handler.handleResponse(packetEncoder.toDatagram(
-                        badId.encodeResponse(secret, requestAuth), new InetSocketAddress(0), remoteAddress)));
+                        response.encodeResponse(secret, requestAuth), new InetSocketAddress(0), remoteAddress)));
 
         assertTrue(exception.getMessage().toLowerCase().contains("identifier mismatch"));
+    }
+
+    @Test
+    void responseSenderAddressMismatch() throws RadiusException {
+        final String secret = "mySecret";
+        final InetSocketAddress remoteAddress = new InetSocketAddress(123);
+        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final byte[] requestAuth = random.generateSeed(16);
+
+        // add remoteAddress-secret and identifier mapping to handler
+        final DatagramPacket datagram = handler.prepareDatagram(
+                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), null, eventLoopGroup.next().newPromise());
+        final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
+        final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
+
+        final RadiusPacket response = new RadiusPacket(dictionary, 2, 1,
+                Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, requestProxyState)));
+
+        final RadiusException exception = assertThrows(RadiusException.class,
+                () -> handler.handleResponse(packetEncoder.toDatagram(
+                        response.encodeResponse(secret, requestAuth), new InetSocketAddress(0), new InetSocketAddress(456))));
+
+        assertTrue(exception.getMessage().toLowerCase().contains("not match recipient address"));
     }
 
     @Test
@@ -175,12 +185,12 @@ class ProxyStateClientHandlerTest {
         final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
-        final RadiusPacket badId = new RadiusPacket(dictionary, 2, 1,
+        final RadiusPacket response = new RadiusPacket(dictionary, 2, 1,
                 Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, requestProxyState)));
 
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handler.handleResponse(packetEncoder.toDatagram(
-                        badId.encodeResponse(secret, requestAuth), new InetSocketAddress(0), remoteAddress)));
+                        response.encodeResponse(secret, requestAuth), new InetSocketAddress(0), remoteAddress)));
 
         assertTrue(exception.getMessage().toLowerCase().contains("authenticator check failed"));
     }

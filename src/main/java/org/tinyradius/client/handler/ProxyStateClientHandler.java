@@ -11,7 +11,6 @@ import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,8 +33,6 @@ public class ProxyStateClientHandler extends ClientHandler {
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
     private final PacketEncoder packetEncoder;
 
-    // todo how to stop these from growing too big?
-    private final Map<SocketAddress, String> secrets = new ConcurrentHashMap<>();
     private final Map<String, Request> requests = new ConcurrentHashMap<>();
 
     /**
@@ -51,8 +48,6 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     @Override
     public DatagramPacket prepareDatagram(RadiusPacket packet, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
-        secrets.put(endpoint.getAddress(), endpoint.getSharedSecret());
-
         final RadiusPacket radiusPacket = new RadiusPacket(
                 packet.getDictionary(), packet.getType(), packet.getIdentifier(), packet.getAuthenticator(), packet.getAttributes());
 
@@ -60,8 +55,7 @@ public class ProxyStateClientHandler extends ClientHandler {
         radiusPacket.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
         final RadiusPacket encodedRequest = radiusPacket.encodeRequest(endpoint.getSharedSecret());
 
-        requests.put(requestId, new Request(
-                endpoint.getSharedSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), promise));
+        requests.put(requestId, new Request(endpoint, encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), promise));
 
         promise.addListener(f -> requests.remove(requestId));
 
@@ -74,10 +68,6 @@ public class ProxyStateClientHandler extends ClientHandler {
 
         if (sender == null)
             throw new RadiusException("Ignoring response - sender is null (local address " + datagramPacket.recipient() + ")");
-
-        if (secrets.get(sender) == null)
-            throw new RadiusException("Ignoring response - unknown sender " + sender +
-                    ", shared secret lookup failed (local address " + datagramPacket.recipient() + ")");
 
         RadiusPacket response = packetEncoder.fromDatagram(datagramPacket);
 
@@ -98,7 +88,11 @@ public class ProxyStateClientHandler extends ClientHandler {
             throw new RadiusException("Ignoring response - identifier mismatch, request ID " + request.identifier +
                     ", response ID " + response.getIdentifier());
 
-        response.verify(request.sharedSecret, request.authenticator);
+        if (!sender.equals(request.endpoint.getAddress()))
+            throw new RadiusException("Ignoring response - sender address " + sender +
+                    " does not match recipient address for corresponding request.");
+
+        response.verify(request.endpoint.getSharedSecret(), request.authenticator);
 
         response.removeLastAttribute(PROXY_STATE);
 
@@ -108,13 +102,13 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     private static class Request {
 
-        private final String sharedSecret;
+        private final RadiusEndpoint endpoint;
         private final byte[] authenticator;
         private final int identifier;
         private final Promise<RadiusPacket> promise;
 
-        Request(String sharedSecret, byte[] authenticator, int identifier, Promise<RadiusPacket> promise) {
-            this.sharedSecret = sharedSecret;
+        Request(RadiusEndpoint endpoint, byte[] authenticator, int identifier, Promise<RadiusPacket> promise) {
+            this.endpoint = endpoint;
             this.authenticator = authenticator;
             this.identifier = identifier;
             this.promise = promise;
