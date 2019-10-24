@@ -71,7 +71,7 @@ bintray {
         licenses = ['LGPL-2.1']
         vcsUrl = 'https://github.com/globalreachtech/tinyradius-netty.git'
         version {
-            name = '1.0.12'
+            name = '1.0.13'
             released = new Date()
         }
     }
@@ -119,7 +119,7 @@ publishing {
             }
             groupId 'com.globalreachtech'
             artifactId 'tinyradius-netty'
-            version '1.0.12'
+            version '1.0.13'
             pom.withXml {
                 asNode().children().last() + pomConfig
             }
