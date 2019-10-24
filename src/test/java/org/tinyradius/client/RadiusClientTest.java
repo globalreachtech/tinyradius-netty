@@ -7,13 +7,16 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.ResourceLeakDetector;
-import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.client.handler.ClientHandler;
+import org.tinyradius.client.retry.RetryStrategy;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -25,22 +28,26 @@ import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.util.ResourceLeakDetector.Level.PARANOID;
 import static io.netty.util.ResourceLeakDetector.Level.SIMPLE;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class RadiusClientTest {
 
     private final SecureRandom random = new SecureRandom();
-    private final static Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private final static PacketEncoder packetEncoder = new PacketEncoder(dictionary);
+    private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private static final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
 
     private final ChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
 
-    private static final HashedWheelTimer timer = new HashedWheelTimer();
-    private static final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+    private final HashedWheelTimer timer = new HashedWheelTimer();
+    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
+
+    @Spy
+    private RetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 100);
 
     @BeforeAll
     static void beforeAll() {
@@ -49,14 +56,11 @@ class RadiusClientTest {
 
     @AfterAll
     static void afterAll() {
-        timer.stop();
-        eventLoopGroup.shutdownGracefully().syncUninterruptibly();
         ResourceLeakDetector.setLevel(SIMPLE);
     }
 
     @Test()
     void communicateWithTimeout() {
-        final SimpleRetryStrategyHelper retryStrategy = new SimpleRetryStrategyHelper(timer, 3, 100);
         RadiusClient radiusClient = new RadiusClient(
                 eventLoopGroup, channelFactory, new MockClientHandler(null), retryStrategy, new InetSocketAddress(0));
 
@@ -67,7 +71,7 @@ class RadiusClientTest {
                 () -> radiusClient.communicate(request, endpoint).syncUninterruptibly());
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
-        assertEquals(3, retryStrategy.count.get());
+        verify(retryStrategy, times(3)).scheduleRetry(any(), anyInt(), any());
         radiusClient.stop().syncUninterruptibly();
     }
 
@@ -76,7 +80,7 @@ class RadiusClientTest {
         final int id = random.nextInt(256);
         final RadiusPacket response = new RadiusPacket(DefaultDictionary.INSTANCE, 2, id);
         final MockClientHandler mockClientHandler = new MockClientHandler(response);
-        final SimpleRetryStrategyHelper simpleRetryStrategyHelper = new SimpleRetryStrategyHelper(timer, 3, 1000);
+        final SimpleRetryStrategy simpleRetryStrategyHelper = new SimpleRetryStrategy(timer, 3, 1000);
 
         final RadiusClient radiusClient = new RadiusClient(
                 eventLoopGroup, channelFactory, mockClientHandler, simpleRetryStrategyHelper, new InetSocketAddress(0));
@@ -110,21 +114,6 @@ class RadiusClientTest {
         assertTrue(future.cause().getMessage().toLowerCase().contains("missing authenticator"));
 
         radiusClient.stop().syncUninterruptibly();
-    }
-
-    private static class SimpleRetryStrategyHelper extends SimpleRetryStrategy {
-
-        private final AtomicInteger count = new AtomicInteger();
-
-        SimpleRetryStrategyHelper(Timer timer, int maxAttempts, int retryWait) {
-            super(timer, maxAttempts, retryWait);
-        }
-
-        @Override
-        public void scheduleRetry(Runnable retry, int totalAttempts, Promise<RadiusPacket> promise) {
-            super.scheduleRetry(retry, totalAttempts, promise);
-            count.getAndIncrement();
-        }
     }
 
     private static class MockClientHandler extends ClientHandler {
