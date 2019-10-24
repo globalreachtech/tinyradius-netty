@@ -21,11 +21,11 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * null if duplicate. This considers packets duplicate
  * if packetIdentifier and remote address matches.
  */
-public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandler<T> {
+public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandler<T, SecretProvider> {
 
     private static final Logger logger = LoggerFactory.getLogger(DeduplicatorHandler.class);
 
-    private final RequestHandler<T> requestHandler;
+    private final RequestHandler<T, SecretProvider> requestHandler;
     private final Timer timer;
     private final long ttlMs;
 
@@ -36,7 +36,7 @@ public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandl
      * @param timer          used to set timeouts that clean up packets after predefined TTL
      * @param ttlMs          time in ms to keep packets in cache and ignore duplicates
      */
-    public DeduplicatorHandler(RequestHandler<T> requestHandler, Timer timer, long ttlMs) {
+    public DeduplicatorHandler(RequestHandler<T, SecretProvider> requestHandler, Timer timer, long ttlMs) {
         this.requestHandler = requestHandler;
         this.timer = timer;
         this.ttlMs = ttlMs;

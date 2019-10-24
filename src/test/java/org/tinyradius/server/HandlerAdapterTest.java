@@ -42,7 +42,7 @@ class HandlerAdapterTest {
 
     @Test
     void unknownClient() {
-        final HandlerAdapter<AccountingRequest> handlerAdapter = new HandlerAdapter<>(
+        final HandlerAdapter<AccountingRequest, SecretProvider> handlerAdapter = new HandlerAdapter<>(
                 packetEncoder, null, timer, address -> null, AccountingRequest.class);
         final DatagramPacket datagramPacket = new DatagramPacket(Unpooled.buffer(0), new InetSocketAddress(0));
 
@@ -60,7 +60,7 @@ class HandlerAdapterTest {
         final RadiusPacket radiusPacket = new AccountingRequest(dictionary, 1, null).encodeRequest(secret);
         final DatagramPacket datagramPacket = packetEncoder.toDatagram(radiusPacket, new InetSocketAddress(0));
 
-        final HandlerAdapter<AccessRequest> handlerAdapter = new HandlerAdapter<>(
+        final HandlerAdapter<AccessRequest, SecretProvider> handlerAdapter = new HandlerAdapter<>(
                 packetEncoder, null, timer, address -> secret, AccessRequest.class);
 
         final RadiusException exception = assertThrows(RadiusException.class,
@@ -78,7 +78,7 @@ class HandlerAdapterTest {
         final DatagramPacket request = packetEncoder.toDatagram(radiusPacket, new InetSocketAddress(0));
         final MockRequestHandler mockRequestHandler = new MockRequestHandler();
 
-        final HandlerAdapter<RadiusPacket> handlerAdapter = new HandlerAdapter<>(
+        final HandlerAdapter<RadiusPacket, SecretProvider> handlerAdapter = new HandlerAdapter<>(
                 packetEncoder, mockRequestHandler, timer, address -> secret, RadiusPacket.class);
 
         final NioDatagramChannel channel = channelFactory.newChannel();
@@ -108,7 +108,7 @@ class HandlerAdapterTest {
         final DatagramPacket request = packetEncoder.toDatagram(requestPacket, serverAddress, clientAddress);
         final MockRequestHandler mockRequestHandler = new MockRequestHandler();
 
-        final HandlerAdapter<RadiusPacket> handlerAdapter = new HandlerAdapter<>(
+        final HandlerAdapter<RadiusPacket, SecretProvider> handlerAdapter = new HandlerAdapter<>(
                 packetEncoder, mockRequestHandler, timer, address -> secret, RadiusPacket.class);
 
         final NioDatagramChannel channel = channelFactory.newChannel();
@@ -127,7 +127,7 @@ class HandlerAdapterTest {
                 packetEncoder.toDatagram(responsePacket, clientAddress, serverAddress).content().array());
     }
 
-    private static class MockRequestHandler implements RequestHandler<RadiusPacket> {
+    private static class MockRequestHandler implements RequestHandler<RadiusPacket, SecretProvider> {
 
         private Promise<RadiusPacket> promise;
 

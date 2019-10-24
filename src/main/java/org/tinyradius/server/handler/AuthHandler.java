@@ -15,7 +15,7 @@ import static org.tinyradius.packet.PacketType.ACCESS_REJECT;
  * Reference implementation of AccessRequest handler that returns Access-Accept/Reject
  * depending on whether {@link #getUserPassword(String)} matches password in Access-Request.
  */
-public abstract class AuthHandler implements RequestHandler<AccessRequest> {
+public abstract class AuthHandler implements RequestHandler<AccessRequest, SecretProvider> {
 
     /**
      * Returns the password of the passed user.

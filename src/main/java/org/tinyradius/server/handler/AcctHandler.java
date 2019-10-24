@@ -14,7 +14,7 @@ import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
  * A reference implementation of AccountingRequest handler that responds to all Accounting-Request
  * with standard Accounting-Response.
  */
-public class AcctHandler implements RequestHandler<AccountingRequest> {
+public class AcctHandler implements RequestHandler<AccountingRequest, SecretProvider> {
 
     @Override
     public Promise<RadiusPacket> handlePacket(Channel channel, AccountingRequest request, InetSocketAddress remoteAddress, SecretProvider secretProvider) {

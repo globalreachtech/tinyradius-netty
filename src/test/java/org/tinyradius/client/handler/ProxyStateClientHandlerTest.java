@@ -90,12 +90,6 @@ class ProxyStateClientHandlerTest {
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
-        // dont care about actually preparing/sending packet, just need to add remoteAddress-secret mapping to handler
-        try {
-            handler.prepareDatagram(null, new RadiusEndpoint(remoteAddress, secret), null, null);
-        } catch (Exception ignored) {
-        }
-
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handler.handleResponse(packetEncoder.toDatagram(
@@ -110,12 +104,6 @@ class ProxyStateClientHandlerTest {
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
-
-        // dont care about actually preparing/sending packet, just need to add remoteAddress-secret mapping to handler
-        try {
-            handler.prepareDatagram(null, new RadiusEndpoint(remoteAddress, secret), null, null);
-        } catch (Exception ignored) {
-        }
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1,
                 Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, "123abc")));
@@ -196,7 +184,7 @@ class ProxyStateClientHandlerTest {
     }
 
     @Test
-    void channelReadIsStateful() throws RadiusException {
+    void channelReadIsStateful() throws RadiusException, InterruptedException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
@@ -232,6 +220,9 @@ class ProxyStateClientHandlerTest {
         assertEquals(0, decodedResponse.getAttributes().size());
         assertEquals(1, goodResponse.getAttributes().size());
         assertArrayEquals(requestProxyState, goodResponse.getAttribute(PROXY_STATE).getValue());
+
+        // pause to avoid race condition
+        Thread.sleep(100);
 
         // channel read again lookup fails
         final RadiusException exception = assertThrows(RadiusException.class,

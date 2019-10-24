@@ -27,7 +27,7 @@ import java.net.InetSocketAddress;
  * This implementation expects {@link #getProxyServer(RadiusPacket, RadiusEndpoint)} to lookup
  * endpoint to forward requests to.
  */
-public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket> {
+public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket, SecretProvider> {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyRequestHandler.class);
 
@@ -49,7 +49,6 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
      * proxied
      */
     public abstract RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client);
-    // todo refactor this out?
 
     /**
      * Proxies the given packet to the server given in the proxy connection.

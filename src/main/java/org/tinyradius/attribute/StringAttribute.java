@@ -9,7 +9,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class StringAttribute extends RadiusAttribute {
 
-    // todo make public and add docs to recommend using builder
     StringAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         super(dictionary, vendorId, type, data);
         if (data.length < 1)

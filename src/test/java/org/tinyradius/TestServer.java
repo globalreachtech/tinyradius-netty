@@ -43,7 +43,7 @@ public class TestServer {
         final SecretProvider secretProvider = remote ->
                 remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
 
-        final RequestHandler<AccessRequest> authHandler = new DeduplicatorHandler<>(new AuthHandler() {
+        final RequestHandler<AccessRequest, SecretProvider> authHandler = new DeduplicatorHandler<>(new AuthHandler() {
             @Override
             public String getUserPassword(String userName) {
                 return userName.equals("test") ? "password" : null;
@@ -70,7 +70,7 @@ public class TestServer {
             }
         }, timer, 30000);
 
-        RequestHandler<AccountingRequest> acctHandler = new DeduplicatorHandler<>(new AcctHandler(), timer, 30000);
+        RequestHandler<AccountingRequest, SecretProvider> acctHandler = new DeduplicatorHandler<>(new AcctHandler(), timer, 30000);
 
         final RadiusServer server = new RadiusServer(
                 eventLoopGroup,

@@ -74,7 +74,7 @@ class RadiusServerTest {
         assertEquals(Collections.singletonList(TAIL_CONTEXT), server.getAuthChannel().pipeline().names());
     }
 
-    private static class MockHandler extends HandlerAdapter<RadiusPacket> {
+    private static class MockHandler extends HandlerAdapter<RadiusPacket, SecretProvider> {
 
         private final AtomicInteger count = new AtomicInteger();
 
