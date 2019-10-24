@@ -295,7 +295,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Handler that wraps around another handler and deduplicates requests, returning
  null if duplicate.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/DeduplicatorHandler.html#DeduplicatorHandler-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-long-">DeduplicatorHandler(RequestHandler&lt;T&gt;, Timer, long)</a></span> - Constructor for class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/DeduplicatorHandler.html" title="class in org.tinyradius.server.handler">DeduplicatorHandler</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/DeduplicatorHandler.html#DeduplicatorHandler-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-long-">DeduplicatorHandler(RequestHandler&lt;T, SecretProvider&gt;, Timer, long)</a></span> - Constructor for class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/DeduplicatorHandler.html" title="class in org.tinyradius.server.handler">DeduplicatorHandler</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/dictionary/DefaultDictionary.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">DefaultDictionary</span></a> - Class in <a href="org/tinyradius/dictionary/package-summary.html">org.tinyradius.dictionary</a></dt>
 <dd>
@@ -606,16 +606,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/DeduplicatorHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">handlePacket(Channel, T, InetSocketAddress, SecretProvider)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/DeduplicatorHandler.html" title="class in org.tinyradius.server.handler">DeduplicatorHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">handlePacket(Channel, T, InetSocketAddress, SecretProvider)</a></span> - Method in interface org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-S-">handlePacket(Channel, T, InetSocketAddress, S)</a></span> - Method in interface org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a></dt>
 <dd>
 <div class="block">Handles the received Radius packet and constructs a response.</div>
 </dd>
-<dt><a href="org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server"><span class="typeNameLink">HandlerAdapter</span></a>&lt;<a href="org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">T</a> extends <a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt; - Class in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
+<dt><a href="org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server"><span class="typeNameLink">HandlerAdapter</span></a>&lt;<a href="org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">T</a> extends <a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">S</a> extends <a href="org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt; - Class in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
 <dd>
 <div class="block">SimpleChannelInboundHandler implementation that converts between RadiusPackets
  and DatagramPackets.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/HandlerAdapter.html#HandlerAdapter-org.tinyradius.packet.PacketEncoder-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-org.tinyradius.server.SecretProvider-java.lang.Class-">HandlerAdapter(PacketEncoder, RequestHandler&lt;T&gt;, Timer, SecretProvider, Class&lt;T&gt;)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/HandlerAdapter.html#HandlerAdapter-org.tinyradius.packet.PacketEncoder-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-S-java.lang.Class-">HandlerAdapter(PacketEncoder, RequestHandler&lt;T, S&gt;, Timer, S, Class&lt;T&gt;)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/HandlerAdapter.html#handleRequest-io.netty.channel.Channel-io.netty.channel.socket.DatagramPacket-">handleRequest(Channel, DatagramPacket)</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a></dt>
 <dd>
@@ -901,7 +901,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Removes the specified sub-attribute from this attribute.</div>
 </dd>
-<dt><a href="org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler"><span class="typeNameLink">RequestHandler</span></a>&lt;<a href="org/tinyradius/server/handler/RequestHandler.html" title="type parameter in RequestHandler">T</a> extends <a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt; - Interface in <a href="org/tinyradius/server/handler/package-summary.html">org.tinyradius.server.handler</a></dt>
+<dt><a href="org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler"><span class="typeNameLink">RequestHandler</span></a>&lt;<a href="org/tinyradius/server/handler/RequestHandler.html" title="type parameter in RequestHandler">T</a> extends <a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="org/tinyradius/server/handler/RequestHandler.html" title="type parameter in RequestHandler">S</a> extends <a href="org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt; - Interface in <a href="org/tinyradius/server/handler/package-summary.html">org.tinyradius.server.handler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/PacketType.html#RESERVED">RESERVED</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet">PacketType</a></dt>
 <dd>&nbsp;</dd>
@@ -1019,6 +1019,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Returns a string representation for debugging.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/RadiusPacket.html#toString--">toString()</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/HandlerAdapter.html#toString--">toString()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a id="I:V">

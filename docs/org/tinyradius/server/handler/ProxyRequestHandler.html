@@ -137,13 +137,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></dd>
+<dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;</code></dd>
 </dl>
 <hr>
 <br>
 <pre>public abstract class <span class="typeNameLabel">ProxyRequestHandler</span>
 extends java.lang.Object
-implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</pre>
+implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;</pre>
 <div class="block">RadiusServer handler that proxies packets to destination.
  <p>
  Depends on RadiusClient to proxy packets.
@@ -304,7 +304,7 @@ implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.htm
  is added to the packet in the "Proxy-State" attribute.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">handlePacket</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></dd>
+<dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-S-">handlePacket</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>channel</code> - socket which received packet</dd>
 <dd><code>request</code> - incoming packet, can be RadiusPacket or subclass</dd>

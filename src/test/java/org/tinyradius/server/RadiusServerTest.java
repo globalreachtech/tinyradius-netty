@@ -1,36 +1,35 @@
 package org.tinyradius.server;
 
 import io.netty.channel.ChannelFactory;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.packet.RadiusPacket;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 class RadiusServerTest {
 
     private final ChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
-    private static final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);
+    private final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(2);
 
-    @AfterAll
-    static void afterAll() {
-        eventExecutors.shutdownGracefully().syncUninterruptibly();
-    }
+    @Mock
+    private HandlerAdapter<RadiusPacket, SecretProvider> authHandler;
+
+    @Mock
+    private HandlerAdapter<RadiusPacket, SecretProvider> acctHandler;
 
     @Test
     void serverStartStop() throws InterruptedException {
-        final MockHandler authHandler = new MockHandler();
-        final MockHandler acctHandler = new MockHandler();
         final RadiusServer server = new RadiusServer(
                 eventExecutors, channelFactory, authHandler, acctHandler, new InetSocketAddress(1024), new InetSocketAddress(1025));
 
@@ -58,9 +57,13 @@ class RadiusServerTest {
         assertNotNull(server.getAuthChannel().localAddress());
 
         // handlers registered
-        final String mockHandlerName = "RadiusServerTest$MockHandler#0";
-        assertEquals(Arrays.asList(mockHandlerName, TAIL_CONTEXT), server.getAcctChannel().pipeline().names());
-        assertEquals(Arrays.asList(mockHandlerName, TAIL_CONTEXT), server.getAuthChannel().pipeline().names());
+        final List<String> acctPipeline = server.getAcctChannel().pipeline().names();
+        assertEquals(TAIL_CONTEXT, acctPipeline.get(1));
+        assertTrue(acctPipeline.get(0).contains("HandlerAdapter$MockitoMock$"));
+
+        final List<String> authPipeline = server.getAuthChannel().pipeline().names();
+        assertEquals(TAIL_CONTEXT, authPipeline.get(1));
+        assertTrue(authPipeline.get(0).contains("HandlerAdapter$MockitoMock$"));
 
         server.stop().syncUninterruptibly();
         Thread.sleep(500);
@@ -72,19 +75,5 @@ class RadiusServerTest {
         // no handlers registered
         assertEquals(Collections.singletonList(TAIL_CONTEXT), server.getAcctChannel().pipeline().names());
         assertEquals(Collections.singletonList(TAIL_CONTEXT), server.getAuthChannel().pipeline().names());
-    }
-
-    private static class MockHandler extends HandlerAdapter<RadiusPacket, SecretProvider> {
-
-        private final AtomicInteger count = new AtomicInteger();
-
-        MockHandler() {
-            super(null, null, null, null, null);
-        }
-
-        @Override
-        public void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
-            count.incrementAndGet();
-        }
     }
 }

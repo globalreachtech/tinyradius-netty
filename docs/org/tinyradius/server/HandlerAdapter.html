@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
+var methods = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -121,7 +121,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../org/tinyradius/server/package-summary.html">org.tinyradius.server</a></div>
-<h2 title="Class HandlerAdapter" class="title">Class HandlerAdapter&lt;T extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</h2>
+<h2 title="Class HandlerAdapter" class="title">Class HandlerAdapter&lt;T extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,S extends <a href="../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
@@ -137,7 +137,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.DatagramPacket&gt;</li>
 <li>
 <ul class="inheritance">
-<li>org.tinyradius.server.HandlerAdapter&lt;T&gt;</li>
+<li>org.tinyradius.server.HandlerAdapter&lt;T,S&gt;</li>
 </ul>
 </li>
 </ul>
@@ -156,7 +156,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <br>
-<pre>public class <span class="typeNameLabel">HandlerAdapter&lt;T extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</span>
+<pre>public class <span class="typeNameLabel">HandlerAdapter&lt;T extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,S extends <a href="../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;</span>
 extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.DatagramPacket&gt;</pre>
 <div class="block">SimpleChannelInboundHandler implementation that converts between RadiusPackets
  and DatagramPackets. Acts as an adapter so RequestHandlers dont have to be
@@ -199,10 +199,10 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/HandlerAdapter.html#HandlerAdapter-org.tinyradius.packet.PacketEncoder-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-org.tinyradius.server.SecretProvider-java.lang.Class-">HandlerAdapter</a></span>&#8203;(<a href="../../../org/tinyradius/packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
-              <a href="../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">T</a>&gt;&nbsp;requestHandler,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/HandlerAdapter.html#HandlerAdapter-org.tinyradius.packet.PacketEncoder-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-S-java.lang.Class-">HandlerAdapter</a></span>&#8203;(<a href="../../../org/tinyradius/packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
+              <a href="../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">T</a>,<a href="../../../org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">S</a>&gt;&nbsp;requestHandler,
               io.netty.util.Timer&nbsp;timer,
-              <a href="../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&nbsp;secretProvider,
+              <a href="../../../org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">S</a>&nbsp;secretProvider,
               java.lang.Class&lt;<a href="../../../org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">T</a>&gt;&nbsp;packetClass)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -238,6 +238,11 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <div class="block">Processes DatagramPacket.</div>
 </td>
 </tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/HandlerAdapter.html#toString--">toString</a></span>&#8203;()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.io.netty.channel.ChannelHandler">
@@ -265,7 +270,7 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
-<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
+<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, wait, wait, wait</code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.io.netty.channel.SimpleChannelInboundHandler">
@@ -292,14 +297,16 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <h3>Constructor Detail</h3>
 <a id="HandlerAdapter-org.tinyradius.packet.PacketEncoder-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-org.tinyradius.server.SecretProvider-java.lang.Class-">
 <!--   -->
+</a><a id="HandlerAdapter-org.tinyradius.packet.PacketEncoder-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-S-java.lang.Class-">
+<!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>HandlerAdapter</h4>
 <pre>public&nbsp;HandlerAdapter&#8203;(<a href="../../../org/tinyradius/packet/PacketEncoder.html" title="class in org.tinyradius.packet">PacketEncoder</a>&nbsp;packetEncoder,
-                      <a href="../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">T</a>&gt;&nbsp;requestHandler,
+                      <a href="../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">T</a>,<a href="../../../org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">S</a>&gt;&nbsp;requestHandler,
                       io.netty.util.Timer&nbsp;timer,
-                      <a href="../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&nbsp;secretProvider,
+                      <a href="../../../org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">S</a>&nbsp;secretProvider,
                       java.lang.Class&lt;<a href="../../../org/tinyradius/server/HandlerAdapter.html" title="type parameter in HandlerAdapter">T</a>&gt;&nbsp;packetClass)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -339,7 +346,7 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <a id="handleRequest-io.netty.channel.Channel-io.netty.channel.socket.DatagramPacket-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>handleRequest</h4>
 <pre>protected&nbsp;io.netty.util.concurrent.Future&lt;io.netty.channel.socket.DatagramPacket&gt;&nbsp;handleRequest&#8203;(io.netty.channel.Channel&nbsp;channel,
@@ -354,6 +361,19 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <dd>Future that completes when request is handled. Can contain DatagramPacket response</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../org/tinyradius/util/RadiusException.html" title="class in org.tinyradius.util">RadiusException</a></code> - malformed packet</dd>
+</dl>
+</li>
+</ul>
+<a id="toString--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toString</h4>
+<pre>public&nbsp;java.lang.String&nbsp;toString&#8203;()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
 </dl>
 </li>
 </ul>

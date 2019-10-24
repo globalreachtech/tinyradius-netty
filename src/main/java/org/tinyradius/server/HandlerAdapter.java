@@ -61,7 +61,7 @@ public class HandlerAdapter<T extends RadiusPacket, S extends SecretProvider> ex
                     ctx.writeAndFlush(f.getNow());
             });
 
-        } catch (RadiusException e) {
+        } catch (Exception e) {
             logger.error("Dropping request, datagramPacket handle error: ", e);
         }
     }

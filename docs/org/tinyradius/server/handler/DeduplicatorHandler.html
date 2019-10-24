@@ -137,13 +137,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;T&gt;</code></dd>
+<dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;T,<a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;</code></dd>
 </dl>
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">DeduplicatorHandler&lt;T extends <a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</span>
 extends java.lang.Object
-implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;T&gt;</pre>
+implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;T,<a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;</pre>
 <div class="block">Handler that wraps around another handler and deduplicates requests, returning
  null if duplicate. This considers packets duplicate
  if packetIdentifier and remote address matches.</div>
@@ -167,7 +167,7 @@ implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.htm
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/server/handler/DeduplicatorHandler.html#DeduplicatorHandler-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-long-">DeduplicatorHandler</a></span>&#8203;(<a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/server/handler/DeduplicatorHandler.html" title="type parameter in DeduplicatorHandler">T</a>&gt;&nbsp;requestHandler,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/server/handler/DeduplicatorHandler.html#DeduplicatorHandler-org.tinyradius.server.handler.RequestHandler-io.netty.util.Timer-long-">DeduplicatorHandler</a></span>&#8203;(<a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/server/handler/DeduplicatorHandler.html" title="type parameter in DeduplicatorHandler">T</a>,<a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;&nbsp;requestHandler,
                    io.netty.util.Timer&nbsp;timer,
                    long&nbsp;ttlMs)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -230,7 +230,7 @@ implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.htm
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DeduplicatorHandler</h4>
-<pre>public&nbsp;DeduplicatorHandler&#8203;(<a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/server/handler/DeduplicatorHandler.html" title="type parameter in DeduplicatorHandler">T</a>&gt;&nbsp;requestHandler,
+<pre>public&nbsp;DeduplicatorHandler&#8203;(<a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/server/handler/DeduplicatorHandler.html" title="type parameter in DeduplicatorHandler">T</a>,<a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;&nbsp;requestHandler,
                            io.netty.util.Timer&nbsp;timer,
                            long&nbsp;ttlMs)</pre>
 <dl>
@@ -263,12 +263,12 @@ implements <a href="../../../../org/tinyradius/server/handler/RequestHandler.htm
                                                                    <a href="../../../../org/tinyradius/server/handler/DeduplicatorHandler.html" title="type parameter in DeduplicatorHandler">T</a>&nbsp;request,
                                                                    java.net.InetSocketAddress&nbsp;remoteAddress,
                                                                    <a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&nbsp;secretProvider)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">RequestHandler</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-S-">RequestHandler</a></code></span></div>
 <div class="block">Handles the received Radius packet and constructs a response. Filters/Deduplicators
  can also implement this and wrap around underlying handlers.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-org.tinyradius.server.SecretProvider-">handlePacket</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/server/handler/DeduplicatorHandler.html" title="type parameter in DeduplicatorHandler">T</a> extends <a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></dd>
+<dd><code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html#handlePacket-io.netty.channel.Channel-T-java.net.InetSocketAddress-S-">handlePacket</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;<a href="../../../../org/tinyradius/server/handler/DeduplicatorHandler.html" title="type parameter in DeduplicatorHandler">T</a> extends <a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>channel</code> - socket which received packet</dd>
 <dd><code>request</code> - the packet</dd>
