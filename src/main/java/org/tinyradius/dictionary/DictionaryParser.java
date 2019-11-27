@@ -140,12 +140,12 @@ public class DictionaryParser {
         if (tok.length != 5)
             logger.warn("vendor attribute parse error on line {}: {}", lineNum, tok);
 
-        String vendor = tok[1];
+        int vendor = parseInt(tok[1]);
         String name = tok[2];
         int code = parseInt(tok[3]);
         String typeStr = tok[4];
 
-        dictionary.addAttributeType(new AttributeType(parseInt(vendor), code, name, typeStr));
+        dictionary.addAttributeType(new AttributeType(vendor, code, name, typeStr));
     }
 
     /**
