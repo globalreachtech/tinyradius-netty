@@ -1,7 +1,5 @@
 package org.tinyradius.dictionary;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.AttributeType;
 
 import java.io.BufferedReader;
@@ -11,6 +9,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import static java.lang.Integer.parseInt;
 
@@ -18,8 +17,6 @@ import static java.lang.Integer.parseInt;
  * Parses a dictionary in "Radiator format" and fills a WritableDictionary.
  */
 public class DictionaryParser {
-
-    private static final Logger logger = LoggerFactory.getLogger(DictionaryParser.class);
 
     private final ResourceResolver resourceResolver;
 
@@ -95,16 +92,17 @@ public class DictionaryParser {
                 parseVendorLine(dictionary, tokens, lineNum);
                 break;
             default:
-                logger.warn("unknown line type: {} line: {}", tokens[0], lineNum);
+                throw new IOException("Unknown line type: " + tokens[0] + " line: " + lineNum);
         }
     }
 
     /**
      * Parse a line that declares an attribute.
      */
-    private void parseAttributeLine(WritableDictionary dictionary, String[] tok, int lineNum) {
-        if (tok.length != 4)
-            logger.warn("attribute parse error on line {}, {}", lineNum, tok);
+    private void parseAttributeLine(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
+        if (tok.length != 4) {
+            throw new IOException("Attribute parse error on line " + lineNum + ", " + Arrays.toString(tok));
+        }
 
         // read name, code, type
         String name = tok[1];
@@ -118,9 +116,10 @@ public class DictionaryParser {
     /**
      * Parses a VALUE line containing an enumeration value.
      */
-    private void parseValueLine(WritableDictionary dictionary, String[] tok, int lineNum) {
-        if (tok.length != 4)
-            logger.warn("value parse error on line {}: {}", lineNum, tok);
+    private void parseValueLine(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
+        if (tok.length != 4) {
+            throw new IOException("Value parse error on line " + lineNum + ": " + Arrays.toString(tok));
+        }
 
         String typeName = tok[1];
         String enumName = tok[2];
@@ -128,7 +127,7 @@ public class DictionaryParser {
 
         AttributeType at = dictionary.getAttributeTypeByName(typeName);
         if (at == null)
-            logger.warn("unknown attribute type: {}, line: {}", typeName, lineNum);
+            throw new IOException("Unknown attribute type: " + typeName + ", line: " + lineNum);
         else
             at.addEnumerationValue(parseInt(valStr), enumName);
     }
@@ -136,9 +135,10 @@ public class DictionaryParser {
     /**
      * Parses a line that declares a Vendor-Specific attribute.
      */
-    private void parseVendorAttributeLine(WritableDictionary dictionary, String[] tok, int lineNum) {
-        if (tok.length != 5)
-            logger.warn("vendor attribute parse error on line {}: {}", lineNum, tok);
+    private void parseVendorAttributeLine(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
+        if (tok.length != 5) {
+            throw new IOException("Vendor Attribute parse error on line " + lineNum + ": " + Arrays.toString(tok));
+        }
 
         int vendor = parseInt(tok[1]);
         String name = tok[2];
@@ -151,9 +151,10 @@ public class DictionaryParser {
     /**
      * Parses a line containing a vendor declaration.
      */
-    private void parseVendorLine(WritableDictionary dictionary, String[] tok, int lineNum) {
-        if (tok.length != 3)
-            logger.warn("vendor parse error on line {}: {}", lineNum, tok);
+    private void parseVendorLine(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
+        if (tok.length != 3) {
+            throw new IOException("Vendor parse error on line " + lineNum + ": " + Arrays.toString(tok));
+        }
 
         int vendorId = parseInt(tok[1]);
         String vendorName = tok[2];
@@ -165,8 +166,9 @@ public class DictionaryParser {
      * Includes a dictionary file.
      */
     private void includeDictionaryFile(WritableDictionary dictionary, String[] tok, int lineNum, String currentResource) throws IOException {
-        if (tok.length != 2)
-            logger.warn("dictionary parse error on line {}: {}", lineNum, tok);
+        if (tok.length != 2) {
+            throw new IOException("Dictionary include parse error on line " + lineNum + ": " + Arrays.toString(tok));
+        }
         String includeFile = tok[1];
 
         final String nextResource = resourceResolver.resolve(currentResource, includeFile);
@@ -174,7 +176,7 @@ public class DictionaryParser {
         if (!nextResource.isEmpty())
             parseDictionary(dictionary, nextResource);
         else
-            logger.warn("included file '{}' not found, line {}, {}", includeFile, lineNum, currentResource);
+            throw new IOException("Included file '" + includeFile + "' was not found, line " + lineNum + ", " + currentResource);
     }
 
     public interface ResourceResolver {
