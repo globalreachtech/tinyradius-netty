@@ -21,7 +21,7 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
     testImplementation 'org.slf4j:slf4j-simple:1.7.29'
-    testImplementation 'org.mockito:mockito-junit-jupiter:3.1.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.2.0'
     testImplementation('net.jradius:jradius-core:1.1.5') {
         transitive = false // for reference implementation of hashing utilities
     }
