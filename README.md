@@ -67,9 +67,7 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
     - `ProxyRequestHandler` handles incoming requests, but instead of processing directly or delegating, proxies the request using an instance of RadiusClient. This is where the main proxying processing is done. 
 
 ## License
-Copyright Matthias Wuttke (mw@teuto.net) and contributors.
-
-Source code from
+Copyright Matthias Wuttke (mw@teuto.net) and contributors:
 - http://tinyradius.sourceforge.net/
 - https://github.com/ctran/TinyRadius
 

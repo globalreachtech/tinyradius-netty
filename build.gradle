@@ -72,7 +72,7 @@ bintray {
         licenses = ['LGPL-2.1']
         vcsUrl = 'https://github.com/globalreachtech/tinyradius-netty.git'
         version {
-            name = '1.0.14'
+            name = '1.0.15'
             released = new Date()
         }
     }
@@ -91,17 +91,7 @@ def pomConfig = {
     }
     developers {
         developer {
-            id 'wuttke'
-            name 'Matthias Wuttke'
-            email 'mw@teuto.net'
-        }
-        developer {
-            id 'ctran'
-            email 'cuong.tran@gmail.com'
-        }
-        developer {
             id 'globalreachtech'
-            organization 'GlobalReach Technology'
             organizationUrl 'https://www.globalreachtech.com/'
         }
     }
@@ -120,7 +110,7 @@ publishing {
             }
             groupId 'com.globalreachtech'
             artifactId 'tinyradius-netty'
-            version '1.0.14'
+            version '1.0.15'
             pom.withXml {
                 asNode().children().last() + pomConfig
             }
