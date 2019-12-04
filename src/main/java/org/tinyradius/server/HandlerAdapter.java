@@ -53,12 +53,21 @@ public class HandlerAdapter<T extends RadiusPacket, S extends SecretProvider> ex
         this.packetClass = packetClass;
     }
 
-    public void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
+    public void channelRead0(ChannelHandlerContext ctx, DatagramPacket requestPacket) {
         try {
-            handleRequest(ctx.channel(), datagramPacket).addListener(f -> {
+            handleRequest(ctx.channel(), requestPacket).addListener((Future<DatagramPacket> f) -> {
                 // don't respond if processing/authenticator error
-                if (f.isSuccess() && f.getNow() != null)
-                    ctx.writeAndFlush(f.getNow());
+                if (f.isSuccess()) {
+                    DatagramPacket responsePacket = f.getNow();
+                    if (responsePacket != null) {
+                        logger.info("Request handled, sending response to {}", responsePacket.recipient());
+                        ctx.writeAndFlush(responsePacket);
+                    } else {
+                        logger.info("Request handled, nothing to respond");
+                    }
+                } else {
+                    logger.error("Exception while handling request", f.cause());
+                }
             });
 
         } catch (Exception e) {
@@ -96,8 +105,8 @@ public class HandlerAdapter<T extends RadiusPacket, S extends SecretProvider> ex
         final Promise<RadiusPacket> handlerResult = requestHandler.handlePacket(channel, packetClass.cast(request), remoteAddress, secretProvider);
 
         // so futures don't stay in memory forever if never completed
-        Timeout timeout = timer.newTimeout(t -> handlerResult.tryFailure(new RadiusException("Timeout while generating client response")),
-                10, SECONDS);
+        Timeout timeout = timer.newTimeout(t -> handlerResult.tryFailure(
+                new RadiusException("Request handler timed out")), 10, SECONDS);
 
         final Promise<DatagramPacket> datagramResult = channel.eventLoop().newPromise();
 
@@ -107,15 +116,13 @@ public class HandlerAdapter<T extends RadiusPacket, S extends SecretProvider> ex
             if (f.isSuccess()) {
                 final RadiusPacket response = f.getNow();
                 if (response != null) {
-                    logger.info("Handler success, preparing response for {}", remoteAddress);
+                    logger.debug("Encoding response for {}", remoteAddress);
                     datagramResult.trySuccess(packetEncoder.toDatagram(
-                            response.encodeResponse(secret, requestAuth),
-                            remoteAddress, localAddress));
+                            response.encodeResponse(secret, requestAuth), remoteAddress, localAddress));
                 } else {
-                    logger.info("Handler success, nothing to send.");
+                    datagramResult.trySuccess(null);
                 }
             } else {
-                logger.error("Exception while handling packet", f.cause());
                 datagramResult.tryFailure(f.cause());
             }
         });
