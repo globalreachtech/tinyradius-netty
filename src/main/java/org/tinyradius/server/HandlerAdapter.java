@@ -66,12 +66,13 @@ public class HandlerAdapter<T extends RadiusPacket, S extends SecretProvider> ex
                         logger.info("Request handled, nothing to respond");
                     }
                 } else {
-                    logger.error("Exception while handling request", f.cause());
+                    logger.error("Request dropped, exception while handling request", f.cause());
                 }
             });
-
+        } catch (RadiusException e) {
+            logger.info("Request dropped, issue with packet or upstream: {}", e.getMessage());
         } catch (Exception e) {
-            logger.error("Dropping request, datagramPacket handle error: ", e);
+            logger.error("Request dropped, exception while handling request", e);
         }
     }
 
