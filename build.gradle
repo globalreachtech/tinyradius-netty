@@ -9,6 +9,7 @@ plugins {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+versionName = '1.0.16'
 
 repositories {
     mavenCentral()
@@ -72,7 +73,7 @@ bintray {
         licenses = ['LGPL-2.1']
         vcsUrl = 'https://github.com/globalreachtech/tinyradius-netty.git'
         version {
-            name = '1.0.15'
+            name = versionName
             released = new Date()
         }
     }
@@ -110,7 +111,7 @@ publishing {
             }
             groupId 'com.globalreachtech'
             artifactId 'tinyradius-netty'
-            version '1.0.15'
+            version versionName
             pom.withXml {
                 asNode().children().last() + pomConfig
             }
