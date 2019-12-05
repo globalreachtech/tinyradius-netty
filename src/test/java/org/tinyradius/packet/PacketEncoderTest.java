@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.*;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
-import static org.tinyradius.packet.RadiusPackets.createRadiusPacket;
+import static org.tinyradius.packet.RadiusPackets.create;
 
 class PacketEncoderTest {
 
@@ -247,9 +247,9 @@ class PacketEncoderTest {
 
     @Test
     void createRequestRadiusPacket() {
-        RadiusPacket accessRequest = createRadiusPacket(dictionary, ACCESS_REQUEST, 1, null, Collections.emptyList());
-        RadiusPacket coaRequest = createRadiusPacket(dictionary, COA_REQUEST, 2, null, Collections.emptyList());
-        RadiusPacket accountingRequest = createRadiusPacket(dictionary, ACCOUNTING_REQUEST, 3, null, Collections.emptyList());
+        RadiusPacket accessRequest = RadiusPackets.create(dictionary, ACCESS_REQUEST, 1, null, Collections.emptyList());
+        RadiusPacket coaRequest = RadiusPackets.create(dictionary, COA_REQUEST, 2, null, Collections.emptyList());
+        RadiusPacket accountingRequest = RadiusPackets.create(dictionary, ACCOUNTING_REQUEST, 3, null, Collections.emptyList());
 
         assertEquals(ACCESS_REQUEST, accessRequest.getType());
         assertEquals(AccessRequest.class, accessRequest.getClass());

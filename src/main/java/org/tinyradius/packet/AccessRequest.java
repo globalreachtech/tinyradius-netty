@@ -237,7 +237,7 @@ public class AccessRequest extends RadiusPacket {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("shared secret cannot be null/empty");
 
-        // create authenticator only if needed
+        // create authenticator only if needed to maintain idempotence
         byte[] newAuthenticator = getAuthenticator() == null ? random16bytes() : getAuthenticator();
 
         final AccessRequest accessRequest = new AccessRequest(getDictionary(), getIdentifier(), newAuthenticator, new ArrayList<>(getAttributes()));

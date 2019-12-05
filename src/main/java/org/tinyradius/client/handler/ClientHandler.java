@@ -26,7 +26,7 @@ public abstract class ClientHandler extends SimpleChannelInboundHandler<Datagram
      * <p>
      * Ensure that you also return the encoded packet, typically with the shared secret available in RadiusEndpoint.
      *
-     * @param packet   request to send
+     * @param original   request to send
      * @param endpoint packet endpoint
      * @param sender   source socket for datagram
      * @param promise  promise placeholder that represents overarching request (including retries)
@@ -34,7 +34,7 @@ public abstract class ClientHandler extends SimpleChannelInboundHandler<Datagram
      * to allow requests to be timed out or cancelled by the caller
      * @throws RadiusException if packet could not be encoded/serialized to datagram
      */
-    public abstract DatagramPacket prepareDatagram(RadiusPacket packet, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException;
+    public abstract DatagramPacket prepareDatagram(RadiusPacket original, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException;
 
     /**
      * Processes DatagramPacket. This does not swallow exceptions.

@@ -17,7 +17,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
-import static org.tinyradius.packet.RadiusPackets.createRadiusPacket;
 
 /**
  * A generic Radius packet. Subclasses provide convenience methods for special packet types.
@@ -37,6 +36,10 @@ public class RadiusPacket {
     /**
      * Builds a Radius packet with the given type and identifier,
      * without attributes, and with null authenticator.
+     * <p>
+     * Use {@link RadiusPackets#create(Dictionary, int, int)}
+     * where possible as that automatically creates Access/Accounting
+     * variants as required.
      *
      * @param dictionary custom dictionary to use
      * @param type       packet type
@@ -49,6 +52,10 @@ public class RadiusPacket {
     /**
      * Builds a Radius packet with the given type and identifier
      * and without attributes.
+     * <p>
+     * Use {@link RadiusPackets#create(Dictionary, int, int, byte[])}
+     * where possible as that automatically creates Access/Accounting
+     * variants as required.
      *
      * @param dictionary    custom dictionary to use
      * @param type          packet type
@@ -62,6 +69,10 @@ public class RadiusPacket {
     /**
      * Builds a Radius packet with the given type and identifier
      * and without attributes.
+     * <p>
+     * Use {@link RadiusPackets#create(Dictionary, int, int, List)}
+     * where possible as that automatically creates Access/Accounting
+     * variants as required.
      *
      * @param dictionary custom dictionary to use
      * @param type       packet type
@@ -73,8 +84,11 @@ public class RadiusPacket {
     }
 
     /**
-     * Builds a Radius packet with the given type, identifier and
-     * attributes.
+     * Builds a Radius packet with the given type, identifier and attributes.
+     * <p>
+     * Use {@link RadiusPackets#create(Dictionary, int, int, byte[], List)}
+     * where possible as that automatically creates Access/Accounting
+     * variants as required.
      *
      * @param dictionary    custom dictionary to use
      * @param type          packet type
@@ -375,7 +389,7 @@ public class RadiusPacket {
      */
     public RadiusPacket encodeResponse(String sharedSecret, byte[] requestAuthenticator) {
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, requestAuthenticator);
-        return createRadiusPacket(dictionary, type, identifier, authenticator, attributes);
+        return RadiusPackets.create(dictionary, type, identifier, authenticator, attributes);
     }
 
     /**

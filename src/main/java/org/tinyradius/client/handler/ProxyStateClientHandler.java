@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.RadiusPackets;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
@@ -47,12 +48,12 @@ public class ProxyStateClientHandler extends ClientHandler {
     }
 
     @Override
-    public DatagramPacket prepareDatagram(RadiusPacket packet, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
-        final RadiusPacket radiusPacket = new RadiusPacket(
-                packet.getDictionary(), packet.getType(), packet.getIdentifier(), packet.getAuthenticator(), packet.getAttributes());
+    public DatagramPacket prepareDatagram(RadiusPacket original, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
+        final RadiusPacket radiusPacket = RadiusPackets.create(
+                original.getDictionary(), original.getType(), original.getIdentifier(), original.getAttributes());
 
         final String requestId = nextProxyStateId();
-        radiusPacket.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
+        radiusPacket.addAttribute(createAttribute(original.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
         final RadiusPacket encodedRequest = radiusPacket.encodeRequest(endpoint.getSharedSecret());
 
         requests.put(requestId, new Request(endpoint, encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), promise));

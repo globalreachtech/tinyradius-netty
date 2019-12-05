@@ -176,7 +176,7 @@ public class PacketEncoder {
         byte[] attributes = new byte[content.remaining()];
         content.get(attributes);
 
-        return RadiusPackets.createRadiusPacket(dictionary, type, packetId, authenticator,
+        return RadiusPackets.create(dictionary, type, packetId, authenticator,
                 extractAttributes(dictionary, -1, attributes, 0));
     }
 

@@ -126,9 +126,9 @@ class RadiusClientTest {
         }
 
         @Override
-        public DatagramPacket prepareDatagram(RadiusPacket packet, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
+        public DatagramPacket prepareDatagram(RadiusPacket original, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
             this.promise = promise;
-            return packetEncoder.toDatagram(packet, endpoint.getAddress(), sender);
+            return packetEncoder.toDatagram(original, endpoint.getAddress(), sender);
         }
 
         @Override

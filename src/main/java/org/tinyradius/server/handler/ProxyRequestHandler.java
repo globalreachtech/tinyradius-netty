@@ -9,6 +9,7 @@ import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.ProxyStateClientHandler;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.RadiusPackets;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 import org.tinyradius.server.SecretProvider;
@@ -91,6 +92,6 @@ public abstract class ProxyRequestHandler implements RequestHandler<RadiusPacket
      * @return packet to send back to client
      */
     protected RadiusPacket handleServerResponse(Dictionary dictionary, RadiusPacket packet) {
-        return new RadiusPacket(dictionary, packet.getType(), packet.getIdentifier(), packet.getAttributes());
+        return RadiusPackets.create(dictionary, packet.getType(), packet.getIdentifier(), packet.getAttributes());
     }
 }
