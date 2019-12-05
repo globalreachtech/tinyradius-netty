@@ -34,7 +34,7 @@ public class PacketEncoder {
     }
 
     /**
-     * @param packet packet to convert
+     * @param packet    packet to convert
      * @param recipient destination socket
      * @return converted DatagramPacket
      * @throws RadiusException if packet could not be encoded/serialized to datagram
@@ -44,7 +44,7 @@ public class PacketEncoder {
     }
 
     /**
-     * @param packet packet to convert
+     * @param packet    packet to convert
      * @param recipient destination socket
      * @param sender    source socket, nullable
      * @return converted DatagramPacket
@@ -91,7 +91,7 @@ public class PacketEncoder {
      * @throws RadiusException malformed packet
      */
     public RadiusPacket fromDatagram(DatagramPacket datagram) throws RadiusException {
-        return fromByteBuf(datagram.content(), -1);
+        return fromByteBuf(datagram.content());
     }
 
     /**
@@ -114,15 +114,14 @@ public class PacketEncoder {
 
     /**
      * Reads a response from the given input stream and
-     * creates an appropriate RadiusPacket descendant object.
+     * creates an appropriate RadiusPacket/subclass.
      * <p>
      * Decodes the encrypted fields and attributes of the packet, and checks
      * authenticator if appropriate.
      *
      * @param datagram     DatagramPacket to read packet from
      * @param sharedSecret shared secret to be used to decode this packet
-     * @param request      associated request packet if parsing response,
-     *                     or null if parsing request
+     * @param request      associated request packet for parsing response
      * @return new RadiusPacket object
      * @throws RadiusException malformed packet
      */
@@ -145,7 +144,7 @@ public class PacketEncoder {
      * authenticator if appropriate.
      *
      * @param byteBuf   DatagramPacket to read packet from
-     * @param requestId id that packet identifier has to match, otherwise -1
+     * @param requestId id that packet identifier has to match, otherwise -1 if skipping checks
      * @return new RadiusPacket object
      * @throws RadiusException malformed packet
      */

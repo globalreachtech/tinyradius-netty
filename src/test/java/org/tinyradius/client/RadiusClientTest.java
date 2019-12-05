@@ -60,7 +60,7 @@ class RadiusClientTest {
     }
 
     @Test()
-    void communicateWithTimeout() {
+    void communicateWithTimeout() throws RadiusException {
         RadiusClient radiusClient = new RadiusClient(
                 eventLoopGroup, channelFactory, new MockClientHandler(null), retryStrategy, new InetSocketAddress(0));
 
@@ -76,7 +76,7 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateSuccess() {
+    void communicateSuccess() throws RadiusException {
         final int id = random.nextInt(256);
         final RadiusPacket response = new RadiusPacket(DefaultDictionary.INSTANCE, 2, id);
         final MockClientHandler mockClientHandler = new MockClientHandler(response);

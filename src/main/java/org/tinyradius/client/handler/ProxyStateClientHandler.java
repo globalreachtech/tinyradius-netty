@@ -49,9 +49,7 @@ public class ProxyStateClientHandler extends ClientHandler {
 
     @Override
     public DatagramPacket prepareDatagram(RadiusPacket original, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
-        final RadiusPacket radiusPacket = RadiusPackets.create(
-                original.getDictionary(), original.getType(), original.getIdentifier(), original.getAttributes());
-
+        final RadiusPacket radiusPacket = original.copy();
         final String requestId = nextProxyStateId();
         radiusPacket.addAttribute(createAttribute(original.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
         final RadiusPacket encodedRequest = radiusPacket.encodeRequest(endpoint.getSharedSecret());

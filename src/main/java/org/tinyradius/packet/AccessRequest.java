@@ -23,6 +23,8 @@ public class AccessRequest extends RadiusPacket {
 
     private static final Logger logger = LoggerFactory.getLogger(AccessRequest.class);
 
+    private static final SecureRandom random = new SecureRandom();
+
     public static final String AUTH_PAP = "pap";
     public static final String AUTH_CHAP = "chap";
     public static final String AUTH_MS_CHAP_V2 = "mschapv2";
@@ -30,15 +32,12 @@ public class AccessRequest extends RadiusPacket {
 
     public static final Set<String> AUTH_PROTOCOLS = new HashSet<>(Arrays.asList(AUTH_PAP, AUTH_CHAP, AUTH_MS_CHAP_V2, AUTH_EAP));
 
-    // Temporary storage for the unencrypted User-Password attribute.
-    private String password;
-
     private String authProtocol = AUTH_PAP;
 
-    private byte[] chapPassword;
-    private byte[] chapChallenge;
-
-    private static final SecureRandom random = new SecureRandom();
+    // Temporary storage for the unencrypted attributes
+    private transient String password;
+    private transient byte[] chapPassword;
+    private transient byte[] chapChallenge;
 
     // Attributes
     private static final int USER_NAME = 1;
@@ -160,9 +159,8 @@ public class AccessRequest extends RadiusPacket {
             throw new IllegalArgumentException("protocol must be in " + AUTH_PROTOCOLS);
     }
 
-
     /**
-     * AccessRequest does not verify authenticator as they
+     * AccessRequest cannot verify authenticator as they
      * contain random bytes.
      * <p>
      * Instead it checks the User-Password/Challenge attributes
@@ -173,30 +171,44 @@ public class AccessRequest extends RadiusPacket {
      */
     @Override
     public void verify(String sharedSecret, byte[] ignored) throws RadiusException {
-        // detect auth protocol
-        RadiusAttribute userPassword = getAttribute(USER_PASSWORD);
-        RadiusAttribute chapPassword = getAttribute(CHAP_PASSWORD);
-        RadiusAttribute chapChallenge = getAttribute(CHAP_CHALLENGE);
-        RadiusAttribute msChapChallenge = getAttribute(MICROSOFT, MS_CHAP_CHALLENGE);
-        RadiusAttribute msChap2Response = getAttribute(MICROSOFT, MS_CHAP2_RESPONSE);
-        List<RadiusAttribute> eapMessage = getAttributes(EAP_MESSAGE);
+        if (!decryptPasswords(sharedSecret))
+            throw new RadiusException("Access-Request: User-Password or CHAP-Password/CHAP-Challenge missing");
+    }
 
+    public boolean decryptPasswords(String sharedSecret) throws RadiusException {
+        RadiusAttribute userPassword = getAttribute(USER_PASSWORD);
         if (userPassword != null) {
             setAuthProtocol(AUTH_PAP);
             this.password = decodePapPassword(userPassword.getValue(), sharedSecret.getBytes(UTF_8));
-        } else if (chapPassword != null) {
+            return true;
+        }
+
+        RadiusAttribute chapPassword = getAttribute(CHAP_PASSWORD);
+        RadiusAttribute chapChallenge = getAttribute(CHAP_CHALLENGE);
+        if (chapPassword != null) {
             setAuthProtocol(AUTH_CHAP);
             this.chapPassword = chapPassword.getValue();
             this.chapChallenge = chapChallenge != null ?
                     chapChallenge.getValue() : getAuthenticator();
-        } else if (msChapChallenge != null && msChap2Response != null) {
+            return true;
+        }
+
+        RadiusAttribute msChapChallenge = getAttribute(MICROSOFT, MS_CHAP_CHALLENGE);
+        RadiusAttribute msChap2Response = getAttribute(MICROSOFT, MS_CHAP2_RESPONSE);
+        if (msChapChallenge != null && msChap2Response != null) {
             setAuthProtocol(AUTH_MS_CHAP_V2);
             this.chapPassword = msChap2Response.getValue();
             this.chapChallenge = msChapChallenge.getValue();
-        } else if (eapMessage.size() > 0) {
+            return true;
+        }
+
+        List<RadiusAttribute> eapMessage = getAttributes(EAP_MESSAGE);
+        if (eapMessage.size() > 0) {
             setAuthProtocol(AUTH_EAP);
-        } else
-            throw new RadiusException("Access-Request: User-Password or CHAP-Password/CHAP-Challenge missing");
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -233,7 +245,7 @@ public class AccessRequest extends RadiusPacket {
      * @throws UnsupportedOperationException auth type not supported
      */
     @Override
-    public AccessRequest encodeRequest(String sharedSecret) throws UnsupportedOperationException {
+    public AccessRequest encodeRequest(String sharedSecret) throws RadiusException {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("shared secret cannot be null/empty");
 
@@ -241,6 +253,7 @@ public class AccessRequest extends RadiusPacket {
         byte[] newAuthenticator = getAuthenticator() == null ? random16bytes() : getAuthenticator();
 
         final AccessRequest accessRequest = new AccessRequest(getDictionary(), getIdentifier(), newAuthenticator, new ArrayList<>(getAttributes()));
+        copyTransientFields(accessRequest);
 
         // encode attributes (User-Password attribute needs the new authenticator)
         encodeRequestAttributes(newAuthenticator, sharedSecret).forEach(a -> {
@@ -265,7 +278,7 @@ public class AccessRequest extends RadiusPacket {
      * @return List of RadiusAttributes to override
      * @throws UnsupportedOperationException auth protocol not supported
      */
-    protected List<RadiusAttribute> encodeRequestAttributes(byte[] authenticator, String sharedSecret) throws UnsupportedOperationException {
+    protected List<RadiusAttribute> encodeRequestAttributes(byte[] authenticator, String sharedSecret) throws RadiusException {
         if (password != null && !password.isEmpty())
             switch (getAuthProtocol()) {
                 case AUTH_PAP:
@@ -279,9 +292,9 @@ public class AccessRequest extends RadiusPacket {
                             createAttribute(getDictionary(), -1, CHAP_PASSWORD,
                                     computeChapPassword((byte) random.nextInt(256), password, challenge)));
                 case AUTH_MS_CHAP_V2:
-                    throw new UnsupportedOperationException("encoding not supported for " + AUTH_MS_CHAP_V2);
+                    throw new RadiusException("Encoding not supported for " + AUTH_MS_CHAP_V2);
                 case AUTH_EAP:
-                    throw new UnsupportedOperationException("encoding not supported for " + AUTH_EAP);
+                    throw new RadiusException("Encoding not supported for " + AUTH_EAP);
             }
 
         return Collections.emptyList();
@@ -320,8 +333,8 @@ public class AccessRequest extends RadiusPacket {
     private String decodePapPassword(byte[] encryptedPass, byte[] sharedSecret) throws RadiusException {
         if (encryptedPass.length < 16) {
             // PAP passwords require at least 16 bytes, or multiples thereof
-            logger.warn("malformed packet: User-Password attribute length must be greater than 15, actual {}", encryptedPass.length);
-            throw new RadiusException("malformed User-Password attribute");
+            logger.warn("Malformed packet: User-Password attribute length must be greater than 15, actual {}", encryptedPass.length);
+            throw new RadiusException("Malformed User-Password attribute");
         }
 
         final ByteBuffer buffer = ByteBuffer.allocate(encryptedPass.length);
@@ -423,5 +436,18 @@ public class AccessRequest extends RadiusPacket {
     private static String stripNullPadding(String s) {
         int i = s.indexOf('\0');
         return (i > 0) ? s.substring(0, i) : s;
+    }
+
+    private void copyTransientFields(AccessRequest destination) {
+        destination.password = password;
+        destination.chapPassword = chapPassword;
+        destination.chapChallenge = chapChallenge;
+    }
+
+    @Override
+    public AccessRequest copy() {
+        AccessRequest request = new AccessRequest(getDictionary(), getIdentifier(), getAuthenticator(), getAttributes());
+        copyTransientFields(request);
+        return request;
     }
 }

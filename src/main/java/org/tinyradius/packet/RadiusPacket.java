@@ -374,7 +374,7 @@ public class RadiusPacket {
      *                     with the other Radius server/client
      * @return RadiusPacket with new authenticator and/or encoded attributes
      */
-    public RadiusPacket encodeRequest(String sharedSecret) {
+    public RadiusPacket encodeRequest(String sharedSecret) throws RadiusException {
         return encodeResponse(sharedSecret, new byte[16]);
     }
 
@@ -495,5 +495,9 @@ public class RadiusPacket {
             s.append(attr.toString());
         }
         return s.toString();
+    }
+
+    public RadiusPacket copy() {
+        return RadiusPackets.create(getDictionary(), getType(), getIdentifier(), getAuthenticator(), getAttributes());
     }
 }

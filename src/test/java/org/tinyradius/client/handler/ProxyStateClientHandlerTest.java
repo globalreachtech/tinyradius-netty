@@ -18,6 +18,7 @@ import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
@@ -68,6 +69,30 @@ class ProxyStateClientHandlerTest {
         final List<RadiusAttribute> attributes = processedPacket2.getAttributes(PROXY_STATE);
         assertEquals("1", new String(attributes.get(0).getValue(), UTF_8));
         assertEquals("2", new String(attributes.get(1).getValue(), UTF_8));
+    }
+
+    @Test
+    void prepareDatagramEncodesAccessRequest() throws RadiusException {
+        final String secret1 = UUID.randomUUID().toString();
+        final String secret2 = UUID.randomUUID().toString();
+        final String username = "myUsername";
+        final String password = "myPassword";
+        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        int id = random.nextInt(256);
+
+        final RadiusPacket accessRequest = new AccessRequest(dictionary, id, null, username, password)
+                .encodeRequest(secret1);
+        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret2);
+
+        // process
+        final DatagramPacket accessPacketDatagram = handler.prepareDatagram(accessRequest, endpoint, null, eventLoopGroup.next().newPromise());
+
+        final RadiusPacket sentAccessPacket = packetEncoder.fromDatagram(accessPacketDatagram, secret2);
+        assertTrue(sentAccessPacket instanceof AccessRequest); // sanity check - we are not testing decoder here
+
+        // check user details correctly encoded
+        assertEquals(username, ((AccessRequest) sentAccessPacket).getUserName());
+        assertEquals(password, ((AccessRequest) sentAccessPacket).getUserPassword());
     }
 
     @Test

@@ -25,7 +25,7 @@ class AccessRequestTest {
     private static Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
-    void authenticatorOnlyAddedIfNull() {
+    void authenticatorOnlyAddedIfNull() throws RadiusException {
         String sharedSecret = "sharedSecret1";
 
         AccessRequest nullAuthRequest = new AccessRequest(dictionary, 2, null, "myUser", "myPw");
@@ -39,7 +39,22 @@ class AccessRequestTest {
     }
 
     @Test
-    void encodePapPassword() {
+    void verifyDecodesPassword() throws RadiusException {
+        String user = "user1";
+        String plaintextPw = "myPassword1";
+        String sharedSecret = "sharedSecret1";
+
+        AccessRequest request = new AccessRequest(dictionary, 2, null, user, plaintextPw);
+        final AccessRequest encoded = request.encodeRequest(sharedSecret);
+
+        encoded.setUserPassword("set field to something else");
+        encoded.verify(sharedSecret, null);
+
+        assertEquals(plaintextPw, encoded.getUserPassword());
+    }
+
+    @Test
+    void encodePapPassword() throws RadiusException {
         String user = "user1";
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
@@ -88,7 +103,7 @@ class AccessRequestTest {
     }
 
     @Test
-    void encodeChapPassword() throws NoSuchAlgorithmException {
+    void encodeChapPassword() throws NoSuchAlgorithmException, RadiusException {
         String user = "user";
         String plaintextPw = "password123456789";
         String sharedSecret = "sharedSecret";
