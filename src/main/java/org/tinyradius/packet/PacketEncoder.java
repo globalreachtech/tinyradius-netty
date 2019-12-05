@@ -153,7 +153,7 @@ public class PacketEncoder {
 
         final ByteBuffer content = byteBuf.nioBuffer();
         if (content.remaining() < HEADER_LENGTH) {
-            throw new RadiusException("readable bytes is less than header length");
+            throw new RadiusException("Readable bytes is less than header length");
         }
 
         int type = toUnsignedInt(content.get());
@@ -161,17 +161,17 @@ public class PacketEncoder {
         int length = content.getShort();
 
         if (requestId != -1 && requestId != packetId)
-            throw new RadiusException("bad packet: invalid packet identifier - request: " + requestId + ", response: " + packetId);
+            throw new RadiusException("Bad packet: invalid packet identifier - request: " + requestId + ", response: " + packetId);
         if (length < HEADER_LENGTH)
-            throw new RadiusException("bad packet: packet too short (" + length + " bytes)");
+            throw new RadiusException("Bad packet: packet too short (" + length + " bytes)");
         if (length > MAX_PACKET_LENGTH)
-            throw new RadiusException("bad packet: packet too long (" + length + " bytes)");
+            throw new RadiusException("Bad packet: packet too long (" + length + " bytes)");
 
         byte[] authenticator = new byte[16];
         content.get(authenticator);
 
         if (content.remaining() != length - HEADER_LENGTH)
-            throw new RadiusException("bad packet: packet length mismatch");
+            throw new RadiusException("Bad packet: packet length mismatch");
 
         byte[] attributes = new byte[content.remaining()];
         content.get(attributes);
