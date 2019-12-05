@@ -96,9 +96,9 @@ public class AccessRequest extends RadiusPacket {
      * @param userName user name to set
      */
     public void setUserName(String userName) {
-        requireNonNull(userName, "user name not set");
+        requireNonNull(userName, "User name not set");
         if (userName.isEmpty())
-            throw new IllegalArgumentException("empty user name not allowed");
+            throw new IllegalArgumentException("Empty user name not allowed");
 
         removeAttributes(USER_NAME);
         addAttribute(createAttribute(getDictionary(), -1, USER_NAME, userName));
@@ -110,8 +110,9 @@ public class AccessRequest extends RadiusPacket {
      * @param userPassword user password to set
      */
     public void setUserPassword(String userPassword) {
-        if (userPassword == null || userPassword.isEmpty())
-            throw new IllegalArgumentException("password is empty");
+        requireNonNull(userPassword, "User password not set");
+        if (userPassword.isEmpty())
+            throw new IllegalArgumentException("Password is empty");
         this.password = userPassword;
     }
 
@@ -358,8 +359,8 @@ public class AccessRequest extends RadiusPacket {
     /**
      * Verifies a CHAP password against the given plaintext password.
      *
-     * @param plaintext
-     * @return plain-text password
+     * @param plaintext plaintext password
+     * @return true if plaintext password matches encoded chap password
      */
     private boolean verifyChapPassword(String plaintext) {
         if (plaintext == null || plaintext.isEmpty())

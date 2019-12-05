@@ -18,8 +18,8 @@ public class AttributeType {
     private final String name;
 
     private final String dataType;
-    private final ByteArrayConstructor byteArrayConstructor;
-    private final StringConstructor stringConstructor;
+    private final ByteArrayConstructor<RadiusAttribute> byteArrayConstructor;
+    private final StringConstructor<RadiusAttribute> stringConstructor;
 
     private final Map<Integer, String> int2str = new HashMap<>();
     private final Map<String, Integer> str2int = new HashMap<>();
