@@ -191,6 +191,7 @@ public class VendorSpecificAttribute extends RadiusAttribute {
     /**
      * Returns a string representation for debugging.
      */
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Vendor-Specific: ");
