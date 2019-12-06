@@ -36,7 +36,7 @@ public class PacketType {
     public static final int STATUS_REJECT = 48;
     public static final int RESERVED = 255;
 
-    private static HashMap<Integer, String> typeNames = new HashMap<Integer, String>() {{
+    private static final HashMap<Integer, String> typeNames = new HashMap<Integer, String>() {{
         put(ACCESS_REQUEST, "Access-Request");
         put(ACCESS_ACCEPT, "Access-Accept");
         put(ACCESS_REJECT, "Access-Reject");

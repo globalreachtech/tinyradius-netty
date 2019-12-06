@@ -9,7 +9,6 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.util.RadiusException;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,10 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class DeduplicatorHandlerTest {
 
-    private Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
-    void handlePacket() throws InterruptedException, RadiusException {
+    void handlePacket() throws InterruptedException {
         final AtomicInteger id = new AtomicInteger();
         final NioDatagramChannel datagramChannel = new NioDatagramChannel();
         final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);

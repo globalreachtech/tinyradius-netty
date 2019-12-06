@@ -20,13 +20,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.*;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
-import static org.tinyradius.packet.RadiusPackets.create;
 
 class PacketEncoderTest {
 
     private static final SecureRandom random = new SecureRandom();
-    private static Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private static PacketEncoder packetEncoder = new PacketEncoder(dictionary);
+    private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private static final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
     private static final InetSocketAddress remoteAddress = new InetSocketAddress(0);
 
     @Test
@@ -40,7 +39,7 @@ class PacketEncoderTest {
 
     private void addBytesToPacket(RadiusPacket packet, int targetSize) {
         int dataSize = targetSize - HEADER_LENGTH;
-        for (int i = 0; i < Math.floor(dataSize / 200); i++) {
+        for (int i = 0; i < Math.floor((double) dataSize / 200); i++) {
             // add 200 octets per iteration (198 + 2-byte header)
             packet.addAttribute(createAttribute(dictionary, -1, 33, random.generateSeed(198)));
         }

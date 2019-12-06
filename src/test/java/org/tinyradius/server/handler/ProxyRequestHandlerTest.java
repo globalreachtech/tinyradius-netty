@@ -1,7 +1,6 @@
 package org.tinyradius.server.handler;
 
 import io.netty.channel.ChannelFactory;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
@@ -69,7 +68,7 @@ class ProxyRequestHandlerTest {
     @Test
     void handleSuccessfulPacket() {
         final int id = random.nextInt(256);
-        MockClient radiusClient = new MockClient(eventExecutors,
+        MockClient radiusClient = new MockClient(
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new SimpleClientHandler(packetEncoder),
                 new SimpleRetryStrategy(timer, 3, 1000));
@@ -143,8 +142,8 @@ class ProxyRequestHandlerTest {
 
     private static class MockClient extends RadiusClient {
 
-        MockClient(EventLoopGroup eventLoopGroup, ChannelFactory<DatagramChannel> factory, ClientHandler clientHandler, RetryStrategy retryStrategy) {
-            super(eventLoopGroup, factory, clientHandler, retryStrategy, new InetSocketAddress(0));
+        MockClient(ChannelFactory<DatagramChannel> factory, ClientHandler clientHandler, RetryStrategy retryStrategy) {
+            super(ProxyRequestHandlerTest.eventExecutors, factory, clientHandler, retryStrategy, new InetSocketAddress(0));
         }
 
         public Promise<RadiusPacket> communicate(RadiusPacket originalPacket, RadiusEndpoint endpoint) {

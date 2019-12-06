@@ -14,7 +14,8 @@ import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
  * Utils for creating new RadiusPackets
  */
 public class RadiusPackets {
-    private static AtomicInteger nextPacketId = new AtomicInteger();
+
+    private static final AtomicInteger nextPacketId = new AtomicInteger();
 
     /**
      * Increment and return the next packet identifier, between 0 and 255

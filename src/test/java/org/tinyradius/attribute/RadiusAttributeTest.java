@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RadiusAttributeTest {
 
     private static final SecureRandom random = new SecureRandom();
-    private static Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
     void createMaxSizeAttribute() {

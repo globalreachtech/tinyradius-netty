@@ -9,6 +9,7 @@ import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.packet.RadiusPacket;
 
 import java.net.InetSocketAddress;
 
@@ -19,8 +20,8 @@ public class RadiusServer extends AbstractListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusServer.class);
 
-    private final HandlerAdapter authHandler;
-    private final HandlerAdapter acctHandler;
+    private final HandlerAdapter<RadiusPacket, SecretProvider> authHandler;
+    private final HandlerAdapter<RadiusPacket, SecretProvider> acctHandler;
     private final InetSocketAddress authSocket;
     private final InetSocketAddress acctSocket;
 
@@ -39,8 +40,8 @@ public class RadiusServer extends AbstractListener {
      */
     public RadiusServer(EventLoopGroup eventLoopGroup,
                         ChannelFactory<? extends DatagramChannel> factory,
-                        HandlerAdapter authHandler,
-                        HandlerAdapter acctHandler,
+                        HandlerAdapter<RadiusPacket, SecretProvider> authHandler,
+                        HandlerAdapter<RadiusPacket, SecretProvider> acctHandler,
                         InetSocketAddress authSocket,
                         InetSocketAddress acctSocket) {
         super(eventLoopGroup);

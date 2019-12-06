@@ -12,7 +12,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
 
 class VendorSpecificAttributeTest {
 
-    private static Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
     void addSubAttributeOk() {

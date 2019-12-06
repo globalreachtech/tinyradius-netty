@@ -22,10 +22,10 @@ import static org.tinyradius.packet.RadiusPackets.nextPacketId;
 class AccessRequestTest {
 
     private static final SecureRandom random = new SecureRandom();
-    private static Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
-    void authenticatorOnlyAddedIfNull() throws RadiusException {
+    void authenticatorOnlyAddedIfNull() {
         String sharedSecret = "sharedSecret1";
 
         AccessRequest nullAuthRequest = new AccessRequest(dictionary, 2, null, "myUser", "myPw");
@@ -54,7 +54,7 @@ class AccessRequestTest {
     }
 
     @Test
-    void encodePapPassword() throws RadiusException {
+    void encodePapPassword() {
         String user = "user1";
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
@@ -76,6 +76,10 @@ class AccessRequestTest {
 
         assertNull(encoded.getAttribute("CHAP-Password"));
         assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").getValue());
+
+        // check transient fields copied across
+        assertEquals(plaintextPw, encoded.getUserPassword());
+        assertEquals(user, encoded.getUserName());
     }
 
     @Test
@@ -103,7 +107,7 @@ class AccessRequestTest {
     }
 
     @Test
-    void encodeChapPassword() throws NoSuchAlgorithmException, RadiusException {
+    void encodeChapPassword() throws NoSuchAlgorithmException {
         String user = "user";
         String plaintextPw = "password123456789";
         String sharedSecret = "sharedSecret";
@@ -126,6 +130,10 @@ class AccessRequestTest {
 
         assertArrayEquals(expectedChapPassword, chapPassword);
         assertNull(encoded.getAttribute("User-Password"));
+
+        // check transient fields copied across
+        assertEquals(plaintextPw, encoded.getUserPassword());
+        assertEquals(user, encoded.getUserName());
     }
 
     @Test
