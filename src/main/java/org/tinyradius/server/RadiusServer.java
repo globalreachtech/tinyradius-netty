@@ -3,6 +3,7 @@ package org.tinyradius.server;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
+import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
@@ -19,6 +20,8 @@ import java.net.InetSocketAddress;
 public class RadiusServer extends AbstractListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusServer.class);
+
+    private final EventLoopGroup eventLoopGroup;
 
     private final HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> authHandler;
     private final HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> acctHandler;
@@ -39,12 +42,14 @@ public class RadiusServer extends AbstractListener {
      * @param acctSocket     socket to listen on for accounting requests
      */
     public RadiusServer(EventLoopGroup eventLoopGroup,
+                        Timer timer,
                         ChannelFactory<? extends DatagramChannel> factory,
                         HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> authHandler,
                         HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> acctHandler,
                         InetSocketAddress authSocket,
                         InetSocketAddress acctSocket) {
-        super(eventLoopGroup);
+        super(eventLoopGroup, timer);
+        this.eventLoopGroup = eventLoopGroup;
         this.authHandler = authHandler;
         this.acctHandler = acctHandler;
         this.authSocket = authSocket;
@@ -60,7 +65,6 @@ public class RadiusServer extends AbstractListener {
 
         Promise<Void> status = eventLoopGroup.next().newPromise();
 
-        // todo error handling/timeout?
         final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
         combiner.addAll(
                 listen(authChannel, authSocket, authHandler),

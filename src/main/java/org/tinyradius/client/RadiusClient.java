@@ -6,6 +6,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
@@ -39,6 +40,7 @@ public class RadiusClient extends AbstractListener {
     private final InetSocketAddress listenAddress;
 
     private final DatagramChannel channel;
+    private final EventLoopGroup eventLoopGroup;
 
     private ChannelFuture channelFuture;
 
@@ -50,15 +52,17 @@ public class RadiusClient extends AbstractListener {
      * @param listenAddress  local address to bind to
      */
     public RadiusClient(EventLoopGroup eventLoopGroup,
+                        Timer timer,
                         ChannelFactory<? extends DatagramChannel> factory,
                         ClientHandler clientHandler,
                         RetryStrategy retryStrategy,
                         InetSocketAddress listenAddress) {
-        super(eventLoopGroup);
-        channel = factory.newChannel();
+        super(eventLoopGroup, timer);
+        this.eventLoopGroup = eventLoopGroup;
         this.clientHandler = clientHandler;
         this.retryStrategy = retryStrategy;
         this.listenAddress = listenAddress;
+        channel = factory.newChannel();
     }
 
     /**
