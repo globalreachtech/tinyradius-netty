@@ -20,8 +20,8 @@ public class RadiusServer extends AbstractListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusServer.class);
 
-    private final HandlerAdapter<RadiusPacket, SecretProvider> authHandler;
-    private final HandlerAdapter<RadiusPacket, SecretProvider> acctHandler;
+    private final HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> authHandler;
+    private final HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> acctHandler;
     private final InetSocketAddress authSocket;
     private final InetSocketAddress acctSocket;
 
@@ -40,8 +40,8 @@ public class RadiusServer extends AbstractListener {
      */
     public RadiusServer(EventLoopGroup eventLoopGroup,
                         ChannelFactory<? extends DatagramChannel> factory,
-                        HandlerAdapter<RadiusPacket, SecretProvider> authHandler,
-                        HandlerAdapter<RadiusPacket, SecretProvider> acctHandler,
+                        HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> authHandler,
+                        HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> acctHandler,
                         InetSocketAddress authSocket,
                         InetSocketAddress acctSocket) {
         super(eventLoopGroup);
