@@ -438,10 +438,10 @@ public class AccessRequest extends RadiusPacket {
         return (i > 0) ? s.substring(0, i) : s;
     }
 
-    private void copyTransientFields(AccessRequest destination) {
-        destination.password = password;
-        destination.chapPassword = chapPassword;
-        destination.chapChallenge = chapChallenge;
+    private void copyTransientFields(AccessRequest target) {
+        target.password = password;
+        target.chapPassword = chapPassword;
+        target.chapChallenge = chapChallenge;
     }
 
     @Override
