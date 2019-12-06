@@ -245,7 +245,7 @@ public class AccessRequest extends RadiusPacket {
      * @throws UnsupportedOperationException auth type not supported
      */
     @Override
-    public AccessRequest encodeRequest(String sharedSecret) throws RadiusException {
+    public AccessRequest encodeRequest(String sharedSecret) throws UnsupportedOperationException {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("shared secret cannot be null/empty");
 
@@ -278,7 +278,7 @@ public class AccessRequest extends RadiusPacket {
      * @return List of RadiusAttributes to override
      * @throws UnsupportedOperationException auth protocol not supported
      */
-    protected List<RadiusAttribute> encodeRequestAttributes(byte[] authenticator, String sharedSecret) throws RadiusException {
+    protected List<RadiusAttribute> encodeRequestAttributes(byte[] authenticator, String sharedSecret) throws UnsupportedOperationException {
         if (password != null && !password.isEmpty())
             switch (getAuthProtocol()) {
                 case AUTH_PAP:
@@ -292,9 +292,9 @@ public class AccessRequest extends RadiusPacket {
                             createAttribute(getDictionary(), -1, CHAP_PASSWORD,
                                     computeChapPassword((byte) random.nextInt(256), password, challenge)));
                 case AUTH_MS_CHAP_V2:
-                    throw new RadiusException("Encoding not supported for " + AUTH_MS_CHAP_V2);
+                    throw new UnsupportedOperationException("Encoding not supported for " + AUTH_MS_CHAP_V2);
                 case AUTH_EAP:
-                    throw new RadiusException("Encoding not supported for " + AUTH_EAP);
+                    throw new UnsupportedOperationException("Encoding not supported for " + AUTH_EAP);
             }
 
         return Collections.emptyList();

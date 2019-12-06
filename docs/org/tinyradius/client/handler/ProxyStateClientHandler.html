@@ -229,7 +229,7 @@ extends <a href="../../../../org/tinyradius/client/handler/ClientHandler.html" t
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>io.netty.channel.socket.DatagramPacket</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/handler/ProxyStateClientHandler.html#prepareDatagram-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-java.net.InetSocketAddress-io.netty.util.concurrent.Promise-">prepareDatagram</a></span>&#8203;(<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/handler/ProxyStateClientHandler.html#prepareDatagram-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-java.net.InetSocketAddress-io.netty.util.concurrent.Promise-">prepareDatagram</a></span>&#8203;(<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;original,
                <a href="../../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
                java.net.InetSocketAddress&nbsp;sender,
                io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</code></th>
@@ -325,7 +325,7 @@ extends <a href="../../../../org/tinyradius/client/handler/ClientHandler.html" t
 <ul class="blockList">
 <li class="blockList">
 <h4>prepareDatagram</h4>
-<pre>public&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;prepareDatagram&#8203;(<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+<pre>public&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;prepareDatagram&#8203;(<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;original,
                                                               <a href="../../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
                                                               java.net.InetSocketAddress&nbsp;sender,
                                                               io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)
@@ -340,9 +340,9 @@ extends <a href="../../../../org/tinyradius/client/handler/ClientHandler.html" t
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../org/tinyradius/client/handler/ClientHandler.html#prepareDatagram-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-java.net.InetSocketAddress-io.netty.util.concurrent.Promise-">prepareDatagram</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/tinyradius/client/handler/ClientHandler.html" title="class in org.tinyradius.client.handler">ClientHandler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>packet</code> - request to send</dd>
+<dd><code>original</code> - request to send</dd>
 <dd><code>endpoint</code> - packet endpoint</dd>
-<dd><code>sender</code> - source socket for datagram</dd>
+<dd><code>sender</code> - outbound socket for datagram</dd>
 <dd><code>promise</code> - promise placeholder that represents overarching request (including retries)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>promise of response which completes when server responds. Uses Promise instead Future,

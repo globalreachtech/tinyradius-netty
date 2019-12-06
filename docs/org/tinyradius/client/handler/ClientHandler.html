@@ -232,7 +232,7 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>abstract io.netty.channel.socket.DatagramPacket</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/handler/ClientHandler.html#prepareDatagram-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-java.net.InetSocketAddress-io.netty.util.concurrent.Promise-">prepareDatagram</a></span>&#8203;(<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/handler/ClientHandler.html#prepareDatagram-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-java.net.InetSocketAddress-io.netty.util.concurrent.Promise-">prepareDatagram</a></span>&#8203;(<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;original,
                <a href="../../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
                java.net.InetSocketAddress&nbsp;sender,
                io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</code></th>
@@ -317,7 +317,7 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
 <ul class="blockList">
 <li class="blockList">
 <h4>prepareDatagram</h4>
-<pre>public abstract&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;prepareDatagram&#8203;(<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+<pre>public abstract&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;prepareDatagram&#8203;(<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;original,
                                                                        <a href="../../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint,
                                                                        java.net.InetSocketAddress&nbsp;sender,
                                                                        io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)
@@ -329,9 +329,9 @@ extends io.netty.channel.SimpleChannelInboundHandler&lt;io.netty.channel.socket.
  Ensure that you also return the encoded packet, typically with the shared secret available in RadiusEndpoint.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>packet</code> - request to send</dd>
+<dd><code>original</code> - request to send</dd>
 <dd><code>endpoint</code> - packet endpoint</dd>
-<dd><code>sender</code> - source socket for datagram</dd>
+<dd><code>sender</code> - outbound socket for datagram</dd>
 <dd><code>promise</code> - promise placeholder that represents overarching request (including retries)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>promise of response which completes when server responds. Uses Promise instead Future,

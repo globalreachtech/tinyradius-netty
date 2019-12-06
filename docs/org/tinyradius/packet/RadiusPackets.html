@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -183,16 +183,45 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/RadiusPackets.html#createRadiusPacket-org.tinyradius.dictionary.Dictionary-int-int-byte:A-java.util.List-">createRadiusPacket</a></span>&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                  int&nbsp;type,
-                  int&nbsp;identifier,
-                  byte[]&nbsp;authenticator,
-                  java.util.List&lt;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;attributes)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/RadiusPackets.html#create-org.tinyradius.dictionary.Dictionary-int-int-">create</a></span>&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+      int&nbsp;type,
+      int&nbsp;identifier)</code></th>
 <td class="colLast">
 <div class="block">Creates a RadiusPacket object.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>static <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/RadiusPackets.html#create-org.tinyradius.dictionary.Dictionary-int-int-byte:A-">create</a></span>&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+      int&nbsp;type,
+      int&nbsp;identifier,
+      byte[]&nbsp;authenticator)</code></th>
+<td class="colLast">
+<div class="block">Creates a RadiusPacket object.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>static <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/RadiusPackets.html#create-org.tinyradius.dictionary.Dictionary-int-int-byte:A-java.util.List-">create</a></span>&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+      int&nbsp;type,
+      int&nbsp;identifier,
+      byte[]&nbsp;authenticator,
+      java.util.List&lt;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;attributes)</code></th>
+<td class="colLast">
+<div class="block">Creates a RadiusPacket object.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/RadiusPackets.html#create-org.tinyradius.dictionary.Dictionary-int-int-java.util.List-">create</a></span>&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+      int&nbsp;type,
+      int&nbsp;identifier,
+      java.util.List&lt;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;attributes)</code></th>
+<td class="colLast">
+<div class="block">Creates a RadiusPacket object.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/RadiusPackets.html#nextPacketId--">nextPacketId</a></span>&#8203;()</code></th>
 <td class="colLast">
@@ -256,17 +285,87 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="createRadiusPacket-org.tinyradius.dictionary.Dictionary-int-int-byte:A-java.util.List-">
+<a id="create-org.tinyradius.dictionary.Dictionary-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>create</h4>
+<pre>public static&nbsp;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;create&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                                  int&nbsp;type,
+                                  int&nbsp;identifier)</pre>
+<div class="block">Creates a RadiusPacket object. Depending on the passed type, an
+ appropriate packet is created. Also sets the type, and the
+ the packet identifier.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dictionary</code> - custom dictionary to use</dd>
+<dd><code>type</code> - packet type</dd>
+<dd><code>identifier</code> - packet identifier</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>RadiusPacket object</dd>
+</dl>
+</li>
+</ul>
+<a id="create-org.tinyradius.dictionary.Dictionary-int-int-byte:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>create</h4>
+<pre>public static&nbsp;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;create&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                                  int&nbsp;type,
+                                  int&nbsp;identifier,
+                                  byte[]&nbsp;authenticator)</pre>
+<div class="block">Creates a RadiusPacket object. Depending on the passed type, an
+ appropriate packet is created. Also sets the type, and the
+ the packet identifier.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dictionary</code> - custom dictionary to use</dd>
+<dd><code>type</code> - packet type</dd>
+<dd><code>identifier</code> - packet identifier</dd>
+<dd><code>authenticator</code> - authenticator for packet, nullable</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>RadiusPacket object</dd>
+</dl>
+</li>
+</ul>
+<a id="create-org.tinyradius.dictionary.Dictionary-int-int-java.util.List-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>create</h4>
+<pre>public static&nbsp;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;create&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                                  int&nbsp;type,
+                                  int&nbsp;identifier,
+                                  java.util.List&lt;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;attributes)</pre>
+<div class="block">Creates a RadiusPacket object. Depending on the passed type, an
+ appropriate packet is created. Also sets the type, and the
+ the packet identifier.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dictionary</code> - custom dictionary to use</dd>
+<dd><code>type</code> - packet type</dd>
+<dd><code>identifier</code> - packet identifier</dd>
+<dd><code>attributes</code> - list of attributes for packet</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>RadiusPacket object</dd>
+</dl>
+</li>
+</ul>
+<a id="create-org.tinyradius.dictionary.Dictionary-int-int-byte:A-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>createRadiusPacket</h4>
-<pre>public static&nbsp;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;createRadiusPacket&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
-                                              int&nbsp;type,
-                                              int&nbsp;identifier,
-                                              byte[]&nbsp;authenticator,
-                                              java.util.List&lt;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;attributes)</pre>
+<h4>create</h4>
+<pre>public static&nbsp;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;create&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary,
+                                  int&nbsp;type,
+                                  int&nbsp;identifier,
+                                  byte[]&nbsp;authenticator,
+                                  java.util.List&lt;<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute">RadiusAttribute</a>&gt;&nbsp;attributes)</pre>
 <div class="block">Creates a RadiusPacket object. Depending on the passed type, an
  appropriate packet is created. Also sets the type, and the
  the packet identifier.</div>
