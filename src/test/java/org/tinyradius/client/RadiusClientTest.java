@@ -62,7 +62,7 @@ class RadiusClientTest {
     @Test()
     void communicateWithTimeout() {
         RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, channelFactory, new MockClientHandler(null), retryStrategy, new InetSocketAddress(0));
+                eventLoopGroup, timer, channelFactory, new MockClientHandler(null), retryStrategy, new InetSocketAddress(0));
 
         final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
@@ -83,7 +83,7 @@ class RadiusClientTest {
         final SimpleRetryStrategy simpleRetryStrategyHelper = new SimpleRetryStrategy(timer, 3, 1000);
 
         final RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, channelFactory, mockClientHandler, simpleRetryStrategyHelper, new InetSocketAddress(0));
+                eventLoopGroup, timer, channelFactory, mockClientHandler, simpleRetryStrategyHelper, new InetSocketAddress(0));
 
         final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
 
@@ -104,7 +104,7 @@ class RadiusClientTest {
         final MockClientHandler mockClientHandler = new MockClientHandler(null);
 
         final RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, channelFactory, mockClientHandler, null, new InetSocketAddress(0));
+                eventLoopGroup, timer, channelFactory, mockClientHandler, null, new InetSocketAddress(0));
 
         final RadiusPacket request = new RadiusPacket(dictionary, 1, id);
 

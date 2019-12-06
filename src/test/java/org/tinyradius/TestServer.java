@@ -1,6 +1,7 @@
 package org.tinyradius;
 
 import io.netty.channel.Channel;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -14,11 +15,11 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.*;
 import org.tinyradius.server.HandlerAdapter;
 import org.tinyradius.server.RadiusServer;
+import org.tinyradius.server.SecretProvider;
 import org.tinyradius.server.handler.AcctHandler;
 import org.tinyradius.server.handler.AuthHandler;
 import org.tinyradius.server.handler.DeduplicatorHandler;
 import org.tinyradius.server.handler.RequestHandler;
-import org.tinyradius.server.SecretProvider;
 
 import java.net.InetSocketAddress;
 
@@ -37,7 +38,7 @@ public class TestServer {
     public static void main(String[] args) throws Exception {
 
         final PacketEncoder packetEncoder = new PacketEncoder(DefaultDictionary.INSTANCE);
-        final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+        final EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         final Timer timer = new HashedWheelTimer();
 
         final SecretProvider secretProvider = remote ->
@@ -74,6 +75,7 @@ public class TestServer {
 
         final RadiusServer server = new RadiusServer(
                 eventLoopGroup,
+                timer,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new HandlerAdapter<>(packetEncoder, authHandler, timer, secretProvider, AccessRequest.class),
                 new HandlerAdapter<>(packetEncoder, acctHandler, timer, secretProvider, AccountingRequest.class),

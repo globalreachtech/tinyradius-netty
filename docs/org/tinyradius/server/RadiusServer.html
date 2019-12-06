@@ -94,7 +94,7 @@ var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#fields.inherited.from.class.org.tinyradius.server.AbstractListener">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -151,23 +151,6 @@ extends <a href="../../../org/tinyradius/server/AbstractListener.html" title="cl
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- =========== FIELD SUMMARY =========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="field.summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<ul class="blockList">
-<li class="blockList"><a id="fields.inherited.from.class.org.tinyradius.server.AbstractListener">
-<!--   -->
-</a>
-<h3>Fields inherited from class&nbsp;org.tinyradius.server.<a href="../../../org/tinyradius/server/AbstractListener.html" title="class in org.tinyradius.server">AbstractListener</a></h3>
-<code><a href="../../../org/tinyradius/server/AbstractListener.html#eventLoopGroup">eventLoopGroup</a></code></li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section role="region">
 <ul class="blockList">
@@ -182,7 +165,8 @@ extends <a href="../../../org/tinyradius/server/AbstractListener.html" title="cl
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RadiusServer.html#RadiusServer-io.netty.channel.EventLoopGroup-io.netty.channel.ChannelFactory-org.tinyradius.server.HandlerAdapter-org.tinyradius.server.HandlerAdapter-java.net.InetSocketAddress-java.net.InetSocketAddress-">RadiusServer</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RadiusServer.html#RadiusServer-io.netty.channel.EventLoopGroup-io.netty.util.Timer-io.netty.channel.ChannelFactory-org.tinyradius.server.HandlerAdapter-org.tinyradius.server.HandlerAdapter-java.net.InetSocketAddress-java.net.InetSocketAddress-">RadiusServer</a></span>&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+            io.netty.util.Timer&nbsp;timer,
             io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
             <a href="../../../org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a>&lt;? extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,? extends <a href="../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;&nbsp;authHandler,
             <a href="../../../org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a>&lt;? extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,? extends <a href="../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;&nbsp;acctHandler,
@@ -263,13 +247,14 @@ extends <a href="../../../org/tinyradius/server/AbstractListener.html" title="cl
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="RadiusServer-io.netty.channel.EventLoopGroup-io.netty.channel.ChannelFactory-org.tinyradius.server.HandlerAdapter-org.tinyradius.server.HandlerAdapter-java.net.InetSocketAddress-java.net.InetSocketAddress-">
+<a id="RadiusServer-io.netty.channel.EventLoopGroup-io.netty.util.Timer-io.netty.channel.ChannelFactory-org.tinyradius.server.HandlerAdapter-org.tinyradius.server.HandlerAdapter-java.net.InetSocketAddress-java.net.InetSocketAddress-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>RadiusServer</h4>
 <pre>public&nbsp;RadiusServer&#8203;(io.netty.channel.EventLoopGroup&nbsp;eventLoopGroup,
+                    io.netty.util.Timer&nbsp;timer,
                     io.netty.channel.ChannelFactory&lt;? extends io.netty.channel.socket.DatagramChannel&gt;&nbsp;factory,
                     <a href="../../../org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a>&lt;? extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,? extends <a href="../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;&nbsp;authHandler,
                     <a href="../../../org/tinyradius/server/HandlerAdapter.html" title="class in org.tinyradius.server">HandlerAdapter</a>&lt;? extends <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,? extends <a href="../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;&nbsp;acctHandler,
@@ -278,6 +263,7 @@ extends <a href="../../../org/tinyradius/server/AbstractListener.html" title="cl
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventLoopGroup</code> - for both channel IO and processing</dd>
+<dd><code>timer</code> - for timing out if startup socket binding fails</dd>
 <dd><code>factory</code> - to create new Channel</dd>
 <dd><code>authHandler</code> - ChannelHandler to handle requests received on authSocket</dd>
 <dd><code>acctHandler</code> - ChannelHandler to handle requests received on acctSocket</dd>
@@ -408,7 +394,7 @@ extends <a href="../../../org/tinyradius/server/AbstractListener.html" title="cl
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#fields.inherited.from.class.org.tinyradius.server.AbstractListener">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>

@@ -46,6 +46,7 @@ public class RadiusClient extends AbstractListener {
 
     /**
      * @param eventLoopGroup for both channel IO and processing
+     * @param timer          for timing out if startup socket binding fails
      * @param factory        to create new Channel
      * @param clientHandler  to log outgoing packets and handle incoming packets/responses
      * @param retryStrategy  retry strategy for scheduling retries and timeouts

@@ -35,6 +35,7 @@ public class RadiusServer extends AbstractListener {
 
     /**
      * @param eventLoopGroup for both channel IO and processing
+     * @param timer          for timing out if startup socket binding fails
      * @param factory        to create new Channel
      * @param authHandler    ChannelHandler to handle requests received on authSocket
      * @param acctHandler    ChannelHandler to handle requests received on acctSocket

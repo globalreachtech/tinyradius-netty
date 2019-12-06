@@ -4,6 +4,8 @@ import io.netty.channel.ChannelFactory;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -21,6 +23,7 @@ class RadiusServerTest {
 
     private final ChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
     private final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(2);
+    private final Timer timer = new HashedWheelTimer();
 
     @Mock
     private HandlerAdapter<RadiusPacket, SecretProvider> authHandler;
@@ -31,7 +34,7 @@ class RadiusServerTest {
     @Test
     void serverStartStop() throws InterruptedException {
         final RadiusServer server = new RadiusServer(
-                eventExecutors, channelFactory, authHandler, acctHandler, new InetSocketAddress(1024), new InetSocketAddress(1025));
+                eventExecutors, timer, channelFactory, authHandler, acctHandler, new InetSocketAddress(1024), new InetSocketAddress(1025));
 
         // not registered with eventLoop
         assertFalse(server.getAcctChannel().isRegistered());

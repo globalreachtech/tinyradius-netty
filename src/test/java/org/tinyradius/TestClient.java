@@ -4,6 +4,7 @@ import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RadiusClient;
@@ -48,9 +49,11 @@ public class TestClient {
 
         final Dictionary dictionary = DefaultDictionary.INSTANCE;
         final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
-        final HashedWheelTimer timer = new HashedWheelTimer();
+        final Timer timer = new HashedWheelTimer();
+
         RadiusClient rc = new RadiusClient(
                 eventLoopGroup,
+                timer,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new SimpleClientHandler(packetEncoder),
                 new SimpleRetryStrategy(timer, 3, 1000),

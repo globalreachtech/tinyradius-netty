@@ -4,6 +4,7 @@ import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RadiusClient;
@@ -16,10 +17,10 @@ import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.HandlerAdapter;
 import org.tinyradius.server.RadiusServer;
+import org.tinyradius.server.SecretProvider;
 import org.tinyradius.server.handler.DeduplicatorHandler;
 import org.tinyradius.server.handler.ProxyRequestHandler;
 import org.tinyradius.util.RadiusEndpoint;
-import org.tinyradius.server.SecretProvider;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -47,9 +48,8 @@ public class TestProxy {
         final Dictionary dictionary = DefaultDictionary.INSTANCE;
         final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
 
-        ReflectiveChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
-
-        HashedWheelTimer timer = new HashedWheelTimer();
+        final ReflectiveChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
+        final Timer timer = new HashedWheelTimer();
 
         final SecretProvider secretProvider = remote -> {
             if (remote.getPort() == 1812 || remote.getPort() == 1813)
@@ -61,7 +61,7 @@ public class TestProxy {
         final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(packetEncoder);
         final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 1000);
         RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, channelFactory, clientHandler, retryStrategy, new InetSocketAddress(11814));
+                eventLoopGroup, timer, channelFactory, clientHandler, retryStrategy, new InetSocketAddress(11814));
 
         final ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(radiusClient) {
             @Override
@@ -81,6 +81,7 @@ public class TestProxy {
 
         final RadiusServer proxy = new RadiusServer(
                 eventLoopGroup,
+                timer,
                 channelFactory,
                 new HandlerAdapter<>(packetEncoder, proxyDeduplicatorHandler, timer, secretProvider, RadiusPacket.class),
                 new HandlerAdapter<>(packetEncoder, proxyDeduplicatorHandler, timer, secretProvider, RadiusPacket.class),
