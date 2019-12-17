@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.slf4j:slf4j-api:1.7.29'
+    implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation 'io.netty:netty-all:4.1.43.Final'
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
