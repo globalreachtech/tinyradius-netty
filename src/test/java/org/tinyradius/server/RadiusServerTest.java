@@ -34,7 +34,7 @@ class RadiusServerTest {
     @Test
     void serverStartStop() throws InterruptedException {
         final RadiusServer server = new RadiusServer(
-                eventExecutors, timer, channelFactory, authHandler, acctHandler, new InetSocketAddress(1024), new InetSocketAddress(1025));
+                eventExecutors, timer, bootstrap, channelFactory, authHandler, acctHandler, new InetSocketAddress(1024), new InetSocketAddress(1025));
 
         // not registered with eventLoop
         assertFalse(server.getAcctChannel().isRegistered());

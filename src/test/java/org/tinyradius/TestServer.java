@@ -1,6 +1,7 @@
 package org.tinyradius;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -16,6 +17,7 @@ import org.tinyradius.packet.*;
 import org.tinyradius.server.HandlerAdapter;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;
+import org.tinyradius.server.handler.AccessHandler;
 import org.tinyradius.server.handler.AcctHandler;
 import org.tinyradius.server.handler.AuthHandler;
 import org.tinyradius.server.handler.DeduplicatorHandler;
@@ -44,7 +46,7 @@ public class TestServer {
         final SecretProvider secretProvider = remote ->
                 remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
 
-        final RequestHandler<AccessRequest, SecretProvider> authHandler = new DeduplicatorHandler<>(new AuthHandler() {
+        final ChannelHandler authHandler = new DeduplicatorHandler<>(new AccessHandler() {
             @Override
             public String getUserPassword(String userName) {
                 return userName.equals("test") ? "password" : null;
@@ -75,8 +77,7 @@ public class TestServer {
 
         final RadiusServer server = new RadiusServer(
                 eventLoopGroup,
-                timer,
-                new ReflectiveChannelFactory<>(NioDatagramChannel.class),
+                timer, new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new HandlerAdapter<>(secretProvider, AccessRequest.class),
                 new HandlerAdapter<>(secretProvider, AccountingRequest.class),
                 new InetSocketAddress(11812), new InetSocketAddress(11813));

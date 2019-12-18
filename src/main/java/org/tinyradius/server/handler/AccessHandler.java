@@ -28,14 +28,6 @@ public abstract class AccessHandler extends SimpleChannelInboundHandler<RequestC
     public abstract String getUserPassword(String userName);
 
     @Override
-    public boolean acceptInboundMessage(Object msg) throws Exception {
-        final boolean accept = super.acceptInboundMessage(msg);
-        if (accept)
-            logger.warn("{} does not accept {}", getClass().getSimpleName(), msg.getClass().getSimpleName());
-        return accept;
-    }
-
-    @Override
     protected void channelRead0(ChannelHandlerContext ctx, RequestContext msg) {
 
         if (!(msg.getRequest() instanceof AccessRequest)) {
