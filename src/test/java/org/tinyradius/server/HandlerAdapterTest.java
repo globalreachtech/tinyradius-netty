@@ -47,7 +47,7 @@ class HandlerAdapterTest {
     @Test
     void unknownClient() {
         final HandlerAdapter<AccountingRequest, SecretProvider> handlerAdapter = new HandlerAdapter<>(
-                packetEncoder, null, timer, address -> null, AccountingRequest.class);
+                address -> null, AccountingRequest.class);
         final DatagramPacket datagramPacket = new DatagramPacket(Unpooled.buffer(0), new InetSocketAddress(0));
 
         final RadiusException exception = assertThrows(RadiusException.class,
@@ -63,7 +63,7 @@ class HandlerAdapterTest {
         final DatagramPacket datagramPacket = packetEncoder.toDatagram(radiusPacket, new InetSocketAddress(0));
 
         final HandlerAdapter<AccessRequest, SecretProvider> handlerAdapter = new HandlerAdapter<>(
-                packetEncoder, null, timer, address -> secret, AccessRequest.class);
+                address -> secret, AccessRequest.class);
 
         final RadiusException exception = assertThrows(RadiusException.class,
                 () -> handlerAdapter.handleRequest(null, datagramPacket));
@@ -79,7 +79,7 @@ class HandlerAdapterTest {
         final MockRequestHandler mockRequestHandler = new MockRequestHandler();
 
         final HandlerAdapter<RadiusPacket, SecretProvider> handlerAdapter = new HandlerAdapter<>(
-                packetEncoder, mockRequestHandler, timer, address -> secret, RadiusPacket.class);
+                address -> secret, RadiusPacket.class);
 
         final Future<DatagramPacket> response = handlerAdapter.handleRequest(genChannel(), request);
         assertFalse(response.isDone());
@@ -106,7 +106,7 @@ class HandlerAdapterTest {
         final MockRequestHandler mockRequestHandler = new MockRequestHandler();
 
         final HandlerAdapter<RadiusPacket, SecretProvider> handlerAdapter = new HandlerAdapter<>(
-                packetEncoder, mockRequestHandler, timer, address -> secret, RadiusPacket.class);
+                address -> secret, RadiusPacket.class);
 
         final Future<DatagramPacket> response = handlerAdapter.handleRequest(genChannel(), request);
         assertFalse(response.isDone());
@@ -126,7 +126,7 @@ class HandlerAdapterTest {
         final RadiusPacket request = new RadiusPacket(dictionary, 4, 1).encodeRequest("mySecret");
 
         final HandlerAdapter<RadiusPacket, SecretProvider> handlerWrapper = new HandlerAdapter<>(
-                packetEncoder, requestHandler, timer, x -> "", RadiusPacket.class);
+                x -> "", RadiusPacket.class);
 
         when(channelHandlerContext.channel()).thenReturn(genChannel());
 
@@ -150,7 +150,7 @@ class HandlerAdapterTest {
                 .thenReturn(eventLoopGroup.next().<RadiusPacket>newPromise().setSuccess(response));
 
         final HandlerAdapter<RadiusPacket, SecretProvider> handlerWrapper = new HandlerAdapter<>(
-                packetEncoder, requestHandler, timer, x -> secret, RadiusPacket.class);
+                x -> secret, RadiusPacket.class);
 
         when(channelHandlerContext.channel()).thenReturn(genChannel());
 

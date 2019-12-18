@@ -1,12 +1,11 @@
 package org.tinyradius.server.handler;
 
-import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.Timer;
-import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.SecretProvider;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -17,47 +16,37 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
- * Handler that wraps around another handler and deduplicates requests, returning
- * null if duplicate. This considers packets duplicate
+ * Handler that ignores duplicate requests. This considers packets duplicate
  * if packetIdentifier and remote address matches.
  */
-public class DeduplicatorHandler<T extends RadiusPacket> implements RequestHandler<T, SecretProvider> {
+public class DeduplicatorHandler extends SimpleChannelInboundHandler<RequestContext> {
 
     private static final Logger logger = LoggerFactory.getLogger(DeduplicatorHandler.class);
 
-    private final RequestHandler<T, SecretProvider> requestHandler;
     private final Timer timer;
     private final long ttlMs;
 
     private final Set<Packet> packets = ConcurrentHashMap.newKeySet();
 
     /**
-     * @param requestHandler underlying handler to process packet if not duplicate
-     * @param timer          used to set timeouts that clean up packets after predefined TTL
-     * @param ttlMs          time in ms to keep packets in cache and ignore duplicates
+     * @param timer used to set timeouts that clean up packets after predefined TTL
+     * @param ttlMs time in ms to keep packets in cache and ignore duplicates
      */
-    public DeduplicatorHandler(RequestHandler<T, SecretProvider> requestHandler, Timer timer, long ttlMs) {
-        this.requestHandler = requestHandler;
+    public DeduplicatorHandler(Timer timer, long ttlMs) {
         this.timer = timer;
         this.ttlMs = ttlMs;
     }
 
-    /**
-     * @param channel       socket which received packet
-     * @param request        the packet
-     * @param remoteAddress remote address the packet was sent by
-     * @param secretProvider  shared secret associated with remoteAddress
-     * @return null if packet is considered duplicate, otherwise delegates to underlying handler.
-     */
-    @Override
-    public Promise<RadiusPacket> handlePacket(Channel channel, T request, InetSocketAddress remoteAddress, SecretProvider secretProvider) {
-        if (!isPacketDuplicate(request, remoteAddress))
-            return requestHandler.handlePacket(channel, request, remoteAddress, secretProvider);
 
-        logger.info("ignore duplicate packet, id: {}, remote address: {}", request.getIdentifier(), remoteAddress);
-        Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
-        promise.trySuccess(null);
-        return promise;
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, RequestContext msg) {
+        final RadiusPacket request = msg.getRequest();
+        final InetSocketAddress remoteAddress = msg.getRemoteAddress();
+
+        if (!isPacketDuplicate(request, remoteAddress))
+            ctx.fireChannelRead(msg);
+
+        logger.info("Ignoring duplicate packet, id: {}, remote address: {}", request.getIdentifier(), remoteAddress);
     }
 
     /**

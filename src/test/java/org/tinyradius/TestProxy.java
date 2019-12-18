@@ -83,8 +83,8 @@ public class TestProxy {
                 eventLoopGroup,
                 timer,
                 channelFactory,
-                new HandlerAdapter<>(packetEncoder, proxyDeduplicatorHandler, timer, secretProvider, RadiusPacket.class),
-                new HandlerAdapter<>(packetEncoder, proxyDeduplicatorHandler, timer, secretProvider, RadiusPacket.class),
+                new HandlerAdapter<>(secretProvider, RadiusPacket.class),
+                new HandlerAdapter<>(secretProvider, RadiusPacket.class),
                 new InetSocketAddress(11812), new InetSocketAddress(11813));
 
         proxy.start().addListener(future1 -> {

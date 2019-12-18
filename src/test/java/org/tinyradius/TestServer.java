@@ -77,8 +77,8 @@ public class TestServer {
                 eventLoopGroup,
                 timer,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new HandlerAdapter<>(packetEncoder, authHandler, timer, secretProvider, AccessRequest.class),
-                new HandlerAdapter<>(packetEncoder, acctHandler, timer, secretProvider, AccountingRequest.class),
+                new HandlerAdapter<>(secretProvider, AccessRequest.class),
+                new HandlerAdapter<>(secretProvider, AccountingRequest.class),
                 new InetSocketAddress(11812), new InetSocketAddress(11813));
 
         final Future<Void> future = server.start();
