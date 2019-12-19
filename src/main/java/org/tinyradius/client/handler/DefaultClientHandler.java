@@ -1,5 +1,7 @@
 package org.tinyradius.client.handler;
 
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
@@ -24,9 +26,9 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
  * outbound packets. This avoids problem with mismatched requests/responses when using
  * packetIdentifier, which is limited to 256 unique IDs.
  */
-public class ProxyStateClientHandler extends ClientHandler {
+public class DefaultClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProxyStateClientHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultClientHandler.class);
 
     private static final int PROXY_STATE = 33;
 
@@ -38,7 +40,7 @@ public class ProxyStateClientHandler extends ClientHandler {
     /**
      * @param packetEncoder to decode packet incoming DatagramPackets to RadiusPackets
      */
-    public ProxyStateClientHandler(PacketEncoder packetEncoder) {
+    public DefaultClientHandler(PacketEncoder packetEncoder) {
         this.packetEncoder = packetEncoder;
     }
 
@@ -46,7 +48,6 @@ public class ProxyStateClientHandler extends ClientHandler {
         return Integer.toString(proxyIndex.getAndIncrement());
     }
 
-    @Override
     public DatagramPacket prepareDatagram(RadiusPacket original, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
         final RadiusPacket radiusPacket = original.copy();
         final String requestId = nextProxyStateId();
@@ -60,7 +61,6 @@ public class ProxyStateClientHandler extends ClientHandler {
         return packetEncoder.toDatagram(encodedRequest, endpoint.getAddress(), sender);
     }
 
-    @Override
     protected void handleResponse(DatagramPacket datagramPacket) throws RadiusException {
         final InetSocketAddress sender = datagramPacket.sender();
 
@@ -96,6 +96,15 @@ public class ProxyStateClientHandler extends ClientHandler {
 
         logger.info("Found request for response identifier => {}", response.getIdentifier());
         request.promise.trySuccess(response);
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
+        try {
+            handleResponse(datagramPacket);
+        } catch (Exception e) {
+            logger.warn("DatagramPacket handle error: ", e);
+        }
     }
 
     private static class Request {

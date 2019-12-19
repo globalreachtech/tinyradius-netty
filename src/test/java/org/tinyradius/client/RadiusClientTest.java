@@ -1,7 +1,9 @@
 package org.tinyradius.client;
 
 import io.netty.channel.ChannelFactory;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ReflectiveChannelFactory;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -15,7 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.client.handler.ClientHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinyradius.client.retry.RetryStrategy;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -116,24 +119,32 @@ class RadiusClientTest {
         radiusClient.stop().syncUninterruptibly();
     }
 
-    private static class MockClientHandler extends ClientHandler {
+    private static class MockClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
         private final RadiusPacket response;
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
         private Promise<RadiusPacket> promise;
 
         private MockClientHandler(RadiusPacket response) {
             this.response = response;
         }
 
-        @Override
         public DatagramPacket prepareDatagram(RadiusPacket original, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
             this.promise = promise;
             return packetEncoder.toDatagram(original, endpoint.getAddress(), sender);
         }
 
-        @Override
         protected void handleResponse(DatagramPacket datagramPacket) {
             promise.trySuccess(response);
+        }
+
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
+            try {
+                handleResponse(datagramPacket);
+            } catch (Exception e) {
+                logger.warn("DatagramPacket handle error: ", e);
+            }
         }
     }
 }

@@ -16,8 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.RadiusClient;
-import org.tinyradius.client.handler.ClientHandler;
-import org.tinyradius.client.handler.SimpleClientHandler;
+import org.tinyradius.client.RadiusClientTest;
+import org.tinyradius.client.handler.NaiveClientHandler;
 import org.tinyradius.client.retry.RetryStrategy;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -55,7 +55,7 @@ class ProxyHandlerTest {
     private static final RadiusClient client = new RadiusClient(
             eventExecutors, timer,
             new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-            new SimpleClientHandler(packetEncoder),
+            new NaiveClientHandler(packetEncoder),
             new SimpleRetryStrategy(timer, 3, 1000),
             new InetSocketAddress(0));
 
@@ -79,7 +79,7 @@ class ProxyHandlerTest {
         final int id = random.nextInt(256);
         MockClient radiusClient = new MockClient(
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new SimpleClientHandler(packetEncoder),
+                new NaiveClientHandler(packetEncoder),
                 new SimpleRetryStrategy(timer, 3, 1000));
 
         ProxyHandler proxyHandler = new ProxyHandler(radiusClient) {
@@ -151,7 +151,7 @@ class ProxyHandlerTest {
 
     private static class MockClient extends RadiusClient {
 
-        MockClient(ChannelFactory<DatagramChannel> factory, ClientHandler clientHandler, RetryStrategy retryStrategy) {
+        MockClient(ChannelFactory<DatagramChannel> factory, RadiusClientTest.MockClientHandler clientHandler, RetryStrategy retryStrategy) {
             super(ProxyHandlerTest.eventExecutors, timer, factory, clientHandler, retryStrategy, new InetSocketAddress(0));
         }
 

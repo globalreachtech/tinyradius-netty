@@ -24,7 +24,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 
-class ProxyStateClientHandlerTest {
+class DefaultClientHandlerTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
@@ -41,7 +41,7 @@ class ProxyStateClientHandlerTest {
     @Test
     void outboundAppendNewProxyState() throws RadiusException {
         final String secret = "test";
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
         int id = random.nextInt(256);
 
         final RadiusPacket originalRequest = new AccessRequest(dictionary, id, null).encodeRequest(secret);
@@ -77,7 +77,7 @@ class ProxyStateClientHandlerTest {
         final String secret2 = UUID.randomUUID().toString();
         final String username = "myUsername";
         final String password = "myPassword";
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
         int id = random.nextInt(256);
 
         final RadiusPacket accessRequest = new AccessRequest(dictionary, id, null, username, password)
@@ -97,7 +97,7 @@ class ProxyStateClientHandlerTest {
 
     @Test
     void responseSenderNull() {
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
@@ -112,7 +112,7 @@ class ProxyStateClientHandlerTest {
     void responseNoProxyState() {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
@@ -127,7 +127,7 @@ class ProxyStateClientHandlerTest {
     void responseProxyStateNotFound() {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1,
@@ -143,7 +143,7 @@ class ProxyStateClientHandlerTest {
     void responseIdentifierMismatch() throws RadiusException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         // add remoteAddress-secret and identifier mapping to handler
@@ -166,7 +166,7 @@ class ProxyStateClientHandlerTest {
     void responseSenderAddressMismatch() throws RadiusException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         // add remoteAddress-secret and identifier mapping to handler
@@ -189,7 +189,7 @@ class ProxyStateClientHandlerTest {
     void responseAuthVerifyFail() throws RadiusException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         // add remoteAddress-secret and identifier mapping to handler
@@ -212,7 +212,7 @@ class ProxyStateClientHandlerTest {
     void channelReadIsStateful() throws RadiusException, InterruptedException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final ProxyStateClientHandler handler = new ProxyStateClientHandler(packetEncoder);
+        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
 
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 

@@ -1,5 +1,7 @@
 package org.tinyradius.client.handler;
 
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
@@ -23,9 +25,9 @@ import static java.lang.Byte.toUnsignedInt;
  * <p>
  * When response is received, it also verifies against the authenticator of the original request to decode.
  */
-public class SimpleClientHandler extends ClientHandler {
+public class NaiveClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SimpleClientHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(NaiveClientHandler.class);
 
     private final PacketEncoder packetEncoder;
     private final Map<String, Request> contexts = new ConcurrentHashMap<>();
@@ -33,11 +35,10 @@ public class SimpleClientHandler extends ClientHandler {
     /**
      * @param packetEncoder to convert between datagram and packet
      */
-    public SimpleClientHandler(PacketEncoder packetEncoder) {
+    public NaiveClientHandler(PacketEncoder packetEncoder) {
         this.packetEncoder = packetEncoder;
     }
 
-    @Override
     public DatagramPacket prepareDatagram(RadiusPacket original, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
 
         final RadiusPacket encoded = original.encodeRequest(endpoint.getSharedSecret());
@@ -51,7 +52,6 @@ public class SimpleClientHandler extends ClientHandler {
         return packetEncoder.toDatagram(encoded, endpoint.getAddress(), sender);
     }
 
-    @Override
     protected void handleResponse(DatagramPacket packet) throws RadiusException {
         int identifier = toUnsignedInt(packet.content().duplicate().skipBytes(1).readByte());
 
@@ -67,6 +67,15 @@ public class SimpleClientHandler extends ClientHandler {
 
     private static String requestKey(InetSocketAddress address, int packetId) {
         return address.getHostString() + ":" + address.getPort() + ":" + packetId;
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
+        try {
+            handleResponse(datagramPacket);
+        } catch (Exception e) {
+            logger.warn("DatagramPacket handle error: ", e);
+        }
     }
 
     private static class Request {

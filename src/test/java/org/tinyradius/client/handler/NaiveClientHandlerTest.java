@@ -20,7 +20,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 
-class SimpleClientHandlerTest {
+class NaiveClientHandlerTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
@@ -33,7 +33,7 @@ class SimpleClientHandlerTest {
 
     @Test
     void noContextFound() throws RadiusException {
-        final SimpleClientHandler handler = new SimpleClientHandler(packetEncoder);
+        final NaiveClientHandler handler = new NaiveClientHandler(packetEncoder);
         final RadiusPacket radiusPacket = new RadiusPacket(dictionary, 2, 1).encodeResponse("foo", new byte[16]);
         final DatagramPacket datagramPacket = packetEncoder.toDatagram(
                 radiusPacket, new InetSocketAddress(0), new InetSocketAddress(1));
@@ -51,7 +51,7 @@ class SimpleClientHandlerTest {
         final int id = new SecureRandom().nextInt(256);
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
-        final SimpleClientHandler handler = new SimpleClientHandler(packetEncoder);
+        final NaiveClientHandler handler = new NaiveClientHandler(packetEncoder);
         final AccessRequest request = new AccessRequest(dictionary, id, null, "myUser", "myPassword");
 
         final DatagramPacket datagram = handler.prepareDatagram(request, new RadiusEndpoint(new InetSocketAddress(12345), secret), null, promise);

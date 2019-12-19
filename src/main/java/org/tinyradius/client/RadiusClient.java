@@ -11,7 +11,6 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinyradius.client.handler.ClientHandler;
 import org.tinyradius.client.retry.RetryStrategy;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.AbstractListener;
@@ -35,7 +34,7 @@ public class RadiusClient extends AbstractListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusClient.class);
 
-    private final ClientHandler clientHandler;
+    private final org.tinyradius.client.RadiusClientTest.MockClientHandler clientHandler;
     private final RetryStrategy retryStrategy;
     private final InetSocketAddress listenAddress;
 
@@ -55,7 +54,7 @@ public class RadiusClient extends AbstractListener {
     public RadiusClient(EventLoopGroup eventLoopGroup,
                         Timer timer,
                         ChannelFactory<? extends DatagramChannel> factory,
-                        ClientHandler clientHandler,
+                        org.tinyradius.client.RadiusClientTest.MockClientHandler clientHandler,
                         RetryStrategy retryStrategy,
                         InetSocketAddress listenAddress) {
         super(eventLoopGroup, timer);

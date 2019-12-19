@@ -8,7 +8,7 @@ import io.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RadiusClient;
-import org.tinyradius.client.handler.SimpleClientHandler;
+import org.tinyradius.client.handler.NaiveClientHandler;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -55,7 +55,7 @@ public class TestClient {
                 eventLoopGroup,
                 timer,
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new SimpleClientHandler(packetEncoder),
+                new NaiveClientHandler(packetEncoder),
                 new SimpleRetryStrategy(timer, 3, 1000),
                 new InetSocketAddress(0));
         rc.start().syncUninterruptibly();

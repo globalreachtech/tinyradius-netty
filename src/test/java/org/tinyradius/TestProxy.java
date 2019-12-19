@@ -8,7 +8,7 @@ import io.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RadiusClient;
-import org.tinyradius.client.handler.ProxyStateClientHandler;
+import org.tinyradius.client.handler.DefaultClientHandler;
 import org.tinyradius.client.retry.SimpleRetryStrategy;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -61,7 +61,7 @@ public class TestProxy {
             return remote.getAddress().getHostAddress().equals("127.0.0.1") ?
                     "proxytest" : null;
         };
-        final ProxyStateClientHandler clientHandler = new ProxyStateClientHandler(packetEncoder);
+        final DefaultClientHandler clientHandler = new DefaultClientHandler(packetEncoder);
         final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 1000);
         RadiusClient radiusClient = new RadiusClient(
                 eventLoopGroup, timer, channelFactory, clientHandler, retryStrategy, new InetSocketAddress(11814));
