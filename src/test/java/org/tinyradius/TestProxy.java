@@ -18,13 +18,16 @@ import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.HandlerAdapter;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;
-import org.tinyradius.server.handler.DeduplicatorHandler;
+import org.tinyradius.server.handler.DeduplicatingHandler;
+import org.tinyradius.server.handler.ProxyHandler;
 import org.tinyradius.server.handler.ProxyRequestHandler;
+import org.tinyradius.server.handler.ResponseContext;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Optional;
 
 /**
  * TestProxy shows how to implement a proxy radius server. You can use
@@ -63,26 +66,25 @@ public class TestProxy {
         RadiusClient radiusClient = new RadiusClient(
                 eventLoopGroup, timer, channelFactory, clientHandler, retryStrategy, new InetSocketAddress(11814));
 
-        final ProxyRequestHandler proxyRequestHandler = new ProxyRequestHandler(radiusClient) {
+        final ProxyHandler proxyRequestHandler = new ProxyHandler(radiusClient) {
             @Override
-            public RadiusEndpoint getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
+            public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
                 try {
                     InetAddress address = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
                     int port = packet instanceof AccountingRequest ? 1813 : 1812;
-                    return new RadiusEndpoint(new InetSocketAddress(address, port), "testing123");
+                    return Optional.of(new RadiusEndpoint(new InetSocketAddress(address, port), "testing123"));
                 } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                    return null;
+                    return Optional.empty();
                 }
             }
         };
 
-        final DeduplicatorHandler<RadiusPacket> proxyDeduplicatorHandler = new DeduplicatorHandler<>(proxyRequestHandler, timer, 30000);
+        final DeduplicatingHandler<ResponseContext> proxyDeduplicatingHandler = new DeduplicatingHandler<>(proxyRequestHandler, timer, 30000);
 
         final RadiusServer proxy = new RadiusServer(
                 eventLoopGroup,
                 timer,
-                bootstrap, channelFactory,
+                channelFactory,
                 new HandlerAdapter<>(secretProvider, RadiusPacket.class),
                 new HandlerAdapter<>(secretProvider, RadiusPacket.class),
                 new InetSocketAddress(11812), new InetSocketAddress(11813));

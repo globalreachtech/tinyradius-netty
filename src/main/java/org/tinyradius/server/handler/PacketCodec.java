@@ -13,14 +13,14 @@ import org.tinyradius.util.RadiusException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-public class RadiusPacketCodec<T extends ResponseContext, S extends SecretProvider> extends MessageToMessageCodec<DatagramPacket, T> {
+public class PacketCodec<OUTBOUND extends ResponseContext> extends MessageToMessageCodec<DatagramPacket, OUTBOUND> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RadiusPacketCodec.class);
+    private static final Logger logger = LoggerFactory.getLogger(PacketCodec.class);
 
     private final PacketEncoder packetEncoder;
-    private final S secretProvider;
+    private final SecretProvider secretProvider;
 
-    public RadiusPacketCodec(PacketEncoder packetEncoder, S secretProvider) {
+    public PacketCodec(PacketEncoder packetEncoder, SecretProvider secretProvider) {
         this.packetEncoder = packetEncoder;
         this.secretProvider = secretProvider;
     }
@@ -43,7 +43,7 @@ public class RadiusPacketCodec<T extends ResponseContext, S extends SecretProvid
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, T msg, List<Object> out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, OUTBOUND msg, List<Object> out) throws Exception {
         if (msg == null)
             return;
 

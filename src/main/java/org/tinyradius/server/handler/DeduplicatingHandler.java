@@ -19,9 +19,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * Handler that ignores duplicate requests. This considers packets duplicate
  * if packetIdentifier and remote address matches.
  */
-public class DeduplicatorHandler extends SimpleChannelInboundHandler<RequestContext> {
+public class DeduplicatingHandler extends SimpleChannelInboundHandler<RequestContext> {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeduplicatorHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeduplicatingHandler.class);
 
     private final Timer timer;
     private final long ttlMs;
@@ -32,11 +32,10 @@ public class DeduplicatorHandler extends SimpleChannelInboundHandler<RequestCont
      * @param timer used to set timeouts that clean up packets after predefined TTL
      * @param ttlMs time in ms to keep packets in cache and ignore duplicates
      */
-    public DeduplicatorHandler(Timer timer, long ttlMs) {
+    public DeduplicatingHandler(Timer timer, long ttlMs) {
         this.timer = timer;
         this.ttlMs = ttlMs;
     }
-
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RequestContext msg) {

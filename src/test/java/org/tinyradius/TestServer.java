@@ -3,7 +3,6 @@ package org.tinyradius;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.ReflectiveChannelFactory;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
@@ -13,15 +12,15 @@ import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.packet.*;
-import org.tinyradius.server.HandlerAdapter;
+import org.tinyradius.packet.AccessRequest;
+import org.tinyradius.packet.PacketEncoder;
+import org.tinyradius.packet.PacketType;
+import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;
 import org.tinyradius.server.handler.AccessHandler;
-import org.tinyradius.server.handler.AcctHandler;
-import org.tinyradius.server.handler.AuthHandler;
-import org.tinyradius.server.handler.DeduplicatorHandler;
-import org.tinyradius.server.handler.RequestHandler;
+import org.tinyradius.server.handler.AccountingHandler;
+import org.tinyradius.server.handler.DeduplicatingHandler;
 
 import java.net.InetSocketAddress;
 
@@ -46,7 +45,7 @@ public class TestServer {
         final SecretProvider secretProvider = remote ->
                 remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
 
-        final ChannelHandler authHandler = new DeduplicatorHandler<>(new AccessHandler() {
+        final ChannelHandler authHandler = new DeduplicatingHandler(new AccessHandler() {
             @Override
             public String getUserPassword(String userName) {
                 return userName.equals("test") ? "password" : null;
@@ -73,13 +72,13 @@ public class TestServer {
             }
         }, timer, 30000);
 
-        RequestHandler<AccountingRequest, SecretProvider> acctHandler = new DeduplicatorHandler<>(new AcctHandler(), timer, 30000);
+        ChannelHandler acctHandler = new DeduplicatingHandler(new AccountingHandler(), timer, 30000);
 
         final RadiusServer server = new RadiusServer(
                 eventLoopGroup,
-                timer, new ReflectiveChannelFactory<>(NioDatagramChannel.class),
-                new HandlerAdapter<>(secretProvider, AccessRequest.class),
-                new HandlerAdapter<>(secretProvider, AccountingRequest.class),
+                NioDatagramChannel.class,
+                authHandler,
+                acctHandler,
                 new InetSocketAddress(11812), new InetSocketAddress(11813));
 
         final Future<Void> future = server.start();
