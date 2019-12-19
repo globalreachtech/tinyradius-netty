@@ -82,7 +82,7 @@ class ProxyHandlerTest {
                 new SimpleClientHandler(packetEncoder),
                 new SimpleRetryStrategy(timer, 3, 1000));
 
-        ProxyHandler proxyRequestHandler = new ProxyHandler(radiusClient) {
+        ProxyHandler proxyHandler = new ProxyHandler(radiusClient) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
                 return Optional.of(new RadiusEndpoint(new InetSocketAddress(0), "shared"));
@@ -99,7 +99,7 @@ class ProxyHandlerTest {
                 .map(String::new)
                 .collect(Collectors.toList()));
 
-        RadiusPacket response = proxyRequestHandler.channelRead0(ctx, packet, new InetSocketAddress(0), a -> "shared").syncUninterruptibly().getNow();
+        RadiusPacket response = proxyHandler.channelRead0(ctx, packet, new InetSocketAddress(0), a -> "shared").syncUninterruptibly().getNow();
 
         assertEquals(id, response.getIdentifier());
         assertEquals(ACCOUNTING_RESPONSE, response.getType());
@@ -113,7 +113,7 @@ class ProxyHandlerTest {
     void handlePacketWithTimeout() {
         final int id = random.nextInt(256);
 
-        ProxyHandler proxyRequestHandler = new ProxyHandler(client) {
+        ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
                 return Optional.of(new RadiusEndpoint(new InetSocketAddress(0), "shared"));
@@ -125,7 +125,7 @@ class ProxyHandlerTest {
         assertEquals("user", packet.getUserName());
 
         final RadiusException radiusException = assertThrows(RadiusException.class,
-                () -> proxyRequestHandler.channelRead0(ctx, packet, new InetSocketAddress(0), a -> "shared").syncUninterruptibly().getNow());
+                () -> proxyHandler.channelRead0(ctx, packet, new InetSocketAddress(0), a -> "shared").syncUninterruptibly().getNow());
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
     }

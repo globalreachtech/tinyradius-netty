@@ -1,5 +1,6 @@
 package org.tinyradius.server.handler;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageCodec;
@@ -8,12 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.SecretProvider;
-import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 
-public class PacketCodec<OUTBOUND extends ResponseContext> extends MessageToMessageCodec<DatagramPacket, OUTBOUND> {
+@ChannelHandler.Sharable
+public class PacketCodec extends MessageToMessageCodec<DatagramPacket, ResponseContext> {
 
     private static final Logger logger = LoggerFactory.getLogger(PacketCodec.class);
 
@@ -32,24 +33,22 @@ public class PacketCodec<OUTBOUND extends ResponseContext> extends MessageToMess
 
         String secret = secretProvider.getSharedSecret(remoteAddress);
         if (secret == null)
-            throw new RadiusException("Ignoring request from unknown client " + remoteAddress +
-                    ", shared secret lookup failed (local address " + localAddress + ")");
+            logger.warn("Ignoring request from unknown client {}, shared secret lookup failed (local address {})", remoteAddress, localAddress);
 
         // parse packet
         RadiusPacket request = packetEncoder.fromDatagram(msg, secret);
-        logger.info("Received packet from {} on local address {} - {}", remoteAddress, localAddress, request);
+        logger.debug("Received packet from {} on local address {} - {}", remoteAddress, localAddress, request);
 
         out.add(new RequestContext(request, localAddress, remoteAddress, secret));
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, OUTBOUND msg, List<Object> out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, ResponseContext msg, List<Object> out) throws Exception {
         if (msg == null)
             return;
 
-        logger.debug("Encoding response for {}", msg.getRemoteAddress());
         out.add(packetEncoder.toDatagram(
                 msg.getResponse().encodeResponse(msg.getSecret(), msg.getRequest().getAuthenticator()), msg.getRemoteAddress(), msg.getLocalAddress()));
-        logger.info("Request handled, sending response to {}", msg.getRemoteAddress());
+        logger.debug("Sending response to {}", msg.getRemoteAddress());
     }
 }

@@ -1,6 +1,5 @@
 package org.tinyradius;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -8,19 +7,13 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.PacketEncoder;
-import org.tinyradius.packet.PacketType;
-import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;
-import org.tinyradius.server.handler.AccessHandler;
-import org.tinyradius.server.handler.AccountingHandler;
-import org.tinyradius.server.handler.DeduplicatingHandler;
+import org.tinyradius.server.handler.*;
 
 import java.net.InetSocketAddress;
 
@@ -45,34 +38,18 @@ public class TestServer {
         final SecretProvider secretProvider = remote ->
                 remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
 
-        final ChannelHandler authHandler = new DeduplicatingHandler(new AccessHandler() {
+        final PacketCodec responseContextPacketCodec = new PacketCodec(packetEncoder, secretProvider);
+
+        final AccessHandler accessHandler = new AccessHandler() {
             @Override
             public String getUserPassword(String userName) {
                 return userName.equals("test") ? "password" : null;
             }
+        };
+        final ChannelHandler authHandler = new DeduplicatingHandler(, timer, 30000);
 
-            @Override
-            public Promise<RadiusPacket> handlePacket(Channel channel, AccessRequest request, InetSocketAddress remoteAddress, SecretProvider secretProvider) {
-                logger.info("Received Access-Request:\n" + request);
-                final Promise<RadiusPacket> promise = channel.eventLoop().newPromise();
-                super.handlePacket(channel, request, remoteAddress, secretProvider).addListener((Future<RadiusPacket> f) -> {
-                    final RadiusPacket response = f.getNow();
-                    if (response == null) {
-                        logger.info("Ignore packet.");
-                        promise.tryFailure(f.cause());
-                    } else {
-                        if (response.getType() == PacketType.ACCESS_ACCEPT)
-                            response.addAttribute("Reply-Message", "Welcome " + request.getUserName() + "!");
-                        logger.info("Answer:\n" + response);
-                        promise.trySuccess(response);
-                    }
-                });
-
-                return promise;
-            }
-        }, timer, 30000);
-
-        ChannelHandler acctHandler = new DeduplicatingHandler(new AccountingHandler(), timer, 30000);
+        final AccountingHandler accountingHandler = new AccountingHandler();
+        ChannelHandler acctHandler = new DeduplicatingHandler(timer, 30000);
 
         final RadiusServer server = new RadiusServer(
                 eventLoopGroup,

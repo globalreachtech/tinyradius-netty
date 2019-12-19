@@ -1,14 +1,11 @@
 package org.tinyradius.server.handler;
 
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -19,11 +16,11 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.SecretProvider;
 import org.tinyradius.server.handler.RequestHandler;
 import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -40,54 +37,18 @@ class PacketCodecTest {
     private ChannelHandler requestHandler;
 
     @Mock
-    private ChannelHandlerContext channelHandlerContext;
+    private ChannelHandlerContext ctx;
 
     @Test
-    void unknownClient() {
+    void inboundUnknownClientSecret() throws Exception {
         final PacketCodec<ResponseContext> packetCodec = new PacketCodec<>(packetEncoder, address -> null);
-        final DatagramPacket datagramPacket = new DatagramPacket(Unpooled.buffer(0), new InetSocketAddress(0));
+        final DatagramPacket datagram = new DatagramPacket(Unpooled.buffer(0), new InetSocketAddress(0));
 
-        final RadiusException exception = assertThrows(RadiusException.class,
-                () -> packetCodec.decode(null, datagramPacket));
+        final ArrayList<Object> out = new ArrayList<>();
 
-        assertTrue(exception.getMessage().toLowerCase().contains("unknown client"));
-    }
+        packetCodec.decode(ctx, datagram,out);
 
-    @Test
-    void unhandledPacketType() throws RadiusException {
-        final String secret = "mySecret";
-        final RadiusPacket radiusPacket = new AccountingRequest(dictionary, 1, null).encodeRequest(secret);
-        final DatagramPacket datagramPacket = packetEncoder.toDatagram(radiusPacket, new InetSocketAddress(0));
-
-        final PacketCodec<ResponseContext> packetCodec = new PacketCodec<>(packetEncoder, address -> secret);
-
-        final RadiusException exception = assertThrows(RadiusException.class,
-                () -> packetCodec.decode(null, datagramPacket));
-
-        assertTrue(exception.getMessage().toLowerCase().contains("handler only accepts accessrequest"));
-    }
-
-    @Test
-    void requestHandlerErrorPropagates() throws RadiusException, InterruptedException {
-        final String secret = "mySecret";
-        final RadiusPacket radiusPacket = new RadiusPacket(dictionary, 3, 1).encodeRequest(secret);
-        final DatagramPacket request = packetEncoder.toDatagram(radiusPacket, new InetSocketAddress(0));
-        final MockRequestHandler mockRequestHandler = new MockRequestHandler();
-
-        final PacketCodec<ResponseContext> handlerAdapter = new PacketCodec<>(packetEncoder, address -> secret);
-
-        final Future<DatagramPacket> response = handlerAdapter.decode(genChannel(), request);
-        assertFalse(response.isDone());
-
-        final Exception exception = new Exception("foobar");
-
-        mockRequestHandler.promise.tryFailure(exception);
-        Thread.sleep(500);
-
-        assertTrue(response.isDone());
-        assertFalse(response.isSuccess());
-
-        assertSame(exception, response.cause());
+        assertEquals(0, out.size());
     }
 
     @Test
@@ -98,7 +59,6 @@ class PacketCodecTest {
         final InetSocketAddress clientAddress = new InetSocketAddress(1);
 
         final DatagramPacket request = packetEncoder.toDatagram(requestPacket, serverAddress, clientAddress);
-        final MockRequestHandler mockRequestHandler = new MockRequestHandler();
 
         final PacketCodec<ResponseContext> handlerAdapter = new PacketCodec<>(packetEncoder, address -> secret);
 
@@ -119,17 +79,17 @@ class PacketCodecTest {
     void exceptionDropPacket() throws RadiusException {
         final RadiusPacket request = new RadiusPacket(dictionary, 4, 1).encodeRequest("mySecret");
 
-        final PacketCodec<ResponseContext> handlerWrapper = new PacketCodec<>(packetEncoder, x -> "");
+        final PacketCodec handlerWrapper = new PacketCodec(packetEncoder, x -> "");
 
-        when(channelHandlerContext.channel()).thenReturn(genChannel());
+        when(ctx.channel()).thenReturn(genChannel());
 
-        handlerWrapper.decode(channelHandlerContext,
+        handlerWrapper.decode(ctx,
                 packetEncoder.toDatagram(request, new InetSocketAddress(0)));
 
-        verify(channelHandlerContext, never()).write(any());
-        verify(channelHandlerContext, never()).write(any(), any());
-        verify(channelHandlerContext, never()).writeAndFlush(any());
-        verify(channelHandlerContext, never()).writeAndFlush(any(), any());
+        verify(ctx, never()).write(any());
+        verify(ctx, never()).write(any(), any());
+        verify(ctx, never()).writeAndFlush(any());
+        verify(ctx, never()).writeAndFlush(any(), any());
     }
 
     @Test
@@ -142,15 +102,15 @@ class PacketCodecTest {
         when(requestHandler.handlePacket(any(), any(), any(), any()))
                 .thenReturn(eventLoopGroup.next().<RadiusPacket>newPromise().setSuccess(response));
 
-        final PacketCodec<ResponseContext> handlerWrapper = new PacketCodec<>(packetEncoder, x -> secret);
+        final PacketCodec handlerWrapper = new PacketCodec(packetEncoder, x -> secret);
 
-        when(channelHandlerContext.channel()).thenReturn(genChannel());
+        when(ctx.channel()).thenReturn(genChannel());
 
-        handlerWrapper.decode(channelHandlerContext,
+        handlerWrapper.decode(ctx,
                 packetEncoder.toDatagram(request, new InetSocketAddress(0), new InetSocketAddress(1)));
 
         final ArgumentCaptor<DatagramPacket> captor = ArgumentCaptor.forClass(DatagramPacket.class);
-        verify(channelHandlerContext).writeAndFlush(captor.capture());
+        verify(ctx).writeAndFlush(captor.capture());
 
         final RadiusPacket expected = packetEncoder.fromDatagram(captor.getValue());
         assertEquals(expected.getIdentifier(), response.getIdentifier());

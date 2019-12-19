@@ -24,8 +24,8 @@ class DeduplicatingHandlerTest {
 
     @Test
     void timeoutTest() throws InterruptedException {
-        final DeduplicatingHandler<RequestContext> deduplicatingHandler =
-                new DeduplicatingHandler<>(new HashedWheelTimer(), 500);
+        final DeduplicatingHandler deduplicatingHandler =
+                new DeduplicatingHandler(new HashedWheelTimer(), 500);
 
         final RadiusPacket request = new AccessRequest(dictionary, 100, null).encodeRequest("test");
         final RequestContext requestContext = new RequestContext(request, null, null, null);

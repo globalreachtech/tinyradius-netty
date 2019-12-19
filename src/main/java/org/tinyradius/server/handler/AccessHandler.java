@@ -5,6 +5,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.packet.AccessRequest;
+import org.tinyradius.packet.PacketType;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusPackets;
 
@@ -37,6 +38,8 @@ public abstract class AccessHandler extends SimpleChannelInboundHandler<RequestC
 
         final AccessRequest request = (AccessRequest) msg.getRequest();
 
+        logger.info("Received Access-Request:\n" + request);
+
         String password = getUserPassword(request.getUserName());
         int type = password != null && request.verifyPassword(password) ?
                 ACCESS_ACCEPT : ACCESS_REJECT;
@@ -44,6 +47,10 @@ public abstract class AccessHandler extends SimpleChannelInboundHandler<RequestC
         RadiusPacket answer = RadiusPackets.create(request.getDictionary(), type, request.getIdentifier());
         request.getAttributes(33)
                 .forEach(answer::addAttribute);
+
+        if (type == PacketType.ACCESS_ACCEPT)
+            answer.addAttribute("Reply-Message", "Welcome " + request.getUserName() + "!");
+        logger.info("Answer:\n" + answer);
 
         ctx.writeAndFlush(msg.withResponse(answer));
     }

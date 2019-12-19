@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.*;
 
-class AuthHandlerTest {
+class AccessHandlerTest {
 
     private static final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);
 
@@ -31,7 +31,7 @@ class AuthHandlerTest {
         eventExecutors.shutdownGracefully().syncUninterruptibly();
     }
 
-    private final AuthHandler authHandler = new AuthHandler() {
+    private final AccessHandler authHandler = new AccessHandler() {
         @Override
         public String getUserPassword(String userName) {
             return userName + "-pw";
