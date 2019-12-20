@@ -8,6 +8,7 @@ import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.PacketType;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusPackets;
+import org.tinyradius.server.RequestCtx;
 
 import static org.tinyradius.packet.PacketType.ACCESS_ACCEPT;
 import static org.tinyradius.packet.PacketType.ACCESS_REJECT;
@@ -16,7 +17,7 @@ import static org.tinyradius.packet.PacketType.ACCESS_REJECT;
  * Reference implementation of AccessRequest handler that returns Access-Accept/Reject
  * depending on whether {@link #getUserPassword(String)} matches password in Access-Request.
  */
-public abstract class AccessHandler extends SimpleChannelInboundHandler<RequestContext> {
+public abstract class AccessHandler extends SimpleChannelInboundHandler<RequestCtx> {
 
     private static final Logger logger = LoggerFactory.getLogger(AccessHandler.class);
 
@@ -29,7 +30,7 @@ public abstract class AccessHandler extends SimpleChannelInboundHandler<RequestC
     public abstract String getUserPassword(String userName);
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, RequestContext msg) {
+    protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
 
         if (!(msg.getRequest() instanceof AccessRequest)) {
             logger.warn("{} does not accept {}", getClass().getSimpleName(), msg.getRequest().getClass().getSimpleName());

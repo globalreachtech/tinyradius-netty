@@ -5,6 +5,7 @@ import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.server.RequestCtx;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -15,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class CachingHandler<INBOUND extends RequestContext, OUTBOUND extends ResponseContext> extends MessageToMessageCodec<INBOUND, OUTBOUND> {
+public class CachingHandler<INBOUND extends RequestCtx, OUTBOUND extends RequestCtx> extends MessageToMessageCodec<INBOUND, OUTBOUND> {
 
     private static final Logger logger = LoggerFactory.getLogger(CachingHandler.class);
 
@@ -31,12 +32,11 @@ public class CachingHandler<INBOUND extends RequestContext, OUTBOUND extends Res
 
     /**
      *
-     *
      * @param ctx            ChannelHandlerContext
      * @param requestContext Inbound request context
      * @return request context to forward
      */
-    protected RequestContext onMiss(ChannelHandlerContext ctx, INBOUND requestContext) {
+    protected RequestCtx onMiss(ChannelHandlerContext ctx, INBOUND requestContext) {
         return requestContext;
     }
 
@@ -45,7 +45,7 @@ public class CachingHandler<INBOUND extends RequestContext, OUTBOUND extends Res
      * @param responseContext Outbound response context
      * @return response context to return
      */
-    protected ResponseContext onHit(ChannelHandlerContext ctx, OUTBOUND responseContext) {
+    protected RequestCtx onHit(ChannelHandlerContext ctx, OUTBOUND responseContext) {
         return responseContext;
     }
 
@@ -77,8 +77,8 @@ public class CachingHandler<INBOUND extends RequestContext, OUTBOUND extends Res
         private final InetSocketAddress remoteAddress;
         private final byte[] authenticator;
 
-        private static Packet from(RequestContext ctx) {
-            return new Packet(ctx.getRequest().getIdentifier(), ctx.getRemoteAddress(), ctx.getRequest().getAuthenticator());
+        private static Packet from(RequestCtx ctx) {
+            return new Packet(ctx.getRequest().getIdentifier(), ctx.getEndpoint().getAddress(), ctx.getRequest().getAuthenticator());
         }
 
         private Packet(int identifier, InetSocketAddress remoteAddress, byte[] authenticator) {

@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.NaiveClientHandler;
-import org.tinyradius.client.retry.SimpleRetryStrategy;
+import org.tinyradius.client.retry.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
@@ -54,9 +54,9 @@ public class TestClient {
         RadiusClient rc = new RadiusClient(
                 eventLoopGroup,
                 timer,
-                new ReflectiveChannelFactory<>(NioDatagramChannel.class),
+                timeoutHandler, new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new NaiveClientHandler(packetEncoder),
-                new SimpleRetryStrategy(timer, 3, 1000),
+                new BasicTimeoutHandler(timer, 3, 1000),
                 new InetSocketAddress(0));
         rc.start().syncUninterruptibly();
 

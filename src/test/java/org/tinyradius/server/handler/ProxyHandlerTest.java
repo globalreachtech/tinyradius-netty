@@ -18,8 +18,8 @@ import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.RadiusClientTest;
 import org.tinyradius.client.handler.NaiveClientHandler;
-import org.tinyradius.client.retry.RetryStrategy;
-import org.tinyradius.client.retry.SimpleRetryStrategy;
+import org.tinyradius.client.retry.BasicTimeoutHandler;
+import org.tinyradius.client.retry.TimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
@@ -54,9 +54,9 @@ class ProxyHandlerTest {
 
     private static final RadiusClient client = new RadiusClient(
             eventExecutors, timer,
-            new ReflectiveChannelFactory<>(NioDatagramChannel.class),
+            timeoutHandler, new ReflectiveChannelFactory<>(NioDatagramChannel.class),
             new NaiveClientHandler(packetEncoder),
-            new SimpleRetryStrategy(timer, 3, 1000),
+            new BasicTimeoutHandler(timer, 3, 1000),
             new InetSocketAddress(0));
 
     @Mock
@@ -80,7 +80,7 @@ class ProxyHandlerTest {
         MockClient radiusClient = new MockClient(
                 new ReflectiveChannelFactory<>(NioDatagramChannel.class),
                 new NaiveClientHandler(packetEncoder),
-                new SimpleRetryStrategy(timer, 3, 1000));
+                new BasicTimeoutHandler(timer, 3, 1000));
 
         ProxyHandler proxyHandler = new ProxyHandler(radiusClient) {
             @Override
@@ -151,8 +151,8 @@ class ProxyHandlerTest {
 
     private static class MockClient extends RadiusClient {
 
-        MockClient(ChannelFactory<DatagramChannel> factory, RadiusClientTest.MockClientHandler clientHandler, RetryStrategy retryStrategy) {
-            super(ProxyHandlerTest.eventExecutors, timer, factory, clientHandler, retryStrategy, new InetSocketAddress(0));
+        MockClient(ChannelFactory<DatagramChannel> factory, RadiusClientTest.MockClientHandler clientHandler, TimeoutHandler timeoutHandler) {
+            super(ProxyHandlerTest.eventExecutors, timer, timeoutHandler, factory, clientHandler, timeoutHandler, new InetSocketAddress(0));
         }
 
         public Promise<RadiusPacket> communicate(RadiusPacket originalPacket, RadiusEndpoint endpoint) {

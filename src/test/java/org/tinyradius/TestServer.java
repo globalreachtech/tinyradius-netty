@@ -38,7 +38,7 @@ public class TestServer {
         final SecretProvider secretProvider = remote ->
                 remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
 
-        final PacketCodec responseContextPacketCodec = new PacketCodec(packetEncoder, secretProvider);
+        final ServerPacketCodec responseContextServerPacketCodec = new ServerPacketCodec(packetEncoder, secretProvider);
 
         final AccessHandler accessHandler = new AccessHandler() {
             @Override

@@ -1,10 +1,10 @@
 package org.tinyradius.server;
 
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.socket.DatagramChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
@@ -40,13 +40,13 @@ public class RadiusServer extends AbstractListener {
      * @param authSocket     socket to listen on for auth requests
      * @param acctSocket     socket to listen on for accounting requests
      */
-    public RadiusServer(EventLoopGroup eventLoopGroup,
-                        Class<? extends DatagramChannel> datagramClass,
+    public RadiusServer(Bootstrap bootstrap,
+                        EventLoopGroup eventLoopGroup,
                         ChannelHandler authHandler,
                         ChannelHandler acctHandler,
                         InetSocketAddress authSocket,
                         InetSocketAddress acctSocket) {
-        super(eventLoopGroup, datagramClass);
+        super(bootstrap);
         this.eventLoopGroup = eventLoopGroup;
         this.authHandler = authHandler;
         this.acctHandler = acctHandler;

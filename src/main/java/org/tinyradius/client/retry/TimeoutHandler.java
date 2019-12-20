@@ -3,7 +3,7 @@ package org.tinyradius.client.retry;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.packet.RadiusPacket;
 
-public interface RetryStrategy {
+public interface TimeoutHandler {
 
     /**
      * Schedule a retry in the future. Invoked immediately after a request is sent
@@ -19,5 +19,5 @@ public interface RetryStrategy {
      * @param totalAttempts current attempt count
      * @param promise request promise that resolves when a response is received
      */
-    void scheduleRetry(Runnable retry, int totalAttempts, Promise<RadiusPacket> promise);
+    void onTimeout(Runnable retry, int totalAttempts, Promise<RadiusPacket> promise);
 }

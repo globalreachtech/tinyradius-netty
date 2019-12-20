@@ -3,8 +3,6 @@ package org.tinyradius.server;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.socket.DatagramChannel;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +15,12 @@ public abstract class AbstractListener {
 
     private final Bootstrap bootstrap;
 
-    protected AbstractListener(EventLoopGroup eventLoopGroup, Class<? extends DatagramChannel> channelClass) {
-        bootstrap = new Bootstrap()
-                .group(eventLoopGroup)
-                .channel(channelClass);
+//    bootstrap = new Bootstrap()
+//                .group(eventLoopGroup)
+//                .channel(channelClass);
+
+    protected AbstractListener(Bootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
 
     /**
@@ -31,13 +31,7 @@ public abstract class AbstractListener {
     protected ChannelFuture listen(SocketAddress listenAddress, ChannelHandler channelHandler) {
         return bootstrap.clone()
                 .handler(channelHandler)
-                .bind(listenAddress)
-                .addListener(f -> {
-                    if (f.isSuccess())
-                        logger.info("Now listening on {}", listenAddress);
-                    else
-                        logger.warn("Unable to listen on {}: {}", listenAddress, f.cause());
-                });
+                .bind(listenAddress);
     }
 
     /**

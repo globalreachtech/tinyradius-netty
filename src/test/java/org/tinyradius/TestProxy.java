@@ -8,8 +8,8 @@ import io.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RadiusClient;
-import org.tinyradius.client.handler.DefaultClientHandler;
-import org.tinyradius.client.retry.SimpleRetryStrategy;
+import org.tinyradius.client.handler.RequestPromiseHandler;
+import org.tinyradius.client.retry.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
@@ -61,10 +61,10 @@ public class TestProxy {
             return remote.getAddress().getHostAddress().equals("127.0.0.1") ?
                     "proxytest" : null;
         };
-        final DefaultClientHandler clientHandler = new DefaultClientHandler(packetEncoder);
-        final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 1000);
+        final RequestPromiseHandler clientHandler = new RequestPromiseHandler(packetEncoder);
+        final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 3, 1000);
         RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, timer, channelFactory, clientHandler, retryStrategy, new InetSocketAddress(11814));
+                eventLoopGroup, timer, timeoutHandler, channelFactory, clientHandler, retryStrategy, new InetSocketAddress(11814));
 
         final ProxyHandler proxyRequestHandler = new ProxyHandler(radiusClient) {
             @Override
@@ -79,7 +79,6 @@ public class TestProxy {
             }
         };
 
-        final DeduplicatingHandler<ResponseContext> proxyDeduplicatingHandler = new DeduplicatingHandler<>(proxyRequestHandler, timer, 30000);
 
         final RadiusServer proxy = new RadiusServer(
                 eventLoopGroup,

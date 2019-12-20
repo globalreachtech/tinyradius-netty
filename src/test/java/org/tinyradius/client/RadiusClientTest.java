@@ -19,8 +19,8 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinyradius.client.retry.RetryStrategy;
-import org.tinyradius.client.retry.SimpleRetryStrategy;
+import org.tinyradius.client.retry.TimeoutHandler;
+import org.tinyradius.client.retry.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
@@ -50,7 +50,7 @@ class RadiusClientTest {
     private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
 
     @Spy
-    private RetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 100);
+    private TimeoutHandler timeoutHandler = new BasicTimeoutHandler(timer, 3, 100);
 
     @BeforeAll
     static void beforeAll() {
@@ -65,7 +65,7 @@ class RadiusClientTest {
     @Test()
     void communicateWithTimeout() {
         RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, timer, channelFactory, new MockClientHandler(null), retryStrategy, new InetSocketAddress(0));
+                eventLoopGroup, timer, timeoutHandler, channelFactory, new MockClientHandler(null), timeoutHandler, new InetSocketAddress(0));
 
         final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
@@ -74,7 +74,7 @@ class RadiusClientTest {
                 () -> radiusClient.communicate(request, endpoint).syncUninterruptibly());
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
-        verify(retryStrategy, times(3)).scheduleRetry(any(), anyInt(), any());
+        verify(timeoutHandler, times(3)).onTimeout(any(), anyInt(), any());
         radiusClient.stop().syncUninterruptibly();
     }
 
@@ -83,10 +83,10 @@ class RadiusClientTest {
         final int id = random.nextInt(256);
         final RadiusPacket response = new RadiusPacket(DefaultDictionary.INSTANCE, 2, id);
         final MockClientHandler mockClientHandler = new MockClientHandler(response);
-        final SimpleRetryStrategy simpleRetryStrategyHelper = new SimpleRetryStrategy(timer, 3, 1000);
+        final BasicTimeoutHandler simpleRetryStrategyHelper = new BasicTimeoutHandler(timer, 3, 1000);
 
         final RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, timer, channelFactory, mockClientHandler, simpleRetryStrategyHelper, new InetSocketAddress(0));
+                eventLoopGroup, timer, timeoutHandler, channelFactory, mockClientHandler, simpleRetryStrategyHelper, new InetSocketAddress(0));
 
         final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
 
@@ -107,7 +107,7 @@ class RadiusClientTest {
         final MockClientHandler mockClientHandler = new MockClientHandler(null);
 
         final RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, timer, channelFactory, mockClientHandler, null, new InetSocketAddress(0));
+                eventLoopGroup, timer, timeoutHandler, channelFactory, mockClientHandler, null, new InetSocketAddress(0));
 
         final RadiusPacket request = new RadiusPacket(dictionary, 1, id);
 

@@ -12,19 +12,19 @@ import static java.util.Objects.requireNonNull;
 public class RadiusEndpoint {
 
     private final InetSocketAddress address;
-    private final String sharedSecret;
+    private final String secret;
 
-    public RadiusEndpoint(InetSocketAddress remoteAddress, String sharedSecret) {
+    public RadiusEndpoint(InetSocketAddress remoteAddress, String secret) {
         this.address = requireNonNull(remoteAddress);
-        this.sharedSecret = requireNonNull(sharedSecret);
+        this.secret = requireNonNull(secret);
     }
 
     public InetSocketAddress getAddress() {
         return address;
     }
 
-    public String getSharedSecret() {
-        return sharedSecret;
+    public String getSecret() {
+        return secret;
     }
 
     @Override
@@ -33,11 +33,11 @@ public class RadiusEndpoint {
         if (o == null || getClass() != o.getClass()) return false;
         RadiusEndpoint endpoint = (RadiusEndpoint) o;
         return address.equals(endpoint.address) &&
-                sharedSecret.equals(endpoint.sharedSecret);
+                secret.equals(endpoint.secret);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(address, sharedSecret);
+        return Objects.hash(address, secret);
     }
 }

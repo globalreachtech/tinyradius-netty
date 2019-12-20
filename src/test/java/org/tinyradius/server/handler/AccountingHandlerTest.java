@@ -25,7 +25,6 @@ import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
 
 class AccountingHandlerTest {
 
-
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
     private final SecureRandom random = new SecureRandom();
@@ -36,10 +35,10 @@ class AccountingHandlerTest {
         final RadiusPacket radiusPacket = new AccountingRequest(dictionary, 1, null).encodeRequest(secret);
         final DatagramPacket datagramPacket = packetEncoder.toDatagram(radiusPacket, new InetSocketAddress(0));
 
-        final PacketCodec<ResponseContext> packetCodec = new PacketCodec<>(packetEncoder, address -> secret);
+        final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(packetEncoder, address -> secret);
 
         final RadiusException exception = assertThrows(RadiusException.class,
-                () -> packetCodec.decode(null, datagramPacket));
+                () -> serverPacketCodec.decode(null, datagramPacket));
 
         assertTrue(exception.getMessage().toLowerCase().contains("handler only accepts accessrequest"));
     }

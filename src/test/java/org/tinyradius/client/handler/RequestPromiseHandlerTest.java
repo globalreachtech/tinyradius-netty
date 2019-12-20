@@ -24,7 +24,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 
-class DefaultClientHandlerTest {
+class RequestPromiseHandlerTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
@@ -41,14 +41,14 @@ class DefaultClientHandlerTest {
     @Test
     void outboundAppendNewProxyState() throws RadiusException {
         final String secret = "test";
-        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
+        final RequestPromiseHandler handler = new RequestPromiseHandler(packetEncoder);
         int id = random.nextInt(256);
 
         final RadiusPacket originalRequest = new AccessRequest(dictionary, id, null).encodeRequest(secret);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
         // process once
-        final DatagramPacket datagram1 = handler.prepareDatagram(originalRequest, endpoint, null, eventLoopGroup.next().newPromise());
+        final DatagramPacket datagram1 = handler.prepareDatagram(originalRequest, endpoint, eventLoopGroup.next().newPromise());
         final RadiusPacket processedPacket1 = packetEncoder.fromDatagram(datagram1);
         List<RadiusAttribute> attributes1 = processedPacket1.getAttributes();
 
@@ -58,7 +58,7 @@ class DefaultClientHandlerTest {
         assertEquals("1", new String(proxyState1, UTF_8));
 
         // process again
-        final DatagramPacket datagram2 = handler.prepareDatagram(processedPacket1, endpoint, null, eventLoopGroup.next().newPromise());
+        final DatagramPacket datagram2 = handler.prepareDatagram(processedPacket1, endpoint, eventLoopGroup.next().newPromise());
         final RadiusPacket processedPacket2 = packetEncoder.fromDatagram(datagram2);
 
         // check another proxy-state added
@@ -77,7 +77,7 @@ class DefaultClientHandlerTest {
         final String secret2 = UUID.randomUUID().toString();
         final String username = "myUsername";
         final String password = "myPassword";
-        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
+        final RequestPromiseHandler handler = new RequestPromiseHandler(packetEncoder);
         int id = random.nextInt(256);
 
         final RadiusPacket accessRequest = new AccessRequest(dictionary, id, null, username, password)
@@ -85,7 +85,7 @@ class DefaultClientHandlerTest {
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret2);
 
         // process
-        final DatagramPacket accessPacketDatagram = handler.prepareDatagram(accessRequest, endpoint, null, eventLoopGroup.next().newPromise());
+        final DatagramPacket accessPacketDatagram = handler.prepareDatagram(accessRequest, endpoint, eventLoopGroup.next().newPromise());
 
         final RadiusPacket sentAccessPacket = packetEncoder.fromDatagram(accessPacketDatagram, secret2);
         assertTrue(sentAccessPacket instanceof AccessRequest); // sanity check - we are not testing decoder here
@@ -97,7 +97,7 @@ class DefaultClientHandlerTest {
 
     @Test
     void responseSenderNull() {
-        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
+        final RequestPromiseHandler handler = new RequestPromiseHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
@@ -112,7 +112,7 @@ class DefaultClientHandlerTest {
     void responseNoProxyState() {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
+        final RequestPromiseHandler handler = new RequestPromiseHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
@@ -127,7 +127,7 @@ class DefaultClientHandlerTest {
     void responseProxyStateNotFound() {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
+        final RequestPromiseHandler handler = new RequestPromiseHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1,
@@ -143,12 +143,12 @@ class DefaultClientHandlerTest {
     void responseIdentifierMismatch() throws RadiusException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
+        final RequestPromiseHandler handler = new RequestPromiseHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         // add remoteAddress-secret and identifier mapping to handler
         final DatagramPacket datagram = handler.prepareDatagram(
-                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), null, eventLoopGroup.next().newPromise());
+                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), eventLoopGroup.next().newPromise());
         final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
@@ -166,12 +166,12 @@ class DefaultClientHandlerTest {
     void responseSenderAddressMismatch() throws RadiusException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
+        final RequestPromiseHandler handler = new RequestPromiseHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         // add remoteAddress-secret and identifier mapping to handler
         final DatagramPacket datagram = handler.prepareDatagram(
-                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), null, eventLoopGroup.next().newPromise());
+                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), eventLoopGroup.next().newPromise());
         final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
@@ -189,12 +189,12 @@ class DefaultClientHandlerTest {
     void responseAuthVerifyFail() throws RadiusException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
+        final RequestPromiseHandler handler = new RequestPromiseHandler(packetEncoder);
         final byte[] requestAuth = random.generateSeed(16);
 
         // add remoteAddress-secret and identifier mapping to handler
         final DatagramPacket datagram = handler.prepareDatagram(
-                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), null, eventLoopGroup.next().newPromise());
+                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), eventLoopGroup.next().newPromise());
         final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
@@ -212,13 +212,13 @@ class DefaultClientHandlerTest {
     void channelReadIsStateful() throws RadiusException, InterruptedException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final DefaultClientHandler handler = new DefaultClientHandler(packetEncoder);
+        final RequestPromiseHandler handler = new RequestPromiseHandler(packetEncoder);
 
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
         // process packet out
         final DatagramPacket datagram = handler.prepareDatagram(
-                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), null, promise);
+                new RadiusPacket(dictionary, 1, 1), new RadiusEndpoint(remoteAddress, secret), promise);
         final RadiusPacket preparedRequest = packetEncoder.fromDatagram(datagram);
 
         // capture request details

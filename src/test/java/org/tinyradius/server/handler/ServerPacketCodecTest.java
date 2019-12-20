@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.handler.RequestHandler;
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PacketCodecTest {
+class ServerPacketCodecTest {
 
     private final HashedWheelTimer timer = new HashedWheelTimer();
 
@@ -41,12 +40,12 @@ class PacketCodecTest {
 
     @Test
     void inboundUnknownClientSecret() throws Exception {
-        final PacketCodec<ResponseContext> packetCodec = new PacketCodec<>(packetEncoder, address -> null);
+        final ServerPacketCodec<ResponseContext> serverPacketCodec = new ServerPacketCodec<>(packetEncoder, address -> null);
         final DatagramPacket datagram = new DatagramPacket(Unpooled.buffer(0), new InetSocketAddress(0));
 
         final ArrayList<Object> out = new ArrayList<>();
 
-        packetCodec.decode(ctx, datagram,out);
+        serverPacketCodec.decode(ctx, datagram,out);
 
         assertEquals(0, out.size());
     }
@@ -60,7 +59,7 @@ class PacketCodecTest {
 
         final DatagramPacket request = packetEncoder.toDatagram(requestPacket, serverAddress, clientAddress);
 
-        final PacketCodec<ResponseContext> handlerAdapter = new PacketCodec<>(packetEncoder, address -> secret);
+        final ServerPacketCodec<ResponseContext> handlerAdapter = new ServerPacketCodec<>(packetEncoder, address -> secret);
 
         final Future<DatagramPacket> response = handlerAdapter.decode(genChannel(), request);
         assertFalse(response.isDone());
@@ -79,7 +78,7 @@ class PacketCodecTest {
     void exceptionDropPacket() throws RadiusException {
         final RadiusPacket request = new RadiusPacket(dictionary, 4, 1).encodeRequest("mySecret");
 
-        final PacketCodec handlerWrapper = new PacketCodec(packetEncoder, x -> "");
+        final ServerPacketCodec handlerWrapper = new ServerPacketCodec(packetEncoder, x -> "");
 
         when(ctx.channel()).thenReturn(genChannel());
 
@@ -102,7 +101,7 @@ class PacketCodecTest {
         when(requestHandler.handlePacket(any(), any(), any(), any()))
                 .thenReturn(eventLoopGroup.next().<RadiusPacket>newPromise().setSuccess(response));
 
-        final PacketCodec handlerWrapper = new PacketCodec(packetEncoder, x -> secret);
+        final ServerPacketCodec handlerWrapper = new ServerPacketCodec(packetEncoder, x -> secret);
 
         when(ctx.channel()).thenReturn(genChannel());
 
