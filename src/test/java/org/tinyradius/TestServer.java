@@ -5,14 +5,15 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;
-import org.tinyradius.server.handler.*;
+import org.tinyradius.server.handler.AccessHandler;
+import org.tinyradius.server.handler.AccountingHandler;
+import org.tinyradius.server.handler.ServerPacketCodec;
 
 import java.net.InetSocketAddress;
 
@@ -37,7 +38,7 @@ public class TestServer {
         final SecretProvider secretProvider = remote ->
                 remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
 
-        final ServerPacketCodec responseContextServerPacketCodec = new ServerPacketCodec(packetEncoder, secretProvider);
+        final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(packetEncoder, secretProvider);
 
         final AccessHandler accessHandler = new AccessHandler() {
             @Override
@@ -45,33 +46,34 @@ public class TestServer {
                 return userName.equals("test") ? "password" : null;
             }
         };
-        final ChannelHandler authHandler = new DeduplicatingHandler(, timer, 30000);
+        final ChannelHandler authHandler = new AccessHandler() {
+            @Override
+            public String getUserPassword(String userName) {
+                return null;
+            }
+        };
 
         final AccountingHandler accountingHandler = new AccountingHandler();
-        ChannelHandler acctHandler = new DeduplicatingHandler(timer, 30000);
 
         final RadiusServer server = new RadiusServer(
-                eventLoopGroup,
                 authHandler,
-                acctHandler,
+                accountingHandler,
                 new InetSocketAddress(11812), new InetSocketAddress(11813));
 
-        final Future<Void> future = server.start();
-        future.addListener(future1 -> {
+        server.start().addListener(future1 -> {
             if (future1.isSuccess()) {
                 logger.info("Server started");
             } else {
                 logger.info("Failed to start server: " + future1.cause());
-                server.stop().syncUninterruptibly();
+                server.close();
                 eventLoopGroup.shutdownGracefully();
             }
         });
 
         System.in.read();
 
-        server.stop().syncUninterruptibly();
+        server.close();
 
         eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
     }
-
 }

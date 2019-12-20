@@ -45,7 +45,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Ser
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ServerResponseCtx msg, List<Object> out) throws Exception {
-        final RadiusPacket packet = msg.getResponse().encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator()); // todo use request auth
+        final RadiusPacket packet = msg.getResponse().encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator());
         final DatagramPacket datagramPacket = packetEncoder.toDatagram(
                 packet, msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
         out.add(datagramPacket);

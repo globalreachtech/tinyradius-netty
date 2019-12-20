@@ -3,7 +3,8 @@ package org.tinyradius.client.retry;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.util.RadiusException;
+
+import java.io.IOException;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -13,8 +14,8 @@ public class BasicTimeoutHandler implements TimeoutHandler {
     private final int maxAttempts;
     private final int timeoutMs;
 
-    public BasicTimeoutHandler(Timer timer, int timeoutMs) {
-        this(timer, 1, timeoutMs);
+    public BasicTimeoutHandler(Timer timer) {
+        this(timer, 1, 1000);
     }
 
     /**
@@ -35,7 +36,7 @@ public class BasicTimeoutHandler implements TimeoutHandler {
                 return;
 
             if (totalAttempts >= maxAttempts)
-                promise.tryFailure(new RadiusException("Client send failed, max retries reached: " + maxAttempts));
+                promise.tryFailure(new IOException("Client send failed, max retries reached: " + maxAttempts));
             else
                 retry.run();
         }, timeoutMs, MILLISECONDS);

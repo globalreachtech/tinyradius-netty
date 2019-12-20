@@ -1,9 +1,13 @@
 package org.tinyradius.server.handler;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -19,12 +23,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.*;
 
+@ExtendWith(MockitoExtension.class)
 class AccessHandlerTest {
 
     private static final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
+
+    @Mock
+    private ChannelHandlerContext ctx;
 
     @AfterAll
     static void afterAll() {
@@ -55,8 +63,7 @@ class AccessHandlerTest {
                 .map(String::new)
                 .collect(Collectors.toList()));
 
-        final RadiusPacket response = authHandler.handlePacket(datagramChannel, request, null, a -> "")
-                .syncUninterruptibly().getNow();
+        final RadiusPacket response = authHandler.channelRead0(datagramChannel, request, null, a -> "");
 
         assertEquals(id, response.getIdentifier());
         assertEquals(ACCESS_ACCEPT, response.getType());

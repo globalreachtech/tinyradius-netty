@@ -75,7 +75,6 @@ class RadiusClientTest {
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
         verify(timeoutHandler, times(3)).onTimeout(any(), anyInt(), any());
-        radiusClient.stop().syncUninterruptibly();
     }
 
     @Test

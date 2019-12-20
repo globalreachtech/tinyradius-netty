@@ -98,7 +98,7 @@ public class TestProxy {
 
         System.in.read();
 
-        proxy.stop().syncUninterruptibly();
+        proxy.close();
 
         eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
     }
