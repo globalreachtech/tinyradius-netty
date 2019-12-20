@@ -5,7 +5,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RadiusClient;
-import org.tinyradius.client.handler.RequestPromiseHandler;
+import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusPackets;
 import org.tinyradius.server.RequestCtx;
@@ -18,7 +18,7 @@ import java.util.Optional;
  * RadiusServer handler that proxies packets to destination.
  * <p>
  * RadiusClient port should be set to proxy port, which will be used to communicate
- * with upstream servers. RadiusClient should also use a variant of {@link RequestPromiseHandler}
+ * with upstream servers. RadiusClient should also use a variant of {@link PromiseAdapter}
  * which matches requests/responses by adding a custom Proxy-State attribute.
  */
 public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCtx> {

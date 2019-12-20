@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.ClientResponseCtx;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusException;
 
 import java.util.List;
@@ -24,9 +23,9 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
  * outbound packets. This avoids problem with mismatched requests/responses when using
  * packetIdentifier, which is limited to 256 unique IDs.
  */
-public class RequestPromiseHandler extends MessageToMessageCodec<RadiusPacket, ClientResponseCtx> {
+public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, ClientResponseCtx> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestPromiseHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(PromiseAdapter.class);
 
     private static final int PROXY_STATE = 33;
 

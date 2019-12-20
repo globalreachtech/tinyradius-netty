@@ -30,12 +30,12 @@ class CachingHandlerTest {
 
     @Test
     void timeoutTest() throws InterruptedException {
-        final CachingHandler<RequestCtx, ResponseContext> cachingHandler =
+        final CachingHandler<RequestCtx, RequestCtx> cachingHandler =
                 new CachingHandler<>(new HashedWheelTimer(), 500);
 
         final RadiusPacket request = new AccessRequest(dictionary, 100, null).encodeRequest("test");
-        final RequestCtx requestCtx = new RequestCtx(request, null, null);
-        final ResponseContext responseContext = requestCtx.withResponse(RadiusPackets.create(dictionary, ACCESS_ACCEPT, 100));
+        final RequestCtx requestCtx = new RequestCtx(request, null);
+        final RequestCtx responseContext = requestCtx.withResponse(RadiusPackets.create(dictionary, ACCESS_ACCEPT, 100));
 
         // cache miss
         final ArrayList<Object> out1 = new ArrayList<>();

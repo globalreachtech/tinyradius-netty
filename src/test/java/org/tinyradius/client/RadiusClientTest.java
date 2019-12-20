@@ -1,10 +1,9 @@
 package org.tinyradius.client;
 
-import io.netty.channel.ChannelFactory;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ReflectiveChannelFactory;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
@@ -48,6 +47,9 @@ class RadiusClientTest {
 
     private final HashedWheelTimer timer = new HashedWheelTimer();
     private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
+    private final InetSocketAddress address = new InetSocketAddress(0);
+
+    private final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
     @Spy
     private TimeoutHandler timeoutHandler = new BasicTimeoutHandler(timer, 3, 100);
@@ -64,8 +66,12 @@ class RadiusClientTest {
 
     @Test()
     void communicateWithTimeout() {
-        RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, timer, timeoutHandler, channelFactory, new MockClientHandler(null), timeoutHandler, new InetSocketAddress(0));
+        RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new ChannelInitializer<DatagramChannel>() {
+            @Override
+            protected void initChannel(DatagramChannel ch) throws Exception {
+
+            }
+        });
 
         final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
@@ -75,6 +81,8 @@ class RadiusClientTest {
 
         assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
         verify(timeoutHandler, times(3)).onTimeout(any(), anyInt(), any());
+
+        radiusClient.close();
     }
 
     @Test
@@ -97,7 +105,7 @@ class RadiusClientTest {
 
         assertSame(response, future.getNow());
 
-        radiusClient.stop().syncUninterruptibly();
+        radiusClient.close();
     }
 
     @Test
@@ -115,7 +123,7 @@ class RadiusClientTest {
         assertTrue(future.isDone());
         assertTrue(future.cause().getMessage().toLowerCase().contains("missing authenticator"));
 
-        radiusClient.stop().syncUninterruptibly();
+        radiusClient.close();
     }
 
     private static class MockClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {

@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.ClientPacketCodec;
-import org.tinyradius.client.handler.RequestPromiseHandler;
+import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.client.retry.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -60,7 +60,7 @@ public class TestClient {
                 bootstrap, new InetSocketAddress(0), new BasicTimeoutHandler(timer), new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) throws Exception {
-                ch.pipeline().addLast(new ClientPacketCodec(packetEncoder), new RequestPromiseHandler());
+                ch.pipeline().addLast(new ClientPacketCodec(packetEncoder), new PromiseAdapter());
             }
         });
 

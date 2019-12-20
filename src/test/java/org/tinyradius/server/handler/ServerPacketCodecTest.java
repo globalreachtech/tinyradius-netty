@@ -15,7 +15,6 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.handler.RequestHandler;
 import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
@@ -40,12 +39,12 @@ class ServerPacketCodecTest {
 
     @Test
     void inboundUnknownClientSecret() throws Exception {
-        final ServerPacketCodec<ResponseContext> serverPacketCodec = new ServerPacketCodec<>(packetEncoder, address -> null);
+        final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(packetEncoder, address -> null);
         final DatagramPacket datagram = new DatagramPacket(Unpooled.buffer(0), new InetSocketAddress(0));
 
         final ArrayList<Object> out = new ArrayList<>();
 
-        serverPacketCodec.decode(ctx, datagram,out);
+        serverPacketCodec.decode(ctx, datagram, out);
 
         assertEquals(0, out.size());
     }
@@ -59,7 +58,7 @@ class ServerPacketCodecTest {
 
         final DatagramPacket request = packetEncoder.toDatagram(requestPacket, serverAddress, clientAddress);
 
-        final ServerPacketCodec<ResponseContext> handlerAdapter = new ServerPacketCodec<>(packetEncoder, address -> secret);
+        final ServerPacketCodec handlerAdapter = new ServerPacketCodec(packetEncoder, address -> secret);
 
         final Future<DatagramPacket> response = handlerAdapter.decode(genChannel(), request);
         assertFalse(response.isDone());
