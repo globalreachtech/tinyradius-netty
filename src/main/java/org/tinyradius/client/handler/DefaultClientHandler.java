@@ -3,12 +3,14 @@ package org.tinyradius.client.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.server.handler.RequestContext;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
@@ -26,7 +28,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
  * outbound packets. This avoids problem with mismatched requests/responses when using
  * packetIdentifier, which is limited to 256 unique IDs.
  */
-public class DefaultClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+public class DefaultClientHandler extends MessageToMessageCodec<DatagramPacket, RequestContext> {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultClientHandler.class);
 
@@ -105,6 +107,16 @@ public class DefaultClientHandler extends SimpleChannelInboundHandler<DatagramPa
         } catch (Exception e) {
             logger.warn("DatagramPacket handle error: ", e);
         }
+    }
+
+    @Override
+    protected void encode(ChannelHandlerContext ctx, RequestContext msg, List<Object> out) throws Exception {
+
+    }
+
+    @Override
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
+
     }
 
     private static class Request {

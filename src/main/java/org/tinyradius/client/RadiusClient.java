@@ -3,6 +3,7 @@ package org.tinyradius.client;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
@@ -34,7 +35,7 @@ public class RadiusClient extends AbstractListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusClient.class);
 
-    private final org.tinyradius.client.RadiusClientTest.MockClientHandler clientHandler;
+    private final ChannelHandler clientHandler;
     private final RetryStrategy retryStrategy;
     private final InetSocketAddress listenAddress;
 
@@ -54,7 +55,7 @@ public class RadiusClient extends AbstractListener {
     public RadiusClient(EventLoopGroup eventLoopGroup,
                         Timer timer,
                         ChannelFactory<? extends DatagramChannel> factory,
-                        org.tinyradius.client.RadiusClientTest.MockClientHandler clientHandler,
+                        ChannelHandler clientHandler,
                         RetryStrategy retryStrategy,
                         InetSocketAddress listenAddress) {
         super(eventLoopGroup, timer);
@@ -89,7 +90,7 @@ public class RadiusClient extends AbstractListener {
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
         try {
-            final DatagramPacket datagram = clientHandler.prepareDatagram(originalPacket, endpoint, listenAddress, promise);
+            final DatagramPacket datagram = clientHandler.encode(originalPacket, endpoint, listenAddress, promise);
 
             start().addListener(s -> {
                 if (!s.isSuccess()) {

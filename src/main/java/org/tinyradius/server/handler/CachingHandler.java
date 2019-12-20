@@ -22,7 +22,7 @@ public class CachingHandler<INBOUND extends RequestContext, OUTBOUND extends Res
     private final Timer timer;
     private final int ttlMs;
 
-    private final Map<Packet, ResponseContext> requests = new ConcurrentHashMap<>();
+    private final Map<Packet, OUTBOUND> requests = new ConcurrentHashMap<>();
 
     public CachingHandler(Timer timer, int ttlMs) {
         this.timer = timer;
@@ -36,7 +36,7 @@ public class CachingHandler<INBOUND extends RequestContext, OUTBOUND extends Res
      * @param requestContext Inbound request context
      * @return request context to forward
      */
-    protected RequestContext onMiss(ChannelHandlerContext ctx, RequestContext requestContext) {
+    protected RequestContext onMiss(ChannelHandlerContext ctx, INBOUND requestContext) {
         return requestContext;
     }
 
@@ -45,14 +45,14 @@ public class CachingHandler<INBOUND extends RequestContext, OUTBOUND extends Res
      * @param responseContext Outbound response context
      * @return response context to return
      */
-    protected ResponseContext onHit(ChannelHandlerContext ctx, ResponseContext responseContext) {
+    protected ResponseContext onHit(ChannelHandlerContext ctx, OUTBOUND responseContext) {
         return responseContext;
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, INBOUND msg, List<Object> out) {
         final Packet packet = Packet.from(msg);
-        final ResponseContext responseContext = requests.get(packet);
+        final OUTBOUND responseContext = requests.get(packet);
 
         if (responseContext != null) {
             logger.debug("Cache hit, resending response, id: {}, remote address: {}", packet.identifier, packet.remoteAddress);
