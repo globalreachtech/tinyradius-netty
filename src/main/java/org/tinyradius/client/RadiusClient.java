@@ -33,12 +33,10 @@ public class RadiusClient implements Closeable {
      * @param timeoutHandler retry strategy for scheduling retries and timeouts
      * @param listenAddress  local address to bind to
      */
-    public RadiusClient(Bootstrap bootstrap, SocketAddress listenAddress, TimeoutHandler timeoutHandler, ChannelHandler... handlers) {
+    public RadiusClient(Bootstrap bootstrap, SocketAddress listenAddress, TimeoutHandler timeoutHandler, ChannelHandler handler) {
         this.eventLoopGroup = bootstrap.config().group();
-        this.channelFuture = bootstrap.clone()
-                .bind(listenAddress);
-        this.channelFuture.channel().pipeline().addLast(handlers);
         this.timeoutHandler = timeoutHandler;
+        channelFuture = bootstrap.clone().handler(handler).bind(listenAddress);
     }
 
     private void send(ClientResponseCtx ctx, int attempt) {
@@ -56,6 +54,10 @@ public class RadiusClient implements Closeable {
                 logger.warn(f.cause().getMessage());
         });
 
+        if (channelFuture.isDone() && !channelFuture.isSuccess()) {
+            promise.tryFailure(channelFuture.cause());
+            return promise;
+        }
         channelFuture.addListener(s -> {
             if (s.isSuccess())
                 send(new ClientResponseCtx(packet, endpoint, promise), 1);

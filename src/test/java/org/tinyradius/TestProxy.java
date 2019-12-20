@@ -82,7 +82,6 @@ public class TestProxy {
 
         final RadiusServer proxy = new RadiusServer(
                 eventLoopGroup,
-                timer,
                 channelFactory,
                 new HandlerAdapter<>(secretProvider, RadiusPacket.class),
                 new HandlerAdapter<>(secretProvider, RadiusPacket.class),

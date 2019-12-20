@@ -3,7 +3,6 @@ package org.tinyradius;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
@@ -53,7 +52,6 @@ public class TestServer {
 
         final RadiusServer server = new RadiusServer(
                 eventLoopGroup,
-                NioDatagramChannel.class,
                 authHandler,
                 acctHandler,
                 new InetSocketAddress(11812), new InetSocketAddress(11813));
