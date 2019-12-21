@@ -1,5 +1,6 @@
 package org.tinyradius.server.handler;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageCodec;
@@ -15,6 +16,7 @@ import org.tinyradius.util.RadiusEndpoint;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+@ChannelHandler.Sharable
 public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, ServerResponseCtx> {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerPacketCodec.class);

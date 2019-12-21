@@ -1,10 +1,11 @@
 package org.tinyradius;
 
-import io.netty.channel.ChannelHandler;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
+import io.netty.channel.socket.DatagramChannel;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -33,7 +34,7 @@ public class TestServer {
 
         final PacketEncoder packetEncoder = new PacketEncoder(DefaultDictionary.INSTANCE);
         final EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-        final Timer timer = new HashedWheelTimer();
+        final Bootstrap bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
         final SecretProvider secretProvider = remote ->
                 remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
@@ -46,18 +47,22 @@ public class TestServer {
                 return userName.equals("test") ? "password" : null;
             }
         };
-        final ChannelHandler authHandler = new AccessHandler() {
-            @Override
-            public String getUserPassword(String userName) {
-                return null;
-            }
-        };
 
         final AccountingHandler accountingHandler = new AccountingHandler();
 
-        final RadiusServer server = new RadiusServer(
-                authHandler,
-                accountingHandler,
+        final RadiusServer server = new RadiusServer(bootstrap,
+                new ChannelInitializer<DatagramChannel>() {
+                    @Override
+                    protected void initChannel(DatagramChannel ch) throws Exception {
+                        ch.pipeline().addLast(serverPacketCodec, accessHandler);
+                    }
+                },
+                new ChannelInitializer<DatagramChannel>() {
+                    @Override
+                    protected void initChannel(DatagramChannel ch) throws Exception {
+                        ch.pipeline().addLast(serverPacketCodec, accountingHandler);
+                    }
+                },
                 new InetSocketAddress(11812), new InetSocketAddress(11813));
 
         server.start().addListener(future1 -> {

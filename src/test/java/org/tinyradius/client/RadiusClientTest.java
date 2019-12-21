@@ -16,10 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tinyradius.client.retry.TimeoutHandler;
 import org.tinyradius.client.retry.BasicTimeoutHandler;
+import org.tinyradius.client.retry.TimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
@@ -92,8 +90,7 @@ class RadiusClientTest {
         final MockClientHandler mockClientHandler = new MockClientHandler(response);
         final BasicTimeoutHandler simpleRetryStrategyHelper = new BasicTimeoutHandler(timer, 3, 1000);
 
-        final RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, timer, timeoutHandler, channelFactory, mockClientHandler, simpleRetryStrategyHelper, new InetSocketAddress(0));
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, new InetSocketAddress(0), timeoutHandler, mockClientHandler);
 
         final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
 
@@ -113,8 +110,7 @@ class RadiusClientTest {
         final int id = random.nextInt(256);
         final MockClientHandler mockClientHandler = new MockClientHandler(null);
 
-        final RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, timer, timeoutHandler, channelFactory, mockClientHandler, null, new InetSocketAddress(0));
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, new InetSocketAddress(0), timeoutHandler, mockClientHandler);
 
         final RadiusPacket request = new RadiusPacket(dictionary, 1, id);
 
@@ -129,7 +125,6 @@ class RadiusClientTest {
     private static class MockClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
         private final RadiusPacket response;
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
         private Promise<RadiusPacket> promise;
 
         private MockClientHandler(RadiusPacket response) {
@@ -141,17 +136,9 @@ class RadiusClientTest {
             return packetEncoder.toDatagram(original, endpoint.getAddress(), sender);
         }
 
-        protected void handleResponse(DatagramPacket datagramPacket) {
-            promise.trySuccess(response);
-        }
-
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
-            try {
-                handleResponse(datagramPacket);
-            } catch (Exception e) {
-                logger.warn("DatagramPacket handle error: ", e);
-            }
+            promise.trySuccess(response);
         }
     }
 }

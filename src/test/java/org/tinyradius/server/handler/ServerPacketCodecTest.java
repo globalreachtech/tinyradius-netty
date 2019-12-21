@@ -32,7 +32,7 @@ class ServerPacketCodecTest {
     private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
 
     @Mock
-    private ChannelHandler requestHandler;
+    private ChannelHandler channelHandler;
 
     @Mock
     private ChannelHandlerContext ctx;
@@ -58,9 +58,9 @@ class ServerPacketCodecTest {
 
         final DatagramPacket request = packetEncoder.toDatagram(requestPacket, serverAddress, clientAddress);
 
-        final ServerPacketCodec handlerAdapter = new ServerPacketCodec(packetEncoder, address -> secret);
+        final ServerPacketCodec codec = new ServerPacketCodec(packetEncoder, address -> secret);
 
-        final Future<DatagramPacket> response = handlerAdapter.decode(genChannel(), request);
+        final Future<DatagramPacket> response = codec.decode(genChannel(), request);
         assertFalse(response.isDone());
 
         final RadiusPacket responsePacket = new RadiusPacket(dictionary, 4, 1)
@@ -77,11 +77,11 @@ class ServerPacketCodecTest {
     void exceptionDropPacket() throws RadiusException {
         final RadiusPacket request = new RadiusPacket(dictionary, 4, 1).encodeRequest("mySecret");
 
-        final ServerPacketCodec handlerWrapper = new ServerPacketCodec(packetEncoder, x -> "");
+        final ServerPacketCodec codec = new ServerPacketCodec(packetEncoder, x -> "");
 
         when(ctx.channel()).thenReturn(genChannel());
 
-        handlerWrapper.decode(ctx,
+        codec.decode(ctx,
                 packetEncoder.toDatagram(request, new InetSocketAddress(0)));
 
         verify(ctx, never()).write(any());
@@ -97,7 +97,7 @@ class ServerPacketCodecTest {
         final RadiusPacket response = new RadiusPacket(dictionary, 5, 1)
                 .encodeResponse("mySecret", request.getAuthenticator());
 
-        when(requestHandler.handlePacket(any(), any(), any(), any()))
+        when(channelHandler.handlePacket(any(), any(), any(), any()))
                 .thenReturn(eventLoopGroup.next().<RadiusPacket>newPromise().setSuccess(response));
 
         final ServerPacketCodec handlerWrapper = new ServerPacketCodec(packetEncoder, x -> secret);

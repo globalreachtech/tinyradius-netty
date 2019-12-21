@@ -39,12 +39,6 @@ public class RadiusClient implements Closeable {
         channelFuture = bootstrap.clone().handler(handler).bind(listenAddress);
     }
 
-    private void send(ClientResponseCtx ctx, int attempt) {
-        logger.info("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
-        channelFuture.channel().writeAndFlush(ctx);
-        timeoutHandler.onTimeout(() -> send(ctx, attempt + 1), attempt, ctx.getResponse());
-    }
-
     public Future<RadiusPacket> communicate(RadiusPacket packet, RadiusEndpoint endpoint) {
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
         promise.addListener(f -> {
@@ -66,6 +60,12 @@ public class RadiusClient implements Closeable {
         });
 
         return promise;
+    }
+
+    private void send(ClientResponseCtx ctx, int attempt) {
+        logger.info("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
+        channelFuture.channel().writeAndFlush(ctx);
+        timeoutHandler.onTimeout(() -> send(ctx, attempt + 1), attempt, ctx.getResponse());
     }
 
     @Override

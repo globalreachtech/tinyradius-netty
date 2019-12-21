@@ -1,13 +1,16 @@
 package org.tinyradius;
 
-import io.netty.channel.ReflectiveChannelFactory;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RadiusClient;
+import org.tinyradius.client.handler.ClientPacketCodec;
 import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.client.retry.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -15,13 +18,10 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.HandlerAdapter;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;
-import org.tinyradius.server.handler.DeduplicatingHandler;
 import org.tinyradius.server.handler.ProxyHandler;
-import org.tinyradius.server.handler.ProxyRequestHandler;
-import org.tinyradius.server.handler.ResponseContext;
+import org.tinyradius.server.handler.ServerPacketCodec;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetAddress;
@@ -51,8 +51,8 @@ public class TestProxy {
         final Dictionary dictionary = DefaultDictionary.INSTANCE;
         final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
 
-        final ReflectiveChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
         final Timer timer = new HashedWheelTimer();
+        final Bootstrap bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
         final SecretProvider secretProvider = remote -> {
             if (remote.getPort() == 1812 || remote.getPort() == 1813)
@@ -61,30 +61,37 @@ public class TestProxy {
             return remote.getAddress().getHostAddress().equals("127.0.0.1") ?
                     "proxytest" : null;
         };
-        final PromiseAdapter clientHandler = new PromiseAdapter(packetEncoder);
-        final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 3, 1000);
-        RadiusClient radiusClient = new RadiusClient(
-                eventLoopGroup, timer, timeoutHandler, channelFactory, clientHandler, retryStrategy, new InetSocketAddress(11814));
 
-        final ProxyHandler proxyRequestHandler = new ProxyHandler(radiusClient) {
+        final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 3, 1000);
+
+        final RadiusClient radiusClient = new RadiusClient(
+                bootstrap, new InetSocketAddress(0), retryStrategy, new ChannelInitializer<DatagramChannel>() {
             @Override
-            public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
-                try {
-                    InetAddress address = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
-                    int port = packet instanceof AccountingRequest ? 1813 : 1812;
-                    return Optional.of(new RadiusEndpoint(new InetSocketAddress(address, port), "testing123"));
-                } catch (UnknownHostException e) {
-                    return Optional.empty();
-                }
+            protected void initChannel(DatagramChannel ch) {
+                ch.pipeline().addLast(new PromiseAdapter(), new ClientPacketCodec(packetEncoder));
+            }
+        });
+
+        final ChannelInitializer<DatagramChannel> channelInitializer = new ChannelInitializer<DatagramChannel>() {
+            @Override
+            protected void initChannel(DatagramChannel ch) {
+                ch.pipeline().addLast(new ServerPacketCodec(packetEncoder, secretProvider), new ProxyHandler(radiusClient) {
+                    @Override
+                    public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
+                        try {
+                            InetAddress address = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
+                            int port = packet instanceof AccountingRequest ? 1813 : 1812;
+                            return Optional.of(new RadiusEndpoint(new InetSocketAddress(address, port), "testing123"));
+                        } catch (UnknownHostException e) {
+                            return Optional.empty();
+                        }
+                    }
+                });
             }
         };
 
-
-        final RadiusServer proxy = new RadiusServer(
-                eventLoopGroup,
-                channelFactory,
-                new HandlerAdapter<>(secretProvider, RadiusPacket.class),
-                new HandlerAdapter<>(secretProvider, RadiusPacket.class),
+        final RadiusServer proxy = new RadiusServer(bootstrap,
+                channelInitializer, channelInitializer,
                 new InetSocketAddress(11812), new InetSocketAddress(11813));
 
         proxy.start().addListener(future1 -> {
