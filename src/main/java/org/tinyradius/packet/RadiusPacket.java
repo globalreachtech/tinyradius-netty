@@ -498,6 +498,6 @@ public class RadiusPacket {
     }
 
     public RadiusPacket copy() {
-        return RadiusPackets.create(getDictionary(), getType(), getIdentifier(), getAuthenticator(), getAttributes());
+        return RadiusPackets.create(getDictionary(), getType(), getIdentifier(), getAuthenticator(), new ArrayList<>(getAttributes()));
     }
 }

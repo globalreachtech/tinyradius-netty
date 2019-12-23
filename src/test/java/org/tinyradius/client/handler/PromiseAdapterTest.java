@@ -1,11 +1,15 @@
 package org.tinyradius.client.handler;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.Promise;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.client.ClientResponseCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
@@ -16,6 +20,7 @@ import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -24,32 +29,34 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 
+@ExtendWith(MockitoExtension.class)
 class PromiseAdapterTest {
+
+    private static final int PROXY_STATE = 33;
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
     private final SecureRandom random = new SecureRandom();
-    private static final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
-    private final int PROXY_STATE = 33;
-
-    @AfterAll
-    static void afterAll() {
-        eventLoopGroup.shutdownGracefully().syncUninterruptibly();
-    }
+    @Mock
+    private ChannelHandlerContext ctx;
 
     @Test
     void outboundAppendNewProxyState() throws RadiusException {
         final String secret = "test";
-        final PromiseAdapter handler = new PromiseAdapter(packetEncoder);
+        final PromiseAdapter handler = new PromiseAdapter();
         int id = random.nextInt(256);
 
         final RadiusPacket originalRequest = new AccessRequest(dictionary, id, null).encodeRequest(secret);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
         // process once
-        final DatagramPacket datagram1 = handler.prepareDatagram(originalRequest, endpoint, eventLoopGroup.next().newPromise());
-        final RadiusPacket processedPacket1 = packetEncoder.fromDatagram(datagram1);
+        final List<Object> out1 = new ArrayList<>();
+        final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
+        handler.encode(ctx, new ClientResponseCtx(originalRequest, endpoint, promise), out1);
+
+        final RadiusPacket processedPacket1 = packetEncoder.fromDatagram(out1.get(0));
         List<RadiusAttribute> attributes1 = processedPacket1.getAttributes();
 
         // check proxy-state added
@@ -58,7 +65,8 @@ class PromiseAdapterTest {
         assertEquals("1", new String(proxyState1, UTF_8));
 
         // process again
-        final DatagramPacket datagram2 = handler.prepareDatagram(processedPacket1, endpoint, eventLoopGroup.next().newPromise());
+        final Promise<Object> objectPromise = eventLoopGroup.next().newPromise();
+        final DatagramPacket datagram2 = handler.encode(ctx, processedPacket1, endpoint, );
         final RadiusPacket processedPacket2 = packetEncoder.fromDatagram(datagram2);
 
         // check another proxy-state added
@@ -77,7 +85,7 @@ class PromiseAdapterTest {
         final String secret2 = UUID.randomUUID().toString();
         final String username = "myUsername";
         final String password = "myPassword";
-        final PromiseAdapter handler = new PromiseAdapter(packetEncoder);
+        final PromiseAdapter handler = new PromiseAdapter();
         int id = random.nextInt(256);
 
         final RadiusPacket accessRequest = new AccessRequest(dictionary, id, null, username, password)
@@ -112,7 +120,7 @@ class PromiseAdapterTest {
     void responseNoProxyState() {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final PromiseAdapter handler = new PromiseAdapter(packetEncoder);
+        final PromiseAdapter handler = new PromiseAdapter();
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
@@ -127,7 +135,7 @@ class PromiseAdapterTest {
     void responseProxyStateNotFound() {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final PromiseAdapter handler = new PromiseAdapter(packetEncoder);
+        final PromiseAdapter handler = new PromiseAdapter();
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1,
@@ -143,7 +151,7 @@ class PromiseAdapterTest {
     void responseIdentifierMismatch() throws RadiusException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final PromiseAdapter handler = new PromiseAdapter(packetEncoder);
+        final PromiseAdapter handler = new PromiseAdapter();
         final byte[] requestAuth = random.generateSeed(16);
 
         // add remoteAddress-secret and identifier mapping to handler
@@ -166,7 +174,7 @@ class PromiseAdapterTest {
     void responseSenderAddressMismatch() throws RadiusException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final PromiseAdapter handler = new PromiseAdapter(packetEncoder);
+        final PromiseAdapter handler = new PromiseAdapter();
         final byte[] requestAuth = random.generateSeed(16);
 
         // add remoteAddress-secret and identifier mapping to handler
@@ -189,7 +197,7 @@ class PromiseAdapterTest {
     void responseAuthVerifyFail() throws RadiusException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final PromiseAdapter handler = new PromiseAdapter(packetEncoder);
+        final PromiseAdapter handler = new PromiseAdapter();
         final byte[] requestAuth = random.generateSeed(16);
 
         // add remoteAddress-secret and identifier mapping to handler
@@ -212,7 +220,7 @@ class PromiseAdapterTest {
     void channelReadIsStateful() throws RadiusException, InterruptedException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final PromiseAdapter handler = new PromiseAdapter(packetEncoder);
+        final PromiseAdapter handler = new PromiseAdapter();
 
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 

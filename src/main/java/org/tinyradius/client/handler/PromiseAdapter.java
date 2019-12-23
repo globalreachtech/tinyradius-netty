@@ -45,11 +45,12 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, ClientRe
         packet.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
         final RadiusPacket encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
 
-        final Promise<RadiusPacket> promise = msg.getResponse();
+        final Promise<RadiusPacket> promise = msg.getResponse()
+                .addListener(f -> requests.remove(requestId));
 
         requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), promise));
 
-        promise.addListener(f -> requests.remove(requestId));
+        out.add(msg);
     }
 
     @Override
@@ -73,8 +74,8 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, ClientRe
         }
 
         if (msg.getIdentifier() != request.identifier) {
-            logger.warn("Ignoring response - identifier mismatch, request ID " + request.identifier +
-                    ", response ID " + msg.getIdentifier());
+            logger.warn("Ignoring response - identifier mismatch, request ID {}}, response ID {}", request.identifier, msg.getIdentifier());
+            return;
         }
 
         try {
@@ -88,6 +89,8 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, ClientRe
 
         logger.info("Found request for response identifier => {}", msg.getIdentifier());
         request.promise.trySuccess(msg);
+
+        // intentionally nothing to pass through - listeners should hook onto promise
     }
 
     private static class Request {

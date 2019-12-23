@@ -25,6 +25,15 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Req
     }
 
     @Override
+    protected void encode(ChannelHandlerContext ctx, RequestCtx msg, List<Object> out) throws Exception {
+        final RadiusPacket packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
+        final DatagramPacket datagramPacket = packetEncoder.toDatagram(
+                packet, msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
+        out.add(datagramPacket);
+        logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
+    }
+
+    @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
         InetSocketAddress remoteAddress = msg.sender();
 
@@ -38,14 +47,5 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Req
         logger.debug("Received packet from {} - {}", remoteAddress, packet);
 
         out.add(packet);
-    }
-
-    @Override
-    protected void encode(ChannelHandlerContext ctx, RequestCtx msg, List<Object> out) throws Exception {
-        final RadiusPacket packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
-        final DatagramPacket datagramPacket = packetEncoder.toDatagram(
-                packet, msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
-        out.add(datagramPacket);
-        logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
     }
 }

@@ -12,6 +12,7 @@ import io.netty.util.concurrent.Future;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.attribute.RadiusAttribute;
@@ -56,6 +57,9 @@ class ProxyHandlerTest {
     @Mock
     private ChannelHandlerContext ctx;
 
+    @Captor
+    private ArgumentCaptor<ServerResponseCtx> responseCaptor;
+
     @Test
     void handleSuccessfulPacket() {
         final int id = random.nextInt(256);
@@ -74,10 +78,9 @@ class ProxyHandlerTest {
 
         proxyHandler.channelRead0(ctx, requestCtx);
 
-        final ArgumentCaptor<ServerResponseCtx> captor = ArgumentCaptor.forClass(ServerResponseCtx.class);
-        verify(ctx).writeAndFlush(captor);
+        verify(ctx).writeAndFlush(responseCaptor.capture());
 
-        final ServerResponseCtx value = captor.getValue();
+        final ServerResponseCtx value = responseCaptor.getValue();
         final RadiusPacket response = value.getResponse();
         assertEquals(id, response.getIdentifier());
         assertEquals(ACCOUNTING_RESPONSE, response.getType());

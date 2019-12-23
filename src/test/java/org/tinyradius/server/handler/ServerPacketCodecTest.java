@@ -9,6 +9,7 @@ import io.netty.util.concurrent.Future;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -37,6 +38,9 @@ class ServerPacketCodecTest {
     @Mock
     private ChannelHandlerContext ctx;
 
+    @Captor
+    private ArgumentCaptor<DatagramPacket> datagramCaptor;
+
     @Test
     void inboundUnknownClientSecret() throws Exception {
         final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(packetEncoder, address -> null);
@@ -60,7 +64,7 @@ class ServerPacketCodecTest {
 
         final ServerPacketCodec codec = new ServerPacketCodec(packetEncoder, address -> secret);
 
-        final Future<DatagramPacket> response = codec.decode(genChannel(), request);
+        final Future<DatagramPacket> response = codec.decode(ctx, genChannel(), request);
         assertFalse(response.isDone());
 
         final RadiusPacket responsePacket = new RadiusPacket(dictionary, 4, 1)
@@ -107,10 +111,9 @@ class ServerPacketCodecTest {
         handlerWrapper.decode(ctx,
                 packetEncoder.toDatagram(request, new InetSocketAddress(0), new InetSocketAddress(1)));
 
-        final ArgumentCaptor<DatagramPacket> captor = ArgumentCaptor.forClass(DatagramPacket.class);
-        verify(ctx).writeAndFlush(captor.capture());
+        verify(ctx).writeAndFlush(datagramCaptor.capture());
 
-        final RadiusPacket expected = packetEncoder.fromDatagram(captor.getValue());
+        final RadiusPacket expected = packetEncoder.fromDatagram(datagramCaptor.getValue());
         assertEquals(expected.getIdentifier(), response.getIdentifier());
         assertEquals(expected.getType(), response.getType());
         assertArrayEquals(expected.getAuthenticator(), response.getAuthenticator());

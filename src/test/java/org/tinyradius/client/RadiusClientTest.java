@@ -41,8 +41,6 @@ class RadiusClientTest {
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private static final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
 
-    private final ChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
-
     private final HashedWheelTimer timer = new HashedWheelTimer();
     private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
     private final InetSocketAddress address = new InetSocketAddress(0);
@@ -88,7 +86,6 @@ class RadiusClientTest {
         final int id = random.nextInt(256);
         final RadiusPacket response = new RadiusPacket(DefaultDictionary.INSTANCE, 2, id);
         final MockClientHandler mockClientHandler = new MockClientHandler(response);
-        final BasicTimeoutHandler simpleRetryStrategyHelper = new BasicTimeoutHandler(timer, 3, 1000);
 
         final RadiusClient radiusClient = new RadiusClient(bootstrap, new InetSocketAddress(0), timeoutHandler, mockClientHandler);
 
@@ -97,7 +94,6 @@ class RadiusClientTest {
         final Future<RadiusPacket> future = radiusClient.communicate(request, new RadiusEndpoint(new InetSocketAddress(0), "mySecret"));
         assertFalse(future.isDone());
 
-        mockClientHandler.handleResponse(null);
         assertTrue(future.isSuccess());
 
         assertSame(response, future.getNow());
@@ -119,7 +115,6 @@ class RadiusClientTest {
         assertTrue(future.isDone());
         assertTrue(future.cause().getMessage().toLowerCase().contains("missing authenticator"));
 
-        radiusClient.close();
     }
 
     private static class MockClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
