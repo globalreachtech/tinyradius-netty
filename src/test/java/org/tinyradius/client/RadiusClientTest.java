@@ -1,10 +1,11 @@
 package org.tinyradius.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.DatagramChannel;
-import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.ResourceLeakDetector;
@@ -14,21 +15,19 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.client.retry.BasicTimeoutHandler;
 import org.tinyradius.client.retry.TimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
-import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
-import org.tinyradius.util.RadiusException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
+import java.util.function.Consumer;
 
 import static io.netty.util.ResourceLeakDetector.Level.PARANOID;
 import static io.netty.util.ResourceLeakDetector.Level.SIMPLE;
@@ -40,7 +39,6 @@ class RadiusClientTest {
 
     private final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private static final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
 
     private final HashedWheelTimer timer = new HashedWheelTimer();
     private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
@@ -48,8 +46,7 @@ class RadiusClientTest {
 
     private final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
-    @Spy
-    private TimeoutHandler timeoutHandler = new BasicTimeoutHandler(timer, 3, 100);
+    private TimeoutHandler timeoutHandler = new BasicTimeoutHandler(timer);
 
     @BeforeAll
     static void beforeAll() {
@@ -63,12 +60,7 @@ class RadiusClientTest {
 
     @Test()
     void communicateWithTimeout() {
-        RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new ChannelInitializer<DatagramChannel>() {
-            @Override
-            protected void initChannel(DatagramChannel ch) throws Exception {
-
-            }
-        });
+        RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, mock(ChannelHandler.class));
 
         final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
@@ -83,58 +75,53 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateSuccess() {
+    void communicateSuccess() throws InterruptedException {
         final int id = random.nextInt(256);
         final RadiusPacket response = new RadiusPacket(DefaultDictionary.INSTANCE, 2, id);
-        final MockClientHandler mockClientHandler = new MockClientHandler(response);
+        final MockOutboundHandler mockOutboundHandler = new MockOutboundHandler(a -> a.trySuccess(response));
 
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, new InetSocketAddress(0), timeoutHandler, mockClientHandler);
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, new InetSocketAddress(0), timeoutHandler, mockOutboundHandler);
 
         final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
 
         final Future<RadiusPacket> future = radiusClient.communicate(request, new RadiusEndpoint(new InetSocketAddress(0), "mySecret"));
+
         assertFalse(future.isDone());
 
+        Thread.sleep(500);
+
+        assertTrue(future.isDone());
         assertTrue(future.isSuccess());
-
         assertSame(response, future.getNow());
-
-        radiusClient.close();
     }
 
     @Test
-    void badDatagramEncode() {
-        final int id = random.nextInt(256);
-        final MockClientHandler mockClientHandler = new MockClientHandler(null);
+    void badEncode() throws InterruptedException {
+        final MockOutboundHandler mockOutboundHandler = new MockOutboundHandler(p -> p.tryFailure(new Exception("test 123")));
 
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, new InetSocketAddress(0), timeoutHandler, mockClientHandler);
-
-        final RadiusPacket request = new RadiusPacket(dictionary, 1, id);
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, new InetSocketAddress(0), timeoutHandler, mockOutboundHandler);
+        final RadiusPacket request = new RadiusPacket(dictionary, 1, 1);
 
         final Future<RadiusPacket> future = radiusClient.communicate(request, new RadiusEndpoint(new InetSocketAddress(0), ""));
+        assertFalse(future.isDone());
+
+        Thread.sleep(500);
 
         assertTrue(future.isDone());
-        assertTrue(future.cause().getMessage().toLowerCase().contains("missing authenticator"));
-
+        assertFalse(future.isSuccess());
+        assertTrue(future.cause().getMessage().toLowerCase().contains("test 123"));
     }
 
-    private static class MockClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+    private static class MockOutboundHandler extends ChannelOutboundHandlerAdapter {
 
-        private final RadiusPacket response;
-        private Promise<RadiusPacket> promise;
+        private Consumer<Promise<RadiusPacket>> failFast;
 
-        private MockClientHandler(RadiusPacket response) {
-            this.response = response;
+        private MockOutboundHandler(Consumer<Promise<RadiusPacket>> failFast) {
+            this.failFast = failFast;
         }
 
-        public DatagramPacket prepareDatagram(RadiusPacket original, RadiusEndpoint endpoint, InetSocketAddress sender, Promise<RadiusPacket> promise) throws RadiusException {
-            this.promise = promise;
-            return packetEncoder.toDatagram(original, endpoint.getAddress(), sender);
-        }
-
-        @Override
-        protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) {
-            promise.trySuccess(response);
+        public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
+            failFast.accept(((RequestCtxWrapper) msg).getResponse());
         }
     }
 }

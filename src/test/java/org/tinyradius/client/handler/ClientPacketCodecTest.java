@@ -2,16 +2,17 @@ package org.tinyradius.client.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.tinyradius.client.RequestCtxWrapper;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
@@ -35,6 +36,9 @@ class ClientPacketCodecTest {
 
     @Mock
     private ChannelHandlerContext ctx;
+
+    @Mock
+    private Promise<RadiusPacket> promise;
 
     @Test
     void decode() {
@@ -68,7 +72,7 @@ class ClientPacketCodecTest {
 
         // process
         final List<Object> out1 = new ArrayList<>();
-        codec.encode(ctx, new RequestCtx(accessRequest, endpoint), out1);
+        codec.encode(ctx, new RequestCtxWrapper(accessRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
         final DatagramPacket accessPacketDatagram = (DatagramPacket) out1.get(0);

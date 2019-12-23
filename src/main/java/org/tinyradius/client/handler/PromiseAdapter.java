@@ -6,9 +6,8 @@ import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.client.RequestCtxWrapper;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.RequestCtx;
-import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
 import java.util.List;
@@ -24,7 +23,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
  * outbound packets. This avoids problem with mismatched requests/responses when using
  * packetIdentifier, which is limited to 256 unique IDs.
  */
-public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PromiseAdapter.RequestWrapper> {
+public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, RequestCtxWrapper> {
 
     private static final Logger logger = LoggerFactory.getLogger(PromiseAdapter.class);
 
@@ -39,19 +38,18 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PromiseA
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, RequestWrapper msg, List<Object> out) {
+    protected void encode(ChannelHandlerContext ctx, RequestCtxWrapper msg, List<Object> out) {
         final RadiusPacket packet = msg.getRequest().copy();
 
         final String requestId = nextProxyStateId();
         packet.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
         final RadiusPacket encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
 
-        final Promise<RadiusPacket> promise = msg.getResponse()
-                .addListener(f -> requests.remove(requestId));
+        msg.getResponse().addListener(f -> requests.remove(requestId));
 
-        requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), promise));
+        requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), msg.getResponse()));
 
-        out.add(new RequestCtx(encodedRequest, msg.getEndpoint()));
+        out.add(new RequestCtxWrapper(encodedRequest, msg.getEndpoint(), msg.getResponse()));
     }
 
     @Override
@@ -109,20 +107,4 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PromiseA
         }
     }
 
-    /**
-     * Wrapper that holds a promise to be resolved when response is received.
-     */
-    public static class RequestWrapper extends RequestCtx {
-
-        private final Promise<RadiusPacket> response;
-
-        public RequestWrapper(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> response) {
-            super(packet, endpoint);
-            this.response = response;
-        }
-
-        public Promise<RadiusPacket> getResponse() {
-            return response;
-        }
-    }
 }

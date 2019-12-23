@@ -6,16 +6,16 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.client.RequestCtxWrapper;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 
 @ChannelHandler.Sharable
-public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, RequestCtx> {
+public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, RequestCtxWrapper> {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientPacketCodec.class);
 
@@ -26,7 +26,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Req
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, RequestCtx msg, List<Object> out) {
+    protected void encode(ChannelHandlerContext ctx, RequestCtxWrapper msg, List<Object> out) {
         final RadiusPacket packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
         try {
             final DatagramPacket datagramPacket = packetEncoder.toDatagram(
@@ -35,8 +35,8 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Req
             logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
         } catch (RadiusException e) {
             logger.warn(e.getMessage());
+            msg.getResponse().tryFailure(e);
         }
-
     }
 
     @Override
