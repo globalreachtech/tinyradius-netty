@@ -1,16 +1,13 @@
 package org.tinyradius.server;
 
-import io.netty.channel.ChannelFactory;
-import io.netty.channel.ReflectiveChannelFactory;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.packet.RadiusPacket;
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -21,20 +18,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class RadiusServerTest {
 
-    private final ChannelFactory<NioDatagramChannel> channelFactory = new ReflectiveChannelFactory<>(NioDatagramChannel.class);
     private final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(2);
-    private final Timer timer = new HashedWheelTimer();
+
+    private final Bootstrap bootstrap = new Bootstrap().group(eventExecutors).channel(NioDatagramChannel.class);
 
     @Mock
-    private HandlerAdapter<RadiusPacket, SecretProvider> authHandler;
+    private ChannelHandler authHandler;
 
     @Mock
-    private HandlerAdapter<RadiusPacket, SecretProvider> acctHandler;
+    private ChannelHandler acctHandler;
 
     @Test
     void serverStartStop() throws InterruptedException {
-        final RadiusServer server = new RadiusServer(
-                eventExecutors, timer, channelFactory, authHandler, acctHandler, new InetSocketAddress(1024), new InetSocketAddress(1025));
+        final RadiusServer server = new RadiusServer(bootstrap, authHandler, acctHandler, new InetSocketAddress(1024), new InetSocketAddress(1025));
 
         // not registered with eventLoop
         assertFalse(server.getAcctChannel().isRegistered());
@@ -68,7 +64,7 @@ class RadiusServerTest {
         assertEquals(TAIL_CONTEXT, authPipeline.get(1));
         assertTrue(authPipeline.get(0).contains("HandlerAdapter$MockitoMock$"));
 
-        server.stop().syncUninterruptibly();
+        server.close();
         Thread.sleep(500);
 
         // not registered with eventLoop

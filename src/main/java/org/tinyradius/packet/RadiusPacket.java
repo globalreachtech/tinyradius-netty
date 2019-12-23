@@ -134,7 +134,7 @@ public class RadiusPacket {
      * @param attribute RadiusAttribute object
      */
     public void addAttribute(RadiusAttribute attribute) {
-        requireNonNull(attributes, "attribute is null");
+        requireNonNull(attributes, "Attribute is null");
 
         if (attribute.getVendorId() == -1) {
             this.attributes.add(
@@ -420,9 +420,9 @@ public class RadiusPacket {
      * @return new 16 byte response authenticator
      */
     protected byte[] createHashedAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
-        requireNonNull(requestAuthenticator, "request authenticator cannot be null");
+        requireNonNull(requestAuthenticator, "Authenticator cannot be null");
         if (sharedSecret == null || sharedSecret.isEmpty())
-            throw new IllegalArgumentException("shared secret cannot be null/empty");
+            throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
         byte[] attributes = getAttributeBytes();
         int packetLength = HEADER_LENGTH + attributes.length;
@@ -498,6 +498,6 @@ public class RadiusPacket {
     }
 
     public RadiusPacket copy() {
-        return RadiusPackets.create(getDictionary(), getType(), getIdentifier(), getAuthenticator(), getAttributes());
+        return RadiusPackets.create(getDictionary(), getType(), getIdentifier(), getAuthenticator(), new ArrayList<>(getAttributes()));
     }
 }

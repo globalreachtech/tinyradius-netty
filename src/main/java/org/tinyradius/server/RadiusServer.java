@@ -1,102 +1,65 @@
 package org.tinyradius.server;
 
-import io.netty.channel.ChannelFactory;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.socket.DatagramChannel;
-import io.netty.util.Timer;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinyradius.packet.RadiusPacket;
 
+import java.io.Closeable;
 import java.net.InetSocketAddress;
 
 /**
  * Implements a simple Radius server.
  */
-public class RadiusServer extends AbstractListener {
+public class RadiusServer implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(RadiusServer.class);
 
-    private final EventLoopGroup eventLoopGroup;
-
-    private final HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> authHandler;
-    private final HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> acctHandler;
-    private final InetSocketAddress authSocket;
-    private final InetSocketAddress acctSocket;
-
-    private final DatagramChannel authChannel;
-    private final DatagramChannel acctChannel;
-
-    private Future<Void> serverStatus = null;
+    private final ChannelFuture accessFuture;
+    private final ChannelFuture accountingFuture;
+    private final Promise<Void> serverStatus;
 
     /**
-     * @param eventLoopGroup for both channel IO and processing
-     * @param timer          for timing out if startup socket binding fails
-     * @param factory        to create new Channel
-     * @param authHandler    ChannelHandler to handle requests received on authSocket
-     * @param acctHandler    ChannelHandler to handle requests received on acctSocket
-     * @param authSocket     socket to listen on for auth requests
-     * @param acctSocket     socket to listen on for accounting requests
+     * @param accessHandler     ChannelHandler to handle requests received on authSocket
+     * @param accountingHandler ChannelHandler to handle requests received on acctSocket
+     * @param accessSocket      socket to listen on for auth requests
+     * @param accountingSocket  socket to listen on for accounting requests
      */
-    public RadiusServer(EventLoopGroup eventLoopGroup,
-                        Timer timer,
-                        ChannelFactory<? extends DatagramChannel> factory,
-                        HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> authHandler,
-                        HandlerAdapter<? extends RadiusPacket, ? extends SecretProvider> acctHandler,
-                        InetSocketAddress authSocket,
-                        InetSocketAddress acctSocket) {
-        super(eventLoopGroup, timer);
-        this.eventLoopGroup = eventLoopGroup;
-        this.authHandler = authHandler;
-        this.acctHandler = acctHandler;
-        this.authSocket = authSocket;
-        this.acctSocket = acctSocket;
-        this.authChannel = factory.newChannel();
-        this.acctChannel = factory.newChannel();
+    public RadiusServer(Bootstrap bootstrap,
+                        ChannelHandler accessHandler,
+                        ChannelHandler accountingHandler,
+                        InetSocketAddress accessSocket,
+                        InetSocketAddress accountingSocket) {
+        accessFuture = bootstrap.clone().handler(accessHandler).bind(accessSocket);
+        accountingFuture = bootstrap.clone().handler(accountingHandler).bind(accountingSocket);
+
+        serverStatus = bootstrap.config().group().next().newPromise();
+        final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
+        combiner.addAll(accessFuture, accountingFuture);
+        combiner.finish(serverStatus);
     }
 
-    @Override
     public Future<Void> start() {
-        if (this.serverStatus != null)
-            return this.serverStatus;
+        return serverStatus;
+    }
 
-        Promise<Void> status = eventLoopGroup.next().newPromise();
+    public Channel getAuthChannel() {
+        return accessFuture.channel();
+    }
 
-        final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
-        combiner.addAll(
-                listen(authChannel, authSocket, authHandler),
-                listen(acctChannel, acctSocket, acctHandler));
-        combiner.finish(status);
-
-        this.serverStatus = status;
-        return status;
+    public Channel getAcctChannel() {
+        return accountingFuture.channel();
     }
 
     @Override
-    public Future<Void> stop() {
-        logger.info("stopping Radius server");
-
-        final Promise<Void> promise = eventLoopGroup.next().newPromise();
-
-        final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
-        if (authChannel.isRegistered())
-            combiner.add(authChannel.close());
-        if (acctChannel.isRegistered())
-            combiner.add(acctChannel.close());
-
-        combiner.finish(promise);
-        return promise;
-    }
-
-    public DatagramChannel getAuthChannel() {
-        return authChannel;
-    }
-
-    public DatagramChannel getAcctChannel() {
-        return acctChannel;
+    public void close() {
+        accessFuture.channel().close();
+        accountingFuture.channel().close();
     }
 }

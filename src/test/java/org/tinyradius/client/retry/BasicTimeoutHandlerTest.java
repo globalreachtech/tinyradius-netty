@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class SimpleRetryStrategyTest {
+class BasicTimeoutHandlerTest {
 
     private final HashedWheelTimer timer = new HashedWheelTimer();
     private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
@@ -34,17 +34,17 @@ class SimpleRetryStrategyTest {
     void retryFailIfMaxAttempts() {
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
-        final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 2, 0);
+        final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 2, 0);
 
         // totalAttempts < maxAttempts
-        retryStrategy.scheduleRetry(mockRetry, 1, promise);
+        retryStrategy.onTimeout(mockRetry, 1, promise);
         assertEquals(1, timer.pendingTimeouts());
         waitTimer();
 
         verify(mockRetry, times(1)).run();
 
         // totalAttempts >= maxAttempts
-        retryStrategy.scheduleRetry(mockRetry, 2, promise);
+        retryStrategy.onTimeout(mockRetry, 2, promise);
         assertEquals(1, timer.pendingTimeouts());
         waitTimer();
 
@@ -57,10 +57,10 @@ class SimpleRetryStrategyTest {
     void retryRunOk() {
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
 
-        final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 100);
+        final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 3, 100);
 
         // first retry runs
-        retryStrategy.scheduleRetry(mockRetry, 1, promise);
+        retryStrategy.onTimeout(mockRetry, 1, promise);
         assertEquals(1, timer.pendingTimeouts());
         waitTimer();
 
@@ -69,13 +69,13 @@ class SimpleRetryStrategyTest {
 
     @Test
     void noRetryIfPromiseDone() {
-        final SimpleRetryStrategy retryStrategy = new SimpleRetryStrategy(timer, 3, 0);
+        final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 3, 0);
 
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
         promise.trySuccess(null);
         assertTrue(promise.isDone());
 
-        retryStrategy.scheduleRetry(mockRetry, 2, promise);
+        retryStrategy.onTimeout(mockRetry, 2, promise);
         assertEquals(1, timer.pendingTimeouts());
 
         waitTimer();
