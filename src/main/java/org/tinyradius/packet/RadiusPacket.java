@@ -420,9 +420,9 @@ public class RadiusPacket {
      * @return new 16 byte response authenticator
      */
     protected byte[] createHashedAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
-        requireNonNull(requestAuthenticator, "request authenticator cannot be null");
+        requireNonNull(requestAuthenticator, "Authenticator cannot be null");
         if (sharedSecret == null || sharedSecret.isEmpty())
-            throw new IllegalArgumentException("shared secret cannot be null/empty");
+            throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
         byte[] attributes = getAttributeBytes();
         int packetLength = HEADER_LENGTH + attributes.length;

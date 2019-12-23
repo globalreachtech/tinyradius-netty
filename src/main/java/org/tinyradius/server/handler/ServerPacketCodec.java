@@ -12,6 +12,7 @@ import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.SecretProvider;
 import org.tinyradius.server.ServerResponseCtx;
 import org.tinyradius.util.RadiusEndpoint;
+import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -30,7 +31,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Ser
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
         final InetSocketAddress remoteAddress = msg.sender();
 
         String secret = secretProvider.getSharedSecret(remoteAddress);
@@ -39,18 +40,29 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Ser
             return;
         }
 
-        RadiusPacket packet = packetEncoder.fromDatagram(msg, secret);
-        logger.debug("Received packet from {} - {}", remoteAddress, packet);
+        try {
+            RadiusPacket packet = packetEncoder.fromDatagram(msg, secret);
+            logger.debug("Received packet from {} - {}", remoteAddress, packet);
 
-        out.add(new RequestCtx(packet, new RadiusEndpoint(remoteAddress, secret)));
+            out.add(new RequestCtx(packet, new RadiusEndpoint(remoteAddress, secret)));
+        } catch (RadiusException e) {
+            logger.warn("Could not decode Radius packet: {}", e.getMessage());
+        }
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, ServerResponseCtx msg, List<Object> out) throws Exception {
-        final RadiusPacket packet = msg.getResponse().encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator());
-        final DatagramPacket datagramPacket = packetEncoder.toDatagram(
-                packet, msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
-        out.add(datagramPacket);
-        logger.debug("Sending response to {}", msg.getEndpoint().getAddress());
+    protected void encode(ChannelHandlerContext ctx, ServerResponseCtx msg, List<Object> out) {
+        final RadiusPacket packet = msg.getResponse()
+                .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator());
+        try {
+            final DatagramPacket datagramPacket = packetEncoder.toDatagram(
+                    packet, msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
+
+            out.add(datagramPacket);
+            logger.debug("Sending response to {}", msg.getEndpoint().getAddress());
+
+        } catch (RadiusException e) {
+            logger.warn("Could not encode Radius packet: {}", e.getMessage());
+        }
     }
 }

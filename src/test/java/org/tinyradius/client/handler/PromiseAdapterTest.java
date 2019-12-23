@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.client.ClientResponseCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
@@ -54,7 +53,7 @@ class PromiseAdapterTest {
         // process once
         final List<Object> out1 = new ArrayList<>();
         final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
-        handler.encode(ctx, new ClientResponseCtx(originalRequest, endpoint, promise), out1);
+        handler.encode(ctx, new PromiseAdapter.RequestWrapper(originalRequest, endpoint, promise), out1);
 
         final RadiusPacket processedPacket1 = packetEncoder.fromDatagram(out1.get(0));
         List<RadiusAttribute> attributes1 = processedPacket1.getAttributes();

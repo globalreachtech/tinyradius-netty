@@ -6,8 +6,9 @@ import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.client.ClientResponseCtx;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.server.RequestCtx;
+import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
 import java.util.List;
@@ -23,7 +24,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
  * outbound packets. This avoids problem with mismatched requests/responses when using
  * packetIdentifier, which is limited to 256 unique IDs.
  */
-public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, ClientResponseCtx> {
+public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PromiseAdapter.RequestWrapper> {
 
     private static final Logger logger = LoggerFactory.getLogger(PromiseAdapter.class);
 
@@ -38,7 +39,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, ClientRe
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, ClientResponseCtx msg, List<Object> out) {
+    protected void encode(ChannelHandlerContext ctx, RequestWrapper msg, List<Object> out) {
         final RadiusPacket packet = msg.getRequest().copy();
 
         final String requestId = nextProxyStateId();
@@ -105,6 +106,23 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, ClientRe
             this.authenticator = authenticator;
             this.identifier = identifier;
             this.promise = promise;
+        }
+    }
+
+    /**
+     * Wrapper that holds a promise to be resolved when response is received.
+     */
+    public static class RequestWrapper extends RequestCtx {
+
+        private final Promise<RadiusPacket> response;
+
+        public RequestWrapper(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> response) {
+            super(packet, endpoint);
+            this.response = response;
+        }
+
+        public Promise<RadiusPacket> getResponse() {
+            return response;
         }
     }
 }

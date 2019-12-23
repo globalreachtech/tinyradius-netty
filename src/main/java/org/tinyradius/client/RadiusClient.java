@@ -8,6 +8,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.client.retry.TimeoutHandler;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
@@ -40,8 +41,7 @@ public class RadiusClient implements Closeable {
     }
 
     public Future<RadiusPacket> communicate(RadiusPacket packet, RadiusEndpoint endpoint) {
-        final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
-        promise.addListener(f -> {
+        final Promise<RadiusPacket> promise = eventLoopGroup.next().<RadiusPacket>newPromise().addListener(f -> {
             if (f.isSuccess())
                 logger.info("Response received, packet: {}", f.getNow());
             else
@@ -54,7 +54,7 @@ public class RadiusClient implements Closeable {
         }
         channelFuture.addListener(s -> {
             if (s.isSuccess())
-                send(new ClientResponseCtx(packet, endpoint, promise), 1);
+                send(new PromiseAdapter.RequestWrapper(packet, endpoint, promise), 1);
             else
                 promise.tryFailure(s.cause());
         });
@@ -62,7 +62,7 @@ public class RadiusClient implements Closeable {
         return promise;
     }
 
-    private void send(ClientResponseCtx ctx, int attempt) {
+    private void send(PromiseAdapter.RequestWrapper ctx, int attempt) {
         logger.info("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
         channelFuture.channel().writeAndFlush(ctx);
         timeoutHandler.onTimeout(() -> send(ctx, attempt + 1), attempt, ctx.getResponse());
