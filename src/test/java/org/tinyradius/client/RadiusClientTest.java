@@ -26,6 +26,7 @@ import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusException;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 
@@ -72,10 +73,10 @@ class RadiusClientTest {
         final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
 
-        final RadiusException radiusException = assertThrows(RadiusException.class,
+        final IOException e = assertThrows(IOException.class,
                 () -> radiusClient.communicate(request, endpoint).syncUninterruptibly());
 
-        assertTrue(radiusException.getMessage().toLowerCase().contains("max retries"));
+        assertTrue(e.getMessage().toLowerCase().contains("max retries"));
         verify(timeoutHandler, times(3)).onTimeout(any(), anyInt(), any());
 
         radiusClient.close();

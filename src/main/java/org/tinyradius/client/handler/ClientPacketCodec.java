@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestCtx;
+import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -25,27 +26,36 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Req
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, RequestCtx msg, List<Object> out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, RequestCtx msg, List<Object> out) {
         final RadiusPacket packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
-        final DatagramPacket datagramPacket = packetEncoder.toDatagram(
-                packet, msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
-        out.add(datagramPacket);
-        logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
+        try {
+            final DatagramPacket datagramPacket = packetEncoder.toDatagram(
+                    packet, msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
+            out.add(datagramPacket);
+            logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
+        } catch (RadiusException e) {
+            logger.warn(e.getMessage());
+        }
+
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
         InetSocketAddress remoteAddress = msg.sender();
 
         if (remoteAddress == null) {
-            logger.warn("Ignoring request remoteAddress  is null");
+            logger.warn("Ignoring request, remoteAddress is null");
             return;
         }
 
         // can't verify until we know corresponding request auth
-        RadiusPacket packet = packetEncoder.fromDatagram(msg);
-        logger.debug("Received packet from {} - {}", remoteAddress, packet);
+        try {
+            RadiusPacket packet = packetEncoder.fromDatagram(msg);
+            logger.debug("Received packet from {} - {}", remoteAddress, packet);
 
-        out.add(packet);
+            out.add(packet);
+        } catch (RadiusException e) {
+            logger.warn(e.getMessage());
+        }
     }
 }

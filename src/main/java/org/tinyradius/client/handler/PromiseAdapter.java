@@ -51,7 +51,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PromiseA
 
         requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), promise));
 
-        out.add(msg);
+        out.add(new RequestCtx(encodedRequest, msg.getEndpoint()));
     }
 
     @Override
