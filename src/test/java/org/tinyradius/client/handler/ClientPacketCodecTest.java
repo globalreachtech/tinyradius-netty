@@ -41,7 +41,12 @@ class ClientPacketCodecTest {
     private Promise<RadiusPacket> promise;
 
     @Test
-    void decode() {
+    void decodeSuccess() {
+        throw new RuntimeException();
+    }
+
+    @Test
+    void decodeRadiusException(){
         throw new RuntimeException();
     }
 
@@ -85,8 +90,10 @@ class ClientPacketCodecTest {
     }
 
     @Test
-    void encode() {
+    void encodeRadiusException() {
         throw new RuntimeException();
+        // check promise
+        // check nothing sent
 
     }
 }

@@ -2,7 +2,6 @@ package org.tinyradius.client.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,11 +12,9 @@ import org.tinyradius.client.RequestCtxWrapper;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
-import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
-import org.tinyradius.util.RadiusException;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
@@ -35,7 +32,6 @@ class PromiseAdapterTest {
     private static final int PROXY_STATE = 33;
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
     private final SecureRandom random = new SecureRandom();
     private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
@@ -48,7 +44,7 @@ class PromiseAdapterTest {
     private final PromiseAdapter handler = new PromiseAdapter();
 
     @Test
-    void encodeAppendProxyState() throws RadiusException {
+    void encodeAppendProxyState() {
         final String secret = "test";
         int id = random.nextInt(256);
 
@@ -60,7 +56,7 @@ class PromiseAdapterTest {
         handler.encode(ctx, new RequestCtxWrapper(originalRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
-        final RadiusPacket processedPacket1 = (RadiusPacket) out1.get(0);
+        final RadiusPacket processedPacket1 = ((RequestCtxWrapper) out1.get(0)).getRequest();
         List<RadiusAttribute> attributes1 = processedPacket1.getAttributes();
 
         // check proxy-state added
@@ -70,10 +66,10 @@ class PromiseAdapterTest {
 
         // process again
         final List<Object> out2 = new ArrayList<>();
-        handler.encode(ctx, new RequestCtxWrapper(originalRequest, endpoint, promise), out2);
+        handler.encode(ctx, new RequestCtxWrapper(processedPacket1, endpoint, promise), out2);
 
         assertEquals(1, out1.size());
-        final RadiusPacket processedPacket2 = packetEncoder.fromDatagram((DatagramPacket) out2.get(0));
+        final RadiusPacket processedPacket2 = ((RequestCtxWrapper) out2.get(0)).getRequest();
 
         // check another proxy-state added
         final List<RadiusAttribute> attributes2 = processedPacket2.getAttributes();
@@ -108,7 +104,7 @@ class PromiseAdapterTest {
     }
 
     @Test
-    void encodeDecodeIdMismatch() throws RadiusException {
+    void encodeDecodeIdMismatch() {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final byte[] requestAuth = random.generateSeed(16);
@@ -122,7 +118,7 @@ class PromiseAdapterTest {
 
         assertEquals(1, out1.size());
 
-        final RadiusPacket preparedRequest = packetEncoder.fromDatagram((DatagramPacket) out1.get(0));
+        final RadiusPacket preparedRequest = ((RequestCtxWrapper) out1.get(0)).getRequest();
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 99,
@@ -130,10 +126,12 @@ class PromiseAdapterTest {
 
         final List<Object> out2 = new ArrayList<>();
         handler.decode(ctx, response.encodeResponse(secret, requestAuth), out2);
+
+        assertEquals(0, out2.size());
     }
 
     @Test
-    void decodeAuthCheckFail() throws RadiusException {
+    void decodeAuthCheckFail() {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final byte[] requestAuth = random.generateSeed(16);
@@ -158,7 +156,7 @@ class PromiseAdapterTest {
     }
 
     @Test
-    void encodeDecodeSuccess() throws RadiusException, InterruptedException {
+    void encodeDecodeSuccess() throws InterruptedException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
@@ -189,6 +187,8 @@ class PromiseAdapterTest {
         final List<Object> out2 = new ArrayList<>();
         handler.decode(ctx, goodResponse, out2);
 
+        assertTrue(out2.isEmpty());
+
         final RadiusPacket decodedResponse = promise.getNow();
         assertTrue(promise.isDone());
         assertEquals(goodResponse.getIdentifier(), decodedResponse.getIdentifier());
@@ -197,8 +197,6 @@ class PromiseAdapterTest {
 
         // check proxyState is removed after reading
         assertEquals(0, decodedResponse.getAttributes().size());
-        assertEquals(1, goodResponse.getAttributes().size());
-        assertArrayEquals(requestProxyState, goodResponse.getAttribute(PROXY_STATE).getValue());
 
         // pause to avoid race condition
         Thread.sleep(100);
@@ -206,6 +204,8 @@ class PromiseAdapterTest {
         // channel read again lookup fails
         final List<Object> out3 = new ArrayList<>();
         handler.decode(ctx, goodResponse, out3);
+
+        assertTrue(out3.isEmpty());
 
         // check promise hasn't changed
         assertTrue(promise.isDone());

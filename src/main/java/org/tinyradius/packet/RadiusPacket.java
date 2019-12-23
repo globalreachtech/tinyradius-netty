@@ -134,7 +134,7 @@ public class RadiusPacket {
      * @param attribute RadiusAttribute object
      */
     public void addAttribute(RadiusAttribute attribute) {
-        requireNonNull(attributes, "attribute is null");
+        requireNonNull(attributes, "Attribute is null");
 
         if (attribute.getVendorId() == -1) {
             this.attributes.add(

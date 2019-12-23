@@ -49,8 +49,6 @@ public abstract class AccessHandler extends SimpleChannelInboundHandler<RequestC
         request.getAttributes(33)
                 .forEach(answer::addAttribute);
 
-        if (type == PacketType.ACCESS_ACCEPT)
-            answer.addAttribute("Reply-Message", "Welcome " + request.getUserName() + "!");
         logger.info("Answer:\n" + answer);
 
         ctx.writeAndFlush(msg.withResponse(answer));
