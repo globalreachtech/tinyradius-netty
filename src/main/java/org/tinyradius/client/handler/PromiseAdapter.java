@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.RequestCtxWrapper;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 import java.util.Map;
@@ -79,7 +79,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, RequestC
 
         try {
             msg.verify(request.secret, request.authenticator);
-        } catch (RadiusException e) {
+        } catch (RadiusPacketException e) {
             logger.warn(e.getMessage());
             return;
         }

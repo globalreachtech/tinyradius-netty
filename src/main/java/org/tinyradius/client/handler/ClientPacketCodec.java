@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RequestCtxWrapper;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -34,7 +34,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Req
                     (InetSocketAddress) ctx.channel().localAddress());
             out.add(datagramPacket);
             logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
-        } catch (RadiusException e) {
+        } catch (RadiusPacketException e) {
             logger.warn("Could not encode Radius packet: {}", e.getMessage());
             msg.getResponse().tryFailure(e);
         }
@@ -55,7 +55,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Req
             logger.debug("Received packet from {} - {}", remoteAddress, packet);
 
             out.add(packet);
-        } catch (RadiusException e) {
+        } catch (RadiusPacketException e) {
             logger.warn("Could not decode Radius packet: {}", e.getMessage());
         }
     }

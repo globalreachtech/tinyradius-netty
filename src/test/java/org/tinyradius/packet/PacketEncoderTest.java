@@ -6,7 +6,7 @@ import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -47,7 +47,7 @@ class PacketEncoderTest {
     }
 
     @Test
-    void toDatagramMaxPacketSize() throws RadiusException {
+    void toDatagramMaxPacketSize() throws RadiusPacketException {
         // test max length 4096
         RadiusPacket maxSizeRequest = new RadiusPacket(dictionary, 200, 250);
         addBytesToPacket(maxSizeRequest, 4096);
@@ -63,7 +63,7 @@ class PacketEncoderTest {
         RadiusPacket oversizeRequest = new RadiusPacket(dictionary, 200, 250);
         addBytesToPacket(oversizeRequest, 4097);
 
-        final RadiusException exception = assertThrows(RadiusException.class,
+        final RadiusPacketException exception = assertThrows(RadiusPacketException.class,
                 () -> packetEncoder.toDatagram(oversizeRequest.encodeRequest("mySecret"), new InetSocketAddress(0)));
 
         assertTrue(exception.getMessage().toLowerCase().contains("packet too long"));
@@ -72,7 +72,7 @@ class PacketEncoderTest {
     }
 
     @Test
-    void toDatagram() throws RadiusException {
+    void toDatagram() throws RadiusPacketException {
         final InetSocketAddress address = new InetSocketAddress(random.nextInt(65535));
         RadiusPacket request = new RadiusPacket(dictionary, 200, 250);
 
@@ -106,7 +106,7 @@ class PacketEncoderTest {
     }
 
     @Test
-    void fromMaxSizeRequestDatagram() throws RadiusException {
+    void fromMaxSizeRequestDatagram() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
 
         // test max length 4096
@@ -131,7 +131,7 @@ class PacketEncoderTest {
     }
 
     @Test
-    void fromOverSizeRequestDatagram() throws RadiusException {
+    void fromOverSizeRequestDatagram() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
 
         // make 4090 octet packet
@@ -154,14 +154,14 @@ class PacketEncoderTest {
         buffer.writeBytes(attribute);
         buffer.setShort(2, 4097);
 
-        final RadiusException exception = assertThrows(RadiusException.class,
+        final RadiusPacketException exception = assertThrows(RadiusPacketException.class,
                 () -> packetEncoder.fromDatagram(new DatagramPacket(buffer, new InetSocketAddress(0)), sharedSecret));
 
         assertTrue(exception.getMessage().contains("packet too long"));
     }
 
     @Test
-    void accountingRequestFromDatagram() throws RadiusException {
+    void accountingRequestFromDatagram() throws RadiusPacketException {
         String user = "user1";
         String sharedSecret = "sharedSecret1";
 
@@ -179,7 +179,7 @@ class PacketEncoderTest {
     }
 
     @Test
-    void accountingRequestBadAuthFromDatagram() throws RadiusException {
+    void accountingRequestBadAuthFromDatagram() throws RadiusPacketException {
         String user = "user1";
         String sharedSecret = "sharedSecret1";
 
@@ -194,14 +194,14 @@ class PacketEncoderTest {
 
         final DatagramPacket datagramPacket = new DatagramPacket(Unpooled.wrappedBuffer(array), originalDatagram.recipient());
 
-        final RadiusException radiusException = assertThrows(RadiusException.class,
+        final RadiusPacketException radiusPacketException = assertThrows(RadiusPacketException.class,
                 () -> packetEncoder.fromDatagram(datagramPacket, sharedSecret));
 
-        assertTrue(radiusException.getMessage().toLowerCase().contains("authenticator check failed"));
+        assertTrue(radiusPacketException.getMessage().toLowerCase().contains("authenticator check failed"));
     }
 
     @Test
-    void accessRequestFromDatagram() throws RadiusException {
+    void accessRequestFromDatagram() throws RadiusPacketException {
         String user = "user1";
         String password = "myPassword";
         String sharedSecret = "sharedSecret1";
@@ -222,7 +222,7 @@ class PacketEncoderTest {
     }
 
     @Test
-    void fromResponseDatagram() throws RadiusException {
+    void fromResponseDatagram() throws RadiusPacketException {
         String user = "user2";
         String plaintextPw = "myPassword2";
         String sharedSecret = "sharedSecret2";

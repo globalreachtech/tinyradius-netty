@@ -3,7 +3,7 @@ package org.tinyradius.packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -37,9 +37,9 @@ public class PacketEncoder {
      * @param packet    packet to convert
      * @param recipient destination socket
      * @return converted DatagramPacket
-     * @throws RadiusException if packet could not be encoded/serialized to datagram
+     * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
      */
-    public DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient) throws RadiusException {
+    public DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient) throws RadiusPacketException {
         return new DatagramPacket(toByteBuf(packet), recipient);
     }
 
@@ -48,21 +48,21 @@ public class PacketEncoder {
      * @param recipient destination socket
      * @param sender    source socket, nullable
      * @return converted DatagramPacket
-     * @throws RadiusException if packet could not be encoded/serialized to datagram
+     * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
      */
-    public DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient, InetSocketAddress sender) throws RadiusException {
+    public DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient, InetSocketAddress sender) throws RadiusPacketException {
         return new DatagramPacket(toByteBuf(packet), recipient, sender);
     }
 
-    public ByteBuf toByteBuf(RadiusPacket packet) throws RadiusException {
+    public ByteBuf toByteBuf(RadiusPacket packet) throws RadiusPacketException {
         byte[] attributes = packet.getAttributeBytes();
         int length = HEADER_LENGTH + attributes.length;
         if (length > MAX_PACKET_LENGTH)
-            throw new RadiusException("Packet too long");
+            throw new RadiusPacketException("Packet too long");
         if (packet.getAuthenticator() == null)
-            throw new RadiusException("Missing authenticator");
+            throw new RadiusPacketException("Missing authenticator");
         if (packet.getAuthenticator().length != 16)
-            throw new RadiusException("Authenticator must be length 16");
+            throw new RadiusPacketException("Authenticator must be length 16");
 
         ByteBuf buf = buffer(length, length);
         buf.writeByte(packet.getType());
@@ -88,9 +88,9 @@ public class PacketEncoder {
      *
      * @param datagram DatagramPacket to read packet from
      * @return new RadiusPacket object
-     * @throws RadiusException malformed packet
+     * @throws RadiusPacketException malformed packet
      */
-    public RadiusPacket fromDatagram(DatagramPacket datagram) throws RadiusException {
+    public RadiusPacket fromDatagram(DatagramPacket datagram) throws RadiusPacketException {
         return fromByteBuf(datagram.content());
     }
 
@@ -104,9 +104,9 @@ public class PacketEncoder {
      * @param packet       DatagramPacket to read packet from
      * @param sharedSecret shared secret to be used to decode this packet
      * @return new RadiusPacket object
-     * @throws RadiusException malformed packet
+     * @throws RadiusPacketException malformed packet
      */
-    public RadiusPacket fromDatagram(DatagramPacket packet, String sharedSecret) throws RadiusException {
+    public RadiusPacket fromDatagram(DatagramPacket packet, String sharedSecret) throws RadiusPacketException {
         final RadiusPacket radiusPacket = fromByteBuf(packet.content());
         radiusPacket.verify(sharedSecret, new byte[16]);
         return radiusPacket;
@@ -123,16 +123,16 @@ public class PacketEncoder {
      * @param sharedSecret shared secret to be used to decode this packet
      * @param request      associated request packet for parsing response
      * @return new RadiusPacket object
-     * @throws RadiusException malformed packet
+     * @throws RadiusPacketException malformed packet
      */
     public RadiusPacket fromDatagram(DatagramPacket datagram, String sharedSecret, RadiusPacket request)
-            throws RadiusException {
+            throws RadiusPacketException {
         final RadiusPacket radiusPacket = fromByteBuf(datagram.content(), request.getIdentifier());
         radiusPacket.verify(sharedSecret, request.getAuthenticator());
         return radiusPacket;
     }
 
-    public RadiusPacket fromByteBuf(ByteBuf byteBuf) throws RadiusException {
+    public RadiusPacket fromByteBuf(ByteBuf byteBuf) throws RadiusPacketException {
         return fromByteBuf(byteBuf, -1);
     }
 
@@ -146,13 +146,13 @@ public class PacketEncoder {
      * @param byteBuf   DatagramPacket to read packet from
      * @param requestId id that packet identifier has to match, otherwise -1 if skipping checks
      * @return new RadiusPacket object
-     * @throws RadiusException malformed packet
+     * @throws RadiusPacketException malformed packet
      */
-    private RadiusPacket fromByteBuf(ByteBuf byteBuf, int requestId) throws RadiusException {
+    private RadiusPacket fromByteBuf(ByteBuf byteBuf, int requestId) throws RadiusPacketException {
 
         final ByteBuffer content = byteBuf.nioBuffer();
         if (content.remaining() < HEADER_LENGTH) {
-            throw new RadiusException("Readable bytes is less than header length");
+            throw new RadiusPacketException("Readable bytes is less than header length");
         }
 
         int type = toUnsignedInt(content.get());
@@ -160,17 +160,17 @@ public class PacketEncoder {
         int length = content.getShort();
 
         if (requestId != -1 && requestId != packetId)
-            throw new RadiusException("Bad packet: invalid packet identifier - request: " + requestId + ", response: " + packetId);
+            throw new RadiusPacketException("Bad packet: invalid packet identifier - request: " + requestId + ", response: " + packetId);
         if (length < HEADER_LENGTH)
-            throw new RadiusException("Bad packet: packet too short (" + length + " bytes)");
+            throw new RadiusPacketException("Bad packet: packet too short (" + length + " bytes)");
         if (length > MAX_PACKET_LENGTH)
-            throw new RadiusException("Bad packet: packet too long (" + length + " bytes)");
+            throw new RadiusPacketException("Bad packet: packet too long (" + length + " bytes)");
 
         byte[] authenticator = new byte[16];
         content.get(authenticator);
 
         if (content.remaining() != length - HEADER_LENGTH)
-            throw new RadiusException("Bad packet: packet length mismatch");
+            throw new RadiusPacketException("Bad packet: packet length mismatch");
 
         byte[] attributes = new byte[content.remaining()];
         content.get(attributes);

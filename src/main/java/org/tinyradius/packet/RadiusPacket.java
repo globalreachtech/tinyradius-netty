@@ -6,7 +6,7 @@ import org.tinyradius.attribute.AttributeType;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -443,14 +443,14 @@ public class RadiusPacket {
      * @param sharedSecret         shared secret
      * @param requestAuthenticator should be set to request authenticator if verifying response,
      *                             otherwise set to 16 zero octets
-     * @throws RadiusException if authenticator check fails
+     * @throws RadiusPacketException if authenticator check fails
      */
-    public void verify(String sharedSecret, byte[] requestAuthenticator) throws RadiusException {
+    public void verify(String sharedSecret, byte[] requestAuthenticator) throws RadiusPacketException {
         byte[] expectedAuth = createHashedAuthenticator(sharedSecret, requestAuthenticator);
         byte[] receivedAuth = getAuthenticator();
         if (receivedAuth.length != 16 ||
                 !Arrays.equals(expectedAuth, receivedAuth))
-            throw new RadiusException("Authenticator check failed (bad authenticator or shared secret)");
+            throw new RadiusPacketException("Authenticator check failed (bad authenticator or shared secret)");
     }
 
     static MessageDigest getMd5Digest() {

@@ -12,7 +12,7 @@ import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.SecretProvider;
 import org.tinyradius.server.ServerResponseCtx;
 import org.tinyradius.util.RadiusEndpoint;
-import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -45,7 +45,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Ser
             logger.debug("Received packet from {} - {}", remoteAddress, packet);
 
             out.add(new RequestCtx(packet, new RadiusEndpoint(remoteAddress, secret)));
-        } catch (RadiusException e) {
+        } catch (RadiusPacketException e) {
             logger.warn("Could not decode Radius packet: {}", e.getMessage());
         }
     }
@@ -61,7 +61,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Ser
             out.add(datagramPacket);
             logger.debug("Sending response to {}", msg.getEndpoint().getAddress());
 
-        } catch (RadiusException e) {
+        } catch (RadiusPacketException e) {
             logger.warn("Could not encode Radius packet: {}", e.getMessage());
         }
     }

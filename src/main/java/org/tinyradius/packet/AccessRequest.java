@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -170,12 +170,12 @@ public class AccessRequest extends RadiusPacket {
      * @param ignored      ignored, not applicable for AccessRequest
      */
     @Override
-    public void verify(String sharedSecret, byte[] ignored) throws RadiusException {
+    public void verify(String sharedSecret, byte[] ignored) throws RadiusPacketException {
         if (!decryptPasswords(sharedSecret))
-            throw new RadiusException("Access-Request: User-Password or CHAP-Password/CHAP-Challenge missing");
+            throw new RadiusPacketException("Access-Request: User-Password or CHAP-Password/CHAP-Challenge missing");
     }
 
-    public boolean decryptPasswords(String sharedSecret) throws RadiusException {
+    public boolean decryptPasswords(String sharedSecret) throws RadiusPacketException {
         RadiusAttribute userPassword = getAttribute(USER_PASSWORD);
         if (userPassword != null) {
             setAuthProtocol(AUTH_PAP);
@@ -330,11 +330,11 @@ public class AccessRequest extends RadiusPacket {
      * @param sharedSecret  shared secret
      * @return decrypted password
      */
-    private String decodePapPassword(byte[] encryptedPass, byte[] sharedSecret) throws RadiusException {
+    private String decodePapPassword(byte[] encryptedPass, byte[] sharedSecret) throws RadiusPacketException {
         if (encryptedPass.length < 16) {
             // PAP passwords require at least 16 bytes, or multiples thereof
             logger.warn("Malformed packet: User-Password attribute length must be greater than 15, actual {}", encryptedPass.length);
-            throw new RadiusException("Malformed User-Password attribute");
+            throw new RadiusPacketException("Malformed User-Password attribute");
         }
 
         final ByteBuffer buffer = ByteBuffer.allocate(encryptedPass.length);
