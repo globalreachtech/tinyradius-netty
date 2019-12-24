@@ -1,7 +1,6 @@
 package org.tinyradius.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.client.retry.BasicTimeoutHandler;
 import org.tinyradius.client.retry.TimeoutHandler;
@@ -40,13 +40,14 @@ class RadiusClientTest {
     private final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
-    private final HashedWheelTimer timer = new HashedWheelTimer();
     private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
     private final InetSocketAddress address = new InetSocketAddress(0);
+    private final RadiusEndpoint stubEndpoint = new RadiusEndpoint(address, "secret");
 
     private final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
-    private TimeoutHandler timeoutHandler = new BasicTimeoutHandler(timer);
+    @Spy
+    private TimeoutHandler timeoutHandler = new BasicTimeoutHandler(new HashedWheelTimer());
 
     @BeforeAll
     static void beforeAll() {
@@ -58,37 +59,35 @@ class RadiusClientTest {
         ResourceLeakDetector.setLevel(SIMPLE);
     }
 
-    @Test()
+    @Test
     void communicateWithTimeout() {
-        RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, mock(ChannelHandler.class));
+        RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new CustomOutboundHandler(a -> {
+        }));
 
         final RadiusPacket request = new AccessRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
-        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), "test");
 
         final IOException e = assertThrows(IOException.class,
-                () -> radiusClient.communicate(request, endpoint).syncUninterruptibly());
+                () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
 
         assertTrue(e.getMessage().toLowerCase().contains("max retries"));
-        verify(timeoutHandler, times(3)).onTimeout(any(), anyInt(), any());
-
-        radiusClient.close();
+        verify(timeoutHandler).onTimeout(any(), anyInt(), any());
     }
 
     @Test
     void communicateSuccess() throws InterruptedException {
         final int id = random.nextInt(256);
         final RadiusPacket response = new RadiusPacket(DefaultDictionary.INSTANCE, 2, id);
-        final MockOutboundHandler mockOutboundHandler = new MockOutboundHandler(a -> a.trySuccess(response));
+        final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(a -> a.trySuccess(response));
 
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, new InetSocketAddress(0), timeoutHandler, mockOutboundHandler);
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, customOutboundHandler);
 
         final RadiusPacket request = new AccessRequest(dictionary, id, null).encodeRequest("test");
 
-        final Future<RadiusPacket> future = radiusClient.communicate(request, new RadiusEndpoint(new InetSocketAddress(0), "mySecret"));
+        final Future<RadiusPacket> future = radiusClient.communicate(request, stubEndpoint);
 
         assertFalse(future.isDone());
 
-        Thread.sleep(500);
+        Thread.sleep(300);
 
         assertTrue(future.isDone());
         assertTrue(future.isSuccess());
@@ -96,27 +95,28 @@ class RadiusClientTest {
     }
 
     @Test
-    void badEncode() throws InterruptedException {
-        final MockOutboundHandler mockOutboundHandler = new MockOutboundHandler(p -> p.tryFailure(new Exception("test 123")));
+    void outboundError() throws InterruptedException {
+        final Exception expectedException = new Exception("test 123");
+        final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(p -> p.tryFailure(expectedException));
 
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, new InetSocketAddress(0), timeoutHandler, mockOutboundHandler);
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, customOutboundHandler);
         final RadiusPacket request = new RadiusPacket(dictionary, 1, 1);
 
-        final Future<RadiusPacket> future = radiusClient.communicate(request, new RadiusEndpoint(new InetSocketAddress(0), ""));
+        final Future<RadiusPacket> future = radiusClient.communicate(request, stubEndpoint);
         assertFalse(future.isDone());
 
-        Thread.sleep(500);
+        Thread.sleep(300);
 
         assertTrue(future.isDone());
         assertFalse(future.isSuccess());
-        assertTrue(future.cause().getMessage().toLowerCase().contains("test 123"));
+        assertSame(expectedException, future.cause());
     }
 
-    private static class MockOutboundHandler extends ChannelOutboundHandlerAdapter {
+    private static class CustomOutboundHandler extends ChannelOutboundHandlerAdapter {
 
-        private Consumer<Promise<RadiusPacket>> failFast;
+        private final Consumer<Promise<RadiusPacket>> failFast;
 
-        private MockOutboundHandler(Consumer<Promise<RadiusPacket>> failFast) {
+        private CustomOutboundHandler(Consumer<Promise<RadiusPacket>> failFast) {
             this.failFast = failFast;
         }
 

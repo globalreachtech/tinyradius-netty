@@ -30,7 +30,8 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Req
         final RadiusPacket packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
         try {
             final DatagramPacket datagramPacket = packetEncoder.toDatagram(
-                    packet, msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
+                    packet, msg.getEndpoint().getAddress(),
+                    (InetSocketAddress) ctx.channel().localAddress());
             out.add(datagramPacket);
             logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
         } catch (RadiusException e) {
@@ -48,8 +49,8 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Req
             return;
         }
 
-        // can't verify until we know corresponding request auth
         try {
+            // can't verify until we know corresponding request auth
             RadiusPacket packet = packetEncoder.fromDatagram(msg);
             logger.debug("Received packet from {} - {}", remoteAddress, packet);
 

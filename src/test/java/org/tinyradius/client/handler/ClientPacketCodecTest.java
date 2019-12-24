@@ -1,5 +1,6 @@
 package org.tinyradius.client.handler;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.Promise;
@@ -24,15 +25,18 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ClientPacketCodecTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
     private final SecureRandom random = new SecureRandom();
 
-    private ClientPacketCodec codec = new ClientPacketCodec(packetEncoder);
+    private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
+    private final ClientPacketCodec codec = new ClientPacketCodec(packetEncoder);
+    private final InetSocketAddress address = new InetSocketAddress(0);
 
     @Mock
     private ChannelHandlerContext ctx;
@@ -41,13 +45,35 @@ class ClientPacketCodecTest {
     private Promise<RadiusPacket> promise;
 
     @Test
-    void decodeSuccess() {
-        throw new RuntimeException();
+    void decodeSuccess() throws RadiusException {
+        final byte[] requestAuth = random.generateSeed(16);
+
+        final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
+
+        final List<Object> out1 = new ArrayList<>();
+        codec.decode(ctx, packetEncoder.toDatagram(
+                response.encodeResponse("mySecret", requestAuth), address, address), out1);
+
+        assertEquals(1, out1.size());
+        RadiusPacket actual = (RadiusPacket) out1.get(0);
+        assertEquals(response.toString(), actual.toString());
     }
 
     @Test
-    void decodeRadiusException(){
-        throw new RuntimeException();
+    void decodeRadiusException() throws RadiusException {
+        final byte[] requestAuth = random.generateSeed(16);
+
+        final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
+
+        final DatagramPacket datagram = packetEncoder.toDatagram(
+                response.encodeResponse("mySecret", requestAuth), address, address);
+
+        datagram.content().array()[3] = 7; // corrupt bytes to trigger error
+
+        final List<Object> out1 = new ArrayList<>();
+        codec.decode(ctx, datagram, out1);
+
+        assertTrue(out1.isEmpty());
     }
 
     @Test
@@ -58,35 +84,34 @@ class ClientPacketCodecTest {
 
         final List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, packetEncoder.toDatagram(
-                response.encodeResponse("mySecret", requestAuth), new InetSocketAddress(0)), out1);
+                response.encodeResponse("mySecret", requestAuth), address), out1);
 
         assertTrue(out1.isEmpty());
     }
 
     @Test
     void encodeAccessRequest() throws RadiusException {
-        final String secret1 = UUID.randomUUID().toString();
-        final String secret2 = UUID.randomUUID().toString();
+        final String secret = UUID.randomUUID().toString();
         final String username = "myUsername";
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        final RadiusPacket accessRequest = new AccessRequest(dictionary, id, null, username, password)
-                .encodeRequest(secret1);
-        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret2);
+        final RadiusPacket accessRequest = new AccessRequest(dictionary, id, null, username, password);
+        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
+
+        when(ctx.channel()).thenReturn(mock(Channel.class));
 
         // process
         final List<Object> out1 = new ArrayList<>();
         codec.encode(ctx, new RequestCtxWrapper(accessRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
-        final DatagramPacket accessPacketDatagram = (DatagramPacket) out1.get(0);
-        final RadiusPacket sentAccessPacket = packetEncoder.fromDatagram(accessPacketDatagram, secret2);
-        assertTrue(sentAccessPacket instanceof AccessRequest); // sanity check - we are not testing decoder here
+        final AccessRequest sentAccessPacket = (AccessRequest) packetEncoder.fromDatagram(
+                (DatagramPacket) out1.get(0), secret);
 
         // check user details correctly encoded
-        assertEquals(username, ((AccessRequest) sentAccessPacket).getUserName());
-        assertEquals(password, ((AccessRequest) sentAccessPacket).getUserPassword());
+        assertEquals(username, sentAccessPacket.getUserName());
+        assertEquals(password, sentAccessPacket.getUserPassword());
     }
 
     @Test
