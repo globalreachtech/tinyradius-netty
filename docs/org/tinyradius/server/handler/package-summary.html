@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -26,7 +27,9 @@
     catch(err) {
     }
 //-->
-var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../";
+var useModuleDirectories = true;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -42,7 +45,7 @@ var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../index.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -52,21 +55,13 @@ var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../org/tinyradius/server/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../org/tinyradius/util/package-summary.html">Next&nbsp;Package</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../index.html?org/tinyradius/server/handler/package-summary.html" target="_top">Frames</a></li>
-<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><span>SEARCH:&nbsp;</span>
-<input type="text" id="search" value=" " disabled="disabled">
-<input type="reset" id="reset" value=" " disabled="disabled">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
 </li>
 </ul>
 <div>
@@ -101,33 +96,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h1 title="Package" class="title">Package&nbsp;org.tinyradius.server.handler</h1>
 </div>
 <div class="contentContainer">
-<section role="region">
-<div class="block">Callback handlers that are invoked when a packet is received.
- <p>
- <a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler"><code>RequestHandler</code></a> is defined
- so custom handlers do not have to be concerned with how netty handles packets
- and serialization between Datagram and <a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet"><code>RadiusPacket</code></a>.
- <p>
- Basic implementations of Accounting and Access RequestHandlers are included
- for the most trivial use cases. A simple DeduplicatorHandler that returns
- null for duplicates is also included.</div>
-</section>
 <ul class="blockList">
-<li class="blockList">
-<table class="typeSummary">
-<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Interface</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../org/tinyradius/server/handler/RequestHandler.html" title="interface in org.tinyradius.server.handler">RequestHandler</a>&lt;T extends <a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,S extends <a href="../../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server">SecretProvider</a>&gt;</th>
-<td class="colLast">&nbsp;</td>
-</tr>
-</tbody>
-</table>
-</li>
 <li class="blockList">
 <table class="typeSummary">
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
@@ -137,31 +106,32 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../org/tinyradius/server/handler/AcctHandler.html" title="class in org.tinyradius.server.handler">AcctHandler</a></th>
+<th class="colFirst" scope="row"><a href="AccessHandler.html" title="class in org.tinyradius.server.handler">AccessHandler</a></th>
+<td class="colLast">
+<div class="block">Reference implementation of AccessRequest handler that returns Access-Accept/Reject
+ depending on whether <a href="AccessHandler.html#getUserPassword(java.lang.String)"><code>AccessHandler.getUserPassword(String)</code></a> matches password in Access-Request.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="AccountingHandler.html" title="class in org.tinyradius.server.handler">AccountingHandler</a></th>
 <td class="colLast">
 <div class="block">A reference implementation of AccountingRequest handler that responds to all Accounting-Request
  with standard Accounting-Response.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../org/tinyradius/server/handler/AuthHandler.html" title="class in org.tinyradius.server.handler">AuthHandler</a></th>
-<td class="colLast">
-<div class="block">Reference implementation of AccessRequest handler that returns Access-Accept/Reject
- depending on whether <a href="../../../../org/tinyradius/server/handler/AuthHandler.html#getUserPassword-java.lang.String-"><code>AuthHandler.getUserPassword(String)</code></a> matches password in Access-Request.</div>
-</td>
-</tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="../../../../org/tinyradius/server/handler/DeduplicatorHandler.html" title="class in org.tinyradius.server.handler">DeduplicatorHandler</a>&lt;T extends <a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</th>
-<td class="colLast">
-<div class="block">Handler that wraps around another handler and deduplicates requests, returning
- null if duplicate.</div>
-</td>
+<th class="colFirst" scope="row"><a href="CachingHandler.html" title="class in org.tinyradius.server.handler">CachingHandler</a>&lt;INBOUND extends <a href="../RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>,&#8203;OUTBOUND extends <a href="../ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&gt;</th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="../../../../org/tinyradius/server/handler/ProxyRequestHandler.html" title="class in org.tinyradius.server.handler">ProxyRequestHandler</a></th>
+<th class="colFirst" scope="row"><a href="ProxyHandler.html" title="class in org.tinyradius.server.handler">ProxyHandler</a></th>
 <td class="colLast">
 <div class="block">RadiusServer handler that proxies packets to destination.</div>
 </td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ServerPacketCodec.html" title="class in org.tinyradius.server.handler">ServerPacketCodec</a></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
 </table>
@@ -180,7 +150,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../index.html">Overview</a></li>
 <li class="navBarCell1Rev">Package</li>
 <li>Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -190,16 +160,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../org/tinyradius/server/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../org/tinyradius/util/package-summary.html">Next&nbsp;Package</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../index.html?org/tinyradius/server/handler/package-summary.html" target="_top">Frames</a></li>
-<li><a href="package-summary.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--

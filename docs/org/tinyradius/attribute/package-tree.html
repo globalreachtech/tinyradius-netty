@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -26,7 +27,9 @@
     catch(err) {
     }
 //-->
-var pathtoroot = "../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../";
+var useModuleDirectories = true;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -42,7 +45,7 @@ var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li>Class</li>
 <li class="navBarCell1Rev">Tree</li>
@@ -52,21 +55,13 @@ var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev</li>
-<li><a href="../../../org/tinyradius/client/package-tree.html">Next</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../index.html?org/tinyradius/attribute/package-tree.html" target="_top">Frames</a></li>
-<li><a href="package-tree.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><span>SEARCH:&nbsp;</span>
-<input type="text" id="search" value=" " disabled="disabled">
-<input type="reset" id="reset" value=" " disabled="disabled">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
 </li>
 </ul>
 <div>
@@ -110,20 +105,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">java.lang.Object
 <ul>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/Attributes.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">Attributes</span></a></li>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/AttributeType.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">AttributeType</span></a></li>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/RadiusAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">RadiusAttribute</span></a>
+<li class="circle">org.tinyradius.attribute.<a href="Attributes.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">Attributes</span></a></li>
+<li class="circle">org.tinyradius.attribute.<a href="AttributeType.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">AttributeType</span></a></li>
+<li class="circle">org.tinyradius.attribute.<a href="RadiusAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">RadiusAttribute</span></a>
 <ul>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/IntegerAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">IntegerAttribute</span></a></li>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/IpAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">IpAttribute</span></a>
+<li class="circle">org.tinyradius.attribute.<a href="IntegerAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">IntegerAttribute</span></a></li>
+<li class="circle">org.tinyradius.attribute.<a href="IpAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">IpAttribute</span></a>
 <ul>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/IpAttribute.V4.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">IpAttribute.V4</span></a></li>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/IpAttribute.V6.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">IpAttribute.V6</span></a></li>
+<li class="circle">org.tinyradius.attribute.<a href="IpAttribute.V4.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">IpAttribute.V4</span></a></li>
+<li class="circle">org.tinyradius.attribute.<a href="IpAttribute.V6.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">IpAttribute.V6</span></a></li>
 </ul>
 </li>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/Ipv6PrefixAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">Ipv6PrefixAttribute</span></a></li>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/StringAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">StringAttribute</span></a></li>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">VendorSpecificAttribute</span></a></li>
+<li class="circle">org.tinyradius.attribute.<a href="Ipv6PrefixAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">Ipv6PrefixAttribute</span></a></li>
+<li class="circle">org.tinyradius.attribute.<a href="StringAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">StringAttribute</span></a></li>
+<li class="circle">org.tinyradius.attribute.<a href="VendorSpecificAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">VendorSpecificAttribute</span></a></li>
 </ul>
 </li>
 </ul>
@@ -133,8 +128,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <section role="region">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/AttributeType.ByteArrayConstructor.html" title="interface in org.tinyradius.attribute"><span class="typeNameLink">AttributeType.ByteArrayConstructor</span></a>&lt;T&gt;</li>
-<li class="circle">org.tinyradius.attribute.<a href="../../../org/tinyradius/attribute/AttributeType.StringConstructor.html" title="interface in org.tinyradius.attribute"><span class="typeNameLink">AttributeType.StringConstructor</span></a>&lt;T&gt;</li>
+<li class="circle">org.tinyradius.attribute.<a href="AttributeType.ByteArrayConstructor.html" title="interface in org.tinyradius.attribute"><span class="typeNameLink">AttributeType.ByteArrayConstructor</span></a>&lt;T&gt;</li>
+<li class="circle">org.tinyradius.attribute.<a href="AttributeType.StringConstructor.html" title="interface in org.tinyradius.attribute"><span class="typeNameLink">AttributeType.StringConstructor</span></a>&lt;T&gt;</li>
 </ul>
 </section>
 </div>
@@ -150,7 +145,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li>Class</li>
 <li class="navBarCell1Rev">Tree</li>
@@ -160,16 +155,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev</li>
-<li><a href="../../../org/tinyradius/client/package-tree.html">Next</a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../index.html?org/tinyradius/attribute/package-tree.html" target="_top">Frames</a></li>
-<li><a href="package-tree.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
