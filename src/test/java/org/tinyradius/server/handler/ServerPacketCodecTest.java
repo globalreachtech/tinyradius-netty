@@ -1,6 +1,7 @@
 package org.tinyradius.server.handler;
 
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ServerPacketCodecTest {
@@ -56,35 +59,37 @@ class ServerPacketCodecTest {
     }
 
     @Test
-    void requestHandlerSuccess() throws RadiusException {
+    void decodeEncodeSuccess() throws RadiusException {
         final String secret = "mySecret";
-        final RadiusPacket requestPacket = new RadiusPacket(dictionary, 3, 1).encodeRequest(secret);
-        final InetSocketAddress remoteAddress = new InetSocketAddress(1);
-
         final ServerPacketCodec codec = new ServerPacketCodec(packetEncoder, address -> secret);
+        when(ctx.channel()).thenReturn(mock(Channel.class));
 
+        // create datagram
+        final RadiusPacket requestPacket = new RadiusPacket(dictionary, 3, 1).encodeRequest(secret);
+        final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final DatagramPacket request = packetEncoder.toDatagram(requestPacket, address, remoteAddress);
 
+        // decode
         final ArrayList<Object> out1 = new ArrayList<>();
         codec.decode(ctx, request, out1);
         assertEquals(1, out1.size());
 
+        // check decoded
         final RequestCtx requestCtx = (RequestCtx) out1.get(0);
         assertEquals(remoteAddress, requestCtx.getEndpoint().getAddress());
         assertEquals(secret, requestCtx.getEndpoint().getSecret());
         assertEquals(requestPacket, requestCtx.getRequest());
 
-        // todo split?
+        final RadiusPacket responsePacket = new RadiusPacket(dictionary, 4, 1);
 
-        final RadiusPacket responsePacket = new RadiusPacket(dictionary, 4, 1)
-                .encodeResponse(secret, requestPacket.getAuthenticator());
-
+        // encode
         final List<Object> out2 = new ArrayList<>();
         codec.encode(ctx, requestCtx.withResponse(responsePacket), out2);
         assertEquals(1, out2.size());
 
+        // check encoded
         final DatagramPacket response = (DatagramPacket) out2.get(0);
         assertArrayEquals(response.content().array(),
-                packetEncoder.toDatagram(responsePacket, remoteAddress, address).content().array());
+                packetEncoder.toDatagram(responsePacket.encodeResponse(secret, requestPacket.getAuthenticator()), remoteAddress, address).content().array());
     }
 }

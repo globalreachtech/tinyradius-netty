@@ -446,6 +446,26 @@ public class AccessRequest extends RadiusPacket {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AccessRequest)) return false;
+        if (!super.equals(o)) return false;
+        AccessRequest that = (AccessRequest) o;
+        return Objects.equals(authProtocol, that.authProtocol) &&
+                Objects.equals(password, that.password) &&
+                Arrays.equals(chapPassword, that.chapPassword) &&
+                Arrays.equals(chapChallenge, that.chapChallenge);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(super.hashCode(), authProtocol, password);
+        result = 31 * result + Arrays.hashCode(chapPassword);
+        result = 31 * result + Arrays.hashCode(chapChallenge);
+        return result;
+    }
+
+    @Override
     public AccessRequest copy() {
         return copyTransientFields((AccessRequest) super.copy());
     }

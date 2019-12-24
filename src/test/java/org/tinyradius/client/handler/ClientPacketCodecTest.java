@@ -110,6 +110,7 @@ class ClientPacketCodecTest {
                 (DatagramPacket) out1.get(0), secret);
 
         // check user details correctly encoded
+        assertEquals(id, sentAccessPacket.getIdentifier());
         assertEquals(username, sentAccessPacket.getUserName());
         assertEquals(password, sentAccessPacket.getUserPassword());
     }

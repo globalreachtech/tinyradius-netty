@@ -453,7 +453,7 @@ public class RadiusPacket {
             throw new RadiusException("Authenticator check failed (bad authenticator or shared secret)");
     }
 
-    MessageDigest getMd5Digest() {
+    static MessageDigest getMd5Digest() {
         try {
             return MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
@@ -495,6 +495,25 @@ public class RadiusPacket {
             s.append(attr.toString());
         }
         return s.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RadiusPacket)) return false;
+        RadiusPacket that = (RadiusPacket) o;
+        return type == that.type &&
+                identifier == that.identifier &&
+                Objects.equals(attributes, that.attributes) &&
+                Arrays.equals(authenticator, that.authenticator) &&
+                Objects.equals(dictionary, that.dictionary);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(type, identifier, attributes, dictionary);
+        result = 31 * result + Arrays.hashCode(authenticator);
+        return result;
     }
 
     public RadiusPacket copy() {
