@@ -16,7 +16,7 @@ import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
-import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
@@ -47,7 +47,7 @@ class ClientPacketCodecTest {
     private Promise<RadiusPacket> promise;
 
     @Test
-    void decodeSuccess() throws RadiusException {
+    void decodeSuccess() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
@@ -62,7 +62,7 @@ class ClientPacketCodecTest {
     }
 
     @Test
-    void decodeRadiusException() throws RadiusException {
+    void decodeRadiusException() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
@@ -79,7 +79,7 @@ class ClientPacketCodecTest {
     }
 
     @Test
-    void decodeRemoteAddressNull() throws RadiusException {
+    void decodeRemoteAddressNull() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
@@ -92,7 +92,7 @@ class ClientPacketCodecTest {
     }
 
     @Test
-    void encodeAccessRequest() throws RadiusException {
+    void encodeAccessRequest() throws RadiusPacketException {
         final String secret = UUID.randomUUID().toString();
         final String username = "myUsername";
         final String password = "myPassword";
@@ -141,7 +141,7 @@ class ClientPacketCodecTest {
         // check
         ArgumentCaptor<Exception> e = ArgumentCaptor.forClass(Exception.class);
         verify(promise).tryFailure(e.capture());
-        assertEquals(RadiusException.class, e.getValue().getClass());
+        assertEquals(RadiusPacketException.class, e.getValue().getClass());
         assertEquals(0, out1.size());
     }
 }

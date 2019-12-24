@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -39,7 +39,7 @@ class AccessRequestTest {
     }
 
     @Test
-    void verifyDecodesPassword() throws RadiusException {
+    void verifyDecodesPassword() throws RadiusPacketException {
         String user = "user1";
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
@@ -83,7 +83,7 @@ class AccessRequestTest {
     }
 
     @Test
-    void decodePapPassword() throws RadiusException {
+    void decodePapPassword() throws RadiusPacketException {
         String user = "user2";
         String plaintextPw = "myPassword2";
         String sharedSecret = "sharedSecret2";
@@ -137,7 +137,7 @@ class AccessRequestTest {
     }
 
     @Test
-    void verifyChapPassword() throws NoSuchAlgorithmException, RadiusException {
+    void verifyChapPassword() throws NoSuchAlgorithmException, RadiusPacketException {
         String plaintextPw = "password123456789";
 
         final int chapId = random.nextInt(256);

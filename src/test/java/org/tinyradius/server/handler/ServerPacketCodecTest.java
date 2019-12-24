@@ -13,7 +13,7 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestCtx;
-import org.tinyradius.util.RadiusException;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ class ServerPacketCodecTest {
     }
 
     @Test
-    void decodeExceptionDropPacket() throws RadiusException {
+    void decodeExceptionDropPacket() throws RadiusPacketException {
         final RadiusPacket request = new RadiusPacket(dictionary, 4, 1).encodeRequest("mySecret");
         final DatagramPacket datagram = packetEncoder.toDatagram(request, address);
         final ServerPacketCodec codec = new ServerPacketCodec(packetEncoder, x -> "bad secret");
@@ -59,7 +59,7 @@ class ServerPacketCodecTest {
     }
 
     @Test
-    void decodeEncodeSuccess() throws RadiusException {
+    void decodeEncodeSuccess() throws RadiusPacketException {
         final String secret = "mySecret";
         final ServerPacketCodec codec = new ServerPacketCodec(packetEncoder, address -> secret);
         when(ctx.channel()).thenReturn(mock(Channel.class));
