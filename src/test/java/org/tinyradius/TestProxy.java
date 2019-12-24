@@ -94,7 +94,7 @@ public class TestProxy {
                 channelInitializer, channelInitializer,
                 new InetSocketAddress(11812), new InetSocketAddress(11813));
 
-        proxy.start().addListener(future1 -> {
+        proxy.isReady().addListener(future1 -> {
             if (future1.isSuccess()) {
                 logger.info("Server started.");
             } else {

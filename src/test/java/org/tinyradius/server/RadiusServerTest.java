@@ -32,20 +32,13 @@ class RadiusServerTest {
     void serverStartStop() throws InterruptedException {
         final RadiusServer server = new RadiusServer(bootstrap, authHandler, acctHandler, new InetSocketAddress(1024), new InetSocketAddress(1025));
 
-        // not registered with eventLoop
-        assertFalse(server.getAcctChannel().isRegistered());
-        assertFalse(server.getAuthChannel().isRegistered());
+        // registering event loop and adding handlers is almost instant
 
         // not bound to socket
         assertNull(server.getAcctChannel().localAddress());
         assertNull(server.getAuthChannel().localAddress());
 
-        // no handlers registered
-        String TAIL_CONTEXT = "DefaultChannelPipeline$TailContext#0";
-        assertEquals(Collections.singletonList(TAIL_CONTEXT), server.getAcctChannel().pipeline().names());
-        assertEquals(Collections.singletonList(TAIL_CONTEXT), server.getAuthChannel().pipeline().names());
-
-        server.start().syncUninterruptibly();
+        server.isReady().syncUninterruptibly();
 
         // registered with eventLoop
         assertTrue(server.getAcctChannel().isRegistered());
@@ -56,13 +49,14 @@ class RadiusServerTest {
         assertNotNull(server.getAuthChannel().localAddress());
 
         // handlers registered
-        final List<String> acctPipeline = server.getAcctChannel().pipeline().names();
-        assertEquals(TAIL_CONTEXT, acctPipeline.get(1));
-        assertTrue(acctPipeline.get(0).contains("HandlerAdapter$MockitoMock$"));
+        String TAIL_CONTEXT = "DefaultChannelPipeline$TailContext#0";
+        final List<String> accountingPipeline = server.getAcctChannel().pipeline().names();
+        assertEquals(TAIL_CONTEXT, accountingPipeline.get(1));
+        assertTrue(accountingPipeline.get(0).contains("ChannelHandler$MockitoMock$"));
 
-        final List<String> authPipeline = server.getAuthChannel().pipeline().names();
-        assertEquals(TAIL_CONTEXT, authPipeline.get(1));
-        assertTrue(authPipeline.get(0).contains("HandlerAdapter$MockitoMock$"));
+        final List<String> accessPipeline = server.getAuthChannel().pipeline().names();
+        assertEquals(TAIL_CONTEXT, accessPipeline.get(1));
+        assertTrue(accessPipeline.get(0).contains("ChannelHandler$MockitoMock$"));
 
         server.close();
         Thread.sleep(500);

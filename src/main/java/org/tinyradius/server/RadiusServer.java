@@ -23,7 +23,7 @@ public class RadiusServer implements Closeable {
 
     private final ChannelFuture accessFuture;
     private final ChannelFuture accountingFuture;
-    private final Promise<Void> serverStatus;
+    private final Promise<Void> isReady;
 
     /**
      * @param accessHandler     ChannelHandler to handle requests received on authSocket
@@ -39,14 +39,20 @@ public class RadiusServer implements Closeable {
         accessFuture = bootstrap.clone().handler(accessHandler).bind(accessSocket);
         accountingFuture = bootstrap.clone().handler(accountingHandler).bind(accountingSocket);
 
-        serverStatus = bootstrap.config().group().next().newPromise();
+        isReady = bootstrap.config().group().next().newPromise();
         final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
         combiner.addAll(accessFuture, accountingFuture);
-        combiner.finish(serverStatus);
+        combiner.finish(isReady);
+        isReady.addListener(f -> {
+            if (f.isSuccess())
+                logger.info("Server started on {} and {}", accessFuture.channel().localAddress(), accountingFuture.channel().localAddress());
+            else
+                logger.info("Could not start server on {} and {}", accessFuture.channel().localAddress(), accountingFuture.channel().localAddress());
+        });
     }
 
-    public Future<Void> start() {
-        return serverStatus;
+    public Future<Void> isReady() {
+        return isReady;
     }
 
     public Channel getAuthChannel() {
@@ -59,6 +65,7 @@ public class RadiusServer implements Closeable {
 
     @Override
     public void close() {
+        logger.info("Closing server on {} and {}", accessFuture.channel().localAddress(), accountingFuture.channel().localAddress());
         accessFuture.channel().close();
         accountingFuture.channel().close();
     }

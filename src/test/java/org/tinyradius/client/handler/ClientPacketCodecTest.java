@@ -6,6 +6,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.client.RequestCtxWrapper;
@@ -23,10 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static net.jradius.packet.attribute.AttributeDictionary.USER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 
 @ExtendWith(MockitoExtension.class)
 class ClientPacketCodecTest {
@@ -117,9 +119,29 @@ class ClientPacketCodecTest {
 
     @Test
     void encodeRadiusException() {
-        throw new RuntimeException();
-        // check promise
-        // check nothing sent
+        final String secret = UUID.randomUUID().toString();
+        final String username = "myUsername";
+        final String password = "myPassword";
+        int id = random.nextInt(256);
 
+        final RadiusPacket packet = new AccessRequest(dictionary, id, null, username, password);
+        final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
+
+        when(ctx.channel()).thenReturn(mock(Channel.class));
+
+        // make packet too long to force encoder error
+        for (int i = 0; i < 4000; i++) {
+            packet.addAttribute(createAttribute(dictionary, -1, USER_NAME, username));
+        }
+
+        // process
+        final List<Object> out1 = new ArrayList<>();
+        codec.encode(ctx, new RequestCtxWrapper(packet, endpoint, promise), out1);
+
+        // check
+        ArgumentCaptor<Exception> e = ArgumentCaptor.forClass(Exception.class);
+        verify(promise).tryFailure(e.capture());
+        assertEquals(RadiusException.class, e.getValue().getClass());
+        assertEquals(0, out1.size());
     }
 }

@@ -65,7 +65,7 @@ public class TestServer {
                 },
                 new InetSocketAddress(11812), new InetSocketAddress(11813));
 
-        server.start().addListener(future1 -> {
+        server.isReady().addListener(future1 -> {
             if (future1.isSuccess()) {
                 logger.info("Server started");
             } else {

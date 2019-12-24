@@ -1,23 +1,14 @@
 package org.tinyradius.server.handler;
 
-import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
-import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.RadiusClient;
-import org.tinyradius.client.retry.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
@@ -28,16 +19,12 @@ import org.tinyradius.server.ServerResponseCtx;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
-import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
 
@@ -45,14 +32,11 @@ import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
 class ProxyHandlerTest {
 
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private final SecureRandom random = new SecureRandom();
 
-    private final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);
-    private final Timer timer = new HashedWheelTimer();
+    private final RadiusEndpoint stubEndpoint = new RadiusEndpoint(new InetSocketAddress(0), "shared");
 
-    private final Bootstrap bootstrap = new Bootstrap().group(eventExecutors).channel(NioDatagramChannel.class);
-
-    private final MockClient radiusClient = new MockClient(bootstrap, timer);
+    @Mock
+    private RadiusClient client;
 
     @Mock
     private ChannelHandlerContext ctx;
@@ -61,82 +45,58 @@ class ProxyHandlerTest {
     private ArgumentCaptor<ServerResponseCtx> responseCaptor;
 
     @Test
-    void handleSuccessfulPacket() {
-        final int id = random.nextInt(256);
-
-        ProxyHandler proxyHandler = new ProxyHandler(radiusClient) {
+    void handleSuccess() {
+        ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
-                return Optional.of(new RadiusEndpoint(new InetSocketAddress(0), "shared"));
+                return Optional.of(stubEndpoint);
             }
         };
 
-        final AccountingRequest packet = new AccountingRequest(dictionary, id, null, Arrays.asList(
-                createAttribute(dictionary, -1, 33, "state1".getBytes(UTF_8)),
-                createAttribute(dictionary, -1, 33, "state2".getBytes(UTF_8))));
-        final RequestCtx requestCtx = new RequestCtx(packet, new RadiusEndpoint(new InetSocketAddress(0), "shared"));
+        final AccountingRequest request = new AccountingRequest(dictionary, 1, null);
+        final RadiusPacket mockResponse = new RadiusPacket(dictionary, ACCOUNTING_RESPONSE, 123);
+        mockResponse.addAttribute(createAttribute(dictionary, -1, 33, "state1".getBytes(UTF_8)));
 
-        proxyHandler.channelRead0(ctx, requestCtx);
+        when(client.communicate(any(), any())).thenReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(mockResponse));
+
+        proxyHandler.channelRead0(ctx, new RequestCtx(request, stubEndpoint));
 
         verify(ctx).writeAndFlush(responseCaptor.capture());
-
-        final ServerResponseCtx value = responseCaptor.getValue();
-        final RadiusPacket response = value.getResponse();
-        assertEquals(id, response.getIdentifier());
-        assertEquals(ACCOUNTING_RESPONSE, response.getType());
-        assertEquals(Arrays.asList("state1", "state2"), response.getAttributes().stream()
-                .map(RadiusAttribute::getValue)
-                .map(String::new)
-                .collect(Collectors.toList()));
+        assertEquals(mockResponse, responseCaptor.getValue().getResponse());
     }
 
     @Test
-    void handlePacketWithTimeout() {
-        ProxyHandler proxyHandler = new ProxyHandler(radiusClient) {
+    void handleRadiusClientError() {
+        ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
-                return Optional.of(new RadiusEndpoint(new InetSocketAddress(0), "shared"));
+                return Optional.of(stubEndpoint);
             }
         };
 
-        final AccessRequest packet = new AccessRequest(dictionary, 123, null, "user", "user-pw");
-        final RequestCtx requestCtx = new RequestCtx(packet, new RadiusEndpoint(new InetSocketAddress(0), "shared"));
+        when(client.communicate(any(), any())).thenReturn(GlobalEventExecutor.INSTANCE.newFailedFuture(new Exception("test")));
 
-        proxyHandler.channelRead0(ctx, requestCtx);
+        final AccessRequest packet = new AccessRequest(dictionary, 123, null);
+
+        proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
+
         verifyNoInteractions(ctx);
     }
 
     @Test
-    void handlePacketNullServerEndPoint() {
+    void handleNullServerEndPoint() {
 
-        ProxyHandler proxyHandler = new ProxyHandler(radiusClient) {
+        ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
                 return Optional.empty();
             }
         };
 
-        final AccountingRequest packet = new AccountingRequest(dictionary, 456, null, Collections.emptyList());
-        final RequestCtx requestCtx = new RequestCtx(packet, new RadiusEndpoint(new InetSocketAddress(0), "shared"));
+        final AccountingRequest packet = new AccountingRequest(dictionary, 123, null, Collections.emptyList());
 
-        proxyHandler.channelRead0(ctx, requestCtx);
+        proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
+
         verifyNoInteractions(ctx);
     }
-
-    private static class MockClient extends RadiusClient {
-
-        private final EventLoopGroup eventExecutors;
-
-        public MockClient(Bootstrap bootstrap, Timer timer) {
-            super(bootstrap, new InetSocketAddress(0), new BasicTimeoutHandler(timer), new ChannelInboundHandlerAdapter());
-            this.eventExecutors = bootstrap.config().group();
-        }
-
-        public Future<RadiusPacket> communicate(RadiusPacket packet, RadiusEndpoint endpoint) {
-            RadiusPacket radiusPacket = new RadiusPacket(
-                    packet.getDictionary(), ACCOUNTING_RESPONSE, packet.getIdentifier(), packet.getAttributes());
-            return eventExecutors.next().newSucceededFuture(radiusPacket);
-        }
-    }
-
 }

@@ -12,6 +12,7 @@ import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusPackets;
 import org.tinyradius.server.RequestCtx;
+import org.tinyradius.server.ServerResponseCtx;
 
 import java.util.ArrayList;
 
@@ -30,12 +31,12 @@ class CachingHandlerTest {
 
     @Test
     void timeoutTest() throws InterruptedException {
-        final CachingHandler<RequestCtx, RequestCtx> cachingHandler =
+        final CachingHandler<RequestCtx, ServerResponseCtx> cachingHandler =
                 new CachingHandler<>(new HashedWheelTimer(), 500);
 
         final RadiusPacket request = new AccessRequest(dictionary, 100, null).encodeRequest("test");
         final RequestCtx requestCtx = new RequestCtx(request, null);
-        final RequestCtx responseContext = requestCtx.withResponse(RadiusPackets.create(dictionary, ACCESS_ACCEPT, 100));
+        final ServerResponseCtx responseContext = requestCtx.withResponse(RadiusPackets.create(dictionary, ACCESS_ACCEPT, 100));
 
         // cache miss
         final ArrayList<Object> out1 = new ArrayList<>();
