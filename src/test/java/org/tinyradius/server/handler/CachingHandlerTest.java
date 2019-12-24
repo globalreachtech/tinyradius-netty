@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.tinyradius.packet.PacketType.ACCESS_ACCEPT;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,7 +32,7 @@ class CachingHandlerTest {
     private ChannelHandlerContext ctx;
 
     @Test
-    void timeoutTest() throws InterruptedException {
+    void cacheHitAndTimeout() throws InterruptedException {
         final CachingHandler<RequestCtx, ServerResponseCtx> cachingHandler =
                 new CachingHandler<>(new HashedWheelTimer(), 500, RequestCtx.class, ServerResponseCtx.class);
 
@@ -56,17 +56,18 @@ class CachingHandlerTest {
         final ArrayList<Object> out3 = new ArrayList<>();
         cachingHandler.encode(ctx, responseContext, out3);
 
+        verifyNoInteractions(ctx);
+
         // cache hit
         final ArrayList<Object> out4 = new ArrayList<>();
         cachingHandler.decode(ctx, requestCtx, out4);
         assertEquals(0, out4.size());
-        verify(ctx).writeAndFlush(responseContext);
 
         // cache hit again
         final ArrayList<Object> out5 = new ArrayList<>();
         cachingHandler.decode(ctx, requestCtx, out5);
         assertEquals(0, out5.size());
-        verify(ctx).writeAndFlush(responseContext);
+        verify(ctx, times(2)).writeAndFlush(responseContext);
 
         // cache timeout
         Thread.sleep(1000);
