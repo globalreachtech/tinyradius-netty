@@ -13,7 +13,9 @@ import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusPackets;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ServerResponseCtx;
+import org.tinyradius.util.RadiusEndpoint;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,10 +34,10 @@ class CachingHandlerTest {
     @Test
     void timeoutTest() throws InterruptedException {
         final CachingHandler<RequestCtx, ServerResponseCtx> cachingHandler =
-                new CachingHandler<>(new HashedWheelTimer(), 500);
+                new CachingHandler<>(new HashedWheelTimer(), 500, RequestCtx.class, ServerResponseCtx.class);
 
         final RadiusPacket request = new AccessRequest(dictionary, 100, null).encodeRequest("test");
-        final RequestCtx requestCtx = new RequestCtx(request, null);
+        final RequestCtx requestCtx = new RequestCtx(request, new RadiusEndpoint(new InetSocketAddress(0), "foo"));
         final ServerResponseCtx responseContext = requestCtx.withResponse(RadiusPackets.create(dictionary, ACCESS_ACCEPT, 100));
 
         // cache miss

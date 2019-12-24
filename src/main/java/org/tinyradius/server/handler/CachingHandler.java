@@ -26,13 +26,19 @@ public class CachingHandler<INBOUND extends RequestCtx, OUTBOUND extends ServerR
 
     private final Map<Packet, OUTBOUND> requests = new ConcurrentHashMap<>();
 
-    public CachingHandler(Timer timer, int ttlMs) {
+    /**
+     * @param timer         for cache eviction
+     * @param ttlMs         time for items to stay cached after being returned, in milliseconds
+     * @param inboundClass  explicit class due to type erasure
+     * @param outboundClass explicit class due to type erasure
+     */
+    public CachingHandler(Timer timer, int ttlMs, Class<INBOUND> inboundClass, Class<OUTBOUND> outboundClass) {
+        super(inboundClass, outboundClass);
         this.timer = timer;
         this.ttlMs = ttlMs;
     }
 
     /**
-     *
      * @param ctx            ChannelHandlerContext
      * @param requestContext Inbound request context
      * @return request context to forward

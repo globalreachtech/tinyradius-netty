@@ -33,11 +33,7 @@ class RadiusServerTest {
         final RadiusServer server = new RadiusServer(bootstrap, authHandler, acctHandler, new InetSocketAddress(1024), new InetSocketAddress(1025));
 
         // registering event loop and adding handlers is almost instant
-
-        // not bound to socket
-        assertNull(server.getAcctChannel().localAddress());
-        assertNull(server.getAuthChannel().localAddress());
-
+        // socket binding is variable, possible race condition, so we sync
         server.isReady().syncUninterruptibly();
 
         // registered with eventLoop

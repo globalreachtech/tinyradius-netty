@@ -45,7 +45,7 @@ class ProxyHandlerTest {
     private ArgumentCaptor<ServerResponseCtx> responseCaptor;
 
     @Test
-    void handleSuccess() {
+    void handleSuccess() throws InterruptedException {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
@@ -61,12 +61,14 @@ class ProxyHandlerTest {
 
         proxyHandler.channelRead0(ctx, new RequestCtx(request, stubEndpoint));
 
+        Thread.sleep(200);
+
         verify(ctx).writeAndFlush(responseCaptor.capture());
         assertEquals(mockResponse, responseCaptor.getValue().getResponse());
     }
 
     @Test
-    void handleRadiusClientError() {
+    void handleRadiusClientError() throws InterruptedException {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
@@ -79,6 +81,8 @@ class ProxyHandlerTest {
         final AccessRequest packet = new AccessRequest(dictionary, 123, null);
 
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
+
+        Thread.sleep(200);
 
         verifyNoInteractions(ctx);
     }
