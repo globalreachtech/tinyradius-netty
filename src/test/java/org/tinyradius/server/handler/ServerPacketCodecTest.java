@@ -20,39 +20,50 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ServerPacketCodecTest {
 
-
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
+
+    private final InetSocketAddress address = new InetSocketAddress(0);
 
     @Mock
     private ChannelHandlerContext ctx;
 
     @Test
-    void inboundUnknownClientSecret() {
-        final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(packetEncoder, address -> null);
-        final DatagramPacket datagram = new DatagramPacket(Unpooled.buffer(0), new InetSocketAddress(0));
+    void decodeUnknownSecret() {
+        final ServerPacketCodec codec = new ServerPacketCodec(packetEncoder, address -> null);
+        final DatagramPacket datagram = new DatagramPacket(Unpooled.buffer(0), address);
 
         final List<Object> out = new ArrayList<>();
-        serverPacketCodec.decode(ctx, datagram, out);
+        codec.decode(ctx, datagram, out);
 
         assertEquals(0, out.size());
+    }
+
+    @Test
+    void decodeExceptionDropPacket() throws RadiusException {
+        final RadiusPacket request = new RadiusPacket(dictionary, 4, 1).encodeRequest("mySecret");
+        final DatagramPacket datagram = packetEncoder.toDatagram(request, address);
+        final ServerPacketCodec codec = new ServerPacketCodec(packetEncoder, x -> "bad secret");
+
+        final List<Object> out1 = new ArrayList<>();
+        codec.decode(ctx, datagram, out1);
+
+        assertEquals(0, out1.size());
     }
 
     @Test
     void requestHandlerSuccess() throws RadiusException {
         final String secret = "mySecret";
         final RadiusPacket requestPacket = new RadiusPacket(dictionary, 3, 1).encodeRequest(secret);
-        final InetSocketAddress localAddress = new InetSocketAddress(0);
         final InetSocketAddress remoteAddress = new InetSocketAddress(1);
 
         final ServerPacketCodec codec = new ServerPacketCodec(packetEncoder, address -> secret);
 
-        final DatagramPacket request = packetEncoder.toDatagram(requestPacket, localAddress, remoteAddress);
+        final DatagramPacket request = packetEncoder.toDatagram(requestPacket, address, remoteAddress);
 
         final ArrayList<Object> out1 = new ArrayList<>();
         codec.decode(ctx, request, out1);
@@ -63,6 +74,8 @@ class ServerPacketCodecTest {
         assertEquals(secret, requestCtx.getEndpoint().getSecret());
         assertEquals(requestPacket, requestCtx.getRequest());
 
+        // todo split?
+
         final RadiusPacket responsePacket = new RadiusPacket(dictionary, 4, 1)
                 .encodeResponse(secret, requestPacket.getAuthenticator());
 
@@ -72,22 +85,6 @@ class ServerPacketCodecTest {
 
         final DatagramPacket response = (DatagramPacket) out2.get(0);
         assertArrayEquals(response.content().array(),
-                packetEncoder.toDatagram(responsePacket, remoteAddress, localAddress).content().array());
-    }
-
-    @Test
-    void exceptionDropPacket() throws RadiusException {
-        final RadiusPacket request = new RadiusPacket(dictionary, 4, 1).encodeRequest("mySecret");
-
-        final ServerPacketCodec codec = new ServerPacketCodec(packetEncoder, x -> "");
-
-        final List<Object> out1 = new ArrayList<>();
-        codec.decode(ctx, packetEncoder.toDatagram(request, new InetSocketAddress(0)), out1);
-        assertEquals(0, out1.size());
-
-        verify(ctx, never()).write(any());
-        verify(ctx, never()).write(any(), any());
-        verify(ctx, never()).writeAndFlush(any());
-        verify(ctx, never()).writeAndFlush(any(), any());
+                packetEncoder.toDatagram(responsePacket, remoteAddress, address).content().array());
     }
 }

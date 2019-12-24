@@ -35,7 +35,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Req
             out.add(datagramPacket);
             logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
         } catch (RadiusException e) {
-            logger.warn(e.getMessage());
+            logger.warn("Could not encode Radius packet: {}", e.getMessage());
             msg.getResponse().tryFailure(e);
         }
     }
@@ -56,7 +56,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Req
 
             out.add(packet);
         } catch (RadiusException e) {
-            logger.warn(e.getMessage());
+            logger.warn("Could not decode Radius packet: {}", e.getMessage());
         }
     }
 }
