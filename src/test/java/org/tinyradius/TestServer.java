@@ -78,7 +78,6 @@ public class TestServer {
         System.in.read();
 
         server.close();
-
         eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
     }
 }

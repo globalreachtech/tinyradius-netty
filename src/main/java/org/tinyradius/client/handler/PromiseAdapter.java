@@ -40,10 +40,13 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, RequestC
     @Override
     protected void encode(ChannelHandlerContext ctx, RequestCtxWrapper msg, List<Object> out) {
         final RadiusPacket packet = msg.getRequest().copy();
-
         final String requestId = nextProxyStateId();
+
         packet.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
         final RadiusPacket encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
+
+        if (msg.getResponse().isDone())
+            return;
 
         msg.getResponse().addListener(f -> requests.remove(requestId));
 

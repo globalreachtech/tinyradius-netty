@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,15 +26,13 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var methods = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../";
-var useModuleDirectories = true;
-loadScripts(document, 'script');</script>
+var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -51,7 +48,7 @@ loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -61,13 +58,21 @@ loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/server/RequestCtx.html" target="_top">Frames</a></li>
+<li><a href="RequestCtx.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" disabled="disabled">
-<input type="reset" id="reset" value="reset" disabled="disabled">
+<li><span>SEARCH:&nbsp;</span>
+<input type="text" id="search" value=" " disabled="disabled">
+<input type="reset" id="reset" value=" " disabled="disabled">
 </li>
 </ul>
 <div>
@@ -115,7 +120,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.server</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../org/tinyradius/server/package-summary.html">org.tinyradius.server</a></div>
 <h2 title="Class RequestCtx" class="title">Class RequestCtx</h2>
 </div>
 <div class="contentContainer">
@@ -132,9 +137,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="../client/RequestCtxWrapper.html" title="class in org.tinyradius.client">RequestCtxWrapper</a></code>, <code><a href="ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client">RequestCtxWrapper</a></code>, <code><a href="../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a></code></dd>
 </dl>
 <hr>
+<br>
 <pre>public class <span class="typeNameLabel">RequestCtx</span>
 extends java.lang.Object</pre>
 </li>
@@ -157,8 +163,8 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)">RequestCtx</a></span>&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request,
-          <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RequestCtx.html#RequestCtx-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-">RequestCtx</a></span>&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request,
+          <a href="../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -180,18 +186,18 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEndpoint()">getEndpoint</a></span>()</code></th>
+<td class="colFirst"><code><a href="../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RequestCtx.html#getEndpoint--">getEndpoint</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRequest()">getRequest</a></span>()</code></th>
+<td class="colFirst"><code><a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RequestCtx.html#getRequest--">getRequest</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withResponse(org.tinyradius.packet.RadiusPacket)">withResponse</a></span>&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;response)</code></th>
+<td class="colFirst"><code><a href="../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/server/RequestCtx.html#withResponse-org.tinyradius.packet.RadiusPacket-">withResponse</a></span>&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;response)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -218,14 +224,14 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)">
+<a id="RequestCtx-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>RequestCtx</h4>
-<pre>public&nbsp;RequestCtx&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request,
-                  <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</pre>
+<pre>public&nbsp;RequestCtx&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request,
+                  <a href="../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</pre>
 </li>
 </ul>
 </li>
@@ -238,31 +244,31 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getRequest()">
+<a id="getRequest--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getRequest</h4>
-<pre class="methodSignature">public&nbsp;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;getRequest()</pre>
+<pre>public&nbsp;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;getRequest&#8203;()</pre>
 </li>
 </ul>
-<a id="getEndpoint()">
+<a id="getEndpoint--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getEndpoint</h4>
-<pre class="methodSignature">public&nbsp;<a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;getEndpoint()</pre>
+<pre>public&nbsp;<a href="../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;getEndpoint&#8203;()</pre>
 </li>
 </ul>
-<a id="withResponse(org.tinyradius.packet.RadiusPacket)">
+<a id="withResponse-org.tinyradius.packet.RadiusPacket-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>withResponse</h4>
-<pre class="methodSignature">public&nbsp;<a href="ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&nbsp;withResponse&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;response)</pre>
+<pre>public&nbsp;<a href="../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&nbsp;withResponse&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;response)</pre>
 </li>
 </ul>
 </li>
@@ -285,7 +291,7 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -295,8 +301,16 @@ extends java.lang.Object</pre>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/server/RadiusServer.html" title="class in org.tinyradius.server"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../org/tinyradius/server/SecretProvider.html" title="interface in org.tinyradius.server"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/server/RequestCtx.html" target="_top">Frames</a></li>
+<li><a href="RequestCtx.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--

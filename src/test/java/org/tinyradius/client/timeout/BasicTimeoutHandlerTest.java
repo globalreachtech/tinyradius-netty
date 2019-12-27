@@ -1,4 +1,4 @@
-package org.tinyradius.client.retry;
+package org.tinyradius.client.timeout;
 
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;

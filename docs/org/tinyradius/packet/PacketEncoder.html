@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,15 +26,13 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../";
-var useModuleDirectories = true;
-loadScripts(document, 'script');</script>
+var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -51,7 +48,7 @@ loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -61,13 +58,21 @@ loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/packet/PacketEncoder.html" target="_top">Frames</a></li>
+<li><a href="PacketEncoder.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" disabled="disabled">
-<input type="reset" id="reset" value="reset" disabled="disabled">
+<li><span>SEARCH:&nbsp;</span>
+<input type="text" id="search" value=" " disabled="disabled">
+<input type="reset" id="reset" value=" " disabled="disabled">
 </li>
 </ul>
 <div>
@@ -115,7 +120,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.packet</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../org/tinyradius/packet/package-summary.html">org.tinyradius.packet</a></div>
 <h2 title="Class PacketEncoder" class="title">Class PacketEncoder</h2>
 </div>
 <div class="contentContainer">
@@ -131,6 +136,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
+<br>
 <pre>public class <span class="typeNameLabel">PacketEncoder</span>
 extends java.lang.Object</pre>
 <div class="block">To encode/decode packets to/from Datagram.
@@ -158,7 +164,7 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(org.tinyradius.dictionary.Dictionary)">PacketEncoder</a></span>&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/PacketEncoder.html#PacketEncoder-org.tinyradius.dictionary.Dictionary-">PacketEncoder</a></span>&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -180,21 +186,21 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromByteBuf(io.netty.buffer.ByteBuf)">fromByteBuf</a></span>&#8203;(io.netty.buffer.ByteBuf&nbsp;byteBuf)</code></th>
+<td class="colFirst"><code><a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/PacketEncoder.html#fromByteBuf-io.netty.buffer.ByteBuf-">fromByteBuf</a></span>&#8203;(io.netty.buffer.ByteBuf&nbsp;byteBuf)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromDatagram(io.netty.channel.socket.DatagramPacket)">fromDatagram</a></span>&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagram)</code></th>
+<td class="colFirst"><code><a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/PacketEncoder.html#fromDatagram-io.netty.channel.socket.DatagramPacket-">fromDatagram</a></span>&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagram)</code></th>
 <td class="colLast">
 <div class="block">Reads a Radius packet from the given input stream and
  creates an appropriate RadiusPacket/subclass.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromDatagram(io.netty.channel.socket.DatagramPacket,java.lang.String)">fromDatagram</a></span>&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;packet,
+<td class="colFirst"><code><a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/PacketEncoder.html#fromDatagram-io.netty.channel.socket.DatagramPacket-java.lang.String-">fromDatagram</a></span>&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;packet,
             java.lang.String&nbsp;sharedSecret)</code></th>
 <td class="colLast">
 <div class="block">Reads a request from the given input stream and
@@ -202,10 +208,10 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromDatagram(io.netty.channel.socket.DatagramPacket,java.lang.String,org.tinyradius.packet.RadiusPacket)">fromDatagram</a></span>&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagram,
+<td class="colFirst"><code><a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/PacketEncoder.html#fromDatagram-io.netty.channel.socket.DatagramPacket-java.lang.String-org.tinyradius.packet.RadiusPacket-">fromDatagram</a></span>&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagram,
             java.lang.String&nbsp;sharedSecret,
-            <a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request)</code></th>
+            <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request)</code></th>
 <td class="colLast">
 <div class="block">Reads a response from the given input stream and
  creates an appropriate RadiusPacket/subclass.</div>
@@ -213,18 +219,18 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>io.netty.buffer.ByteBuf</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toByteBuf(org.tinyradius.packet.RadiusPacket)">toByteBuf</a></span>&#8203;(<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/PacketEncoder.html#toByteBuf-org.tinyradius.packet.RadiusPacket-">toByteBuf</a></span>&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>io.netty.channel.socket.DatagramPacket</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toDatagram(org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress)">toDatagram</a></span>&#8203;(<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/PacketEncoder.html#toDatagram-org.tinyradius.packet.RadiusPacket-java.net.InetSocketAddress-">toDatagram</a></span>&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
           java.net.InetSocketAddress&nbsp;recipient)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>io.netty.channel.socket.DatagramPacket</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toDatagram(org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.net.InetSocketAddress)">toDatagram</a></span>&#8203;(<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/packet/PacketEncoder.html#toDatagram-org.tinyradius.packet.RadiusPacket-java.net.InetSocketAddress-java.net.InetSocketAddress-">toDatagram</a></span>&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
           java.net.InetSocketAddress&nbsp;recipient,
           java.net.InetSocketAddress&nbsp;sender)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -253,13 +259,13 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(org.tinyradius.dictionary.Dictionary)">
+<a id="PacketEncoder-org.tinyradius.dictionary.Dictionary-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>PacketEncoder</h4>
-<pre>public&nbsp;PacketEncoder&#8203;(<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary)</pre>
+<pre>public&nbsp;PacketEncoder&#8203;(<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;dictionary)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dictionary</code> - dictionary to use for attributes</dd>
@@ -276,15 +282,15 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="toDatagram(org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress)">
+<a id="toDatagram-org.tinyradius.packet.RadiusPacket-java.net.InetSocketAddress-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>toDatagram</h4>
-<pre class="methodSignature">public&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;toDatagram&#8203;(<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+<pre>public&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;toDatagram&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
                                                          java.net.InetSocketAddress&nbsp;recipient)
-                                                  throws <a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
+                                                  throws <a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>packet</code> - packet to convert</dd>
@@ -292,20 +298,20 @@ extends java.lang.Object</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>converted DatagramPacket</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code> - if packet could not be encoded/serialized to datagram</dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code> - if packet could not be encoded/serialized to datagram</dd>
 </dl>
 </li>
 </ul>
-<a id="toDatagram(org.tinyradius.packet.RadiusPacket,java.net.InetSocketAddress,java.net.InetSocketAddress)">
+<a id="toDatagram-org.tinyradius.packet.RadiusPacket-java.net.InetSocketAddress-java.net.InetSocketAddress-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>toDatagram</h4>
-<pre class="methodSignature">public&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;toDatagram&#8203;(<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+<pre>public&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;toDatagram&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
                                                          java.net.InetSocketAddress&nbsp;recipient,
                                                          java.net.InetSocketAddress&nbsp;sender)
-                                                  throws <a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
+                                                  throws <a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>packet</code> - packet to convert</dd>
@@ -314,32 +320,32 @@ extends java.lang.Object</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>converted DatagramPacket</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code> - if packet could not be encoded/serialized to datagram</dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code> - if packet could not be encoded/serialized to datagram</dd>
 </dl>
 </li>
 </ul>
-<a id="toByteBuf(org.tinyradius.packet.RadiusPacket)">
+<a id="toByteBuf-org.tinyradius.packet.RadiusPacket-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>toByteBuf</h4>
-<pre class="methodSignature">public&nbsp;io.netty.buffer.ByteBuf&nbsp;toByteBuf&#8203;(<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet)
-                                  throws <a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
+<pre>public&nbsp;io.netty.buffer.ByteBuf&nbsp;toByteBuf&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet)
+                                  throws <a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code></dd>
 </dl>
 </li>
 </ul>
-<a id="fromDatagram(io.netty.channel.socket.DatagramPacket)">
+<a id="fromDatagram-io.netty.channel.socket.DatagramPacket-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>fromDatagram</h4>
-<pre class="methodSignature">public&nbsp;<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;fromDatagram&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagram)
-                          throws <a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
+<pre>public&nbsp;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;fromDatagram&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagram)
+                          throws <a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
 <div class="block">Reads a Radius packet from the given input stream and
  creates an appropriate RadiusPacket/subclass.
  <p>
@@ -357,19 +363,19 @@ extends java.lang.Object</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>new RadiusPacket object</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code> - malformed packet</dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
-<a id="fromDatagram(io.netty.channel.socket.DatagramPacket,java.lang.String)">
+<a id="fromDatagram-io.netty.channel.socket.DatagramPacket-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>fromDatagram</h4>
-<pre class="methodSignature">public&nbsp;<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;fromDatagram&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;packet,
+<pre>public&nbsp;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;fromDatagram&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;packet,
                                  java.lang.String&nbsp;sharedSecret)
-                          throws <a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
+                          throws <a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
 <div class="block">Reads a request from the given input stream and
  creates an appropriate RadiusPacket/subclass.
  <p>
@@ -382,20 +388,20 @@ extends java.lang.Object</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>new RadiusPacket object</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code> - malformed packet</dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
-<a id="fromDatagram(io.netty.channel.socket.DatagramPacket,java.lang.String,org.tinyradius.packet.RadiusPacket)">
+<a id="fromDatagram-io.netty.channel.socket.DatagramPacket-java.lang.String-org.tinyradius.packet.RadiusPacket-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>fromDatagram</h4>
-<pre class="methodSignature">public&nbsp;<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;fromDatagram&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagram,
+<pre>public&nbsp;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;fromDatagram&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;datagram,
                                  java.lang.String&nbsp;sharedSecret,
-                                 <a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request)
-                          throws <a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
+                                 <a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;request)
+                          throws <a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
 <div class="block">Reads a response from the given input stream and
  creates an appropriate RadiusPacket/subclass.
  <p>
@@ -409,21 +415,21 @@ extends java.lang.Object</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>new RadiusPacket object</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code> - malformed packet</dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code> - malformed packet</dd>
 </dl>
 </li>
 </ul>
-<a id="fromByteBuf(io.netty.buffer.ByteBuf)">
+<a id="fromByteBuf-io.netty.buffer.ByteBuf-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>fromByteBuf</h4>
-<pre class="methodSignature">public&nbsp;<a href="RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;fromByteBuf&#8203;(io.netty.buffer.ByteBuf&nbsp;byteBuf)
-                         throws <a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
+<pre>public&nbsp;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;fromByteBuf&#8203;(io.netty.buffer.ByteBuf&nbsp;byteBuf)
+                         throws <a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></pre>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/util/RadiusPacketException.html" title="class in org.tinyradius.util">RadiusPacketException</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -447,7 +453,7 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -457,8 +463,16 @@ extends java.lang.Object</pre>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/packet/PacketEncoder.html" target="_top">Frames</a></li>
+<li><a href="PacketEncoder.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--

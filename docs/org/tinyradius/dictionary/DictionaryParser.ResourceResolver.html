@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,15 +26,13 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6};
+var methods = {"i0":6,"i1":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../";
-var useModuleDirectories = true;
-loadScripts(document, 'script');</script>
+var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -51,7 +48,7 @@ loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -61,13 +58,21 @@ loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/dictionary/DictionaryParser.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../org/tinyradius/dictionary/MemoryDictionary.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/dictionary/DictionaryParser.ResourceResolver.html" target="_top">Frames</a></li>
+<li><a href="DictionaryParser.ResourceResolver.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" disabled="disabled">
-<input type="reset" id="reset" value="reset" disabled="disabled">
+<li><span>SEARCH:&nbsp;</span>
+<input type="text" id="search" value=" " disabled="disabled">
+<input type="reset" id="reset" value=" " disabled="disabled">
 </li>
 </ul>
 <div>
@@ -115,7 +120,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.dictionary</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../org/tinyradius/dictionary/package-summary.html">org.tinyradius.dictionary</a></div>
 <h2 title="Interface DictionaryParser.ResourceResolver" class="title">Interface DictionaryParser.ResourceResolver</h2>
 </div>
 <div class="contentContainer">
@@ -124,9 +129,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="DictionaryParser.html" title="class in org.tinyradius.dictionary">DictionaryParser</a></dd>
+<dd><a href="../../../org/tinyradius/dictionary/DictionaryParser.html" title="class in org.tinyradius.dictionary">DictionaryParser</a></dd>
 </dl>
 <hr>
+<br>
 <pre>public static interface <span class="typeNameLabel">DictionaryParser.ResourceResolver</span></pre>
 </li>
 </ul>
@@ -150,12 +156,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>java.io.InputStream</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#openStream(java.lang.String)">openStream</a></span>&#8203;(java.lang.String&nbsp;resource)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/dictionary/DictionaryParser.ResourceResolver.html#openStream-java.lang.String-">openStream</a></span>&#8203;(java.lang.String&nbsp;resource)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolve(java.lang.String,java.lang.String)">resolve</a></span>&#8203;(java.lang.String&nbsp;currentResource,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/dictionary/DictionaryParser.ResourceResolver.html#resolve-java.lang.String-java.lang.String-">resolve</a></span>&#8203;(java.lang.String&nbsp;currentResource,
        java.lang.String&nbsp;nextResource)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -176,23 +182,23 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="resolve(java.lang.String,java.lang.String)">
+<a id="resolve-java.lang.String-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>resolve</h4>
-<pre class="methodSignature">java.lang.String&nbsp;resolve&#8203;(java.lang.String&nbsp;currentResource,
+<pre>java.lang.String&nbsp;resolve&#8203;(java.lang.String&nbsp;currentResource,
                          java.lang.String&nbsp;nextResource)</pre>
 </li>
 </ul>
-<a id="openStream(java.lang.String)">
+<a id="openStream-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>openStream</h4>
-<pre class="methodSignature">java.io.InputStream&nbsp;openStream&#8203;(java.lang.String&nbsp;resource)
+<pre>java.io.InputStream&nbsp;openStream&#8203;(java.lang.String&nbsp;resource)
                         throws java.io.IOException</pre>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -220,7 +226,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -230,8 +236,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/dictionary/DictionaryParser.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../org/tinyradius/dictionary/MemoryDictionary.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/dictionary/DictionaryParser.ResourceResolver.html" target="_top">Frames</a></li>
+<li><a href="DictionaryParser.ResourceResolver.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--

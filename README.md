@@ -8,9 +8,9 @@
 
 tinyradius-netty is a fork of the TinyRadius Radius library, with some significant changes:
 - Use netty for asynchronous IO, timeouts, thread management
-- Most methods return Promises
+- Most methods return Promises or follow Netty's interceptor filter pattern
 - Use slf4j instead of commons-logging
-- Use Generics and Java 8 language features
+- Use Generics and Java 8
 - Proxy uses Client to handle requests upstream, retries, and connection management
 - More immutability
 - More tests
@@ -46,28 +46,20 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
 
 ### Client
  - `RadiusClient` manages setting up sockets and netty, and the plumbing for the `communicate()` method to return a `Future<RadiusPacket>`
- - `RetryStrategy` contains a method which is called after every request is sent, with a Runnable to retry the request. The retry runnable is then scheduled or timeout triggered depending on the implementation.
- - `ClientHandler` is a thin wrapper around Netty SimpleChannelInboundHandler with two methods to be implemented.
-   - `prepareDatagram()` takes a RadiusPacket and returns the Datagram that will be sent.
-     - The same datagram contents are reused for retries. If retries should be different, considering making multiple calls to `RadiusClient#communicate()` and implementing retries manually.
-     - A Promise is passed into the handler - this represents an open request, awaiting a response. The Promise should be stored so it can be looked up and completed when a valid response is received. It should also be removed after a timeout to avoid memory leaks. 
-   - `handleResponse()` takes a Datagram as input.
-     - If a corresponding request is found, the open promise for that request should be completed and removed from the store.
-   - `ProxyStateClientHandler` appends a `Proxy-State` attribute to the packet and uses that to lookup requests.
-   - `SimpleClientHandler` uses the remote socket and packet identifier to lookup requests.
+ - `TimeoutHandler` contains a method which is called after every request is sent, with a Runnable to retry. The retry runnable is then scheduled or timeout triggered depending on the implementation.
+ - `PromiseAdapter` is a ChannelHandler that requires a promise to be passed in with the outbound request.
+   - The Promise passed into the handler is incomplete. The Promise is completed and removed from memory when a valid response is received or timeouts.
+   - Appends a `Proxy-State` attribute to the packet and uses that to lookup requests.
 
 ### Server
   - `RadiusServer` sets up netty listeners and sockets.
-  - `HandlerAdapter` is a wrapper around Netty SimpleChannelInboundHandler that converts Datagram to RadiusPacket and performs low level validation.
-    - It calls a RequestHandler for business logic processing, and if the handler returns a packet, the Adapter replies with that as a response.
-    - A `Class<T extends RadiusPacket>` parameter can be used to limit what subclasses of RadiusPacket this can handle, otherwise ignore the packet.
-  - `RequestHandler` handles RadiusPackets. It's a generic interface, so can be used to handle only particular subtypes of RadiusPackets together with the HandlerAdapter parameter.
-    - `AcctHandler` and `AuthHandler` are example implementations for handling Accounting-Request and Access-Requests respectively - they can be extended with more business logic.
-    - `DeduplicatorHandler` also uses RequestHandler interface, but wraps around another Handler and doesn't return anything if a duplicate request is received within specified time period.
-    - `ProxyRequestHandler` handles incoming requests, but instead of processing directly or delegating, proxies the request using an instance of RadiusClient. This is where the main proxying processing is done. 
+  - Packets should go through `ServerPacketCodec` first to verify shared secrets and convert between Datagram and RadiusPackets.
+    - `CachingHandler` should be used before the actual handler if required.
+    - `AccountingHandler` and `AccessHandler` are example implementations for handling Accounting-Request and Access-Requests respectively - they can be extended with more business logic.
+    - `ProxyHandler` handles incoming requests, but instead of processing directly or delegating, proxies the request using an instance of RadiusClient. This is where the main proxying processing is done. 
 
 ## License
-Copyright Matthias Wuttke (mw@teuto.net) and contributors:
+Copyright Matthias Wuttke and contributors:
 - http://tinyradius.sourceforge.net/
 - https://github.com/ctran/TinyRadius
 

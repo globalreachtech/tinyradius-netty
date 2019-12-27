@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,15 +26,13 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../";
-var useModuleDirectories = true;
-loadScripts(document, 'script');</script>
+var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -51,7 +48,7 @@ loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -61,13 +58,21 @@ loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/attribute/Ipv6PrefixAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../org/tinyradius/attribute/StringAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/attribute/RadiusAttribute.html" target="_top">Frames</a></li>
+<li><a href="RadiusAttribute.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" disabled="disabled">
-<input type="reset" id="reset" value="reset" disabled="disabled">
+<li><span>SEARCH:&nbsp;</span>
+<input type="text" id="search" value=" " disabled="disabled">
+<input type="reset" id="reset" value=" " disabled="disabled">
 </li>
 </ul>
 <div>
@@ -115,7 +120,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.attribute</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../org/tinyradius/attribute/package-summary.html">org.tinyradius.attribute</a></div>
 <h2 title="Class RadiusAttribute" class="title">Class RadiusAttribute</h2>
 </div>
 <div class="contentContainer">
@@ -132,9 +137,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="IntegerAttribute.html" title="class in org.tinyradius.attribute">IntegerAttribute</a></code>, <code><a href="IpAttribute.html" title="class in org.tinyradius.attribute">IpAttribute</a></code>, <code><a href="Ipv6PrefixAttribute.html" title="class in org.tinyradius.attribute">Ipv6PrefixAttribute</a></code>, <code><a href="StringAttribute.html" title="class in org.tinyradius.attribute">StringAttribute</a></code>, <code><a href="VendorSpecificAttribute.html" title="class in org.tinyradius.attribute">VendorSpecificAttribute</a></code></dd>
+<dd><code><a href="../../../org/tinyradius/attribute/IntegerAttribute.html" title="class in org.tinyradius.attribute">IntegerAttribute</a></code>, <code><a href="../../../org/tinyradius/attribute/IpAttribute.html" title="class in org.tinyradius.attribute">IpAttribute</a></code>, <code><a href="../../../org/tinyradius/attribute/Ipv6PrefixAttribute.html" title="class in org.tinyradius.attribute">Ipv6PrefixAttribute</a></code>, <code><a href="../../../org/tinyradius/attribute/StringAttribute.html" title="class in org.tinyradius.attribute">StringAttribute</a></code>, <code><a href="../../../org/tinyradius/attribute/VendorSpecificAttribute.html" title="class in org.tinyradius.attribute">VendorSpecificAttribute</a></code></dd>
 </dl>
 <hr>
+<br>
 <pre>public class <span class="typeNameLabel">RadiusAttribute</span>
 extends java.lang.Object</pre>
 <div class="block">This class represents a generic Radius attribute. Subclasses implement
@@ -161,64 +167,64 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(java.lang.Object&nbsp;o)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#equals-java.lang.Object-">equals</a></span>&#8203;(java.lang.Object&nbsp;o)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeKey()">getAttributeKey</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getAttributeKey--">getAttributeKey</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="AttributeType.html" title="class in org.tinyradius.attribute">AttributeType</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAttributeType()">getAttributeType</a></span>()</code></th>
+<td class="colFirst"><code><a href="../../../org/tinyradius/attribute/AttributeType.html" title="class in org.tinyradius.attribute">AttributeType</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getAttributeType--">getAttributeType</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDictionary()">getDictionary</a></span>()</code></th>
+<td class="colFirst"><code><a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getDictionary--">getDictionary</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getType()">getType</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getType--">getType</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getValue()">getValue</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getValue--">getValue</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getValueString()">getValueString</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getValueString--">getValueString</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVendorId()">getVendorId</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#getVendorId--">getVendorId</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#hashCode--">hashCode</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code>java.util.Map&lt;java.lang.String,&#8203;java.lang.String&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toAttributeMap()">toAttributeMap</a></span>()</code></th>
+<td class="colFirst"><code>java.util.Map&lt;java.lang.String,java.lang.String&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toAttributeMap--">toAttributeMap</a></span>&#8203;()</code></th>
 <td class="colLast">
 <div class="block">Returns set of entry of Attribute name and Value as string.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toByteArray()">toByteArray</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toByteArray--">toByteArray</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/attribute/RadiusAttribute.html#toString--">toString</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -245,113 +251,113 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getValue()">
+<a id="getValue--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getValue</h4>
-<pre class="methodSignature">public&nbsp;byte[]&nbsp;getValue()</pre>
+<pre>public&nbsp;byte[]&nbsp;getValue&#8203;()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>attribute data as raw bytes</dd>
 </dl>
 </li>
 </ul>
-<a id="getType()">
+<a id="getType--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getType</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;getType()</pre>
+<pre>public&nbsp;int&nbsp;getType&#8203;()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>attribute type code, 0-255</dd>
 </dl>
 </li>
 </ul>
-<a id="getValueString()">
+<a id="getValueString--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getValueString</h4>
-<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;getValueString()</pre>
+<pre>public&nbsp;java.lang.String&nbsp;getValueString&#8203;()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>value of this attribute as a hex string.</dd>
 </dl>
 </li>
 </ul>
-<a id="getVendorId()">
+<a id="getVendorId--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getVendorId</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;getVendorId()</pre>
+<pre>public&nbsp;int&nbsp;getVendorId&#8203;()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>vendor Id if Vendor-Specific attribute or sub-attribute, otherwise -1</dd>
 </dl>
 </li>
 </ul>
-<a id="getDictionary()">
+<a id="getDictionary--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getDictionary</h4>
-<pre class="methodSignature">public&nbsp;<a href="../dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;getDictionary()</pre>
+<pre>public&nbsp;<a href="../../../org/tinyradius/dictionary/Dictionary.html" title="interface in org.tinyradius.dictionary">Dictionary</a>&nbsp;getDictionary&#8203;()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>dictionary that attribute uses</dd>
 </dl>
 </li>
 </ul>
-<a id="toByteArray()">
+<a id="toByteArray--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>toByteArray</h4>
-<pre class="methodSignature">public&nbsp;byte[]&nbsp;toByteArray()</pre>
+<pre>public&nbsp;byte[]&nbsp;toByteArray&#8203;()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>entire attribute (including headers) as byte array</dd>
 </dl>
 </li>
 </ul>
-<a id="toString()">
+<a id="toString--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>toString</h4>
-<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;toString()</pre>
+<pre>public&nbsp;java.lang.String&nbsp;toString&#8203;()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
 </dl>
 </li>
 </ul>
-<a id="getAttributeKey()">
+<a id="getAttributeKey--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getAttributeKey</h4>
-<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;getAttributeKey()</pre>
+<pre>public&nbsp;java.lang.String&nbsp;getAttributeKey&#8203;()</pre>
 </li>
 </ul>
-<a id="toAttributeMap()">
+<a id="toAttributeMap--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>toAttributeMap</h4>
-<pre class="methodSignature">public&nbsp;java.util.Map&lt;java.lang.String,&#8203;java.lang.String&gt;&nbsp;toAttributeMap()</pre>
+<pre>public&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;toAttributeMap&#8203;()</pre>
 <div class="block">Returns set of entry of Attribute name and Value as string.
  Size is generally 1, except in case of VendorSpecificAttribute
  where it is aggregate of sub-attributes.</div>
@@ -361,39 +367,39 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="getAttributeType()">
+<a id="getAttributeType--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getAttributeType</h4>
-<pre class="methodSignature">public&nbsp;<a href="AttributeType.html" title="class in org.tinyradius.attribute">AttributeType</a>&nbsp;getAttributeType()</pre>
+<pre>public&nbsp;<a href="../../../org/tinyradius/attribute/AttributeType.html" title="class in org.tinyradius.attribute">AttributeType</a>&nbsp;getAttributeType&#8203;()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>AttributeType object for (sub-)attribute or null</dd>
 </dl>
 </li>
 </ul>
-<a id="equals(java.lang.Object)">
+<a id="equals-java.lang.Object-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(java.lang.Object&nbsp;o)</pre>
+<pre>public&nbsp;boolean&nbsp;equals&#8203;(java.lang.Object&nbsp;o)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>equals</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
 </dl>
 </li>
 </ul>
-<a id="hashCode()">
+<a id="hashCode--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>hashCode</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<pre>public&nbsp;int&nbsp;hashCode&#8203;()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>hashCode</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
@@ -420,7 +426,7 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -430,8 +436,16 @@ extends java.lang.Object</pre>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/tinyradius/attribute/Ipv6PrefixAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../org/tinyradius/attribute/StringAttribute.html" title="class in org.tinyradius.attribute"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/attribute/RadiusAttribute.html" target="_top">Frames</a></li>
+<li><a href="RadiusAttribute.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--

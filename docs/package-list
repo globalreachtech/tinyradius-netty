@@ -1,7 +1,7 @@
 org.tinyradius.attribute
 org.tinyradius.client
 org.tinyradius.client.handler
-org.tinyradius.client.retry
+org.tinyradius.client.timeout
 org.tinyradius.dictionary
 org.tinyradius.packet
 org.tinyradius.server

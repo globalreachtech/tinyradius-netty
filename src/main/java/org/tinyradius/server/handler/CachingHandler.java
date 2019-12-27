@@ -17,14 +17,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class CachingHandler<INBOUND extends RequestCtx, OUTBOUND extends ServerResponseCtx> extends MessageToMessageCodec<INBOUND, OUTBOUND> {
+public class CachingHandler<IN extends RequestCtx, OUT extends ServerResponseCtx> extends MessageToMessageCodec<IN, OUT> {
 
     private static final Logger logger = LoggerFactory.getLogger(CachingHandler.class);
 
     private final Timer timer;
     private final int ttlMs;
 
-    private final Map<Packet, OUTBOUND> requests = new ConcurrentHashMap<>();
+    private final Map<Packet, OUT> requests = new ConcurrentHashMap<>();
 
     /**
      * @param timer         for cache eviction
@@ -32,7 +32,7 @@ public class CachingHandler<INBOUND extends RequestCtx, OUTBOUND extends ServerR
      * @param inboundClass  explicit class due to type erasure
      * @param outboundClass explicit class due to type erasure
      */
-    public CachingHandler(Timer timer, int ttlMs, Class<INBOUND> inboundClass, Class<OUTBOUND> outboundClass) {
+    public CachingHandler(Timer timer, int ttlMs, Class<IN> inboundClass, Class<OUT> outboundClass) {
         super(inboundClass, outboundClass);
         this.timer = timer;
         this.ttlMs = ttlMs;
@@ -43,7 +43,7 @@ public class CachingHandler<INBOUND extends RequestCtx, OUTBOUND extends ServerR
      * @param requestContext Inbound request context
      * @return request context to forward
      */
-    protected RequestCtx onMiss(ChannelHandlerContext ctx, INBOUND requestContext) {
+    protected RequestCtx onMiss(ChannelHandlerContext ctx, IN requestContext) {
         return requestContext;
     }
 
@@ -52,14 +52,14 @@ public class CachingHandler<INBOUND extends RequestCtx, OUTBOUND extends ServerR
      * @param responseContext Outbound response context
      * @return response context to return
      */
-    protected RequestCtx onHit(ChannelHandlerContext ctx, OUTBOUND responseContext) {
+    protected RequestCtx onHit(ChannelHandlerContext ctx, OUT responseContext) {
         return responseContext;
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, INBOUND msg, List<Object> out) {
+    protected void decode(ChannelHandlerContext ctx, IN msg, List<Object> out) {
         final Packet packet = Packet.from(msg);
-        final OUTBOUND responseContext = requests.get(packet);
+        final OUT responseContext = requests.get(packet);
 
         if (responseContext != null) {
             logger.debug("Cache hit, resending response, id: {}, remote address: {}", packet.identifier, packet.remoteAddress);
@@ -71,7 +71,7 @@ public class CachingHandler<INBOUND extends RequestCtx, OUTBOUND extends ServerR
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, OUTBOUND msg, List<Object> out) {
+    protected void encode(ChannelHandlerContext ctx, OUT msg, List<Object> out) {
         final Packet packet = Packet.from(msg);
         requests.put(packet, msg);
         timer.newTimeout(t -> requests.remove(packet), ttlMs, MILLISECONDS);

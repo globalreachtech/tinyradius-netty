@@ -1,4 +1,4 @@
-package org.tinyradius.client.retry;
+package org.tinyradius.client.timeout;
 
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;

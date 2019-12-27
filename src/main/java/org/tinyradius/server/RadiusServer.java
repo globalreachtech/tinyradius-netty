@@ -26,6 +26,7 @@ public class RadiusServer implements Closeable {
     private final Promise<Void> isReady;
 
     /**
+     * @param bootstrap         bootstrap with channel class and eventLoopGroup set up
      * @param accessHandler     ChannelHandler to handle requests received on authSocket
      * @param accountingHandler ChannelHandler to handle requests received on acctSocket
      * @param accessSocket      socket to listen on for auth requests

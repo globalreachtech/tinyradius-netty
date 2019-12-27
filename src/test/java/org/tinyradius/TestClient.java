@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.ClientPacketCodec;
 import org.tinyradius.client.handler.PromiseAdapter;
-import org.tinyradius.client.retry.BasicTimeoutHandler;
+import org.tinyradius.client.timeout.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;

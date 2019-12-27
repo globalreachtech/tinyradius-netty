@@ -8,7 +8,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinyradius.client.retry.TimeoutHandler;
+import org.tinyradius.client.timeout.TimeoutHandler;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 
@@ -30,8 +30,10 @@ public class RadiusClient implements Closeable {
     private final ChannelFuture channelFuture;
 
     /**
-     * @param timeoutHandler retry strategy for scheduling retries and timeouts
+     * @param bootstrap      bootstrap with channel class and eventLoopGroup set up
      * @param listenAddress  local address to bind to
+     * @param timeoutHandler retry strategy for scheduling retries and timeouts
+     * @param handler        ChannelHandler to handle outbound requests
      */
     public RadiusClient(Bootstrap bootstrap, SocketAddress listenAddress, TimeoutHandler timeoutHandler, ChannelHandler handler) {
         this.eventLoopGroup = bootstrap.config().group();

@@ -13,8 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
-<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -27,15 +26,13 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
+var methods = {"i0":10,"i1":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../";
-var useModuleDirectories = true;
-loadScripts(document, 'script');</script>
+var pathtoroot = "../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
@@ -51,7 +48,7 @@ loadScripts(document, 'script');</script>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -61,13 +58,21 @@ loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li>Prev&nbsp;Class</li>
+<li><a href="../../../org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/client/RadiusClient.html" target="_top">Frames</a></li>
+<li><a href="RadiusClient.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
-<li><label for="search">SEARCH:</label>
-<input type="text" id="search" value="search" disabled="disabled">
-<input type="reset" id="reset" value="reset" disabled="disabled">
+<li><span>SEARCH:&nbsp;</span>
+<input type="text" id="search" value=" " disabled="disabled">
+<input type="reset" id="reset" value=" " disabled="disabled">
 </li>
 </ul>
 <div>
@@ -115,7 +120,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">org.tinyradius.client</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../org/tinyradius/client/package-summary.html">org.tinyradius.client</a></div>
 <h2 title="Class RadiusClient" class="title">Class RadiusClient</h2>
 </div>
 <div class="contentContainer">
@@ -135,6 +140,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>java.io.Closeable</code>, <code>java.lang.AutoCloseable</code></dd>
 </dl>
 <hr>
+<br>
 <pre>public class <span class="typeNameLabel">RadiusClient</span>
 extends java.lang.Object
 implements java.io.Closeable</pre>
@@ -162,9 +168,9 @@ implements java.io.Closeable</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.netty.bootstrap.Bootstrap,java.net.SocketAddress,org.tinyradius.client.retry.TimeoutHandler,io.netty.channel.ChannelHandler)">RadiusClient</a></span>&#8203;(io.netty.bootstrap.Bootstrap&nbsp;bootstrap,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/client/RadiusClient.html#RadiusClient-io.netty.bootstrap.Bootstrap-java.net.SocketAddress-org.tinyradius.client.timeout.TimeoutHandler-io.netty.channel.ChannelHandler-">RadiusClient</a></span>&#8203;(io.netty.bootstrap.Bootstrap&nbsp;bootstrap,
             java.net.SocketAddress&nbsp;listenAddress,
-            <a href="retry/TimeoutHandler.html" title="interface in org.tinyradius.client.retry">TimeoutHandler</a>&nbsp;timeoutHandler,
+            <a href="../../../org/tinyradius/client/timeout/TimeoutHandler.html" title="interface in org.tinyradius.client.timeout">TimeoutHandler</a>&nbsp;timeoutHandler,
             io.netty.channel.ChannelHandler&nbsp;handler)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -188,13 +194,13 @@ implements java.io.Closeable</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#close()">close</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/client/RadiusClient.html#close--">close</a></span>&#8203;()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>io.netty.util.concurrent.Future&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)">communicate</a></span>&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
-           <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</code></th>
+<td class="colFirst"><code>io.netty.util.concurrent.Future&lt;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../org/tinyradius/client/RadiusClient.html#communicate-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-">communicate</a></span>&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+           <a href="../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -221,7 +227,7 @@ implements java.io.Closeable</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(io.netty.bootstrap.Bootstrap,java.net.SocketAddress,org.tinyradius.client.retry.TimeoutHandler,io.netty.channel.ChannelHandler)">
+<a id="RadiusClient-io.netty.bootstrap.Bootstrap-java.net.SocketAddress-org.tinyradius.client.timeout.TimeoutHandler-io.netty.channel.ChannelHandler-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -229,12 +235,14 @@ implements java.io.Closeable</pre>
 <h4>RadiusClient</h4>
 <pre>public&nbsp;RadiusClient&#8203;(io.netty.bootstrap.Bootstrap&nbsp;bootstrap,
                     java.net.SocketAddress&nbsp;listenAddress,
-                    <a href="retry/TimeoutHandler.html" title="interface in org.tinyradius.client.retry">TimeoutHandler</a>&nbsp;timeoutHandler,
+                    <a href="../../../org/tinyradius/client/timeout/TimeoutHandler.html" title="interface in org.tinyradius.client.timeout">TimeoutHandler</a>&nbsp;timeoutHandler,
                     io.netty.channel.ChannelHandler&nbsp;handler)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>timeoutHandler</code> - retry strategy for scheduling retries and timeouts</dd>
+<dd><code>bootstrap</code> - bootstrap with channel class and eventLoopGroup set up</dd>
 <dd><code>listenAddress</code> - local address to bind to</dd>
+<dd><code>timeoutHandler</code> - retry strategy for scheduling retries and timeouts</dd>
+<dd><code>handler</code> - ChannelHandler to handle outbound requests</dd>
 </dl>
 </li>
 </ul>
@@ -248,23 +256,23 @@ implements java.io.Closeable</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="communicate(org.tinyradius.packet.RadiusPacket,org.tinyradius.util.RadiusEndpoint)">
+<a id="communicate-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>communicate</h4>
-<pre class="methodSignature">public&nbsp;io.netty.util.concurrent.Future&lt;<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;communicate&#8203;(<a href="../packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
-                                                                 <a href="../util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</pre>
+<pre>public&nbsp;io.netty.util.concurrent.Future&lt;<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;communicate&#8203;(<a href="../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&nbsp;packet,
+                                                                 <a href="../../../org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a>&nbsp;endpoint)</pre>
 </li>
 </ul>
-<a id="close()">
+<a id="close--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>close</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;close()</pre>
+<pre>public&nbsp;void&nbsp;close&#8203;()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>close</code>&nbsp;in interface&nbsp;<code>java.lang.AutoCloseable</code></dd>
@@ -293,7 +301,7 @@ implements java.io.Closeable</pre>
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../index.html">Overview</a></li>
+<li><a href="../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -303,8 +311,16 @@ implements java.io.Closeable</pre>
 </ul>
 </div>
 <div class="subNav">
+<ul class="navList">
+<li>Prev&nbsp;Class</li>
+<li><a href="../../../org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/tinyradius/client/RadiusClient.html" target="_top">Frames</a></li>
+<li><a href="RadiusClient.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+<li><a href="../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
