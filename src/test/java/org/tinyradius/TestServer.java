@@ -50,34 +50,34 @@ public class TestServer {
 
         final AccountingHandler accountingHandler = new AccountingHandler();
 
-        final RadiusServer server = new RadiusServer(bootstrap,
+        try (RadiusServer server = new RadiusServer(bootstrap,
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
-                    protected void initChannel(DatagramChannel ch) throws Exception {
+                    protected void initChannel(DatagramChannel ch) {
                         ch.pipeline().addLast(serverPacketCodec, accessHandler);
                     }
                 },
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
-                    protected void initChannel(DatagramChannel ch) throws Exception {
+                    protected void initChannel(DatagramChannel ch) {
                         ch.pipeline().addLast(serverPacketCodec, accountingHandler);
                     }
                 },
-                new InetSocketAddress(11812), new InetSocketAddress(11813));
+                new InetSocketAddress(11812), new InetSocketAddress(11813))) {
 
-        server.isReady().addListener(future1 -> {
-            if (future1.isSuccess()) {
-                logger.info("Server started");
-            } else {
-                logger.info("Failed to start server: " + future1.cause());
-                server.close();
-                eventLoopGroup.shutdownGracefully();
-            }
-        });
+            server.isReady().addListener(future1 -> {
+                if (future1.isSuccess()) {
+                    logger.info("Server started");
+                } else {
+                    logger.info("Failed to start server: " + future1.cause());
+                    server.close();
+                    eventLoopGroup.shutdownGracefully();
+                }
+            });
 
-        System.in.read();
+            System.in.read();
+        }
 
-        server.close();
         eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
     }
 }

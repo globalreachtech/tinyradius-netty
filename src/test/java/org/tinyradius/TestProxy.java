@@ -90,22 +90,21 @@ public class TestProxy {
             }
         };
 
-        final RadiusServer proxy = new RadiusServer(bootstrap,
+        try (RadiusServer proxy = new RadiusServer(bootstrap,
                 channelInitializer, channelInitializer,
-                new InetSocketAddress(11812), new InetSocketAddress(11813));
+                new InetSocketAddress(11812), new InetSocketAddress(11813))) {
 
-        proxy.isReady().addListener(future1 -> {
-            if (future1.isSuccess()) {
-                logger.info("Server started.");
-            } else {
-                logger.info("Failed to start server");
-                future1.cause().printStackTrace();
-            }
-        });
+            proxy.isReady().addListener(future1 -> {
+                if (future1.isSuccess()) {
+                    logger.info("Server started.");
+                } else {
+                    logger.info("Failed to start server");
+                    future1.cause().printStackTrace();
+                }
+            });
 
-        System.in.read();
-
-        proxy.close();
+            System.in.read();
+        }
 
         eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
     }

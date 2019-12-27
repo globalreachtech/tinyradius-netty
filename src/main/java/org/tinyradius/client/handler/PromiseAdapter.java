@@ -45,12 +45,9 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, RequestC
         packet.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
         final RadiusPacket encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
 
-        if (msg.getResponse().isDone())
-            return;
+        requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), msg.getResponse()));
 
         msg.getResponse().addListener(f -> requests.remove(requestId));
-
-        requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), msg.getResponse()));
 
         out.add(new RequestCtxWrapper(encodedRequest, msg.getEndpoint(), msg.getResponse()));
     }

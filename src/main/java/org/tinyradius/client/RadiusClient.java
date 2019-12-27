@@ -49,10 +49,6 @@ public class RadiusClient implements Closeable {
                 logger.warn(f.cause().getMessage());
         });
 
-        if (channelFuture.isDone() && !channelFuture.isSuccess()) {
-            promise.tryFailure(channelFuture.cause());
-            return promise;
-        }
         channelFuture.addListener(s -> {
             if (s.isSuccess())
                 send(new RequestCtxWrapper(packet, endpoint, promise), 1);
