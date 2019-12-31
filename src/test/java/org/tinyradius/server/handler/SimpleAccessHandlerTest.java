@@ -26,7 +26,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.*;
 
 @ExtendWith(MockitoExtension.class)
-class AccessHandlerTest {
+class SimpleAccessHandlerTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
@@ -37,12 +37,7 @@ class AccessHandlerTest {
     @Captor
     private ArgumentCaptor<ServerResponseCtx> responseCaptor;
 
-    private final AccessHandler authHandler = new AccessHandler() {
-        @Override
-        public String getUserPassword(String userName) {
-            return userName + "-pw";
-        }
-    };
+    private final SimpleAccessHandler authHandler = new SimpleAccessHandler(a -> a + "-pw");
 
     @Test
     void accessAccept() {

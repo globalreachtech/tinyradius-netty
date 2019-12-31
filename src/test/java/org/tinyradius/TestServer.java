@@ -12,8 +12,8 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;
-import org.tinyradius.server.handler.AccessHandler;
-import org.tinyradius.server.handler.AccountingHandler;
+import org.tinyradius.server.handler.SimpleAccessHandler;
+import org.tinyradius.server.handler.SimpleAccountingHandler;
 import org.tinyradius.server.handler.ServerPacketCodec;
 
 import java.net.InetSocketAddress;
@@ -41,26 +41,20 @@ public class TestServer {
 
         final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(packetEncoder, secretProvider);
 
-        final AccessHandler accessHandler = new AccessHandler() {
-            @Override
-            public String getUserPassword(String userName) {
-                return userName.equals("test") ? "password" : null;
-            }
-        };
-
-        final AccountingHandler accountingHandler = new AccountingHandler();
+        final SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler(a -> a.equals("test") ? "password" : null);
+        final SimpleAccountingHandler simpleAccountingHandler = new SimpleAccountingHandler();
 
         try (RadiusServer server = new RadiusServer(bootstrap,
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
                     protected void initChannel(DatagramChannel ch) {
-                        ch.pipeline().addLast(serverPacketCodec, accessHandler);
+                        ch.pipeline().addLast(serverPacketCodec, simpleAccessHandler);
                     }
                 },
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
                     protected void initChannel(DatagramChannel ch) {
-                        ch.pipeline().addLast(serverPacketCodec, accountingHandler);
+                        ch.pipeline().addLast(serverPacketCodec, simpleAccountingHandler);
                     }
                 },
                 new InetSocketAddress(11812), new InetSocketAddress(11813))) {

@@ -29,12 +29,12 @@ import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
 
 @ExtendWith(MockitoExtension.class)
-class AccountingHandlerTest {
+class SimpleAccountingHandlerTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
 
-    private final AccountingHandler handler = new AccountingHandler();
+    private final SimpleAccountingHandler handler = new SimpleAccountingHandler();
 
     @Mock
     private ChannelHandlerContext ctx;

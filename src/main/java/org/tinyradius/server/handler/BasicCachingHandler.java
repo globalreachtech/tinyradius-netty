@@ -17,9 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class CachingHandler<IN extends RequestCtx, OUT extends ServerResponseCtx> extends MessageToMessageCodec<IN, OUT> {
+public class BasicCachingHandler<IN extends RequestCtx, OUT extends ServerResponseCtx> extends MessageToMessageCodec<IN, OUT> {
 
-    private static final Logger logger = LoggerFactory.getLogger(CachingHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(BasicCachingHandler.class);
 
     private final Timer timer;
     private final int ttlMs;
@@ -32,7 +32,7 @@ public class CachingHandler<IN extends RequestCtx, OUT extends ServerResponseCtx
      * @param inboundClass  explicit class due to type erasure
      * @param outboundClass explicit class due to type erasure
      */
-    public CachingHandler(Timer timer, int ttlMs, Class<IN> inboundClass, Class<OUT> outboundClass) {
+    public BasicCachingHandler(Timer timer, int ttlMs, Class<IN> inboundClass, Class<OUT> outboundClass) {
         super(inboundClass, outboundClass);
         this.timer = timer;
         this.ttlMs = ttlMs;
@@ -41,19 +41,15 @@ public class CachingHandler<IN extends RequestCtx, OUT extends ServerResponseCtx
     /**
      * @param ctx            ChannelHandlerContext
      * @param requestContext Inbound request context
-     * @return request context to forward
      */
-    protected RequestCtx onMiss(ChannelHandlerContext ctx, IN requestContext) {
-        return requestContext;
+    protected void onMiss(ChannelHandlerContext ctx, IN requestContext) {
     }
 
     /**
      * @param ctx             ChannelHandlerContext
      * @param responseContext Outbound response context
-     * @return response context to return
      */
-    protected RequestCtx onHit(ChannelHandlerContext ctx, OUT responseContext) {
-        return responseContext;
+    protected void onHit(ChannelHandlerContext ctx, OUT responseContext) {
     }
 
     @Override
@@ -63,10 +59,12 @@ public class CachingHandler<IN extends RequestCtx, OUT extends ServerResponseCtx
 
         if (responseContext != null) {
             logger.debug("Cache hit, resending response, id: {}, remote address: {}", packet.identifier, packet.remoteAddress);
-            ctx.writeAndFlush(onHit(ctx, responseContext));
+            onHit(ctx, responseContext);
+            ctx.writeAndFlush(responseContext);
         } else {
             logger.debug("Cache miss, proxying request, id: {}, remote address: {}", packet.identifier, packet.remoteAddress);
-            out.add(onMiss(ctx, msg));
+            onMiss(ctx, msg);
+            out.add(msg);
         }
     }
 
