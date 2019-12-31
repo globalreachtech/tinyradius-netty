@@ -4,7 +4,7 @@ plugins {
     id 'com.github.kt3k.coveralls' version '2.9.0'
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.4'
-    id 'com.jfrog.artifactory' version '4.12.0'
+    id 'com.jfrog.artifactory' version '4.13.0'
 }
 
 sourceCompatibility = 1.8
