@@ -21,9 +21,8 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
@@ -43,16 +42,15 @@ class SimpleAccountingHandlerTest {
     private ArgumentCaptor<ServerResponseCtx> responseCaptor;
 
     @Test
-    void unhandledPacketType() {
+    void unhandledPacketType() throws Exception {
         final RadiusPacket packet = new AccessRequest(dictionary, 1, null);
 
-        handler.channelRead0(ctx, new RequestCtx(packet, null));
-
-        verifyNoInteractions(ctx);
+        final boolean b = handler.acceptInboundMessage(new RequestCtx(packet, null));
+        assertFalse(b);
     }
 
     @Test
-    void handlePacket() {
+    void handlePacket() throws Exception {
         final int id = random.nextInt(256);
 
         final AccountingRequest request = new AccountingRequest(dictionary, id, null, Arrays.asList(
@@ -65,7 +63,12 @@ class SimpleAccountingHandlerTest {
                 .map(String::new)
                 .collect(Collectors.toList()));
 
-        handler.channelRead0(ctx, new RequestCtx(request, null));
+        final RequestCtx requestCtx = new RequestCtx(request, null);
+
+        final boolean b = handler.acceptInboundMessage(requestCtx);
+        assertTrue(b);
+
+        handler.channelRead0(ctx, requestCtx);
 
         verify(ctx).writeAndFlush(responseCaptor.capture());
 
