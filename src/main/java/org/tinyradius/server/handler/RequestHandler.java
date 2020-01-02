@@ -25,7 +25,7 @@ public abstract class RequestHandler extends SimpleChannelInboundHandler<Request
         if (acceptedPacketType().isInstance(request)) {
             return true;
         } else {
-            logger.warn("{} does not accept <{}>", getClass().getSimpleName(), request.getClass().getSimpleName());
+            logger.debug("{} does not accept <{}>", getClass().getSimpleName(), request.getClass().getSimpleName());
             return false;
         }
     }

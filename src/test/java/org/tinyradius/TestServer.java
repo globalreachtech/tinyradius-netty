@@ -1,6 +1,7 @@
 package org.tinyradius;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -9,20 +10,18 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.packet.PacketEncoder;
+import org.tinyradius.packet.*;
 import org.tinyradius.server.RadiusServer;
+import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.SecretProvider;
-import org.tinyradius.server.handler.SimpleAccessHandler;
-import org.tinyradius.server.handler.SimpleAccountingHandler;
+import org.tinyradius.server.handler.RequestHandler;
 import org.tinyradius.server.handler.ServerPacketCodec;
 
 import java.net.InetSocketAddress;
 
+import static org.tinyradius.packet.PacketType.*;
+
 /**
- * Test server which terminates after 30 s.
- * Knows only the client "localhost" with secret "testing123" and
- * the user "mw" with the password "test".
- * <p>
  * TestServer can answer both to Access-Request and Access-Response
  * packets with Access-Accept/Reject or Accounting-Response, respectively.
  */
@@ -41,7 +40,7 @@ public class TestServer {
 
         final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(packetEncoder, secretProvider);
 
-        final SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler(a -> a.equals("test") ? "password" : null);
+        final SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler();
         final SimpleAccountingHandler simpleAccountingHandler = new SimpleAccountingHandler();
 
         try (RadiusServer server = new RadiusServer(bootstrap,
@@ -73,5 +72,45 @@ public class TestServer {
         }
 
         eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
+    }
+
+    public static class SimpleAccessHandler extends RequestHandler {
+
+        @Override
+        protected Class<AccessRequest> acceptedPacketType() {
+            return AccessRequest.class;
+        }
+
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
+
+            final AccessRequest request = (AccessRequest) msg.getRequest();
+
+            String password = request.getUserName().equals("test") ? "password" : null;
+            int type = request.verifyPassword(password) ? ACCESS_ACCEPT : ACCESS_REJECT;
+
+            RadiusPacket answer = RadiusPackets.create(request.getDictionary(), type, request.getIdentifier());
+            request.getAttributes(33).forEach(answer::addAttribute);
+
+            ctx.writeAndFlush(msg.withResponse(answer));
+        }
+    }
+
+    public static class SimpleAccountingHandler extends RequestHandler {
+
+        @Override
+        protected Class<AccountingRequest> acceptedPacketType() {
+            return AccountingRequest.class;
+        }
+
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
+            final RadiusPacket request = msg.getRequest();
+
+            RadiusPacket answer = RadiusPackets.create(request.getDictionary(), ACCOUNTING_RESPONSE, request.getIdentifier());
+            request.getAttributes(33).forEach(answer::addAttribute);
+
+            ctx.writeAndFlush(msg.withResponse(answer));
+        }
     }
 }
