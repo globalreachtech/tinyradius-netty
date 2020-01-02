@@ -20,6 +20,11 @@ class RequestHandlerTest {
 
         final boolean b = new RequestHandler() {
             @Override
+            protected Class<? extends RadiusPacket> acceptedPacketType() {
+                return AccessRequest.class;
+            }
+
+            @Override
             protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
             }
         }.acceptInboundMessage(new RequestCtx(accessRequest, null));
