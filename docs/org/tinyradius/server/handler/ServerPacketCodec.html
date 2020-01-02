@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -137,7 +137,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>io.netty.channel.ChannelDuplexHandler</li>
 <li>
 <ul class="inheritance">
-<li>io.netty.handler.codec.MessageToMessageCodec&lt;io.netty.channel.socket.DatagramPacket,<a href="../../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&gt;</li>
+<li>io.netty.handler.codec.MessageToMessageCodec&lt;io.netty.channel.socket.DatagramPacket,<a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&gt;</li>
 <li>
 <ul class="inheritance">
 <li>org.tinyradius.server.handler.ServerPacketCodec</li>
@@ -159,7 +159,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <br>
 <pre>@Sharable
 public class <span class="typeNameLabel">ServerPacketCodec</span>
-extends io.netty.handler.codec.MessageToMessageCodec&lt;io.netty.channel.socket.DatagramPacket,<a href="../../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&gt;</pre>
+extends io.netty.handler.codec.MessageToMessageCodec&lt;io.netty.channel.socket.DatagramPacket,<a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&gt;</pre>
 </li>
 </ul>
 </div>
@@ -227,10 +227,21 @@ extends io.netty.handler.codec.MessageToMessageCodec&lt;io.netty.channel.socket.
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/server/handler/ServerPacketCodec.html#decodePacket-io.netty.channel.socket.DatagramPacket-">decodePacket</a></span>&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;msg)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/server/handler/ServerPacketCodec.html#encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.server.ServerResponseCtx-java.util.List-">encode</a></span>&#8203;(io.netty.channel.ChannelHandlerContext&nbsp;ctx,
-      <a href="../../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&nbsp;msg,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/server/handler/ServerPacketCodec.html#encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.server.ResponseCtx-java.util.List-">encode</a></span>&#8203;(io.netty.channel.ChannelHandlerContext&nbsp;ctx,
+      <a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&nbsp;msg,
       java.util.List&lt;java.lang.Object&gt;&nbsp;out)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>protected io.netty.channel.socket.DatagramPacket</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/server/handler/ServerPacketCodec.html#encodePacket-java.net.InetSocketAddress-org.tinyradius.server.ResponseCtx-">encodePacket</a></span>&#8203;(java.net.InetSocketAddress&nbsp;localAddress,
+            <a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&nbsp;msg)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -312,6 +323,25 @@ extends io.netty.handler.codec.MessageToMessageCodec&lt;io.netty.channel.socket.
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="decodePacket-io.netty.channel.socket.DatagramPacket-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>decodePacket</h4>
+<pre>protected&nbsp;<a href="../../../../org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>&nbsp;decodePacket&#8203;(io.netty.channel.socket.DatagramPacket&nbsp;msg)</pre>
+</li>
+</ul>
+<a id="encodePacket-java.net.InetSocketAddress-org.tinyradius.server.ResponseCtx-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>encodePacket</h4>
+<pre>protected&nbsp;io.netty.channel.socket.DatagramPacket&nbsp;encodePacket&#8203;(java.net.InetSocketAddress&nbsp;localAddress,
+                                                              <a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&nbsp;msg)</pre>
+</li>
+</ul>
 <a id="decode-io.netty.channel.ChannelHandlerContext-io.netty.channel.socket.DatagramPacket-java.util.List-">
 <!--   -->
 </a>
@@ -323,22 +353,22 @@ extends io.netty.handler.codec.MessageToMessageCodec&lt;io.netty.channel.socket.
                       java.util.List&lt;java.lang.Object&gt;&nbsp;out)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>decode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;io.netty.channel.socket.DatagramPacket,<a href="../../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&gt;</code></dd>
+<dd><code>decode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;io.netty.channel.socket.DatagramPacket,<a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
-<a id="encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.server.ServerResponseCtx-java.util.List-">
+<a id="encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.server.ResponseCtx-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>encode</h4>
 <pre>protected&nbsp;void&nbsp;encode&#8203;(io.netty.channel.ChannelHandlerContext&nbsp;ctx,
-                      <a href="../../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&nbsp;msg,
+                      <a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&nbsp;msg,
                       java.util.List&lt;java.lang.Object&gt;&nbsp;out)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>encode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;io.netty.channel.socket.DatagramPacket,<a href="../../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&gt;</code></dd>
+<dd><code>encode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;io.netty.channel.socket.DatagramPacket,<a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>

@@ -8,11 +8,11 @@ import org.tinyradius.util.RadiusEndpoint;
 /**
  * Wrapper that holds a promise to be resolved when response is received.
  */
-public class RequestCtxWrapper extends RequestCtx {
+public class PendingRequestCtx extends RequestCtx {
 
     private final Promise<RadiusPacket> response;
 
-    public RequestCtxWrapper(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> response) {
+    public PendingRequestCtx(RadiusPacket packet, RadiusEndpoint endpoint, Promise<RadiusPacket> response) {
         super(packet, endpoint);
         this.response = response;
     }

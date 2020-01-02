@@ -9,7 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.client.RequestCtxWrapper;
+import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessRequest;
@@ -105,7 +105,7 @@ class ClientPacketCodecTest {
 
         // process
         final List<Object> out1 = new ArrayList<>();
-        codec.encode(ctx, new RequestCtxWrapper(accessRequest, endpoint, promise), out1);
+        codec.encode(ctx, new PendingRequestCtx(accessRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
         final AccessRequest sentAccessPacket = (AccessRequest) packetEncoder.fromDatagram(
@@ -136,7 +136,7 @@ class ClientPacketCodecTest {
 
         // process
         final List<Object> out1 = new ArrayList<>();
-        codec.encode(ctx, new RequestCtxWrapper(packet, endpoint, promise), out1);
+        codec.encode(ctx, new PendingRequestCtx(packet, endpoint, promise), out1);
 
         // check
         ArgumentCaptor<Exception> e = ArgumentCaptor.forClass(Exception.class);

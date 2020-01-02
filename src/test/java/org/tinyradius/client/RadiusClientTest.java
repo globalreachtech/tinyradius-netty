@@ -121,7 +121,7 @@ class RadiusClientTest {
         }
 
         public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-            failFast.accept(((RequestCtxWrapper) msg).getResponse());
+            failFast.accept(((PendingRequestCtx) msg).getResponse());
         }
     }
 }

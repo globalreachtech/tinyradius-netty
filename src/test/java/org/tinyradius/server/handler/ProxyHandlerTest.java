@@ -15,7 +15,7 @@ import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestCtx;
-import org.tinyradius.server.ServerResponseCtx;
+import org.tinyradius.server.ResponseCtx;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
@@ -42,7 +42,7 @@ class ProxyHandlerTest {
     private ChannelHandlerContext ctx;
 
     @Captor
-    private ArgumentCaptor<ServerResponseCtx> responseCaptor;
+    private ArgumentCaptor<ResponseCtx> responseCaptor;
 
     @Test
     void handleSuccess() throws InterruptedException {

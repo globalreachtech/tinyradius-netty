@@ -6,7 +6,7 @@ import io.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.server.RequestCtx;
-import org.tinyradius.server.ServerResponseCtx;
+import org.tinyradius.server.ResponseCtx;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class BasicCachingHandler<IN extends RequestCtx, OUT extends ServerResponseCtx> extends MessageToMessageCodec<IN, OUT> {
+public class BasicCachingHandler<IN extends RequestCtx, OUT extends ResponseCtx> extends MessageToMessageCodec<IN, OUT> {
 
     private static final Logger logger = LoggerFactory.getLogger(BasicCachingHandler.class);
 

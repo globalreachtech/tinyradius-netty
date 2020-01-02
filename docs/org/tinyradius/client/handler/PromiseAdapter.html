@@ -137,7 +137,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>io.netty.channel.ChannelDuplexHandler</li>
 <li>
 <ul class="inheritance">
-<li>io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client">RequestCtxWrapper</a>&gt;</li>
+<li>io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/client/PendingRequestCtx.html" title="class in org.tinyradius.client">PendingRequestCtx</a>&gt;</li>
 <li>
 <ul class="inheritance">
 <li>org.tinyradius.client.handler.PromiseAdapter</li>
@@ -158,7 +158,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">PromiseAdapter</span>
-extends io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client">RequestCtxWrapper</a>&gt;</pre>
+extends io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/client/PendingRequestCtx.html" title="class in org.tinyradius.client">PendingRequestCtx</a>&gt;</pre>
 <div class="block">ClientHandler that matches requests/response by appending Proxy-State attribute to
  outbound packets. This avoids problem with mismatched requests/responses when using
  packetIdentifier, which is limited to 256 unique IDs.</div>
@@ -229,8 +229,8 @@ extends io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/handler/PromiseAdapter.html#encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.client.RequestCtxWrapper-java.util.List-">encode</a></span>&#8203;(io.netty.channel.ChannelHandlerContext&nbsp;ctx,
-      <a href="../../../../org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client">RequestCtxWrapper</a>&nbsp;msg,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/handler/PromiseAdapter.html#encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.client.PendingRequestCtx-java.util.List-">encode</a></span>&#8203;(io.netty.channel.ChannelHandlerContext&nbsp;ctx,
+      <a href="../../../../org/tinyradius/client/PendingRequestCtx.html" title="class in org.tinyradius.client">PendingRequestCtx</a>&nbsp;msg,
       java.util.List&lt;java.lang.Object&gt;&nbsp;out)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -312,18 +312,18 @@ extends io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.client.RequestCtxWrapper-java.util.List-">
+<a id="encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.client.PendingRequestCtx-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>encode</h4>
 <pre>protected&nbsp;void&nbsp;encode&#8203;(io.netty.channel.ChannelHandlerContext&nbsp;ctx,
-                      <a href="../../../../org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client">RequestCtxWrapper</a>&nbsp;msg,
+                      <a href="../../../../org/tinyradius/client/PendingRequestCtx.html" title="class in org.tinyradius.client">PendingRequestCtx</a>&nbsp;msg,
                       java.util.List&lt;java.lang.Object&gt;&nbsp;out)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>encode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client">RequestCtxWrapper</a>&gt;</code></dd>
+<dd><code>encode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/client/PendingRequestCtx.html" title="class in org.tinyradius.client">PendingRequestCtx</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
@@ -338,7 +338,7 @@ extends io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org
                       java.util.List&lt;java.lang.Object&gt;&nbsp;out)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>decode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client">RequestCtxWrapper</a>&gt;</code></dd>
+<dd><code>decode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>,<a href="../../../../org/tinyradius/client/PendingRequestCtx.html" title="class in org.tinyradius.client">PendingRequestCtx</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>

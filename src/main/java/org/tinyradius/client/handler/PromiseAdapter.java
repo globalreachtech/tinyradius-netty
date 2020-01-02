@@ -6,7 +6,7 @@ import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.client.RequestCtxWrapper;
+import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -23,7 +23,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
  * outbound packets. This avoids problem with mismatched requests/responses when using
  * packetIdentifier, which is limited to 256 unique IDs.
  */
-public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, RequestCtxWrapper> {
+public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PendingRequestCtx> {
 
     private static final Logger logger = LoggerFactory.getLogger(PromiseAdapter.class);
 
@@ -38,7 +38,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, RequestC
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, RequestCtxWrapper msg, List<Object> out) {
+    protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
         final RadiusPacket packet = msg.getRequest().copy();
         final String requestId = nextProxyStateId();
 
@@ -49,7 +49,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, RequestC
 
         msg.getResponse().addListener(f -> requests.remove(requestId));
 
-        out.add(new RequestCtxWrapper(encodedRequest, msg.getEndpoint(), msg.getResponse()));
+        out.add(new PendingRequestCtx(encodedRequest, msg.getEndpoint(), msg.getResponse()));
     }
 
     @Override

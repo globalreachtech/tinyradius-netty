@@ -232,7 +232,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">B</h2>
 <dl>
-<dt><a href="org/tinyradius/server/handler/BasicCachingHandler.html" title="class in org.tinyradius.server.handler"><span class="typeNameLink">BasicCachingHandler</span></a>&lt;<a href="org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">IN</a> extends <a href="org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>,<a href="org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">OUT</a> extends <a href="org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&gt; - Class in <a href="org/tinyradius/server/handler/package-summary.html">org.tinyradius.server.handler</a></dt>
+<dt><a href="org/tinyradius/server/handler/BasicCachingHandler.html" title="class in org.tinyradius.server.handler"><span class="typeNameLink">BasicCachingHandler</span></a>&lt;<a href="org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">IN</a> extends <a href="org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>,<a href="org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">OUT</a> extends <a href="org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&gt; - Class in <a href="org/tinyradius/server/handler/package-summary.html">org.tinyradius.server.handler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/BasicCachingHandler.html#BasicCachingHandler-io.netty.util.Timer-int-java.lang.Class-java.lang.Class-">BasicCachingHandler(Timer, int, Class&lt;IN&gt;, Class&lt;OUT&gt;)</a></span> - Constructor for class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/BasicCachingHandler.html" title="class in org.tinyradius.server.handler">BasicCachingHandler</a></dt>
 <dd>&nbsp;</dd>
@@ -316,6 +316,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/PromiseAdapter.html#decode-io.netty.channel.ChannelHandlerContext-org.tinyradius.packet.RadiusPacket-java.util.List-">decode(ChannelHandlerContext, RadiusPacket, List&lt;Object&gt;)</a></span> - Method in class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/PromiseAdapter.html" title="class in org.tinyradius.client.handler">PromiseAdapter</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/ClientPacketCodec.html#decodePacket-io.netty.channel.socket.DatagramPacket-">decodePacket(DatagramPacket)</a></span> - Method in class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/ClientPacketCodec.html" title="class in org.tinyradius.client.handler">ClientPacketCodec</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/ServerPacketCodec.html#decodePacket-io.netty.channel.socket.DatagramPacket-">decodePacket(DatagramPacket)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/ServerPacketCodec.html" title="class in org.tinyradius.server.handler">ServerPacketCodec</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#decryptPasswords-java.lang.String-">decryptPasswords(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/dictionary/DefaultDictionary.html" title="class in org.tinyradius.dictionary"><span class="typeNameLink">DefaultDictionary</span></a> - Class in <a href="org/tinyradius/dictionary/package-summary.html">org.tinyradius.dictionary</a></dt>
@@ -351,13 +355,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">E</h2>
 <dl>
-<dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/ClientPacketCodec.html#encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.client.RequestCtxWrapper-java.util.List-">encode(ChannelHandlerContext, RequestCtxWrapper, List&lt;Object&gt;)</a></span> - Method in class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/ClientPacketCodec.html" title="class in org.tinyradius.client.handler">ClientPacketCodec</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/ClientPacketCodec.html#encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.client.PendingRequestCtx-java.util.List-">encode(ChannelHandlerContext, PendingRequestCtx, List&lt;Object&gt;)</a></span> - Method in class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/ClientPacketCodec.html" title="class in org.tinyradius.client.handler">ClientPacketCodec</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/PromiseAdapter.html#encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.client.RequestCtxWrapper-java.util.List-">encode(ChannelHandlerContext, RequestCtxWrapper, List&lt;Object&gt;)</a></span> - Method in class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/PromiseAdapter.html" title="class in org.tinyradius.client.handler">PromiseAdapter</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/PromiseAdapter.html#encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.client.PendingRequestCtx-java.util.List-">encode(ChannelHandlerContext, PendingRequestCtx, List&lt;Object&gt;)</a></span> - Method in class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/PromiseAdapter.html" title="class in org.tinyradius.client.handler">PromiseAdapter</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/ServerPacketCodec.html#encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.server.ServerResponseCtx-java.util.List-">encode(ChannelHandlerContext, ServerResponseCtx, List&lt;Object&gt;)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/ServerPacketCodec.html" title="class in org.tinyradius.server.handler">ServerPacketCodec</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/ServerPacketCodec.html#encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.server.ResponseCtx-java.util.List-">encode(ChannelHandlerContext, ResponseCtx, List&lt;Object&gt;)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/ServerPacketCodec.html" title="class in org.tinyradius.server.handler">ServerPacketCodec</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/BasicCachingHandler.html#encode-io.netty.channel.ChannelHandlerContext-OUT-java.util.List-">encode(ChannelHandlerContext, OUT, List&lt;Object&gt;)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/BasicCachingHandler.html" title="class in org.tinyradius.server.handler">BasicCachingHandler</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/client/handler/ClientPacketCodec.html#encodePacket-java.net.InetSocketAddress-org.tinyradius.client.PendingRequestCtx-">encodePacket(InetSocketAddress, PendingRequestCtx)</a></span> - Method in class org.tinyradius.client.handler.<a href="org/tinyradius/client/handler/ClientPacketCodec.html" title="class in org.tinyradius.client.handler">ClientPacketCodec</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/ServerPacketCodec.html#encodePacket-java.net.InetSocketAddress-org.tinyradius.server.ResponseCtx-">encodePacket(InetSocketAddress, ResponseCtx)</a></span> - Method in class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/ServerPacketCodec.html" title="class in org.tinyradius.server.handler">ServerPacketCodec</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccessRequest.html#encodeRequest-java.lang.String-">encodeRequest(String)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccessRequest.html" title="class in org.tinyradius.packet">AccessRequest</a></dt>
 <dd>
@@ -525,9 +533,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/RequestCtx.html#getRequest--">getRequest()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/client/RequestCtxWrapper.html#getResponse--">getResponse()</a></span> - Method in class org.tinyradius.client.<a href="org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client">RequestCtxWrapper</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/client/PendingRequestCtx.html#getResponse--">getResponse()</a></span> - Method in class org.tinyradius.client.<a href="org/tinyradius/client/PendingRequestCtx.html" title="class in org.tinyradius.client">PendingRequestCtx</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/ServerResponseCtx.html#getResponse--">getResponse()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a></dt>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/ResponseCtx.html#getResponse--">getResponse()</a></span> - Method in class org.tinyradius.server.<a href="org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/util/RadiusEndpoint.html#getSecret--">getSecret()</a></span> - Method in class org.tinyradius.util.<a href="org/tinyradius/util/RadiusEndpoint.html" title="class in org.tinyradius.util">RadiusEndpoint</a></dt>
 <dd>&nbsp;</dd>
@@ -783,6 +791,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/PacketType.html#PASSWORD_REQUEST">PASSWORD_REQUEST</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet">PacketType</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="org/tinyradius/client/PendingRequestCtx.html" title="class in org.tinyradius.client"><span class="typeNameLink">PendingRequestCtx</span></a> - Class in <a href="org/tinyradius/client/package-summary.html">org.tinyradius.client</a></dt>
+<dd>
+<div class="block">Wrapper that holds a promise to be resolved when response is received.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/client/PendingRequestCtx.html#PendingRequestCtx-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-io.netty.util.concurrent.Promise-">PendingRequestCtx(RadiusPacket, RadiusEndpoint, Promise&lt;RadiusPacket&gt;)</a></span> - Constructor for class org.tinyradius.client.<a href="org/tinyradius/client/PendingRequestCtx.html" title="class in org.tinyradius.client">PendingRequestCtx</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/client/handler/PromiseAdapter.html" title="class in org.tinyradius.client.handler"><span class="typeNameLink">PromiseAdapter</span></a> - Class in <a href="org/tinyradius/client/handler/package-summary.html">org.tinyradius.client.handler</a></dt>
 <dd>
 <div class="block">ClientHandler that matches requests/response by appending Proxy-State attribute to
@@ -890,12 +904,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/RequestCtx.html#RequestCtx-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-">RequestCtx(RadiusPacket, RadiusEndpoint)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client"><span class="typeNameLink">RequestCtxWrapper</span></a> - Class in <a href="org/tinyradius/client/package-summary.html">org.tinyradius.client</a></dt>
-<dd>
-<div class="block">Wrapper that holds a promise to be resolved when response is received.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/client/RequestCtxWrapper.html#RequestCtxWrapper-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-io.netty.util.concurrent.Promise-">RequestCtxWrapper(RadiusPacket, RadiusEndpoint, Promise&lt;RadiusPacket&gt;)</a></span> - Constructor for class org.tinyradius.client.<a href="org/tinyradius/client/RequestCtxWrapper.html" title="class in org.tinyradius.client">RequestCtxWrapper</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="org/tinyradius/server/handler/RequestHandler.html" title="class in org.tinyradius.server.handler"><span class="typeNameLink">RequestHandler</span></a> - Class in <a href="org/tinyradius/server/handler/package-summary.html">org.tinyradius.server.handler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/RequestHandler.html#RequestHandler--">RequestHandler()</a></span> - Constructor for class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/RequestHandler.html" title="class in org.tinyradius.server.handler">RequestHandler</a></dt>
@@ -903,6 +911,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/PacketType.html#RESERVED">RESERVED</a></span> - Static variable in class org.tinyradius.packet.<a href="org/tinyradius/packet/PacketType.html" title="class in org.tinyradius.packet">PacketType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/dictionary/DictionaryParser.ResourceResolver.html#resolve-java.lang.String-java.lang.String-">resolve(String, String)</a></span> - Method in interface org.tinyradius.dictionary.<a href="org/tinyradius/dictionary/DictionaryParser.ResourceResolver.html" title="interface in org.tinyradius.dictionary">DictionaryParser.ResourceResolver</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server"><span class="typeNameLink">ResponseCtx</span></a> - Class in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="org/tinyradius/server/ResponseCtx.html#ResponseCtx-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-org.tinyradius.packet.RadiusPacket-">ResponseCtx(RadiusPacket, RadiusEndpoint, RadiusPacket)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a id="I:S">
@@ -915,10 +927,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><a href="org/tinyradius/server/handler/ServerPacketCodec.html" title="class in org.tinyradius.server.handler"><span class="typeNameLink">ServerPacketCodec</span></a> - Class in <a href="org/tinyradius/server/handler/package-summary.html">org.tinyradius.server.handler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/server/handler/ServerPacketCodec.html#ServerPacketCodec-org.tinyradius.packet.PacketEncoder-org.tinyradius.server.SecretProvider-">ServerPacketCodec(PacketEncoder, SecretProvider)</a></span> - Constructor for class org.tinyradius.server.handler.<a href="org/tinyradius/server/handler/ServerPacketCodec.html" title="class in org.tinyradius.server.handler">ServerPacketCodec</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server"><span class="typeNameLink">ServerResponseCtx</span></a> - Class in <a href="org/tinyradius/server/package-summary.html">org.tinyradius.server</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="org/tinyradius/server/ServerResponseCtx.html#ServerResponseCtx-org.tinyradius.packet.RadiusPacket-org.tinyradius.util.RadiusEndpoint-org.tinyradius.packet.RadiusPacket-">ServerResponseCtx(RadiusPacket, RadiusEndpoint, RadiusPacket)</a></span> - Constructor for class org.tinyradius.server.<a href="org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="org/tinyradius/packet/AccountingRequest.html#setAcctStatusType-int-">setAcctStatusType(int)</a></span> - Method in class org.tinyradius.packet.<a href="org/tinyradius/packet/AccountingRequest.html" title="class in org.tinyradius.packet">AccountingRequest</a></dt>
 <dd>

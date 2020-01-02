@@ -51,7 +51,7 @@ public class RadiusClient implements Closeable {
 
         channelFuture.addListener(s -> {
             if (s.isSuccess())
-                send(new RequestCtxWrapper(packet, endpoint, promise), 1);
+                send(new PendingRequestCtx(packet, endpoint, promise), 1);
             else
                 promise.tryFailure(s.cause());
         });
@@ -59,7 +59,7 @@ public class RadiusClient implements Closeable {
         return promise;
     }
 
-    private void send(RequestCtxWrapper ctx, int attempt) {
+    private void send(PendingRequestCtx ctx, int attempt) {
         logger.info("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
         channelFuture.channel().writeAndFlush(ctx);
         timeoutHandler.onTimeout(() -> send(ctx, attempt + 1), attempt, ctx.getResponse());

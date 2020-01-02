@@ -21,7 +21,7 @@ public class RequestCtx {
         return endpoint;
     }
 
-    public ServerResponseCtx withResponse(RadiusPacket response) {
-        return new ServerResponseCtx(request, endpoint, response);
+    public ResponseCtx withResponse(RadiusPacket response) {
+        return new ResponseCtx(request, endpoint, response);
     }
 }

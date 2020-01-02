@@ -121,7 +121,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../org/tinyradius/server/handler/package-summary.html">org.tinyradius.server.handler</a></div>
-<h2 title="Class BasicCachingHandler" class="title">Class BasicCachingHandler&lt;IN extends <a href="../../../../org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>,OUT extends <a href="../../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&gt;</h2>
+<h2 title="Class BasicCachingHandler" class="title">Class BasicCachingHandler&lt;IN extends <a href="../../../../org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>,OUT extends <a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&gt;</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
@@ -157,7 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <hr>
 <br>
-<pre>public class <span class="typeNameLabel">BasicCachingHandler&lt;IN extends <a href="../../../../org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>,OUT extends <a href="../../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&gt;</span>
+<pre>public class <span class="typeNameLabel">BasicCachingHandler&lt;IN extends <a href="../../../../org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>,OUT extends <a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&gt;</span>
 extends io.netty.handler.codec.MessageToMessageCodec&lt;IN,OUT&gt;</pre>
 </li>
 </ul>
@@ -351,7 +351,7 @@ extends io.netty.handler.codec.MessageToMessageCodec&lt;IN,OUT&gt;</pre>
 </dl>
 </li>
 </ul>
-<a id="onHit-io.netty.channel.ChannelHandlerContext-org.tinyradius.server.ServerResponseCtx-">
+<a id="onHit-io.netty.channel.ChannelHandlerContext-org.tinyradius.server.ResponseCtx-">
 <!--   -->
 </a><a id="onHit-io.netty.channel.ChannelHandlerContext-OUT-">
 <!--   -->
@@ -381,11 +381,11 @@ extends io.netty.handler.codec.MessageToMessageCodec&lt;IN,OUT&gt;</pre>
                       java.util.List&lt;java.lang.Object&gt;&nbsp;out)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>decode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">IN</a> extends <a href="../../../../org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>,<a href="../../../../org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">OUT</a> extends <a href="../../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&gt;</code></dd>
+<dd><code>decode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">IN</a> extends <a href="../../../../org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>,<a href="../../../../org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">OUT</a> extends <a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
-<a id="encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.server.ServerResponseCtx-java.util.List-">
+<a id="encode-io.netty.channel.ChannelHandlerContext-org.tinyradius.server.ResponseCtx-java.util.List-">
 <!--   -->
 </a><a id="encode-io.netty.channel.ChannelHandlerContext-OUT-java.util.List-">
 <!--   -->
@@ -398,7 +398,7 @@ extends io.netty.handler.codec.MessageToMessageCodec&lt;IN,OUT&gt;</pre>
                       java.util.List&lt;java.lang.Object&gt;&nbsp;out)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>encode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">IN</a> extends <a href="../../../../org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>,<a href="../../../../org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">OUT</a> extends <a href="../../../../org/tinyradius/server/ServerResponseCtx.html" title="class in org.tinyradius.server">ServerResponseCtx</a>&gt;</code></dd>
+<dd><code>encode</code>&nbsp;in class&nbsp;<code>io.netty.handler.codec.MessageToMessageCodec&lt;<a href="../../../../org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">IN</a> extends <a href="../../../../org/tinyradius/server/RequestCtx.html" title="class in org.tinyradius.server">RequestCtx</a>,<a href="../../../../org/tinyradius/server/handler/BasicCachingHandler.html" title="type parameter in BasicCachingHandler">OUT</a> extends <a href="../../../../org/tinyradius/server/ResponseCtx.html" title="class in org.tinyradius.server">ResponseCtx</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
