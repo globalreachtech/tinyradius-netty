@@ -10,9 +10,7 @@ public abstract class RequestHandler extends SimpleChannelInboundHandler<Request
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    protected Class<? extends RadiusPacket> acceptedPacketType(){
-        return RadiusPacket.class;
-    }
+    protected abstract Class<? extends RadiusPacket> acceptedPacketType();
 
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception {
