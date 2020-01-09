@@ -193,7 +193,7 @@ implements <a href="../../../../org/tinyradius/client/timeout/TimeoutHandler.htm
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/timeout/BasicTimeoutHandler.html#onTimeout-java.lang.Runnable-int-io.netty.util.concurrent.Promise-">onTimeout</a></span>&#8203;(java.lang.Runnable&nbsp;retry,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../org/tinyradius/client/timeout/BasicTimeoutHandler.html#onTimeout-java.lang.Runnable-int-io.netty.util.concurrent.Promise-">onTimeout</a></span>&#8203;(java.lang.Runnable&nbsp;callback,
          int&nbsp;totalAttempts,
          io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</code></th>
 <td class="colLast">
@@ -266,7 +266,7 @@ implements <a href="../../../../org/tinyradius/client/timeout/TimeoutHandler.htm
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onTimeout</h4>
-<pre>public&nbsp;void&nbsp;onTimeout&#8203;(java.lang.Runnable&nbsp;retry,
+<pre>public&nbsp;void&nbsp;onTimeout&#8203;(java.lang.Runnable&nbsp;callback,
                       int&nbsp;totalAttempts,
                       io.netty.util.concurrent.Promise&lt;<a href="../../../../org/tinyradius/packet/RadiusPacket.html" title="class in org.tinyradius.packet">RadiusPacket</a>&gt;&nbsp;promise)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../org/tinyradius/client/timeout/TimeoutHandler.html#onTimeout-java.lang.Runnable-int-io.netty.util.concurrent.Promise-">TimeoutHandler</a></code></span></div>
@@ -282,7 +282,7 @@ implements <a href="../../../../org/tinyradius/client/timeout/TimeoutHandler.htm
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../org/tinyradius/client/timeout/TimeoutHandler.html#onTimeout-java.lang.Runnable-int-io.netty.util.concurrent.Promise-">onTimeout</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/tinyradius/client/timeout/TimeoutHandler.html" title="interface in org.tinyradius.client.timeout">TimeoutHandler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>retry</code> - runnable to invoke to retry</dd>
+<dd><code>callback</code> - runnable to invoke to retry</dd>
 <dd><code>totalAttempts</code> - current attempt count</dd>
 <dd><code>promise</code> - request promise that resolves when a response is received</dd>
 </dl>

@@ -30,15 +30,15 @@ public class BasicTimeoutHandler implements TimeoutHandler {
     }
 
     @Override
-    public void onTimeout(Runnable retry, int totalAttempts, Promise<RadiusPacket> promise) {
+    public void onTimeout(Runnable callback, int totalAttempts, Promise<RadiusPacket> promise) {
         timer.newTimeout(t -> {
             if (promise.isDone())
                 return;
 
             if (totalAttempts >= maxAttempts)
-                promise.tryFailure(new IOException("Client send failed, max retries reached: " + maxAttempts));
+                promise.tryFailure(new IOException("Client send failed, max attempts reached: " + maxAttempts));
             else
-                retry.run();
+                callback.run();
         }, timeoutMs, MILLISECONDS);
     }
 }
