@@ -47,16 +47,16 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
 ### Client
  - `RadiusClient` manages setting up sockets and netty, and the plumbing for the `communicate()` method to return a `Future<RadiusPacket>`
  - `TimeoutHandler` contains a method which is called after every request is sent, with a Runnable to retry. The retry runnable is then scheduled or timeout triggered depending on the implementation.
- - `PromiseAdapter` is a ChannelHandler that requires a promise to be passed in with the outbound request.
+ - `PromiseAdapter` is a ChannelHandler that requires a promise to be passed in with the outbound request in a `PendingRequestCtx` wrapper.
    - The Promise passed into the handler is incomplete. The Promise is completed and removed from memory when a valid response is received or timeouts.
-   - Appends a `Proxy-State` attribute to the packet and uses that to lookup requests.
+   - Appends a `Proxy-State` attribute to the packet and uses that to match request/responses.
 
 ### Server
   - `RadiusServer` sets up netty listeners and sockets.
-  - Packets should go through `ServerPacketCodec` first to verify shared secrets and convert between Datagram and RadiusPackets.
-    - `CachingHandler` should be used before the actual handler if required.
-    - `AccountingHandler` and `AccessHandler` are example implementations for handling Accounting-Request and Access-Requests respectively - they can be extended with more business logic.
-    - `ProxyHandler` handles incoming requests, but instead of processing directly or delegating, proxies the request using an instance of RadiusClient. This is where the main proxying processing is done. 
+  - Packets should go through `ServerPacketCodec` first to verify shared secrets and convert between Datagram and `RequestCtx` (a wrapper around `RadiusPacket`), and `ResponseCtx` for responses.
+    - `BasicCachingHandler` should be used before the actual handler if required. It provides hooks to override for hit/miss events.
+    - `RequestHandler` handles `RequestCtx`, but only accepts specific RadiusPacket subtypes (`AccessRequest`/`AccountingRequest`)
+    - `ProxyHandler` handles incoming requests and proxies the request using an instance of RadiusClient.
 
 ## License
 Copyright Matthias Wuttke and contributors:
