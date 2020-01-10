@@ -7,8 +7,8 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.ClientPacketCodec;
 import org.tinyradius.client.handler.PromiseAdapter;
@@ -43,7 +43,7 @@ import java.util.Optional;
  */
 public class TestProxy {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestProxy.class);
+    private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
 

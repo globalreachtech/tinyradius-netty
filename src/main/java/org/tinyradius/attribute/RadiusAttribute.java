@@ -3,7 +3,10 @@ package org.tinyradius.attribute;
 import org.tinyradius.dictionary.Dictionary;
 
 import javax.xml.bind.DatatypeConverter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 

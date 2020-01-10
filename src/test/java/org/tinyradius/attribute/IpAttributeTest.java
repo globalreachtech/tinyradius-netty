@@ -96,7 +96,7 @@ class IpAttributeTest {
     }
 
     @Test
-    void mismatchIpVersions(){
+    void mismatchIpVersions() {
         final IllegalArgumentException v6Exception = assertThrows(IllegalArgumentException.class,
                 () -> new IpAttribute.V6(dictionary, -1, 8, "192.168.0.1"));
         assertTrue(v6Exception.getMessage().toLowerCase().contains("expected inet6address"));
