@@ -6,8 +6,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.timeout.TimeoutHandler;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
@@ -23,7 +23,7 @@ import java.net.SocketAddress;
  */
 public class RadiusClient implements Closeable {
 
-    private static final Logger logger = LoggerFactory.getLogger(RadiusClient.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private final TimeoutHandler timeoutHandler;
     private final EventLoopGroup eventLoopGroup;

@@ -7,8 +7,8 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.ClientPacketCodec;
 import org.tinyradius.client.handler.PromiseAdapter;
@@ -30,7 +30,7 @@ import static org.tinyradius.packet.RadiusPackets.nextPacketId;
  */
 public class TestClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestClient.class);
+    private static final Logger logger = LogManager.getLogger();
 
     /**
      * Radius command line client.
@@ -59,7 +59,7 @@ public class TestClient {
         RadiusClient rc = new RadiusClient(
                 bootstrap, new InetSocketAddress(0), new BasicTimeoutHandler(timer), new ChannelInitializer<DatagramChannel>() {
             @Override
-            protected void initChannel(DatagramChannel ch) throws Exception {
+            protected void initChannel(DatagramChannel ch) {
                 ch.pipeline().addLast(new ClientPacketCodec(packetEncoder), new PromiseAdapter());
             }
         });

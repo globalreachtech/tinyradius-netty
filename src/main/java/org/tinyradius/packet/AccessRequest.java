@@ -1,7 +1,7 @@
 package org.tinyradius.packet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -21,7 +21,7 @@ import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
  */
 public class AccessRequest extends RadiusPacket {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccessRequest.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private static final SecureRandom random = new SecureRandom();
 

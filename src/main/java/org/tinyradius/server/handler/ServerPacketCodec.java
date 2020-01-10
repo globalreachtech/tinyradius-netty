@@ -4,8 +4,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageCodec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.packet.PacketEncoder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestCtx;
@@ -20,7 +20,7 @@ import java.util.List;
 @ChannelHandler.Sharable
 public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, ResponseCtx> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerPacketCodec.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private final PacketEncoder packetEncoder;
     private final SecretProvider secretProvider;

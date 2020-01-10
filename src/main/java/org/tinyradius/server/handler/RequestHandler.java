@@ -1,14 +1,14 @@
 package org.tinyradius.server.handler;
 
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestCtx;
 
 public abstract class RequestHandler extends SimpleChannelInboundHandler<RequestCtx> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger();
 
     protected abstract Class<? extends RadiusPacket> acceptedPacketType();
 

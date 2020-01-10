@@ -8,8 +8,8 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
@@ -19,7 +19,7 @@ import java.net.InetSocketAddress;
  */
 public class RadiusServer implements Closeable {
 
-    private static final Logger logger = LoggerFactory.getLogger(RadiusServer.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private final ChannelFuture accessFuture;
     private final ChannelFuture accountingFuture;

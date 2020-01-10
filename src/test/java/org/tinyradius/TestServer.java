@@ -7,8 +7,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.*;
 import org.tinyradius.server.RadiusServer;
@@ -27,7 +27,7 @@ import static org.tinyradius.packet.PacketType.*;
  */
 public class TestServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestServer.class);
+    private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
 

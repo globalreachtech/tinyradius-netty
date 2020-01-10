@@ -2,8 +2,8 @@ package org.tinyradius.server.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.packet.RadiusPacket;
@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCtx> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProxyHandler.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private final RadiusClient radiusClient;
 

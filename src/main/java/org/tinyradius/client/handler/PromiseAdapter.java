@@ -3,8 +3,8 @@ package org.tinyradius.client.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.concurrent.Promise;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.packet.RadiusPacket;
@@ -25,7 +25,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
  */
 public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PendingRequestCtx> {
 
-    private static final Logger logger = LoggerFactory.getLogger(PromiseAdapter.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private static final int PROXY_STATE = 33;
 

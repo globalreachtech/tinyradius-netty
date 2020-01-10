@@ -15,9 +15,9 @@ public interface TimeoutHandler {
      * can be used depending on implementation, and actual retry can be deferred. Scheduling
      * and logic should be implemented here, while RadiusClient only deals with IO.
      *
-     * @param retry   runnable to invoke to retry
+     * @param retry         runnable to invoke to retry
      * @param totalAttempts current attempt count
-     * @param promise request promise that resolves when a response is received
+     * @param promise       request promise that resolves when a response is received
      */
     void onTimeout(Runnable retry, int totalAttempts, Promise<RadiusPacket> promise);
 }
