@@ -69,7 +69,7 @@ class RadiusClientTest {
         final IOException e = assertThrows(IOException.class,
                 () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
 
-        assertTrue(e.getMessage().toLowerCase().contains("max retries"));
+        assertTrue(e.getMessage().toLowerCase().contains("max attempts reached"));
         verify(timeoutHandler).onTimeout(any(), anyInt(), any());
     }
 

@@ -36,7 +36,7 @@ public class BasicTimeoutHandler implements TimeoutHandler {
                 return;
 
             if (totalAttempts >= maxAttempts)
-                promise.tryFailure(new IOException("Client send failed, max attempts reached: " + maxAttempts));
+                promise.tryFailure(new IOException("Client send timeout, max attempts reached: " + maxAttempts));
             else
                 callback.run();
         }, timeoutMs, MILLISECONDS);

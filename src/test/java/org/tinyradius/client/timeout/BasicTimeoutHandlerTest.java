@@ -50,7 +50,7 @@ class BasicTimeoutHandlerTest {
 
         verify(mockRetry, times(1)).run(); // unchanged
         assertFalse(promise.isSuccess());
-        assertTrue(promise.cause().getMessage().toLowerCase().contains("max retries reached"));
+        assertTrue(promise.cause().getMessage().toLowerCase().contains("max attempts reached"));
     }
 
     @Test
