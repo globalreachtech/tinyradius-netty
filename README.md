@@ -9,9 +9,9 @@
 tinyradius-netty is a fork of the TinyRadius Radius library, with some significant changes:
 - Use netty for asynchronous IO, timeouts, thread management
 - Most methods return Promises or follow Netty's interceptor filter pattern
-- Use slf4j instead of commons-logging
+- Use log4j2 instead of commons-logging
 - Use Generics and Java 8
-- Proxy uses Client to handle requests upstream, retries, and connection management
+- Proxy implementation directly uses Client to handle requests upstream, retries, and connection management
 - More immutability
 - More tests
 
