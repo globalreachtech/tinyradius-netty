@@ -45,6 +45,7 @@ public class AccessRequest extends RadiusPacket {
     private static final int CHAP_PASSWORD = 3;
     private static final int CHAP_CHALLENGE = 60;
     private static final int EAP_MESSAGE = 79;
+    private static final int MESSAGE_AUTHENTICATOR = 80;
 
     // VendorIds
     private static final int MICROSOFT = 311;
@@ -176,15 +177,22 @@ public class AccessRequest extends RadiusPacket {
     }
 
     public boolean decryptPasswords(String sharedSecret) throws RadiusPacketException {
-        RadiusAttribute userPassword = getAttribute(USER_PASSWORD);
+        final List<RadiusAttribute> eapMessage = getAttributes(EAP_MESSAGE);
+        if (!eapMessage.isEmpty()) {
+            setAuthProtocol(AUTH_EAP);
+            final List<RadiusAttribute> messageAuth = getAttributes(MESSAGE_AUTHENTICATOR);
+            return !messageAuth.isEmpty(); // TODO
+        }
+
+        final RadiusAttribute userPassword = getAttribute(USER_PASSWORD);
         if (userPassword != null) {
             setAuthProtocol(AUTH_PAP);
             this.password = decodePapPassword(userPassword.getValue(), sharedSecret.getBytes(UTF_8));
             return true;
         }
 
-        RadiusAttribute chapPassword = getAttribute(CHAP_PASSWORD);
-        RadiusAttribute chapChallenge = getAttribute(CHAP_CHALLENGE);
+        final RadiusAttribute chapPassword = getAttribute(CHAP_PASSWORD);
+        final RadiusAttribute chapChallenge = getAttribute(CHAP_CHALLENGE);
         if (chapPassword != null) {
             setAuthProtocol(AUTH_CHAP);
             this.chapPassword = chapPassword.getValue();
@@ -193,18 +201,12 @@ public class AccessRequest extends RadiusPacket {
             return true;
         }
 
-        RadiusAttribute msChapChallenge = getAttribute(MICROSOFT, MS_CHAP_CHALLENGE);
-        RadiusAttribute msChap2Response = getAttribute(MICROSOFT, MS_CHAP2_RESPONSE);
+        final RadiusAttribute msChapChallenge = getAttribute(MICROSOFT, MS_CHAP_CHALLENGE);
+        final RadiusAttribute msChap2Response = getAttribute(MICROSOFT, MS_CHAP2_RESPONSE);
         if (msChapChallenge != null && msChap2Response != null) {
             setAuthProtocol(AUTH_MS_CHAP_V2);
             this.chapPassword = msChap2Response.getValue();
             this.chapChallenge = msChapChallenge.getValue();
-            return true;
-        }
-
-        List<RadiusAttribute> eapMessage = getAttributes(EAP_MESSAGE);
-        if (eapMessage.size() > 0) {
-            setAuthProtocol(AUTH_EAP);
             return true;
         }
 
@@ -228,7 +230,7 @@ public class AccessRequest extends RadiusPacket {
             case AUTH_MS_CHAP_V2:
                 throw new UnsupportedOperationException(AUTH_MS_CHAP_V2 + " verification not supported yet");
             case AUTH_EAP:
-                throw new UnsupportedOperationException(AUTH_EAP + " verification not supported yet");
+                throw new UnsupportedOperationException(AUTH_EAP + " verification not supported yet"); // TODO relevant?
             case AUTH_PAP:
             default:
                 return getUserPassword().equals(plaintext);
@@ -294,7 +296,7 @@ public class AccessRequest extends RadiusPacket {
                 case AUTH_MS_CHAP_V2:
                     throw new UnsupportedOperationException("Encoding not supported for " + AUTH_MS_CHAP_V2);
                 case AUTH_EAP:
-                    throw new UnsupportedOperationException("Encoding not supported for " + AUTH_EAP);
+                    throw new UnsupportedOperationException("Encoding not supported for " + AUTH_EAP); // TODO
             }
 
         return Collections.emptyList();
