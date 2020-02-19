@@ -172,23 +172,20 @@ public class AccessRequest extends RadiusPacket {
      */
     @Override
     public void verify(String sharedSecret, byte[] ignored) throws RadiusPacketException {
-        if (!decryptPasswords(sharedSecret))
-            throw new RadiusPacketException("Access-Request: User-Password or CHAP-Password/CHAP-Challenge missing");
-    }
-
-    public boolean decryptPasswords(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> eapMessage = getAttributes(EAP_MESSAGE);
         if (!eapMessage.isEmpty()) {
             setAuthProtocol(AUTH_EAP);
             final List<RadiusAttribute> messageAuth = getAttributes(MESSAGE_AUTHENTICATOR);
-            return !messageAuth.isEmpty(); // TODO
+            if (messageAuth.isEmpty()) // TODO discard or reject?
+                throw new RadiusPacketException("EAP-Message detected, but Message-Authenticator not found");
+            return;
         }
 
         final RadiusAttribute userPassword = getAttribute(USER_PASSWORD);
         if (userPassword != null) {
             setAuthProtocol(AUTH_PAP);
             this.password = decodePapPassword(userPassword.getValue(), sharedSecret.getBytes(UTF_8));
-            return true;
+            return;
         }
 
         final RadiusAttribute chapPassword = getAttribute(CHAP_PASSWORD);
@@ -198,7 +195,7 @@ public class AccessRequest extends RadiusPacket {
             this.chapPassword = chapPassword.getValue();
             this.chapChallenge = chapChallenge != null ?
                     chapChallenge.getValue() : getAuthenticator();
-            return true;
+            return;
         }
 
         final RadiusAttribute msChapChallenge = getAttribute(MICROSOFT, MS_CHAP_CHALLENGE);
@@ -207,10 +204,10 @@ public class AccessRequest extends RadiusPacket {
             setAuthProtocol(AUTH_MS_CHAP_V2);
             this.chapPassword = msChap2Response.getValue();
             this.chapChallenge = msChapChallenge.getValue();
-            return true;
+            return;
         }
 
-        return false;
+        throw new RadiusPacketException("Access-Request auth verify failed - could not identify auth protocol");
     }
 
     /**
@@ -223,17 +220,14 @@ public class AccessRequest extends RadiusPacket {
      */
     public boolean verifyPassword(String plaintext) throws UnsupportedOperationException {
         if (plaintext == null || plaintext.isEmpty())
-            throw new IllegalArgumentException("password is empty");
+            throw new IllegalArgumentException("Password is empty");
         switch (getAuthProtocol()) {
             case AUTH_CHAP:
                 return verifyChapPassword(plaintext);
-            case AUTH_MS_CHAP_V2:
-                throw new UnsupportedOperationException(AUTH_MS_CHAP_V2 + " verification not supported yet");
-            case AUTH_EAP:
-                throw new UnsupportedOperationException(AUTH_EAP + " verification not supported yet"); // TODO relevant?
             case AUTH_PAP:
-            default:
                 return getUserPassword().equals(plaintext);
+            default:
+                throw new UnsupportedOperationException(getAuthProtocol() + " password verification not supported");
         }
     }
 

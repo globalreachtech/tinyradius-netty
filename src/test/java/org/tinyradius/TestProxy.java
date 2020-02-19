@@ -96,16 +96,17 @@ public class TestProxy {
 
             proxy.isReady().addListener(future1 -> {
                 if (future1.isSuccess()) {
-                    logger.info("Server started.");
+                    logger.info("Server started");
                 } else {
-                    logger.info("Failed to start server");
-                    future1.cause().printStackTrace();
+                    logger.info("Failed to start server", future1.cause());
+                    proxy.close();
+                    eventLoopGroup.shutdownGracefully();
                 }
             });
 
             System.in.read();
         }
 
-        eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
+        eventLoopGroup.shutdownGracefully();
     }
 }

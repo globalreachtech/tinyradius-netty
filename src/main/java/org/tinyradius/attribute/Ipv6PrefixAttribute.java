@@ -54,7 +54,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
         // ensure bits beyond Prefix-Length are zero
         if (bitSetLength > prefixLength)
             throw new IllegalArgumentException("Prefix-Length is " + prefixLength + ", actual address has prefix length " + bitSetLength +
-                    ", bits outside of the Prefix-Length must be zero.");
+                    ", bits outside of the Prefix-Length must be zero");
 
         final int prefixBytes = (int) Math.ceil((double) prefixLength / 8); // bytes needed to hold bits
 

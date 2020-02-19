@@ -62,7 +62,7 @@ public class TestServer {
                 if (future1.isSuccess()) {
                     logger.info("Server started");
                 } else {
-                    logger.info("Failed to start server: " + future1.cause());
+                    logger.info("Failed to start server", future1.cause());
                     server.close();
                     eventLoopGroup.shutdownGracefully();
                 }
@@ -71,7 +71,7 @@ public class TestServer {
             System.in.read();
         }
 
-        eventLoopGroup.shutdownGracefully().awaitUninterruptibly();
+        eventLoopGroup.shutdownGracefully();
     }
 
     public static class SimpleAccessHandler extends RequestHandler {
