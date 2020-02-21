@@ -35,10 +35,10 @@ class RadiusPacketTest {
         packet.addAttribute(createAttribute(packet.getDictionary(), -1, 97, "fe80::/64"));
         packet.addAttribute(createAttribute(packet.getDictionary(), -1, 97, "fe80::/128"));
 
-        final List<VendorSpecificAttribute> vendorAttributes = packet.getVendorAttributes(14122);
+        final List<VendorSpecificAttribute> vendorAttributes = packet.getVendorSpecificAttributes(14122);
         assertEquals(1, vendorAttributes.size());
 
-        final List<RadiusAttribute> wisprLocations = vendorAttributes.get(0).getSubAttributes();
+        final List<RadiusAttribute> wisprLocations = vendorAttributes.get(0).getAttributes();
         assertEquals(1, wisprLocations.size());
         assertEquals("myLocationId", wisprLocations.get(0).getValueString());
 
@@ -81,7 +81,7 @@ class RadiusPacketTest {
     void removeSpecificVendorAttributes() {
         RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
-        assertFalse(rp.getAttributes().isEmpty());
+        assertEquals(1, rp.getAttributes().size());
 
         rp.removeAttributes(14122, 1);
         assertTrue(rp.getAttributes().isEmpty());
@@ -132,8 +132,8 @@ class RadiusPacketTest {
         radiusPacket.addAttribute("Reply-Message", "foobar");
 
         VendorSpecificAttribute vsa = new VendorSpecificAttribute(DefaultDictionary.INSTANCE, 14122);
-        vsa.addSubAttribute("WISPr-Logoff-URL", "111");
-        vsa.addSubAttribute("WISPr-Logoff-URL", "222");
+        vsa.addAttribute("WISPr-Logoff-URL", "111");
+        vsa.addAttribute("WISPr-Logoff-URL", "222");
         radiusPacket.addAttribute(vsa);
 
         Map<String, String> attributeMap = radiusPacket.getAttributeMap();

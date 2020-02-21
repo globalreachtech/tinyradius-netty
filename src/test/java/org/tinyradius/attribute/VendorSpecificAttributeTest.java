@@ -18,10 +18,10 @@ class VendorSpecificAttributeTest {
     void addSubAttributeOk() {
         String data = "myLocationId";
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, 2, data);
-        vendorSpecificAttribute.addSubAttribute(createAttribute(dictionary, 14122, 2, data));
+        vendorSpecificAttribute.addAttribute(createAttribute(dictionary, 14122, 2, data));
 
-        assertEquals(1, vendorSpecificAttribute.getSubAttributes().size());
-        assertEquals(data, vendorSpecificAttribute.getSubAttribute(2).getValueString());
+        assertEquals(1, vendorSpecificAttribute.getAttributes().size());
+        assertEquals(data, vendorSpecificAttribute.getAttribute(2).getValueString());
     }
 
     @Test
@@ -46,23 +46,24 @@ class VendorSpecificAttributeTest {
     @Test
     void getVsaSubAttributeValueStringByName() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
-        vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
+        vendorSpecificAttribute.addAttribute("WISPr-Location-ID", "myLocationId");
 
-        assertFalse(vendorSpecificAttribute.getSubAttributes().isEmpty());
-        assertEquals("myLocationId", vendorSpecificAttribute.getSubAttribute("WISPr-Location-ID").getValueString());
+        assertFalse(vendorSpecificAttribute.getAttributes().isEmpty());
+        assertEquals("myLocationId", vendorSpecificAttribute.getAttribute("WISPr-Location-ID").getValueString());
     }
 
     @Test
     void addNonVsaSubAttribute() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
-        Exception exception = assertThrows(RuntimeException.class, () -> vendorSpecificAttribute.addSubAttribute("User-Password", "password"));
-        assertTrue(exception.getMessage().toLowerCase().contains("is not a vendor-specific sub-attribute"));
+        Exception exception = assertThrows(RuntimeException.class, () -> vendorSpecificAttribute.addAttribute("User-Name", "test1"));
+        System.out.println(exception.getMessage());
+        assertTrue(exception.getMessage().toLowerCase().contains("sub-attribute has incorrect vendor id"));
     }
 
     @Test
     void addEmptySubAttribute() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
-        Exception exception = assertThrows(RuntimeException.class, () -> vendorSpecificAttribute.addSubAttribute("", "myLocationId"));
+        Exception exception = assertThrows(RuntimeException.class, () -> vendorSpecificAttribute.addAttribute("", "myLocationId"));
         assertTrue(exception.getMessage().toLowerCase().contains("type name is empty"));
     }
 
@@ -70,9 +71,9 @@ class VendorSpecificAttributeTest {
     void vsaToByteArray() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         RadiusAttribute radiusAttribute = new RadiusAttribute(dictionary, 14122, 26, new byte[8]);
-        vendorSpecificAttribute.addSubAttribute(radiusAttribute);
-        vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
-        assertEquals(2, vendorSpecificAttribute.getSubAttributes().size());
+        vendorSpecificAttribute.addAttribute(radiusAttribute);
+        vendorSpecificAttribute.addAttribute("WISPr-Location-ID", "myLocationId");
+        assertEquals(2, vendorSpecificAttribute.getAttributes().size());
 
         byte[] bytes = vendorSpecificAttribute.toByteArray();
         assertEquals(bytes.length, bytes[1]);
@@ -82,8 +83,8 @@ class VendorSpecificAttributeTest {
     void vsaToByteArrayLargestUnsignedVendorId() {
         RadiusAttribute radiusAttribute = createAttribute(dictionary, Integer.parseUnsignedInt("4294967295"), 1, new byte[4]);
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, Integer.parseUnsignedInt("4294967295"), new ArrayList<>());
-        vendorSpecificAttribute.addSubAttribute(radiusAttribute);
-        assertEquals(1, vendorSpecificAttribute.getSubAttributes().size());
+        vendorSpecificAttribute.addAttribute(radiusAttribute);
+        assertEquals(1, vendorSpecificAttribute.getAttributes().size());
 
         byte[] bytes = vendorSpecificAttribute.toByteArray();
         assertEquals(12, bytes.length);
@@ -94,9 +95,9 @@ class VendorSpecificAttributeTest {
     @Test
     void vsaToByteArrayTooLong() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
-        vendorSpecificAttribute.addSubAttribute(new RadiusAttribute(dictionary, 14122, 26, new byte[253]));
-        vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
-        assertEquals(2, vendorSpecificAttribute.getSubAttributes().size());
+        vendorSpecificAttribute.addAttribute(new RadiusAttribute(dictionary, 14122, 26, new byte[253]));
+        vendorSpecificAttribute.addAttribute("WISPr-Location-ID", "myLocationId");
+        assertEquals(2, vendorSpecificAttribute.getAttributes().size());
 
         Exception exception = assertThrows(RuntimeException.class, vendorSpecificAttribute::toByteArray);
         assertTrue(exception.getMessage().toLowerCase().contains("should be less than 256 octets"));
@@ -112,17 +113,17 @@ class VendorSpecificAttributeTest {
     @Test
     void testToMap() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
-        vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
-        vendorSpecificAttribute.addSubAttribute("WISPr-Location-Name", "myLocationName");
+        vendorSpecificAttribute.addAttribute("WISPr-Location-ID", "myLocationId");
+        vendorSpecificAttribute.addAttribute("WISPr-Location-Name", "myLocationName");
 
-        assertEquals("{WISPr-Location-Name=myLocationName, WISPr-Location-ID=myLocationId}", vendorSpecificAttribute.toAttributeMap().toString());
+        assertEquals("{WISPr-Location-Name=myLocationName, WISPr-Location-ID=myLocationId}", vendorSpecificAttribute.getAttributeMap().toString());
     }
 
     @Test
     void testToString() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
-        vendorSpecificAttribute.addSubAttribute("WISPr-Location-ID", "myLocationId");
-        vendorSpecificAttribute.addSubAttribute("WISPr-Location-Name", "myLocationName");
+        vendorSpecificAttribute.addAttribute("WISPr-Location-ID", "myLocationId");
+        vendorSpecificAttribute.addAttribute("WISPr-Location-Name", "myLocationName");
 
         assertEquals("Vendor-Specific: WISPr (14122)\n" +
                 "  WISPr-Location-ID: myLocationId\n" +

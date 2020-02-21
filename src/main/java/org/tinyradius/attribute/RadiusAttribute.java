@@ -119,7 +119,7 @@ public class RadiusAttribute {
      *
      * @return Set of String/String Entry
      */
-    public Map<String, String> toAttributeMap() {
+    public Map<String, String> getAttributeMap() {
         final HashMap<String, String> map = new HashMap<>();
         map.put(getAttributeKey(), getValueString());
         return map;

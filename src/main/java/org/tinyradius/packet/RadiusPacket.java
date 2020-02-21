@@ -2,7 +2,7 @@ package org.tinyradius.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.AttributeHolder;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.Dictionary;
@@ -10,18 +10,18 @@ import org.tinyradius.util.RadiusPacketException;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.Attributes.createAttribute;
-import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
  * A generic Radius packet. Subclasses provide convenience methods for special packet types.
  */
-public class RadiusPacket {
+public class RadiusPacket implements AttributeHolder {
 
     public static final int HEADER_LENGTH = 20;
     private static final int VENDOR_SPECIFIC_TYPE = 26;
@@ -133,40 +133,15 @@ public class RadiusPacket {
      *
      * @param attribute RadiusAttribute object
      */
+    @Override
     public void addAttribute(RadiusAttribute attribute) {
-        requireNonNull(attributes, "Attribute is null");
-
-        if (attribute.getVendorId() == -1) {
-            this.attributes.add(
-                    createAttribute(dictionary, attribute.getVendorId(), attribute.getType(), attribute.getValue()));
+        if (attribute.getVendorId() == getVendorId() || attribute.getType() == VENDOR_SPECIFIC_TYPE) {
+            attributes.add(attribute);
         } else {
             VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, attribute.getVendorId());
-            vsa.addSubAttribute(attribute);
-            this.attributes.add(vsa);
+            vsa.addAttribute(attribute);
+            attributes.add(vsa);
         }
-    }
-
-    /**
-     * Adds a Radius attribute to this packet.
-     * Uses AttributeTypes to lookup the type code and converts the value.
-     * Can also be used to add sub-attributes.
-     *
-     * @param typeName name of the attribute, for example "NAS-Ip-Address", should NOT be 'Vendor-Specific'
-     * @param value    value of the attribute, for example "127.0.0.1"
-     * @throws IllegalArgumentException if type name is unknown
-     */
-    public void addAttribute(String typeName, String value) {
-        if (typeName == null || typeName.isEmpty())
-            throw new IllegalArgumentException("type name is empty");
-        if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("value is empty");
-
-        AttributeType type = dictionary.getAttributeTypeByName(typeName);
-        if (type == null)
-            throw new IllegalArgumentException("unknown attribute type '" + typeName + "'");
-
-        RadiusAttribute attribute = createAttribute(getDictionary(), type.getVendorId(), type.getTypeCode(), value);
-        addAttribute(attribute);
     }
 
     /**
@@ -174,98 +149,19 @@ public class RadiusPacket {
      *
      * @param attribute RadiusAttribute to remove
      */
+    @Override
     public void removeAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() == -1 || attribute.getType() == VENDOR_SPECIFIC_TYPE) {
-            this.attributes.remove(attribute);
+        if (attribute.getVendorId() == getVendorId() || attribute.getType() == VENDOR_SPECIFIC_TYPE) {
+            attributes.remove(attribute);
         } else {
             // remove Vendor-Specific sub-attribute
-            List<VendorSpecificAttribute> vsas = getVendorAttributes(attribute.getVendorId());
-            for (VendorSpecificAttribute vsa : vsas) {
-                vsa.removeSubAttribute(attribute);
-                if (vsa.getSubAttributes().isEmpty())
+            for (VendorSpecificAttribute vsa : getVendorSpecificAttributes(attribute.getVendorId())) {
+                vsa.removeAttribute(attribute);
+                if (vsa.getAttributes().isEmpty())
                     // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
-                    removeAttribute(vsa);
+                    attributes.remove(vsa);
             }
         }
-    }
-
-    /**
-     * Removes all attributes from this packet which have got the specified type.
-     *
-     * @param type attribute type to remove
-     */
-    public void removeAttributes(int type) {
-        attributes.removeIf(a -> a.getType() == type);
-    }
-
-    /**
-     * Removes the last occurrence of the attribute of the given
-     * type from the packet.
-     *
-     * @param type attribute type code
-     */
-    public void removeLastAttribute(int type) {
-        List<RadiusAttribute> attrs = getAttributes(type);
-        if (attrs == null || attrs.isEmpty())
-            return;
-
-        removeAttribute(attrs.get(attrs.size() - 1));
-    }
-
-    /**
-     * Removes all sub-attributes of the given vendor and
-     * type.
-     *
-     * @param vendorId vendor ID
-     * @param typeCode attribute type code
-     */
-    public void removeAttributes(int vendorId, int typeCode) {
-        if (vendorId == -1) {
-            removeAttributes(typeCode);
-            return;
-        }
-
-        List<VendorSpecificAttribute> vsas = getVendorAttributes(vendorId);
-        for (VendorSpecificAttribute vsa : vsas) {
-            List<RadiusAttribute> sas = vsa.getSubAttributes();
-            sas.removeIf(attr -> attr.getType() == typeCode && attr.getVendorId() == vendorId);
-            if (sas.isEmpty())
-                // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
-                removeAttribute(vsa);
-        }
-    }
-
-    /**
-     * Returns all attributes of this packet of the given type.
-     * Returns an empty list if there are no such attributes.
-     *
-     * @param type type of attributes to get
-     * @return list of RadiusAttribute objects, does not return null
-     */
-    public List<RadiusAttribute> getAttributes(int type) {
-        return attributes.stream()
-                .filter(a -> a.getType() == type)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Returns all attributes of this packet that have got the
-     * given type and belong to the given vendor ID.
-     * Returns an empty list if there are no such attributes.
-     *
-     * @param vendorId      vendor ID
-     * @param attributeType attribute type code
-     * @return list of RadiusAttribute objects, never null
-     */
-    public List<RadiusAttribute> getAttributes(int vendorId, int attributeType) {
-        if (vendorId == -1)
-            return getAttributes(attributeType);
-
-        return getVendorAttributes(vendorId).stream()
-                .map(VendorSpecificAttribute::getSubAttributes)
-                .flatMap(Collection::stream)
-                .filter(sa -> sa.getType() == attributeType && sa.getVendorId() == vendorId)
-                .collect(Collectors.toList());
     }
 
     /**
@@ -273,96 +169,9 @@ public class RadiusPacket {
      *
      * @return List of RadiusAttribute objects
      */
+    @Override
     public List<RadiusAttribute> getAttributes() {
         return attributes;
-    }
-
-    /**
-     * Returns a Radius attribute of the given type which may only occur once
-     * in the Radius packet.
-     *
-     * @param type attribute type
-     * @return RadiusAttribute object or null if there is no such attribute
-     * @throws RuntimeException if there are multiple occurrences of the
-     *                          requested attribute type
-     */
-    public RadiusAttribute getAttribute(int type) {
-        List<RadiusAttribute> attrs = getAttributes(type);
-        if (attrs.size() > 1)
-            throw new RuntimeException("multiple attributes of requested type " + type);
-
-        return attrs.isEmpty() ? null : attrs.get(0);
-    }
-
-    /**
-     * Returns a Radius attribute of the given type and vendor ID
-     * which may only occur once in the Radius packet.
-     *
-     * @param vendorId vendor ID
-     * @param type     attribute type
-     * @return RadiusAttribute object or null if there is no such attribute
-     * @throws RuntimeException if there are multiple occurrences of the
-     *                          requested attribute type
-     */
-    public RadiusAttribute getAttribute(int vendorId, int type) {
-        if (vendorId == -1)
-            return getAttribute(type);
-
-        List<RadiusAttribute> attrs = getAttributes(vendorId, type);
-        if (attrs.size() > 1)
-            throw new RuntimeException("multiple attributes of requested type " + type);
-
-        return attrs.isEmpty() ? null : attrs.get(0);
-    }
-
-    /**
-     * Returns a single Radius attribute of the given type name.
-     * Also returns sub-attributes.
-     *
-     * @param type attribute type name
-     * @return RadiusAttribute object or null if there is no such attribute
-     * @throws RuntimeException if the attribute occurs multiple times
-     */
-    public RadiusAttribute getAttribute(String type) {
-        if (type == null || type.isEmpty())
-            throw new IllegalArgumentException("type name is empty");
-
-        AttributeType t = dictionary.getAttributeTypeByName(type);
-        if (t == null)
-            throw new IllegalArgumentException("unknown attribute type name '" + type + "'");
-
-        return getAttribute(t.getVendorId(), t.getTypeCode());
-    }
-
-    /**
-     * Returns the value of the Radius attribute of the given type or
-     * null if there is no such attribute.
-     * Also returns sub-attributes.
-     *
-     * @param type attribute type name
-     * @return value of the attribute as a string or null if there
-     * is no such attribute
-     * @throws IllegalArgumentException if the type name is unknown
-     * @throws RuntimeException         attribute occurs multiple times
-     */
-    public String getAttributeValue(String type) {
-        RadiusAttribute attr = getAttribute(type);
-        return attr == null ?
-                null : attr.getValueString();
-    }
-
-    /**
-     * Returns the Vendor-Specific attribute(s) for the given vendor ID.
-     *
-     * @param vendorId vendor ID of the attribute(s)
-     * @return List with VendorSpecificAttribute objects, never null
-     */
-    public List<VendorSpecificAttribute> getVendorAttributes(int vendorId) {
-        return getAttributes(VENDOR_SPECIFIC).stream()
-                .filter(VendorSpecificAttribute.class::isInstance)
-                .map(VendorSpecificAttribute.class::cast)
-                .filter(a -> a.getVendorId() == vendorId)
-                .collect(Collectors.toList());
     }
 
     /**
@@ -476,13 +285,9 @@ public class RadiusPacket {
         return buffer.copy().array();
     }
 
-    /**
-     * @return Map of attribute key-value
-     */
-    public Map<String, String> getAttributeMap() {
-        final HashMap<String, String> map = new HashMap<>();
-        attributes.forEach(a -> map.putAll(a.toAttributeMap()));
-        return map;
+    @Override
+    public int getVendorId() {
+        return -1;
     }
 
     public String toString() {
