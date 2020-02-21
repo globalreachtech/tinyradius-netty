@@ -1,9 +1,0 @@
-org.tinyradius.attribute
-org.tinyradius.client
-org.tinyradius.client.handler
-org.tinyradius.client.timeout
-org.tinyradius.dictionary
-org.tinyradius.packet
-org.tinyradius.server
-org.tinyradius.server.handler
-org.tinyradius.util

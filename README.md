@@ -5,6 +5,7 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/a6b90f85717d753228eb/maintainability)](https://codeclimate.com/github/globalreachtech/tinyradius-netty/maintainability)
 [![Coverage Status](https://coveralls.io/repos/github/globalreachtech/tinyradius-netty/badge.svg)](https://coveralls.io/github/globalreachtech/tinyradius-netty)
 [![Download](https://api.bintray.com/packages/globalreachtech/grt-maven/tinyradius-netty/images/download.svg)](https://bintray.com/globalreachtech/grt-maven/tinyradius-netty)
+[![javadoc](https://javadoc.io/badge2/com.globalreachtech/tinyradius-netty/javadoc.svg)](https://javadoc.io/doc/com.globalreachtech/tinyradius-netty)
 
 tinyradius-netty is a fork of the TinyRadius Radius library, with some significant changes:
 - Use netty for asynchronous IO, timeouts, thread management
@@ -14,10 +15,6 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
 - Proxy implementation directly uses Client to handle requests upstream, retries, and connection management
 - More immutability
 - More tests
-
-## Documentation
-
-[Javadocs](https://globalreachtech.github.io/tinyradius-netty/)
 
 ### Dictionary
  - Parses dictionary files in same format as [FreeRadius dictionaries](https://github.com/FreeRADIUS/freeradius-server/tree/master/share/dictionary).
