@@ -162,11 +162,11 @@ public class AttributeType {
         return s;
     }
 
-    public interface ByteArrayConstructor<T extends RadiusAttribute> {
+    interface ByteArrayConstructor<T extends RadiusAttribute> {
         T newInstance(Dictionary dictionary, int vendorId, int type, byte[] data);
     }
 
-    public interface StringConstructor<T extends RadiusAttribute> {
+    interface StringConstructor<T extends RadiusAttribute> {
         T newInstance(Dictionary dictionary, int vendorId, int type, String data);
     }
 }

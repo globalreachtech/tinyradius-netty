@@ -26,8 +26,8 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
     }
 
     protected DatagramPacket encodePacket(InetSocketAddress localAddress, PendingRequestCtx msg) {
-        final RadiusPacket packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
         try {
+            final RadiusPacket packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
             final DatagramPacket datagramPacket = packetEncoder.toDatagram(
                     packet, msg.getEndpoint().getAddress(), localAddress);
             logger.debug("Sending request to {}", msg.getEndpoint().getAddress());

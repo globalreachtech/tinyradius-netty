@@ -11,12 +11,13 @@ import org.tinyradius.util.RadiusPacketException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
-import static org.tinyradius.packet.AccessRequest.pad;
+import static org.tinyradius.packet.AccessPap.pad;
 import static org.tinyradius.packet.RadiusPackets.nextPacketId;
 
 class AccessRequestTest {
@@ -25,29 +26,28 @@ class AccessRequestTest {
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
-    void authenticatorOnlyAddedIfNull() {
+    void authenticatorOnlyAddedIfNull() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
 
-        AccessRequest nullAuthRequest = new AccessRequest(dictionary, 2, null, "myUser", "myPw");
+        AccessRequest nullAuthRequest = new AccessPap(dictionary, 2, null, Collections.emptyList(), "myPw");
         assertNull(nullAuthRequest.getAuthenticator());
 
         assertNotNull(nullAuthRequest.encodeRequest(sharedSecret).getAuthenticator());
 
-        AccessRequest authRequest = new AccessRequest(dictionary, 2, random16Bytes(), "myUser", "myPw");
+        AccessRequest authRequest = new AccessPap(dictionary, 2, random16Bytes(), Collections.emptyList(), "myPw");
         assertNotNull(authRequest.getAuthenticator());
         assertArrayEquals(authRequest.getAuthenticator(), authRequest.encodeRequest(sharedSecret).getAuthenticator());
     }
 
     @Test
     void verifyDecodesPassword() throws RadiusPacketException {
-        String user = "user1";
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequest request = new AccessRequest(dictionary, 2, null, user, plaintextPw);
-        final AccessRequest encoded = request.encodeRequest(sharedSecret);
+        AccessPap request = new AccessPap(dictionary, 2, null, Collections.emptyList(), plaintextPw);
+        final AccessPap encoded = (AccessPap) request.encodeRequest(sharedSecret);
 
-        encoded.setUserPassword("set field to something else");
+        encoded.setPlaintextPassword("set field to something else");
         encoded.verify(sharedSecret, null);
 
         assertEquals(plaintextPw, encoded.getUserPassword());
@@ -95,7 +95,7 @@ class AccessRequestTest {
                 createAttribute(dictionary, -1, 1, user),
                 createAttribute(dictionary, -1, 2, encodedPassword));
 
-        AccessRequest request = new AccessRequest(dictionary, nextPacketId(), authenticator, attributes);
+        AccessRequest request = AccessRequest.create(dictionary, nextPacketId(), authenticator, attributes);
 
         assertNull(request.getUserPassword());
         assertEquals(user, request.getUserName());
@@ -144,13 +144,13 @@ class AccessRequestTest {
         final byte[] challenge = random16Bytes();
         final byte[] password = CHAP.chapResponse((byte) chapId, plaintextPw.getBytes(UTF_8), challenge);
 
-        AccessRequest goodRequest = new AccessRequest(dictionary, 1, null, Arrays.asList(
+        AccessRequest goodRequest = AccessRequest.create(dictionary, 1, null, Arrays.asList(
                 createAttribute(dictionary, -1, 60, challenge),
                 createAttribute(dictionary, -1, 3, password)));
         goodRequest.verify(null, null);
         assertTrue(goodRequest.verifyPassword(plaintextPw));
 
-        AccessRequest badChallenge = new AccessRequest(dictionary, 1, null, Arrays.asList(
+        AccessRequest badChallenge = AccessRequest.create(dictionary, 1, null, Arrays.asList(
                 createAttribute(dictionary, -1, 60, random16Bytes()),
                 createAttribute(dictionary, -1, 3, password)));
         badChallenge.verify(null, null);

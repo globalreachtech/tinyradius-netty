@@ -183,7 +183,7 @@ public class RadiusPacket implements AttributeHolder {
      *                     with the other Radius server/client
      * @return RadiusPacket with new authenticator and/or encoded attributes
      */
-    public RadiusPacket encodeRequest(String sharedSecret) {
+    public RadiusPacket encodeRequest(String sharedSecret) throws RadiusPacketException {
         return encodeResponse(sharedSecret, new byte[16]);
     }
 
@@ -249,13 +249,13 @@ public class RadiusPacket implements AttributeHolder {
     /**
      * Checks the request authenticator against the supplied shared secret.
      *
-     * @param sharedSecret         shared secret
-     * @param requestAuthenticator should be set to request authenticator if verifying response,
-     *                             otherwise set to 16 zero octets
+     * @param sharedSecret shared secret
+     * @param requestAuth  should be set to request authenticator if verifying response,
+     *                     otherwise set to 16 zero octets
      * @throws RadiusPacketException if authenticator check fails
      */
-    public void verify(String sharedSecret, byte[] requestAuthenticator) throws RadiusPacketException {
-        byte[] expectedAuth = createHashedAuthenticator(sharedSecret, requestAuthenticator);
+    public void verify(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+        byte[] expectedAuth = createHashedAuthenticator(sharedSecret, requestAuth);
         byte[] receivedAuth = getAuthenticator();
         if (receivedAuth.length != 16 ||
                 !Arrays.equals(expectedAuth, receivedAuth))

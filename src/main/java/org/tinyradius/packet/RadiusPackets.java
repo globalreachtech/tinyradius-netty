@@ -85,7 +85,7 @@ public class RadiusPackets {
     public static RadiusPacket create(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
             case ACCESS_REQUEST:
-                return new AccessRequest(dictionary, identifier, authenticator, attributes);
+                return AccessRequest.create(dictionary, identifier, authenticator, attributes);
             case ACCOUNTING_REQUEST:
                 return new AccountingRequest(dictionary, identifier, authenticator, attributes);
             default:

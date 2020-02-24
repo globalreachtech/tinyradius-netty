@@ -25,6 +25,12 @@ public interface AttributeHolder {
 
     void removeAttribute(RadiusAttribute attribute);
 
+    static List<RadiusAttribute> getAttributes(List<RadiusAttribute> attributes, int type) {
+        return attributes.stream()
+                .filter(a -> a.getType() == type)
+                .collect(Collectors.toList());
+    }
+
     default AttributeType lookupAttributeType(String name) {
         final AttributeType type = getDictionary().getAttributeTypeByName(name);
         if (type == null)
@@ -40,9 +46,7 @@ public interface AttributeHolder {
      * @return list of RadiusAttribute objects, or empty list
      */
     default List<RadiusAttribute> getAttributes(int type) {
-        return getAttributes().stream()
-                .filter(a -> a.getType() == type)
-                .collect(Collectors.toList());
+        return getAttributes(getAttributes(), type);
     }
 
     /**
@@ -92,6 +96,10 @@ public interface AttributeHolder {
                 .collect(Collectors.toList());
     }
 
+    default void addAttributes(List<RadiusAttribute> attributes) {
+        attributes.forEach(this::addAttribute);
+    }
+
     /**
      * Adds a Radius attribute to this packet.
      * Uses AttributeTypes to lookup the type code and converts the value.
@@ -109,6 +117,10 @@ public interface AttributeHolder {
 
         RadiusAttribute attribute = lookupAttributeType(name).create(getDictionary(), value);
         addAttribute(attribute);
+    }
+
+    default void removeAttributes(List<RadiusAttribute> attributes) {
+        attributes.forEach(this::removeAttribute);
     }
 
     /**
