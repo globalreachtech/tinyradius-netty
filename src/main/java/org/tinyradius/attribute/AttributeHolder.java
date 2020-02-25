@@ -96,10 +96,6 @@ public interface AttributeHolder {
                 .collect(Collectors.toList());
     }
 
-    default void addAttributes(List<RadiusAttribute> attributes) {
-        attributes.forEach(this::addAttribute);
-    }
-
     /**
      * Adds a Radius attribute to this packet.
      * Uses AttributeTypes to lookup the type code and converts the value.
@@ -117,10 +113,6 @@ public interface AttributeHolder {
 
         RadiusAttribute attribute = lookupAttributeType(name).create(getDictionary(), value);
         addAttribute(attribute);
-    }
-
-    default void removeAttributes(List<RadiusAttribute> attributes) {
-        attributes.forEach(this::removeAttribute);
     }
 
     /**
