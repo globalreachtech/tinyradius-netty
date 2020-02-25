@@ -16,7 +16,7 @@ class RequestHandlerTest {
     private final RadiusPacket accountingRequest = new AccountingRequest(DefaultDictionary.INSTANCE, 1, null);
 
     @Test
-    void acceptMsg() throws Exception {
+    void rejectMsg() throws Exception {
 
         final boolean b = new RequestHandler() {
             @Override
@@ -28,11 +28,11 @@ class RequestHandlerTest {
             protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
             }
         }.acceptInboundMessage(new RequestCtx(accountingRequest, null));
-        assertTrue(b);
+        assertFalse(b);
     }
 
     @Test
-    void rejectMsg() throws Exception {
+    void acceptMsg() throws Exception {
 
         final boolean b = new RequestHandler() {
             @Override
@@ -44,6 +44,6 @@ class RequestHandlerTest {
             protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
             }
         }.acceptInboundMessage(new RequestCtx(accountingRequest, null));
-        assertFalse(b);
+        assertTrue(b);
     }
 }

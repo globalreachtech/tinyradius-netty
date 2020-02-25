@@ -42,10 +42,25 @@ public class AccountingRequest extends RadiusPacket {
         setAcctStatusType(acctStatusType);
     }
 
+    /**
+     * Constructs an Accounting-Request packet to be sent to a Radius server.
+     *
+     * @param dictionary    custom dictionary to use
+     * @param identifier    packet identifier
+     * @param authenticator authenticator for packet, nullable
+     */
     public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator) {
         this(dictionary, identifier, authenticator, new ArrayList<>());
     }
 
+    /**
+     * Constructs an Accounting-Request packet to be sent to a Radius server.
+     *
+     * @param dictionary    custom dictionary to use
+     * @param identifier    packet identifier
+     * @param authenticator authenticator for packet, nullable
+     * @param attributes    list of attributes
+     */
     public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCOUNTING_REQUEST, identifier, authenticator, attributes);
     }

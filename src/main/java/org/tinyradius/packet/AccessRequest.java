@@ -111,7 +111,8 @@ public abstract class AccessRequest extends RadiusPacket {
      * @param dictionary    custom dictionary to use
      * @param identifier    packet identifier
      * @param authenticator authenticator for packet, nullable
-     * @param attributes    list of attributes for packet
+     * @param attributes    list of attributes for packet, should not be empty
+     *                      or a stub AccessRequest will be returned
      */
     public static AccessRequest create(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         return detectType(attributes).newInstance(dictionary, identifier, authenticator, attributes);

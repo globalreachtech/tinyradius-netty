@@ -25,7 +25,7 @@ class AccessRequestTest {
 
         assertNotNull(nullAuthRequest.encodeRequest(sharedSecret).getAuthenticator());
 
-        AccessRequest authRequest = AccessRequest.create(dictionary, 2, random16Bytes(), Collections.emptyList());
+        AccessRequest authRequest = new AccessPap(dictionary, 2, random16Bytes(), Collections.emptyList());
         assertNotNull(authRequest.getAuthenticator());
         assertArrayEquals(authRequest.getAuthenticator(), authRequest.encodeRequest(sharedSecret).getAuthenticator());
     }
