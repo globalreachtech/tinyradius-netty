@@ -8,12 +8,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccessRequest;
+import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusPackets;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
 import org.tinyradius.util.RadiusEndpoint;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -32,11 +33,11 @@ class BasicCachingHandlerTest {
     private ChannelHandlerContext ctx;
 
     @Test
-    void cacheHitAndTimeout() throws InterruptedException {
+    void cacheHitAndTimeout() throws InterruptedException, RadiusPacketException {
         final BasicCachingHandler<RequestCtx, ResponseCtx> basicCachingHandler =
                 new BasicCachingHandler<>(new HashedWheelTimer(), 500, RequestCtx.class, ResponseCtx.class);
 
-        final RadiusPacket request = new AccessRequest(dictionary, 100, null).encodeRequest("test");
+        final RadiusPacket request = new AccountingRequest(dictionary, 100, null).encodeRequest("test");
         final RequestCtx requestCtx = new RequestCtx(request, new RadiusEndpoint(new InetSocketAddress(0), "foo"));
         final ResponseCtx responseContext = requestCtx.withResponse(RadiusPackets.create(dictionary, ACCESS_ACCEPT, 100));
 

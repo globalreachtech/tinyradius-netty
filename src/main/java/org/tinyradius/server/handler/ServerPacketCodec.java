@@ -6,7 +6,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageCodec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tinyradius.packet.PacketEncoder;
+import org.tinyradius.packet.PacketCodec;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
@@ -22,11 +22,11 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
 
     private static final Logger logger = LogManager.getLogger();
 
-    private final PacketEncoder packetEncoder;
+    private final PacketCodec packetCodec;
     private final SecretProvider secretProvider;
 
-    public ServerPacketCodec(PacketEncoder packetEncoder, SecretProvider secretProvider) {
-        this.packetEncoder = packetEncoder;
+    public ServerPacketCodec(PacketCodec packetCodec, SecretProvider secretProvider) {
+        this.packetCodec = packetCodec;
         this.secretProvider = secretProvider;
     }
 
@@ -40,7 +40,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
         }
 
         try {
-            RadiusPacket packet = packetEncoder.fromDatagram(msg, secret);
+            RadiusPacket packet = packetCodec.fromDatagram(msg, secret);
             logger.debug("Received packet from {} - {}", remoteAddress, packet);
 
             return new RequestCtx(packet, new RadiusEndpoint(remoteAddress, secret));
@@ -54,7 +54,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
         final RadiusPacket packet = msg.getResponse()
                 .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator());
         try {
-            final DatagramPacket datagramPacket = packetEncoder.toDatagram(
+            final DatagramPacket datagramPacket = packetCodec.toDatagram(
                     packet, msg.getEndpoint().getAddress(), localAddress);
             logger.debug("Sending response to {}", msg.getEndpoint().getAddress());
             return datagramPacket;

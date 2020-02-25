@@ -11,10 +11,11 @@ import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccessRequest;
+import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
@@ -44,11 +45,11 @@ class PromiseAdapterTest {
     private final PromiseAdapter handler = new PromiseAdapter();
 
     @Test
-    void encodeAppendProxyState() {
+    void encodeAppendProxyState() throws RadiusPacketException {
         final String secret = "test";
         int id = random.nextInt(256);
 
-        final RadiusPacket originalRequest = new AccessRequest(dictionary, id, null).encodeRequest(secret);
+        final RadiusPacket originalRequest = new AccountingRequest(dictionary, id, null).encodeRequest(secret);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
         // process once

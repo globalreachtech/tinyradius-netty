@@ -12,8 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccessRequest;
-import org.tinyradius.packet.PacketEncoder;
+import org.tinyradius.packet.AccessPap;
+import org.tinyradius.packet.PacketCodec;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusPacketException;
@@ -21,6 +21,7 @@ import org.tinyradius.util.RadiusPacketException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,8 +37,8 @@ class ClientPacketCodecTest {
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
 
-    private final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
-    private final ClientPacketCodec codec = new ClientPacketCodec(packetEncoder);
+    private final PacketCodec packetCodec = new PacketCodec(dictionary);
+    private final ClientPacketCodec codec = new ClientPacketCodec(packetCodec);
     private final InetSocketAddress address = new InetSocketAddress(0);
 
     @Mock
@@ -53,7 +54,7 @@ class ClientPacketCodecTest {
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
 
         final List<Object> out1 = new ArrayList<>();
-        codec.decode(ctx, packetEncoder.toDatagram(
+        codec.decode(ctx, packetCodec.toDatagram(
                 response.encodeResponse("mySecret", requestAuth), address, address), out1);
 
         assertEquals(1, out1.size());
@@ -67,7 +68,7 @@ class ClientPacketCodecTest {
 
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
 
-        final DatagramPacket datagram = packetEncoder.toDatagram(
+        final DatagramPacket datagram = packetCodec.toDatagram(
                 response.encodeResponse("mySecret", requestAuth), address, address);
 
         datagram.content().array()[3] = 7; // corrupt bytes to trigger error
@@ -85,7 +86,7 @@ class ClientPacketCodecTest {
         final RadiusPacket response = new RadiusPacket(dictionary, 2, 1);
 
         final List<Object> out1 = new ArrayList<>();
-        codec.decode(ctx, packetEncoder.toDatagram(
+        codec.decode(ctx, packetCodec.toDatagram(
                 response.encodeResponse("mySecret", requestAuth), address), out1);
 
         assertTrue(out1.isEmpty());
@@ -98,7 +99,9 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        final RadiusPacket accessRequest = new AccessRequest(dictionary, id, null, username, password);
+        final AccessPap accessRequest = new AccessPap(dictionary, id, null, Collections.emptyList());
+        accessRequest.setUserName(username);
+        accessRequest.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
         when(ctx.channel()).thenReturn(mock(Channel.class));
@@ -108,7 +111,7 @@ class ClientPacketCodecTest {
         codec.encode(ctx, new PendingRequestCtx(accessRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
-        final AccessRequest sentAccessPacket = (AccessRequest) packetEncoder.fromDatagram(
+        final AccessPap sentAccessPacket = (AccessPap) packetCodec.fromDatagram(
                 (DatagramPacket) out1.get(0), secret);
 
         // check user details correctly encoded
@@ -124,7 +127,9 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        final RadiusPacket packet = new AccessRequest(dictionary, id, null, username, password);
+        final AccessPap packet = new AccessPap(dictionary, id, null, Collections.emptyList());
+        packet.setUserName(username);
+        packet.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
 
         when(ctx.channel()).thenReturn(mock(Channel.class));

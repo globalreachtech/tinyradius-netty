@@ -30,4 +30,3 @@ jobs:
 
       - run: ./gradlew jacocoTestReport coveralls
 
-#      - run: ./gradlew bintrayUpload

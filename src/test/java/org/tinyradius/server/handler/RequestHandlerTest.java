@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RequestHandlerTest {
 
-    private final RadiusPacket accessRequest = new AccessRequest(DefaultDictionary.INSTANCE, 1, null);
+    private final RadiusPacket accountingRequest = new AccountingRequest(DefaultDictionary.INSTANCE, 1, null);
 
     @Test
     void acceptMsg() throws Exception {
@@ -27,7 +27,7 @@ class RequestHandlerTest {
             @Override
             protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
             }
-        }.acceptInboundMessage(new RequestCtx(accessRequest, null));
+        }.acceptInboundMessage(new RequestCtx(accountingRequest, null));
         assertTrue(b);
     }
 
@@ -43,7 +43,7 @@ class RequestHandlerTest {
             @Override
             protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
             }
-        }.acceptInboundMessage(new RequestCtx(accessRequest, null));
+        }.acceptInboundMessage(new RequestCtx(accountingRequest, null));
         assertFalse(b);
     }
 }

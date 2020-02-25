@@ -78,7 +78,7 @@ class ProxyHandlerTest {
 
         when(client.communicate(any(), any())).thenReturn(GlobalEventExecutor.INSTANCE.newFailedFuture(new Exception("test")));
 
-        final AccessRequest packet = new AccessRequest(dictionary, 123, null);
+        final AccountingRequest packet = new AccountingRequest(dictionary, 123, null);
 
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
 

@@ -15,13 +15,11 @@ import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.client.timeout.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccessRequest;
-import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.PacketEncoder;
-import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.*;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
+import java.util.Collections;
 
 import static org.tinyradius.packet.RadiusPackets.nextPacketId;
 
@@ -51,7 +49,7 @@ public class TestClient {
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
         final Dictionary dictionary = DefaultDictionary.INSTANCE;
-        final PacketEncoder packetEncoder = new PacketEncoder(dictionary);
+        final PacketCodec packetCodec = new PacketCodec(dictionary);
         final Timer timer = new HashedWheelTimer();
 
         final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
@@ -60,7 +58,7 @@ public class TestClient {
                 bootstrap, new InetSocketAddress(0), new BasicTimeoutHandler(timer), new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-                ch.pipeline().addLast(new ClientPacketCodec(packetEncoder), new PromiseAdapter());
+                ch.pipeline().addLast(new ClientPacketCodec(packetCodec), new PromiseAdapter());
             }
         });
 
@@ -68,8 +66,9 @@ public class TestClient {
         final RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1813), shared);
 
         // 1. Send Access-Request
-        AccessRequest ar = new AccessRequest(dictionary, nextPacketId(), null, user, pass);
-        ar.setAuthProtocol(AccessRequest.AUTH_PAP); // or AUTH_CHAP
+        AccessPap ar = (AccessPap) AccessRequest.create(dictionary, nextPacketId(), null, "pap");
+        ar.setUserName(user);
+        ar.setPlaintextPassword(pass);
         ar.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
         ar.addAttribute("NAS-IP-Address", "192.168.0.100");
         ar.addAttribute("Service-Type", "Login-User");

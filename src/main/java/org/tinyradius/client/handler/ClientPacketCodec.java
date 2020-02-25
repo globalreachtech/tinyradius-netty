@@ -7,7 +7,7 @@ import io.netty.handler.codec.MessageToMessageCodec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.PendingRequestCtx;
-import org.tinyradius.packet.PacketEncoder;
+import org.tinyradius.packet.PacketCodec;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -19,16 +19,16 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
 
     private static final Logger logger = LogManager.getLogger();
 
-    private final PacketEncoder packetEncoder;
+    private final PacketCodec packetCodec;
 
-    public ClientPacketCodec(PacketEncoder packetEncoder) {
-        this.packetEncoder = packetEncoder;
+    public ClientPacketCodec(PacketCodec packetCodec) {
+        this.packetCodec = packetCodec;
     }
 
     protected DatagramPacket encodePacket(InetSocketAddress localAddress, PendingRequestCtx msg) {
         try {
             final RadiusPacket packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
-            final DatagramPacket datagramPacket = packetEncoder.toDatagram(
+            final DatagramPacket datagramPacket = packetCodec.toDatagram(
                     packet, msg.getEndpoint().getAddress(), localAddress);
             logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
             return datagramPacket;
@@ -49,7 +49,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
 
         try {
             // can't verify until we know corresponding request auth
-            RadiusPacket packet = packetEncoder.fromDatagram(msg);
+            RadiusPacket packet = packetCodec.fromDatagram(msg);
             logger.debug("Received packet from {} - {}", remoteAddress, packet);
             return packet;
         } catch (RadiusPacketException e) {

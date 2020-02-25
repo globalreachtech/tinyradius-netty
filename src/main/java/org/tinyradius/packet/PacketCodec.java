@@ -20,7 +20,7 @@ import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
  * on every conversion - in typical use cases, only one instance of this
  * class will be required as the server/proxy/client will be using one Dictionary.
  */
-public class PacketEncoder {
+public class PacketCodec {
 
     private static final int MAX_PACKET_LENGTH = 4096;
 
@@ -29,7 +29,7 @@ public class PacketEncoder {
     /**
      * @param dictionary dictionary to use for attributes
      */
-    public PacketEncoder(Dictionary dictionary) {
+    public PacketCodec(Dictionary dictionary) {
         this.dictionary = dictionary;
     }
 

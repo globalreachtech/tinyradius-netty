@@ -31,14 +31,14 @@ public class TestServer {
 
     public static void main(String[] args) throws Exception {
 
-        final PacketEncoder packetEncoder = new PacketEncoder(DefaultDictionary.INSTANCE);
+        final PacketCodec packetCodec = new PacketCodec(DefaultDictionary.INSTANCE);
         final EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         final Bootstrap bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
         final SecretProvider secretProvider = remote ->
                 remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
 
-        final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(packetEncoder, secretProvider);
+        final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(packetCodec, secretProvider);
 
         final SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler();
         final SimpleAccountingHandler simpleAccountingHandler = new SimpleAccountingHandler();
@@ -84,7 +84,7 @@ public class TestServer {
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
 
-            final AccessRequest request = (AccessRequest) msg.getRequest();
+            final AccessPap request = (AccessPap) msg.getRequest();
 
             String password = request.getUserName().equals("test") ? "password" : null;
             int type = request.verifyPassword(password) ? ACCESS_ACCEPT : ACCESS_REJECT;

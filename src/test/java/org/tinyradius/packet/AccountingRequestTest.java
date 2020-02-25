@@ -4,6 +4,7 @@ import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.util.RadiusPacketException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -18,7 +19,7 @@ class AccountingRequestTest {
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
-    void encodeAccountingRequest() {
+    void encodeAccountingRequest() throws RadiusPacketException {
 
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
@@ -39,7 +40,7 @@ class AccountingRequestTest {
     }
 
     @Test
-    void encodeNewAccountingRequestWithUsernameAndAcctStatus() {
+    void encodeNewAccountingRequestWithUsernameAndAcctStatus() throws RadiusPacketException {
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
         AccountingRequest request = new AccountingRequest(dictionary, 1, null, user, 7);

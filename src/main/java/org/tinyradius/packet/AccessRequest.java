@@ -74,7 +74,6 @@ public abstract class AccessRequest extends RadiusPacket {
     protected static final int CHAP_CHALLENGE = 60;
     protected static final int EAP_MESSAGE = 79;
 
-
     /**
      * @param dictionary    custom dictionary to use
      * @param identifier    packet identifier
@@ -86,15 +85,29 @@ public abstract class AccessRequest extends RadiusPacket {
     }
 
     /**
+     * Create new AccessRequest, setting protocol explicitly.
+     *
      * @param dictionary    custom dictionary to use
      * @param identifier    packet identifier
      * @param authenticator authenticator for packet, nullable
+     * @param protocol      auth protocol
      */
-    public static AccessRequest create(Dictionary dictionary, int identifier, byte[] authenticator) {
-        return create(dictionary, identifier, authenticator, new ArrayList<>());
+    public static AccessRequest create(Dictionary dictionary, int identifier, byte[] authenticator, String protocol) {
+        switch (protocol) {
+            case "eap":
+                return new AccessEap(dictionary, identifier, authenticator, new ArrayList<>());
+            case "pap":
+                return new AccessPap(dictionary, identifier, authenticator, new ArrayList<>());
+            case "chap":
+                return new AccessChap(dictionary, identifier, authenticator, new ArrayList<>());
+            default:
+                return new AccessRequestUnknownProtocol(dictionary, identifier, authenticator, new ArrayList<>());
+        }
     }
 
     /**
+     * Create new AccessRequest, tries to identify auth protocol from attributes.
+     *
      * @param dictionary    custom dictionary to use
      * @param identifier    packet identifier
      * @param authenticator authenticator for packet, nullable
@@ -174,16 +187,6 @@ public abstract class AccessRequest extends RadiusPacket {
             throw new RadiusPacketException("Cannot encode request for unsupported auth protocol");
         }
 
-        /**
-         * AccessRequest cannot verify authenticator as they
-         * contain random bytes.
-         * <p>
-         * Instead it checks the User-Password/Challenge attributes
-         * are present and attempts decryption.
-         *
-         * @param sharedSecret shared secret, only applicable for PAP
-         * @param ignored      ignored, not applicable for AccessRequest
-         */
         @Override
         public void verify(String sharedSecret, byte[] ignored) throws RadiusPacketException {
             throw new RadiusPacketException("Access-Request auth verify failed - could not identify auth protocol");
