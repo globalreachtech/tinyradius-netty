@@ -16,6 +16,8 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
 
 public class AccessChap extends AccessRequest {
 
+    protected static final int CHAP_CHALLENGE = 60;
+
     private transient String password;
 
     public AccessChap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {

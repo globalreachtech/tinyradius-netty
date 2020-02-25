@@ -6,7 +6,7 @@ import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
-public class AccessEap extends AccessRequest{
+public class AccessEap extends AccessRequest {
 
     private static final int MESSAGE_AUTHENTICATOR = 80;
 
@@ -16,7 +16,7 @@ public class AccessEap extends AccessRequest{
 
     @Override
     protected AccessRequest encodeRequest(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
-        return null;
+        throw new RadiusPacketException("EAP Auth not yet implemented");
     }
 
     /**
@@ -31,8 +31,8 @@ public class AccessEap extends AccessRequest{
      */
     @Override
     public void verify(String sharedSecret, byte[] ignored) throws RadiusPacketException {
-            final List<RadiusAttribute> messageAuth = getAttributes(MESSAGE_AUTHENTICATOR);
-            if (messageAuth.isEmpty()) // TODO discard or reject?
-                throw new RadiusPacketException("EAP-Message detected, but Message-Authenticator not found");
+        final List<RadiusAttribute> messageAuth = getAttributes(MESSAGE_AUTHENTICATOR);
+        if (messageAuth.isEmpty())
+            throw new RadiusPacketException("EAP-Message detected, but Message-Authenticator not found");
     }
 }

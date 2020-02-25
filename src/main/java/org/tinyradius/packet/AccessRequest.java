@@ -44,12 +44,11 @@ public abstract class AccessRequest extends RadiusPacket {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("shared secret cannot be null/empty");
 
-        // create authenticator only if needed to maintain idempotence
+        // create authenticator only if needed - maintain idempotence
         byte[] newAuth = getAuthenticator() == null ? random16bytes() : getAuthenticator();
 
         return encodeRequest(sharedSecret, newAuth);
     }
-
 
     /**
      * AccessRequest cannot verify authenticator as they
@@ -71,7 +70,6 @@ public abstract class AccessRequest extends RadiusPacket {
     private static final int USER_NAME = 1;
     protected static final int USER_PASSWORD = 2;
     protected static final int CHAP_PASSWORD = 3;
-    protected static final int CHAP_CHALLENGE = 60;
     protected static final int EAP_MESSAGE = 79;
 
     /**
@@ -101,7 +99,7 @@ public abstract class AccessRequest extends RadiusPacket {
             case "chap":
                 return new AccessChap(dictionary, identifier, authenticator, new ArrayList<>());
             default:
-                return new AccessRequestUnknownProtocol(dictionary, identifier, authenticator, new ArrayList<>());
+                return new AccessUnknownAuth(dictionary, identifier, authenticator, new ArrayList<>());
         }
     }
 
@@ -134,7 +132,7 @@ public abstract class AccessRequest extends RadiusPacket {
             return AccessChap::new;
         }
 
-        return AccessRequestUnknownProtocol::new;
+        return AccessUnknownAuth::new;
     }
 
     /**
@@ -177,9 +175,9 @@ public abstract class AccessRequest extends RadiusPacket {
         T newInstance(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes);
     }
 
-    private static class AccessRequestUnknownProtocol extends AccessRequest {
+    static class AccessUnknownAuth extends AccessRequest {
 
-        public AccessRequestUnknownProtocol(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        public AccessUnknownAuth(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
             super(dictionary, identifier, authenticator, attributes);
         }
 
