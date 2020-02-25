@@ -135,10 +135,9 @@ public class AccessChap extends AccessRequest {
      * contain random bytes.
      *
      * @param sharedSecret ignored, not applicable for CHAP
-     * @param requestAuth  ignored, not applicable for AccessRequest
      */
     @Override
-    public void verify(String sharedSecret, byte[] requestAuth) {
+    protected void verify(String sharedSecret) {
     }
 
     @Override

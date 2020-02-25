@@ -8,8 +8,6 @@ import java.util.List;
 
 public class AccessEap extends AccessRequest {
 
-    private static final int MESSAGE_AUTHENTICATOR = 80;
-
     public AccessEap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, identifier, authenticator, attributes);
     }
@@ -27,10 +25,9 @@ public class AccessEap extends AccessRequest {
      * are present and attempts decryption.
      *
      * @param sharedSecret shared secret, only applicable for PAP
-     * @param ignored      ignored, not applicable for AccessRequest
      */
     @Override
-    public void verify(String sharedSecret, byte[] ignored) throws RadiusPacketException {
+    protected void verify(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> messageAuth = getAttributes(MESSAGE_AUTHENTICATOR);
         if (messageAuth.isEmpty())
             throw new RadiusPacketException("EAP-Message detected, but Message-Authenticator not found");

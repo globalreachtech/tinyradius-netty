@@ -101,10 +101,9 @@ public class AccessPap extends AccessRequest {
      * are present and attempts decryption for PAP.
      *
      * @param sharedSecret shared secret
-     * @param requestAuth  ignored, not applicable for AccessRequest
      */
     @Override
-    public void verify(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    protected void verify(String sharedSecret) throws RadiusPacketException {
         this.password = decodePapPassword(sharedSecret.getBytes(UTF_8));
     }
 

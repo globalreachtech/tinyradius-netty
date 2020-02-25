@@ -20,6 +20,16 @@ import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
  */
 public abstract class AccessRequest extends RadiusPacket {
 
+    protected static final Logger logger = LogManager.getLogger();
+
+    protected static final SecureRandom RANDOM = new SecureRandom();
+
+    protected static final int USER_NAME = 1;
+    protected static final int USER_PASSWORD = 2;
+    protected static final int CHAP_PASSWORD = 3;
+    protected static final int EAP_MESSAGE = 79;
+    protected static final int MESSAGE_AUTHENTICATOR = 80;
+
     /**
      * Create copy of AccessRequest with new authenticator and encoded attributes
      *
@@ -58,19 +68,24 @@ public abstract class AccessRequest extends RadiusPacket {
      * are present and attempts decryption.
      *
      * @param sharedSecret shared secret, only applicable for PAP
+     */
+    protected abstract void verify(String sharedSecret) throws RadiusPacketException;
+
+    /**
+     * AccessRequest cannot verify authenticator as they
+     * contain random bytes.
+     * <p>
+     * Instead it checks the User-Password/Challenge attributes
+     * are present and attempts decryption.
+     *
+     * @param sharedSecret shared secret, only applicable for PAP
      * @param requestAuth  ignored, not applicable for AccessRequest
      */
     @Override
-    public abstract void verify(String sharedSecret, byte[] requestAuth) throws RadiusPacketException;
-
-    protected static final Logger logger = LogManager.getLogger();
-
-    protected static final SecureRandom RANDOM = new SecureRandom();
-
-    private static final int USER_NAME = 1;
-    protected static final int USER_PASSWORD = 2;
-    protected static final int CHAP_PASSWORD = 3;
-    protected static final int EAP_MESSAGE = 79;
+    public void verify(String sharedSecret, byte[] requestAuth) throws RadiusPacketException{
+        // todo verify Message-Authenticator
+        verify(sharedSecret);
+    }
 
     /**
      * @param dictionary    custom dictionary to use
@@ -187,7 +202,7 @@ public abstract class AccessRequest extends RadiusPacket {
         }
 
         @Override
-        public void verify(String sharedSecret, byte[] ignored) throws RadiusPacketException {
+        protected void verify(String sharedSecret) throws RadiusPacketException {
             throw new RadiusPacketException("Access-Request auth verify failed - could not identify auth protocol");
         }
     }
