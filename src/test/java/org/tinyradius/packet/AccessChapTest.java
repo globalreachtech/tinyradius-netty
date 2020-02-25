@@ -65,20 +65,17 @@ class AccessChapTest {
         AccessChap goodRequest = (AccessChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
                 createAttribute(dictionary, -1, 60, challenge),
                 createAttribute(dictionary, -1, 3, password)));
-        goodRequest.verify(null, null);
         assertTrue(goodRequest.verifyPassword(plaintextPw));
 
         AccessChap badChallenge = (AccessChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
                 createAttribute(dictionary, -1, 60, random16Bytes()),
                 createAttribute(dictionary, -1, 3, password)));
-        badChallenge.verify(null, null);
         assertFalse(badChallenge.verifyPassword(plaintextPw));
 
         password[0] = (byte) ((chapId + 1) % 256);
         AccessChap badPassword = (AccessChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
                 createAttribute(dictionary, -1, 60, challenge),
                 createAttribute(dictionary, -1, 3, password)));
-        badPassword.verify(null, null);
         assertFalse(badPassword.verifyPassword(plaintextPw));
     }
 
