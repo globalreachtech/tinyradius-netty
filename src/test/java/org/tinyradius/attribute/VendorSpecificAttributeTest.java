@@ -56,7 +56,6 @@ class VendorSpecificAttributeTest {
     void addNonVsaSubAttribute() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         Exception exception = assertThrows(RuntimeException.class, () -> vendorSpecificAttribute.addAttribute("User-Name", "test1"));
-        System.out.println(exception.getMessage());
         assertTrue(exception.getMessage().toLowerCase().contains("sub-attribute has incorrect vendor id"));
     }
 
