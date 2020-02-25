@@ -58,6 +58,7 @@ public abstract class AccessRequest extends RadiusPacket {
         byte[] newAuth = getAuthenticator() == null ? random16bytes() : getAuthenticator();
 
         return encodeRequest(sharedSecret, newAuth);
+        // todo add Message-Authenticator
     }
 
     /**
