@@ -44,18 +44,22 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PendingR
 
         packet.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
 
-        /*
-         * ideally encode as late as possible, just before convert to datagram
-         * however we need to generate a copy of the authenticator now for later lookups
-         * encodeRequest() should be idempotent anyway
-         */
-        final RadiusPacket encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
+        try {
+            /*
+             * ideally encode as late as possible, just before convert to datagram
+             * however we need to generate a copy of the authenticator now for later lookups
+             * encodeRequest() should be idempotent anyway
+             */
+            final RadiusPacket encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
 
-        requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), msg.getResponse()));
+            msg.getResponse().addListener(f -> requests.remove(requestId));
+            requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), msg.getResponse()));
 
-        msg.getResponse().addListener(f -> requests.remove(requestId));
-
-        out.add(new PendingRequestCtx(encodedRequest, msg.getEndpoint(), msg.getResponse()));
+            out.add(new PendingRequestCtx(encodedRequest, msg.getEndpoint(), msg.getResponse()));
+        } catch (RadiusPacketException e) {
+            logger.warn("Could not encode Radius packet: {}", e.getMessage());
+            msg.getResponse().tryFailure(e);
+        }
     }
 
     @Override

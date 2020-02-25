@@ -32,6 +32,26 @@ public abstract class AccessRequest extends RadiusPacket {
     protected abstract AccessRequest encodeRequest(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
 
     /**
+     * AccessRequest overrides this method to generate a randomized authenticator as per RFC 2865
+     * and encode required attributes (i.e. User-Password).
+     *
+     * @param sharedSecret shared secret that secures the communication
+     *                     with the other Radius server/client
+     * @return RadiusPacket with new authenticator and encoded attributes
+     */
+    @Override
+    public AccessRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+        if (sharedSecret == null || sharedSecret.isEmpty())
+            throw new IllegalArgumentException("shared secret cannot be null/empty");
+
+        // create authenticator only if needed to maintain idempotence
+        byte[] newAuth = getAuthenticator() == null ? random16bytes() : getAuthenticator();
+
+        return encodeRequest(sharedSecret, newAuth);
+    }
+
+
+    /**
      * AccessRequest cannot verify authenticator as they
      * contain random bytes.
      * <p>
@@ -126,25 +146,6 @@ public abstract class AccessRequest extends RadiusPacket {
 
         removeAttributes(USER_NAME);
         addAttribute(createAttribute(getDictionary(), -1, USER_NAME, userName));
-    }
-
-    /**
-     * AccessRequest overrides this method to generate a randomized authenticator as per RFC 2865
-     * and encode required attributes (i.e. User-Password).
-     *
-     * @param sharedSecret shared secret that secures the communication
-     *                     with the other Radius server/client
-     * @return RadiusPacket with new authenticator and encoded attributes
-     */
-    @Override
-    public AccessRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
-        if (sharedSecret == null || sharedSecret.isEmpty())
-            throw new IllegalArgumentException("shared secret cannot be null/empty");
-
-        // create authenticator only if needed to maintain idempotence
-        byte[] newAuth = getAuthenticator() == null ? random16bytes() : getAuthenticator();
-
-        return encodeRequest(sharedSecret, newAuth);
     }
 
     @Override

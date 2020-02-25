@@ -54,14 +54,12 @@ class AccessRequestTest {
     }
 
     @Test
-    void encodePapPassword() {
-        String user = "user1";
+    void encodePapPassword() throws RadiusPacketException {
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequest request = new AccessRequest(dictionary, 2, null, user, plaintextPw);
-        request.setAuthProtocol(AccessRequest.AUTH_PAP);
-        final AccessRequest encoded = request.encodeRequest(sharedSecret);
+        AccessPap request = new AccessPap(dictionary, 2, null, Collections.emptyList(), plaintextPw);
+        final AccessPap encoded = (AccessPap) request.encodeRequest(sharedSecret);
 
         // randomly generated, need to extract
         final byte[] authenticator = encoded.getAuthenticator();
@@ -107,14 +105,13 @@ class AccessRequestTest {
     }
 
     @Test
-    void encodeChapPassword() throws NoSuchAlgorithmException {
+    void encodeChapPassword() throws NoSuchAlgorithmException, RadiusPacketException {
         String user = "user";
         String plaintextPw = "password123456789";
         String sharedSecret = "sharedSecret";
 
-        AccessRequest request = new AccessRequest(dictionary, nextPacketId(), null, user, plaintextPw);
-        request.setAuthProtocol(AccessRequest.AUTH_CHAP);
-        final AccessRequest encoded = request.encodeRequest(sharedSecret);
+        AccessChap request = new AccessChap(dictionary, nextPacketId(), null, Collections.emptyList(), plaintextPw);
+        final AccessChap encoded = (AccessChap) request.encodeRequest(sharedSecret);
 
         assertNull(request.getAttribute("User-Password"));
         assertNull(request.getAttribute("CHAP-Password"));

@@ -57,7 +57,7 @@ public class AccessChap extends AccessRequest {
      * @return List of RadiusAttributes to override
      */
     @Override
-    protected AccessRequest encodeRequest(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
+    protected AccessChap encodeRequest(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
         if (password == null || password.isEmpty()) {
             logger.warn("Could not encode CHAP attributes, password not set");
             throw new RadiusPacketException("Could not encode CHAP attributes, password not set");
