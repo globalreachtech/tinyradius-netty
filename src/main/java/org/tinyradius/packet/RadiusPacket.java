@@ -154,13 +154,16 @@ public class RadiusPacket implements AttributeHolder {
         if (attribute.getVendorId() == getVendorId() || attribute.getType() == VENDOR_SPECIFIC_TYPE) {
             attributes.remove(attribute);
         } else {
-            // remove Vendor-Specific sub-attribute
-            for (VendorSpecificAttribute vsa : getVendorSpecificAttributes(attribute.getVendorId())) {
-                vsa.removeAttribute(attribute);
-                if (vsa.getAttributes().isEmpty())
-                    // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
-                    attributes.remove(vsa);
-            }
+            removeSubAttribute(attribute);
+        }
+    }
+
+    private void removeSubAttribute(RadiusAttribute attribute) {
+        for (VendorSpecificAttribute vsa : getVendorSpecificAttributes(attribute.getVendorId())) {
+            vsa.removeAttribute(attribute);
+            if (vsa.getAttributes().isEmpty())
+                // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
+                attributes.remove(vsa);
         }
     }
 

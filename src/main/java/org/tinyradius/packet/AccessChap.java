@@ -52,7 +52,7 @@ public class AccessChap extends AccessRequest {
     }
 
     /**
-     * Sets and encrypts the User-Password attribute.
+     * Sets and encodes the CHAP-Password and CHAP-Challenge attributes.
      *
      * @param sharedSecret shared secret not used to encode
      * @param newAuth      ignored, not used for CHAP

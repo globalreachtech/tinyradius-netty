@@ -49,7 +49,7 @@ public class AccessPap extends AccessRequest {
     }
 
     /**
-     * Sets and encrypts the User-Password attribute.
+     * Sets and encodes the User-Password attribute.
      *
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client

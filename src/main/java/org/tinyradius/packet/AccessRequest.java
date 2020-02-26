@@ -8,7 +8,9 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -86,9 +88,25 @@ public abstract class AccessRequest extends RadiusPacket {
      */
     @Override
     public void verify(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-//        getAttribute()
+        final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
+        if (msgAuthAttr.size() > 1)
+            throw new RadiusPacketException("AccessRequest should have at most one Message-Authenticator attribute, has " + msgAuthAttr.size());
 
-        // todo verify Message-Authenticator
+        if (msgAuthAttr.size() == 1) {
+            final byte[] messageAuth = msgAuthAttr.get(0).getValue();
+            // todo
+        }
+        // todo
+        /*
+         * For Access-Challenge, Access-Accept, and Access-Reject packets,
+         * the Message-Authenticator is calculated as follows, using the
+         * Request-Authenticator from the Access-Request this packet is in
+         * reply to:
+         *
+         * Message-Authenticator = HMAC-MD5 (Type, Identifier, Length,
+         * Request Authenticator, Attributes)
+         */
+
         verify(sharedSecret);
     }
 
