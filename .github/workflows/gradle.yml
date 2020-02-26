@@ -29,6 +29,7 @@ jobs:
       uses: coverallsapp/github-action@v1.0.1
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: ./build/reports/jacoco/test/jacocoTestReport.xml
 
 #    - name: Publish
 #      run: ./gradlew bintrayUpload
