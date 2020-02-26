@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.PacketCodec;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusPacketException;
@@ -23,12 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.tinyradius.packet.PacketCodec.toDatagram;
 
 @ExtendWith(MockitoExtension.class)
 class ServerPacketCodecTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private final PacketCodec packetCodec = new PacketCodec(dictionary);
 
     private final InetSocketAddress address = new InetSocketAddress(0);
 
@@ -37,7 +36,7 @@ class ServerPacketCodecTest {
 
     @Test
     void decodeUnknownSecret() {
-        final ServerPacketCodec codec = new ServerPacketCodec(packetCodec, address -> null);
+        final ServerPacketCodec codec = new ServerPacketCodec(dictionary, address -> null);
         final DatagramPacket datagram = new DatagramPacket(Unpooled.buffer(0), address);
 
         final List<Object> out = new ArrayList<>();
@@ -49,8 +48,8 @@ class ServerPacketCodecTest {
     @Test
     void decodeExceptionDropPacket() throws RadiusPacketException {
         final RadiusPacket request = new RadiusPacket(dictionary, 4, 1).encodeRequest("mySecret");
-        final DatagramPacket datagram = packetCodec.toDatagram(request, address);
-        final ServerPacketCodec codec = new ServerPacketCodec(packetCodec, x -> "bad secret");
+        final DatagramPacket datagram = toDatagram(request, address);
+        final ServerPacketCodec codec = new ServerPacketCodec(dictionary, x -> "bad secret");
 
         final List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, datagram, out1);
@@ -61,13 +60,13 @@ class ServerPacketCodecTest {
     @Test
     void decodeEncodeSuccess() throws RadiusPacketException {
         final String secret = "mySecret";
-        final ServerPacketCodec codec = new ServerPacketCodec(packetCodec, address -> secret);
+        final ServerPacketCodec codec = new ServerPacketCodec(dictionary, address -> secret);
         when(ctx.channel()).thenReturn(mock(Channel.class));
 
         // create datagram
         final RadiusPacket requestPacket = new RadiusPacket(dictionary, 3, 1).encodeRequest(secret);
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final DatagramPacket request = packetCodec.toDatagram(requestPacket, address, remoteAddress);
+        final DatagramPacket request = toDatagram(requestPacket, address, remoteAddress);
 
         // decode
         final ArrayList<Object> out1 = new ArrayList<>();
@@ -90,6 +89,6 @@ class ServerPacketCodecTest {
         // check encoded
         final DatagramPacket response = (DatagramPacket) out2.get(0);
         assertArrayEquals(response.content().array(),
-                packetCodec.toDatagram(responsePacket.encodeResponse(secret, requestPacket.getAuthenticator()), remoteAddress, address).content().array());
+                toDatagram(responsePacket.encodeResponse(secret, requestPacket.getAuthenticator()), remoteAddress, address).content().array());
     }
 }

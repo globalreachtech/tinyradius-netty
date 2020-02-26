@@ -10,6 +10,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.*;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.RequestCtx;
@@ -31,14 +32,15 @@ public class TestServer {
 
     public static void main(String[] args) throws Exception {
 
-        final PacketCodec packetCodec = new PacketCodec(DefaultDictionary.INSTANCE);
+        final Dictionary dictionary = DefaultDictionary.INSTANCE;
+
         final EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         final Bootstrap bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
         final SecretProvider secretProvider = remote ->
                 remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
 
-        final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(packetCodec, secretProvider);
+        final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(dictionary, secretProvider);
 
         final SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler();
         final SimpleAccountingHandler simpleAccountingHandler = new SimpleAccountingHandler();

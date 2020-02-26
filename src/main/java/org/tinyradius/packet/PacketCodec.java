@@ -24,22 +24,13 @@ public class PacketCodec {
 
     private static final int MAX_PACKET_LENGTH = 4096;
 
-    private final Dictionary dictionary;
-
-    /**
-     * @param dictionary dictionary to use for attributes
-     */
-    public PacketCodec(Dictionary dictionary) {
-        this.dictionary = dictionary;
-    }
-
     /**
      * @param packet    packet to convert
      * @param recipient destination socket
      * @return converted DatagramPacket
      * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
      */
-    public DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient) throws RadiusPacketException {
+    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient) throws RadiusPacketException {
         return new DatagramPacket(toByteBuf(packet), recipient);
     }
 
@@ -50,11 +41,11 @@ public class PacketCodec {
      * @return converted DatagramPacket
      * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
      */
-    public DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient, InetSocketAddress sender) throws RadiusPacketException {
+    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient, InetSocketAddress sender) throws RadiusPacketException {
         return new DatagramPacket(toByteBuf(packet), recipient, sender);
     }
 
-    public ByteBuf toByteBuf(RadiusPacket packet) throws RadiusPacketException {
+    public static ByteBuf toByteBuf(RadiusPacket packet) throws RadiusPacketException {
         byte[] attributes = packet.getAttributeBytes();
         int length = HEADER_LENGTH + attributes.length;
         if (length > MAX_PACKET_LENGTH)
@@ -86,12 +77,13 @@ public class PacketCodec {
      * (specifically the authenticator/identifier) are not available or
      * you don't care about validating the created object.
      *
-     * @param datagram DatagramPacket to read packet from
+     * @param dictionary dictionary to use for attributes
+     * @param datagram   DatagramPacket to read packet from
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    public RadiusPacket fromDatagram(DatagramPacket datagram) throws RadiusPacketException {
-        return fromByteBuf(datagram.content());
+    public static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
+        return fromByteBuf(dictionary, datagram.content());
     }
 
     /**
@@ -101,13 +93,14 @@ public class PacketCodec {
      * Decodes the encrypted fields and attributes of the packet, and checks
      * authenticator if appropriate.
      *
+     * @param dictionary   dictionary to use for attributes
      * @param packet       DatagramPacket to read packet from
      * @param sharedSecret shared secret to be used to decode this packet
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    public RadiusPacket fromDatagram(DatagramPacket packet, String sharedSecret) throws RadiusPacketException {
-        final RadiusPacket radiusPacket = fromByteBuf(packet.content());
+    public static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret) throws RadiusPacketException {
+        final RadiusPacket radiusPacket = fromByteBuf(dictionary, packet.content());
         radiusPacket.verify(sharedSecret, new byte[16]);
         return radiusPacket;
     }
@@ -125,15 +118,15 @@ public class PacketCodec {
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    public RadiusPacket fromDatagram(DatagramPacket datagram, String sharedSecret, RadiusPacket request)
+    public static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret, RadiusPacket request)
             throws RadiusPacketException {
-        final RadiusPacket radiusPacket = fromByteBuf(datagram.content(), request.getIdentifier());
+        final RadiusPacket radiusPacket = fromByteBuf(dictionary, datagram.content(), request.getIdentifier());
         radiusPacket.verify(sharedSecret, request.getAuthenticator());
         return radiusPacket;
     }
 
-    public RadiusPacket fromByteBuf(ByteBuf byteBuf) throws RadiusPacketException {
-        return fromByteBuf(byteBuf, -1);
+    public static RadiusPacket fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
+        return fromByteBuf(dictionary, byteBuf, -1);
     }
 
     /**
@@ -143,12 +136,13 @@ public class PacketCodec {
      * Decodes the encrypted fields and attributes of the packet, and checks
      * authenticator if appropriate.
      *
-     * @param byteBuf   DatagramPacket to read packet from
-     * @param requestId id that packet identifier has to match, otherwise -1 if skipping checks
+     * @param dictionary dictionary to use for attributes
+     * @param byteBuf    DatagramPacket to read packet from
+     * @param requestId  id that packet identifier has to match, otherwise -1 if skipping checks
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    private RadiusPacket fromByteBuf(ByteBuf byteBuf, int requestId) throws RadiusPacketException {
+    private static RadiusPacket fromByteBuf(Dictionary dictionary, ByteBuf byteBuf, int requestId) throws RadiusPacketException {
 
         final ByteBuffer content = byteBuf.nioBuffer();
         if (content.remaining() < HEADER_LENGTH) {

@@ -7,6 +7,7 @@ import io.netty.handler.codec.MessageToMessageCodec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.PendingRequestCtx;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.PacketCodec;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
@@ -14,21 +15,23 @@ import org.tinyradius.util.RadiusPacketException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import static org.tinyradius.packet.PacketCodec.fromDatagram;
+
 @ChannelHandler.Sharable
 public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, PendingRequestCtx> {
 
     private static final Logger logger = LogManager.getLogger();
 
-    private final PacketCodec packetCodec;
+    private final Dictionary dictionary;
 
-    public ClientPacketCodec(PacketCodec packetCodec) {
-        this.packetCodec = packetCodec;
+    public ClientPacketCodec(Dictionary dictionary) {
+        this.dictionary = dictionary;
     }
 
     protected DatagramPacket encodePacket(InetSocketAddress localAddress, PendingRequestCtx msg) {
         try {
             final RadiusPacket packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
-            final DatagramPacket datagramPacket = packetCodec.toDatagram(
+            final DatagramPacket datagramPacket = PacketCodec.toDatagram(
                     packet, msg.getEndpoint().getAddress(), localAddress);
             logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
             return datagramPacket;
@@ -49,7 +52,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
 
         try {
             // can't verify until we know corresponding request auth
-            RadiusPacket packet = packetCodec.fromDatagram(msg);
+            RadiusPacket packet = fromDatagram(dictionary, msg);
             logger.debug("Received packet from {} - {}", remoteAddress, packet);
             return packet;
         } catch (RadiusPacketException e) {

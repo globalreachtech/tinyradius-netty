@@ -114,20 +114,20 @@ public class AccessPap extends AccessRequest {
     /**
      * This method encodes the plaintext user password according to RFC 2865.
      *
-     * @param userPass     the password to encrypt
+     * @param password     the password to encrypt
      * @param sharedSecret shared secret
      * @return the byte array containing the encrypted password
      */
-    private byte[] encodePapPassword(byte[] authenticator, byte[] userPass, byte[] sharedSecret) {
-        requireNonNull(userPass, "userPass cannot be null");
+    private byte[] encodePapPassword(byte[] authenticator, byte[] password, byte[] sharedSecret) {
+        requireNonNull(password, "password cannot be null");
         requireNonNull(sharedSecret, "sharedSecret cannot be null");
 
         byte[] ciphertext = authenticator;
-        byte[] P = pad(userPass);
-        final ByteBuffer buffer = ByteBuffer.allocate(P.length);
+        byte[] pw = pad(password);
+        final ByteBuffer buffer = ByteBuffer.allocate(pw.length);
 
-        for (int i = 0; i < P.length; i += 16) {
-            ciphertext = xor16(P, i, md5(sharedSecret, ciphertext));
+        for (int i = 0; i < pw.length; i += 16) {
+            ciphertext = xor16(pw, i, md5(sharedSecret, ciphertext));
             buffer.put(ciphertext);
         }
 
@@ -192,16 +192,12 @@ public class AccessPap extends AccessRequest {
     }
 
     static byte[] pad(byte[] val) {
-        requireNonNull(val, "value cannot be null");
+        requireNonNull(val, "Byte array cannot be null");
 
         int length = Math.max(
                 (int) (Math.ceil((double) val.length / 16) * 16), 16);
 
-        byte[] padded = new byte[length];
-
-        System.arraycopy(val, 0, padded, 0, val.length);
-
-        return padded;
+        return Arrays.copyOf(val, length);
     }
 
     @Override

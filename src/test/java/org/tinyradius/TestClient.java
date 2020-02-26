@@ -15,7 +15,9 @@ import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.client.timeout.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.*;
+import org.tinyradius.packet.AccessPap;
+import org.tinyradius.packet.AccountingRequest;
+import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
@@ -49,7 +51,6 @@ public class TestClient {
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
         final Dictionary dictionary = DefaultDictionary.INSTANCE;
-        final PacketCodec packetCodec = new PacketCodec(dictionary);
         final Timer timer = new HashedWheelTimer();
 
         final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
@@ -58,7 +59,7 @@ public class TestClient {
                 bootstrap, new InetSocketAddress(0), new BasicTimeoutHandler(timer), new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-                ch.pipeline().addLast(new ClientPacketCodec(packetCodec), new PromiseAdapter());
+                ch.pipeline().addLast(new ClientPacketCodec(dictionary), new PromiseAdapter());
             }
         });
 

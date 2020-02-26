@@ -265,7 +265,7 @@ public class RadiusPacket implements AttributeHolder {
             throw new RadiusPacketException("Authenticator check failed (bad authenticator or shared secret)");
     }
 
-    static MessageDigest getMd5Digest() {
+    protected static MessageDigest getMd5Digest() {
         try {
             return MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {

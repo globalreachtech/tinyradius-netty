@@ -6,7 +6,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageCodec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tinyradius.packet.PacketCodec;
+import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
@@ -17,16 +17,19 @@ import org.tinyradius.util.RadiusPacketException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import static org.tinyradius.packet.PacketCodec.fromDatagram;
+import static org.tinyradius.packet.PacketCodec.toDatagram;
+
 @ChannelHandler.Sharable
 public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, ResponseCtx> {
 
     private static final Logger logger = LogManager.getLogger();
 
-    private final PacketCodec packetCodec;
+    private final Dictionary dictionary;
     private final SecretProvider secretProvider;
 
-    public ServerPacketCodec(PacketCodec packetCodec, SecretProvider secretProvider) {
-        this.packetCodec = packetCodec;
+    public ServerPacketCodec(Dictionary dictionary, SecretProvider secretProvider) {
+        this.dictionary = dictionary;
         this.secretProvider = secretProvider;
     }
 
@@ -40,7 +43,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
         }
 
         try {
-            RadiusPacket packet = packetCodec.fromDatagram(msg, secret);
+            RadiusPacket packet = fromDatagram(dictionary, msg, secret);
             logger.debug("Received packet from {} - {}", remoteAddress, packet);
 
             return new RequestCtx(packet, new RadiusEndpoint(remoteAddress, secret));
@@ -54,7 +57,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
         final RadiusPacket packet = msg.getResponse()
                 .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator());
         try {
-            final DatagramPacket datagramPacket = packetCodec.toDatagram(
+            final DatagramPacket datagramPacket = toDatagram(
                     packet, msg.getEndpoint().getAddress(), localAddress);
             logger.debug("Sending response to {}", msg.getEndpoint().getAddress());
             return datagramPacket;

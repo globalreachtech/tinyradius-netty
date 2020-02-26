@@ -94,7 +94,10 @@ public abstract class AccessRequest extends RadiusPacket {
 
         if (msgAuthAttr.size() == 1) {
             final byte[] messageAuth = msgAuthAttr.get(0).getValue();
-            // todo
+            // todo tests
+
+            if (!checkMessageAuth(messageAuth))
+                throw new RadiusPacketException("AccessRequest Message-Authenticator check failed");
         }
         // todo
         /*
@@ -108,6 +111,22 @@ public abstract class AccessRequest extends RadiusPacket {
          */
 
         verify(sharedSecret);
+    }
+
+    /**
+     * @return true if Message-Authenticator validates
+     */
+    private boolean checkMessageAuth(byte[] messageAuth) throws RadiusPacketException {
+        // save msgAuth
+        final byte[] tmpAuth = Arrays.copyOf(messageAuth, messageAuth.length);
+
+        // zero msgAuth and generate hash
+        Arrays.fill(messageAuth, (byte) 0);
+        final byte[] computedAuth = PacketCodec.toByteBuf(this).array();
+
+        // restore msgAuth
+        System.arraycopy(tmpAuth, 0, messageAuth, 0, messageAuth.length);
+        return Arrays.equals(computedAuth, messageAuth);
     }
 
     /**

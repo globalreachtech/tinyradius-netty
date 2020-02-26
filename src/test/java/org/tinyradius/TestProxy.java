@@ -16,7 +16,6 @@ import org.tinyradius.client.timeout.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.PacketCodec;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;
@@ -49,7 +48,6 @@ public class TestProxy {
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         final Dictionary dictionary = DefaultDictionary.INSTANCE;
-        final PacketCodec packetCodec = new PacketCodec(dictionary);
 
         final Timer timer = new HashedWheelTimer();
         final Bootstrap bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
@@ -68,14 +66,14 @@ public class TestProxy {
                 bootstrap, new InetSocketAddress(0), retryStrategy, new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-                ch.pipeline().addLast(new PromiseAdapter(), new ClientPacketCodec(packetCodec));
+                ch.pipeline().addLast(new PromiseAdapter(), new ClientPacketCodec(dictionary));
             }
         });
 
         final ChannelInitializer<DatagramChannel> channelInitializer = new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-                ch.pipeline().addLast(new ServerPacketCodec(packetCodec, secretProvider), new ProxyHandler(radiusClient) {
+                ch.pipeline().addLast(new ServerPacketCodec(dictionary, secretProvider), new ProxyHandler(radiusClient) {
                     @Override
                     public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
                         try {

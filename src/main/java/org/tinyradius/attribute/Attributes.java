@@ -63,15 +63,15 @@ public class Attributes {
             final int length = toUnsignedInt(data[pos + 1]); // max 255
             final int expectedLen = length - 2;
             if (expectedLen < 0)
-                throw new IllegalArgumentException("invalid attribute length " + length + ", must be >=2");
+                throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >=2");
             if (expectedLen > data.length - pos)
-                throw new IllegalArgumentException("invalid attribute length " + length + ", remaining bytes " + (data.length - pos));
+                throw new IllegalArgumentException("Invalid attribute length " + length + ", remaining bytes " + (data.length - pos));
             attributes.add(createAttribute(dictionary, vendorId, type, Arrays.copyOfRange(data, pos + 2, pos + length)));
             pos += length;
         }
 
         if (pos != data.length)
-            throw new IllegalArgumentException("attribute malformed");
+            throw new IllegalArgumentException("Attribute malformed, lengths do not match");
         return attributes;
     }
 }
