@@ -53,21 +53,6 @@ class AccessRequestTest {
     }
 
     @Test
-    void testCreateCorrectAuth() {
-        final AccessRequest papRequest = AccessRequest.create(dictionary, 1, null, "pap");
-        assertTrue(papRequest instanceof AccessPap);
-
-        final AccessRequest chapRequest = AccessRequest.create(dictionary, 1, null, "chap");
-        assertTrue(chapRequest instanceof AccessChap);
-
-        final AccessRequest eapRequest = AccessRequest.create(dictionary, 1, null, "eap");
-        assertTrue(eapRequest instanceof AccessEap);
-
-        final AccessRequest unknown = AccessRequest.create(dictionary, 1, null, "unknown");
-        assertTrue(unknown instanceof AccessRequest.AccessUnknownAuth);
-    }
-
-    @Test
     void testDetectCorrectAuth() {
         final SecureRandom random = new SecureRandom();
         final byte[] encodedPw = random.generateSeed(16);
@@ -85,6 +70,6 @@ class AccessRequestTest {
         assertTrue(eapRequest instanceof AccessEap);
 
         final AccessRequest unknown = AccessRequest.create(dictionary, 1, null, Collections.emptyList());
-        assertTrue(unknown instanceof AccessRequest.AccessUnknownAuth);
+        assertTrue(unknown instanceof AccessInvalidAuth);
     }
 }

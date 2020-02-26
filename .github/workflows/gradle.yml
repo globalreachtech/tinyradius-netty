@@ -24,7 +24,7 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew test
     - name: Generate coverage reports
-      run: ./gradlew jacocoTestReport coveralls
+      run: ./gradlew jacocoTestReport
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v1.0.1
       with:

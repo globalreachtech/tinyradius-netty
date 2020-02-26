@@ -104,7 +104,11 @@ public class AccessPap extends AccessRequest {
      */
     @Override
     protected void verify(String sharedSecret) throws RadiusPacketException {
-        this.password = decodePapPassword(sharedSecret.getBytes(UTF_8));
+        final List<RadiusAttribute> attrs = getAttributes(USER_PASSWORD);
+        if (attrs.size() != 1) {
+            throw new RadiusPacketException("AccessRequest (PAP) should have exactly one User-Password attribute, has " + attrs.size());
+        }
+        password = decodePapPassword(attrs.get(0).getValue(), sharedSecret.getBytes(UTF_8));
     }
 
     /**
@@ -131,25 +135,24 @@ public class AccessPap extends AccessRequest {
     }
 
     /**
-     * Decodes the passed encrypted password and returns the cleartext form.
+     * Decodes the passed encoded password and returns the cleartext form.
      *
      * @param sharedSecret shared secret
      * @return decrypted password
      */
-    private String decodePapPassword(byte[] sharedSecret) throws RadiusPacketException {
-        final byte[] encryptedPass = getAttribute(USER_PASSWORD).getValue();
-        if (encryptedPass.length < 16) {
+    private String decodePapPassword(byte[] encodedPw, byte[] sharedSecret) throws RadiusPacketException {
+        if (encodedPw.length < 16) {
             // PAP passwords require at least 16 bytes, or multiples thereof
-            logger.warn("Malformed packet: User-Password attribute length must be greater than 15, actual {}", encryptedPass.length);
+            logger.warn("Malformed packet: User-Password attribute length must be greater than 15, actual {}", encodedPw.length);
             throw new RadiusPacketException("Malformed User-Password attribute");
         }
 
-        final ByteBuffer buffer = ByteBuffer.allocate(encryptedPass.length);
+        final ByteBuffer buffer = ByteBuffer.allocate(encodedPw.length);
         byte[] ciphertext = this.getAuthenticator();
 
-        for (int i = 0; i < encryptedPass.length; i += 16) {
-            buffer.put(xor16(encryptedPass, i, md5(sharedSecret, ciphertext)));
-            ciphertext = Arrays.copyOfRange(encryptedPass, i, 16);
+        for (int i = 0; i < encodedPw.length; i += 16) {
+            buffer.put(xor16(encodedPw, i, md5(sharedSecret, ciphertext)));
+            ciphertext = Arrays.copyOfRange(encodedPw, i, 16);
         }
 
         return stripNullPadding(new String(buffer.array(), UTF_8));

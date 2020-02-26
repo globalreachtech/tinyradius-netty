@@ -18,8 +18,8 @@ public class AttributeType {
     private final String name;
 
     private final String dataType;
-    private final ByteArrayConstructor<RadiusAttribute> byteArrayConstructor;
-    private final StringConstructor<RadiusAttribute> stringConstructor;
+    private final ByteArrayConstructor byteArrayConstructor;
+    private final StringConstructor stringConstructor;
 
     private final Map<Integer, String> int2str = new HashMap<>();
     private final Map<String, Integer> str2int = new HashMap<>();
@@ -162,11 +162,11 @@ public class AttributeType {
         return s;
     }
 
-    interface ByteArrayConstructor<T extends RadiusAttribute> {
-        T newInstance(Dictionary dictionary, int vendorId, int type, byte[] data);
+    interface ByteArrayConstructor {
+        RadiusAttribute newInstance(Dictionary dictionary, int vendorId, int type, byte[] data);
     }
 
-    interface StringConstructor<T extends RadiusAttribute> {
-        T newInstance(Dictionary dictionary, int vendorId, int type, String data);
+    interface StringConstructor {
+        RadiusAttribute newInstance(Dictionary dictionary, int vendorId, int type, String data);
     }
 }

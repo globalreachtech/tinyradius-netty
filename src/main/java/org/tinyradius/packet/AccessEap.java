@@ -28,8 +28,9 @@ public class AccessEap extends AccessRequest {
      */
     @Override
     protected void verify(String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> messageAuth = getAttributes(MESSAGE_AUTHENTICATOR);
-        if (messageAuth.isEmpty())
+        final List<RadiusAttribute> attrs = getAttributes(MESSAGE_AUTHENTICATOR);
+        if (attrs.isEmpty()) {
             throw new RadiusPacketException("EAP-Message detected, but Message-Authenticator not found");
+        }
     }
 }

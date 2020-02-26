@@ -8,8 +8,8 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.Attributes.createAttribute;
@@ -24,10 +24,12 @@ public abstract class AccessRequest extends RadiusPacket {
 
     protected static final SecureRandom RANDOM = new SecureRandom();
 
+    public static final int USER_PASSWORD = 2;
+    public static final int CHAP_PASSWORD = 3;
+    public static final int EAP_MESSAGE = 79;
+    protected static final List<Integer> AUTH_ATTRS = Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, EAP_MESSAGE);
+
     protected static final int USER_NAME = 1;
-    protected static final int USER_PASSWORD = 2;
-    protected static final int CHAP_PASSWORD = 3;
-    protected static final int EAP_MESSAGE = 79;
     protected static final int MESSAGE_AUTHENTICATOR = 80;
 
     /**
@@ -83,7 +85,9 @@ public abstract class AccessRequest extends RadiusPacket {
      * @param requestAuth  ignored, not applicable for AccessRequest
      */
     @Override
-    public void verify(String sharedSecret, byte[] requestAuth) throws RadiusPacketException{
+    public void verify(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+//        getAttribute()
+
         // todo verify Message-Authenticator
         verify(sharedSecret);
     }
@@ -99,27 +103,6 @@ public abstract class AccessRequest extends RadiusPacket {
     }
 
     /**
-     * Create new AccessRequest, setting protocol explicitly.
-     *
-     * @param dictionary    custom dictionary to use
-     * @param identifier    packet identifier
-     * @param authenticator authenticator for packet, nullable
-     * @param protocol      auth protocol
-     */
-    public static AccessRequest create(Dictionary dictionary, int identifier, byte[] authenticator, String protocol) {
-        switch (protocol) {
-            case "eap":
-                return new AccessEap(dictionary, identifier, authenticator, new ArrayList<>());
-            case "pap":
-                return new AccessPap(dictionary, identifier, authenticator, new ArrayList<>());
-            case "chap":
-                return new AccessChap(dictionary, identifier, authenticator, new ArrayList<>());
-            default:
-                return new AccessUnknownAuth(dictionary, identifier, authenticator, new ArrayList<>());
-        }
-    }
-
-    /**
      * Create new AccessRequest, tries to identify auth protocol from attributes.
      *
      * @param dictionary    custom dictionary to use
@@ -129,26 +112,45 @@ public abstract class AccessRequest extends RadiusPacket {
      *                      or a stub AccessRequest will be returned
      */
     public static AccessRequest create(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        return detectType(attributes).newInstance(dictionary, identifier, authenticator, attributes);
+        return lookupAuthType(attributes).newInstance(dictionary, identifier, authenticator, attributes);
     }
 
-    private static AccessRequestConstructor<? extends AccessRequest> detectType(List<RadiusAttribute> attributes) {
-        final List<RadiusAttribute> eapMessage = AttributeHolder.getAttributes(attributes, EAP_MESSAGE);
-        if (!eapMessage.isEmpty()) {
-            return AccessEap::new;
+    private static AccessRequestConstructor lookupAuthType(int authAttribute) {
+        switch (authAttribute) {
+            case EAP_MESSAGE:
+                return AccessEap::new;
+            case CHAP_PASSWORD:
+                return AccessChap::new;
+            case USER_PASSWORD:
+                return AccessPap::new;
+            default:
+                return AccessInvalidAuth::new;
+        }
+    }
+
+    private static AccessRequestConstructor lookupAuthType(List<RadiusAttribute> attributes) {
+        /*
+         * An Access-Request that contains either a User-Password or
+         * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
+         * MUST NOT contain more than one type of those four attributes.
+         */
+        final Set<Integer> detectedAuth = AUTH_ATTRS.stream()
+                .map(authAttr -> AttributeHolder.getAttributes(attributes, authAttr))
+                .filter(a -> !a.isEmpty())
+                .map(a -> a.get(0).getType())
+                .collect(Collectors.toSet());
+
+        if (detectedAuth.size() == 0) {
+            logger.warn("AccessRequest could not identify auth protocol");
+            return AccessInvalidAuth::new;
         }
 
-        final List<RadiusAttribute> userPassword = AttributeHolder.getAttributes(attributes, USER_PASSWORD);
-        if (!userPassword.isEmpty()) {
-            return AccessPap::new;
+        if (detectedAuth.size() > 1) {
+            logger.warn("AccessRequest identified multiple possible auth protocols");
+            return AccessInvalidAuth::new;
         }
 
-        final List<RadiusAttribute> chapPassword = AttributeHolder.getAttributes(attributes, CHAP_PASSWORD);
-        if (!chapPassword.isEmpty()) {
-            return AccessChap::new;
-        }
-
-        return AccessUnknownAuth::new;
+        return lookupAuthType(detectedAuth.iterator().next());
     }
 
     /**
@@ -187,24 +189,24 @@ public abstract class AccessRequest extends RadiusPacket {
         return randomBytes;
     }
 
-    interface AccessRequestConstructor<T extends AccessRequest> {
-        T newInstance(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes);
+    interface AccessRequestConstructor {
+        AccessRequest newInstance(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes);
     }
 
-    static class AccessUnknownAuth extends AccessRequest {
+    static class AccessInvalidAuth extends AccessRequest {
 
-        public AccessUnknownAuth(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        public AccessInvalidAuth(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
             super(dictionary, identifier, authenticator, attributes);
         }
 
         @Override
         protected AccessRequest encodeRequest(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
-            throw new RadiusPacketException("Cannot encode request for unsupported auth protocol");
+            throw new RadiusPacketException("Cannot encode request for unknown auth protocol");
         }
 
         @Override
         protected void verify(String sharedSecret) throws RadiusPacketException {
-            throw new RadiusPacketException("Access-Request auth verify failed - could not identify auth protocol");
+            throw new RadiusPacketException("Access-Request auth verify failed - unknown auth protocol");
         }
     }
 }

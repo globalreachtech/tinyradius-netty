@@ -117,7 +117,7 @@ public class AccessChap extends AccessRequest {
                 chapChallengeAttr.getValue() : getAuthenticator();
 
         if (chapChallenge == null) {
-            logger.warn("CHAP challenge is null");
+            logger.warn("CHAP challenge / authenticator is null");
             return false;
         }
 
@@ -137,7 +137,11 @@ public class AccessChap extends AccessRequest {
      * @param sharedSecret ignored, not applicable for CHAP
      */
     @Override
-    protected void verify(String sharedSecret) {
+    protected void verify(String sharedSecret) throws RadiusPacketException {
+        final List<RadiusAttribute> attrs = getAttributes(CHAP_PASSWORD);
+        if (attrs.size() != 1) {
+            throw new RadiusPacketException("AccessRequest (CHAP) should have exactly one CHAP-Password attribute, has " + attrs.size());
+        }
     }
 
     @Override
