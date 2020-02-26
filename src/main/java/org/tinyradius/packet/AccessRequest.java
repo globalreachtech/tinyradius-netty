@@ -7,6 +7,10 @@ import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +19,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.packet.PacketCodec.toByteBuf;
 import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 
 /**
@@ -24,6 +29,7 @@ public abstract class AccessRequest extends RadiusPacket {
 
     protected static final Logger logger = LogManager.getLogger();
 
+    private static final String HMAC_MD5 = "HmacMD5";
     protected static final SecureRandom RANDOM = new SecureRandom();
 
     public static final int USER_PASSWORD = 2;
@@ -96,7 +102,7 @@ public abstract class AccessRequest extends RadiusPacket {
             final byte[] messageAuth = msgAuthAttr.get(0).getValue();
             // todo tests
 
-            if (!checkMessageAuth(messageAuth))
+            if (!checkMessageAuth(sharedSecret, messageAuth))
                 throw new RadiusPacketException("AccessRequest Message-Authenticator check failed");
         }
         // todo
@@ -113,16 +119,28 @@ public abstract class AccessRequest extends RadiusPacket {
         verify(sharedSecret);
     }
 
+    private Mac getHmacMd5(String key) {
+        try {
+            final SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_MD5);
+            final Mac mac = Mac.getInstance(HMAC_MD5);
+            mac.init(secretKeySpec);
+            return mac;
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException(e); // never happen
+        }
+    }
+
     /**
      * @return true if Message-Authenticator validates
      */
-    private boolean checkMessageAuth(byte[] messageAuth) throws RadiusPacketException {
+    private boolean checkMessageAuth(String sharedSecret, byte[] messageAuth) throws RadiusPacketException {
+        final Mac mac = getHmacMd5(sharedSecret);
         // save msgAuth
         final byte[] tmpAuth = Arrays.copyOf(messageAuth, messageAuth.length);
 
         // zero msgAuth and generate hash
         Arrays.fill(messageAuth, (byte) 0);
-        final byte[] computedAuth = PacketCodec.toByteBuf(this).array();
+        final byte[] computedAuth = mac.doFinal(toByteBuf(this).array());
 
         // restore msgAuth
         System.arraycopy(tmpAuth, 0, messageAuth, 0, messageAuth.length);
