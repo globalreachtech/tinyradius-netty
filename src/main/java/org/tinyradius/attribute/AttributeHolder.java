@@ -4,22 +4,22 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.dictionary.Dictionary;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
+import static org.tinyradius.attribute.Attributes.createAttribute;
 
 public interface AttributeHolder {
 
-    Dictionary getDictionary();
-
     /**
-     * @return VendorId, or -1 if not appropriate
+     * @return VendorId to restrict attributes, or -1 if not appropriate / no restrictions
      */
     int getVendorId();
+
+    Dictionary getDictionary();
 
     List<RadiusAttribute> getAttributes();
 
@@ -27,7 +27,7 @@ public interface AttributeHolder {
 
     void removeAttribute(RadiusAttribute attribute);
 
-    static List<RadiusAttribute> getAttributes(List<RadiusAttribute> attributes, int type) {
+    static List<RadiusAttribute> filterAttributes(List<RadiusAttribute> attributes, int type) {
         return attributes.stream()
                 .filter(a -> a.getType() == type)
                 .collect(Collectors.toList());
@@ -41,61 +41,70 @@ public interface AttributeHolder {
     }
 
     /**
-     * Returns all (sub)attributes of the given type.
-     * Returns an empty list if there are no such attributes.
+     * Convenience method to get single attribute as string.
+     *
+     * @param type attribute type name
+     * @return RadiusAttribute object or null if there is no such attribute
+     */
+    default String getAttributeString(int type) {
+        List<RadiusAttribute> attrs = getAttributes(type);
+        return attrs.isEmpty() ? null : attrs.get(0).getValueString();
+    }
+
+    /**
+     * Convenience method to get single attribute.
+     *
+     * @param type attribute type name
+     * @return RadiusAttribute object or null if there is no such attribute
+     */
+    default RadiusAttribute getAttribute(String type) {
+        List<RadiusAttribute> attrs = getAttributes(type);
+        return attrs.isEmpty() ? null : attrs.get(0);
+    }
+
+    /**
+     * Convenience method to get single attribute.
+     *
+     * @param type attribute type
+     * @return RadiusAttribute object or null if there is no such attribute
+     */
+    default RadiusAttribute getAttribute(int type) {
+        List<RadiusAttribute> attrs = getAttributes(type);
+        return attrs.isEmpty() ? null : attrs.get(0);
+    }
+
+    /**
+     * Returns all attributes of the given type, regardless of vendorId
      *
      * @param type type of attributes to get
      * @return list of RadiusAttribute objects, or empty list
      */
     default List<RadiusAttribute> getAttributes(int type) {
-        return getAttributes(getAttributes(), type);
+        return filterAttributes(getAttributes(), type);
     }
 
     /**
-     * Returns a single Radius attribute of the given type name.
+     * Returns attributes of the given type name.
      * Also searches sub-attributes if appropriate.
      *
      * @param type attribute type name
-     * @return RadiusAttribute object or null if there is no such attribute
-     * @throws RuntimeException if the attribute occurs multiple times
+     * @return list of RadiusAttribute objects, or empty list
      */
     default List<RadiusAttribute> getAttributes(String type) {
-        final AttributeType attributeType = lookupAttributeType(type);
-        return getAttributes(attributeType.getVendorId(), attributeType.getTypeCode());
+        return getAttributes(lookupAttributeType(type));
     }
 
     /**
-     * Returns all attributes of this packet that have got the
-     * given type and belong to the given vendor ID.
-     * Returns an empty list if there are no such attributes.
+     * Returns attributes of the given attribute type.
+     * Also searches sub-attributes if appropriate.
      *
-     * @param vendorId      vendor ID, or -1
-     * @param attributeType attribute type code
-     * @return list of RadiusAttribute objects, never null
+     * @param type attribute type name
+     * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> getAttributes(int vendorId, int attributeType) {
-        if (vendorId == getVendorId())
-            return getAttributes(attributeType);
-
-        return getVendorSpecificAttributes(vendorId).stream()
-                .map(VendorSpecificAttribute::getAttributes)
-                .flatMap(Collection::stream)
-                .filter(sa -> sa.getType() == attributeType && sa.getVendorId() == vendorId)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Returns the Vendor-Specific attribute(s) for the given vendor ID.
-     *
-     * @param vendorId vendor ID of the attribute(s)
-     * @return List with VendorSpecificAttribute objects, never null
-     */
-    default List<VendorSpecificAttribute> getVendorSpecificAttributes(int vendorId) {
-        return getAttributes(VENDOR_SPECIFIC).stream()
-                .filter(VendorSpecificAttribute.class::isInstance)
-                .map(VendorSpecificAttribute.class::cast)
-                .filter(a -> a.getVendorId() == vendorId)
-                .collect(Collectors.toList());
+    default List<RadiusAttribute> getAttributes(AttributeType type) {
+        if (type.getVendorId() == getVendorId())
+            return getAttributes(type.getTypeCode());
+        return Collections.emptyList();
     }
 
     /**
@@ -117,28 +126,6 @@ public interface AttributeHolder {
         addAttribute(attribute);
     }
 
-    /**
-     * Removes all sub-attributes of the given vendor and
-     * type.
-     *
-     * @param vendorId vendor ID, or -1
-     * @param typeCode attribute type code
-     */
-    default void removeAttributes(int vendorId, int typeCode) {
-        if (vendorId == getVendorId()) {
-            removeAttributes(typeCode);
-            return;
-        }
-
-        List<VendorSpecificAttribute> vsas = getVendorSpecificAttributes(vendorId);
-        for (VendorSpecificAttribute vsa : vsas) {
-            List<RadiusAttribute> sas = vsa.getAttributes();
-            sas.removeIf(attr -> attr.getType() == typeCode && attr.getVendorId() == vendorId);
-            if (sas.isEmpty())
-                // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
-                removeAttribute(vsa);
-        }
-    }
 
     /**
      * Removes all attributes from this packet which have got the specified type.
@@ -165,46 +152,29 @@ public interface AttributeHolder {
     }
 
     /**
+     * Sets attribute to string value. Uses current vendorId if set, or -1
+     * to denote unrestricted.
+     * <p>
+     * Will remove all attributes of specified type before adding new attribute.
+     *
+     * @param type  attribute type code
+     * @param value string value to set
+     */
+    default void setAttributeString(int type, String value) {
+        if (value == null || value.isEmpty())
+            throw new IllegalArgumentException("Value not set or empty");
+
+        removeAttributes(type);
+        addAttribute(createAttribute(getDictionary(), getVendorId(), type, value));
+    }
+
+    /**
      * @return Map of attribute key-value
      */
     default Map<String, String> getAttributeMap() {
         final HashMap<String, String> map = new HashMap<>();
         getAttributes().forEach(a -> map.putAll(a.getAttributeMap()));
         return map;
-    }
-
-    /**
-     * Convenience method to get single attribute.
-     *
-     * @param type attribute type name
-     * @return RadiusAttribute object or null if there is no such attribute
-     */
-    default RadiusAttribute getAttribute(String type) {
-        List<RadiusAttribute> attrs = getAttributes(type);
-        return attrs.isEmpty() ? null : attrs.get(0);
-    }
-
-    /**
-     * Convenience method to get single attribute.
-     *
-     * @param type attribute type
-     * @return RadiusAttribute object or null if there is no such attribute
-     */
-    default RadiusAttribute getAttribute(int type) {
-        List<RadiusAttribute> attrs = getAttributes(type);
-        return attrs.isEmpty() ? null : attrs.get(0);
-    }
-
-    /**
-     * Convenience method to get single attribute.
-     *
-     * @param vendorId vendor ID
-     * @param type     attribute type
-     * @return RadiusAttribute object or null if there is no such attribute
-     */
-    default RadiusAttribute getAttribute(int vendorId, int type) {
-        List<RadiusAttribute> attrs = getAttributes(vendorId, type);
-        return attrs.isEmpty() ? null : attrs.get(0);
     }
 
     /**

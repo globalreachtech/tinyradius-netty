@@ -7,8 +7,6 @@ import org.tinyradius.dictionary.Dictionary;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 
 /**
@@ -38,7 +36,7 @@ public class AccountingRequest extends RadiusPacket {
      */
     public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator, String userName, int acctStatusType) {
         this(dictionary, identifier, authenticator);
-        setUserName(userName);
+        setAttributeString(USER_NAME, userName);
         setAcctStatusType(acctStatusType);
     }
 
@@ -63,31 +61,6 @@ public class AccountingRequest extends RadiusPacket {
      */
     public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCOUNTING_REQUEST, identifier, authenticator, attributes);
-    }
-
-    /**
-     * Sets the User-Name attribute of this Accounting-Request.
-     *
-     * @param userName user name to set
-     */
-    public void setUserName(String userName) {
-        requireNonNull(userName, "user name not set");
-        if (userName.isEmpty())
-            throw new IllegalArgumentException("empty user name not allowed");
-
-        removeAttributes(USER_NAME);
-        addAttribute(createAttribute(getDictionary(), -1, USER_NAME, userName));
-    }
-
-    /**
-     * Retrieves the user name from the User-Name attribute.
-     *
-     * @return user name
-     */
-    public String getUserName() {
-        final RadiusAttribute attribute = getAttribute(USER_NAME);
-        return attribute == null ?
-                null : attribute.getValueString();
     }
 
     /**

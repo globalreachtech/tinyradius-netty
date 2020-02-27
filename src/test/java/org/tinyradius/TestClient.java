@@ -23,6 +23,7 @@ import org.tinyradius.util.RadiusEndpoint;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 
+import static net.jradius.packet.attribute.AttributeDictionary.USER_NAME;
 import static org.tinyradius.packet.RadiusPackets.nextPacketId;
 
 /**
@@ -68,7 +69,7 @@ public class TestClient {
 
         // 1. Send Access-Request
         AccessPap ar = new AccessPap(dictionary, nextPacketId(), null, Collections.emptyList());
-        ar.setUserName(user);
+        ar.setAttributeString(USER_NAME, user);
         ar.setPlaintextPassword(pass);
         ar.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
         ar.addAttribute("NAS-IP-Address", "192.168.0.100");

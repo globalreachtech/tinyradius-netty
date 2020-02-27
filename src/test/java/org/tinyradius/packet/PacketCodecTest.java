@@ -18,6 +18,7 @@ import static java.lang.Byte.toUnsignedInt;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.packet.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.PacketCodec.fromDatagram;
 import static org.tinyradius.packet.PacketCodec.toDatagram;
 import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
@@ -165,7 +166,7 @@ class PacketCodecTest {
         String sharedSecret = "sharedSecret1";
 
         AccountingRequest rawRequest = new AccountingRequest(dictionary, 250, null);
-        rawRequest.setUserName(user);
+        rawRequest.setAttributeString(USER_NAME, user);
         final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
 
         DatagramPacket datagramPacket = toDatagram(request, remoteAddress);
@@ -174,7 +175,7 @@ class PacketCodecTest {
         assertEquals(ACCOUNTING_REQUEST, packet.getType());
         assertTrue(packet instanceof AccountingRequest);
         assertEquals(rawRequest.getIdentifier(), packet.getIdentifier());
-        assertEquals(rawRequest.getUserName(), packet.getAttribute("User-Name").getValueString());
+        assertEquals(rawRequest.getAttributeString(USER_NAME), packet.getAttributeString(USER_NAME));
     }
 
     @Test
@@ -183,7 +184,7 @@ class PacketCodecTest {
         String sharedSecret = "sharedSecret1";
 
         AccountingRequest rawRequest = new AccountingRequest(dictionary, 250, null);
-        rawRequest.setUserName(user);
+        rawRequest.setAttributeString(USER_NAME, user);
         final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
 
         DatagramPacket originalDatagram = toDatagram(request, remoteAddress);
@@ -206,7 +207,7 @@ class PacketCodecTest {
         String sharedSecret = "sharedSecret1";
 
         AccessPap rawRequest = new AccessPap(dictionary, 250, null, Collections.emptyList());
-        rawRequest.setUserName(user);
+        rawRequest.setAttributeString(USER_NAME, user);
         rawRequest.setPlaintextPassword(password);
         final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
 
@@ -218,8 +219,8 @@ class PacketCodecTest {
 
         AccessPap packet = (AccessPap) radiusPacket;
         assertEquals(rawRequest.getIdentifier(), packet.getIdentifier());
-        assertEquals(rawRequest.getUserName(), packet.getAttribute("User-Name").getValueString());
-        assertEquals(rawRequest.getUserPassword(), packet.getUserPassword());
+        assertEquals(rawRequest.getAttributeString(USER_NAME), packet.getAttributeString(USER_NAME));
+        assertEquals(rawRequest.getPlaintextPassword(), packet.getPlaintextPassword());
     }
 
     @Test
@@ -231,7 +232,7 @@ class PacketCodecTest {
         final int id = random.nextInt(256);
 
         final AccessPap request = new AccessPap(dictionary, id, null, Collections.emptyList());
-        request.setUserName(user);
+        request.setAttributeString(USER_NAME, user);
         request.setPlaintextPassword(plaintextPw);
         final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
 

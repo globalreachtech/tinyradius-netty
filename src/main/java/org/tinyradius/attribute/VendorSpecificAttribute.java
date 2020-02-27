@@ -137,6 +137,7 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
 
     @Override
     public Map<String, String> getAttributeMap() {
+        // VSAs don't hold any actual data, we only care about the sub-attributes
         return AttributeHolder.super.getAttributeMap();
     }
 }

@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 
 /**
@@ -194,7 +192,7 @@ public abstract class AccessRequest extends RadiusPacket {
          * MUST NOT contain more than one type of those four attributes.
          */
         final Set<Integer> detectedAuth = AUTH_ATTRS.stream()
-                .map(authAttr -> AttributeHolder.getAttributes(attributes, authAttr))
+                .map(authAttr -> AttributeHolder.filterAttributes(attributes, authAttr))
                 .filter(a -> !a.isEmpty())
                 .map(a -> a.get(0).getType())
                 .collect(Collectors.toSet());
@@ -210,31 +208,6 @@ public abstract class AccessRequest extends RadiusPacket {
         }
 
         return lookupAuthType(detectedAuth.iterator().next());
-    }
-
-    /**
-     * Retrieves the user name from the User-Name attribute.
-     *
-     * @return user name
-     */
-    public String getUserName() {
-        final RadiusAttribute attribute = getAttribute(USER_NAME);
-        return attribute == null ?
-                null : attribute.getValueString();
-    }
-
-    /**
-     * Sets the User-Name attribute of this Access-Request.
-     *
-     * @param userName user name to set
-     */
-    public void setUserName(String userName) {
-        requireNonNull(userName, "User name not set");
-        if (userName.isEmpty())
-            throw new IllegalArgumentException("Empty user name not allowed");
-
-        removeAttributes(USER_NAME);
-        addAttribute(createAttribute(getDictionary(), -1, USER_NAME, userName));
     }
 
     @Override

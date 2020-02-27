@@ -1,6 +1,6 @@
 package org.tinyradius.packet;
 
-import org.tinyradius.attribute.AttributeHolder;
+import org.tinyradius.attribute.NestedAttributeHolder;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.Dictionary;
@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * A generic Radius packet. Subclasses provide convenience methods for special packet types.
  */
-public class RadiusPacket implements AttributeHolder {
+public class RadiusPacket implements NestedAttributeHolder {
 
     public static final int HEADER_LENGTH = 20;
     private static final int VENDOR_SPECIFIC_TYPE = 26;
@@ -269,11 +269,6 @@ public class RadiusPacket implements AttributeHolder {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e); // never happen
         }
-    }
-
-    @Override
-    public int getVendorId() {
-        return -1;
     }
 
     public String toString() {

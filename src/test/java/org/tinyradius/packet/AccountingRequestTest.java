@@ -10,6 +10,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.packet.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.AccountingRequest.ACCT_STATUS_TYPE_ACCOUNTING_ON;
 import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
@@ -46,7 +47,7 @@ class AccountingRequestTest {
         AccountingRequest request = new AccountingRequest(dictionary, 1, null, user, 7);
 
         AccountingRequest encoded = (AccountingRequest) request.encodeRequest(sharedSecret);
-        assertEquals(request.getUserName(), encoded.getUserName());
+        assertEquals(request.getAttributeString(USER_NAME), encoded.getAttributeString(USER_NAME));
         assertEquals(ACCT_STATUS_TYPE_ACCOUNTING_ON, encoded.getAcctStatusType());
         assertEquals(request.getAcctStatusType(), encoded.getAcctStatusType());
     }

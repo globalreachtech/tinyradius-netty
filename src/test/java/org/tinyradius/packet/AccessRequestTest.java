@@ -43,7 +43,7 @@ class AccessRequestTest {
         encoded.setPlaintextPassword("set field to something else");
         encoded.verify(sharedSecret, null);
 
-        assertEquals(plaintextPw, encoded.getUserPassword());
+        assertEquals(plaintextPw, encoded.getPlaintextPassword());
     }
 
     private byte[] random16Bytes() {

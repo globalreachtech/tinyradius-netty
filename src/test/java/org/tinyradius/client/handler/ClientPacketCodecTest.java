@@ -100,7 +100,7 @@ class ClientPacketCodecTest {
         int id = random.nextInt(256);
 
         final AccessPap accessRequest = new AccessPap(dictionary, id, null, Collections.emptyList());
-        accessRequest.setUserName(username);
+        accessRequest.setAttributeString(USER_NAME, username);
         accessRequest.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
@@ -116,8 +116,8 @@ class ClientPacketCodecTest {
 
         // check user details correctly encoded
         assertEquals(id, sentAccessPacket.getIdentifier());
-        assertEquals(username, sentAccessPacket.getUserName());
-        assertEquals(password, sentAccessPacket.getUserPassword());
+        assertEquals(username, sentAccessPacket.getAttributeString(USER_NAME));
+        assertEquals(password, sentAccessPacket.getPlaintextPassword());
     }
 
     @Test
@@ -128,7 +128,7 @@ class ClientPacketCodecTest {
         int id = random.nextInt(256);
 
         final AccessPap packet = new AccessPap(dictionary, id, null, Collections.emptyList());
-        packet.setUserName(username);
+        packet.setAttributeString(USER_NAME, username);
         packet.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
 

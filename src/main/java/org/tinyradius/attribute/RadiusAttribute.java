@@ -29,14 +29,14 @@ public class RadiusAttribute {
      * @param value      value of attribute as byte array
      */
     RadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] value) {
-        this.dictionary = requireNonNull(dictionary, "dictionary not set");
+        this.dictionary = requireNonNull(dictionary, "Dictionary not set");
         this.vendorId = vendorId;
         if (type < 0 || type > 255)
-            throw new IllegalArgumentException("attribute type invalid: " + type);
+            throw new IllegalArgumentException("Attribute type invalid: " + type);
         this.type = type;
-        requireNonNull(value, "attribute data not set");
+        requireNonNull(value, "Attribute data not set");
         if (value.length > 253)
-            throw new IllegalArgumentException("attribute data too long, max 253 octets, actual: " + value.length);
+            throw new IllegalArgumentException("Attribute data too long, max 253 octets, actual: " + value.length);
         this.value = value;
     }
 
@@ -115,7 +115,7 @@ public class RadiusAttribute {
     /**
      * Returns set of entry of Attribute name and Value as string.
      * Size is generally 1, except in case of VendorSpecificAttribute
-     * where it is aggregate of sub-attributes.
+     * where it is merge of sub-attributes.
      *
      * @return Set of String/String Entry
      */

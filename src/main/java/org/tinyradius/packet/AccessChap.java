@@ -47,7 +47,7 @@ public class AccessChap extends AccessRequest {
      * @return user password in plaintext, only available if set in memory,
      * cannot be extracted from packet
      */
-    public String getUserPassword() {
+    public String getPlaintextPassword() {
         return password;
     }
 

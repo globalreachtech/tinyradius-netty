@@ -20,6 +20,7 @@ import org.tinyradius.server.handler.ServerPacketCodec;
 
 import java.net.InetSocketAddress;
 
+import static net.jradius.packet.attribute.AttributeDictionary.USER_NAME;
 import static org.tinyradius.packet.PacketType.*;
 
 /**
@@ -88,7 +89,7 @@ public class TestServer {
 
             final AccessPap request = (AccessPap) msg.getRequest();
 
-            String password = request.getUserName().equals("test") ? "password" : null;
+            String password = request.getAttributeString(USER_NAME).equals("test") ? "password" : null;
             int type = request.verifyPassword(password) ? ACCESS_ACCEPT : ACCESS_REJECT;
 
             RadiusPacket answer = RadiusPackets.create(request.getDictionary(), type, request.getIdentifier());

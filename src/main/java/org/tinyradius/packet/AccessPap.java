@@ -44,7 +44,7 @@ public class AccessPap extends AccessRequest {
      *
      * @return user password in plaintext if decoded
      */
-    public String getUserPassword() {
+    public String getPlaintextPassword() {
         return password;
     }
 
@@ -84,7 +84,7 @@ public class AccessPap extends AccessRequest {
             return false;
         }
 
-        final String userPassword = getUserPassword();
+        final String userPassword = getPlaintextPassword();
         if (userPassword == null || userPassword.isEmpty()) {
             logger.warn("Password to check is empty - verify and decode with shared secret first");
             return false;

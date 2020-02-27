@@ -13,8 +13,8 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.packet.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.RadiusPackets.nextPacketId;
 
 class AccessChapTest {
@@ -30,7 +30,7 @@ class AccessChapTest {
         String sharedSecret = "sharedSecret";
 
         AccessChap request = new AccessChap(dictionary, nextPacketId(), null, Collections.emptyList());
-        request.setUserName(user);
+        request.setAttributeString(USER_NAME, user);
         request.setPlaintextPassword(plaintextPw);
         final AccessChap encoded = (AccessChap) request.encodeRequest(sharedSecret);
 
@@ -38,7 +38,7 @@ class AccessChapTest {
         assertNull(request.getAttribute("CHAP-Password"));
         assertEquals(request.getType(), encoded.getType());
         assertEquals(request.getIdentifier(), encoded.getIdentifier());
-        assertEquals(request.getUserName(), encoded.getUserName());
+        assertEquals(request.getAttributeString(USER_NAME), encoded.getAttributeString(USER_NAME));
 
         // randomly generated, need to extract
         final byte[] chapChallenge = encoded.getAttribute("CHAP-Challenge").getValue();
@@ -50,8 +50,8 @@ class AccessChapTest {
         assertNull(encoded.getAttribute("User-Password"));
 
         // check transient fields copied across
-        assertEquals(plaintextPw, encoded.getUserPassword());
-        assertEquals(user, encoded.getUserName());
+        assertEquals(plaintextPw, encoded.getPlaintextPassword());
+        assertEquals(user, encoded.getAttributeString(USER_NAME));
     }
 
     @Test

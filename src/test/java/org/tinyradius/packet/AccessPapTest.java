@@ -16,6 +16,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.AccessPap.pad;
+import static org.tinyradius.packet.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.RadiusPackets.nextPacketId;
 
 class AccessPapTest {
@@ -30,27 +31,27 @@ class AccessPapTest {
         String sharedSecret = "sharedSecret1";
 
         AccessPap request = new AccessPap(dictionary, 2, null, Collections.emptyList());
-        request.setUserName(user);
+        request.setAttributeString(USER_NAME, user);
         request.setPlaintextPassword(plaintextPw);
         final AccessPap encoded = (AccessPap) request.encodeRequest(sharedSecret);
 
         // randomly generated, need to extract
         final byte[] authenticator = encoded.getAuthenticator();
         final byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
-                request.getUserPassword().getBytes(UTF_8), authenticator, sharedSecret);
+                request.getPlaintextPassword().getBytes(UTF_8), authenticator, sharedSecret);
 
         assertNull(request.getAttribute("User-Password"));
         assertNull(request.getAttribute("CHAP-Password"));
         assertEquals(request.getType(), encoded.getType());
         assertEquals(request.getIdentifier(), encoded.getIdentifier());
-        assertEquals(request.getUserName(), encoded.getUserName());
+        assertEquals(request.getAttributeString(USER_NAME), encoded.getAttributeString(USER_NAME));
 
         assertNull(encoded.getAttribute("CHAP-Password"));
         assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").getValue());
 
         // check transient fields copied across
-        assertEquals(plaintextPw, encoded.getUserPassword());
-        assertEquals(user, encoded.getUserName());
+        assertEquals(plaintextPw, encoded.getPlaintextPassword());
+        assertEquals(user, encoded.getAttributeString(USER_NAME));
     }
 
     @Test
@@ -68,13 +69,13 @@ class AccessPapTest {
 
         AccessPap request = (AccessPap) AccessRequest.create(dictionary, nextPacketId(), authenticator, attributes);
 
-        assertNull(request.getUserPassword());
-        assertEquals(user, request.getUserName());
+        assertNull(request.getPlaintextPassword());
+        assertEquals(user, request.getAttributeString(USER_NAME));
         assertArrayEquals(encodedPassword, request.getAttribute("User-Password").getValue());
 
         request.verify(sharedSecret, null);
 
-        assertEquals(plaintextPw, request.getUserPassword());
+        assertEquals(plaintextPw, request.getPlaintextPassword());
     }
 
     @Test
