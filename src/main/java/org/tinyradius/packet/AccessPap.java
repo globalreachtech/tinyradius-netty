@@ -103,7 +103,7 @@ public class AccessPap extends AccessRequest {
      * @param sharedSecret shared secret
      */
     @Override
-    protected void verify(String sharedSecret) throws RadiusPacketException {
+    protected void verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> attrs = getAttributes(USER_PASSWORD);
         if (attrs.size() != 1) {
             throw new RadiusPacketException("AccessRequest (PAP) should have exactly one User-Password attribute, has " + attrs.size());

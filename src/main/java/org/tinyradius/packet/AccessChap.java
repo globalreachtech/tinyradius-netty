@@ -137,7 +137,7 @@ public class AccessChap extends AccessRequest {
      * @param sharedSecret ignored, not applicable for CHAP
      */
     @Override
-    protected void verify(String sharedSecret) throws RadiusPacketException {
+    protected void verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> attrs = getAttributes(CHAP_PASSWORD);
         if (attrs.size() != 1) {
             throw new RadiusPacketException("AccessRequest (CHAP) should have exactly one CHAP-Password attribute, has " + attrs.size());

@@ -1,11 +1,16 @@
 package org.tinyradius.packet;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.tinyradius.attribute.NestedAttributeHolder;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -15,6 +20,7 @@ import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.packet.PacketType.*;
 
 /**
  * A generic Radius packet. Subclasses provide convenience methods for special packet types.
@@ -23,6 +29,8 @@ public class RadiusPacket implements NestedAttributeHolder {
 
     public static final int HEADER_LENGTH = 20;
     private static final int VENDOR_SPECIFIC_TYPE = 26;
+
+    protected static final int MESSAGE_AUTHENTICATOR = 80;
 
     private final int type;
     private final int identifier;
@@ -198,6 +206,7 @@ public class RadiusPacket implements NestedAttributeHolder {
      * @return new RadiusPacket instance with same properties and valid authenticator
      */
     public RadiusPacket encodeResponse(String sharedSecret, byte[] requestAuthenticator) {
+        // todo add Message-Authenticator
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, requestAuthenticator);
         return RadiusPackets.create(dictionary, type, identifier, authenticator, attributes);
     }
@@ -261,13 +270,62 @@ public class RadiusPacket implements NestedAttributeHolder {
         if (receivedAuth.length != 16 ||
                 !Arrays.equals(expectedAuth, receivedAuth))
             throw new RadiusPacketException("Authenticator check failed (bad authenticator or shared secret)");
+
+        if (getType() == ACCESS_CHALLENGE || getType() == ACCESS_ACCEPT || getType() == ACCESS_REQUEST)
+            verifyMessageAuth(sharedSecret, requestAuth);
+    }
+
+    protected void verifyMessageAuth(String sharedSecret, byte[] auth) throws RadiusPacketException {
+        final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
+        if (msgAuthAttr.size() > 1)
+            throw new RadiusPacketException("Packet should have at most one Message-Authenticator attribute, has " + msgAuthAttr.size());
+
+        if (msgAuthAttr.size() == 1) {
+            final byte[] messageAuth = msgAuthAttr.get(0).getValue();
+            // todo tests
+
+            if (!Arrays.equals(messageAuth, calcMessageAuth(sharedSecret, auth)))
+                throw new RadiusPacketException("Message-Authenticator attribute check failed");
+        }
+    }
+
+    private byte[] calcMessageAuth(String sharedSecret, byte[] auth) {
+        final Mac mac = getHmacMd5(sharedSecret);
+
+        final ByteBuf buf = Unpooled.buffer()
+                .writeByte(getType())
+                .writeByte(getIdentifier())
+                .writeShort(0) // placeholder
+                .writeBytes(auth);
+
+        for (RadiusAttribute attribute : getAttributes()) {
+            if (attribute.getVendorId() == -1 && attribute.getType() == MESSAGE_AUTHENTICATOR)
+                buf.writeBytes(new byte[18]);
+            else
+                buf.writeBytes(attribute.toByteArray());
+        }
+
+        buf.setShort(2, buf.readableBytes());
+        return mac.doFinal(buf.array());
     }
 
     protected static MessageDigest getMd5Digest() {
         try {
             return MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e); // never happen
+            throw new RuntimeException(e); // never happens
+        }
+    }
+
+    private static Mac getHmacMd5(String key) {
+        try {
+            final String HMAC_MD5 = "HmacMD5";
+            final SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_MD5);
+            final Mac mac = Mac.getInstance(HMAC_MD5);
+            mac.init(secretKeySpec);
+            return mac;
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException(e); // never happens
         }
     }
 

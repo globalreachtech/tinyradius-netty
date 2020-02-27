@@ -24,7 +24,9 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew test -Dio.netty.leakDetectionLevel=paranoid
     - name: Generate coverage reports
-      run: ./gradlew jacocoTestReport
+      run: ./gradlew jacocoTestReport coveralls
+      env:
+        COVERALLS_REPO_TOKEN: 2xA4TIqqxVf1yNknI6CCrgmReVBMIc168
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v1.0.1
       with:

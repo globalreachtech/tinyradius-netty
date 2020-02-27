@@ -1,7 +1,5 @@
 package org.tinyradius.packet;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.AttributeHolder;
@@ -9,10 +7,6 @@ import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +22,6 @@ public abstract class AccessRequest extends RadiusPacket {
 
     protected static final Logger logger = LogManager.getLogger();
 
-    private static final String HMAC_MD5 = "HmacMD5";
     protected static final SecureRandom RANDOM = new SecureRandom();
 
     public static final int USER_PASSWORD = 2;
@@ -37,7 +30,6 @@ public abstract class AccessRequest extends RadiusPacket {
     protected static final List<Integer> AUTH_ATTRS = Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, EAP_MESSAGE);
 
     protected static final int USER_NAME = 1;
-    protected static final int MESSAGE_AUTHENTICATOR = 80;
 
     /**
      * Create copy of AccessRequest with new authenticator and encoded attributes
@@ -71,83 +63,28 @@ public abstract class AccessRequest extends RadiusPacket {
     }
 
     /**
-     * AccessRequest cannot verify authenticator as they
-     * contain random bytes.
-     * <p>
-     * Instead it checks the User-Password/Challenge attributes
-     * are present and attempts decryption.
+     * Verify packet for specific auth frameworks.
      *
-     * @param sharedSecret shared secret, only applicable for PAP
+     * @param sharedSecret shared secret
      */
-    protected abstract void verify(String sharedSecret) throws RadiusPacketException;
+    protected abstract void verifyAuthMechanism(String sharedSecret) throws RadiusPacketException;
 
     /**
      * AccessRequest cannot verify authenticator as they
      * contain random bytes.
      * <p>
-     * Instead it checks the User-Password/Challenge attributes
-     * are present and attempts decryption.
+     * It can, however, check the User-Password/Challenge attributes
+     * are present and attempt decryption, depending on auth protocol.
      *
      * @param sharedSecret shared secret, only applicable for PAP
      * @param requestAuth  ignored, not applicable for AccessRequest
      */
     @Override
     public void verify(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
-        if (msgAuthAttr.size() > 1)
-            throw new RadiusPacketException("AccessRequest should have at most one Message-Authenticator attribute, has " + msgAuthAttr.size());
-
-        if (msgAuthAttr.size() == 1) {
-            final byte[] messageAuth = msgAuthAttr.get(0).getValue();
-            // todo tests
-
-            if (!Arrays.equals(messageAuth, calcMessageAuth(sharedSecret)))
-                throw new RadiusPacketException("AccessRequest Message-Authenticator check failed");
-        }
-        // todo
-        /*
-         * For Access-Challenge, Access-Accept, and Access-Reject packets,
-         * the Message-Authenticator is calculated as follows, using the
-         * Request-Authenticator from the Access-Request this packet is in
-         * reply to:
-         *
-         * Message-Authenticator = HMAC-MD5 (Type, Identifier, Length,
-         * Request Authenticator, Attributes)
-         */
-
-        verify(sharedSecret);
+        verifyMessageAuth(sharedSecret, requestAuth);
+        verifyAuthMechanism(sharedSecret);
     }
 
-    private Mac getHmacMd5(String key) {
-        try {
-            final SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_MD5);
-            final Mac mac = Mac.getInstance(HMAC_MD5);
-            mac.init(secretKeySpec);
-            return mac;
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new RuntimeException(e); // never happen
-        }
-    }
-
-    private byte[] calcMessageAuth(String sharedSecret) {
-        final Mac mac = getHmacMd5(sharedSecret);
-
-        final ByteBuf buf = Unpooled.buffer()
-                .writeByte(getType())
-                .writeByte(getIdentifier())
-                .writeShort(0) // placeholder
-                .writeBytes(getAuthenticator());
-
-        for (RadiusAttribute attribute : getAttributes()) {
-            if (attribute.getVendorId() == -1 && attribute.getType() == MESSAGE_AUTHENTICATOR)
-                buf.writeBytes(new byte[18]);
-            else
-                buf.writeBytes(attribute.toByteArray());
-        }
-
-        buf.setShort(2, buf.readableBytes());
-        return mac.doFinal(buf.array());
-    }
 
     /**
      * @param dictionary    custom dictionary to use
@@ -237,7 +174,7 @@ public abstract class AccessRequest extends RadiusPacket {
         }
 
         @Override
-        protected void verify(String sharedSecret) throws RadiusPacketException {
+        protected void verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
             throw new RadiusPacketException("Access-Request auth verify failed - unknown auth protocol");
         }
     }
