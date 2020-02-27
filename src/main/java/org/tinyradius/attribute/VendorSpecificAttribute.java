@@ -1,6 +1,5 @@
 package org.tinyradius.attribute;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.dictionary.Dictionary;
 
@@ -21,12 +20,12 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
     private final List<RadiusAttribute> attributes;
 
     /**
-     * @param dictionary           dictionary to use for (sub)attributes
-     * @param ignoredVendorId      vendorId ignored, parsed from data directly
-     * @param ignoredAttributeType attributeType ignored, should always be Vendor-Specific (26)
-     * @param data                 data to parse for vendorId and sub-attributes
+     * @param dictionary    dictionary to use for (sub)attributes
+     * @param vendorId      ignored, parsed from data directly
+     * @param attributeType ignored, should always be Vendor-Specific (26)
+     * @param data          data to parse for vendorId and sub-attributes
      */
-    VendorSpecificAttribute(Dictionary dictionary, int ignoredVendorId, int ignoredAttributeType, byte[] data) {
+    VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, byte[] data) {
         this(dictionary, extractVendorId(data), extractAttributes(dictionary, extractVendorId(data), data, 4));
     }
 
@@ -98,18 +97,8 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
      */
     @Override
     public byte[] toByteArray() {
-        final ByteBuf buffer = Unpooled.buffer();
-
-        buffer.writeByte(VENDOR_SPECIFIC);
-        buffer.writeByte(0); // length placeholder
-        buffer.writeInt(getVendorId());
-
-        for (RadiusAttribute attribute : attributes) {
-            buffer.writeBytes(attribute.toByteArray());
-        }
-
-        byte[] array = buffer.copy().array();
-        int len = array.length;
+        final byte[] attributeBytes = getAttributeBytes();
+        final int len = attributeBytes.length + 6;
 
         if (len < 7)
             throw new RuntimeException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
@@ -117,8 +106,12 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
         if (len > 255)
             throw new RuntimeException("Vendor-Specific attribute should be less than 256 octets, actual: " + len);
 
-        array[1] = (byte) len;
-        return array;
+        return Unpooled.buffer(len, len)
+                .writeByte(VENDOR_SPECIFIC)
+                .writeByte(len)
+                .writeInt(getVendorId())
+                .writeBytes(attributeBytes)
+                .array();
     }
 
     /**

@@ -1,5 +1,7 @@
 package org.tinyradius.attribute;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.Collection;
@@ -203,5 +205,20 @@ public interface AttributeHolder {
     default RadiusAttribute getAttribute(int vendorId, int type) {
         List<RadiusAttribute> attrs = getAttributes(vendorId, type);
         return attrs.isEmpty() ? null : attrs.get(0);
+    }
+
+    /**
+     * Encodes the attributes of this Radius packet to a byte array.
+     *
+     * @return byte array with encoded attributes
+     */
+    default byte[] getAttributeBytes() {
+        final ByteBuf buffer = Unpooled.buffer();
+
+        for (RadiusAttribute attribute : getAttributes()) {
+            buffer.writeBytes(attribute.toByteArray());
+        }
+
+        return buffer.copy().array();
     }
 }

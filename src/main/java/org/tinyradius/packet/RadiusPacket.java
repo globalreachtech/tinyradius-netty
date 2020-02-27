@@ -1,7 +1,5 @@
 package org.tinyradius.packet;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.tinyradius.attribute.AttributeHolder;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
@@ -236,14 +234,14 @@ public class RadiusPacket implements AttributeHolder {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
-        byte[] attributes = getAttributeBytes();
-        int packetLength = HEADER_LENGTH + attributes.length;
+        final byte[] attributes = getAttributeBytes();
+        final int length = HEADER_LENGTH + attributes.length;
 
         MessageDigest md5 = getMd5Digest();
         md5.update((byte) getType());
         md5.update((byte) getIdentifier());
-        md5.update((byte) (packetLength >> 8));
-        md5.update((byte) (packetLength & 0xff));
+        md5.update((byte) (length >> 8));
+        md5.update((byte) (length & 0xff));
         md5.update(requestAuthenticator);
         md5.update(attributes);
         return md5.digest(sharedSecret.getBytes(UTF_8));
@@ -271,21 +269,6 @@ public class RadiusPacket implements AttributeHolder {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e); // never happen
         }
-    }
-
-    /**
-     * Encodes the attributes of this Radius packet to a byte array.
-     *
-     * @return byte array with encoded attributes
-     */
-    protected byte[] getAttributeBytes() {
-        final ByteBuf buffer = Unpooled.buffer();
-
-        for (RadiusAttribute attribute : attributes) {
-            buffer.writeBytes(attribute.toByteArray());
-        }
-
-        return buffer.copy().array();
     }
 
     @Override

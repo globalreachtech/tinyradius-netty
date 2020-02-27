@@ -1,6 +1,7 @@
 package org.tinyradius.packet;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -8,7 +9,6 @@ import org.tinyradius.util.RadiusPacketException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import static io.netty.buffer.Unpooled.buffer;
 import static java.lang.Byte.toUnsignedInt;
 import static org.tinyradius.attribute.Attributes.extractAttributes;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
@@ -55,13 +55,12 @@ public class PacketCodec {
         if (packet.getAuthenticator().length != 16)
             throw new RadiusPacketException("Authenticator must be length 16");
 
-        ByteBuf buf = buffer(length, length);
-        buf.writeByte(packet.getType());
-        buf.writeByte(packet.getIdentifier());
-        buf.writeShort(length);
-        buf.writeBytes(packet.getAuthenticator());
-        buf.writeBytes(attributes);
-        return buf;
+        return Unpooled.buffer(length, length)
+                .writeByte(packet.getType())
+                .writeByte(packet.getIdentifier())
+                .writeShort(length)
+                .writeBytes(packet.getAuthenticator())
+                .writeBytes(attributes);
     }
 
     /**

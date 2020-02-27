@@ -147,12 +147,11 @@ class PacketCodecTest {
         final byte[] attribute = createAttribute(dictionary, -1, 33, random.generateSeed(5)).toByteArray();
         assertEquals(7, attribute.length);
 
-        final ByteBuf buffer = Unpooled.buffer(4097, 4097);
-        buffer.writeBytes(validBytes);
-
-        // manually append attribute
-        buffer.writeBytes(attribute);
-        buffer.setShort(2, 4097);
+        // append attribute
+        final ByteBuf buffer = Unpooled.buffer(4097, 4097)
+                .writeBytes(validBytes)
+                .writeBytes(attribute)
+                .setShort(2, 4097);
 
         final RadiusPacketException exception = assertThrows(RadiusPacketException.class,
                 () -> fromDatagram(dictionary, new DatagramPacket(buffer, new InetSocketAddress(0)), sharedSecret));

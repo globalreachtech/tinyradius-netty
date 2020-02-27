@@ -1,5 +1,7 @@
 package org.tinyradius.packet;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.AttributeHolder;
@@ -19,7 +21,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.Attributes.createAttribute;
-import static org.tinyradius.packet.PacketCodec.toByteBuf;
 import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 
 /**
@@ -102,7 +103,7 @@ public abstract class AccessRequest extends RadiusPacket {
             final byte[] messageAuth = msgAuthAttr.get(0).getValue();
             // todo tests
 
-            if (!checkMessageAuth(sharedSecret, messageAuth))
+            if (!Arrays.equals(messageAuth, calcMessageAuth(sharedSecret)))
                 throw new RadiusPacketException("AccessRequest Message-Authenticator check failed");
         }
         // todo
@@ -130,21 +131,24 @@ public abstract class AccessRequest extends RadiusPacket {
         }
     }
 
-    /**
-     * @return true if Message-Authenticator validates
-     */
-    private boolean checkMessageAuth(String sharedSecret, byte[] messageAuth) throws RadiusPacketException {
+    private byte[] calcMessageAuth(String sharedSecret) {
         final Mac mac = getHmacMd5(sharedSecret);
-        // save msgAuth
-        final byte[] tmpAuth = Arrays.copyOf(messageAuth, messageAuth.length);
 
-        // zero msgAuth and generate hash
-        Arrays.fill(messageAuth, (byte) 0);
-        final byte[] computedAuth = mac.doFinal(toByteBuf(this).array());
+        final ByteBuf buf = Unpooled.buffer()
+                .writeByte(getType())
+                .writeByte(getIdentifier())
+                .writeShort(0) // placeholder
+                .writeBytes(getAuthenticator());
 
-        // restore msgAuth
-        System.arraycopy(tmpAuth, 0, messageAuth, 0, messageAuth.length);
-        return Arrays.equals(computedAuth, messageAuth);
+        for (RadiusAttribute attribute : getAttributes()) {
+            if (attribute.getVendorId() == -1 && attribute.getType() == MESSAGE_AUTHENTICATOR)
+                buf.writeBytes(new byte[18]);
+            else
+                buf.writeBytes(attribute.toByteArray());
+        }
+
+        buf.setShort(2, buf.readableBytes());
+        return mac.doFinal(buf.array());
     }
 
     /**

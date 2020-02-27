@@ -22,7 +22,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
     - name: Build with Gradle
-      run: ./gradlew test
+      run: ./gradlew test -Dio.netty.leakDetectionLevel=paranoid
     - name: Generate coverage reports
       run: ./gradlew jacocoTestReport
     - name: Coveralls GitHub Action
