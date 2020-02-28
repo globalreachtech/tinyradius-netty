@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.PacketCodec;
-import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
@@ -30,7 +30,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
 
     protected DatagramPacket encodePacket(InetSocketAddress localAddress, PendingRequestCtx msg) {
         try {
-            final RadiusPacket packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
+            final BaseRadiusPacket packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
             final DatagramPacket datagramPacket = PacketCodec.toDatagram(
                     packet, msg.getEndpoint().getAddress(), localAddress);
             logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
@@ -42,7 +42,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
         }
     }
 
-    protected RadiusPacket decodePacket(DatagramPacket msg) {
+    protected BaseRadiusPacket decodePacket(DatagramPacket msg) {
         InetSocketAddress remoteAddress = msg.sender();
 
         if (remoteAddress == null) {
@@ -52,7 +52,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
 
         try {
             // can't verify until we know corresponding request auth
-            RadiusPacket packet = fromDatagram(dictionary, msg);
+            BaseRadiusPacket packet = fromDatagram(dictionary, msg);
             logger.debug("Received packet from {} - {}", remoteAddress, packet);
             return packet;
         } catch (RadiusPacketException e) {
@@ -70,7 +70,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
 
     @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
-        final RadiusPacket radiusPacket = decodePacket(msg);
+        final BaseRadiusPacket radiusPacket = decodePacket(msg);
         if (radiusPacket != null)
             out.add(radiusPacket);
     }

@@ -11,9 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
 import org.tinyradius.util.RadiusEndpoint;
@@ -48,13 +47,13 @@ class ProxyHandlerTest {
     void handleSuccess() throws InterruptedException {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
+            public Optional<RadiusEndpoint> getProxyServer(BaseRadiusPacket packet, RadiusEndpoint client) {
                 return Optional.of(stubEndpoint);
             }
         };
 
         final AccountingRequest request = new AccountingRequest(dictionary, 1, null);
-        final RadiusPacket mockResponse = new RadiusPacket(dictionary, ACCOUNTING_RESPONSE, 123);
+        final BaseRadiusPacket mockResponse = new BaseRadiusPacket(dictionary, ACCOUNTING_RESPONSE, 123);
         mockResponse.addAttribute(createAttribute(dictionary, -1, 33, "state1".getBytes(UTF_8)));
 
         when(client.communicate(any(), any())).thenReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(mockResponse));
@@ -71,7 +70,7 @@ class ProxyHandlerTest {
     void handleRadiusClientError() throws InterruptedException {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
+            public Optional<RadiusEndpoint> getProxyServer(BaseRadiusPacket packet, RadiusEndpoint client) {
                 return Optional.of(stubEndpoint);
             }
         };
@@ -92,7 +91,7 @@ class ProxyHandlerTest {
 
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
+            public Optional<RadiusEndpoint> getProxyServer(BaseRadiusPacket packet, RadiusEndpoint client) {
                 return Optional.empty();
             }
         };

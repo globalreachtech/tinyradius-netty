@@ -58,7 +58,7 @@ public class AccessPap extends AccessRequest {
      * @return List of RadiusAttributes to override
      */
     @Override
-    protected AccessPap encodeRequest(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
+    protected AccessPap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
         if (password == null || password.isEmpty()) {
             logger.warn("Could not encode PAP attributes, password not set");
             throw new RadiusPacketException("Could not encode PAP attributes, password not set");
@@ -165,7 +165,7 @@ public class AccessPap extends AccessRequest {
 
 
     private byte[] md5(byte[] a, byte[] b) {
-        MessageDigest md = getMd5Digest();
+        MessageDigest md = RadiusPacket.getMd5Digest();
         md.update(a);
         return md.digest(b);
     }

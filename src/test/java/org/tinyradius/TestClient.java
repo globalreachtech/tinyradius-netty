@@ -17,7 +17,7 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessPap;
 import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
@@ -78,7 +78,7 @@ public class TestClient {
         ar.addAttribute("WISPr-Location-ID", "net.sourceforge.ap1");
 
         logger.info("Packet before it is sent\n" + ar + "\n");
-        RadiusPacket response = rc.communicate(ar, authEndpoint).syncUninterruptibly().getNow();
+        BaseRadiusPacket response = rc.communicate(ar, authEndpoint).syncUninterruptibly().getNow();
         logger.info("Packet after it was sent\n" + ar + "\n");
         logger.info("Response\n" + response + "\n");
 

@@ -27,11 +27,6 @@ jobs:
       run: ./gradlew jacocoTestReport coveralls
       env:
         COVERALLS_REPO_TOKEN: 2xA4TIqqxVf1yNknI6CCrgmReVBMIc168
-    - name: Coveralls GitHub Action
-      uses: coverallsapp/github-action@v1.0.1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: ./build/reports/jacoco/test/jacocoTestReport.xml
 
 #    - name: Publish
 #      run: ./gradlew bintrayUpload

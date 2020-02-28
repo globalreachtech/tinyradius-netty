@@ -59,7 +59,7 @@ public class AccessChap extends AccessRequest {
      * @return List of RadiusAttributes to override
      */
     @Override
-    protected AccessChap encodeRequest(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
+    protected AccessChap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
         if (password == null || password.isEmpty()) {
             logger.warn("Could not encode CHAP attributes, password not set");
             throw new RadiusPacketException("Could not encode CHAP attributes, password not set");
@@ -88,7 +88,7 @@ public class AccessChap extends AccessRequest {
      * @return 17 octet CHAP-encoded password (1 octet for CHAP ID, 16 octets CHAP response)
      */
     private byte[] computeChapPassword(byte chapId, String plaintextPw, byte[] chapChallenge) {
-        MessageDigest md5 = getMd5Digest();
+        MessageDigest md5 = RadiusPacket.getMd5Digest();
         md5.update(chapId);
         md5.update(plaintextPw.getBytes(UTF_8));
         md5.update(chapChallenge);

@@ -14,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 
-class RadiusPacketTest {
+class BaseRadiusPacketTest {
 
     @Test
     void doesNotMutateOriginalAttributeList() {
         final List<RadiusAttribute> attributes = Collections.emptyList();
-        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, attributes);
+        BaseRadiusPacket rp = new BaseRadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, attributes);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
 
         assertEquals(0, attributes.size());
@@ -28,7 +28,7 @@ class RadiusPacketTest {
 
     @Test
     void addAttribute() {
-        RadiusPacket packet = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, Collections.emptyList());
+        BaseRadiusPacket packet = new BaseRadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1, null, Collections.emptyList());
         packet.addAttribute("WISPr-Location-ID", "myLocationId");
         packet.addAttribute(new IpAttribute.V4(packet.getDictionary(), -1, 8, "1234567"));
         packet.addAttribute(createAttribute(packet.getDictionary(), -1, 168, "fe80::"));
@@ -67,7 +67,7 @@ class RadiusPacketTest {
 
     @Test
     void removeSpecificAttribute() {
-        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
+        BaseRadiusPacket rp = new BaseRadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         RadiusAttribute ra = createAttribute(rp.getDictionary(), -1, 8, new byte[4]);
         rp.addAttribute(ra);
         assertFalse(rp.getAttributes().isEmpty());
@@ -79,7 +79,7 @@ class RadiusPacketTest {
 
     @Test
     void removeSpecificVendorAttributes() {
-        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
+        BaseRadiusPacket rp = new BaseRadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
         assertEquals(1, rp.getAttributes().size());
 
@@ -95,7 +95,7 @@ class RadiusPacketTest {
 
     @Test
     void removeAttributesByType() {
-        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
+        BaseRadiusPacket rp = new BaseRadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         rp.addAttribute("Service-Type", "1");
         rp.addAttribute("Service-Type", "2");
         rp.addAttribute("User-Name", "user");
@@ -108,7 +108,7 @@ class RadiusPacketTest {
 
     @Test
     void removeLastAttributeForType() {
-        RadiusPacket rp = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
+        BaseRadiusPacket rp = new BaseRadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
         rp.addAttribute("Service-Type", "1");
         rp.addAttribute("Service-Type", "2");
         rp.addAttribute("User-Name", "user");
@@ -125,7 +125,7 @@ class RadiusPacketTest {
     @Test
     void testGetAttributeMap() {
 
-        RadiusPacket radiusPacket = new RadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
+        BaseRadiusPacket radiusPacket = new BaseRadiusPacket(DefaultDictionary.INSTANCE, ACCESS_REQUEST, 1);
 
         radiusPacket.addAttribute("Service-Type", "999");
         radiusPacket.addAttribute("Filter-Id", "abc");

@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.tinyradius.attribute.Attributes.createAttribute;
 
@@ -26,12 +25,6 @@ public interface AttributeHolder {
     void addAttribute(RadiusAttribute attribute);
 
     void removeAttribute(RadiusAttribute attribute);
-
-    static List<RadiusAttribute> filterAttributes(List<RadiusAttribute> attributes, int type) {
-        return attributes.stream()
-                .filter(a -> a.getType() == type)
-                .collect(Collectors.toList());
-    }
 
     default AttributeType lookupAttributeType(String name) {
         final AttributeType type = getDictionary().getAttributeTypeByName(name);
@@ -80,7 +73,7 @@ public interface AttributeHolder {
      * @return list of RadiusAttribute objects, or empty list
      */
     default List<RadiusAttribute> getAttributes(int type) {
-        return filterAttributes(getAttributes(), type);
+        return Attributes.filter(getAttributes(), type);
     }
 
     /**

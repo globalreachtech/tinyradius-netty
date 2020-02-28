@@ -2,7 +2,7 @@ package org.tinyradius.packet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tinyradius.attribute.AttributeHolder;
+import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -18,7 +18,7 @@ import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 /**
  * This class represents an Access-Request Radius packet.
  */
-public abstract class AccessRequest extends RadiusPacket {
+public abstract class AccessRequest extends BaseRadiusPacket implements MessageAuthSupport {
 
     protected static final Logger logger = LogManager.getLogger();
 
@@ -40,7 +40,7 @@ public abstract class AccessRequest extends RadiusPacket {
      *                     nullable if using different auth protocol
      * @return RadiusPacket with new authenticator and encoded attributes
      */
-    protected abstract AccessRequest encodeRequest(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
+    protected abstract AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
 
     /**
      * AccessRequest overrides this method to generate a randomized authenticator as per RFC 2865
@@ -58,7 +58,7 @@ public abstract class AccessRequest extends RadiusPacket {
         // create authenticator only if needed - maintain idempotence
         byte[] newAuth = getAuthenticator() == null ? random16bytes() : getAuthenticator();
 
-        return encodeRequest(sharedSecret, newAuth);
+        return encodeAuthMechanism(sharedSecret, newAuth);
         // todo add Message-Authenticator
     }
 
@@ -80,11 +80,16 @@ public abstract class AccessRequest extends RadiusPacket {
      * @param requestAuth  ignored, not applicable for AccessRequest
      */
     @Override
-    public void verify(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    public void verifyResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         verifyMessageAuth(sharedSecret, requestAuth);
         verifyAuthMechanism(sharedSecret);
     }
 
+    @Override
+    public void verifyRequest(String sharedSecret) throws RadiusPacketException {
+        verifyMessageAuth(sharedSecret, getAuthenticator());
+        verifyAuthMechanism(sharedSecret);
+    }
 
     /**
      * @param dictionary    custom dictionary to use
@@ -129,7 +134,7 @@ public abstract class AccessRequest extends RadiusPacket {
          * MUST NOT contain more than one type of those four attributes.
          */
         final Set<Integer> detectedAuth = AUTH_ATTRS.stream()
-                .map(authAttr -> AttributeHolder.filterAttributes(attributes, authAttr))
+                .map(authAttr -> Attributes.filter(attributes, authAttr))
                 .filter(a -> !a.isEmpty())
                 .map(a -> a.get(0).getType())
                 .collect(Collectors.toSet());
@@ -148,7 +153,7 @@ public abstract class AccessRequest extends RadiusPacket {
     }
 
     @Override
-    public RadiusPacket encodeResponse(String sharedSecret, byte[] requestAuthenticator) {
+    public BaseRadiusPacket encodeResponse(String sharedSecret, byte[] requestAuth) {
         throw new UnsupportedOperationException();
     }
 
@@ -169,7 +174,7 @@ public abstract class AccessRequest extends RadiusPacket {
         }
 
         @Override
-        protected AccessRequest encodeRequest(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
+        protected AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
             throw new RadiusPacketException("Cannot encode request for unknown auth protocol");
         }
 

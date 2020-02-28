@@ -6,7 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.PromiseAdapter;
-import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.packet.RadiusPackets;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
@@ -33,7 +33,7 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
-        final RadiusPacket request = msg.getRequest();
+        final BaseRadiusPacket request = msg.getRequest();
 
         RadiusEndpoint clientEndpoint = msg.getEndpoint();
         Optional<RadiusEndpoint> serverEndpoint = getProxyServer(request, clientEndpoint);
@@ -46,9 +46,9 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
         logger.debug("Proxying packet to {}", serverEndpoint.get().getAddress());
 
         radiusClient.communicate(request, serverEndpoint.get()).addListener(f -> {
-            final RadiusPacket packet = (RadiusPacket) f.getNow();
+            final BaseRadiusPacket packet = (BaseRadiusPacket) f.getNow();
             if (f.isSuccess() && packet != null) {
-                final RadiusPacket response = RadiusPackets.create(
+                final BaseRadiusPacket response = RadiusPackets.create(
                         request.getDictionary(), packet.getType(), packet.getIdentifier(), packet.getAttributes());
                 ctx.writeAndFlush(msg.withResponse(response));
             }
@@ -65,5 +65,5 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
      *               (containing the address, port number and shared secret)
      * @return a Optional RadiusEndpoint to be proxied
      */
-    protected abstract Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client);
+    protected abstract Optional<RadiusEndpoint> getProxyServer(BaseRadiusPacket packet, RadiusEndpoint client);
 }

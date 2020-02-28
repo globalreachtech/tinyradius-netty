@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.BaseRadiusPacket;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,7 +32,7 @@ class BasicTimeoutHandlerTest {
 
     @Test
     void retryFailIfMaxAttempts() {
-        final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
+        final Promise<BaseRadiusPacket> promise = eventLoopGroup.next().newPromise();
 
         final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 2, 0);
 
@@ -55,7 +55,7 @@ class BasicTimeoutHandlerTest {
 
     @Test
     void retryRunOk() {
-        final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
+        final Promise<BaseRadiusPacket> promise = eventLoopGroup.next().newPromise();
 
         final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 3, 100);
 
@@ -71,7 +71,7 @@ class BasicTimeoutHandlerTest {
     void noRetryIfPromiseDone() {
         final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 3, 0);
 
-        final Promise<RadiusPacket> promise = eventLoopGroup.next().newPromise();
+        final Promise<BaseRadiusPacket> promise = eventLoopGroup.next().newPromise();
         promise.trySuccess(null);
         assertTrue(promise.isDone());
 

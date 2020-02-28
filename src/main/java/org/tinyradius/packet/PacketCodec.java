@@ -30,7 +30,7 @@ public class PacketCodec {
      * @return converted DatagramPacket
      * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
      */
-    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient) throws RadiusPacketException {
+    public static DatagramPacket toDatagram(BaseRadiusPacket packet, InetSocketAddress recipient) throws RadiusPacketException {
         return new DatagramPacket(toByteBuf(packet), recipient);
     }
 
@@ -41,11 +41,11 @@ public class PacketCodec {
      * @return converted DatagramPacket
      * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
      */
-    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient, InetSocketAddress sender) throws RadiusPacketException {
+    public static DatagramPacket toDatagram(BaseRadiusPacket packet, InetSocketAddress recipient, InetSocketAddress sender) throws RadiusPacketException {
         return new DatagramPacket(toByteBuf(packet), recipient, sender);
     }
 
-    public static ByteBuf toByteBuf(RadiusPacket packet) throws RadiusPacketException {
+    public static ByteBuf toByteBuf(BaseRadiusPacket packet) throws RadiusPacketException {
         byte[] attributes = packet.getAttributeBytes();
         int length = HEADER_LENGTH + attributes.length;
         if (length > MAX_PACKET_LENGTH)
@@ -81,7 +81,7 @@ public class PacketCodec {
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    public static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
+    public static BaseRadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
         return fromByteBuf(dictionary, datagram.content());
     }
 
@@ -98,9 +98,9 @@ public class PacketCodec {
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    public static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret) throws RadiusPacketException {
-        final RadiusPacket radiusPacket = fromByteBuf(dictionary, packet.content());
-        radiusPacket.verify(sharedSecret, new byte[16]);
+    public static BaseRadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret) throws RadiusPacketException {
+        final BaseRadiusPacket radiusPacket = fromByteBuf(dictionary, packet.content());
+        radiusPacket.verifyRequest(sharedSecret);
         return radiusPacket;
     }
 
@@ -117,14 +117,14 @@ public class PacketCodec {
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    public static RadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret, RadiusPacket request)
+    public static BaseRadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret, BaseRadiusPacket request)
             throws RadiusPacketException {
-        final RadiusPacket radiusPacket = fromByteBuf(dictionary, datagram.content(), request.getIdentifier());
-        radiusPacket.verify(sharedSecret, request.getAuthenticator());
+        final BaseRadiusPacket radiusPacket = fromByteBuf(dictionary, datagram.content(), request.getIdentifier());
+        radiusPacket.verifyResponse(sharedSecret, request.getAuthenticator());
         return radiusPacket;
     }
 
-    public static RadiusPacket fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
+    public static BaseRadiusPacket fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
         return fromByteBuf(dictionary, byteBuf, -1);
     }
 
@@ -141,7 +141,7 @@ public class PacketCodec {
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    private static RadiusPacket fromByteBuf(Dictionary dictionary, ByteBuf byteBuf, int requestId) throws RadiusPacketException {
+    private static BaseRadiusPacket fromByteBuf(Dictionary dictionary, ByteBuf byteBuf, int requestId) throws RadiusPacketException {
 
         final ByteBuffer content = byteBuf.nioBuffer();
         if (content.remaining() < HEADER_LENGTH) {

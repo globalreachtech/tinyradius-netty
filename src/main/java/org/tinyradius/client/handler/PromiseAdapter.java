@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.PendingRequestCtx;
-import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
@@ -23,7 +23,7 @@ import static org.tinyradius.attribute.Attributes.createAttribute;
  * outbound packets. This avoids problem with mismatched requests/responses when using
  * packetIdentifier, which is limited to 256 unique IDs.
  */
-public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PendingRequestCtx> {
+public class PromiseAdapter extends MessageToMessageCodec<BaseRadiusPacket, PendingRequestCtx> {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -39,7 +39,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PendingR
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
-        final RadiusPacket packet = msg.getRequest().copy();
+        final BaseRadiusPacket packet = msg.getRequest().copy();
         final String requestId = nextProxyStateId();
 
         packet.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
@@ -50,7 +50,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PendingR
              * however we need to generate a copy of the authenticator now for later lookups
              * encodeRequest() should be idempotent anyway
              */
-            final RadiusPacket encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
+            final BaseRadiusPacket encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
 
             msg.getResponse().addListener(f -> requests.remove(requestId));
             requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), msg.getResponse()));
@@ -63,7 +63,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PendingR
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, RadiusPacket msg, List<Object> out) {
+    protected void decode(ChannelHandlerContext ctx, BaseRadiusPacket msg, List<Object> out) {
 
         // retrieve my Proxy-State attribute (the last)
         List<RadiusAttribute> proxyStates = msg.getAttributes(PROXY_STATE);
@@ -88,7 +88,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PendingR
         }
 
         try {
-            msg.verify(request.secret, request.authenticator);
+            msg.verifyResponse(request.secret, request.authenticator);
         } catch (RadiusPacketException e) {
             logger.warn(e.getMessage());
             return;
@@ -107,9 +107,9 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusPacket, PendingR
         private final String secret;
         private final byte[] authenticator;
         private final int identifier;
-        private final Promise<RadiusPacket> promise;
+        private final Promise<BaseRadiusPacket> promise;
 
-        Request(String secret, byte[] authenticator, int identifier, Promise<RadiusPacket> promise) {
+        Request(String secret, byte[] authenticator, int identifier, Promise<BaseRadiusPacket> promise) {
             this.secret = secret;
             this.authenticator = authenticator;
             this.identifier = identifier;

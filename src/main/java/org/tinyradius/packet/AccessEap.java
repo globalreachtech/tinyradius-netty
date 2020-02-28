@@ -13,7 +13,7 @@ public class AccessEap extends AccessRequest {
     }
 
     @Override
-    protected AccessRequest encodeRequest(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
+    protected AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
         throw new RadiusPacketException("EAP Auth not yet implemented");
     }
 
@@ -28,7 +28,7 @@ public class AccessEap extends AccessRequest {
      */
     @Override
     protected void verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> attrs = getAttributes(MESSAGE_AUTHENTICATOR);
+        final List<RadiusAttribute> attrs = getAttributes(MessageAuthSupport.MESSAGE_AUTHENTICATOR);
         if (attrs.isEmpty()) {
             throw new RadiusPacketException("EAP-Message detected, but Message-Authenticator not found");
         }

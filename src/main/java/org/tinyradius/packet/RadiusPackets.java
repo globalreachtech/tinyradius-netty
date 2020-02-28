@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
-import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
+import static org.tinyradius.packet.PacketType.*;
 
 /**
  * Utils for creating new RadiusPackets
@@ -36,7 +35,7 @@ public class RadiusPackets {
      * @param identifier packet identifier
      * @return RadiusPacket object
      */
-    public static RadiusPacket create(Dictionary dictionary, int type, int identifier) {
+    public static BaseRadiusPacket create(Dictionary dictionary, int type, int identifier) {
         return create(dictionary, type, identifier, null, new ArrayList<>());
     }
 
@@ -51,7 +50,7 @@ public class RadiusPackets {
      * @param authenticator authenticator for packet, nullable
      * @return RadiusPacket object
      */
-    public static RadiusPacket create(Dictionary dictionary, int type, int identifier, byte[] authenticator) {
+    public static BaseRadiusPacket create(Dictionary dictionary, int type, int identifier, byte[] authenticator) {
         return create(dictionary, type, identifier, authenticator, new ArrayList<>());
     }
 
@@ -66,7 +65,7 @@ public class RadiusPackets {
      * @param attributes list of attributes for packet
      * @return RadiusPacket object
      */
-    public static RadiusPacket create(Dictionary dictionary, int type, int identifier, List<RadiusAttribute> attributes) {
+    public static BaseRadiusPacket create(Dictionary dictionary, int type, int identifier, List<RadiusAttribute> attributes) {
         return create(dictionary, type, identifier, null, attributes);
     }
 
@@ -82,14 +81,18 @@ public class RadiusPackets {
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    public static RadiusPacket create(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public static BaseRadiusPacket create(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
             case ACCESS_REQUEST:
                 return AccessRequest.create(dictionary, identifier, authenticator, attributes);
             case ACCOUNTING_REQUEST:
                 return new AccountingRequest(dictionary, identifier, authenticator, attributes);
+            case ACCESS_ACCEPT:
+            case ACCESS_REJECT:
+            case ACCESS_CHALLENGE:
+                return new AccessResponse(dictionary, type, identifier, authenticator, attributes);
             default:
-                return new RadiusPacket(dictionary, type, identifier, authenticator, attributes);
+                return new BaseRadiusPacket(dictionary, type, identifier, authenticator, attributes);
         }
     }
 }

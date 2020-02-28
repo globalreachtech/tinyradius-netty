@@ -64,7 +64,7 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
     @Override
     public void addAttribute(RadiusAttribute attribute) {
         if (attribute.getVendorId() != getVendorId())
-            throw new IllegalArgumentException("Sub-attribute has incorrect vendor ID");
+            throw new IllegalArgumentException("Attribute vendor ID doesn't match");
 
         attributes.add(attribute);
     }
@@ -77,7 +77,7 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
     @Override
     public void removeAttribute(RadiusAttribute attribute) {
         if (attribute.getVendorId() != getVendorId())
-            throw new IllegalArgumentException("Sub-attribute has incorrect vendor ID");
+            throw new IllegalArgumentException("Attribute vendor ID doesn't match");
 
         attributes.remove(attribute);
     }

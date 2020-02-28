@@ -12,7 +12,7 @@ import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 /**
  * This class represents a Radius packet of the type Accounting-Request.
  */
-public class AccountingRequest extends RadiusPacket {
+public class AccountingRequest extends BaseRadiusPacket {
 
     // Attributes
     private static final int USER_NAME = 1;

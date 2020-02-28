@@ -73,7 +73,7 @@ class AccessPapTest {
         assertEquals(user, request.getAttributeString(USER_NAME));
         assertArrayEquals(encodedPassword, request.getAttribute("User-Password").getValue());
 
-        request.verify(sharedSecret, null);
+        request.verifyResponse(sharedSecret, null);
 
         assertEquals(plaintextPw, request.getPlaintextPassword());
     }

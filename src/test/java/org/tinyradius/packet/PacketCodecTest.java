@@ -40,7 +40,7 @@ class PacketCodecTest {
         }
     }
 
-    private void addBytesToPacket(RadiusPacket packet, int targetSize) {
+    private void addBytesToPacket(BaseRadiusPacket packet, int targetSize) {
         int dataSize = targetSize - HEADER_LENGTH;
         for (int i = 0; i < Math.floor((double) dataSize / 200); i++) {
             // add 200 octets per iteration (198 + 2-byte header)
@@ -52,7 +52,7 @@ class PacketCodecTest {
     @Test
     void toDatagramMaxPacketSize() throws RadiusPacketException {
         // test max length 4096
-        RadiusPacket maxSizeRequest = new RadiusPacket(dictionary, 200, 250);
+        BaseRadiusPacket maxSizeRequest = new BaseRadiusPacket(dictionary, 200, 250);
         addBytesToPacket(maxSizeRequest, 4096);
 
         final ByteBuf byteBuf = toDatagram(maxSizeRequest.encodeRequest("mySecret"), new InetSocketAddress(0))
@@ -62,7 +62,7 @@ class PacketCodecTest {
         assertEquals(4096, byteBuf.getShort(2));
 
         // test length 4097
-        RadiusPacket oversizeRequest = new RadiusPacket(dictionary, 200, 250);
+        BaseRadiusPacket oversizeRequest = new BaseRadiusPacket(dictionary, 200, 250);
         addBytesToPacket(oversizeRequest, 4097);
 
         final RadiusPacketException exception = assertThrows(RadiusPacketException.class,
@@ -76,13 +76,13 @@ class PacketCodecTest {
     @Test
     void testToDatagram() throws RadiusPacketException {
         final InetSocketAddress address = new InetSocketAddress(random.nextInt(65535));
-        RadiusPacket request = new RadiusPacket(dictionary, 200, 250);
+        BaseRadiusPacket request = new BaseRadiusPacket(dictionary, 200, 250);
 
         final byte[] proxyState = random.generateSeed(198);
         request.addAttribute(createAttribute(dictionary, -1, 33, proxyState));
         request.addAttribute(createAttribute(dictionary, -1, 33, random.generateSeed(198)));
 
-        final RadiusPacket encoded = request.encodeRequest("mySecret");
+        final BaseRadiusPacket encoded = request.encodeRequest("mySecret");
 
         DatagramPacket datagram = toDatagram(encoded, address);
 
@@ -114,12 +114,12 @@ class PacketCodecTest {
         // test max length 4096
         AccountingRequest rawRequest = new AccountingRequest(dictionary, 250, null);
         addBytesToPacket(rawRequest, 4096);
-        final RadiusPacket maxSizeRequest = rawRequest.encodeRequest(sharedSecret);
+        final BaseRadiusPacket maxSizeRequest = rawRequest.encodeRequest(sharedSecret);
 
         final DatagramPacket datagram = toDatagram(maxSizeRequest, new InetSocketAddress(0));
         assertEquals(4096, datagram.content().readableBytes());
 
-        RadiusPacket result = fromDatagram(dictionary, datagram, sharedSecret);
+        BaseRadiusPacket result = fromDatagram(dictionary, datagram, sharedSecret);
 
         assertEquals(maxSizeRequest.getType(), result.getType());
         assertEquals(maxSizeRequest.getIdentifier(), result.getIdentifier());
@@ -167,10 +167,10 @@ class PacketCodecTest {
 
         AccountingRequest rawRequest = new AccountingRequest(dictionary, 250, null);
         rawRequest.setAttributeString(USER_NAME, user);
-        final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
+        final BaseRadiusPacket request = rawRequest.encodeRequest(sharedSecret);
 
         DatagramPacket datagramPacket = toDatagram(request, remoteAddress);
-        RadiusPacket packet = fromDatagram(dictionary, datagramPacket, sharedSecret);
+        BaseRadiusPacket packet = fromDatagram(dictionary, datagramPacket, sharedSecret);
 
         assertEquals(ACCOUNTING_REQUEST, packet.getType());
         assertTrue(packet instanceof AccountingRequest);
@@ -185,7 +185,7 @@ class PacketCodecTest {
 
         AccountingRequest rawRequest = new AccountingRequest(dictionary, 250, null);
         rawRequest.setAttributeString(USER_NAME, user);
-        final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
+        final BaseRadiusPacket request = rawRequest.encodeRequest(sharedSecret);
 
         DatagramPacket originalDatagram = toDatagram(request, remoteAddress);
 
@@ -209,10 +209,10 @@ class PacketCodecTest {
         AccessPap rawRequest = new AccessPap(dictionary, 250, null, Collections.emptyList());
         rawRequest.setAttributeString(USER_NAME, user);
         rawRequest.setPlaintextPassword(password);
-        final RadiusPacket request = rawRequest.encodeRequest(sharedSecret);
+        final BaseRadiusPacket request = rawRequest.encodeRequest(sharedSecret);
 
         DatagramPacket datagramPacket = toDatagram(request, remoteAddress);
-        RadiusPacket radiusPacket = fromDatagram(dictionary, datagramPacket, sharedSecret);
+        BaseRadiusPacket radiusPacket = fromDatagram(dictionary, datagramPacket, sharedSecret);
 
         assertEquals(ACCESS_REQUEST, radiusPacket.getType());
         assertTrue(radiusPacket instanceof AccessRequest);
@@ -236,12 +236,12 @@ class PacketCodecTest {
         request.setPlaintextPassword(plaintextPw);
         final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
 
-        final RadiusPacket response = new RadiusPacket(dictionary, 2, id);
+        final BaseRadiusPacket response = new BaseRadiusPacket(dictionary, 2, id);
         response.addAttribute(createAttribute(dictionary, -1, 33, "state3333".getBytes(UTF_8)));
-        final RadiusPacket encodedResponse = response.encodeResponse(sharedSecret, encodedRequest.getAuthenticator());
+        final BaseRadiusPacket encodedResponse = response.encodeResponse(sharedSecret, encodedRequest.getAuthenticator());
 
         DatagramPacket datagramPacket = toDatagram(encodedResponse, remoteAddress);
-        RadiusPacket packet = fromDatagram(dictionary, datagramPacket, sharedSecret, encodedRequest);
+        BaseRadiusPacket packet = fromDatagram(dictionary, datagramPacket, sharedSecret, encodedRequest);
 
         assertEquals(encodedResponse.getIdentifier(), packet.getIdentifier());
         assertEquals("state3333", new String(packet.getAttribute(33).getValue()));

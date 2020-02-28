@@ -1,18 +1,18 @@
 package org.tinyradius.server;
 
-import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.util.RadiusEndpoint;
 
 public class ResponseCtx extends RequestCtx {
 
-    private final RadiusPacket response;
+    private final BaseRadiusPacket response;
 
-    public ResponseCtx(RadiusPacket packet, RadiusEndpoint endpoint, RadiusPacket response) {
+    public ResponseCtx(BaseRadiusPacket packet, RadiusEndpoint endpoint, BaseRadiusPacket response) {
         super(packet, endpoint);
         this.response = response;
     }
 
-    public RadiusPacket getResponse() {
+    public BaseRadiusPacket getResponse() {
         return response;
     }
 }
