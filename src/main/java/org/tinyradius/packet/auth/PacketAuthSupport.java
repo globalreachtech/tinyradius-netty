@@ -4,6 +4,7 @@ import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -40,7 +41,7 @@ public interface PacketAuthSupport extends RadiusPacket {
         final byte[] attributes = getAttributeBytes();
         final int length = HEADER_LENGTH + attributes.length;
 
-        MessageDigest md5 = RadiusPacket.getMd5Digest();
+        MessageDigest md5 = getMd5Digest();
         md5.update((byte) getType());
         md5.update((byte) getIdentifier());
         md5.update((byte) (length >> 8));
@@ -48,5 +49,13 @@ public interface PacketAuthSupport extends RadiusPacket {
         md5.update(requestAuthenticator);
         md5.update(attributes);
         return md5.digest(sharedSecret.getBytes(UTF_8));
+    }
+
+    default MessageDigest getMd5Digest() {
+        try {
+            return MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e); // never happens
+        }
     }
 }

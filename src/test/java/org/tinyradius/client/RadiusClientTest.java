@@ -23,8 +23,6 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusRequest;
 import org.tinyradius.packet.RadiusResponse;
-import org.tinyradius.packet.auth.RadiusRequest;
-import org.tinyradius.packet.auth.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusPacketException;
 

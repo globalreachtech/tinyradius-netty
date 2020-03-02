@@ -4,8 +4,6 @@ import org.tinyradius.attribute.AttributeHolder;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 public interface RadiusPacket extends AttributeHolder {
@@ -45,18 +43,8 @@ public interface RadiusPacket extends AttributeHolder {
      */
     Dictionary getDictionary();
 
-    RadiusPacket copy();
-
     /**
-     * TODO move somewhere else
-     *
-     * @return
+     * @return Shallow copy of packet (or subclass)
      */
-    static MessageDigest getMd5Digest() {
-        try {
-            return MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e); // never happens
-        }
-    }
+    RadiusPacket copy();
 }

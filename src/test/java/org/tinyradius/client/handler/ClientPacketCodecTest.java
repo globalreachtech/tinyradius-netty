@@ -14,9 +14,8 @@ import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessPap;
-import org.tinyradius.packet.GenericRadiusPacket;
+import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusResponse;
-import org.tinyradius.packet.auth.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -31,7 +30,7 @@ import static net.jradius.packet.attribute.AttributeDictionary.USER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.tinyradius.packet.PacketCodec.fromDatagram;
+import static org.tinyradius.packet.PacketCodec.fromDatagramRequest;
 import static org.tinyradius.packet.PacketCodec.toDatagram;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,7 +59,7 @@ class ClientPacketCodecTest {
                 response.encodeResponse("mySecret", requestAuth), address, address), out1);
 
         assertEquals(1, out1.size());
-        GenericRadiusPacket actual = (GenericRadiusPacket) out1.get(0);
+        RadiusPacket actual = (RadiusPacket) out1.get(0);
         assertEquals(response.toString(), actual.toString());
     }
 
@@ -113,8 +112,9 @@ class ClientPacketCodecTest {
         codec.encode(ctx, new PendingRequestCtx(accessRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
-        final AccessPap sentAccessPacket = (AccessPap) fromDatagram(
-                dictionary, (DatagramPacket) out1.get(0), secret);
+        final AccessPap sentAccessPacket = (AccessPap) fromDatagramRequest(
+                dictionary, (DatagramPacket) out1.get(0));
+        sentAccessPacket.verifyRequest(secret);
 
         // check user details correctly encoded
         assertEquals(id, sentAccessPacket.getIdentifier());

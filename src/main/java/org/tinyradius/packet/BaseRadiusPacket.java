@@ -52,7 +52,7 @@ public abstract class BaseRadiusPacket implements NestedAttributeHolder, RadiusP
         this.identifier = identifier;
         this.authenticator = authenticator;
         this.attributes = new ArrayList<>(attributes); // catch nulls, avoid mutating original list
-        this.dictionary = requireNonNull(dictionary, "dictionary is null");
+        this.dictionary = requireNonNull(dictionary, "Dictionary is null");
     }
 
 

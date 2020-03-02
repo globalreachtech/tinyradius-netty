@@ -18,8 +18,7 @@ import org.tinyradius.util.RadiusPacketException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import static org.tinyradius.packet.PacketCodec.fromDatagram;
-import static org.tinyradius.packet.PacketCodec.toDatagram;
+import static org.tinyradius.packet.PacketCodec.*;
 
 /**
  * Codec for receiving requests and sending responses
@@ -47,10 +46,11 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
         }
 
         try {
-            RadiusRequest packet = fromDatagram(dictionary, msg, secret);
-            logger.debug("Received packet from {} - {}", remoteAddress, packet);
+            RadiusRequest request = fromDatagramRequest(dictionary, msg);
+            request.verifyRequest(secret);
+            logger.debug("Received request from {} - {}", remoteAddress, request);
 
-            return new RequestCtx(packet, new RadiusEndpoint(remoteAddress, secret));
+            return new RequestCtx(request, new RadiusEndpoint(remoteAddress, secret));
         } catch (RadiusPacketException e) {
             logger.warn("Could not decode Radius packet: {}", e.getMessage());
             return null;

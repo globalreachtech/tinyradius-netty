@@ -165,7 +165,7 @@ public class AccessPap extends AccessRequest {
 
 
     private byte[] md5(byte[] a, byte[] b) {
-        MessageDigest md = RadiusPacket.getMd5Digest();
+        MessageDigest md = getMd5Digest();
         md.update(a);
         return md.digest(b);
     }

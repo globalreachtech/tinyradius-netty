@@ -1,7 +1,7 @@
 package org.tinyradius.client.timeout;
 
 import io.netty.util.concurrent.Promise;
-import org.tinyradius.packet.auth.RadiusResponse;
+import org.tinyradius.packet.RadiusResponse;
 
 public interface TimeoutHandler {
 

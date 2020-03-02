@@ -41,7 +41,7 @@ class AccessRequestTest {
         final AccessPap encoded = (AccessPap) request.encodeRequest(sharedSecret);
 
         encoded.setPlaintextPassword("set field to something else");
-        encoded.verifyResponse(sharedSecret, null);
+        encoded.verifyRequest(sharedSecret);
 
         assertEquals(plaintextPw, encoded.getPlaintextPassword());
     }

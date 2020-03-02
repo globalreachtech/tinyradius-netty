@@ -4,8 +4,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.auth.RadiusRequest;
-import org.tinyradius.packet.auth.RadiusResponse;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
@@ -14,6 +12,8 @@ import java.nio.ByteBuffer;
 import static java.lang.Byte.toUnsignedInt;
 import static org.tinyradius.attribute.Attributes.extractAttributes;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
+import static org.tinyradius.packet.RadiusPackets.createRequest;
+import static org.tinyradius.packet.RadiusPackets.createResponse;
 
 /**
  * To encode/decode packets to/from Datagram.
@@ -65,36 +65,6 @@ public class PacketCodec {
                 .writeBytes(attributes);
     }
 
-//    /**
-//     * Reads a Radius packet from the given input stream and
-//     * creates an appropriate RadiusPacket/subclass.
-//     * <p>
-//     * Makes no distinction between reading requests/responses, and
-//     * does not attempt to decode attributes/verify authenticators.
-//     * RadiusPacket should be separately verified after this to check
-//     * authenticators are valid and required attributes present.
-//     * <p>
-//     * Typically used to decode a response where the corresponding request
-//     * (specifically the authenticator/identifier) are not available or
-//     * you don't care about validating the created object.
-//     *
-//     * @param dictionary dictionary to use for attributes
-//     * @param datagram   DatagramPacket to read packet from
-//     * @return new RadiusPacket object
-//     * @throws RadiusPacketException malformed packet
-//     */
-//    public static GenericRadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
-//        return fromByteBuf(dictionary, datagram.content());
-//    }
-
-    public static GenericRadiusPacket fromDatagramRequest(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
-        return fromByteBuf(dictionary, datagram.content());
-    }
-
-    public static GenericRadiusPacket fromDatagramResponse(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
-        return fromByteBuf(dictionary, datagram.content());
-    }
-
     /**
      * Reads a request from the given input stream and
      * creates an appropriate RadiusPacket/subclass.
@@ -102,16 +72,13 @@ public class PacketCodec {
      * Decodes the encrypted fields and attributes of the packet, and checks
      * authenticator if appropriate.
      *
-     * @param dictionary   dictionary to use for attributes
-     * @param packet       DatagramPacket to read packet from
-     * @param sharedSecret shared secret to be used to decode this packet
+     * @param dictionary dictionary to use for attributes
+     * @param datagram   DatagramPacket to read packet from
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    public static RadiusRequest fromDatagramRequest(Dictionary dictionary, DatagramPacket packet, String sharedSecret) throws RadiusPacketException {
-        final RadiusRequest radiusPacket = fromByteBuf(dictionary, packet.content());
-        radiusPacket.verifyRequest(sharedSecret);
-        return radiusPacket;
+    public static RadiusRequest fromDatagramRequest(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
+        return fromByteBuf(dictionary, datagram.content());
     }
 
     /**
@@ -121,19 +88,14 @@ public class PacketCodec {
      * Decodes the encrypted fields and attributes of the packet, and checks
      * authenticator if appropriate.
      *
-     * @param datagram     DatagramPacket to read packet from
-     * @param sharedSecret shared secret to be used to decode this packet
-     * @param request      associated request packet for parsing response
+     * @param dictionary dictionary to use for attributes
+     * @param datagram   DatagramPacket to read packet from
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    public static RadiusResponse fromDatagramResponse(Dictionary dictionary, DatagramPacket datagram, String sharedSecret, RadiusRequest request)
-            throws RadiusPacketException {
-        final RadiusResponse response = fromByteBuf(dictionary, datagram.content());
-        if (request.getIdentifier() != response.getIdentifier())
-            throw new RadiusPacketException("Bad packet: invalid packet identifier - request: " + request.getIdentifier() + ", response: " + response.getIdentifier());
-        response.verifyResponse(sharedSecret, request.getAuthenticator());
-        return response;
+    public static RadiusResponse fromDatagramResponse(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
+        final RadiusRequest rr = fromByteBuf(dictionary, datagram.content());
+        return createResponse(rr.getDictionary(), rr.getType(), rr.getIdentifier(), rr.getAuthenticator(), rr.getAttributes());
     }
 
     /**
@@ -148,7 +110,7 @@ public class PacketCodec {
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    private static BaseRadiusPacket fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
+    private static RadiusRequest fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
 
         final ByteBuffer content = byteBuf.nioBuffer();
         if (content.remaining() < HEADER_LENGTH) {
@@ -173,13 +135,7 @@ public class PacketCodec {
         byte[] attributes = new byte[content.remaining()];
         content.get(attributes);
 
-        return new BaseRadiusPacket(dictionary, type, packetId, authenticator,
-                extractAttributes(dictionary, -1, attributes, 0)) {
-            @Override
-            public RadiusPacket copy() {
-                return null;
-            }
-        };
+        return createRequest(dictionary, type, packetId, authenticator,
+                extractAttributes(dictionary, -1, attributes, 0));
     }
-
 }

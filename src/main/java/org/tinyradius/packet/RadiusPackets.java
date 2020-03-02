@@ -2,8 +2,6 @@ package org.tinyradius.packet;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.auth.RadiusRequest;
-import org.tinyradius.packet.auth.RadiusResponse;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
