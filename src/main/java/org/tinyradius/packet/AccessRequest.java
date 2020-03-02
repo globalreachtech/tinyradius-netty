@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.auth.MessageAuthSupport;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.security.SecureRandom;
@@ -18,7 +19,7 @@ import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 /**
  * This class represents an Access-Request Radius packet.
  */
-public abstract class AccessRequest extends BaseRadiusPacket implements MessageAuthSupport {
+public abstract class AccessRequest extends RadiusRequest implements MessageAuthSupport {
 
     protected static final Logger logger = LogManager.getLogger();
 
@@ -77,14 +78,7 @@ public abstract class AccessRequest extends BaseRadiusPacket implements MessageA
      * are present and attempt decryption, depending on auth protocol.
      *
      * @param sharedSecret shared secret, only applicable for PAP
-     * @param requestAuth  ignored, not applicable for AccessRequest
      */
-    @Override
-    public void verifyResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        verifyMessageAuth(sharedSecret, requestAuth);
-        verifyAuthMechanism(sharedSecret);
-    }
-
     @Override
     public void verifyRequest(String sharedSecret) throws RadiusPacketException {
         verifyMessageAuth(sharedSecret, getAuthenticator());
@@ -150,11 +144,6 @@ public abstract class AccessRequest extends BaseRadiusPacket implements MessageA
         }
 
         return lookupAuthType(detectedAuth.iterator().next());
-    }
-
-    @Override
-    public BaseRadiusPacket encodeResponse(String sharedSecret, byte[] requestAuth) {
-        throw new UnsupportedOperationException();
     }
 
     protected byte[] random16bytes() {

@@ -1,5 +1,6 @@
 package org.tinyradius.packet;
 
+import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -12,7 +13,6 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.Attributes.createAttribute;
 
 public class AccessPap extends AccessRequest {
 
@@ -65,7 +65,7 @@ public class AccessPap extends AccessRequest {
         }
         final AccessPap accessPap = new AccessPap(getDictionary(), getIdentifier(), newAuth, new ArrayList<>(getAttributes()), password);
         accessPap.removeAttributes(USER_PASSWORD);
-        accessPap.addAttribute(createAttribute(getDictionary(), -1, USER_PASSWORD,
+        accessPap.addAttribute(Attributes.create(getDictionary(), -1, USER_PASSWORD,
                 encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
 
         return accessPap;

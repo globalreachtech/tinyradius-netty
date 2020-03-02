@@ -10,12 +10,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.RadiusRequest;
+import org.tinyradius.packet.RadiusResponse;
+import org.tinyradius.packet.auth.RadiusRequest;
+import org.tinyradius.packet.auth.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -47,7 +51,7 @@ class ServerPacketCodecTest {
 
     @Test
     void decodeExceptionDropPacket() throws RadiusPacketException {
-        final BaseRadiusPacket request = new BaseRadiusPacket(dictionary, 4, 1).encodeRequest("mySecret");
+        final RadiusRequest request = new RadiusRequest(dictionary, 4, 1, null, Collections.emptyList()).encodeRequest("mySecret");
         final DatagramPacket datagram = toDatagram(request, address);
         final ServerPacketCodec codec = new ServerPacketCodec(dictionary, x -> "bad secret");
 
@@ -64,7 +68,7 @@ class ServerPacketCodecTest {
         when(ctx.channel()).thenReturn(mock(Channel.class));
 
         // create datagram
-        final BaseRadiusPacket requestPacket = new BaseRadiusPacket(dictionary, 3, 1).encodeRequest(secret);
+        final RadiusRequest requestPacket = new RadiusRequest(dictionary, 3, 1, null, Collections.emptyList()).encodeRequest(secret);
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final DatagramPacket request = toDatagram(requestPacket, address, remoteAddress);
 
@@ -79,7 +83,7 @@ class ServerPacketCodecTest {
         assertEquals(secret, requestCtx.getEndpoint().getSecret());
         assertEquals(requestPacket, requestCtx.getRequest());
 
-        final BaseRadiusPacket responsePacket = new BaseRadiusPacket(dictionary, 4, 1);
+        final RadiusResponse responsePacket = new RadiusResponse(dictionary, 4, 1, null, Collections.emptyList());
 
         // encode
         final List<Object> out2 = new ArrayList<>();

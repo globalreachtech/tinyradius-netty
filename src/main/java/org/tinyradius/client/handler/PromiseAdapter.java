@@ -7,7 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.PendingRequestCtx;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.auth.RadiusRequest;
+import org.tinyradius.packet.auth.RadiusResponse;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
@@ -16,14 +17,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.attribute.Attributes.create;
 
 /**
  * ClientHandler that matches requests/response by appending Proxy-State attribute to
  * outbound packets. This avoids problem with mismatched requests/responses when using
  * packetIdentifier, which is limited to 256 unique IDs.
  */
-public class PromiseAdapter extends MessageToMessageCodec<BaseRadiusPacket, PendingRequestCtx> {
+public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, PendingRequestCtx> {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -39,10 +40,10 @@ public class PromiseAdapter extends MessageToMessageCodec<BaseRadiusPacket, Pend
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
-        final BaseRadiusPacket packet = msg.getRequest().copy();
+        final RadiusRequest packet = msg.getRequest().copy();
         final String requestId = nextProxyStateId();
 
-        packet.addAttribute(createAttribute(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
+        packet.addAttribute(create(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
 
         try {
             /*
@@ -50,7 +51,7 @@ public class PromiseAdapter extends MessageToMessageCodec<BaseRadiusPacket, Pend
              * however we need to generate a copy of the authenticator now for later lookups
              * encodeRequest() should be idempotent anyway
              */
-            final BaseRadiusPacket encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
+            final RadiusRequest encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
 
             msg.getResponse().addListener(f -> requests.remove(requestId));
             requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), msg.getResponse()));
@@ -63,7 +64,7 @@ public class PromiseAdapter extends MessageToMessageCodec<BaseRadiusPacket, Pend
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, BaseRadiusPacket msg, List<Object> out) {
+    protected void decode(ChannelHandlerContext ctx, RadiusResponse msg, List<Object> out) {
 
         // retrieve my Proxy-State attribute (the last)
         List<RadiusAttribute> proxyStates = msg.getAttributes(PROXY_STATE);
@@ -99,7 +100,7 @@ public class PromiseAdapter extends MessageToMessageCodec<BaseRadiusPacket, Pend
         logger.info("Found request for response identifier => {}", msg.getIdentifier());
         request.promise.trySuccess(msg);
 
-        // intentionally nothing to pass through - listeners should hook onto promise
+        // intentionally nothing to pass through - listeners should hook onto promise¬
     }
 
     private static class Request {
@@ -107,9 +108,9 @@ public class PromiseAdapter extends MessageToMessageCodec<BaseRadiusPacket, Pend
         private final String secret;
         private final byte[] authenticator;
         private final int identifier;
-        private final Promise<BaseRadiusPacket> promise;
+        private final Promise<RadiusResponse> promise;
 
-        Request(String secret, byte[] authenticator, int identifier, Promise<BaseRadiusPacket> promise) {
+        Request(String secret, byte[] authenticator, int identifier, Promise<RadiusResponse> promise) {
             this.secret = secret;
             this.authenticator = authenticator;
             this.identifier = identifier;

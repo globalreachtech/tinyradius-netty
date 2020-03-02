@@ -2,7 +2,7 @@ package org.tinyradius.client.timeout;
 
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.auth.RadiusResponse;
 
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ public class BasicTimeoutHandler implements TimeoutHandler {
     }
 
     @Override
-    public void onTimeout(Runnable callback, int totalAttempts, Promise<BaseRadiusPacket> promise) {
+    public void onTimeout(Runnable callback, int totalAttempts, Promise<RadiusResponse> promise) {
         timer.newTimeout(t -> {
             if (promise.isDone())
                 return;

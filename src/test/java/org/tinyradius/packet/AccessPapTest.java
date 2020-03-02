@@ -2,6 +2,7 @@ package org.tinyradius.packet;
 
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -14,7 +15,7 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.attribute.Attributes.create;
 import static org.tinyradius.packet.AccessPap.pad;
 import static org.tinyradius.packet.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.RadiusPackets.nextPacketId;
@@ -64,8 +65,8 @@ class AccessPapTest {
         byte[] encodedPassword = RadiusUtils.encodePapPassword(plaintextPw.getBytes(UTF_8), authenticator, sharedSecret);
 
         List<RadiusAttribute> attributes = Arrays.asList(
-                createAttribute(dictionary, -1, 1, user),
-                createAttribute(dictionary, -1, 2, encodedPassword));
+                Attributes.create(dictionary, -1, 1, user),
+                Attributes.create(dictionary, -1, 2, encodedPassword));
 
         AccessPap request = (AccessPap) AccessRequest.create(dictionary, nextPacketId(), authenticator, attributes);
 
@@ -73,7 +74,7 @@ class AccessPapTest {
         assertEquals(user, request.getAttributeString(USER_NAME));
         assertArrayEquals(encodedPassword, request.getAttribute("User-Password").getValue());
 
-        request.verifyResponse(sharedSecret, null);
+        request.verifyRequest(sharedSecret);
 
         assertEquals(plaintextPw, request.getPlaintextPassword());
     }

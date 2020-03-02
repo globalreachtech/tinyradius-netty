@@ -58,15 +58,15 @@ class AccessRequestTest {
         final byte[] encodedPw = random.generateSeed(16);
 
         final AccessRequest papRequest = AccessRequest.create(dictionary, 1, null,
-                Collections.singletonList(Attributes.createAttribute(dictionary, -1, USER_PASSWORD, encodedPw)));
+                Collections.singletonList(Attributes.create(dictionary, -1, USER_PASSWORD, encodedPw)));
         assertTrue(papRequest instanceof AccessPap);
 
         final AccessRequest chapRequest = AccessRequest.create(dictionary, 1, null,
-                Collections.singletonList(Attributes.createAttribute(dictionary, -1, CHAP_PASSWORD, encodedPw)));
+                Collections.singletonList(Attributes.create(dictionary, -1, CHAP_PASSWORD, encodedPw)));
         assertTrue(chapRequest instanceof AccessChap);
 
         final AccessRequest eapRequest = AccessRequest.create(dictionary, 1, null,
-                Collections.singletonList(Attributes.createAttribute(dictionary, -1, EAP_MESSAGE, encodedPw)));
+                Collections.singletonList(Attributes.create(dictionary, -1, EAP_MESSAGE, encodedPw)));
         assertTrue(eapRequest instanceof AccessEap);
 
         final AccessRequest unknown = AccessRequest.create(dictionary, 1, null, Collections.emptyList());

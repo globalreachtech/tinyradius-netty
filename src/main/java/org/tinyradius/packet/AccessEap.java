@@ -2,6 +2,7 @@ package org.tinyradius.packet;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.auth.MessageAuthSupport;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
@@ -32,5 +33,10 @@ public class AccessEap extends AccessRequest {
         if (attrs.isEmpty()) {
             throw new RadiusPacketException("EAP-Message detected, but Message-Authenticator not found");
         }
+    }
+
+    @Override
+    public AccessRequest copy() {
+        return null;
     }
 }

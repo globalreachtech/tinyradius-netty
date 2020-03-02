@@ -92,7 +92,7 @@ public class TestServer {
             String password = request.getAttributeString(USER_NAME).equals("test") ? "password" : null;
             int type = request.verifyPassword(password) ? ACCESS_ACCEPT : ACCESS_REJECT;
 
-            BaseRadiusPacket answer = RadiusPackets.create(request.getDictionary(), type, request.getIdentifier());
+            GenericRadiusPacket answer = RadiusPackets.create(request.getDictionary(), type, request.getIdentifier(), null, );
             request.getAttributes(33).forEach(answer::addAttribute);
 
             ctx.writeAndFlush(msg.withResponse(answer));
@@ -108,9 +108,9 @@ public class TestServer {
 
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
-            final BaseRadiusPacket request = msg.getRequest();
+            final GenericRadiusPacket request = msg.getRequest();
 
-            BaseRadiusPacket answer = RadiusPackets.create(request.getDictionary(), ACCOUNTING_RESPONSE, request.getIdentifier());
+            GenericRadiusPacket answer = RadiusPackets.create(request.getDictionary(), ACCOUNTING_RESPONSE, request.getIdentifier());
             request.getAttributes(33).forEach(answer::addAttribute);
 
             ctx.writeAndFlush(msg.withResponse(answer));

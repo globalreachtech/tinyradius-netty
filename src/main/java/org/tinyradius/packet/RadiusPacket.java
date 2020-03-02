@@ -45,8 +45,11 @@ public interface RadiusPacket extends AttributeHolder {
      */
     Dictionary getDictionary();
 
+    RadiusPacket copy();
+
     /**
      * TODO move somewhere else
+     *
      * @return
      */
     static MessageDigest getMd5Digest() {

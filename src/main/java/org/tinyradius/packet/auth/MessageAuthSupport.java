@@ -1,8 +1,9 @@
-package org.tinyradius.packet;
+package org.tinyradius.packet.auth;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
 import javax.crypto.Mac;

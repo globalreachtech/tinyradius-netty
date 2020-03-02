@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.GenericRadiusPacket;
 import org.tinyradius.server.RequestCtx;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,14 +13,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RequestHandlerTest {
 
-    private final BaseRadiusPacket accountingRequest = new AccountingRequest(DefaultDictionary.INSTANCE, 1, null);
+    private final GenericRadiusPacket accountingRequest = new AccountingRequest(DefaultDictionary.INSTANCE, 1, null);
 
     @Test
     void rejectMsg() throws Exception {
 
         final boolean b = new RequestHandler() {
             @Override
-            protected Class<? extends BaseRadiusPacket> acceptedPacketType() {
+            protected Class<? extends GenericRadiusPacket> acceptedPacketType() {
                 return AccessRequest.class;
             }
 
@@ -36,7 +36,7 @@ class RequestHandlerTest {
 
         final boolean b = new RequestHandler() {
             @Override
-            protected Class<? extends BaseRadiusPacket> acceptedPacketType() {
+            protected Class<? extends GenericRadiusPacket> acceptedPacketType() {
                 return AccountingRequest.class;
             }
 

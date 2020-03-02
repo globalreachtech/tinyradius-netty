@@ -1,7 +1,8 @@
 package org.tinyradius.client;
 
 import io.netty.util.concurrent.Promise;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.RadiusRequest;
+import org.tinyradius.packet.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
 
@@ -10,14 +11,14 @@ import org.tinyradius.util.RadiusEndpoint;
  */
 public class PendingRequestCtx extends RequestCtx {
 
-    private final Promise<BaseRadiusPacket> response;
+    private final Promise<RadiusResponse> response;
 
-    public PendingRequestCtx(BaseRadiusPacket packet, RadiusEndpoint endpoint, Promise<BaseRadiusPacket> response) {
+    public PendingRequestCtx(RadiusRequest packet, RadiusEndpoint endpoint, Promise<RadiusResponse> response) {
         super(packet, endpoint);
         this.response = response;
     }
 
-    public Promise<BaseRadiusPacket> getResponse() {
+    public Promise<RadiusResponse> getResponse() {
         return response;
     }
 }

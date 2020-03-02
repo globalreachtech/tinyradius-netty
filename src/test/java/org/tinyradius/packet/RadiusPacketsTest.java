@@ -16,15 +16,15 @@ class RadiusPacketsTest {
 
     @Test
     void createPacket() {
-        BaseRadiusPacket accessRequest = RadiusPackets.create(dictionary, ACCESS_REQUEST, 1, null, Collections.emptyList());
-        BaseRadiusPacket coaRequest = RadiusPackets.create(dictionary, COA_REQUEST, 2, null, Collections.emptyList());
-        BaseRadiusPacket accountingRequest = RadiusPackets.create(dictionary, ACCOUNTING_REQUEST, 3, null, Collections.emptyList());
+        GenericRadiusPacket accessRequest = RadiusPackets.create(dictionary, ACCESS_REQUEST, 1, null, Collections.emptyList());
+        GenericRadiusPacket coaRequest = RadiusPackets.create(dictionary, COA_REQUEST, 2, null, Collections.emptyList());
+        GenericRadiusPacket accountingRequest = RadiusPackets.create(dictionary, ACCOUNTING_REQUEST, 3, null, Collections.emptyList());
 
         assertEquals(ACCESS_REQUEST, accessRequest.getType());
         assertTrue(accessRequest instanceof AccessRequest); // don't care about subclass
 
         assertEquals(COA_REQUEST, coaRequest.getType());
-        assertEquals(BaseRadiusPacket.class, coaRequest.getClass());
+        assertEquals(GenericRadiusPacket.class, coaRequest.getClass());
 
         assertEquals(ACCOUNTING_REQUEST, accountingRequest.getType());
         assertEquals(AccountingRequest.class, accountingRequest.getClass());

@@ -23,7 +23,7 @@ public class Attributes {
      * @param data       attribute data as byte array
      * @return RadiusAttribute object
      */
-    public static RadiusAttribute createAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+    public static RadiusAttribute create(Dictionary dictionary, int vendorId, int type, byte[] data) {
         final AttributeType attributeType = dictionary.getAttributeTypeByCode(vendorId, type);
         if (attributeType != null)
             return attributeType.create(dictionary, data);
@@ -40,7 +40,7 @@ public class Attributes {
      * @param data       attribute data as String
      * @return RadiusAttribute object
      */
-    public static RadiusAttribute createAttribute(Dictionary dictionary, int vendorId, int type, String data) {
+    public static RadiusAttribute create(Dictionary dictionary, int vendorId, int type, String data) {
         final AttributeType attributeType = dictionary.getAttributeTypeByCode(vendorId, type);
         if (attributeType != null)
             return attributeType.create(dictionary, data);
@@ -67,7 +67,7 @@ public class Attributes {
                 throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >=2");
             if (expectedLen > data.length - pos)
                 throw new IllegalArgumentException("Invalid attribute length " + length + ", remaining bytes " + (data.length - pos));
-            attributes.add(createAttribute(dictionary, vendorId, type, Arrays.copyOfRange(data, pos + 2, pos + length)));
+            attributes.add(create(dictionary, vendorId, type, Arrays.copyOfRange(data, pos + 2, pos + length)));
             pos += length;
         }
 

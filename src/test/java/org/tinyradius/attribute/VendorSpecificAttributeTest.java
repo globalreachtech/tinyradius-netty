@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.attribute.Attributes.create;
 
 class VendorSpecificAttributeTest {
 
@@ -18,7 +18,7 @@ class VendorSpecificAttributeTest {
     void addSubAttributeOk() {
         String data = "myLocationId";
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, 2, data);
-        vendorSpecificAttribute.addAttribute(createAttribute(dictionary, 14122, 2, data));
+        vendorSpecificAttribute.addAttribute(Attributes.create(dictionary, 14122, 2, data));
 
         assertEquals(1, vendorSpecificAttribute.getAttributes().size());
         assertEquals(data, vendorSpecificAttribute.getAttribute(2).getValueString());
@@ -80,7 +80,7 @@ class VendorSpecificAttributeTest {
 
     @Test
     void vsaToByteArrayLargestUnsignedVendorId() {
-        RadiusAttribute radiusAttribute = createAttribute(dictionary, Integer.parseUnsignedInt("4294967295"), 1, new byte[4]);
+        RadiusAttribute radiusAttribute = create(dictionary, Integer.parseUnsignedInt("4294967295"), 1, new byte[4]);
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, Integer.parseUnsignedInt("4294967295"), new ArrayList<>());
         vendorSpecificAttribute.addAttribute(radiusAttribute);
         assertEquals(1, vendorSpecificAttribute.getAttributes().size());

@@ -7,13 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccessPap;
-import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.*;
+import org.tinyradius.packet.auth.RadiusRequest;
+import org.tinyradius.packet.auth.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusPacketException;
@@ -26,7 +27,7 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.attribute.Attributes.create;
 import static org.tinyradius.packet.PacketType.ACCESS_ACCEPT;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,7 +43,7 @@ class PromiseAdapterTest {
     private ChannelHandlerContext ctx;
 
     @Mock
-    private Promise<BaseRadiusPacket> mockPromise;
+    private Promise<RadiusResponse> mockPromise;
 
     private final PromiseAdapter handler = new PromiseAdapter();
 
@@ -51,7 +52,7 @@ class PromiseAdapterTest {
         final String secret = "test";
         int id = random.nextInt(256);
 
-        final BaseRadiusPacket originalRequest = new AccountingRequest(dictionary, id, null).encodeRequest(secret);
+        final RadiusRequest originalRequest = new AccountingRequest(dictionary, id, null).encodeRequest(secret);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
         // process once
@@ -59,7 +60,7 @@ class PromiseAdapterTest {
         handler.encode(ctx, new PendingRequestCtx(originalRequest, endpoint, mockPromise), out1);
 
         assertEquals(1, out1.size());
-        final BaseRadiusPacket processedPacket1 = ((PendingRequestCtx) out1.get(0)).getRequest();
+        final RadiusRequest processedPacket1 = ((PendingRequestCtx) out1.get(0)).getRequest();
         List<RadiusAttribute> attributes1 = processedPacket1.getAttributes();
 
         // check proxy-state added
@@ -72,7 +73,7 @@ class PromiseAdapterTest {
         handler.encode(ctx, new PendingRequestCtx(processedPacket1, endpoint, mockPromise), out2);
 
         assertEquals(1, out1.size());
-        final BaseRadiusPacket processedPacket2 = ((PendingRequestCtx) out2.get(0)).getRequest();
+        final RadiusRequest processedPacket2 = ((PendingRequestCtx) out2.get(0)).getRequest();
 
         // check another proxy-state added
         final List<RadiusAttribute> attributes2 = processedPacket2.getAttributes();
@@ -87,7 +88,7 @@ class PromiseAdapterTest {
 
     @Test
     void decodeNoProxyState() {
-        final BaseRadiusPacket response = new BaseRadiusPacket(dictionary, ACCESS_ACCEPT, 1);
+        final RadiusResponse response = new AccessResponse(dictionary, ACCESS_ACCEPT, 1, null, Collections.emptyList());
 
         final List<Object> out1 = new ArrayList<>();
         handler.decode(ctx, response, out1);
@@ -97,8 +98,8 @@ class PromiseAdapterTest {
 
     @Test
     void decodeProxyStateNotFound() {
-        final BaseRadiusPacket response = new BaseRadiusPacket(dictionary, ACCESS_ACCEPT, 1,
-                Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, "123abc")));
+        final RadiusResponse response = new AccessResponse(dictionary, ACCESS_ACCEPT, 1, null,
+                Collections.singletonList(Attributes.create(dictionary, -1, PROXY_STATE, "123abc")));
 
         final List<Object> out1 = new ArrayList<>();
         handler.decode(ctx, response, out1);
@@ -113,10 +114,10 @@ class PromiseAdapterTest {
         final byte[] requestAuth = random.generateSeed(16);
 
         //using id 1
-        final BaseRadiusPacket request = new AccessPap(dictionary, 1, requestAuth, Collections.emptyList(), "myPw");
+        final RadiusRequest request = new AccessPap(dictionary, 1, requestAuth, Collections.emptyList(), "myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
-        final Promise<BaseRadiusPacket> promise = eventLoopGroup.next().newPromise();
+        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
 
         // add remoteAddress-secret and identifier mapping to handler
         final List<Object> out1 = new ArrayList<>();
@@ -124,12 +125,12 @@ class PromiseAdapterTest {
 
         assertEquals(1, out1.size());
 
-        final BaseRadiusPacket preparedRequest = ((PendingRequestCtx) out1.get(0)).getRequest();
+        final RadiusRequest preparedRequest = ((PendingRequestCtx) out1.get(0)).getRequest();
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
         // using id 99
-        final BaseRadiusPacket response = new BaseRadiusPacket(dictionary, ACCESS_ACCEPT, 99,
-                Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, requestProxyState)));
+        final RadiusResponse response = new RadiusResponse(dictionary, ACCESS_ACCEPT, 99, null,
+                Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)));
 
         final List<Object> out2 = new ArrayList<>();
         handler.decode(ctx, response.encodeResponse(secret, requestAuth), out2);
@@ -143,21 +144,21 @@ class PromiseAdapterTest {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
-        final BaseRadiusPacket request = new AccessPap(dictionary, 1, null, Collections.emptyList(), "myPw");
+        final RadiusRequest request = new AccessPap(dictionary, 1, null, Collections.emptyList(), "myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
-        final Promise<BaseRadiusPacket> promise = eventLoopGroup.next().newPromise();
+        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
 
         // add remoteAddress-secret and identifier mapping to handler
         final List<Object> out1 = new ArrayList<>();
         handler.encode(ctx, new PendingRequestCtx(request, requestEndpoint, promise), out1);
 
         assertEquals(1, out1.size());
-        final BaseRadiusPacket preparedRequest = ((RequestCtx) out1.get(0)).getRequest();
+        final RadiusRequest preparedRequest = ((RequestCtx) out1.get(0)).getRequest();
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
-        final BaseRadiusPacket response = new BaseRadiusPacket(dictionary, ACCESS_ACCEPT, 1,
-                Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, requestProxyState)));
+        final RadiusResponse response = new RadiusResponse(dictionary, ACCESS_ACCEPT, 1, null,
+                Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)));
 
         // response uses different auth
         final byte[] randomAuth = random.generateSeed(16);
@@ -173,9 +174,9 @@ class PromiseAdapterTest {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
-        final Promise<BaseRadiusPacket> promise = eventLoopGroup.next().newPromise();
+        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
 
-        final BaseRadiusPacket request = new AccountingRequest(dictionary, 1, null);
+        final RadiusRequest request = new AccountingRequest(dictionary, 1, null);
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
         // process packet out
@@ -184,7 +185,7 @@ class PromiseAdapterTest {
 
         assertEquals(1, out1.size());
 
-        final BaseRadiusPacket preparedRequest = ((RequestCtx) out1.get(0)).getRequest();
+        final RadiusRequest preparedRequest = ((RequestCtx) out1.get(0)).getRequest();
 
         // capture request details
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
@@ -193,8 +194,8 @@ class PromiseAdapterTest {
         assertFalse(promise.isDone());
 
         // channel read correct proxyState returns packet
-        final BaseRadiusPacket goodResponse = new BaseRadiusPacket(dictionary, ACCESS_ACCEPT, 1,
-                Collections.singletonList(createAttribute(dictionary, -1, PROXY_STATE, requestProxyState)))
+        final RadiusResponse goodResponse = new RadiusResponse(dictionary, ACCESS_ACCEPT, 1, null,
+                Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)))
                 .encodeResponse(secret, requestAuthenticator);
 
         final List<Object> out2 = new ArrayList<>();
@@ -203,7 +204,7 @@ class PromiseAdapterTest {
         assertTrue(out2.isEmpty());
 
         // check promise is done
-        final BaseRadiusPacket decodedResponse = promise.getNow();
+        final RadiusResponse decodedResponse = promise.getNow();
         assertTrue(promise.isDone());
         assertEquals(goodResponse.getIdentifier(), decodedResponse.getIdentifier());
         assertEquals(goodResponse.getType(), decodedResponse.getType());

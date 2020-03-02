@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.GenericRadiusPacket;
 import org.tinyradius.packet.RadiusPackets;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
@@ -37,7 +37,7 @@ class BasicCachingHandlerTest {
         final BasicCachingHandler<RequestCtx, ResponseCtx> basicCachingHandler =
                 new BasicCachingHandler<>(new HashedWheelTimer(), 500, RequestCtx.class, ResponseCtx.class);
 
-        final BaseRadiusPacket request = new AccountingRequest(dictionary, 100, null).encodeRequest("test");
+        final GenericRadiusPacket request = new AccountingRequest(dictionary, 100, null).encodeRequest("test");
         final RequestCtx requestCtx = new RequestCtx(request, new RadiusEndpoint(new InetSocketAddress(0), "foo"));
         final ResponseCtx responseContext = requestCtx.withResponse(RadiusPackets.create(dictionary, ACCESS_ACCEPT, 100));
 

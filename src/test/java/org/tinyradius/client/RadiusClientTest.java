@@ -21,13 +21,17 @@ import org.tinyradius.client.timeout.TimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.RadiusRequest;
+import org.tinyradius.packet.RadiusResponse;
+import org.tinyradius.packet.auth.RadiusRequest;
+import org.tinyradius.packet.auth.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.function.Consumer;
 
 import static io.netty.util.ResourceLeakDetector.Level.PARANOID;
@@ -65,7 +69,7 @@ class RadiusClientTest {
         RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new CustomOutboundHandler(a -> {
         }));
 
-        final BaseRadiusPacket request = new AccountingRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
+        final RadiusRequest request = new AccountingRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
 
         final IOException e = assertThrows(IOException.class,
                 () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
@@ -77,14 +81,14 @@ class RadiusClientTest {
     @Test
     void communicateSuccess() throws InterruptedException, RadiusPacketException {
         final int id = random.nextInt(256);
-        final BaseRadiusPacket response = new BaseRadiusPacket(DefaultDictionary.INSTANCE, 2, id);
+        final RadiusResponse response = new RadiusResponse(DefaultDictionary.INSTANCE, 2, id, null, Collections.emptyList());
         final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(a -> a.trySuccess(response));
 
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, customOutboundHandler);
 
-        final BaseRadiusPacket request = new AccountingRequest(dictionary, id, null).encodeRequest("test");
+        final RadiusRequest request = new AccountingRequest(dictionary, id, null).encodeRequest("test");
 
-        final Future<BaseRadiusPacket> future = radiusClient.communicate(request, stubEndpoint);
+        final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
 
         assertFalse(future.isDone());
 
@@ -101,9 +105,9 @@ class RadiusClientTest {
         final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(p -> p.tryFailure(expectedException));
 
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, customOutboundHandler);
-        final BaseRadiusPacket request = new BaseRadiusPacket(dictionary, 1, 1);
+        final RadiusRequest request = new RadiusRequest(dictionary, 1, 1, null, Collections.emptyList());
 
-        final Future<BaseRadiusPacket> future = radiusClient.communicate(request, stubEndpoint);
+        final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
         assertFalse(future.isDone());
 
         Thread.sleep(300);
@@ -115,9 +119,9 @@ class RadiusClientTest {
 
     private static class CustomOutboundHandler extends ChannelOutboundHandlerAdapter {
 
-        private final Consumer<Promise<BaseRadiusPacket>> failFast;
+        private final Consumer<Promise<RadiusResponse>> failFast;
 
-        private CustomOutboundHandler(Consumer<Promise<BaseRadiusPacket>> failFast) {
+        private CustomOutboundHandler(Consumer<Promise<RadiusResponse>> failFast) {
             this.failFast = failFast;
         }
 

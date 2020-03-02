@@ -9,7 +9,8 @@ import io.netty.util.concurrent.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.timeout.TimeoutHandler;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.RadiusRequest;
+import org.tinyradius.packet.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.io.Closeable;
@@ -41,8 +42,8 @@ public class RadiusClient implements Closeable {
         channelFuture = bootstrap.clone().handler(handler).bind(listenAddress);
     }
 
-    public Future<BaseRadiusPacket> communicate(BaseRadiusPacket packet, RadiusEndpoint endpoint) {
-        final Promise<BaseRadiusPacket> promise = eventLoopGroup.next().<BaseRadiusPacket>newPromise().addListener(f -> {
+    public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint) {
+        final Promise<RadiusResponse> promise = eventLoopGroup.next().<RadiusResponse>newPromise().addListener(f -> {
             if (f.isSuccess())
                 logger.info("Response received, packet: {}", f.getNow());
             else

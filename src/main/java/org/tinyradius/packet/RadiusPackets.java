@@ -2,8 +2,9 @@ package org.tinyradius.packet;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.auth.RadiusRequest;
+import org.tinyradius.packet.auth.RadiusResponse;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,19 +26,6 @@ public class RadiusPackets {
         return nextPacketId.updateAndGet(i -> i >= 255 ? 0 : i + 1);
     }
 
-    /**
-     * Creates a RadiusPacket object. Depending on the passed type, an
-     * appropriate packet is created. Also sets the type, and the
-     * the packet identifier.
-     *
-     * @param dictionary custom dictionary to use
-     * @param type       packet type
-     * @param identifier packet identifier
-     * @return RadiusPacket object
-     */
-    public static BaseRadiusPacket create(Dictionary dictionary, int type, int identifier) {
-        return create(dictionary, type, identifier, null, new ArrayList<>());
-    }
 
     /**
      * Creates a RadiusPacket object. Depending on the passed type, an
@@ -48,25 +36,18 @@ public class RadiusPackets {
      * @param type          packet type
      * @param identifier    packet identifier
      * @param authenticator authenticator for packet, nullable
+     * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    public static BaseRadiusPacket create(Dictionary dictionary, int type, int identifier, byte[] authenticator) {
-        return create(dictionary, type, identifier, authenticator, new ArrayList<>());
-    }
-
-    /**
-     * Creates a RadiusPacket object. Depending on the passed type, an
-     * appropriate packet is created. Also sets the type, and the
-     * the packet identifier.
-     *
-     * @param dictionary custom dictionary to use
-     * @param type       packet type
-     * @param identifier packet identifier
-     * @param attributes list of attributes for packet
-     * @return RadiusPacket object
-     */
-    public static BaseRadiusPacket create(Dictionary dictionary, int type, int identifier, List<RadiusAttribute> attributes) {
-        return create(dictionary, type, identifier, null, attributes);
+    public static RadiusRequest createRequest(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        switch (type) {
+            case ACCESS_REQUEST:
+                return AccessRequest.create(dictionary, identifier, authenticator, attributes);
+            case ACCOUNTING_REQUEST:
+                return new AccountingRequest(dictionary, identifier, authenticator, attributes);
+            default:
+                return new RadiusRequest(dictionary, type, identifier, authenticator, attributes);
+        }
     }
 
     /**
@@ -81,18 +62,14 @@ public class RadiusPackets {
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    public static BaseRadiusPacket create(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public static RadiusResponse createResponse(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
-            case ACCESS_REQUEST:
-                return AccessRequest.create(dictionary, identifier, authenticator, attributes);
-            case ACCOUNTING_REQUEST:
-                return new AccountingRequest(dictionary, identifier, authenticator, attributes);
             case ACCESS_ACCEPT:
             case ACCESS_REJECT:
             case ACCESS_CHALLENGE:
                 return new AccessResponse(dictionary, type, identifier, authenticator, attributes);
             default:
-                return new BaseRadiusPacket(dictionary, type, identifier, authenticator, attributes);
+                return new RadiusResponse(dictionary, type, identifier, authenticator, attributes);
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.tinyradius.packet;
 
+import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -12,7 +13,6 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.Attributes.createAttribute;
 
 public class AccessChap extends AccessRequest {
 
@@ -71,8 +71,8 @@ public class AccessChap extends AccessRequest {
 
         byte[] challenge = random16bytes();
 
-        accessChap.addAttribute(createAttribute(getDictionary(), -1, CHAP_CHALLENGE, challenge));
-        accessChap.addAttribute(createAttribute(getDictionary(), -1, CHAP_PASSWORD,
+        accessChap.addAttribute(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge));
+        accessChap.addAttribute(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
                 computeChapPassword((byte) RANDOM.nextInt(256), password, challenge)));
 
         return accessChap;

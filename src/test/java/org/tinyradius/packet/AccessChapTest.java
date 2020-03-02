@@ -13,7 +13,7 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.attribute.Attributes.create;
 import static org.tinyradius.packet.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.RadiusPackets.nextPacketId;
 
@@ -63,19 +63,19 @@ class AccessChapTest {
         final byte[] password = CHAP.chapResponse((byte) chapId, plaintextPw.getBytes(UTF_8), challenge);
 
         AccessChap goodRequest = (AccessChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
-                createAttribute(dictionary, -1, 60, challenge),
-                createAttribute(dictionary, -1, 3, password)));
+                create(dictionary, -1, 60, challenge),
+                create(dictionary, -1, 3, password)));
         assertTrue(goodRequest.verifyPassword(plaintextPw));
 
         AccessChap badChallenge = (AccessChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
-                createAttribute(dictionary, -1, 60, random16Bytes()),
-                createAttribute(dictionary, -1, 3, password)));
+                create(dictionary, -1, 60, random16Bytes()),
+                create(dictionary, -1, 3, password)));
         assertFalse(badChallenge.verifyPassword(plaintextPw));
 
         password[0] = (byte) ((chapId + 1) % 256);
         AccessChap badPassword = (AccessChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
-                createAttribute(dictionary, -1, 60, challenge),
-                createAttribute(dictionary, -1, 3, password)));
+                create(dictionary, -1, 60, challenge),
+                create(dictionary, -1, 3, password)));
         assertFalse(badPassword.verifyPassword(plaintextPw));
     }
 

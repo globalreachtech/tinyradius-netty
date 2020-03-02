@@ -16,7 +16,7 @@ import org.tinyradius.client.timeout.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;
 import org.tinyradius.server.handler.ProxyHandler;
@@ -75,7 +75,7 @@ public class TestProxy {
             protected void initChannel(DatagramChannel ch) {
                 ch.pipeline().addLast(new ServerPacketCodec(dictionary, secretProvider), new ProxyHandler(radiusClient) {
                     @Override
-                    public Optional<RadiusEndpoint> getProxyServer(BaseRadiusPacket packet, RadiusEndpoint client) {
+                    public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
                         try {
                             InetAddress address = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
                             int port = packet instanceof AccountingRequest ? 1813 : 1812;

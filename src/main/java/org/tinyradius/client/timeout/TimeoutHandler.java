@@ -1,7 +1,7 @@
 package org.tinyradius.client.timeout;
 
 import io.netty.util.concurrent.Promise;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.auth.RadiusResponse;
 
 public interface TimeoutHandler {
 
@@ -19,5 +19,5 @@ public interface TimeoutHandler {
      * @param totalAttempts current attempt count
      * @param promise       request promise that resolves when a response is received
      */
-    void onTimeout(Runnable retry, int totalAttempts, Promise<BaseRadiusPacket> promise);
+    void onTimeout(Runnable retry, int totalAttempts, Promise<RadiusResponse> promise);
 }

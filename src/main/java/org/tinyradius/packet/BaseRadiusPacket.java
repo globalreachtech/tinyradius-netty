@@ -4,7 +4,6 @@ import org.tinyradius.attribute.NestedAttributeHolder;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.util.RadiusPacketException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,9 +13,9 @@ import java.util.Objects;
 import static java.util.Objects.requireNonNull;
 
 /**
- * A generic Radius packet. Subclasses provide convenience methods for special packet types.
+ * Base Radius Packet implementation without support for authenticators or encoding
  */
-public class BaseRadiusPacket implements NestedAttributeHolder, PacketAuthSupport, RadiusPacket {
+public abstract class BaseRadiusPacket implements NestedAttributeHolder, RadiusPacket {
 
     private static final int VENDOR_SPECIFIC_TYPE = 26;
 
@@ -28,59 +27,10 @@ public class BaseRadiusPacket implements NestedAttributeHolder, PacketAuthSuppor
     private final Dictionary dictionary;
 
     /**
-     * Builds a Radius packet with the given type and identifier,
-     * without attributes, and with null authenticator.
-     * <p>
-     * Use {@link RadiusPackets#create(Dictionary, int, int)}
-     * where possible as that automatically creates Access/Accounting
-     * variants as required.
-     *
-     * @param dictionary custom dictionary to use
-     * @param type       packet type
-     * @param identifier packet identifier
-     */
-    public BaseRadiusPacket(Dictionary dictionary, int type, int identifier) {
-        this(dictionary, type, identifier, null, new ArrayList<>());
-    }
-
-    /**
-     * Builds a Radius packet with the given type and identifier
-     * and without attributes.
-     * <p>
-     * Use {@link RadiusPackets#create(Dictionary, int, int, byte[])}
-     * where possible as that automatically creates Access/Accounting
-     * variants as required.
-     *
-     * @param dictionary    custom dictionary to use
-     * @param type          packet type
-     * @param identifier    packet identifier
-     * @param authenticator authenticator for packet, nullable
-     */
-    public BaseRadiusPacket(Dictionary dictionary, int type, int identifier, byte[] authenticator) {
-        this(dictionary, type, identifier, authenticator, new ArrayList<>());
-    }
-
-    /**
-     * Builds a Radius packet with the given type and identifier
-     * and without attributes.
-     * <p>
-     * Use {@link RadiusPackets#create(Dictionary, int, int, List)}
-     * where possible as that automatically creates Access/Accounting
-     * variants as required.
-     *
-     * @param dictionary custom dictionary to use
-     * @param type       packet type
-     * @param identifier packet identifier
-     * @param attributes list of attributes for packet
-     */
-    public BaseRadiusPacket(Dictionary dictionary, int type, int identifier, List<RadiusAttribute> attributes) {
-        this(dictionary, type, identifier, null, attributes);
-    }
-
-    /**
      * Builds a Radius packet with the given type, identifier and attributes.
      * <p>
-     * Use {@link RadiusPackets#create(Dictionary, int, int, byte[], List)}
+     * Use {@link RadiusPackets#createRequest(Dictionary, int, int, byte[], List)}
+     * or {@link RadiusPackets#createResponse(Dictionary, int, int, byte[], List)}
      * where possible as that automatically creates Access/Accounting
      * variants as required.
      *
@@ -105,6 +55,7 @@ public class BaseRadiusPacket implements NestedAttributeHolder, PacketAuthSuppor
         this.dictionary = requireNonNull(dictionary, "dictionary is null");
     }
 
+
     @Override
     public int getIdentifier() {
         return identifier;
@@ -113,6 +64,21 @@ public class BaseRadiusPacket implements NestedAttributeHolder, PacketAuthSuppor
     @Override
     public int getType() {
         return type;
+    }
+
+    @Override
+    public List<RadiusAttribute> getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public byte[] getAuthenticator() {
+        return authenticator == null ? null : authenticator.clone();
+    }
+
+    @Override
+    public Dictionary getDictionary() {
+        return dictionary;
     }
 
     /**
@@ -157,39 +123,6 @@ public class BaseRadiusPacket implements NestedAttributeHolder, PacketAuthSuppor
         }
     }
 
-    @Override
-    public List<RadiusAttribute> getAttributes() {
-        return attributes;
-    }
-
-    public BaseRadiusPacket encodeRequest(String sharedSecret) throws RadiusPacketException {
-        return encodeResponse(sharedSecret, new byte[16]);
-    }
-
-    public BaseRadiusPacket encodeResponse(String sharedSecret, byte[] requestAuth) {
-        // todo add Message-Authenticator
-        final byte[] authenticator = createHashedAuthenticator(sharedSecret, requestAuth);
-        return RadiusPackets.create(dictionary, type, identifier, authenticator, attributes);
-    }
-
-    @Override
-    public byte[] getAuthenticator() {
-        return authenticator == null ? null : authenticator.clone();
-    }
-
-    @Override
-    public Dictionary getDictionary() {
-        return dictionary;
-    }
-
-    public void verifyResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        verifyPacketAuth(sharedSecret, requestAuth);
-    }
-
-    public void verifyRequest(String sharedSecret) throws RadiusPacketException {
-        verifyPacketAuth(sharedSecret, new byte[16]);
-    }
-
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append(PacketType.getPacketTypeName(getType()));
@@ -219,9 +152,5 @@ public class BaseRadiusPacket implements NestedAttributeHolder, PacketAuthSuppor
         int result = Objects.hash(type, identifier, attributes, dictionary);
         result = 31 * result + Arrays.hashCode(authenticator);
         return result;
-    }
-
-    public BaseRadiusPacket copy() {
-        return RadiusPackets.create(getDictionary(), getType(), getIdentifier(), getAuthenticator(), new ArrayList<>(getAttributes()));
     }
 }

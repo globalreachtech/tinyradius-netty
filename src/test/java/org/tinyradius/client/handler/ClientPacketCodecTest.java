@@ -9,11 +9,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.tinyradius.attribute.Attributes;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccessPap;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.GenericRadiusPacket;
+import org.tinyradius.packet.RadiusResponse;
+import org.tinyradius.packet.auth.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -28,7 +31,6 @@ import static net.jradius.packet.attribute.AttributeDictionary.USER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.tinyradius.attribute.Attributes.createAttribute;
 import static org.tinyradius.packet.PacketCodec.fromDatagram;
 import static org.tinyradius.packet.PacketCodec.toDatagram;
 
@@ -45,20 +47,20 @@ class ClientPacketCodecTest {
     private ChannelHandlerContext ctx;
 
     @Mock
-    private Promise<BaseRadiusPacket> promise;
+    private Promise<RadiusResponse> promise;
 
     @Test
     void decodeSuccess() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
-        final BaseRadiusPacket response = new BaseRadiusPacket(dictionary, 2, 1);
+        final RadiusResponse response = new RadiusResponse(dictionary, 2, 1, null, Collections.emptyList());
 
         final List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, toDatagram(
                 response.encodeResponse("mySecret", requestAuth), address, address), out1);
 
         assertEquals(1, out1.size());
-        BaseRadiusPacket actual = (BaseRadiusPacket) out1.get(0);
+        GenericRadiusPacket actual = (GenericRadiusPacket) out1.get(0);
         assertEquals(response.toString(), actual.toString());
     }
 
@@ -66,7 +68,7 @@ class ClientPacketCodecTest {
     void decodeRadiusException() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
-        final BaseRadiusPacket response = new BaseRadiusPacket(dictionary, 2, 1);
+        final RadiusResponse response = new RadiusResponse(dictionary, 2, 1, null, Collections.emptyList());
 
         final DatagramPacket datagram = toDatagram(
                 response.encodeResponse("mySecret", requestAuth), address, address);
@@ -83,7 +85,7 @@ class ClientPacketCodecTest {
     void decodeRemoteAddressNull() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
-        final BaseRadiusPacket response = new BaseRadiusPacket(dictionary, 2, 1);
+        final RadiusResponse response = new RadiusResponse(dictionary, 2, 1, null, Collections.emptyList());
 
         final List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, toDatagram(
@@ -136,7 +138,7 @@ class ClientPacketCodecTest {
 
         // make packet too long to force encoder error
         for (int i = 0; i < 4000; i++) {
-            packet.addAttribute(createAttribute(dictionary, -1, USER_NAME, username));
+            packet.addAttribute(Attributes.create(dictionary, -1, USER_NAME, username));
         }
 
         // process

@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.auth.RadiusRequest;
+import org.tinyradius.packet.auth.RadiusResponse;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
@@ -30,7 +32,7 @@ public class PacketCodec {
      * @return converted DatagramPacket
      * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
      */
-    public static DatagramPacket toDatagram(BaseRadiusPacket packet, InetSocketAddress recipient) throws RadiusPacketException {
+    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient) throws RadiusPacketException {
         return new DatagramPacket(toByteBuf(packet), recipient);
     }
 
@@ -41,11 +43,11 @@ public class PacketCodec {
      * @return converted DatagramPacket
      * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
      */
-    public static DatagramPacket toDatagram(BaseRadiusPacket packet, InetSocketAddress recipient, InetSocketAddress sender) throws RadiusPacketException {
+    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient, InetSocketAddress sender) throws RadiusPacketException {
         return new DatagramPacket(toByteBuf(packet), recipient, sender);
     }
 
-    public static ByteBuf toByteBuf(BaseRadiusPacket packet) throws RadiusPacketException {
+    public static ByteBuf toByteBuf(RadiusPacket packet) throws RadiusPacketException {
         byte[] attributes = packet.getAttributeBytes();
         int length = HEADER_LENGTH + attributes.length;
         if (length > MAX_PACKET_LENGTH)
@@ -63,25 +65,33 @@ public class PacketCodec {
                 .writeBytes(attributes);
     }
 
-    /**
-     * Reads a Radius packet from the given input stream and
-     * creates an appropriate RadiusPacket/subclass.
-     * <p>
-     * Makes no distinction between reading requests/responses, and
-     * does not attempt to decode attributes/verify authenticators.
-     * RadiusPacket should be separately verified after this to check
-     * authenticators are valid and required attributes present.
-     * <p>
-     * Typically used to decode a response where the corresponding request
-     * (specifically the authenticator/identifier) are not available or
-     * you don't care about validating the created object.
-     *
-     * @param dictionary dictionary to use for attributes
-     * @param datagram   DatagramPacket to read packet from
-     * @return new RadiusPacket object
-     * @throws RadiusPacketException malformed packet
-     */
-    public static BaseRadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
+//    /**
+//     * Reads a Radius packet from the given input stream and
+//     * creates an appropriate RadiusPacket/subclass.
+//     * <p>
+//     * Makes no distinction between reading requests/responses, and
+//     * does not attempt to decode attributes/verify authenticators.
+//     * RadiusPacket should be separately verified after this to check
+//     * authenticators are valid and required attributes present.
+//     * <p>
+//     * Typically used to decode a response where the corresponding request
+//     * (specifically the authenticator/identifier) are not available or
+//     * you don't care about validating the created object.
+//     *
+//     * @param dictionary dictionary to use for attributes
+//     * @param datagram   DatagramPacket to read packet from
+//     * @return new RadiusPacket object
+//     * @throws RadiusPacketException malformed packet
+//     */
+//    public static GenericRadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
+//        return fromByteBuf(dictionary, datagram.content());
+//    }
+
+    public static GenericRadiusPacket fromDatagramRequest(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
+        return fromByteBuf(dictionary, datagram.content());
+    }
+
+    public static GenericRadiusPacket fromDatagramResponse(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
         return fromByteBuf(dictionary, datagram.content());
     }
 
@@ -98,8 +108,8 @@ public class PacketCodec {
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    public static BaseRadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket packet, String sharedSecret) throws RadiusPacketException {
-        final BaseRadiusPacket radiusPacket = fromByteBuf(dictionary, packet.content());
+    public static RadiusRequest fromDatagramRequest(Dictionary dictionary, DatagramPacket packet, String sharedSecret) throws RadiusPacketException {
+        final RadiusRequest radiusPacket = fromByteBuf(dictionary, packet.content());
         radiusPacket.verifyRequest(sharedSecret);
         return radiusPacket;
     }
@@ -117,15 +127,13 @@ public class PacketCodec {
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    public static BaseRadiusPacket fromDatagram(Dictionary dictionary, DatagramPacket datagram, String sharedSecret, BaseRadiusPacket request)
+    public static RadiusResponse fromDatagramResponse(Dictionary dictionary, DatagramPacket datagram, String sharedSecret, RadiusRequest request)
             throws RadiusPacketException {
-        final BaseRadiusPacket radiusPacket = fromByteBuf(dictionary, datagram.content(), request.getIdentifier());
-        radiusPacket.verifyResponse(sharedSecret, request.getAuthenticator());
-        return radiusPacket;
-    }
-
-    public static BaseRadiusPacket fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
-        return fromByteBuf(dictionary, byteBuf, -1);
+        final RadiusResponse response = fromByteBuf(dictionary, datagram.content());
+        if (request.getIdentifier() != response.getIdentifier())
+            throw new RadiusPacketException("Bad packet: invalid packet identifier - request: " + request.getIdentifier() + ", response: " + response.getIdentifier());
+        response.verifyResponse(sharedSecret, request.getAuthenticator());
+        return response;
     }
 
     /**
@@ -137,11 +145,10 @@ public class PacketCodec {
      *
      * @param dictionary dictionary to use for attributes
      * @param byteBuf    DatagramPacket to read packet from
-     * @param requestId  id that packet identifier has to match, otherwise -1 if skipping checks
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    private static BaseRadiusPacket fromByteBuf(Dictionary dictionary, ByteBuf byteBuf, int requestId) throws RadiusPacketException {
+    private static BaseRadiusPacket fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
 
         final ByteBuffer content = byteBuf.nioBuffer();
         if (content.remaining() < HEADER_LENGTH) {
@@ -152,8 +159,6 @@ public class PacketCodec {
         int packetId = toUnsignedInt(content.get());
         int length = content.getShort();
 
-        if (requestId != -1 && requestId != packetId)
-            throw new RadiusPacketException("Bad packet: invalid packet identifier - request: " + requestId + ", response: " + packetId);
         if (length < HEADER_LENGTH)
             throw new RadiusPacketException("Bad packet: packet too short (" + length + " bytes)");
         if (length > MAX_PACKET_LENGTH)
@@ -168,8 +173,13 @@ public class PacketCodec {
         byte[] attributes = new byte[content.remaining()];
         content.get(attributes);
 
-        return RadiusPackets.create(dictionary, type, packetId, authenticator,
-                extractAttributes(dictionary, -1, attributes, 0));
+        return new BaseRadiusPacket(dictionary, type, packetId, authenticator,
+                extractAttributes(dictionary, -1, attributes, 0)) {
+            @Override
+            public RadiusPacket copy() {
+                return null;
+            }
+        };
     }
 
 }

@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.tinyradius.attribute.Attributes.createAttribute;
+import static org.tinyradius.attribute.Attributes.create;
 
 public interface AttributeHolder {
 
@@ -158,7 +158,7 @@ public interface AttributeHolder {
             throw new IllegalArgumentException("Value not set or empty");
 
         removeAttributes(type);
-        addAttribute(createAttribute(getDictionary(), getVendorId(), type, value));
+        addAttribute(Attributes.create(getDictionary(), getVendorId(), type, value));
     }
 
     /**

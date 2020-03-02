@@ -7,7 +7,8 @@ import io.netty.handler.codec.MessageToMessageCodec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.RadiusRequest;
+import org.tinyradius.packet.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
 import org.tinyradius.server.SecretProvider;
@@ -20,6 +21,9 @@ import java.util.List;
 import static org.tinyradius.packet.PacketCodec.fromDatagram;
 import static org.tinyradius.packet.PacketCodec.toDatagram;
 
+/**
+ * Codec for receiving requests and sending responses
+ */
 @ChannelHandler.Sharable
 public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, ResponseCtx> {
 
@@ -43,7 +47,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
         }
 
         try {
-            BaseRadiusPacket packet = fromDatagram(dictionary, msg, secret);
+            RadiusRequest packet = fromDatagram(dictionary, msg, secret);
             logger.debug("Received packet from {} - {}", remoteAddress, packet);
 
             return new RequestCtx(packet, new RadiusEndpoint(remoteAddress, secret));
@@ -54,7 +58,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
     }
 
     protected DatagramPacket encodePacket(InetSocketAddress localAddress, ResponseCtx msg) {
-        final BaseRadiusPacket packet = msg.getResponse()
+        final RadiusResponse packet = msg.getResponse()
                 .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator());
         try {
             final DatagramPacket datagramPacket = toDatagram(
