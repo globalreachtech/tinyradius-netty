@@ -19,7 +19,7 @@ import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 /**
  * This class represents an Access-Request Radius packet.
  */
-public abstract class AccessRequest extends RadiusRequest implements MessageAuthSupport {
+public abstract class AccessRequest extends RadiusRequest implements MessageAuthSupport<AccessRequest> {
 
     protected static final Logger logger = LogManager.getLogger();
 
@@ -44,8 +44,13 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
     protected abstract AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
 
     /**
-     * AccessRequest overrides this method to generate a randomized authenticator as per RFC 2865
-     * and encode required attributes (i.e. User-Password).
+     * @return AccessRequest implementation copy including intermediate/transient values and passwords
+     */
+    public abstract AccessRequest copy();
+
+    /**
+     * AccessRequest overrides this method to generate a randomized authenticator (RFC 2865)
+     * and encode required attributes (e.g. User-Password).
      *
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client
@@ -59,13 +64,8 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
         // create authenticator only if needed - maintain idempotence
         byte[] newAuth = getAuthenticator() == null ? random16bytes() : getAuthenticator();
 
-        AccessRequest accessRequest = encodeAuthMechanism(sharedSecret, newAuth);
-        accessRequest.removeAttributes(MESSAGE_AUTHENTICATOR);
-
-        final byte[] messageAuth = computeMessageAuth(sharedSecret, getAuthenticator());
-        accessRequest.addAttribute(Attributes.create(getDictionary(), getVendorId(), getType(), messageAuth));
-
-        return accessRequest;
+        return encodeAuthMechanism(sharedSecret, newAuth)
+                .encodeMessageAuth(sharedSecret, newAuth);
     }
 
     /**
@@ -170,6 +170,11 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
         @Override
         protected AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
             throw new RadiusPacketException("Cannot encode request for unknown auth protocol");
+        }
+
+        @Override
+        public AccessRequest copy() {
+            return new AccessInvalidAuth(getDictionary(), getIdentifier(), getAuthenticator(), getAttributes());
         }
 
         @Override

@@ -152,10 +152,5 @@ class BaseRadiusPacketTest {
         public StubPacket() {
             super(DefaultDictionary.INSTANCE, 1, 1, null, Collections.emptyList());
         }
-
-        @Override
-        public RadiusPacket copy() {
-            return null;
-        }
     }
 }

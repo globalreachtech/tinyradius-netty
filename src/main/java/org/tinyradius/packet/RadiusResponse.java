@@ -2,13 +2,11 @@ package org.tinyradius.packet;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.auth.PacketAuthSupport;
 import org.tinyradius.util.RadiusPacketException;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class RadiusResponse extends BaseRadiusPacket implements PacketAuthSupport {
+public class RadiusResponse extends BaseRadiusPacket {
 
     /**
      * Builds a Radius packet with the given type, identifier and attributes.
@@ -27,11 +25,6 @@ public class RadiusResponse extends BaseRadiusPacket implements PacketAuthSuppor
         super(dictionary, type, identifier, authenticator, attributes);
     }
 
-    @Override
-    public RadiusResponse copy() {
-        return RadiusPackets.createResponse(getDictionary(), getType(), getIdentifier(), getAuthenticator(), new ArrayList<>(getAttributes()));
-    }
-
     /**
      * Encode and generate authenticator. Should be idempotent.
      * <p>
@@ -42,8 +35,8 @@ public class RadiusResponse extends BaseRadiusPacket implements PacketAuthSuppor
      * @return new RadiusPacket instance with same properties and valid authenticator
      */
     public RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
-        final byte[] authenticator = createHashedAuthenticator(sharedSecret, requestAuth);
-        return RadiusPackets.createResponse(getDictionary(), getType(), getIdentifier(), authenticator, getAttributes());
+        final byte[] newAuth = createHashedAuthenticator(sharedSecret, requestAuth);
+        return RadiusPackets.createResponse(getDictionary(), getType(), getIdentifier(), newAuth, getAttributes());
     }
 
     /**

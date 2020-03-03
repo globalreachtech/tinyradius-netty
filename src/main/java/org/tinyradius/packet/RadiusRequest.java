@@ -2,13 +2,12 @@ package org.tinyradius.packet;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.auth.PacketAuthSupport;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RadiusRequest extends BaseRadiusPacket implements PacketAuthSupport {
+public class RadiusRequest extends BaseRadiusPacket {
 
     /**
      * Builds a Radius packet with the given type, identifier and attributes.
@@ -27,7 +26,6 @@ public class RadiusRequest extends BaseRadiusPacket implements PacketAuthSupport
         super(dictionary, type, identifier, authenticator, attributes);
     }
 
-    @Override
     public RadiusRequest copy() {
         return RadiusPackets.createRequest(getDictionary(), getType(), getIdentifier(), getAuthenticator(), new ArrayList<>(getAttributes()));
     }
@@ -52,7 +50,7 @@ public class RadiusRequest extends BaseRadiusPacket implements PacketAuthSupport
      * @param sharedSecret shared secret
      * @throws RadiusPacketException if authenticator check fails
      */
-    public void verifyRequest(String sharedSecret) throws RadiusPacketException{
+    public void verifyRequest(String sharedSecret) throws RadiusPacketException {
         verifyPacketAuth(sharedSecret, new byte[16]);
     }
 }

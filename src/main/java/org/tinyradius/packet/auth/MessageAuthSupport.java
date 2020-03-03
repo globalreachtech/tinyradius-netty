@@ -2,36 +2,47 @@ package org.tinyradius.packet.auth;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
-public interface MessageAuthSupport extends RadiusPacket {
+public interface MessageAuthSupport<T extends RadiusPacket> extends RadiusPacket {
 
     int MESSAGE_AUTHENTICATOR = 80;
 
-    default RadiusPacket encodeMessageAuth(String sharedSecret, byte[] requestAuth) {
+    /**
+     * @return packet of same type as self
+     */
+    T copy();
 
-        // TODO make sure message auth exists when encoding
-        /*
-              When present in an Access-Request packet, Message-Authenticator is
-      an HMAC-MD5 [RFC2104] hash of the entire Access-Request packet,
-      including Type, ID, Length and Authenticator, using the shared
-      secret as the key, as follows.
+    /**
+     * @param sharedSecret share secret
+     * @param requestAuth  current packet auth if encoding request, otherwise auth
+     *                     for corresponding request
+     * @return shallow copy of packet
+     */
+    default T encodeMessageAuth(String sharedSecret, byte[] requestAuth) {
+        final T newPacket = this.copy();
 
-      Message-Authenticator = HMAC-MD5 (Type, Identifier, Length,
-      Request Authenticator, Attributes)
+        // When the message integrity check is calculated the signature
+        // string should be considered to be sixteen octets of zero.
+        final ByteBuffer buffer = ByteBuffer.allocate(16);
 
-      When the message integrity check is calculated the signature
-      string should be considered to be sixteen octets of zero.
-         */
+        newPacket.removeAttributes(MESSAGE_AUTHENTICATOR);
+        newPacket.addAttribute(Attributes.create(getDictionary(), -1, MESSAGE_AUTHENTICATOR, buffer.array()));
+
+        buffer.put(computeMessageAuth(sharedSecret, requestAuth));
+
+        return newPacket;
     }
 
     default void verifyMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {

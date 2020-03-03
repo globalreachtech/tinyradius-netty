@@ -1,12 +1,12 @@
 package org.tinyradius.packet;
 
-import org.tinyradius.attribute.AttributeHolder;
+import org.tinyradius.attribute.NestedAttributeHolder;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.List;
 
-public interface RadiusPacket extends AttributeHolder {
+public interface RadiusPacket extends NestedAttributeHolder {
 
     int HEADER_LENGTH = 20;
 
@@ -42,9 +42,4 @@ public interface RadiusPacket extends AttributeHolder {
      * @return the dictionary this Radius packet uses.
      */
     Dictionary getDictionary();
-
-    /**
-     * @return Shallow copy of packet (or subclass)
-     */
-    RadiusPacket copy();
 }
