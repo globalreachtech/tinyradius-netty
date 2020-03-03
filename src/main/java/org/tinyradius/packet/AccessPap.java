@@ -119,8 +119,8 @@ public class AccessPap extends AccessRequest {
      * @return the byte array containing the encrypted password
      */
     private byte[] encodePapPassword(byte[] authenticator, byte[] password, byte[] sharedSecret) {
-        requireNonNull(password, "password cannot be null");
-        requireNonNull(sharedSecret, "sharedSecret cannot be null");
+        requireNonNull(password, "Password cannot be null");
+        requireNonNull(sharedSecret, "Shared secret cannot be null");
 
         byte[] ciphertext = authenticator;
         byte[] pw = pad(password);

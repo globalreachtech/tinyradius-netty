@@ -54,13 +54,18 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
     @Override
     public AccessRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
         if (sharedSecret == null || sharedSecret.isEmpty())
-            throw new IllegalArgumentException("shared secret cannot be null/empty");
+            throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
         // create authenticator only if needed - maintain idempotence
         byte[] newAuth = getAuthenticator() == null ? random16bytes() : getAuthenticator();
 
-        return encodeAuthMechanism(sharedSecret, newAuth);
-        // todo add Message-Authenticator
+        AccessRequest accessRequest = encodeAuthMechanism(sharedSecret, newAuth);
+        accessRequest.removeAttributes(MESSAGE_AUTHENTICATOR);
+
+        final byte[] messageAuth = computeMessageAuth(sharedSecret, getAuthenticator());
+        accessRequest.addAttribute(Attributes.create(getDictionary(), getVendorId(), getType(), messageAuth));
+
+        return accessRequest;
     }
 
     /**

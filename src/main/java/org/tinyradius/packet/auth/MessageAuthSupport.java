@@ -17,9 +17,21 @@ public interface MessageAuthSupport extends RadiusPacket {
 
     int MESSAGE_AUTHENTICATOR = 80;
 
-    default byte[] computeMessageAuth(String sharedSecret, byte[] requestAuth){
-        final Mac mac = getHmacMd5(sharedSecret);
-        return mac.doFinal(calcMessageAuthInput(requestAuth));
+    default RadiusPacket encodeMessageAuth(String sharedSecret, byte[] requestAuth) {
+
+        // TODO make sure message auth exists when encoding
+        /*
+              When present in an Access-Request packet, Message-Authenticator is
+      an HMAC-MD5 [RFC2104] hash of the entire Access-Request packet,
+      including Type, ID, Length and Authenticator, using the shared
+      secret as the key, as follows.
+
+      Message-Authenticator = HMAC-MD5 (Type, Identifier, Length,
+      Request Authenticator, Attributes)
+
+      When the message integrity check is calculated the signature
+      string should be considered to be sixteen octets of zero.
+         */
     }
 
     default void verifyMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
@@ -34,6 +46,11 @@ public interface MessageAuthSupport extends RadiusPacket {
             if (!Arrays.equals(messageAuth, computeMessageAuth(sharedSecret, requestAuth)))
                 throw new RadiusPacketException("Message-Authenticator attribute check failed");
         }
+    }
+
+    default byte[] computeMessageAuth(String sharedSecret, byte[] requestAuth) {
+        final Mac mac = getHmacMd5(sharedSecret);
+        return mac.doFinal(calcMessageAuthInput(requestAuth));
     }
 
     default byte[] calcMessageAuthInput(byte[] requestAuth) {
