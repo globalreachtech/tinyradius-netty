@@ -51,13 +51,13 @@ class AccessRequestTest {
         assertTrue(eapRequest instanceof AccessRequestEap);
 
         final AccessRequest unknown = AccessRequest.create(dictionary, (byte) 1, null, Collections.emptyList());
-        assertTrue(unknown instanceof AccessInvalidAuth);
+        assertTrue(unknown instanceof AccessUnknownAuth);
 
         final AccessRequest invalid = AccessRequest.create(dictionary, (byte) 1, null,
                 Arrays.asList(
                         Attributes.create(dictionary, -1, CHAP_PASSWORD, encodedPw),
                         Attributes.create(dictionary, -1, EAP_MESSAGE, encodedPw)
                 ));
-        assertTrue(invalid instanceof AccessInvalidAuth);
+        assertTrue(invalid instanceof AccessUnknownAuth);
     }
 }

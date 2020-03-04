@@ -5,7 +5,6 @@ import org.tinyradius.attribute.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collections;
 
@@ -20,12 +19,11 @@ public class AccessRequestEapTest {
     @Test
     void encodeVerify() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
-        final AccessRequestEap accessRequestEap = new AccessRequestEap(dictionary, (byte) 1, null, Collections.emptyList());
+        final AccessRequestEap accessRequestEap = new AccessRequestEap(dictionary, (byte) 1, new byte[16],
+                Collections.singletonList(Attributes.create(dictionary, -1, EAP_MESSAGE, new byte[16])));
 
         final AccessRequest encoded = accessRequestEap.encodeRequest(sharedSecret);
-
         encoded.verifyRequest(sharedSecret);
-        throw new NotImplementedException();
     }
 
     @Test

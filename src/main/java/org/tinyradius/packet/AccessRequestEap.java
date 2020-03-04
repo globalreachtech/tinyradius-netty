@@ -14,7 +14,7 @@ public class AccessRequestEap extends AccessRequest {
 
     @Override
     protected AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) {
-        return this;
+        return copy(); // don't care contents of EAP-Message - pass through
     }
 
     /**
