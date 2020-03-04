@@ -83,7 +83,7 @@ class PacketCodecTest {
         assertEquals(420, packet.length);
 
         assertEquals(encoded.getType(), toUnsignedInt(packet[0]));
-        assertEquals(encoded.getIdentifier(), toUnsignedInt(packet[1]));
+        assertEquals(encoded.getId(), toUnsignedInt(packet[1]));
         assertEquals(packet.length, ByteBuffer.wrap(packet).getShort(2));
         assertArrayEquals(encoded.getAuthenticator(), Arrays.copyOfRange(packet, 4, 20));
 
@@ -113,7 +113,7 @@ class PacketCodecTest {
         result.verifyRequest(sharedSecret);
 
         assertEquals(maxSizeRequest.getType(), result.getType());
-        assertEquals(maxSizeRequest.getIdentifier(), result.getIdentifier());
+        assertEquals(maxSizeRequest.getId(), result.getId());
         assertArrayEquals(maxSizeRequest.getAuthenticator(), result.getAuthenticator());
         assertArrayEquals(maxSizeRequest.getAttributeBytes(), result.getAttributeBytes());
 
@@ -166,7 +166,7 @@ class PacketCodecTest {
 
         assertEquals(ACCOUNTING_REQUEST, packet.getType());
         assertTrue(packet instanceof AccountingRequest);
-        assertEquals(rawRequest.getIdentifier(), packet.getIdentifier());
+        assertEquals(rawRequest.getId(), packet.getId());
         assertEquals(rawRequest.getAttributeString(USER_NAME), packet.getAttributeString(USER_NAME));
     }
 
@@ -212,7 +212,7 @@ class PacketCodecTest {
         assertTrue(radiusPacket instanceof AccessRequest);
 
         AccessRequestPap packet = (AccessRequestPap) radiusPacket;
-        assertEquals(rawRequest.getIdentifier(), packet.getIdentifier());
+        assertEquals(rawRequest.getId(), packet.getId());
         assertEquals(rawRequest.getAttributeString(USER_NAME), packet.getAttributeString(USER_NAME));
         assertEquals(rawRequest.getPlaintextPassword(), packet.getPlaintextPassword());
     }
@@ -238,7 +238,7 @@ class PacketCodecTest {
         RadiusResponse packet = fromDatagramResponse(dictionary, datagramPacket);
         packet.verifyResponse(sharedSecret, encodedRequest.getAuthenticator());
 
-        assertEquals(encodedResponse.getIdentifier(), packet.getIdentifier());
+        assertEquals(encodedResponse.getId(), packet.getId());
         assertEquals("state3333", new String(packet.getAttribute((byte) 33).getValue()));
         assertArrayEquals(encodedResponse.getAuthenticator(), packet.getAuthenticator());
     }

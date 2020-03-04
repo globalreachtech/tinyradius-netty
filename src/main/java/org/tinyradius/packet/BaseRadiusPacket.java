@@ -26,7 +26,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
     private static final int VENDOR_SPECIFIC_TYPE = 26;
 
     private final byte type;
-    private final byte identifier;
+    private final byte id;
     private final List<RadiusAttribute> attributes;
     private final byte[] authenticator;
 
@@ -42,16 +42,16 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
      *
      * @param dictionary    custom dictionary to use
      * @param type          packet type
-     * @param identifier    packet identifier
+     * @param id    packet identifier
      * @param authenticator can be null if creating manually
      * @param attributes    list of RadiusAttribute objects
      */
-    public BaseRadiusPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public BaseRadiusPacket(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
         if (authenticator != null && authenticator.length != 16)
             throw new IllegalArgumentException("Authenticator must be 16 octets, actual: " + authenticator.length);
 
         this.type = type;
-        this.identifier = identifier;
+        this.id = id;
         this.authenticator = authenticator;
         this.attributes = new ArrayList<>(attributes); // catch nulls, avoid mutating original list
         this.dictionary = requireNonNull(dictionary, "Dictionary is null");
@@ -59,8 +59,8 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
 
 
     @Override
-    public byte getIdentifier() {
-        return identifier;
+    public byte getId() {
+        return id;
     }
 
     @Override
@@ -68,8 +68,8 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
         return type;
     }
 
-    public int getIdentifierInt() {
-        return toUnsignedInt(identifier);
+    public int getIdInt() {
+        return toUnsignedInt(id);
     }
 
     public int getTypeInt() {
@@ -164,7 +164,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
 
         MessageDigest md5 = getMd5Digest();
         md5.update(getType());
-        md5.update(getIdentifier());
+        md5.update(getId());
         md5.update((byte) (length >> 8));
         md5.update((byte) (length & 0xff));
         md5.update(requestAuthenticator);
@@ -185,7 +185,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
 
         s.append(PacketType.getPacketTypeName(getType()));
         s.append(", ID ");
-        s.append(identifier);
+        s.append(id);
         for (RadiusAttribute attr : attributes) {
             s.append("\n");
             s.append(attr.toString());
@@ -199,7 +199,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
         if (!(o instanceof BaseRadiusPacket)) return false;
         BaseRadiusPacket that = (BaseRadiusPacket) o;
         return type == that.type &&
-                identifier == that.identifier &&
+                id == that.id &&
                 Objects.equals(attributes, that.attributes) &&
                 Arrays.equals(authenticator, that.authenticator) &&
                 Objects.equals(dictionary, that.dictionary);
@@ -207,7 +207,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(type, identifier, attributes, dictionary);
+        int result = Objects.hash(type, id, attributes, dictionary);
         result = 31 * result + Arrays.hashCode(authenticator);
         return result;
     }

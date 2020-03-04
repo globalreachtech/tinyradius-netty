@@ -83,7 +83,7 @@ public class BasicCachingHandler<IN extends RequestCtx, OUT extends ResponseCtx>
         private final byte[] authenticator;
 
         private static Packet from(RequestCtx ctx) {
-            return new Packet(ctx.getRequest().getIdentifier(), ctx.getEndpoint().getAddress(), ctx.getRequest().getAuthenticator());
+            return new Packet(ctx.getRequest().getId(), ctx.getEndpoint().getAddress(), ctx.getRequest().getAuthenticator());
         }
 
         private Packet(int identifier, InetSocketAddress remoteAddress, byte[] authenticator) {

@@ -19,7 +19,7 @@ public class AccessResponse extends RadiusResponse implements MessageAuthSupport
         final AccessResponse response = encodeMessageAuth(sharedSecret, requestAuth);
         final byte[] newAuth = response.createHashedAuthenticator(sharedSecret, requestAuth);
 
-        return new AccessResponse(response.getDictionary(), response.getType(), response.getIdentifier(), newAuth, response.getAttributes());
+        return new AccessResponse(response.getDictionary(), response.getType(), response.getId(), newAuth, response.getAttributes());
     }
 
     /**
@@ -37,6 +37,6 @@ public class AccessResponse extends RadiusResponse implements MessageAuthSupport
 
     @Override
     public AccessResponse copy() {
-        return new AccessResponse(getDictionary(), getType(), getIdentifier(), getAuthenticator(), new ArrayList<>(getAttributes()));
+        return new AccessResponse(getDictionary(), getType(), getId(), getAuthenticator(), new ArrayList<>(getAttributes()));
     }
 }

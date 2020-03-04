@@ -204,7 +204,7 @@ class PromiseAdapterTest {
         // check promise is done
         final RadiusResponse decodedResponse = promise.getNow();
         assertTrue(promise.isDone());
-        assertEquals(goodResponse.getIdentifier(), decodedResponse.getIdentifier());
+        assertEquals(goodResponse.getId(), decodedResponse.getId());
         assertEquals(goodResponse.getType(), decodedResponse.getType());
         assertArrayEquals(goodResponse.getAuthenticator(), decodedResponse.getAuthenticator());
 

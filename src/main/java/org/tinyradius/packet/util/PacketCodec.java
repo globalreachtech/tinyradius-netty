@@ -61,7 +61,7 @@ public class PacketCodec {
 
         return Unpooled.buffer(length, length)
                 .writeByte(packet.getType())
-                .writeByte(packet.getIdentifier())
+                .writeByte(packet.getId())
                 .writeShort(length)
                 .writeBytes(packet.getAuthenticator())
                 .writeBytes(attributes);
@@ -97,7 +97,7 @@ public class PacketCodec {
      */
     public static RadiusResponse fromDatagramResponse(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
         final RadiusRequest rr = fromByteBuf(dictionary, datagram.content());
-        return createResponse(rr.getDictionary(), rr.getType(), rr.getIdentifier(), rr.getAuthenticator(), rr.getAttributes());
+        return createResponse(rr.getDictionary(), rr.getType(), rr.getId(), rr.getAuthenticator(), rr.getAttributes());
     }
 
     /**

@@ -46,7 +46,7 @@ class AccessRequestChapTest {
         assertNull(request.getAttribute("User-Password"));
         assertNull(request.getAttribute("CHAP-Password"));
         assertEquals(request.getType(), encoded.getType());
-        assertEquals(request.getIdentifier(), encoded.getIdentifier());
+        assertEquals(request.getId(), encoded.getId());
         assertEquals(request.getAttributeString(USER_NAME), encoded.getAttributeString(USER_NAME));
 
         // randomly generated, need to extract

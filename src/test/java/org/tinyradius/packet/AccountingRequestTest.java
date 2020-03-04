@@ -34,7 +34,7 @@ class AccountingRequestTest {
         RadiusRequest encoded = request.encodeRequest(sharedSecret);
 
         assertEquals(request.getType(), encoded.getType());
-        assertEquals(request.getIdentifier(), encoded.getIdentifier());
+        assertEquals(request.getId(), encoded.getId());
         assertEquals(request.getAttributes(), encoded.getAttributes());
         assertArrayEquals(expectedAuthenticator, encoded.getAuthenticator());
     }

@@ -37,7 +37,7 @@ public class RadiusResponse extends BaseRadiusPacket {
      */
     public RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
         final byte[] newAuth = createHashedAuthenticator(sharedSecret, requestAuth);
-        return RadiusPackets.createResponse(getDictionary(), getType(), getIdentifier(), newAuth, getAttributes());
+        return RadiusPackets.createResponse(getDictionary(), getType(), getId(), newAuth, getAttributes());
     }
 
     /**

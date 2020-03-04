@@ -39,7 +39,7 @@ class MessageAuthSupportTest {
 
         @Override
         public TestPacket copy() {
-            return new TestPacket(getDictionary(), getType(), getIdentifier(), getAuthenticator(), getAttributes());
+            return new TestPacket(getDictionary(), getType(), getId(), getAuthenticator(), getAttributes());
         }
     }
 }

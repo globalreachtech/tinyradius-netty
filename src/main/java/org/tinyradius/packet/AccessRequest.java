@@ -173,7 +173,7 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
 
         @Override
         public AccessRequest copy() {
-            return new AccessInvalidAuth(getDictionary(), getIdentifier(), getAuthenticator(), getAttributes());
+            return new AccessInvalidAuth(getDictionary(), getId(), getAuthenticator(), getAttributes());
         }
 
         @Override

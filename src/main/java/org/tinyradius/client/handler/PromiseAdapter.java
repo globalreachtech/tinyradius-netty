@@ -54,7 +54,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
             final RadiusRequest encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
 
             msg.getResponse().addListener(f -> requests.remove(requestId));
-            requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getIdentifier(), msg.getResponse()));
+            requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getId(), msg.getResponse()));
 
             out.add(new PendingRequestCtx(encodedRequest, msg.getEndpoint(), msg.getResponse()));
         } catch (RadiusPacketException e) {
@@ -83,8 +83,8 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
             return;
         }
 
-        if (msg.getIdentifier() != request.identifier) {
-            logger.warn("Ignoring response - identifier mismatch, request ID {}, response ID {}", request.identifier, msg.getIdentifier());
+        if (msg.getId() != request.identifier) {
+            logger.warn("Ignoring response - identifier mismatch, request ID {}, response ID {}", request.identifier, msg.getId());
             return;
         }
 
@@ -97,7 +97,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
         msg.removeLastAttribute(PROXY_STATE);
 
-        logger.info("Found request for response identifier => {}", msg.getIdentifier());
+        logger.info("Found request for response identifier => {}", msg.getId());
         request.promise.trySuccess(msg);
 
         // intentionally nothing to pass through - listeners should hook onto promise¬

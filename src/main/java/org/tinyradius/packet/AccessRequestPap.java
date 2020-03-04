@@ -63,7 +63,7 @@ public class AccessRequestPap extends AccessRequest {
             logger.warn("Could not encode PAP attributes, password not set");
             throw new RadiusPacketException("Could not encode PAP attributes, password not set");
         }
-        final AccessRequestPap accessRequestPap = new AccessRequestPap(getDictionary(), getIdentifier(), newAuth, new ArrayList<>(getAttributes()), password);
+        final AccessRequestPap accessRequestPap = new AccessRequestPap(getDictionary(), getId(), newAuth, new ArrayList<>(getAttributes()), password);
         accessRequestPap.removeAttributes(USER_PASSWORD);
         accessRequestPap.addAttribute(Attributes.create(getDictionary(), -1, USER_PASSWORD,
                 encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
@@ -202,7 +202,7 @@ public class AccessRequestPap extends AccessRequest {
 
     @Override
     public AccessRequest copy() {
-        return new AccessRequestPap(getDictionary(), getIdentifier(), getAuthenticator(), new ArrayList<>(getAttributes()), password);
+        return new AccessRequestPap(getDictionary(), getId(), getAuthenticator(), new ArrayList<>(getAttributes()), password);
     }
 
 }

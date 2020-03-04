@@ -70,7 +70,7 @@ public interface MessageAuthSupport<T extends MessageAuthSupport<?>> extends Rad
     default byte[] calcMessageAuthInput(byte[] requestAuth) {
         final ByteBuf buf = Unpooled.buffer()
                 .writeByte(getType())
-                .writeByte(getIdentifier())
+                .writeByte(getId())
                 .writeShort(0) // placeholder
                 .writeBytes(requestAuth);
 

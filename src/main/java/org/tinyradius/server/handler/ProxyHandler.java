@@ -51,7 +51,7 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
             final RadiusResponse packet = (RadiusResponse) f.getNow();
             if (f.isSuccess() && packet != null) {
                 final RadiusResponse response = RadiusPackets.createResponse(
-                        request.getDictionary(), packet.getType(), packet.getIdentifier(), packet.getAuthenticator(), packet.getAttributes());
+                        request.getDictionary(), packet.getType(), packet.getId(), packet.getAuthenticator(), packet.getAttributes());
                 ctx.writeAndFlush(msg.withResponse(response));
             }
         });
