@@ -15,7 +15,7 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.packet.AccessRequest.USER_NAME;
+import static org.tinyradius.packet.AccessRequest.*;
 import static org.tinyradius.packet.AccessRequestPap.pad;
 
 class AccessRequestPapTest {
@@ -32,6 +32,19 @@ class AccessRequestPapTest {
 
         final AccessRequest encoded = accessRequestPap.encodeRequest(sharedSecret);
         encoded.verifyRequest(sharedSecret);
+    }
+
+    @Test
+    void testVerify() throws RadiusPacketException {
+        String sharedSecret = "sharedSecret1";
+        final AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
+        assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
+
+        request.addAttribute(Attributes.create(dictionary, -1, USER_PASSWORD, new byte[16]));
+        request.verifyRequest(sharedSecret); // should have exactly one instance
+
+        request.addAttribute(Attributes.create(dictionary, -1, USER_PASSWORD, new byte[16]));
+        assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
     }
 
     @Test

@@ -2,6 +2,7 @@ package org.tinyradius.packet;
 
 import net.jradius.util.CHAP;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -14,6 +15,7 @@ import java.util.Collections;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.create;
+import static org.tinyradius.packet.AccessRequest.CHAP_PASSWORD;
 import static org.tinyradius.packet.AccessRequest.USER_NAME;
 
 class AccessRequestChapTest {
@@ -30,6 +32,19 @@ class AccessRequestChapTest {
 
         final AccessRequest encoded = accessRequestChap.encodeRequest(sharedSecret);
         encoded.verifyRequest(sharedSecret);
+    }
+
+    @Test
+    void testVerify() throws RadiusPacketException {
+        String sharedSecret = "sharedSecret1";
+        final AccessRequestChap request = new AccessRequestChap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
+        assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
+
+        request.addAttribute(Attributes.create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
+        request.verifyRequest(sharedSecret); // should have exactly one instance
+
+        request.addAttribute(Attributes.create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
+        assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
     }
 
     @Test
