@@ -2,7 +2,6 @@ package org.tinyradius.packet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.util.MessageAuthSupport;
@@ -10,10 +9,11 @@ import org.tinyradius.util.RadiusPacketException;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toSet;
 import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
 /**
@@ -28,7 +28,7 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
     public static final byte USER_PASSWORD = 2;
     public static final byte CHAP_PASSWORD = 3;
     public static final byte EAP_MESSAGE = 79;
-    protected static final List<Byte> AUTH_ATTRS = Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, EAP_MESSAGE);
+    protected static final Set<Byte> AUTH_ATTRS = new HashSet<>(Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, EAP_MESSAGE));
 
     public static final byte USER_NAME = 1;
 
@@ -132,19 +132,18 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
          * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
          * MUST NOT contain more than one type of those four attributes.
          */
-        final Set<Integer> detectedAuth = AUTH_ATTRS.stream()
-                .map(authAttr -> Attributes.filter(attributes, authAttr))
-                .filter(a -> !a.isEmpty())
-                .map(a -> a.get(0).getType())
-                .collect(Collectors.toSet());
+        final Set<Byte> detectedAuth = attributes.stream()
+                .map(RadiusAttribute::getType)
+                .filter(AUTH_ATTRS::contains)
+                .collect(toSet());
 
         if (detectedAuth.size() == 0) {
-            logger.warn("AccessRequest could not identify auth protocol");
+            logger.warn("AccessRequest could not identify supported auth mechanism");
             return AccessInvalidAuth::new;
         }
 
         if (detectedAuth.size() > 1) {
-            logger.warn("AccessRequest identified multiple possible auth protocols");
+            logger.warn("AccessRequest identified multiple auth mechanisms");
             return AccessInvalidAuth::new;
         }
 

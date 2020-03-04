@@ -28,7 +28,7 @@ public interface NestedAttributeHolder extends AttributeHolder {
      * @param type     attribute type code
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> getAttributes(int vendorId, int type) {
+    default List<RadiusAttribute> getAttributes(int vendorId, byte type) {
         if (vendorId == getVendorId())
             return getAttributes(type);
 
@@ -41,7 +41,7 @@ public interface NestedAttributeHolder extends AttributeHolder {
 
     @Override
     default List<RadiusAttribute> getAttributes(AttributeType type) {
-        return getAttributes(type.getVendorId(), type.getTypeCode());
+        return getAttributes(type.getVendorId(), type.getType());
     }
 
     /**
@@ -51,7 +51,7 @@ public interface NestedAttributeHolder extends AttributeHolder {
      * @param type     attribute type
      * @return RadiusAttribute object or null if there is no such attribute
      */
-    default RadiusAttribute getAttribute(int vendorId, int type) {
+    default RadiusAttribute getAttribute(int vendorId, byte type) {
         List<RadiusAttribute> attrs = getAttributes(vendorId, type);
         return attrs.isEmpty() ? null : attrs.get(0);
     }
@@ -65,7 +65,7 @@ public interface NestedAttributeHolder extends AttributeHolder {
      * @param vendorId vendor ID, or -1
      * @param typeCode attribute type code
      */
-    default void removeAttributes(int vendorId, int typeCode) {
+    default void removeAttributes(int vendorId, byte typeCode) {
         if (vendorId == getVendorId()) {
             removeAttributes(typeCode);
             return;

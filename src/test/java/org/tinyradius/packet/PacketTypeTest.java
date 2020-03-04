@@ -30,6 +30,6 @@ class PacketTypeTest {
     @Test
     void getDefaultPacketType() {
         String unknown = PacketType.getPacketTypeName((byte) 256);
-        assertEquals("Unknown (" + 256 + ")", unknown);
+        assertEquals("Unknown (" + 0 + ")", unknown);
     }
 }

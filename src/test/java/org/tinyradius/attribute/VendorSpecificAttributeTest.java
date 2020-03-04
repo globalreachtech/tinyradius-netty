@@ -21,7 +21,7 @@ class VendorSpecificAttributeTest {
         vendorSpecificAttribute.addAttribute(Attributes.create(dictionary, 14122, (byte) 2, data));
 
         assertEquals(1, vendorSpecificAttribute.getAttributes().size());
-        assertEquals(data, vendorSpecificAttribute.getAttribute(2).getValueString());
+        assertEquals(data, vendorSpecificAttribute.getAttribute((byte) 2).getValueString());
     }
 
     @Test

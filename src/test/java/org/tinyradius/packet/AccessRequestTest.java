@@ -7,6 +7,7 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,15 +28,9 @@ class AccessRequestTest {
 
         assertNotNull(nullAuthRequest.encodeRequest(sharedSecret).getAuthenticator());
 
-        AccessRequest authRequest = new AccessRequestPap(dictionary, (byte) 2, random16Bytes(), Collections.emptyList(), pw);
+        AccessRequest authRequest = new AccessRequestPap(dictionary, (byte) 2, random.generateSeed(16), Collections.emptyList(), pw);
         assertNotNull(authRequest.getAuthenticator());
         assertArrayEquals(authRequest.getAuthenticator(), authRequest.encodeRequest(sharedSecret).getAuthenticator());
-    }
-
-    private byte[] random16Bytes() {
-        byte[] randomBytes = new byte[16];
-        random.nextBytes(randomBytes);
-        return randomBytes;
     }
 
     @Test
@@ -57,5 +52,12 @@ class AccessRequestTest {
 
         final AccessRequest unknown = AccessRequest.create(dictionary, (byte) 1, null, Collections.emptyList());
         assertTrue(unknown instanceof AccessInvalidAuth);
+
+        final AccessRequest invalid = AccessRequest.create(dictionary, (byte) 1, null,
+                Arrays.asList(
+                        Attributes.create(dictionary, -1, CHAP_PASSWORD, encodedPw),
+                        Attributes.create(dictionary, -1, EAP_MESSAGE, encodedPw)
+                ));
+        assertTrue(invalid instanceof AccessInvalidAuth);
     }
 }

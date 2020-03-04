@@ -5,6 +5,7 @@ import org.tinyradius.dictionary.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.Byte.toUnsignedInt;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
@@ -14,7 +15,7 @@ import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 public class AttributeType {
 
     private final int vendorId;
-    private final byte typeCode;
+    private final byte type;
     private final String name;
 
     private final String dataType;
@@ -50,7 +51,7 @@ public class AttributeType {
             throw new IllegalArgumentException("Name is empty");
         requireNonNull(rawDataType, "Data type is null");
         this.vendorId = vendorId;
-        this.typeCode = (byte) type;
+        this.type = (byte) type;
         this.name = name;
 
         dataType = rawDataType.toLowerCase();
@@ -91,18 +92,18 @@ public class AttributeType {
     }
 
     public RadiusAttribute create(Dictionary dictionary, byte[] data) {
-        return byteArrayConstructor.newInstance(dictionary, vendorId, typeCode, data);
+        return byteArrayConstructor.newInstance(dictionary, vendorId, type, data);
     }
 
     public RadiusAttribute create(Dictionary dictionary, String data) {
-        return stringConstructor.newInstance(dictionary, vendorId, typeCode, data);
+        return stringConstructor.newInstance(dictionary, vendorId, type, data);
     }
 
     /**
      * @return Radius type code for this attribute e.g. '1' (for User-Name)
      */
-    public int getTypeCode() {
-        return typeCode;
+    public byte getType() {
+        return type;
     }
 
     /**
@@ -156,7 +157,7 @@ public class AttributeType {
     }
 
     public String toString() {
-        String s = getTypeCode() + "/" + getName() + ": " + dataType;
+        String s = toUnsignedInt(getType()) + "/" + getName() + ": " + dataType;
         if (getVendorId() != -1)
             s += " (Vendor " + getVendorId() + ")";
         return s;

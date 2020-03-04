@@ -5,7 +5,6 @@ import org.tinyradius.dictionary.Dictionary;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.lang.Byte.toUnsignedInt;
 
@@ -74,18 +73,5 @@ public class Attributes {
         if (pos != data.length)
             throw new IllegalArgumentException("Attribute malformed, lengths do not match");
         return attributes;
-    }
-
-    /**
-     * Filters attributes by attribute type code
-     *
-     * @param attributes list of attributes to filter
-     * @param type       attribute type to filter by
-     * @return attributes where type code matches
-     */
-    public static List<RadiusAttribute> filter(List<RadiusAttribute> attributes, int type) {
-        return attributes.stream()
-                .filter(a -> a.getType() == type)
-                .collect(Collectors.toList());
     }
 }

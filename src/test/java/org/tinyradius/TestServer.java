@@ -21,7 +21,7 @@ import org.tinyradius.server.handler.ServerPacketCodec;
 
 import java.net.InetSocketAddress;
 
-import static net.jradius.packet.attribute.AttributeDictionary.USER_NAME;
+import static org.tinyradius.packet.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.util.PacketType.*;
 
 /**
@@ -93,7 +93,7 @@ public class TestServer {
             String password = request.getAttributeString(USER_NAME).equals("test") ? "password" : null;
             byte type = request.verifyPassword(password) ? ACCESS_ACCEPT : ACCESS_REJECT;
 
-            RadiusResponse answer = RadiusPackets.createResponse(request.getDictionary(), type, request.getIdentifier(), null, request.getAttributes(33));
+            RadiusResponse answer = RadiusPackets.createResponse(request.getDictionary(), type, request.getIdentifier(), null, request.getAttributes((byte) 33));
 
             ctx.writeAndFlush(msg.withResponse(answer));
         }
@@ -110,7 +110,7 @@ public class TestServer {
         protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
             final RadiusRequest request = msg.getRequest();
 
-            RadiusResponse answer = RadiusPackets.createResponse(request.getDictionary(), ACCOUNTING_RESPONSE, request.getIdentifier(), null, request.getAttributes(33));
+            RadiusResponse answer = RadiusPackets.createResponse(request.getDictionary(), ACCOUNTING_RESPONSE, request.getIdentifier(), null, request.getAttributes((byte) 33));
 
             ctx.writeAndFlush(msg.withResponse(answer));
         }

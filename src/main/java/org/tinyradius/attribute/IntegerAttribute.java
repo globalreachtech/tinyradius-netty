@@ -69,7 +69,7 @@ public class IntegerAttribute extends RadiusAttribute {
         return ByteBuffer.allocate(4).putInt(value).array();
     }
 
-    private static int convertValue(String value, Dictionary dictionary, int attributeType, int vendorId) {
+    private static int convertValue(String value, Dictionary dictionary, byte attributeType, int vendorId) {
         AttributeType at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
         if (at != null) {
             Integer val = at.getEnumeration(value);

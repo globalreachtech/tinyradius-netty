@@ -117,7 +117,7 @@ class PacketCodecTest {
         assertArrayEquals(maxSizeRequest.getAuthenticator(), result.getAuthenticator());
         assertArrayEquals(maxSizeRequest.getAttributeBytes(), result.getAttributeBytes());
 
-        assertEquals(maxSizeRequest.getAttributes(33).size(), result.getAttributes(33).size());
+        assertEquals(maxSizeRequest.getAttributes((byte) 33).size(), result.getAttributes((byte) 33).size());
 
         // reconvert to check if bytes match
         assertArrayEquals(datagram.content().array(), toDatagram(result, new InetSocketAddress(0)).content().array());
@@ -239,7 +239,7 @@ class PacketCodecTest {
         packet.verifyResponse(sharedSecret, encodedRequest.getAuthenticator());
 
         assertEquals(encodedResponse.getIdentifier(), packet.getIdentifier());
-        assertEquals("state3333", new String(packet.getAttribute(33).getValue()));
+        assertEquals("state3333", new String(packet.getAttribute((byte) 33).getValue()));
         assertArrayEquals(encodedResponse.getAuthenticator(), packet.getAuthenticator());
     }
 }

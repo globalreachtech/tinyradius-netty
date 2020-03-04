@@ -58,7 +58,7 @@ public class RadiusAttribute {
     /**
      * @return attribute type code, 0-255
      */
-    public int getType() {
+    public byte getType() {
         return type;
     }
 
@@ -89,7 +89,7 @@ public class RadiusAttribute {
     public byte[] toByteArray() {
 
         byte[] attr = new byte[2 + value.length];
-        attr[0] = (byte) getType();
+        attr[0] = getType();
         attr[1] = (byte) (2 + value.length);
         System.arraycopy(value, 0, attr, 2, value.length);
         return attr;

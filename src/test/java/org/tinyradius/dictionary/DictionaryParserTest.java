@@ -45,7 +45,7 @@ class DictionaryParserTest {
 
         final Dictionary dictionary = parser.parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
 
-        final AttributeType serviceTypeAttr = dictionary.getAttributeTypeByCode(6);
+        final AttributeType serviceTypeAttr = dictionary.getAttributeTypeByCode((byte) 6);
         assertNotNull(serviceTypeAttr);
         assertEquals("Service-Type", serviceTypeAttr.getName());
         assertEquals("Login-User", serviceTypeAttr.getEnumeration(1));
@@ -57,7 +57,7 @@ class DictionaryParserTest {
 
         final Dictionary dictionary = parser.parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
 
-        final AttributeType serviceTypeAttr = dictionary.getAttributeTypeByCode(6);
+        final AttributeType serviceTypeAttr = dictionary.getAttributeTypeByCode((byte) 6);
         assertNotNull(serviceTypeAttr);
         assertEquals("Service-Type", serviceTypeAttr.getName());
         assertEquals("Login-User", serviceTypeAttr.getEnumeration(1));

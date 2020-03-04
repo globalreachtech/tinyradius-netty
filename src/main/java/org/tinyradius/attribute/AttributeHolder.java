@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public interface AttributeHolder {
 
@@ -37,7 +38,7 @@ public interface AttributeHolder {
      * @param type attribute type name
      * @return RadiusAttribute object or null if there is no such attribute
      */
-    default String getAttributeString(int type) {
+    default String getAttributeString(byte type) {
         List<RadiusAttribute> attrs = getAttributes(type);
         return attrs.isEmpty() ? null : attrs.get(0).getValueString();
     }
@@ -59,7 +60,7 @@ public interface AttributeHolder {
      * @param type attribute type
      * @return RadiusAttribute object or null if there is no such attribute
      */
-    default RadiusAttribute getAttribute(int type) {
+    default RadiusAttribute getAttribute(byte type) {
         List<RadiusAttribute> attrs = getAttributes(type);
         return attrs.isEmpty() ? null : attrs.get(0);
     }
@@ -70,8 +71,8 @@ public interface AttributeHolder {
      * @param type type of attributes to get
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> getAttributes(int type) {
-        return Attributes.filter(getAttributes(), type);
+    default List<RadiusAttribute> getAttributes(byte type) {
+        return filter(getAttributes(), type);
     }
 
     /**
@@ -94,7 +95,7 @@ public interface AttributeHolder {
      */
     default List<RadiusAttribute> getAttributes(AttributeType type) {
         if (type.getVendorId() == getVendorId())
-            return getAttributes(type.getTypeCode());
+            return getAttributes(type.getType());
         return Collections.emptyList();
     }
 
@@ -123,7 +124,7 @@ public interface AttributeHolder {
      *
      * @param type attribute type to remove
      */
-    default void removeAttributes(int type) {
+    default void removeAttributes(byte type) {
         List<RadiusAttribute> attrs = getAttributes(type);
         attrs.forEach(this::removeAttribute);
     }
@@ -134,7 +135,7 @@ public interface AttributeHolder {
      *
      * @param type attribute type code
      */
-    default void removeLastAttribute(int type) {
+    default void removeLastAttribute(byte type) {
         List<RadiusAttribute> attrs = getAttributes(type);
         if (attrs.isEmpty())
             return;
@@ -181,5 +182,18 @@ public interface AttributeHolder {
         }
 
         return buffer.copy().array();
+    }
+
+    /**
+     * Filters attributes by attribute type code
+     *
+     * @param attributes list of attributes to filter
+     * @param type       attribute type to filter by
+     * @return attributes where type code matches
+     */
+    static List<RadiusAttribute> filter(List<RadiusAttribute> attributes, byte type) {
+        return attributes.stream()
+                .filter(a -> a.getType() == type)
+                .collect(Collectors.toList());
     }
 }

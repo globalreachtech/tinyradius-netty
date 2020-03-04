@@ -69,7 +69,7 @@ class AccessRequestPapTest {
         String user = "user2";
         String plaintextPw = "myPassword2";
         String sharedSecret = "sharedSecret2";
-        final byte[] authenticator = random16Bytes();
+        final byte[] authenticator = random.generateSeed(16);
 
         byte[] encodedPassword = RadiusUtils.encodePapPassword(plaintextPw.getBytes(UTF_8), authenticator, sharedSecret);
 
@@ -114,11 +114,5 @@ class AccessRequestPapTest {
         assertEquals(32, pad(new byte[31]).length);
         assertEquals(32, pad(new byte[32]).length);
         assertEquals(48, pad(new byte[33]).length);
-    }
-
-    private byte[] random16Bytes() {
-        byte[] randomBytes = new byte[16];
-        random.nextBytes(randomBytes);
-        return randomBytes;
     }
 }

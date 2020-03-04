@@ -42,17 +42,17 @@ class BaseRadiusPacketTest {
         assertEquals(1, wisprLocations.size());
         assertEquals("myLocationId", wisprLocations.get(0).getValueString());
 
-        assertEquals("myLocationId", packet.getAttribute(14122, 1).getValueString());
-        final List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, 1);
+        assertEquals("myLocationId", packet.getAttribute(14122, (byte) 1).getValueString());
+        final List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, (byte) 1);
         assertEquals(1, wisprLocations2.size());
         assertEquals("myLocationId", wisprLocations2.get(0).getValueString());
 
-        assertEquals("0.18.214.135", packet.getAttribute(8).getValueString());
+        assertEquals("0.18.214.135", packet.getAttribute((byte) 8).getValueString());
         assertEquals("0.18.214.135", packet.getAttribute("Framed-IP-Address").getValueString());
-        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute(168).getValueString());
+        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute((byte) 168).getValueString());
         assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute("Framed-IPv6-Address").getValueString());
 
-        final List<RadiusAttribute> ipV6Attributes = packet.getAttributes(97);
+        final List<RadiusAttribute> ipV6Attributes = packet.getAttributes((byte) 97);
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
                 ipV6Attributes.stream().map(RadiusAttribute::getValueString).toArray());
 
@@ -83,11 +83,11 @@ class BaseRadiusPacketTest {
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
         assertEquals(1, rp.getAttributes().size());
 
-        rp.removeAttributes(14122, 1);
+        rp.removeAttributes(14122, (byte) 1);
         assertTrue(rp.getAttributes().isEmpty());
 
         rp.addAttribute("WISPr-Location-ID", "myLocationId");
-        RadiusAttribute ra = rp.getAttribute(14122, 1);
+        RadiusAttribute ra = rp.getAttribute(14122, (byte) 1);
 
         rp.removeAttribute(ra);
         assertEquals(0, rp.getAttributes().size());
@@ -101,7 +101,7 @@ class BaseRadiusPacketTest {
         rp.addAttribute("User-Name", "user");
         assertEquals(3, rp.getAttributes().size());
 
-        rp.removeAttributes(6);
+        rp.removeAttributes((byte) 6);
         assertFalse(rp.getAttributes().isEmpty());
         assertEquals(1, rp.getAttributes().size());
     }
@@ -114,8 +114,8 @@ class BaseRadiusPacketTest {
         rp.addAttribute("User-Name", "user");
         assertEquals(3, rp.getAttributes().size());
 
-        rp.removeLastAttribute(6);
-        RadiusAttribute attribute = rp.getAttribute(6);
+        rp.removeLastAttribute((byte) 6);
+        RadiusAttribute attribute = rp.getAttribute((byte) 6);
 
         assertFalse(rp.getAttributes().isEmpty());
         assertEquals(2, rp.getAttributes().size());

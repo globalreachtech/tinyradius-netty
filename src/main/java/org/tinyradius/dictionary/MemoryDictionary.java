@@ -5,6 +5,8 @@ import org.tinyradius.attribute.AttributeType;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.Byte.toUnsignedInt;
+
 /**
  * A dictionary that keeps the values and names in hash maps
  * in the memory. The dictionary has to be filled using the
@@ -14,18 +16,18 @@ import java.util.Map;
 public class MemoryDictionary implements WritableDictionary {
 
     private final Map<Integer, String> vendorsByCode = new HashMap<>();
-    private final Map<Integer, Map<Integer, AttributeType>> attributesByCode = new HashMap<>();
+    private final Map<Integer, Map<Byte, AttributeType>> attributesByCode = new HashMap<>();
     private final Map<String, AttributeType> attributesByName = new HashMap<>();
 
     /**
      * Returns the AttributeType for the vendor -1 from the cache.
      *
-     * @param typeCode attribute type code
+     * @param type attribute type code
      * @return AttributeType or null
-     * @see Dictionary#getAttributeTypeByCode(int)
      */
-    public AttributeType getAttributeTypeByCode(int typeCode) {
-        return getAttributeTypeByCode(-1, typeCode);
+    @Override
+    public AttributeType getAttributeTypeByCode(byte type) {
+        return getAttributeTypeByCode(-1, type);
     }
 
     /**
@@ -34,10 +36,10 @@ public class MemoryDictionary implements WritableDictionary {
      * @param vendorCode vendor ID or -1 for "no vendor"
      * @param typeCode   attribute type code
      * @return AttributeType or null
-     * @see Dictionary#getAttributeTypeByCode(int, int)
      */
-    public AttributeType getAttributeTypeByCode(int vendorCode, int typeCode) {
-        Map<Integer, AttributeType> vendorAttributes = attributesByCode.get(vendorCode);
+    @Override
+    public AttributeType getAttributeTypeByCode(int vendorCode, byte typeCode) {
+        Map<Byte, AttributeType> vendorAttributes = attributesByCode.get(vendorCode);
         return vendorAttributes == null ?
                 null : vendorAttributes.get(typeCode);
     }
@@ -87,11 +89,11 @@ public class MemoryDictionary implements WritableDictionary {
      */
     public void addVendor(int vendorId, String vendorName) {
         if (vendorId < 0)
-            throw new IllegalArgumentException("vendor ID must be positive");
+            throw new IllegalArgumentException("Vendor ID must be positive");
         if (getVendorName(vendorId) != null)
-            throw new IllegalArgumentException("duplicate vendor code");
+            throw new IllegalArgumentException("Duplicate vendor code");
         if (vendorName == null || vendorName.isEmpty())
-            throw new IllegalArgumentException("vendor name empty");
+            throw new IllegalArgumentException("Vendor name empty");
         vendorsByCode.put(vendorId, vendorName);
     }
 
@@ -103,19 +105,19 @@ public class MemoryDictionary implements WritableDictionary {
      */
     public void addAttributeType(AttributeType attributeType) {
         if (attributeType == null)
-            throw new IllegalArgumentException("attribute type must not be null");
+            throw new IllegalArgumentException("Attribute type must not be null");
 
         int vendorId = attributeType.getVendorId();
-        int typeCode = attributeType.getTypeCode();
+        byte typeCode = attributeType.getType();
         String attributeName = attributeType.getName();
 
         if (attributesByName.containsKey(attributeName))
-            throw new IllegalArgumentException("duplicate attribute name: " + attributeName);
+            throw new IllegalArgumentException("Duplicate attribute name: " + attributeName);
 
-        Map<Integer, AttributeType> vendorAttributes = attributesByCode
+        Map<Byte, AttributeType> vendorAttributes = attributesByCode
                 .computeIfAbsent(vendorId, k -> new HashMap<>());
         if (vendorAttributes.containsKey(typeCode))
-            throw new IllegalArgumentException("duplicate type code: " + typeCode);
+            throw new IllegalArgumentException("Duplicate type code: " + toUnsignedInt(typeCode));
 
         attributesByName.put(attributeName, attributeType);
         vendorAttributes.put(typeCode, attributeType);

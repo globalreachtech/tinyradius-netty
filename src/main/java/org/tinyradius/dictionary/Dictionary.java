@@ -22,10 +22,10 @@ public interface Dictionary {
      * Retrieves an attribute type by type code. This method
      * does not retrieve vendor specific attribute types.
      *
-     * @param typeCode type code, 1-255
+     * @param type type code, 1-255
      * @return AttributeType object or null
      */
-    AttributeType getAttributeTypeByCode(int typeCode);
+    AttributeType getAttributeTypeByCode(byte type);
 
     /**
      * Retrieves an attribute type for a vendor-specific
@@ -35,7 +35,7 @@ public interface Dictionary {
      * @param typeCode type code, 1-255
      * @return AttributeType object or null
      */
-    AttributeType getAttributeTypeByCode(int vendorId, int typeCode);
+    AttributeType getAttributeTypeByCode(int vendorId, byte typeCode);
 
     /**
      * Retrieves the name of the vendor with the given
