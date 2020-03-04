@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.auth.MessageAuthSupport;
+import org.tinyradius.packet.util.MessageAuthSupport;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.security.SecureRandom;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
+import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
 /**
  * This class represents an Access-Request Radius packet.
@@ -116,11 +116,11 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
     private static AccessRequestConstructor lookupAuthType(int authAttribute) {
         switch (authAttribute) {
             case EAP_MESSAGE:
-                return AccessEap::new;
+                return AccessRequestEap::new;
             case CHAP_PASSWORD:
-                return AccessChap::new;
+                return AccessRequestChap::new;
             case USER_PASSWORD:
-                return AccessPap::new;
+                return AccessRequestPap::new;
             default:
                 return AccessInvalidAuth::new;
         }

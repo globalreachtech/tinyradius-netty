@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.*;
+import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.SecretProvider;
@@ -21,7 +22,7 @@ import org.tinyradius.server.handler.ServerPacketCodec;
 import java.net.InetSocketAddress;
 
 import static net.jradius.packet.attribute.AttributeDictionary.USER_NAME;
-import static org.tinyradius.packet.PacketType.*;
+import static org.tinyradius.packet.util.PacketType.*;
 
 /**
  * TestServer can answer both to Access-Request and Access-Response
@@ -87,7 +88,7 @@ public class TestServer {
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
 
-            final AccessPap request = (AccessPap) msg.getRequest();
+            final AccessRequestPap request = (AccessRequestPap) msg.getRequest();
 
             String password = request.getAttributeString(USER_NAME).equals("test") ? "password" : null;
             int type = request.verifyPassword(password) ? ACCESS_ACCEPT : ACCESS_REJECT;

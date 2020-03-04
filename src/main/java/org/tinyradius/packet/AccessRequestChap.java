@@ -14,18 +14,18 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
-public class AccessChap extends AccessRequest {
+public class AccessRequestChap extends AccessRequest {
 
     protected static final int CHAP_CHALLENGE = 60;
 
     private transient String password;
 
-    public AccessChap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
+    public AccessRequestChap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
         this(dictionary, identifier, authenticator, attributes);
         setPlaintextPassword(plaintextPw);
     }
 
-    public AccessChap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public AccessRequestChap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, identifier, authenticator, attributes);
     }
 
@@ -59,23 +59,23 @@ public class AccessChap extends AccessRequest {
      * @return List of RadiusAttributes to override
      */
     @Override
-    protected AccessChap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
+    protected AccessRequestChap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
         if (password == null || password.isEmpty()) {
             logger.warn("Could not encode CHAP attributes, password not set");
             throw new RadiusPacketException("Could not encode CHAP attributes, password not set");
         }
 
-        final AccessChap accessChap = new AccessChap(getDictionary(), getIdentifier(), newAuth, new ArrayList<>(getAttributes()), password);
-        accessChap.removeAttributes(CHAP_PASSWORD);
-        accessChap.removeAttributes(CHAP_CHALLENGE);
+        final AccessRequestChap accessRequestChap = new AccessRequestChap(getDictionary(), getIdentifier(), newAuth, new ArrayList<>(getAttributes()), password);
+        accessRequestChap.removeAttributes(CHAP_PASSWORD);
+        accessRequestChap.removeAttributes(CHAP_CHALLENGE);
 
         byte[] challenge = random16bytes();
 
-        accessChap.addAttribute(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge));
-        accessChap.addAttribute(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
+        accessRequestChap.addAttribute(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge));
+        accessRequestChap.addAttribute(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
                 computeChapPassword((byte) RANDOM.nextInt(256), password, challenge)));
 
-        return accessChap;
+        return accessRequestChap;
     }
 
     /**
@@ -145,7 +145,7 @@ public class AccessChap extends AccessRequest {
     }
 
     @Override
-    public AccessChap copy() {
-        return new AccessChap(getDictionary(), getIdentifier(), getAuthenticator(), new ArrayList<>(getAttributes()), password);
+    public AccessRequestChap copy() {
+        return new AccessRequestChap(getDictionary(), getIdentifier(), getAuthenticator(), new ArrayList<>(getAttributes()), password);
     }
 }

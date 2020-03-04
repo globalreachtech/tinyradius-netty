@@ -13,7 +13,7 @@ import org.tinyradius.attribute.Attributes;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccessPap;
+import org.tinyradius.packet.AccessRequestPap;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
@@ -30,8 +30,8 @@ import static net.jradius.packet.attribute.AttributeDictionary.USER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.tinyradius.packet.PacketCodec.fromDatagramRequest;
-import static org.tinyradius.packet.PacketCodec.toDatagram;
+import static org.tinyradius.packet.util.PacketCodec.fromDatagramRequest;
+import static org.tinyradius.packet.util.PacketCodec.toDatagram;
 
 @ExtendWith(MockitoExtension.class)
 class ClientPacketCodecTest {
@@ -100,7 +100,7 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        final AccessPap accessRequest = new AccessPap(dictionary, id, null, Collections.emptyList());
+        final AccessRequestPap accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList());
         accessRequest.setAttributeString(USER_NAME, username);
         accessRequest.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
@@ -112,7 +112,7 @@ class ClientPacketCodecTest {
         codec.encode(ctx, new PendingRequestCtx(accessRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
-        final AccessPap sentAccessPacket = (AccessPap) fromDatagramRequest(
+        final AccessRequestPap sentAccessPacket = (AccessRequestPap) fromDatagramRequest(
                 dictionary, (DatagramPacket) out1.get(0));
         sentAccessPacket.verifyRequest(secret);
 
@@ -129,7 +129,7 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        final AccessPap packet = new AccessPap(dictionary, id, null, Collections.emptyList());
+        final AccessRequestPap packet = new AccessRequestPap(dictionary, id, null, Collections.emptyList());
         packet.setAttributeString(USER_NAME, username);
         packet.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);

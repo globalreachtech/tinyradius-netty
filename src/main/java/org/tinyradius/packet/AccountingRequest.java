@@ -7,7 +7,7 @@ import org.tinyradius.dictionary.Dictionary;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
+import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 
 /**
  * This class represents a Radius packet of the type Accounting-Request.

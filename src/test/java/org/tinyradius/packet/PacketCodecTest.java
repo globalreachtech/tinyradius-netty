@@ -19,25 +19,16 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.create;
 import static org.tinyradius.packet.AccessRequest.USER_NAME;
-import static org.tinyradius.packet.PacketCodec.*;
-import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
-import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
+import static org.tinyradius.packet.util.PacketCodec.*;
+import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
+import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 
 class PacketCodecTest {
 
     private final SecureRandom random = new SecureRandom();
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final InetSocketAddress remoteAddress = new InetSocketAddress(0);
-
-    @Test
-    void nextPacketId() {
-        for (int i = 0; i < 1000; i++) {
-            final int next = RadiusPackets.nextPacketId();
-            assertTrue(next < 256);
-            assertTrue(next >= 0);
-        }
-    }
 
     private void addBytesToPacket(RadiusPacket packet, int targetSize) {
         int dataSize = targetSize - HEADER_LENGTH;
@@ -208,7 +199,7 @@ class PacketCodecTest {
         String password = "myPassword";
         String sharedSecret = "sharedSecret1";
 
-        AccessPap rawRequest = new AccessPap(dictionary, 250, null, Collections.emptyList());
+        AccessRequestPap rawRequest = new AccessRequestPap(dictionary, 250, null, Collections.emptyList());
         rawRequest.setAttributeString(USER_NAME, user);
         rawRequest.setPlaintextPassword(password);
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
@@ -220,7 +211,7 @@ class PacketCodecTest {
         assertEquals(ACCESS_REQUEST, radiusPacket.getType());
         assertTrue(radiusPacket instanceof AccessRequest);
 
-        AccessPap packet = (AccessPap) radiusPacket;
+        AccessRequestPap packet = (AccessRequestPap) radiusPacket;
         assertEquals(rawRequest.getIdentifier(), packet.getIdentifier());
         assertEquals(rawRequest.getAttributeString(USER_NAME), packet.getAttributeString(USER_NAME));
         assertEquals(rawRequest.getPlaintextPassword(), packet.getPlaintextPassword());
@@ -234,7 +225,7 @@ class PacketCodecTest {
 
         final int id = random.nextInt(256);
 
-        final AccessPap request = new AccessPap(dictionary, id, null, Collections.emptyList());
+        final AccessRequestPap request = new AccessRequestPap(dictionary, id, null, Collections.emptyList());
         request.setAttributeString(USER_NAME, user);
         request.setPlaintextPassword(plaintextPw);
         final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);

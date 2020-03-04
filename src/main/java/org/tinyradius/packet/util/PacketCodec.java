@@ -1,9 +1,12 @@
-package org.tinyradius.packet;
+package org.tinyradius.packet.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.RadiusRequest;
+import org.tinyradius.packet.RadiusResponse;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
@@ -12,8 +15,8 @@ import java.nio.ByteBuffer;
 import static java.lang.Byte.toUnsignedInt;
 import static org.tinyradius.attribute.Attributes.extractAttributes;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
-import static org.tinyradius.packet.RadiusPackets.createRequest;
-import static org.tinyradius.packet.RadiusPackets.createResponse;
+import static org.tinyradius.packet.util.RadiusPackets.createRequest;
+import static org.tinyradius.packet.util.RadiusPackets.createResponse;
 
 /**
  * To encode/decode packets to/from Datagram.

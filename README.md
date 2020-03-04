@@ -18,7 +18,6 @@ tinyradius-netty is a fork of the TinyRadius Radius library, with some significa
 - More tests
 
 ### Dictionary
- - Parses dictionary files in same format as [FreeRadius dictionaries](https://github.com/FreeRADIUS/freeradius-server/tree/master/share/dictionary).
  - `DefaultDictionary` uses a very limited subset that's included in the classpath.
    - Singleton is available at `DefaultDictionary.INSTANCE`
  - `DictionaryParser` parses custom resources and takes a `ResourceResolver` parameter.

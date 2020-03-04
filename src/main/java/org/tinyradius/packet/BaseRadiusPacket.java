@@ -3,6 +3,8 @@ package org.tinyradius.packet;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.util.PacketType;
+import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.security.MessageDigest;
@@ -175,6 +177,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
 
     public String toString() {
         StringBuilder s = new StringBuilder();
+
         s.append(PacketType.getPacketTypeName(getType()));
         s.append(", ID ");
         s.append(identifier);

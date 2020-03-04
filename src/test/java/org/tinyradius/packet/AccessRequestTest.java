@@ -22,12 +22,12 @@ class AccessRequestTest {
         String sharedSecret = "sharedSecret1";
         String pw = "myPw";
 
-        AccessPap nullAuthRequest = new AccessPap(dictionary, 2, null, Collections.emptyList(), pw);
+        AccessRequestPap nullAuthRequest = new AccessRequestPap(dictionary, 2, null, Collections.emptyList(), pw);
         assertNull(nullAuthRequest.getAuthenticator());
 
         assertNotNull(nullAuthRequest.encodeRequest(sharedSecret).getAuthenticator());
 
-        AccessRequest authRequest = new AccessPap(dictionary, 2, random16Bytes(), Collections.emptyList(), pw);
+        AccessRequest authRequest = new AccessRequestPap(dictionary, 2, random16Bytes(), Collections.emptyList(), pw);
         assertNotNull(authRequest.getAuthenticator());
         assertArrayEquals(authRequest.getAuthenticator(), authRequest.encodeRequest(sharedSecret).getAuthenticator());
     }
@@ -37,8 +37,8 @@ class AccessRequestTest {
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessPap request = new AccessPap(dictionary, 2, null, Collections.emptyList(), plaintextPw);
-        final AccessPap encoded = (AccessPap) request.encodeRequest(sharedSecret);
+        AccessRequestPap request = new AccessRequestPap(dictionary, 2, null, Collections.emptyList(), plaintextPw);
+        final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
 
         encoded.setPlaintextPassword("set field to something else");
         encoded.verifyRequest(sharedSecret);
@@ -59,15 +59,15 @@ class AccessRequestTest {
 
         final AccessRequest papRequest = AccessRequest.create(dictionary, 1, null,
                 Collections.singletonList(Attributes.create(dictionary, -1, USER_PASSWORD, encodedPw)));
-        assertTrue(papRequest instanceof AccessPap);
+        assertTrue(papRequest instanceof AccessRequestPap);
 
         final AccessRequest chapRequest = AccessRequest.create(dictionary, 1, null,
                 Collections.singletonList(Attributes.create(dictionary, -1, CHAP_PASSWORD, encodedPw)));
-        assertTrue(chapRequest instanceof AccessChap);
+        assertTrue(chapRequest instanceof AccessRequestChap);
 
         final AccessRequest eapRequest = AccessRequest.create(dictionary, 1, null,
                 Collections.singletonList(Attributes.create(dictionary, -1, EAP_MESSAGE, encodedPw)));
-        assertTrue(eapRequest instanceof AccessEap);
+        assertTrue(eapRequest instanceof AccessRequestEap);
 
         final AccessRequest unknown = AccessRequest.create(dictionary, 1, null, Collections.emptyList());
         assertTrue(unknown instanceof AccessInvalidAuth);

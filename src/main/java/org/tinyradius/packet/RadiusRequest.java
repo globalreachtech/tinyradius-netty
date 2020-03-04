@@ -2,6 +2,7 @@ package org.tinyradius.packet;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.util.ArrayList;

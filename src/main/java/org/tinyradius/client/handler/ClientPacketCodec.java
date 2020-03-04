@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.PacketCodec;
+import org.tinyradius.packet.util.PacketCodec;
 import org.tinyradius.packet.RadiusRequest;
 import org.tinyradius.packet.RadiusResponse;
 import org.tinyradius.util.RadiusPacketException;
@@ -16,7 +16,7 @@ import org.tinyradius.util.RadiusPacketException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import static org.tinyradius.packet.PacketCodec.*;
+import static org.tinyradius.packet.util.PacketCodec.*;
 
 /**
  * Codec for sending requests and receiving responses

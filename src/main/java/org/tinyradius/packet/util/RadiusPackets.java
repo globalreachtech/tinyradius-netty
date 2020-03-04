@@ -1,29 +1,17 @@
-package org.tinyradius.packet;
+package org.tinyradius.packet.util;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.*;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.tinyradius.packet.PacketType.*;
+import static org.tinyradius.packet.util.PacketType.*;
 
 /**
  * Utils for creating new RadiusPackets
  */
 public class RadiusPackets {
-
-    private static final AtomicInteger nextPacketId = new AtomicInteger();
-
-    /**
-     * Increment and return the next packet identifier, between 0 and 255
-     *
-     * @return the next packet identifier to use
-     */
-    public static int nextPacketId() {
-        return nextPacketId.updateAndGet(i -> i >= 255 ? 0 : i + 1);
-    }
-
 
     /**
      * Creates a RadiusPacket object. Depending on the passed type, an

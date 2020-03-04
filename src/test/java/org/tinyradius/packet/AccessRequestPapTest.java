@@ -15,12 +15,10 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.Attributes.create;
-import static org.tinyradius.packet.AccessPap.pad;
 import static org.tinyradius.packet.AccessRequest.USER_NAME;
-import static org.tinyradius.packet.RadiusPackets.nextPacketId;
+import static org.tinyradius.packet.AccessRequestPap.pad;
 
-class AccessPapTest {
+class AccessRequestPapTest {
 
     private static final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
@@ -31,10 +29,10 @@ class AccessPapTest {
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessPap request = new AccessPap(dictionary, 2, null, Collections.emptyList());
+        AccessRequestPap request = new AccessRequestPap(dictionary, 2, null, Collections.emptyList());
         request.setAttributeString(USER_NAME, user);
         request.setPlaintextPassword(plaintextPw);
-        final AccessPap encoded = (AccessPap) request.encodeRequest(sharedSecret);
+        final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
 
         // randomly generated, need to extract
         final byte[] authenticator = encoded.getAuthenticator();
@@ -68,7 +66,7 @@ class AccessPapTest {
                 Attributes.create(dictionary, -1, 1, user),
                 Attributes.create(dictionary, -1, 2, encodedPassword));
 
-        AccessPap request = (AccessPap) AccessRequest.create(dictionary, nextPacketId(), authenticator, attributes);
+        AccessRequestPap request = (AccessRequestPap) AccessRequest.create(dictionary, 1, authenticator, attributes);
 
         assertNull(request.getPlaintextPassword());
         assertEquals(user, request.getAttributeString(USER_NAME));

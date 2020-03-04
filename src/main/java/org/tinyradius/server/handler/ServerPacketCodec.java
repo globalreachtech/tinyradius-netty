@@ -18,7 +18,7 @@ import org.tinyradius.util.RadiusPacketException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import static org.tinyradius.packet.PacketCodec.*;
+import static org.tinyradius.packet.util.PacketCodec.*;
 
 /**
  * Codec for receiving requests and sending responses

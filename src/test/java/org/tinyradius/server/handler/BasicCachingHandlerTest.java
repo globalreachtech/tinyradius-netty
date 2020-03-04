@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.RadiusPackets;
+import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.packet.RadiusRequest;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
@@ -23,7 +23,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.tinyradius.packet.PacketType.ACCESS_ACCEPT;
+import static org.tinyradius.packet.util.PacketType.ACCESS_ACCEPT;
 
 @ExtendWith(MockitoExtension.class)
 class BasicCachingHandlerTest {

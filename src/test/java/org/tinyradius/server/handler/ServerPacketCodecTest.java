@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.tinyradius.packet.PacketCodec.toDatagram;
+import static org.tinyradius.packet.util.PacketCodec.toDatagram;
 
 @ExtendWith(MockitoExtension.class)
 class ServerPacketCodecTest {

@@ -1,9 +1,10 @@
 package org.tinyradius.packet;
 
 import org.junit.jupiter.api.Test;
+import org.tinyradius.packet.util.PacketType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.tinyradius.packet.PacketType.*;
+import static org.tinyradius.packet.util.PacketType.*;
 
 class PacketTypeTest {
 

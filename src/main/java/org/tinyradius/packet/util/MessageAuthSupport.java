@@ -1,4 +1,4 @@
-package org.tinyradius.packet.auth;
+package org.tinyradius.packet.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

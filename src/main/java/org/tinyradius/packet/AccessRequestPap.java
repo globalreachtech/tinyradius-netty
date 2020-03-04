@@ -14,16 +14,16 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
-public class AccessPap extends AccessRequest {
+public class AccessRequestPap extends AccessRequest {
 
     private transient String password;
 
-    public AccessPap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
+    public AccessRequestPap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
         this(dictionary, identifier, authenticator, attributes);
         setPlaintextPassword(plaintextPw);
     }
 
-    public AccessPap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public AccessRequestPap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, identifier, authenticator, attributes);
     }
 
@@ -58,17 +58,17 @@ public class AccessPap extends AccessRequest {
      * @return List of RadiusAttributes to override
      */
     @Override
-    protected AccessPap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
+    protected AccessRequestPap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
         if (password == null || password.isEmpty()) {
             logger.warn("Could not encode PAP attributes, password not set");
             throw new RadiusPacketException("Could not encode PAP attributes, password not set");
         }
-        final AccessPap accessPap = new AccessPap(getDictionary(), getIdentifier(), newAuth, new ArrayList<>(getAttributes()), password);
-        accessPap.removeAttributes(USER_PASSWORD);
-        accessPap.addAttribute(Attributes.create(getDictionary(), -1, USER_PASSWORD,
+        final AccessRequestPap accessRequestPap = new AccessRequestPap(getDictionary(), getIdentifier(), newAuth, new ArrayList<>(getAttributes()), password);
+        accessRequestPap.removeAttributes(USER_PASSWORD);
+        accessRequestPap.addAttribute(Attributes.create(getDictionary(), -1, USER_PASSWORD,
                 encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
 
-        return accessPap;
+        return accessRequestPap;
     }
 
     /**
@@ -202,7 +202,7 @@ public class AccessPap extends AccessRequest {
 
     @Override
     public AccessRequest copy() {
-        return new AccessPap(getDictionary(), getIdentifier(), getAuthenticator(), new ArrayList<>(getAttributes()), password);
+        return new AccessRequestPap(getDictionary(), getIdentifier(), getAuthenticator(), new ArrayList<>(getAttributes()), password);
     }
 
 }

@@ -15,9 +15,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.create;
 import static org.tinyradius.packet.AccessRequest.USER_NAME;
-import static org.tinyradius.packet.RadiusPackets.nextPacketId;
 
-class AccessChapTest {
+class AccessRequestChapTest {
 
     private static final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
@@ -29,10 +28,10 @@ class AccessChapTest {
         String plaintextPw = "password123456789";
         String sharedSecret = "sharedSecret";
 
-        AccessChap request = new AccessChap(dictionary, nextPacketId(), null, Collections.emptyList());
+        AccessRequestChap request = new AccessRequestChap(dictionary, 1, null, Collections.emptyList());
         request.setAttributeString(USER_NAME, user);
         request.setPlaintextPassword(plaintextPw);
-        final AccessChap encoded = (AccessChap) request.encodeRequest(sharedSecret);
+        final AccessRequestChap encoded = (AccessRequestChap) request.encodeRequest(sharedSecret);
 
         assertNull(request.getAttribute("User-Password"));
         assertNull(request.getAttribute("CHAP-Password"));
@@ -62,18 +61,18 @@ class AccessChapTest {
         final byte[] challenge = random16Bytes();
         final byte[] password = CHAP.chapResponse((byte) chapId, plaintextPw.getBytes(UTF_8), challenge);
 
-        AccessChap goodRequest = (AccessChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
+        AccessRequestChap goodRequest = (AccessRequestChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
                 create(dictionary, -1, 60, challenge),
                 create(dictionary, -1, 3, password)));
         assertTrue(goodRequest.verifyPassword(plaintextPw));
 
-        AccessChap badChallenge = (AccessChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
+        AccessRequestChap badChallenge = (AccessRequestChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
                 create(dictionary, -1, 60, random16Bytes()),
                 create(dictionary, -1, 3, password)));
         assertFalse(badChallenge.verifyPassword(plaintextPw));
 
         password[0] = (byte) ((chapId + 1) % 256);
-        AccessChap badPassword = (AccessChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
+        AccessRequestChap badPassword = (AccessRequestChap) AccessRequest.create(dictionary, 1, null, Arrays.asList(
                 create(dictionary, -1, 60, challenge),
                 create(dictionary, -1, 3, password)));
         assertFalse(badPassword.verifyPassword(plaintextPw));

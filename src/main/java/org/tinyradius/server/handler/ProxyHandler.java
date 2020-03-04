@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.RadiusPackets;
+import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.packet.RadiusRequest;
 import org.tinyradius.packet.RadiusResponse;
 import org.tinyradius.server.RequestCtx;

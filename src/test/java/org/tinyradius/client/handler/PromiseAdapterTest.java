@@ -26,7 +26,7 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.create;
-import static org.tinyradius.packet.PacketType.ACCESS_ACCEPT;
+import static org.tinyradius.packet.util.PacketType.ACCESS_ACCEPT;
 
 @ExtendWith(MockitoExtension.class)
 class PromiseAdapterTest {
@@ -112,7 +112,7 @@ class PromiseAdapterTest {
         final byte[] requestAuth = random.generateSeed(16);
 
         //using id 1
-        final RadiusRequest request = new AccessPap(dictionary, 1, requestAuth, Collections.emptyList(), "myPw");
+        final RadiusRequest request = new AccessRequestPap(dictionary, 1, requestAuth, Collections.emptyList(), "myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
         final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
@@ -142,7 +142,7 @@ class PromiseAdapterTest {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
-        final RadiusRequest request = new AccessPap(dictionary, 1, null, Collections.emptyList(), "myPw");
+        final RadiusRequest request = new AccessRequestPap(dictionary, 1, null, Collections.emptyList(), "myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
         final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.tinyradius.attribute.Attributes.create;
 import static org.tinyradius.packet.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.AccountingRequest.ACCT_STATUS_TYPE_ACCOUNTING_ON;
-import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
+import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
 
 class AccountingRequestTest {
