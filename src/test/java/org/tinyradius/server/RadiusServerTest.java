@@ -55,7 +55,7 @@ class RadiusServerTest {
         assertTrue(accessPipeline.get(0).contains("ChannelHandler$MockitoMock$"));
 
         server.close();
-        Thread.sleep(500);
+        Thread.sleep(300);
 
         // not registered with eventLoop
         assertFalse(server.getAcctChannel().isRegistered());

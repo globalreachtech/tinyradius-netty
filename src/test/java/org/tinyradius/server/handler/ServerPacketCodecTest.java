@@ -49,7 +49,7 @@ class ServerPacketCodecTest {
 
     @Test
     void decodeExceptionDropPacket() throws RadiusPacketException {
-        final RadiusRequest request = new RadiusRequest(dictionary, 4, 1, null, Collections.emptyList()).encodeRequest("mySecret");
+        final RadiusRequest request = new RadiusRequest(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList()).encodeRequest("mySecret");
         final DatagramPacket datagram = toDatagram(request, address);
         final ServerPacketCodec codec = new ServerPacketCodec(dictionary, x -> "bad secret");
 
@@ -66,7 +66,7 @@ class ServerPacketCodecTest {
         when(ctx.channel()).thenReturn(mock(Channel.class));
 
         // create datagram
-        final RadiusRequest requestPacket = new RadiusRequest(dictionary, 3, 1, null, Collections.emptyList()).encodeRequest(secret);
+        final RadiusRequest requestPacket = new RadiusRequest(dictionary, (byte) 3, (byte) 1, null, Collections.emptyList()).encodeRequest(secret);
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final DatagramPacket request = toDatagram(requestPacket, address, remoteAddress);
 
@@ -81,7 +81,7 @@ class ServerPacketCodecTest {
         assertEquals(secret, requestCtx.getEndpoint().getSecret());
         assertEquals(requestPacket, requestCtx.getRequest());
 
-        final RadiusResponse responsePacket = new RadiusResponse(dictionary, 4, 1, null, Collections.emptyList());
+        final RadiusResponse responsePacket = new RadiusResponse(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
 
         // encode
         final List<Object> out2 = new ArrayList<>();

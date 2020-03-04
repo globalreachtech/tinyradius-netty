@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RequestHandlerTest {
 
-    private final RadiusRequest accountingRequest = new AccountingRequest(DefaultDictionary.INSTANCE, 1, null);
+    private final RadiusRequest accountingRequest = new AccountingRequest(DefaultDictionary.INSTANCE, (byte) 1, null);
 
     @Test
     void rejectMsg() throws Exception {

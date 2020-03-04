@@ -25,12 +25,12 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
 
     protected static final SecureRandom RANDOM = new SecureRandom();
 
-    public static final int USER_PASSWORD = 2;
-    public static final int CHAP_PASSWORD = 3;
-    public static final int EAP_MESSAGE = 79;
-    protected static final List<Integer> AUTH_ATTRS = Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, EAP_MESSAGE);
+    public static final byte USER_PASSWORD = 2;
+    public static final byte CHAP_PASSWORD = 3;
+    public static final byte EAP_MESSAGE = 79;
+    protected static final List<Byte> AUTH_ATTRS = Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, EAP_MESSAGE);
 
-    protected static final int USER_NAME = 1;
+    public static final byte USER_NAME = 1;
 
     /**
      * Create copy of AccessRequest with new authenticator and encoded attributes
@@ -96,7 +96,7 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
      * @param authenticator authenticator for packet, nullable
      * @param attributes    list of attributes for packet
      */
-    protected AccessRequest(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    protected AccessRequest(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
     }
 
@@ -109,7 +109,7 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
      * @param attributes    list of attributes for packet, should not be empty
      *                      or a stub AccessRequest will be returned
      */
-    public static AccessRequest create(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public static AccessRequest create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         return lookupAuthType(attributes).newInstance(dictionary, identifier, authenticator, attributes);
     }
 
@@ -158,12 +158,12 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
     }
 
     interface AccessRequestConstructor {
-        AccessRequest newInstance(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes);
+        AccessRequest newInstance(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes);
     }
 
     static class AccessInvalidAuth extends AccessRequest {
 
-        public AccessInvalidAuth(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        public AccessInvalidAuth(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
             super(dictionary, identifier, authenticator, attributes);
         }
 

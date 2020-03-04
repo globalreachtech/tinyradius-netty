@@ -18,7 +18,7 @@ class VendorSpecificAttributeTest {
     void addSubAttributeOk() {
         String data = "myLocationId";
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, 2, data);
-        vendorSpecificAttribute.addAttribute(Attributes.create(dictionary, 14122, 2, data));
+        vendorSpecificAttribute.addAttribute(Attributes.create(dictionary, 14122, (byte) 2, data));
 
         assertEquals(1, vendorSpecificAttribute.getAttributes().size());
         assertEquals(data, vendorSpecificAttribute.getAttribute(2).getValueString());
@@ -69,7 +69,7 @@ class VendorSpecificAttributeTest {
     @Test
     void vsaToByteArray() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
-        RadiusAttribute radiusAttribute = new RadiusAttribute(dictionary, 14122, 26, new byte[8]);
+        RadiusAttribute radiusAttribute = new RadiusAttribute(dictionary, 14122, (byte) 26, new byte[8]);
         vendorSpecificAttribute.addAttribute(radiusAttribute);
         vendorSpecificAttribute.addAttribute("WISPr-Location-ID", "myLocationId");
         assertEquals(2, vendorSpecificAttribute.getAttributes().size());
@@ -80,7 +80,7 @@ class VendorSpecificAttributeTest {
 
     @Test
     void vsaToByteArrayLargestUnsignedVendorId() {
-        RadiusAttribute radiusAttribute = create(dictionary, Integer.parseUnsignedInt("4294967295"), 1, new byte[4]);
+        RadiusAttribute radiusAttribute = create(dictionary, Integer.parseUnsignedInt("4294967295"), (byte) 1, new byte[4]);
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, Integer.parseUnsignedInt("4294967295"), new ArrayList<>());
         vendorSpecificAttribute.addAttribute(radiusAttribute);
         assertEquals(1, vendorSpecificAttribute.getAttributes().size());
@@ -94,7 +94,7 @@ class VendorSpecificAttributeTest {
     @Test
     void vsaToByteArrayTooLong() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
-        vendorSpecificAttribute.addAttribute(new RadiusAttribute(dictionary, 14122, 26, new byte[253]));
+        vendorSpecificAttribute.addAttribute(new RadiusAttribute(dictionary, 14122, (byte) 26, new byte[253]));
         vendorSpecificAttribute.addAttribute("WISPr-Location-ID", "myLocationId");
         assertEquals(2, vendorSpecificAttribute.getAttributes().size());
 

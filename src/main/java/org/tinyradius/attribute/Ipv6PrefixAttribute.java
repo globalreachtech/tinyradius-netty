@@ -15,9 +15,9 @@ import static java.lang.Byte.toUnsignedInt;
  */
 public class Ipv6PrefixAttribute extends RadiusAttribute {
 
-    private final String prefix;
+    private final String address;
 
-    Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+    Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
         this(dictionary, vendorId, type, convertValue(data), toUnsignedInt(data[1]));
     }
 
@@ -27,13 +27,13 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      * @param type  attribute type code
      * @param value value, format: "ipv6 address"/prefix
      */
-    Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+    Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
         this(dictionary, vendorId, type, convertValue(value), Integer.parseInt(value.split("/")[1]));
     }
 
-    private Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, InetAddress address, int prefixLength) {
+    private Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, InetAddress address, int prefixLength) {
         super(dictionary, vendorId, type, convertAndCheck(address, prefixLength));
-        this.prefix = address.getHostAddress() + "/" + prefixLength;
+        this.address = address.getHostAddress() + "/" + prefixLength;
     }
 
     /**
@@ -41,7 +41,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      */
     @Override
     public String getValueString() {
-        return prefix;
+        return address;
     }
 
     private static byte[] convertAndCheck(InetAddress address, int prefixLength) {

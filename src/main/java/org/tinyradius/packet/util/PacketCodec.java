@@ -12,7 +12,6 @@ import org.tinyradius.util.RadiusPacketException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import static java.lang.Byte.toUnsignedInt;
 import static org.tinyradius.attribute.Attributes.extractAttributes;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
 import static org.tinyradius.packet.util.RadiusPackets.createRequest;
@@ -120,8 +119,8 @@ public class PacketCodec {
             throw new RadiusPacketException("Readable bytes is less than header length");
         }
 
-        int type = toUnsignedInt(content.get());
-        int packetId = toUnsignedInt(content.get());
+        byte type = content.get();
+        byte packetId = content.get();
         int length = content.getShort();
 
         if (length < HEADER_LENGTH)

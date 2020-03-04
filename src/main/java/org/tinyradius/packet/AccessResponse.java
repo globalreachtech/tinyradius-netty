@@ -10,7 +10,7 @@ import java.util.List;
 
 public class AccessResponse extends RadiusResponse implements MessageAuthSupport<AccessResponse> {
 
-    public AccessResponse(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public AccessResponse(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, type, identifier, authenticator, attributes);
     }
 

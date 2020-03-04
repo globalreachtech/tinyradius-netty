@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static java.lang.Byte.toUnsignedInt;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
@@ -24,8 +25,8 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
 
     private static final int VENDOR_SPECIFIC_TYPE = 26;
 
-    private final int type;
-    private final int identifier;
+    private final byte type;
+    private final byte identifier;
     private final List<RadiusAttribute> attributes;
     private final byte[] authenticator;
 
@@ -34,8 +35,8 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
     /**
      * Builds a Radius packet with the given type, identifier and attributes.
      * <p>
-     * Use {@link RadiusPackets#createRequest(Dictionary, int, int, byte[], List)}
-     * or {@link RadiusPackets#createResponse(Dictionary, int, int, byte[], List)}
+     * Use {@link RadiusPackets#createRequest(Dictionary, byte, byte, byte[], List)}
+     * or {@link RadiusPackets#createResponse(Dictionary, byte, byte, byte[], List)}
      * where possible as that automatically creates Access/Accounting
      * variants as required.
      *
@@ -45,11 +46,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
      * @param authenticator can be null if creating manually
      * @param attributes    list of RadiusAttribute objects
      */
-    public BaseRadiusPacket(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        if (type < 1 || type > 255)
-            throw new IllegalArgumentException("Packet type out of bounds: " + type);
-        if (identifier < 0 || identifier > 255)
-            throw new IllegalArgumentException("Packet identifier out of bounds: " + identifier);
+    public BaseRadiusPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         if (authenticator != null && authenticator.length != 16)
             throw new IllegalArgumentException("Authenticator must be 16 octets, actual: " + authenticator.length);
 
@@ -62,13 +59,21 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
 
 
     @Override
-    public int getIdentifier() {
+    public byte getIdentifier() {
         return identifier;
     }
 
     @Override
-    public int getType() {
+    public byte getType() {
         return type;
+    }
+
+    public int getIdentifierInt() {
+        return toUnsignedInt(identifier);
+    }
+
+    public int getTypeInt() {
+        return toUnsignedInt(type);
     }
 
     @Override
@@ -158,8 +163,8 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
         final int length = HEADER_LENGTH + attributes.length;
 
         MessageDigest md5 = getMd5Digest();
-        md5.update((byte) getType());
-        md5.update((byte) getIdentifier());
+        md5.update(getType());
+        md5.update(getIdentifier());
         md5.update((byte) (length >> 8));
         md5.update((byte) (length & 0xff));
         md5.update(requestAuthenticator);

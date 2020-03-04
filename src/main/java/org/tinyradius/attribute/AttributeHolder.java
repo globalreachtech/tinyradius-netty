@@ -151,7 +151,7 @@ public interface AttributeHolder {
      * @param type  attribute type code
      * @param value string value to set
      */
-    default void setAttributeString(int type, String value) {
+    default void setAttributeString(byte type, String value) {
         if (value == null || value.isEmpty())
             throw new IllegalArgumentException("Value not set or empty");
 

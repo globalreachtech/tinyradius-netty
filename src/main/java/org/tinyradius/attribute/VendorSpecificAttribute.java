@@ -15,7 +15,7 @@ import static org.tinyradius.attribute.Attributes.extractAttributes;
  */
 public class VendorSpecificAttribute extends RadiusAttribute implements AttributeHolder {
 
-    public static final int VENDOR_SPECIFIC = 26;
+    public static final byte VENDOR_SPECIFIC = 26;
 
     private final List<RadiusAttribute> attributes;
 

@@ -13,12 +13,12 @@ public interface RadiusPacket extends NestedAttributeHolder {
     /**
      * @return Radius packet type
      */
-    int getType();
+    byte getType();
 
     /**
      * @return Radius packet identifier
      */
-    int getIdentifier();
+    byte getIdentifier();
 
     /**
      * Returns the authenticator for this Radius packet.

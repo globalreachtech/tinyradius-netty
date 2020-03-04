@@ -9,13 +9,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class StringAttribute extends RadiusAttribute {
 
-    StringAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+    StringAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
         super(dictionary, vendorId, type, data);
         if (data.length < 1)
             throw new IllegalArgumentException("String attribute value should be min 1 octet, actual: " + data.length);
     }
 
-    StringAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+    StringAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
         this(dictionary, vendorId, type, value.getBytes(UTF_8));
     }
 

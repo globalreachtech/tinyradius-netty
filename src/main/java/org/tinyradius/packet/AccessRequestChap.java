@@ -16,16 +16,16 @@ import static java.util.Objects.requireNonNull;
 
 public class AccessRequestChap extends AccessRequest {
 
-    protected static final int CHAP_CHALLENGE = 60;
+    protected static final byte CHAP_CHALLENGE = 60;
 
     private transient String password;
 
-    public AccessRequestChap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
+    public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
         this(dictionary, identifier, authenticator, attributes);
         setPlaintextPassword(plaintextPw);
     }
 
-    public AccessRequestChap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, identifier, authenticator, attributes);
     }
 

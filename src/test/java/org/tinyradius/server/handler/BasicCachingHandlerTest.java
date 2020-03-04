@@ -9,8 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.packet.RadiusRequest;
+import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
 import org.tinyradius.util.RadiusEndpoint;
@@ -38,9 +38,9 @@ class BasicCachingHandlerTest {
         final BasicCachingHandler<RequestCtx, ResponseCtx> basicCachingHandler =
                 new BasicCachingHandler<>(new HashedWheelTimer(), 500, RequestCtx.class, ResponseCtx.class);
 
-        final RadiusRequest request = new AccountingRequest(dictionary, 100, null).encodeRequest("test");
+        final RadiusRequest request = new AccountingRequest(dictionary, (byte) 100, null).encodeRequest("test");
         final RequestCtx requestCtx = new RequestCtx(request, new RadiusEndpoint(new InetSocketAddress(0), "foo"));
-        final ResponseCtx responseContext = requestCtx.withResponse(RadiusPackets.createResponse(dictionary, ACCESS_ACCEPT, 100, null, Collections.emptyList()));
+        final ResponseCtx responseContext = requestCtx.withResponse(RadiusPackets.createResponse(dictionary, ACCESS_ACCEPT, (byte) 100, null, Collections.emptyList()));
 
         // cache miss
         final ArrayList<Object> out1 = new ArrayList<>();

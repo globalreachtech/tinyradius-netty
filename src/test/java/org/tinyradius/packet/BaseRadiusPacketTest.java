@@ -30,10 +30,10 @@ class BaseRadiusPacketTest {
     void addAttribute() {
         BaseRadiusPacket packet = new StubPacket();
         packet.addAttribute("WISPr-Location-ID", "myLocationId");
-        packet.addAttribute(new IpAttribute.V4(packet.getDictionary(), -1, 8, "1234567"));
-        packet.addAttribute(Attributes.create(packet.getDictionary(), -1, 168, "fe80::"));
-        packet.addAttribute(Attributes.create(packet.getDictionary(), -1, 97, "fe80::/64"));
-        packet.addAttribute(Attributes.create(packet.getDictionary(), -1, 97, "fe80::/128"));
+        packet.addAttribute(new IpAttribute.V4(packet.getDictionary(), -1, (byte) 8, "1234567"));
+        packet.addAttribute(Attributes.create(packet.getDictionary(), -1, (byte) 168, "fe80::"));
+        packet.addAttribute(Attributes.create(packet.getDictionary(), -1, (byte) 97, "fe80::/64"));
+        packet.addAttribute(Attributes.create(packet.getDictionary(), -1, (byte) 97, "fe80::/128"));
 
         final List<VendorSpecificAttribute> vendorAttributes = packet.getVendorSpecificAttributes(14122);
         assertEquals(1, vendorAttributes.size());
@@ -68,7 +68,7 @@ class BaseRadiusPacketTest {
     @Test
     void removeSpecificAttribute() {
         RadiusPacket rp = new StubPacket();
-        RadiusAttribute ra = create(rp.getDictionary(), -1, 8, new byte[4]);
+        RadiusAttribute ra = create(rp.getDictionary(), -1, (byte) 8, new byte[4]);
         rp.addAttribute(ra);
         assertFalse(rp.getAttributes().isEmpty());
         assertEquals(1, rp.getAttributes().size());
@@ -150,7 +150,7 @@ class BaseRadiusPacketTest {
     private static class StubPacket extends BaseRadiusPacket {
 
         public StubPacket() {
-            super(DefaultDictionary.INSTANCE, 1, 1, null, Collections.emptyList());
+            super(DefaultDictionary.INSTANCE, (byte) 1, (byte) 1, null, Collections.emptyList());
         }
     }
 }

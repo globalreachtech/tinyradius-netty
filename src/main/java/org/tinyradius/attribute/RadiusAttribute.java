@@ -17,7 +17,7 @@ import static java.util.Objects.requireNonNull;
 public class RadiusAttribute {
 
     private final Dictionary dictionary;
-    private final int type;
+    private final byte type;
     private final byte[] value;
 
     private final int vendorId; // for Vendor-Specific (sub)attributes, otherwise -1
@@ -28,11 +28,9 @@ public class RadiusAttribute {
      * @param type       attribute type code
      * @param value      value of attribute as byte array
      */
-    RadiusAttribute(Dictionary dictionary, int vendorId, int type, byte[] value) {
+    RadiusAttribute(Dictionary dictionary, int vendorId, byte type, byte[] value) {
         this.dictionary = requireNonNull(dictionary, "Dictionary not set");
         this.vendorId = vendorId;
-        if (type < 0 || type > 255)
-            throw new IllegalArgumentException("Attribute type invalid: " + type);
         this.type = type;
         requireNonNull(value, "Attribute data not set");
         if (value.length > 253)
@@ -46,7 +44,7 @@ public class RadiusAttribute {
      * @param type       attribute type code
      * @param value      value of attribute as hex string
      */
-    RadiusAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+    RadiusAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
         this(dictionary, vendorId, type, DatatypeConverter.parseHexBinary(value));
     }
 

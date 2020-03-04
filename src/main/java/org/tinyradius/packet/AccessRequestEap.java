@@ -8,7 +8,7 @@ import java.util.List;
 
 public class AccessRequestEap extends AccessRequest {
 
-    public AccessRequestEap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public AccessRequestEap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, identifier, authenticator, attributes);
     }
 

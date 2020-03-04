@@ -91,7 +91,7 @@ public class TestServer {
             final AccessRequestPap request = (AccessRequestPap) msg.getRequest();
 
             String password = request.getAttributeString(USER_NAME).equals("test") ? "password" : null;
-            int type = request.verifyPassword(password) ? ACCESS_ACCEPT : ACCESS_REJECT;
+            byte type = request.verifyPassword(password) ? ACCESS_ACCEPT : ACCESS_REJECT;
 
             RadiusResponse answer = RadiusPackets.createResponse(request.getDictionary(), type, request.getIdentifier(), null, request.getAttributes(33));
 

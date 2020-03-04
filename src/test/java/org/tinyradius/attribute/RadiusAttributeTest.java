@@ -17,7 +17,7 @@ class RadiusAttributeTest {
     @Test
     void createMaxSizeAttribute() {
         // 253 octets ok
-        final RadiusAttribute maxSizeAttribute = new RadiusAttribute(dictionary, -1, 2, random.generateSeed(253));
+        final RadiusAttribute maxSizeAttribute = new RadiusAttribute(dictionary, -1, (byte) 2, random.generateSeed(253));
         final byte[] bytes = maxSizeAttribute.toByteArray();
 
         assertEquals(0xFF, toUnsignedInt(bytes[1]));
@@ -26,20 +26,20 @@ class RadiusAttributeTest {
 
         // 254 octets not ok
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                new RadiusAttribute(dictionary, -1, 2, random.generateSeed(254)));
+                new RadiusAttribute(dictionary, -1, (byte) 2, random.generateSeed(254)));
 
         assertTrue(exception.getMessage().contains("too long"));
     }
 
     @Test
     void testToMap() {
-        final RadiusAttribute attribute = new RadiusAttribute(dictionary, -1, 2, "123456");
+        final RadiusAttribute attribute = new RadiusAttribute(dictionary, -1, (byte) 2, "123456");
         assertEquals("{User-Password=123456}", attribute.getAttributeMap().toString());
     }
 
     @Test
     void testToString() {
-        final RadiusAttribute attribute = new RadiusAttribute(dictionary, -1, 2, "123456");
+        final RadiusAttribute attribute = new RadiusAttribute(dictionary, -1, (byte) 2, "123456");
         assertEquals("User-Password: 123456", attribute.toString());
     }
 }

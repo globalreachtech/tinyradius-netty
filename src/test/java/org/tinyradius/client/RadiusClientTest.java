@@ -67,7 +67,7 @@ class RadiusClientTest {
         RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new CustomOutboundHandler(a -> {
         }));
 
-        final RadiusRequest request = new AccountingRequest(dictionary, random.nextInt(256), null).encodeRequest("test");
+        final RadiusRequest request = new AccountingRequest(dictionary, (byte) random.nextInt(256), null).encodeRequest("test");
 
         final IOException e = assertThrows(IOException.class,
                 () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
@@ -78,8 +78,8 @@ class RadiusClientTest {
 
     @Test
     void communicateSuccess() throws InterruptedException, RadiusPacketException {
-        final int id = random.nextInt(256);
-        final RadiusResponse response = new RadiusResponse(DefaultDictionary.INSTANCE, 2, id, null, Collections.emptyList());
+        final byte id = (byte) random.nextInt(256);
+        final RadiusResponse response = new RadiusResponse(DefaultDictionary.INSTANCE, (byte) 2, id, null, Collections.emptyList());
         final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(a -> a.trySuccess(response));
 
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, customOutboundHandler);
@@ -103,7 +103,7 @@ class RadiusClientTest {
         final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(p -> p.tryFailure(expectedException));
 
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, customOutboundHandler);
-        final RadiusRequest request = new RadiusRequest(dictionary, 1, 1, null, Collections.emptyList());
+        final RadiusRequest request = new RadiusRequest(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
 
         final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
         assertFalse(future.isDone());

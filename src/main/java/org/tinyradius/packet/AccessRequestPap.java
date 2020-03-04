@@ -18,12 +18,12 @@ public class AccessRequestPap extends AccessRequest {
 
     private transient String password;
 
-    public AccessRequestPap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
+    public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
         this(dictionary, identifier, authenticator, attributes);
         setPlaintextPassword(plaintextPw);
     }
 
-    public AccessRequestPap(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, identifier, authenticator, attributes);
     }
 

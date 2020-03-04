@@ -25,7 +25,7 @@ public class RadiusPackets {
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    public static RadiusRequest createRequest(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public static RadiusRequest createRequest(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
             case ACCESS_REQUEST:
                 return AccessRequest.create(dictionary, identifier, authenticator, attributes);
@@ -48,7 +48,7 @@ public class RadiusPackets {
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    public static RadiusResponse createResponse(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public static RadiusResponse createResponse(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
             case ACCESS_ACCEPT:
             case ACCESS_REJECT:

@@ -104,13 +104,13 @@ public class DictionaryParser {
             throw new IOException("Attribute parse error on line " + lineNum + ", " + Arrays.toString(tok));
         }
 
-        // read name, code, type
+        // read name, type code, type string
         String name = tok[1];
-        int code = parseInt(tok[2]);
+        int type = parseInt(tok[2]);
         String typeStr = tok[3];
 
         // create and cache object
-        dictionary.addAttributeType(new AttributeType(code, name, typeStr));
+        dictionary.addAttributeType(new AttributeType(type, name, typeStr));
     }
 
     /**

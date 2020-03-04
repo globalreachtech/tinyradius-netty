@@ -13,7 +13,7 @@ public class RadiusRequest extends BaseRadiusPacket {
     /**
      * Builds a Radius packet with the given type, identifier and attributes.
      * <p>
-     * Use {@link RadiusPackets#createRequest(Dictionary, int, int, byte[], List)}
+     * Use {@link RadiusPackets#createRequest(Dictionary, byte, byte, byte[], List)}
      * where possible as that automatically creates Access/Accounting
      * variants as required.
      *
@@ -23,7 +23,7 @@ public class RadiusRequest extends BaseRadiusPacket {
      * @param authenticator can be null if creating manually
      * @param attributes    list of RadiusAttribute objects
      */
-    public RadiusRequest(Dictionary dictionary, int type, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public RadiusRequest(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, type, identifier, authenticator, attributes);
     }
 

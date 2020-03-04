@@ -24,12 +24,23 @@ class AccessRequestPapTest {
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
+    void encodeVerify() throws RadiusPacketException {
+        final String plaintextPw = "myPassword";
+        String sharedSecret = "sharedSecret1";
+        final AccessRequestPap accessRequestPap = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList());
+        accessRequestPap.setPlaintextPassword(plaintextPw);
+
+        final AccessRequest encoded = accessRequestPap.encodeRequest(sharedSecret);
+        encoded.verifyRequest(sharedSecret);
+    }
+
+    @Test
     void encodePapPassword() throws RadiusPacketException {
         String user = "myUser1";
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequestPap request = new AccessRequestPap(dictionary, 2, null, Collections.emptyList());
+        AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList());
         request.setAttributeString(USER_NAME, user);
         request.setPlaintextPassword(plaintextPw);
         final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
@@ -63,10 +74,10 @@ class AccessRequestPapTest {
         byte[] encodedPassword = RadiusUtils.encodePapPassword(plaintextPw.getBytes(UTF_8), authenticator, sharedSecret);
 
         List<RadiusAttribute> attributes = Arrays.asList(
-                Attributes.create(dictionary, -1, 1, user),
-                Attributes.create(dictionary, -1, 2, encodedPassword));
+                Attributes.create(dictionary, -1, (byte) 1, user),
+                Attributes.create(dictionary, -1, (byte) 2, encodedPassword));
 
-        AccessRequestPap request = (AccessRequestPap) AccessRequest.create(dictionary, 1, authenticator, attributes);
+        AccessRequestPap request = (AccessRequestPap) AccessRequest.create(dictionary, (byte) 1, authenticator, attributes);
 
         assertNull(request.getPlaintextPassword());
         assertEquals(user, request.getAttributeString(USER_NAME));
@@ -75,6 +86,20 @@ class AccessRequestPapTest {
         request.verifyRequest(sharedSecret);
 
         assertEquals(plaintextPw, request.getPlaintextPassword());
+    }
+
+    @Test
+    void verifyDecodesPassword() throws RadiusPacketException {
+        String plaintextPw = "myPassword1";
+        String sharedSecret = "sharedSecret1";
+
+        AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList(), plaintextPw);
+        final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
+
+        encoded.setPlaintextPassword("set field to something else");
+        encoded.verifyRequest(sharedSecret);
+
+        assertEquals(plaintextPw, encoded.getPlaintextPassword());
     }
 
     @Test

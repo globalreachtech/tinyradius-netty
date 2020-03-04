@@ -14,7 +14,7 @@ import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 public class AttributeType {
 
     private final int vendorId;
-    private final int typeCode;
+    private final byte typeCode;
     private final String name;
 
     private final String dataType;
@@ -27,35 +27,35 @@ public class AttributeType {
     /**
      * Create a new attribute type.
      *
-     * @param attributeType Radius attribute type code
-     * @param name          Attribute type name
-     * @param typeStr       string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
+     * @param type    Radius attribute type code
+     * @param name    Attribute type name
+     * @param typeStr string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
      */
-    public AttributeType(int attributeType, String name, String typeStr) {
-        this(-1, attributeType, name, typeStr);
+    public AttributeType(int type, String name, String typeStr) {
+        this(-1, type, name, typeStr);
     }
 
     /**
      * Constructs a Vendor-Specific sub-attribute type.
      *
-     * @param vendorId      vendor ID
-     * @param attributeType sub-attribute type code
-     * @param name          sub-attribute name
-     * @param rawDataType   string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
+     * @param vendorId    vendor ID
+     * @param type        sub-attribute type code
+     * @param name        sub-attribute name
+     * @param rawDataType string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
      */
-    public AttributeType(int vendorId, int attributeType, String name, String rawDataType) {
-        if (attributeType < 1 || attributeType > 255)
+    public AttributeType(int vendorId, int type, String name, String rawDataType) {
+        if (type < 1 || type > 255)
             throw new IllegalArgumentException("attribute type code out of bounds");
         if (name == null || name.isEmpty())
-            throw new IllegalArgumentException("name is empty");
-        requireNonNull(rawDataType, "data type is null");
+            throw new IllegalArgumentException("Name is empty");
+        requireNonNull(rawDataType, "Data type is null");
         this.vendorId = vendorId;
-        this.typeCode = attributeType;
+        this.typeCode = (byte) type;
         this.name = name;
 
         dataType = rawDataType.toLowerCase();
 
-        if (dataType.equals("vsa") || attributeType == VENDOR_SPECIFIC) {
+        if (dataType.equals("vsa") || type == VENDOR_SPECIFIC) {
             byteArrayConstructor = VendorSpecificAttribute::new;
             stringConstructor = VendorSpecificAttribute::new;
             return;
@@ -158,15 +158,15 @@ public class AttributeType {
     public String toString() {
         String s = getTypeCode() + "/" + getName() + ": " + dataType;
         if (getVendorId() != -1)
-            s += " (vendor " + getVendorId() + ")";
+            s += " (Vendor " + getVendorId() + ")";
         return s;
     }
 
     interface ByteArrayConstructor {
-        RadiusAttribute newInstance(Dictionary dictionary, int vendorId, int type, byte[] data);
+        RadiusAttribute newInstance(Dictionary dictionary, int vendorId, byte type, byte[] data);
     }
 
     interface StringConstructor {
-        RadiusAttribute newInstance(Dictionary dictionary, int vendorId, int type, String data);
+        RadiusAttribute newInstance(Dictionary dictionary, int vendorId, byte type, String data);
     }
 }

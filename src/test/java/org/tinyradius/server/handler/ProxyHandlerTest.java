@@ -53,9 +53,9 @@ class ProxyHandlerTest {
             }
         };
 
-        final AccountingRequest request = new AccountingRequest(dictionary, 1, null);
-        final RadiusResponse mockResponse = new RadiusResponse(dictionary, ACCOUNTING_RESPONSE, 123, null,
-                Collections.singletonList(Attributes.create(dictionary, -1, 33, "state1".getBytes(UTF_8))));
+        final AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null);
+        final RadiusResponse mockResponse = new RadiusResponse(dictionary, ACCOUNTING_RESPONSE, (byte) 123, null,
+                Collections.singletonList(Attributes.create(dictionary, -1, (byte) 33, "state1".getBytes(UTF_8))));
 
         when(client.communicate(any(), any())).thenReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(mockResponse));
 
@@ -78,7 +78,7 @@ class ProxyHandlerTest {
 
         when(client.communicate(any(), any())).thenReturn(GlobalEventExecutor.INSTANCE.newFailedFuture(new Exception("test")));
 
-        final AccountingRequest packet = new AccountingRequest(dictionary, 123, null);
+        final AccountingRequest packet = new AccountingRequest(dictionary, (byte) 123, null);
 
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
 
@@ -97,7 +97,7 @@ class ProxyHandlerTest {
             }
         };
 
-        final AccountingRequest packet = new AccountingRequest(dictionary, 123, null, Collections.emptyList());
+        final AccountingRequest packet = new AccountingRequest(dictionary, (byte) 123, null, Collections.emptyList());
 
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
 

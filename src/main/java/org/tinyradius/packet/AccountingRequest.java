@@ -15,8 +15,8 @@ import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 public class AccountingRequest extends RadiusRequest {
 
     // Attributes
-    private static final int USER_NAME = 1;
-    private static final int ACCT_STATUS_TYPE = 40;
+    private static final byte USER_NAME = 1;
+    private static final byte ACCT_STATUS_TYPE = 40;
 
     // Acct-Status-Type values
     public static final int ACCT_STATUS_TYPE_START = 1;
@@ -34,7 +34,7 @@ public class AccountingRequest extends RadiusRequest {
      * @param userName       user name
      * @param acctStatusType ACCT_STATUS_TYPE_*
      */
-    public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator, String userName, int acctStatusType) {
+    public AccountingRequest(Dictionary dictionary, byte identifier, byte[] authenticator, String userName, int acctStatusType) {
         this(dictionary, identifier, authenticator);
         setAttributeString(USER_NAME, userName);
         setAcctStatusType(acctStatusType);
@@ -47,7 +47,7 @@ public class AccountingRequest extends RadiusRequest {
      * @param identifier    packet identifier
      * @param authenticator authenticator for packet, nullable
      */
-    public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator) {
+    public AccountingRequest(Dictionary dictionary, byte identifier, byte[] authenticator) {
         this(dictionary, identifier, authenticator, new ArrayList<>());
     }
 
@@ -59,7 +59,7 @@ public class AccountingRequest extends RadiusRequest {
      * @param authenticator authenticator for packet, nullable
      * @param attributes    list of attributes
      */
-    public AccountingRequest(Dictionary dictionary, int identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public AccountingRequest(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCOUNTING_REQUEST, identifier, authenticator, attributes);
     }
 
@@ -70,7 +70,7 @@ public class AccountingRequest extends RadiusRequest {
      */
     public void setAcctStatusType(int acctStatusType) {
         if (acctStatusType < 1 || acctStatusType > 15)
-            throw new IllegalArgumentException("bad Acct-Status-Type");
+            throw new IllegalArgumentException("Acct-Status-Type out of range");
         removeAttributes(ACCT_STATUS_TYPE);
         addAttribute(new IntegerAttribute(getDictionary(), -1, ACCT_STATUS_TYPE, acctStatusType));
     }

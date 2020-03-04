@@ -17,26 +17,26 @@ class RadiusPacketsTest {
 
     @Test
     void createRequest() {
-        RadiusRequest accessRequest = RadiusPackets.createRequest(dictionary, ACCESS_REQUEST, 1, null, Collections.emptyList());
+        RadiusRequest accessRequest = RadiusPackets.createRequest(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
         assertEquals(ACCESS_REQUEST, accessRequest.getType());
         assertTrue(accessRequest instanceof AccessRequest); // don't care about subclass
 
-        RadiusRequest coaRequest = RadiusPackets.createRequest(dictionary, COA_REQUEST, 2, null, Collections.emptyList());
+        RadiusRequest coaRequest = RadiusPackets.createRequest(dictionary, COA_REQUEST, (byte) 2, null, Collections.emptyList());
         assertEquals(COA_REQUEST, coaRequest.getType());
         assertEquals(RadiusRequest.class, coaRequest.getClass());
 
-        RadiusRequest accountingRequest = RadiusPackets.createRequest(dictionary, ACCOUNTING_REQUEST, 3, null, Collections.emptyList());
+        RadiusRequest accountingRequest = RadiusPackets.createRequest(dictionary, ACCOUNTING_REQUEST, (byte) 3, null, Collections.emptyList());
         assertEquals(ACCOUNTING_REQUEST, accountingRequest.getType());
         assertEquals(AccountingRequest.class, accountingRequest.getClass());
     }
 
     @Test
     void createResponse() {
-        RadiusResponse accessAccept = RadiusPackets.createResponse(dictionary, ACCESS_ACCEPT, 1, null, Collections.emptyList());
+        RadiusResponse accessAccept = RadiusPackets.createResponse(dictionary, ACCESS_ACCEPT, (byte) 1, null, Collections.emptyList());
         assertEquals(ACCESS_ACCEPT, accessAccept.getType());
         assertTrue(accessAccept instanceof AccessResponse); // don't care about subclass
 
-        RadiusResponse accountingResponse = RadiusPackets.createResponse(dictionary, ACCOUNTING_RESPONSE, 2, null, Collections.emptyList());
+        RadiusResponse accountingResponse = RadiusPackets.createResponse(dictionary, ACCOUNTING_RESPONSE, (byte) 2, null, Collections.emptyList());
         assertEquals(ACCOUNTING_RESPONSE, accountingResponse.getType());
         assertEquals(RadiusResponse.class, accountingResponse.getClass());
     }

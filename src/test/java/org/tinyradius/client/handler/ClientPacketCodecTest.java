@@ -26,10 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static net.jradius.packet.attribute.AttributeDictionary.USER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
+import static org.tinyradius.packet.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.util.PacketCodec.fromDatagramRequest;
 import static org.tinyradius.packet.util.PacketCodec.toDatagram;
 
@@ -52,7 +52,7 @@ class ClientPacketCodecTest {
     void decodeSuccess() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusResponse response = new RadiusResponse(dictionary, 2, 1, null, Collections.emptyList());
+        final RadiusResponse response = new RadiusResponse(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList());
 
         final List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, toDatagram(
@@ -67,7 +67,7 @@ class ClientPacketCodecTest {
     void decodeRadiusException() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusResponse response = new RadiusResponse(dictionary, 2, 1, null, Collections.emptyList());
+        final RadiusResponse response = new RadiusResponse(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList());
 
         final DatagramPacket datagram = toDatagram(
                 response.encodeResponse("mySecret", requestAuth), address, address);
@@ -84,7 +84,7 @@ class ClientPacketCodecTest {
     void decodeRemoteAddressNull() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusResponse response = new RadiusResponse(dictionary, 2, 1, null, Collections.emptyList());
+        final RadiusResponse response = new RadiusResponse(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList());
 
         final List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, toDatagram(
@@ -100,7 +100,7 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        final AccessRequestPap accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList());
+        final AccessRequestPap accessRequest = new AccessRequestPap(dictionary, (byte) id, null, Collections.emptyList());
         accessRequest.setAttributeString(USER_NAME, username);
         accessRequest.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
@@ -129,7 +129,7 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        final AccessRequestPap packet = new AccessRequestPap(dictionary, id, null, Collections.emptyList());
+        final AccessRequestPap packet = new AccessRequestPap(dictionary, (byte) id, null, Collections.emptyList());
         packet.setAttributeString(USER_NAME, username);
         packet.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);

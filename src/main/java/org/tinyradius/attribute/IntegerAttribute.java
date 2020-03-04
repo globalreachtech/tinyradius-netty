@@ -11,17 +11,17 @@ import static java.lang.Integer.*;
  */
 public class IntegerAttribute extends RadiusAttribute {
 
-    IntegerAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
+    IntegerAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
         super(dictionary, vendorId, type, data);
         if (data.length != 4)
-            throw new IllegalArgumentException("integer attribute value should be 4 octets, actual: " + data.length);
+            throw new IllegalArgumentException("Integer attribute value should be 4 octets, actual: " + data.length);
     }
 
-    IntegerAttribute(Dictionary dictionary, int vendorId, int type, String value) {
+    IntegerAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
         this(dictionary, vendorId, type, convertValue(value, dictionary, type, vendorId));
     }
 
-    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, int value) {
+    public IntegerAttribute(Dictionary dictionary, int vendorId, byte type, int value) {
         this(dictionary, vendorId, type, convertValue(value));
     }
 

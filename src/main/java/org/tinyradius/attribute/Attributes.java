@@ -23,7 +23,7 @@ public class Attributes {
      * @param data       attribute data as byte array
      * @return RadiusAttribute object
      */
-    public static RadiusAttribute create(Dictionary dictionary, int vendorId, int type, byte[] data) {
+    public static RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, byte[] data) {
         final AttributeType attributeType = dictionary.getAttributeTypeByCode(vendorId, type);
         if (attributeType != null)
             return attributeType.create(dictionary, data);
@@ -40,7 +40,7 @@ public class Attributes {
      * @param data       attribute data as String
      * @return RadiusAttribute object
      */
-    public static RadiusAttribute create(Dictionary dictionary, int vendorId, int type, String data) {
+    public static RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, String data) {
         final AttributeType attributeType = dictionary.getAttributeTypeByCode(vendorId, type);
         if (attributeType != null)
             return attributeType.create(dictionary, data);
@@ -60,7 +60,7 @@ public class Attributes {
 
         // at least 2 octets left
         while (data.length - pos >= 2) {
-            final int type = toUnsignedInt(data[pos]);
+            final byte type = data[pos];
             final int length = toUnsignedInt(data[pos + 1]); // max 255
             final int expectedLen = length - 2;
             if (expectedLen < 0)
