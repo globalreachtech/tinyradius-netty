@@ -65,17 +65,17 @@ public class AccessRequestChap extends AccessRequest {
             throw new RadiusPacketException("Could not encode CHAP attributes, password not set");
         }
 
-        final AccessRequestChap accessRequestChap = new AccessRequestChap(getDictionary(), getId(), newAuth, new ArrayList<>(getAttributes()), password);
-        accessRequestChap.removeAttributes(CHAP_PASSWORD);
-        accessRequestChap.removeAttributes(CHAP_CHALLENGE);
+        final AccessRequestChap encoded = new AccessRequestChap(getDictionary(), getId(), newAuth, new ArrayList<>(getAttributes()), password);
+        encoded.removeAttributes(CHAP_PASSWORD);
+        encoded.removeAttributes(CHAP_CHALLENGE);
 
         byte[] challenge = random16bytes();
 
-        accessRequestChap.addAttribute(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge));
-        accessRequestChap.addAttribute(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
+        encoded.addAttribute(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge));
+        encoded.addAttribute(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
                 computeChapPassword((byte) RANDOM.nextInt(256), password, challenge)));
 
-        return accessRequestChap;
+        return encoded;
     }
 
     /**
@@ -100,13 +100,13 @@ public class AccessRequestChap extends AccessRequest {
     }
 
     /**
-     * Verifies that the passed plain-text password matches the password
+     * Checks that the passed plain-text password matches the password
      * (hash) send with this Access-Request packet.
      *
      * @param plaintext password to verify packet against
      * @return true if the password is valid, false otherwise
      */
-    public boolean verifyPassword(String plaintext) {
+    public boolean checkPassword(String plaintext) {
         if (plaintext == null || plaintext.isEmpty()) {
             logger.warn("Plaintext password to check against is empty");
             return false;
@@ -115,11 +115,6 @@ public class AccessRequestChap extends AccessRequest {
         final RadiusAttribute chapChallengeAttr = getAttribute(CHAP_CHALLENGE);
         final byte[] chapChallenge = chapChallengeAttr != null ?
                 chapChallengeAttr.getValue() : getAuthenticator();
-
-        if (chapChallenge == null) {
-            logger.warn("CHAP challenge / authenticator is null");
-            return false;
-        }
 
         final byte[] chapPassword = getAttribute(CHAP_PASSWORD).getValue();
         if (chapPassword == null || chapPassword.length != 17) {

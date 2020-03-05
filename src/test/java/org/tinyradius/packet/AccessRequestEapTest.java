@@ -27,7 +27,7 @@ class AccessRequestEapTest {
     }
 
     @Test
-    void testVerify() throws RadiusPacketException {
+    void verifyAttributeCount() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
         final AccessRequestEap request = new AccessRequestEap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));

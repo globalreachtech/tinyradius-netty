@@ -63,22 +63,22 @@ public class AccessRequestPap extends AccessRequest {
             logger.warn("Could not encode PAP attributes, password not set");
             throw new RadiusPacketException("Could not encode PAP attributes, password not set");
         }
-        final AccessRequestPap accessRequestPap = new AccessRequestPap(getDictionary(), getId(), newAuth, new ArrayList<>(getAttributes()), password);
-        accessRequestPap.removeAttributes(USER_PASSWORD);
-        accessRequestPap.addAttribute(Attributes.create(getDictionary(), -1, USER_PASSWORD,
+        final AccessRequestPap encoded = new AccessRequestPap(getDictionary(), getId(), newAuth, new ArrayList<>(getAttributes()), password);
+        encoded.removeAttributes(USER_PASSWORD);
+        encoded.addAttribute(Attributes.create(getDictionary(), -1, USER_PASSWORD,
                 encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
 
-        return accessRequestPap;
+        return encoded;
     }
 
     /**
-     * Verifies that the passed plain-text password matches the password
+     * Checks that the passed plain-text password matches the password
      * (hash) send with this Access-Request packet.
      *
      * @param plaintext password to verify packet against
      * @return true if the password is valid, false otherwise
      */
-    public boolean verifyPassword(String plaintext) {
+    public boolean checkPassword(String plaintext) {
         if (plaintext == null || plaintext.isEmpty()) {
             logger.warn("Plaintext password to check against is empty");
             return false;
