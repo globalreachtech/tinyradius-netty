@@ -40,12 +40,6 @@ coveralls {
     jacocoReportPath 'build/reports/jacoco/test/jacocoTestReport.xml'
 }
 
-javadoc {
-    destinationDir file('docs')
-    options.noTimestamp = true
-    options.addBooleanOption('html5', true)  // comment out if building with <jdk9
-}
-
 test {
     useJUnitPlatform()
     testLogging {

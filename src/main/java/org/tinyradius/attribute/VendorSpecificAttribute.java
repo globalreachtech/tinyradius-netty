@@ -131,7 +131,6 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
         for (RadiusAttribute sa : getAttributes()) {
             sb.append("\n  ").append(sa.toString());
         }
-        this.getAttributeMap();
         return sb.toString();
     }
 

@@ -54,7 +54,7 @@ class AccessRequestPapTest {
         String sharedSecret = "sharedSecret1";
 
         AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList());
-        request.setAttributeString(USER_NAME, user);
+        request.addAttribute(USER_NAME, user);
         request.setPlaintextPassword(plaintextPw);
         final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
 

@@ -8,12 +8,14 @@ import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusRequest;
 import org.tinyradius.server.RequestCtx;
 
+import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RequestHandlerTest {
 
-    private final RadiusRequest accountingRequest = new AccountingRequest(DefaultDictionary.INSTANCE, (byte) 1, null);
+    private final RadiusRequest accountingRequest = new AccountingRequest(DefaultDictionary.INSTANCE, (byte) 1, null, Collections.emptyList());
 
     @Test
     void rejectMsg() throws Exception {

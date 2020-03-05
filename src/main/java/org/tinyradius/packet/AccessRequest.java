@@ -33,6 +33,16 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
     public static final byte USER_NAME = 1;
 
     /**
+     * @param dictionary    custom dictionary to use
+     * @param identifier    packet identifier
+     * @param authenticator authenticator for packet, nullable
+     * @param attributes    list of attributes for packet
+     */
+    protected AccessRequest(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
+    }
+
+    /**
      * Create copy of AccessRequest with new authenticator and encoded attributes
      *
      * @param sharedSecret shared secret that secures the communication
@@ -40,6 +50,7 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
      * @param newAuth      authenticator to use to encode PAP password,
      *                     nullable if using different auth protocol
      * @return RadiusPacket with new authenticator and encoded attributes
+     * @throws RadiusPacketException if invalid or missing attributes
      */
     protected abstract AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
 
@@ -72,6 +83,7 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
      * Verify packet for specific auth frameworks.
      *
      * @param sharedSecret shared secret
+     * @throws RadiusPacketException if invalid or missing attributes
      */
     protected abstract void verifyAuthMechanism(String sharedSecret) throws RadiusPacketException;
 
@@ -91,16 +103,6 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
     }
 
     /**
-     * @param dictionary    custom dictionary to use
-     * @param identifier    packet identifier
-     * @param authenticator authenticator for packet, nullable
-     * @param attributes    list of attributes for packet
-     */
-    protected AccessRequest(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
-    }
-
-    /**
      * Create new AccessRequest, tries to identify auth protocol from attributes.
      *
      * @param dictionary    custom dictionary to use
@@ -108,6 +110,7 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
      * @param authenticator authenticator for packet, nullable
      * @param attributes    list of attributes for packet, should not be empty
      *                      or a stub AccessRequest will be returned
+     * @return AccessRequest auth mechanism-specific implementation
      */
     public static AccessRequest create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         return lookupAuthType(attributes).newInstance(dictionary, identifier, authenticator, attributes);

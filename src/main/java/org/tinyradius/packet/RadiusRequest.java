@@ -39,6 +39,7 @@ public class RadiusRequest extends BaseRadiusPacket {
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client
      * @return RadiusPacket with new authenticator and/or encoded attributes
+     * @throws RadiusPacketException if invalid or missing attributes
      */
     public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);

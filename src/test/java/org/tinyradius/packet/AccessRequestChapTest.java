@@ -54,7 +54,7 @@ class AccessRequestChapTest {
         String sharedSecret = "sharedSecret";
 
         AccessRequestChap request = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList());
-        request.setAttributeString(USER_NAME, user);
+        request.addAttribute(USER_NAME, user);
         request.setPlaintextPassword(plaintextPw);
         final AccessRequestChap encoded = (AccessRequestChap) request.encodeRequest(sharedSecret);
 

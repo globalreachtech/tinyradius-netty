@@ -2,9 +2,13 @@ package org.tinyradius.packet;
 
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.IntegerAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -16,6 +20,7 @@ import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 
 class AccountingRequestTest {
 
+    private static final byte ACCT_STATUS_TYPE = 40;
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
@@ -23,7 +28,7 @@ class AccountingRequestTest {
 
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
-        AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null);
+        AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
         request.addAttribute(create(dictionary, -1, (byte) 1, user.getBytes(UTF_8)));
 
         final byte[] attributeBytes = request.getAttributeBytes();
@@ -43,11 +48,13 @@ class AccountingRequestTest {
     void encodeNewAccountingRequestWithUsernameAndAcctStatus() throws RadiusPacketException {
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
-        AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null, user, 7);
+        AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null, new ArrayList<>());
+        request.addAttribute("User-Name", user);
+        request.addAttribute("Acct-Status-Type", "7");
 
         AccountingRequest encoded = (AccountingRequest) request.encodeRequest(sharedSecret);
         assertEquals(request.getAttributeString(USER_NAME), encoded.getAttributeString(USER_NAME));
-        assertEquals(7, encoded.getAcctStatusType());
-        assertEquals(request.getAcctStatusType(), encoded.getAcctStatusType());
+        assertEquals(7, ((IntegerAttribute) encoded.getAttribute(ACCT_STATUS_TYPE)).getValueInt());
+        assertEquals(request.getAttribute(ACCT_STATUS_TYPE), encoded.getAttribute(ACCT_STATUS_TYPE));
     }
 }

@@ -50,7 +50,7 @@ class PromiseAdapterTest {
         final String secret = "test";
         byte id = (byte) random.nextInt(256);
 
-        final RadiusRequest originalRequest = new AccountingRequest(dictionary, id, null).encodeRequest(secret);
+        final RadiusRequest originalRequest = new AccountingRequest(dictionary, id, null, Collections.emptyList()).encodeRequest(secret);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
         // process once
@@ -174,7 +174,7 @@ class PromiseAdapterTest {
 
         final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
 
-        final RadiusRequest request = new AccountingRequest(dictionary, (byte) 1, null);
+        final RadiusRequest request = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
         // process packet out

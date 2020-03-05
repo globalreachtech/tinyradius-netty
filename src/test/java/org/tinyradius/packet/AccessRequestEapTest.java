@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.tinyradius.packet.AccessRequest.EAP_MESSAGE;
 import static org.tinyradius.packet.util.MessageAuthSupport.MESSAGE_AUTHENTICATOR;
 
-public class AccessRequestEapTest {
+class AccessRequestEapTest {
 
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 

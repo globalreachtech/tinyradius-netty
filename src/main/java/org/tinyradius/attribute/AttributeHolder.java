@@ -110,14 +110,29 @@ public interface AttributeHolder {
      */
     default void addAttribute(String name, String value) {
         if (name == null || name.isEmpty())
-            throw new IllegalArgumentException("Type name is empty");
+            throw new IllegalArgumentException("Type name is null/empty");
         if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("Value is empty");
+            throw new IllegalArgumentException("Value is null/empty");
 
-        RadiusAttribute attribute = lookupAttributeType(name).create(getDictionary(), value);
-        addAttribute(attribute);
+        addAttribute(
+                lookupAttributeType(name).create(getDictionary(), value));
     }
 
+    /**
+     * Adds a Radius attribute to this packet.
+     * <p>
+     * Will add sub-attributes if added from Vendor-Specific Attribute.
+     *
+     * @param type  attribute type code
+     * @param value string value to set
+     */
+    default void addAttribute(byte type, String value) {
+        if (value == null || value.isEmpty())
+            throw new IllegalArgumentException("Value is null/empty");
+
+        addAttribute(
+                Attributes.create(getDictionary(), getVendorId(), type, value));
+    }
 
     /**
      * Removes all attributes from this packet which have got the specified type.
@@ -141,23 +156,6 @@ public interface AttributeHolder {
             return;
 
         removeAttribute(attrs.get(attrs.size() - 1));
-    }
-
-    /**
-     * Sets attribute to string value. Uses current vendorId if set, or -1
-     * to denote unrestricted.
-     * <p>
-     * Will remove all attributes of specified type before adding new attribute.
-     *
-     * @param type  attribute type code
-     * @param value string value to set
-     */
-    default void setAttributeString(byte type, String value) {
-        if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("Value not set or empty");
-
-        removeAttributes(type);
-        addAttribute(Attributes.create(getDictionary(), getVendorId(), type, value));
     }
 
     /**

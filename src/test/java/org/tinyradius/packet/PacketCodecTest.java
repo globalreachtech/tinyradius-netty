@@ -102,7 +102,7 @@ class PacketCodecTest {
         String sharedSecret = "sharedSecret1";
 
         // test max length 4096
-        AccountingRequest rawRequest = new AccountingRequest(dictionary, (byte) 1, null);
+        AccountingRequest rawRequest = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
         addBytesToPacket(rawRequest, 4096);
         final RadiusRequest maxSizeRequest = rawRequest.encodeRequest(sharedSecret);
 
@@ -128,7 +128,7 @@ class PacketCodecTest {
         String sharedSecret = "sharedSecret1";
 
         // make 4090 octet packet
-        AccountingRequest packet = new AccountingRequest(dictionary, (byte) 1, null);
+        AccountingRequest packet = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
         addBytesToPacket(packet, 4090);
 
         final byte[] validBytes = toDatagram(packet.encodeRequest(sharedSecret), new InetSocketAddress(0))
@@ -156,8 +156,8 @@ class PacketCodecTest {
         String user = "user1";
         String sharedSecret = "sharedSecret1";
 
-        AccountingRequest rawRequest = new AccountingRequest(dictionary, (byte) 1, null);
-        rawRequest.setAttributeString(USER_NAME, user);
+        AccountingRequest rawRequest = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
+        rawRequest.addAttribute(USER_NAME, user);
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
 
         DatagramPacket datagramPacket = toDatagram(request, remoteAddress);
@@ -175,8 +175,8 @@ class PacketCodecTest {
         String user = "user1";
         String sharedSecret = "sharedSecret1";
 
-        AccountingRequest rawRequest = new AccountingRequest(dictionary, (byte) 1, null);
-        rawRequest.setAttributeString(USER_NAME, user);
+        AccountingRequest rawRequest = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
+        rawRequest.addAttribute(USER_NAME, user);
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
 
         DatagramPacket originalDatagram = toDatagram(request, remoteAddress);
@@ -200,7 +200,7 @@ class PacketCodecTest {
         String sharedSecret = "sharedSecret1";
 
         AccessRequestPap rawRequest = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList());
-        rawRequest.setAttributeString(USER_NAME, user);
+        rawRequest.addAttribute(USER_NAME, user);
         rawRequest.setPlaintextPassword(password);
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
 
@@ -226,7 +226,7 @@ class PacketCodecTest {
         final byte id = (byte) random.nextInt(256);
 
         final AccessRequestPap request = new AccessRequestPap(dictionary, id, null, Collections.emptyList());
-        request.setAttributeString(USER_NAME, user);
+        request.addAttribute(USER_NAME, user);
         request.setPlaintextPassword(plaintextPw);
         final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
 

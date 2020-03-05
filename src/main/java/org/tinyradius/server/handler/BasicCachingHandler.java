@@ -39,32 +39,35 @@ public class BasicCachingHandler<IN extends RequestCtx, OUT extends ResponseCtx>
     }
 
     /**
-     * @param ctx            ChannelHandlerContext
-     * @param requestContext Inbound request context
+     * @param ctx        ChannelHandlerContext
+     * @param requestCtx inbound request context
+     * @param out        list to which decoded messages should be added
      */
-    protected void onMiss(ChannelHandlerContext ctx, IN requestContext) {
+    protected void onMiss(ChannelHandlerContext ctx, IN requestCtx, List<Object> out) {
+        out.add(requestCtx);
     }
 
     /**
-     * @param ctx             ChannelHandlerContext
-     * @param responseContext Outbound response context
+     * @param ctx         ChannelHandlerContext
+     * @param requestCtx  inbound request context
+     * @param responseCtx outbound response context
+     * @param out         list to which decoded messages should be added
      */
-    protected void onHit(ChannelHandlerContext ctx, OUT responseContext) {
+    protected void onHit(ChannelHandlerContext ctx, IN requestCtx, OUT responseCtx, List<Object> out) {
+        ctx.writeAndFlush(responseCtx);
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, IN msg, List<Object> out) {
-        final Packet packet = Packet.from(msg);
+    protected void decode(ChannelHandlerContext ctx, IN requestCtx, List<Object> out) {
+        final Packet packet = Packet.from(requestCtx);
         final OUT responseContext = requests.get(packet);
 
         if (responseContext != null) {
             logger.debug("Cache hit, resending response, id: {}, remote address: {}", packet.identifier, packet.remoteAddress);
-            onHit(ctx, responseContext);
-            ctx.writeAndFlush(responseContext);
+            onHit(ctx, requestCtx, responseContext, out);
         } else {
             logger.debug("Cache miss, proxying request, id: {}, remote address: {}", packet.identifier, packet.remoteAddress);
-            onMiss(ctx, msg);
-            out.add(msg);
+            onMiss(ctx, requestCtx, out);
         }
     }
 

@@ -101,7 +101,7 @@ class ClientPacketCodecTest {
         final byte id = (byte) random.nextInt(256);
 
         final AccessRequestPap accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList());
-        accessRequest.setAttributeString(USER_NAME, username);
+        accessRequest.addAttribute(USER_NAME, username);
         accessRequest.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
@@ -130,7 +130,7 @@ class ClientPacketCodecTest {
         int id = random.nextInt(256);
 
         final AccessRequestPap packet = new AccessRequestPap(dictionary, (byte) id, null, Collections.emptyList());
-        packet.setAttributeString(USER_NAME, username);
+        packet.addAttribute(USER_NAME, username);
         packet.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
 

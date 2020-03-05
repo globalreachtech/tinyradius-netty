@@ -21,9 +21,8 @@ import org.tinyradius.packet.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Collections;
-
-import static org.tinyradius.packet.AccessRequest.USER_NAME;
 
 
 /**
@@ -69,8 +68,8 @@ public class TestClient {
 
         // 1. Send Access-Request
         AccessRequestPap ar = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList());
-        ar.setAttributeString(USER_NAME, user);
         ar.setPlaintextPassword(pass);
+        ar.addAttribute("User-Name", user);
         ar.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
         ar.addAttribute("NAS-IP-Address", "192.168.0.100");
         ar.addAttribute("Service-Type", "Login-User");
@@ -83,7 +82,9 @@ public class TestClient {
         logger.info("Response\n" + response + "\n");
 
         // 2. Send Accounting-Request
-        AccountingRequest acc = new AccountingRequest(dictionary, (byte) 2, null, "mw", 1);
+        AccountingRequest acc = new AccountingRequest(dictionary, (byte) 2, null, new ArrayList<>());
+        acc.addAttribute("User-Name", "username");
+        acc.addAttribute("Acct-Status-Type", "1");
         acc.addAttribute("Acct-Session-Id", "1234567890");
         acc.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
         acc.addAttribute("NAS-Port", "0");
