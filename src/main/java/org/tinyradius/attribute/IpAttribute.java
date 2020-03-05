@@ -23,7 +23,7 @@ public abstract class IpAttribute extends RadiusAttribute {
             super(dictionary, vendorId, type, IpAttribute.convert(data), Inet4Address.class);
         }
 
-        public V4(Dictionary dictionary, int vendorId, byte type, String data) {
+        V4(Dictionary dictionary, int vendorId, byte type, String data) {
             super(dictionary, vendorId, type, IpAttribute.convert(data), Inet4Address.class);
         }
 

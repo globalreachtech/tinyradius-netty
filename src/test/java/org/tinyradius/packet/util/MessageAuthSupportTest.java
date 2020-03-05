@@ -31,7 +31,7 @@ class MessageAuthSupportTest {
         encodedPacket.verifyMessageAuth(secret, testPacket.getAuthenticator());
     }
 
-    static class TestPacket extends BaseRadiusPacket implements MessageAuthSupport<TestPacket> {
+    private static class TestPacket extends BaseRadiusPacket implements MessageAuthSupport<TestPacket> {
 
         public TestPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
             super(dictionary, type, identifier, authenticator, attributes);

@@ -15,6 +15,7 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.RadiusResponse;
+import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
 import org.tinyradius.util.RadiusEndpoint;
@@ -54,7 +55,7 @@ class ProxyHandlerTest {
         };
 
         final AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
-        final RadiusResponse mockResponse = new RadiusResponse(dictionary, ACCOUNTING_RESPONSE, (byte) 123, null,
+        final RadiusResponse mockResponse = RadiusPackets.createResponse(dictionary, ACCOUNTING_RESPONSE, (byte) 123, null,
                 Collections.singletonList(Attributes.create(dictionary, -1, (byte) 33, "state1".getBytes(UTF_8))));
 
         when(client.communicate(any(), any())).thenReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(mockResponse));

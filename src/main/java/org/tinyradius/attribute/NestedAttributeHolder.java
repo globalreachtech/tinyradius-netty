@@ -12,24 +12,17 @@ import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
 public interface NestedAttributeHolder extends AttributeHolder {
 
     /**
-     * @return -1, ie no restrictions on vendorIds of attributes
-     */
-    default int getVendorId() {
-        return -1;
-    }
-
-    /**
      * Returns all attributes of this packet that match the
      * given type and vendorId.
      * <p>
-     * If vendorId is -1, will only search for top level attributes.
+     * If vendorId doesn't match childVendorId, will search sub-attributes.
      *
      * @param vendorId vendor ID, or -1
      * @param type     attribute type code
      * @return list of RadiusAttribute objects, or empty list
      */
     default List<RadiusAttribute> getAttributes(int vendorId, byte type) {
-        if (vendorId == getVendorId())
+        if (vendorId == getChildVendorId())
             return getAttributes(type);
 
         return getVendorSpecificAttributes(vendorId).stream()
@@ -46,8 +39,10 @@ public interface NestedAttributeHolder extends AttributeHolder {
 
     /**
      * Convenience method to get single attribute.
+     * <p>
+     * If vendorId doesn't match childVendorId, will search sub-attributes.
      *
-     * @param vendorId vendor ID
+     * @param vendorId vendor ID, or -1
      * @param type     attribute type
      * @return RadiusAttribute object or null if there is no such attribute
      */
@@ -60,13 +55,13 @@ public interface NestedAttributeHolder extends AttributeHolder {
      * Removes all (sub)attributes of the given vendor and
      * type.
      * <p>
-     * If vendorId is -1, will only search for top level attributes.
+     * If vendorId doesn't match childVendorId, will search sub-attributes.
      *
      * @param vendorId vendor ID, or -1
      * @param typeCode attribute type code
      */
     default void removeAttributes(int vendorId, byte typeCode) {
-        if (vendorId == getVendorId()) {
+        if (vendorId == getChildVendorId()) {
             removeAttributes(typeCode);
             return;
         }
@@ -91,7 +86,7 @@ public interface NestedAttributeHolder extends AttributeHolder {
         return getAttributes(VENDOR_SPECIFIC).stream()
                 .filter(VendorSpecificAttribute.class::isInstance)
                 .map(VendorSpecificAttribute.class::cast)
-                .filter(a -> a.getVendorId() == vendorId)
+                .filter(a -> a.getChildVendorId() == vendorId)
                 .collect(Collectors.toList());
     }
 

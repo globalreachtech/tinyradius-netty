@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 public interface AttributeHolder {
 
     /**
-     * @return VendorId to restrict attributes, or -1 if not appropriate / no restrictions
+     * @return VendorId to restrict (sub)attributes, or -1 for top level
      */
-    int getVendorId();
+    int getChildVendorId();
 
     Dictionary getDictionary();
 
@@ -94,7 +94,7 @@ public interface AttributeHolder {
      * @return list of RadiusAttribute objects, or empty list
      */
     default List<RadiusAttribute> getAttributes(AttributeType type) {
-        if (type.getVendorId() == getVendorId())
+        if (type.getVendorId() == getChildVendorId())
             return getAttributes(type.getType());
         return Collections.emptyList();
     }
@@ -131,7 +131,7 @@ public interface AttributeHolder {
             throw new IllegalArgumentException("Value is null/empty");
 
         addAttribute(
-                Attributes.create(getDictionary(), getVendorId(), type, value));
+                Attributes.create(getDictionary(), getChildVendorId(), type, value));
     }
 
     /**

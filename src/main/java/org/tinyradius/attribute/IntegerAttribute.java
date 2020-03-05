@@ -21,7 +21,7 @@ public class IntegerAttribute extends RadiusAttribute {
         this(dictionary, vendorId, type, convertValue(value, dictionary, type, vendorId));
     }
 
-    public IntegerAttribute(Dictionary dictionary, int vendorId, byte type, int value) {
+    IntegerAttribute(Dictionary dictionary, int vendorId, byte type, int value) {
         this(dictionary, vendorId, type, convertValue(value));
     }
 

@@ -13,6 +13,7 @@ import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.*;
+import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusPacketException;
@@ -127,7 +128,7 @@ class PromiseAdapterTest {
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
         // using id 99
-        final RadiusResponse response = new RadiusResponse(dictionary, ACCESS_ACCEPT, (byte) 99, null,
+        final RadiusResponse response = RadiusPackets.createResponse(dictionary, ACCESS_ACCEPT, (byte) 99, null,
                 Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)));
 
         final List<Object> out2 = new ArrayList<>();
@@ -155,7 +156,7 @@ class PromiseAdapterTest {
         final RadiusRequest preparedRequest = ((RequestCtx) out1.get(0)).getRequest();
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
 
-        final RadiusResponse response = new RadiusResponse(dictionary, ACCESS_ACCEPT, (byte) 1, null,
+        final RadiusResponse response = RadiusPackets.createResponse(dictionary, ACCESS_ACCEPT, (byte) 1, null,
                 Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)));
 
         // response uses different auth
@@ -192,7 +193,7 @@ class PromiseAdapterTest {
         assertFalse(promise.isDone());
 
         // channel read correct proxyState returns packet
-        final RadiusResponse goodResponse = new RadiusResponse(dictionary, ACCESS_ACCEPT, (byte) 1, null,
+        final RadiusResponse goodResponse = RadiusPackets.createResponse(dictionary, ACCESS_ACCEPT, (byte) 1, null,
                 Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)))
                 .encodeResponse(secret, requestAuthenticator);
 

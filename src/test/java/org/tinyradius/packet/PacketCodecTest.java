@@ -6,6 +6,7 @@ import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
@@ -42,7 +43,7 @@ class PacketCodecTest {
     @Test
     void toDatagramMaxPacketSize() throws RadiusPacketException {
         // test max length 4096
-        RadiusRequest maxSizeRequest = new RadiusRequest(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        RadiusRequest maxSizeRequest = RadiusPackets.createRequest(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
         addBytesToPacket(maxSizeRequest, 4096);
 
         final ByteBuf byteBuf = toDatagram(maxSizeRequest.encodeRequest("mySecret"), new InetSocketAddress(0))
@@ -52,7 +53,7 @@ class PacketCodecTest {
         assertEquals(4096, byteBuf.getShort(2));
 
         // test length 4097
-        RadiusRequest oversizeRequest = new RadiusRequest(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        RadiusRequest oversizeRequest = RadiusPackets.createRequest(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
         addBytesToPacket(oversizeRequest, 4097);
 
         final RadiusPacketException exception = assertThrows(RadiusPacketException.class,
@@ -66,7 +67,7 @@ class PacketCodecTest {
     @Test
     void testToDatagram() throws RadiusPacketException {
         final InetSocketAddress address = new InetSocketAddress(random.nextInt(65535));
-        RadiusRequest request = new RadiusRequest(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        RadiusRequest request = RadiusPackets.createRequest(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
 
         final byte[] proxyState = random.generateSeed(198);
         request.addAttribute(create(dictionary, -1, (byte) 33, proxyState));

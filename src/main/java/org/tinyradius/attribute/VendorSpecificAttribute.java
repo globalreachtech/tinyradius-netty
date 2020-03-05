@@ -3,8 +3,8 @@ package org.tinyradius.attribute;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.dictionary.Dictionary;
 
+import javax.xml.bind.DatatypeConverter;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,16 +17,17 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
 
     public static final byte VENDOR_SPECIFIC = 26;
 
+    private final int requiredVendorId;
     private final List<RadiusAttribute> attributes;
 
     /**
      * @param dictionary    dictionary to use for (sub)attributes
-     * @param vendorId      ignored, parsed from data directly
+     * @param vendorId      ignored, VSAs should always be -1 (top level attribute)
      * @param attributeType ignored, should always be Vendor-Specific (26)
      * @param data          data to parse for vendorId and sub-attributes
      */
     VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, byte[] data) {
-        this(dictionary, extractVendorId(data), extractAttributes(dictionary, extractVendorId(data), data, 4));
+        this(dictionary, extractAttributes(dictionary, extractVendorId(data), data, 4), extractVendorId(data));
     }
 
     /**
@@ -37,23 +38,32 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
         return ByteBuffer.wrap(data).getInt();
     }
 
-    VendorSpecificAttribute(Dictionary dictionary, int vendorId, int ignored, String ignored2) {
-        this(dictionary, vendorId, new ArrayList<>());
-    }
-
-    VendorSpecificAttribute(Dictionary dictionary, int vendorId, List<RadiusAttribute> subAttributes) {
-        super(dictionary, vendorId, VENDOR_SPECIFIC, new byte[0]);
-        this.attributes = subAttributes;
+    /**
+     * @param dictionary    dictionary to use for (sub)attributes
+     * @param vendorId      ignored, VSAs should always be -1 (top level attribute)
+     * @param attributeType ignored, should always be Vendor-Specific (26)
+     * @param data          data as hex to parse for vendorId and sub-attributes
+     */
+    VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, String data) {
+        this(dictionary, vendorId, attributeType, DatatypeConverter.parseHexBinary(data));
     }
 
     /**
      * Constructs a new Vendor-Specific attribute to be sent.
      *
-     * @param dictionary dictionary to use for (sub)attributes
-     * @param vendorId   vendor ID of the sub-attributes
+     * @param dictionary       dictionary to use for (sub)attributes
+     * @param subAttributes    sub-attributes held
+     * @param requiredVendorId vendor ID of the sub-attributes
      */
-    public VendorSpecificAttribute(Dictionary dictionary, int vendorId) {
-        this(dictionary, vendorId, new ArrayList<>());
+    public VendorSpecificAttribute(Dictionary dictionary, List<RadiusAttribute> subAttributes, int requiredVendorId) {
+        super(dictionary, -1, VENDOR_SPECIFIC, new byte[0]);
+        this.requiredVendorId = requiredVendorId;
+        this.attributes = subAttributes;
+    }
+
+    @Override
+    public int getChildVendorId() {
+        return requiredVendorId;
     }
 
     /**
@@ -63,7 +73,7 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
      */
     @Override
     public void addAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() != getVendorId())
+        if (attribute.getVendorId() != getChildVendorId())
             throw new IllegalArgumentException("Attribute vendor ID doesn't match");
 
         attributes.add(attribute);
@@ -76,7 +86,7 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
      */
     @Override
     public void removeAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() != getVendorId())
+        if (attribute.getVendorId() != getChildVendorId())
             throw new IllegalArgumentException("Attribute vendor ID doesn't match");
 
         attributes.remove(attribute);
@@ -109,7 +119,7 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
         return Unpooled.buffer(len, len)
                 .writeByte(VENDOR_SPECIFIC)
                 .writeByte(len)
-                .writeInt(getVendorId())
+                .writeInt(getChildVendorId())
                 .writeBytes(attributeBytes)
                 .array();
     }
@@ -121,12 +131,12 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Vendor-Specific: ");
-        String vendorName = getDictionary().getVendorName(getVendorId());
+        String vendorName = getDictionary().getVendorName(getChildVendorId());
         if (vendorName != null) {
             sb.append(vendorName)
-                    .append(" (").append(getVendorId()).append(")");
+                    .append(" (").append(getChildVendorId()).append(")");
         } else {
-            sb.append("vendor ID ").append(getVendorId());
+            sb.append("Vendor ID ").append(getChildVendorId());
         }
         for (RadiusAttribute sa : getAttributes()) {
             sb.append("\n  ").append(sa.toString());

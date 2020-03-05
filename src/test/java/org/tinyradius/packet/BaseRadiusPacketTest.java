@@ -2,11 +2,11 @@ package org.tinyradius.packet;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.Attributes;
-import org.tinyradius.attribute.IpAttribute;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,7 @@ class BaseRadiusPacketTest {
     void addAttribute() {
         BaseRadiusPacket packet = new StubPacket();
         packet.addAttribute("WISPr-Location-ID", "myLocationId");
-        packet.addAttribute(new IpAttribute.V4(packet.getDictionary(), -1, (byte) 8, "1234567"));
+        packet.addAttribute(Attributes.create(packet.getDictionary(), -1, (byte) 8, "1234567"));
         packet.addAttribute(Attributes.create(packet.getDictionary(), -1, (byte) 168, "fe80::"));
         packet.addAttribute(Attributes.create(packet.getDictionary(), -1, (byte) 97, "fe80::/64"));
         packet.addAttribute(Attributes.create(packet.getDictionary(), -1, (byte) 97, "fe80::/128"));
@@ -131,7 +131,7 @@ class BaseRadiusPacketTest {
         radiusPacket.addAttribute("Filter-Id", "abc");
         radiusPacket.addAttribute("Reply-Message", "foobar");
 
-        VendorSpecificAttribute vsa = new VendorSpecificAttribute(DefaultDictionary.INSTANCE, 14122);
+        VendorSpecificAttribute vsa = new VendorSpecificAttribute(DefaultDictionary.INSTANCE, new ArrayList<>(), 14122);
         vsa.addAttribute("WISPr-Logoff-URL", "111");
         vsa.addAttribute("WISPr-Logoff-URL", "222");
         radiusPacket.addAttribute(vsa);

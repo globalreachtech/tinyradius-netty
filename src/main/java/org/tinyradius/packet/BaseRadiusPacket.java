@@ -42,7 +42,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
      *
      * @param dictionary    custom dictionary to use
      * @param type          packet type
-     * @param id    packet identifier
+     * @param id            packet identifier
      * @param authenticator can be null if creating manually
      * @param attributes    list of RadiusAttribute objects
      */
@@ -57,6 +57,10 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
         this.dictionary = requireNonNull(dictionary, "Dictionary is null");
     }
 
+    @Override
+    public int getChildVendorId() {
+        return -1;
+    }
 
     @Override
     public byte getId() {
@@ -101,10 +105,10 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
      */
     @Override
     public void addAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() == getVendorId() || attribute.getType() == VENDOR_SPECIFIC_TYPE) {
+        if (attribute.getVendorId() == getChildVendorId() || attribute.getType() == VENDOR_SPECIFIC_TYPE) {
             attributes.add(attribute);
         } else {
-            VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, attribute.getVendorId());
+            VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, new ArrayList<>(), attribute.getVendorId());
             vsa.addAttribute(attribute);
             attributes.add(vsa);
         }
@@ -117,7 +121,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
      */
     @Override
     public void removeAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() == getVendorId() || attribute.getType() == VENDOR_SPECIFIC_TYPE) {
+        if (attribute.getVendorId() == getChildVendorId() || attribute.getType() == VENDOR_SPECIFIC_TYPE) {
             attributes.remove(attribute);
         } else {
             removeSubAttribute(attribute);
