@@ -83,7 +83,7 @@ public interface NestedAttributeHolder extends AttributeHolder {
      * @return List with VendorSpecificAttribute objects, or empty list
      */
     default List<VendorSpecificAttribute> getVendorSpecificAttributes(int vendorId) {
-        return getAttributes(VENDOR_SPECIFIC).stream()
+        return getAttributes().stream()
                 .filter(VendorSpecificAttribute.class::isInstance)
                 .map(VendorSpecificAttribute.class::cast)
                 .filter(a -> a.getChildVendorId() == vendorId)
