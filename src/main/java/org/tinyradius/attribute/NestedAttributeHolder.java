@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
-
 /**
  * AttributeHolder that supports sub-attributes and filtering by vendorId
  */
