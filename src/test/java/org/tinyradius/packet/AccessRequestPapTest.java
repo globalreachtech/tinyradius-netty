@@ -2,9 +2,6 @@ package org.tinyradius.packet;
 
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.tinyradius.attribute.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -76,8 +73,8 @@ class AccessRequestPapTest {
         encoded.setPlaintextPassword("something else");
 
         // check verify decodes password
-        request.verifyRequest(sharedSecret);
-        assertEquals(plaintextPw, request.getPlaintextPassword());
+        encoded.verifyRequest(sharedSecret);
+        assertEquals(plaintextPw, encoded.getPlaintextPassword());
     }
 
     @Test
