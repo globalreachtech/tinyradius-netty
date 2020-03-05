@@ -72,7 +72,9 @@ public interface AttributeHolder {
      * @return list of RadiusAttribute objects, or empty list
      */
     default List<RadiusAttribute> getAttributes(byte type) {
-        return filter(getAttributes(), type);
+        return getAttributes().stream()
+                .filter(a -> a.getType() == type)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -180,18 +182,5 @@ public interface AttributeHolder {
         }
 
         return buffer.copy().array();
-    }
-
-    /**
-     * Filters attributes by attribute type code
-     *
-     * @param attributes list of attributes to filter
-     * @param type       attribute type to filter by
-     * @return attributes where type code matches
-     */
-    static List<RadiusAttribute> filter(List<RadiusAttribute> attributes, byte type) {
-        return attributes.stream()
-                .filter(a -> a.getType() == type)
-                .collect(Collectors.toList());
     }
 }
