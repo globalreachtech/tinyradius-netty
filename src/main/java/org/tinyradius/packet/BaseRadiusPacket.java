@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class BaseRadiusPacket implements RadiusPacket {
 
-    private static final int VENDOR_SPECIFIC_TYPE = 26;
+    private static final int CHILD_VENDOR_ID = -1;
 
     private final byte type;
     private final byte id;
@@ -59,7 +59,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
 
     @Override
     public int getChildVendorId() {
-        return -1;
+        return CHILD_VENDOR_ID;
     }
 
     @Override
@@ -105,7 +105,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
      */
     @Override
     public void addAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() == getChildVendorId() || attribute.getType() == VENDOR_SPECIFIC_TYPE) {
+        if (attribute.getVendorId() == CHILD_VENDOR_ID) {
             attributes.add(attribute);
         } else {
             VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, new ArrayList<>(), attribute.getVendorId());
@@ -121,7 +121,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
      */
     @Override
     public void removeAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() == getChildVendorId() || attribute.getType() == VENDOR_SPECIFIC_TYPE) {
+        if (attribute.getVendorId() == CHILD_VENDOR_ID) {
             attributes.remove(attribute);
         } else {
             removeSubAttribute(attribute);

@@ -56,7 +56,7 @@ public class AttributeType {
 
         dataType = rawDataType.toLowerCase();
 
-        if (dataType.equals("vsa") || type == VENDOR_SPECIFIC) {
+        if (dataType.equals("vsa") || (vendorId == -1 && type == VENDOR_SPECIFIC)) {
             byteArrayConstructor = VendorSpecificAttribute::new;
             stringConstructor = VendorSpecificAttribute::new;
             return;

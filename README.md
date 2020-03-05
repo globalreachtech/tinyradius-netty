@@ -22,7 +22,7 @@ TinyRadius-Netty is a fork of the TinyRadius Radius library, rebuilt with Java 8
 - Use log4j2 instead of commons-logging
 - Use Java 6-8 features (generics, lambdas)
 - Packets and Attributes are (shallow) immutable
-- 90% test coverage
+- 80%+ test coverage
 - Proxy no longer a separate implementation, but a promise-based adapter between the client and server classes
 
 ## Usage

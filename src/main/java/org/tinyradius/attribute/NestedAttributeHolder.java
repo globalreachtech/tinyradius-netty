@@ -89,6 +89,4 @@ public interface NestedAttributeHolder extends AttributeHolder {
                 .filter(a -> a.getChildVendorId() == vendorId)
                 .collect(Collectors.toList());
     }
-
-
 }
