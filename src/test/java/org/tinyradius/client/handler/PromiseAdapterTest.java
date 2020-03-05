@@ -28,6 +28,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.Attributes.create;
 import static org.tinyradius.packet.util.PacketType.ACCESS_ACCEPT;
+import static org.tinyradius.packet.util.PacketType.ACCOUNTING_RESPONSE;
 
 @ExtendWith(MockitoExtension.class)
 class PromiseAdapterTest {
@@ -193,7 +194,7 @@ class PromiseAdapterTest {
         assertFalse(promise.isDone());
 
         // channel read correct proxyState returns packet
-        final RadiusResponse goodResponse = RadiusPackets.createResponse(dictionary, ACCESS_ACCEPT, (byte) 1, null,
+        final RadiusResponse goodResponse = RadiusPackets.createResponse(dictionary, ACCOUNTING_RESPONSE, (byte) 1, null,
                 Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)))
                 .encodeResponse(secret, requestAuthenticator);
 
