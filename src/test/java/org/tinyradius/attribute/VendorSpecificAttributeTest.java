@@ -63,7 +63,7 @@ class VendorSpecificAttributeTest {
     void addEmptySubAttribute() {
         VendorSpecificAttribute vendorSpecificAttribute = new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>());
         Exception exception = assertThrows(RuntimeException.class, () -> vendorSpecificAttribute.addAttribute("", "myLocationId"));
-        assertTrue(exception.getMessage().toLowerCase().contains("type name is empty"));
+        assertTrue(exception.getMessage().toLowerCase().contains("type name is null/empty"));
     }
 
     @Test

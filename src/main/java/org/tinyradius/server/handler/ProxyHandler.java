@@ -7,9 +7,9 @@ import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.packet.RadiusPacket;
-import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.packet.RadiusRequest;
 import org.tinyradius.packet.RadiusResponse;
+import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
 
@@ -58,14 +58,10 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
     }
 
     /**
-     * This method must be implemented to return a RadiusEndpoint
-     * if the given packet is to be proxied. The endpoint represents the
-     * Radius server the packet should be proxied to.
-     *
      * @param packet the packet in question
      * @param client the client endpoint the packet originated from
      *               (containing the address, port number and shared secret)
-     * @return a Optional RadiusEndpoint to be proxied
+     * @return RadiusEndpoint to proxy packet to
      */
     protected abstract Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client);
 }
