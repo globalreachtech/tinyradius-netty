@@ -93,15 +93,6 @@ public class AccessRequestPap extends AccessRequest {
         return userPassword.equals(plaintext);
     }
 
-    /**
-     * AccessRequest cannot verify authenticator as they
-     * contain random bytes.
-     * <p>
-     * Instead it checks the User-Password attributes
-     * are present and attempts decryption for PAP.
-     *
-     * @param sharedSecret shared secret
-     */
     @Override
     protected void verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> attrs = getAttributes(USER_PASSWORD);

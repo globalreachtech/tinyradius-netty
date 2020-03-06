@@ -80,7 +80,7 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
     }
 
     /**
-     * Verify packet for specific auth frameworks.
+     * Verify packet for specific auth protocols
      *
      * @param sharedSecret shared secret
      * @throws RadiusPacketException if invalid or missing attributes
@@ -127,14 +127,14 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
                 .filter(AUTH_ATTRS::contains)
                 .collect(toSet());
 
-        if (detectedAuth.size() == 0) {
-            logger.warn("AccessRequest could not identify supported auth mechanism");
-            return AccessUnknownAuth::new;
+        if (detectedAuth.isEmpty()) {
+            logger.debug("AccessRequest no auth mechanism found, passing through");
+            return AccessRequestNoAuth::new;
         }
 
         if (detectedAuth.size() > 1) {
             logger.warn("AccessRequest identified multiple auth mechanisms");
-            return AccessUnknownAuth::new;
+            return AccessRequestNoAuth::new;
         }
 
         switch (detectedAuth.iterator().next()) {
@@ -145,7 +145,7 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
             case USER_PASSWORD:
                 return AccessRequestPap::new;
             default:
-                return AccessUnknownAuth::new;
+                return AccessRequestNoAuth::new;
         }
     }
 
@@ -159,24 +159,4 @@ public abstract class AccessRequest extends RadiusRequest implements MessageAuth
         AccessRequest newInstance(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes);
     }
 
-    static class AccessUnknownAuth extends AccessRequest {
-
-        public AccessUnknownAuth(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-            super(dictionary, identifier, authenticator, attributes);
-        }
-
-        @Override
-        protected AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) {
-            return copy();
-        }
-
-        @Override
-        public AccessRequest copy() {
-            return new AccessUnknownAuth(getDictionary(), getId(), getAuthenticator(), getAttributes());
-        }
-
-        @Override
-        protected void verifyAuthMechanism(String sharedSecret) {
-        }
-    }
 }

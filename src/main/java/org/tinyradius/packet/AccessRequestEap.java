@@ -17,15 +17,6 @@ public class AccessRequestEap extends AccessRequest {
         return copy(); // don't care contents of EAP-Message - pass through
     }
 
-    /**
-     * AccessRequest cannot verify authenticator as they
-     * contain random bytes.
-     * <p>
-     * Instead it checks the User-Password/Challenge attributes
-     * are present and attempts decryption.
-     *
-     * @param sharedSecret shared secret, only applicable for PAP
-     */
     @Override
     protected void verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> eapMessageAttr = getAttributes(EAP_MESSAGE);

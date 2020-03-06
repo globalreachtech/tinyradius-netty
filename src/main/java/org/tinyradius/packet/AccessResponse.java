@@ -22,13 +22,6 @@ public class AccessResponse extends RadiusResponse implements MessageAuthSupport
         return new AccessResponse(response.getDictionary(), response.getType(), response.getId(), newAuth, response.getAttributes());
     }
 
-    /**
-     * AccessRequest cannot verify authenticator as they
-     * contain random bytes.
-     *
-     * @param sharedSecret shared secret, only applicable for PAP
-     * @param requestAuth  authenticator for corresponding request
-     */
     @Override
     public void verifyResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         super.verifyResponse(sharedSecret, requestAuth);

@@ -125,12 +125,6 @@ public class AccessRequestChap extends AccessRequest {
         return Arrays.equals(chapPassword, computeChapPassword(chapPassword[0], plaintext, chapChallenge));
     }
 
-    /**
-     * AccessRequest (CHAP) cannot verify authenticator as they
-     * contain random bytes.
-     *
-     * @param sharedSecret ignored, not applicable for CHAP
-     */
     @Override
     protected void verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> attrs = getAttributes(CHAP_PASSWORD);

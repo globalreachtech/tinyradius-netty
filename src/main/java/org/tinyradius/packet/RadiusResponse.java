@@ -41,7 +41,7 @@ public class RadiusResponse extends BaseRadiusPacket {
     }
 
     /**
-     * Checks the response authenticator against the supplied shared secret.
+     * Verifies the response authenticator against the supplied shared secret.
      *
      * @param sharedSecret shared secret
      * @param requestAuth  authenticator for corresponding request
