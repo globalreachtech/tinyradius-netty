@@ -14,16 +14,18 @@ TinyRadius-Netty is a fork of the TinyRadius Radius library, rebuilt with Java 8
 - Signs and verifies Request Authenticator for Access and Accounting requests/responses
 - Supports verifying and encoding for PAP, CHAP, and EAP (Message-Authenticator)
 - Attach arbitrary attributes to packets
-- Loads dictionaries from file system or classpath
+- Loads dictionaries recursively from file system or classpath
 
 ### Improvements over TinyRadius
-- Use netty for async IO, timeouts, thread management
-- Handlers follow Netty's interceptor filter pattern, most blocking calls use promises
+- Use Netty for async IO, timeouts, thread management
+- Handlers follow Netty's interceptor filter pattern, blocking calls use promises
 - Use log4j2 instead of commons-logging
-- Use Java 6-8 features (generics, lambdas)
+- Use Java 6-8 features (generics, NIO, lambdas, streams)
 - Packets and Attributes are (shallow) immutable
 - 80%+ test coverage
 - Proxy no longer a separate implementation, but a promise-based adapter between the client and server classes
+
+See the [example implementations](src/test/java/org/tinyradius) on usage as Client/Server/Proxy.
 
 ## Usage
 ### Dictionary
@@ -67,5 +69,6 @@ TinyRadius-Netty is a fork of the TinyRadius Radius library, rebuilt with Java 8
 Copyright Matthias Wuttke and contributors:
 - http://tinyradius.sourceforge.net/
 - https://github.com/ctran/TinyRadius
+- https://github.com/globalreachtech/tinyradius-netty
 
 Licensed under LGPL 2.1

@@ -28,25 +28,14 @@ public class AttributeType {
     /**
      * Create a new attribute type.
      *
-     * @param type    Radius attribute type code
-     * @param name    Attribute type name
-     * @param typeStr string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
-     */
-    public AttributeType(int type, String name, String typeStr) {
-        this(-1, type, name, typeStr);
-    }
-
-    /**
-     * Constructs a Vendor-Specific sub-attribute type.
-     *
-     * @param vendorId    vendor ID
+     * @param vendorId    vendor ID or -1 if N/A
      * @param type        sub-attribute type code
      * @param name        sub-attribute name
      * @param rawDataType string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
      */
     public AttributeType(int vendorId, int type, String name, String rawDataType) {
         if (type < 1 || type > 255)
-            throw new IllegalArgumentException("attribute type code out of bounds");
+            throw new IllegalArgumentException("Attribute type code out of bounds");
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
         requireNonNull(rawDataType, "Data type is null");

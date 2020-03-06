@@ -62,19 +62,23 @@ public class DictionaryParser {
             while ((line = in.readLine()) != null) {
 
                 lineNum++;
-                line = line.trim();
-                if (line.startsWith("#") || line.isEmpty())
-                    continue;
-
-                final String[] tokens = line.split("\\s+");
-
-                if (tokens.length != 0)
-                    parseLine(dictionary, tokens, lineNum, resource);
+                parseLine(dictionary, line, lineNum, resource);
             }
         }
     }
 
-    private void parseLine(WritableDictionary dictionary, String[] tokens, int lineNum, String resource) throws IOException {
+    private void parseLine(WritableDictionary dictionary, String rawLine, int lineNum, String resource) throws IOException {
+        final String line = rawLine.trim();
+        if (line.startsWith("#") || line.isEmpty())
+            return;
+
+        final String[] tokens = line.split("\\s+");
+
+        if (tokens.length != 0)
+            parseTokens(dictionary, tokens, lineNum, resource);
+    }
+
+    private void parseTokens(WritableDictionary dictionary, String[] tokens, int lineNum, String resource) throws IOException {
         switch (tokens[0].toUpperCase()) {
             case "ATTRIBUTE":
                 parseAttributeLine(dictionary, tokens, lineNum);
@@ -110,7 +114,7 @@ public class DictionaryParser {
         String typeStr = tok[3];
 
         // create and cache object
-        dictionary.addAttributeType(new AttributeType(type, name, typeStr));
+        dictionary.addAttributeType(new AttributeType(-1, type, name, typeStr));
     }
 
     /**
