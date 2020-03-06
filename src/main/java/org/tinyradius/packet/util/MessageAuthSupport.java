@@ -21,7 +21,7 @@ public interface MessageAuthSupport<T extends MessageAuthSupport<?>> extends Rad
     byte MESSAGE_AUTHENTICATOR = 80;
 
     /**
-     * @return packet of same type as self
+     * @return packet of same type as self, including transient fields if appropriate
      */
     T copy();
 
