@@ -17,10 +17,10 @@ TinyRadius-Netty is a fork of the TinyRadius Radius library, rebuilt with Java 8
 - Loads dictionaries recursively from file system or classpath
 
 ### Improvements over TinyRadius
-- Use Netty for async IO, timeouts, thread management
+- Netty for async IO, timeouts, thread management
 - Handlers follow Netty's interceptor filter pattern, blocking calls use promises
-- Use log4j2 instead of commons-logging
-- Use Java 6-8 features (generics, NIO, lambdas, streams)
+- log4j2 instead of commons-logging
+- Java 6-8 features (generics, NIO, lambdas, streams)
 - Packets and Attributes are (shallow) immutable
 - 80%+ test coverage
 - Proxy no longer a separate implementation, but a promise-based adapter between the client and server classes
