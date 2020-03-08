@@ -25,9 +25,9 @@ TinyRadius-Netty is a fork of the TinyRadius Radius library, rebuilt with Java 8
 - 80%+ test coverage
 - Proxy no longer a separate implementation, but a promise-based adapter between the client and server classes
 
+## Usage
 See the [example implementations](src/test/java/org/tinyradius) on usage as Client/Server/Proxy.
 
-## Usage
 ### Dictionary
  - `DefaultDictionary` uses a very limited subset that's included in the classpath.
    - Singleton is available at `DefaultDictionary.INSTANCE`
