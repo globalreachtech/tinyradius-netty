@@ -1,6 +1,6 @@
 package org.tinyradius.dictionary;
 
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.util.AttributeType;
 
 /**
  * A dictionary that is not read-only. Provides methods

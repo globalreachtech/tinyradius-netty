@@ -2,7 +2,7 @@ package org.tinyradius.packet;
 
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.Attributes;
+import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;

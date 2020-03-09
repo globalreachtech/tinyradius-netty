@@ -1,9 +1,8 @@
 /**
  * Classes for Radius attributes and Radius attribute types.
  * <p>
- * The classes RadiusAttribute, StringAttribute, IntegerAttribute and
- * IpAttribute implement general Radius attribute data types and manage
- * the storage of raw data, strings, integers and IP numbers.
+ * RadiusAttribute represent general byte array data. Other type-specific
+ * subclasses represent, manage, and validate the storage of specific types.
  * <p>
  * Vendor-specific attributes are supported by the class
  * VendorSpecificAttribute.

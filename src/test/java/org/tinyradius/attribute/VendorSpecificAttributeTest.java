@@ -1,6 +1,7 @@
 package org.tinyradius.attribute;
 
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 
@@ -8,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.Attributes.create;
+import static org.tinyradius.attribute.util.Attributes.create;
 
 class VendorSpecificAttributeTest {
 

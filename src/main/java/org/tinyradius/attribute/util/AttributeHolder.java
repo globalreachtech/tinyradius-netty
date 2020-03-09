@@ -1,7 +1,8 @@
-package org.tinyradius.attribute;
+package org.tinyradius.attribute.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.Collections;

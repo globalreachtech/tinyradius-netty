@@ -2,7 +2,7 @@ package org.tinyradius.packet.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.tinyradius.attribute.Attributes;
+import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;

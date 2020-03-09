@@ -1,5 +1,6 @@
 package org.tinyradius.attribute;
 
+import org.tinyradius.attribute.util.AttributeType;
 import org.tinyradius.dictionary.Dictionary;
 
 import javax.xml.bind.DatatypeConverter;
@@ -28,7 +29,7 @@ public class RadiusAttribute {
      * @param type       attribute type code
      * @param value      value of attribute as byte array
      */
-    RadiusAttribute(Dictionary dictionary, int vendorId, byte type, byte[] value) {
+    public RadiusAttribute(Dictionary dictionary, int vendorId, byte type, byte[] value) {
         this.dictionary = requireNonNull(dictionary, "Dictionary not set");
         this.vendorId = vendorId;
         this.type = type;
@@ -44,7 +45,7 @@ public class RadiusAttribute {
      * @param type       attribute type code
      * @param value      value of attribute as hex string
      */
-    RadiusAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
+    public RadiusAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
         this(dictionary, vendorId, type, DatatypeConverter.parseHexBinary(value));
     }
 

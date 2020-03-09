@@ -14,7 +14,7 @@ TinyRadius-Netty is a fork of the TinyRadius Radius library, rebuilt with Java 8
 - Signs and verifies Request Authenticator for Access and Accounting requests/responses
 - Supports verifying and encoding for PAP, CHAP, and EAP (Message-Authenticator)
 - Attach arbitrary attributes to packets
-- Loads dictionaries recursively from file system or classpath
+- Loads dictionaries recursively from file system or classpath (Radiator format)
 
 ### Improvements over TinyRadius
 - Netty for async IO, timeouts, thread management

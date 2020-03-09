@@ -1,6 +1,6 @@
 package org.tinyradius.dictionary;
 
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.util.AttributeType;
 
 /**
  * A dictionary retrieves AttributeType objects by name or
@@ -19,13 +19,13 @@ public interface Dictionary {
     AttributeType getAttributeTypeByName(String typeName);
 
     /**
-     * Retrieves an attribute type by type code. This method
-     * does not retrieve vendor specific attribute types.
+     * Returns the AttributeType for the vendor -1 from the cache.
      *
-     * @param type type code, 1-255
      * @return AttributeType object or null
      */
-    AttributeType getAttributeTypeByCode(byte type);
+    default AttributeType getAttributeTypeByCode(byte type) {
+        return getAttributeTypeByCode(-1, type);
+    }
 
     /**
      * Retrieves an attribute type for a vendor-specific

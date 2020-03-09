@@ -1,13 +1,14 @@
 /**
  * Classes for encoding and decoding Radius packets.
  * <p>
- * The base class RadiusPacket can read and write every Radius packet, the
- * subclasses AccessRequest and AccountingRequest provide convenience
- * methods to ease the access of special packet attributes.
+ * The interface {@link org.tinyradius.packet.RadiusPacket} supports
+ * getters for the core elements of a packet. {@link org.tinyradius.packet.BaseRadiusPacket}
+ * provides the reference implementation with support for managing attributes.
  * <p>
- * The class AccessRequest manages the encryption of
- * passwords in the attributes User-Password (PAP) or CHAP-Password and
- * CHAP-Challenge (CHAP).
+ * {@link org.tinyradius.packet.RadiusRequest} and {@link org.tinyradius.packet.RadiusResponse}
+ * support encoding and verifying authenticators for requests and responses
+ * respectively. Other subclasses inherit from these to support their specific
+ * authentication mechanisms and data validation.
  * <p>
  * Each Radius packet has an associated dictionary of attribute
  * types that allows the convenient access to packet attributes

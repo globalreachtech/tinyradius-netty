@@ -1,6 +1,6 @@
 package org.tinyradius.dictionary;
 
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.util.AttributeType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,17 +18,6 @@ public class MemoryDictionary implements WritableDictionary {
     private final Map<Integer, String> vendorsByCode = new HashMap<>();
     private final Map<Integer, Map<Byte, AttributeType>> attributesByCode = new HashMap<>();
     private final Map<String, AttributeType> attributesByName = new HashMap<>();
-
-    /**
-     * Returns the AttributeType for the vendor -1 from the cache.
-     *
-     * @param type attribute type code
-     * @return AttributeType or null
-     */
-    @Override
-    public AttributeType getAttributeTypeByCode(byte type) {
-        return getAttributeTypeByCode(-1, type);
-    }
 
     /**
      * Returns the specified AttributeType object.

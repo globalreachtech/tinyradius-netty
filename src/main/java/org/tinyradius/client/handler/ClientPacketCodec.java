@@ -19,7 +19,7 @@ import java.util.List;
 import static org.tinyradius.packet.util.PacketCodec.*;
 
 /**
- * Codec for sending requests and receiving responses
+ * Datagram codec for sending requests and receiving responses.
  */
 @ChannelHandler.Sharable
 public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, PendingRequestCtx> {

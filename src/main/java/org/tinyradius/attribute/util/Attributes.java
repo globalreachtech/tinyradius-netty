@@ -1,5 +1,6 @@
-package org.tinyradius.attribute;
+package org.tinyradius.attribute.util;
 
+import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.ArrayList;

@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.tinyradius.attribute.Attributes.create;
+import static org.tinyradius.attribute.util.Attributes.create;
 
 /**
  * ClientHandler that matches requests/response by appending Proxy-State attribute to

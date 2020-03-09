@@ -1,6 +1,6 @@
 package org.tinyradius.dictionary;
 
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.util.AttributeType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.util.Arrays;
 import static java.lang.Integer.parseInt;
 
 /**
- * Parses a dictionary in "Radiator format" and fills a WritableDictionary.
+ * Parses a dictionary in Radiator format and fills a WritableDictionary.
  */
 public class DictionaryParser {
 

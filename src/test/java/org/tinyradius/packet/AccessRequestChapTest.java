@@ -2,7 +2,7 @@ package org.tinyradius.packet;
 
 import net.jradius.util.CHAP;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.Attributes;
+import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -14,7 +14,7 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.Attributes.create;
+import static org.tinyradius.attribute.util.Attributes.create;
 import static org.tinyradius.packet.AccessRequest.CHAP_PASSWORD;
 import static org.tinyradius.packet.AccessRequest.USER_NAME;
 

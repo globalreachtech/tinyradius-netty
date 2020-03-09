@@ -19,11 +19,11 @@ public abstract class IpAttribute extends RadiusAttribute {
      * IPv4 Address
      */
     public static class V4 extends IpAttribute {
-        V4(Dictionary dictionary, int vendorId, byte type, byte[] data) {
+        public V4(Dictionary dictionary, int vendorId, byte type, byte[] data) {
             super(dictionary, vendorId, type, IpAttribute.convert(data), Inet4Address.class);
         }
 
-        V4(Dictionary dictionary, int vendorId, byte type, String data) {
+        public V4(Dictionary dictionary, int vendorId, byte type, String data) {
             super(dictionary, vendorId, type, IpAttribute.convert(data), Inet4Address.class);
         }
 
@@ -36,11 +36,11 @@ public abstract class IpAttribute extends RadiusAttribute {
      * IPv6 Address
      */
     public static class V6 extends IpAttribute {
-        V6(Dictionary dictionary, int vendorId, byte type, byte[] data) {
+        public V6(Dictionary dictionary, int vendorId, byte type, byte[] data) {
             super(dictionary, vendorId, type, IpAttribute.convert(data), Inet6Address.class);
         }
 
-        V6(Dictionary dictionary, int vendorId, byte type, String data) {
+        public V6(Dictionary dictionary, int vendorId, byte type, String data) {
             super(dictionary, vendorId, type, IpAttribute.convert(data), Inet6Address.class);
         }
     }

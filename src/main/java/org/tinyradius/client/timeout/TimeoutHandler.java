@@ -3,6 +3,12 @@ package org.tinyradius.client.timeout;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.packet.RadiusResponse;
 
+/**
+ * Schedules a retry in the future and handles timeouts.
+ * <p>
+ * Invoked after every request is sent to schedule a retry
+ * or timeout check in the future.
+ */
 public interface TimeoutHandler {
 
     /**

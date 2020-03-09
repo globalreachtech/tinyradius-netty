@@ -13,7 +13,7 @@ import java.util.Collections;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.tinyradius.attribute.Attributes.create;
+import static org.tinyradius.attribute.util.Attributes.create;
 import static org.tinyradius.packet.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
 import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;

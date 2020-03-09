@@ -1,5 +1,6 @@
-package org.tinyradius.attribute;
+package org.tinyradius.attribute.util;
 
+import org.tinyradius.attribute.*;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.HashMap;
@@ -140,13 +141,13 @@ public class AttributeType {
      */
     public void addEnumerationValue(int num, String name) {
         if (name == null || name.isEmpty())
-            throw new IllegalArgumentException("name is empty");
+            throw new IllegalArgumentException("Name is empty");
         int2str.put(num, name);
         str2int.put(name, num);
     }
 
     public String toString() {
-        String s = toUnsignedInt(getType()) + "/" + getName() + ": " + dataType;
+        String s = toUnsignedInt(getType()) + "/" + getName() + ": " + getDataType();
         if (getVendorId() != -1)
             s += " (Vendor " + getVendorId() + ")";
         return s;

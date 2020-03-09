@@ -17,7 +17,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
 
     private final String address;
 
-    Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
+    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
         this(dictionary, vendorId, type, convertValue(data), toUnsignedInt(data[1]));
     }
 
@@ -27,7 +27,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      * @param type  attribute type code
      * @param value value, format: "ipv6 address"/prefix
      */
-    Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
+    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
         this(dictionary, vendorId, type, convertValue(value), Integer.parseInt(value.split("/")[1]));
     }
 

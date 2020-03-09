@@ -1,6 +1,6 @@
 package org.tinyradius.packet;
 
-import org.tinyradius.attribute.NestedAttributeHolder;
+import org.tinyradius.attribute.util.NestedAttributeHolder;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 

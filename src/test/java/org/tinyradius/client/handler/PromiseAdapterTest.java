@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.attribute.Attributes;
+import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -26,7 +26,7 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.Attributes.create;
+import static org.tinyradius.attribute.util.Attributes.create;
 import static org.tinyradius.packet.util.PacketType.ACCESS_ACCEPT;
 import static org.tinyradius.packet.util.PacketType.ACCOUNTING_RESPONSE;
 

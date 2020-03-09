@@ -8,6 +8,10 @@ import java.io.IOException;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+/**
+ * TimeoutHandler that waits a fixed period for every timeout,
+ * up to a predefined max attempt count.
+ */
 public class BasicTimeoutHandler implements TimeoutHandler {
 
     private final Timer timer;

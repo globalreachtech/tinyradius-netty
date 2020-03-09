@@ -3,7 +3,7 @@ package org.tinyradius.dictionary;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.util.AttributeType;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -7,10 +7,6 @@
  * type code, the type name and the vendor ID for each
  * attribute type.
  * <p>
- * The interface <code>Dictionary</code> declares the methods necessary
- * to access a dictionary. Every class that implements this
- * interface can be used to resolve AttributeType objects.
- * <p>
  * Dictionaries that can be changed after construction should
  * implement the interface <code>WritableDictionary</code>.
  * You can use the class <code>DictionaryParser</code>
@@ -21,11 +17,8 @@
  * <code>MemoryDictionary</code> is the default implementation
  * of <code>WritableDictionary</code>. It manages a dictionary held
  * in the RAM. This class is used together with the
- * <code>DictionaryParser</code> by the class <code>DefaultDictionary</code>
+ * <code>DictionaryParser</code> by the class {@link org.tinyradius.dictionary.DefaultDictionary}
  * which is a singleton object containing the default dictionary
  * that is used if there is no dictionary explicitly specified.
- * The <code>DefaultDictionary</code> class is initialised from the
- * classpath resource
- * <code>org.tinyradius.dictionary.default_dictionary</code>.
  */
 package org.tinyradius.dictionary;

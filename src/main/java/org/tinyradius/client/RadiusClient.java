@@ -17,10 +17,9 @@ import java.io.Closeable;
 import java.net.SocketAddress;
 
 /**
- * This object represents a simple Radius client which communicates with
- * a specified Radius server. You can use a single instance of this object
- * to authenticate or account different users with the same Radius server
- * as long as you authenticate/account one user after the other.
+ * A simple Radius client which binds to a specific socket, and can
+ * then be used to send any number of packets to any endpoints through
+ * that socket.
  */
 public class RadiusClient implements Closeable {
 

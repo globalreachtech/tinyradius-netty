@@ -1,6 +1,7 @@
 package org.tinyradius.attribute;
 
 import io.netty.buffer.Unpooled;
+import org.tinyradius.attribute.util.AttributeHolder;
 import org.tinyradius.dictionary.Dictionary;
 
 import javax.xml.bind.DatatypeConverter;
@@ -8,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
-import static org.tinyradius.attribute.Attributes.extractAttributes;
+import static org.tinyradius.attribute.util.Attributes.extractAttributes;
 
 /**
  * This class represents a "Vendor-Specific" attribute.
@@ -24,9 +25,19 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
      * @param dictionary    dictionary to use for (sub)attributes
      * @param vendorId      ignored, VSAs should always be -1 (top level attribute)
      * @param attributeType ignored, should always be Vendor-Specific (26)
+     * @param data          data as hex to parse for vendorId and sub-attributes
+     */
+    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, String data) {
+        this(dictionary, vendorId, attributeType, DatatypeConverter.parseHexBinary(data));
+    }
+
+    /**
+     * @param dictionary    dictionary to use for (sub)attributes
+     * @param vendorId      ignored, VSAs should always be -1 (top level attribute)
+     * @param attributeType ignored, should always be Vendor-Specific (26)
      * @param data          data to parse for vendorId and sub-attributes
      */
-    VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, byte[] data) {
+    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, byte[] data) {
         this(dictionary, extractAttributes(dictionary, extractVendorId(data), data, 4), extractVendorId(data));
     }
 
@@ -36,16 +47,6 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
      */
     private static int extractVendorId(byte[] data) {
         return ByteBuffer.wrap(data).getInt();
-    }
-
-    /**
-     * @param dictionary    dictionary to use for (sub)attributes
-     * @param vendorId      ignored, VSAs should always be -1 (top level attribute)
-     * @param attributeType ignored, should always be Vendor-Specific (26)
-     * @param data          data as hex to parse for vendorId and sub-attributes
-     */
-    VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, String data) {
-        this(dictionary, vendorId, attributeType, DatatypeConverter.parseHexBinary(data));
     }
 
     /**
