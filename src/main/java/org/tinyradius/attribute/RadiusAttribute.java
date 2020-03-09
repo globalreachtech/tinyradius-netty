@@ -24,7 +24,7 @@ public class RadiusAttribute {
     private final int vendorId; // for Vendor-Specific (sub)attributes, otherwise -1
 
     /**
-     * @param dictionary Dictionary to use
+     * @param dictionary dictionary to use
      * @param vendorId   vendor ID or -1
      * @param type       attribute type code
      * @param value      value of attribute as byte array
@@ -40,7 +40,7 @@ public class RadiusAttribute {
     }
 
     /**
-     * @param dictionary Dictionary to use
+     * @param dictionary dictionary to use
      * @param vendorId   vendor ID or -1
      * @param type       attribute type code
      * @param value      value of attribute as hex string

@@ -21,6 +21,7 @@ public interface Dictionary {
     /**
      * Returns the AttributeType for the vendor -1 from the cache.
      *
+     * @param type type code
      * @return AttributeType object or null
      */
     default AttributeType getAttributeTypeByCode(byte type) {
@@ -32,10 +33,10 @@ public interface Dictionary {
      * attribute.
      *
      * @param vendorId vendor ID
-     * @param typeCode type code, 1-255
+     * @param type     type code, 1-255
      * @return AttributeType object or null
      */
-    AttributeType getAttributeTypeByCode(int vendorId, byte typeCode);
+    AttributeType getAttributeTypeByCode(int vendorId, byte type);
 
     /**
      * Retrieves the name of the vendor with the given

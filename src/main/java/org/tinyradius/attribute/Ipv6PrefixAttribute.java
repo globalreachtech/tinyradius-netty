@@ -24,8 +24,10 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
     /**
      * Constructs an IPv6 prefix attribute.
      *
-     * @param type  attribute type code
-     * @param value value, format: "ipv6 address"/prefix
+     * @param dictionary dictionary to use
+     * @param vendorId   vendor ID or -1
+     * @param type       attribute type code
+     * @param value      value, format: "ipv6 address"/prefix
      */
     public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
         this(dictionary, vendorId, type, convertValue(value), Integer.parseInt(value.split("/")[1]));

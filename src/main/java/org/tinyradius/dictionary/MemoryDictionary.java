@@ -23,14 +23,14 @@ public class MemoryDictionary implements WritableDictionary {
      * Returns the specified AttributeType object.
      *
      * @param vendorCode vendor ID or -1 for "no vendor"
-     * @param typeCode   attribute type code
+     * @param type   attribute type code
      * @return AttributeType or null
      */
     @Override
-    public AttributeType getAttributeTypeByCode(int vendorCode, byte typeCode) {
+    public AttributeType getAttributeTypeByCode(int vendorCode, byte type) {
         Map<Byte, AttributeType> vendorAttributes = attributesByCode.get(vendorCode);
         return vendorAttributes == null ?
-                null : vendorAttributes.get(typeCode);
+                null : vendorAttributes.get(type);
     }
 
     /**
