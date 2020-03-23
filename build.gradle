@@ -4,7 +4,7 @@ plugins {
     id 'com.github.kt3k.coveralls' version '2.10.1'
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.4'
-    id 'com.jfrog.artifactory' version '4.14.1'
+    id 'com.jfrog.artifactory' version '4.15.1'
     id "com.github.ben-manes.versions" version "0.28.0"
 }
 
