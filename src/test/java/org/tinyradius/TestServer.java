@@ -7,6 +7,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -15,7 +17,9 @@ import org.tinyradius.packet.*;
 import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.RequestCtx;
+import org.tinyradius.server.ResponseCtx;
 import org.tinyradius.server.SecretProvider;
+import org.tinyradius.server.handler.BasicCachingHandler;
 import org.tinyradius.server.handler.RequestHandler;
 import org.tinyradius.server.handler.ServerPacketCodec;
 
@@ -44,6 +48,10 @@ public class TestServer {
 
         final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(dictionary, secretProvider);
 
+        final Timer timer = new HashedWheelTimer();
+        final BasicCachingHandler<RequestCtx, ResponseCtx> cachingHandler =
+                new BasicCachingHandler<>(timer, 5000, RequestCtx.class, ResponseCtx.class);
+
         final SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler();
         final SimpleAccountingHandler simpleAccountingHandler = new SimpleAccountingHandler();
 
@@ -51,13 +59,13 @@ public class TestServer {
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
                     protected void initChannel(DatagramChannel ch) {
-                        ch.pipeline().addLast(serverPacketCodec, simpleAccessHandler);
+                        ch.pipeline().addLast(serverPacketCodec, cachingHandler, simpleAccessHandler);
                     }
                 },
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
                     protected void initChannel(DatagramChannel ch) {
-                        ch.pipeline().addLast(serverPacketCodec, simpleAccountingHandler);
+                        ch.pipeline().addLast(serverPacketCodec, cachingHandler, simpleAccountingHandler);
                     }
                 },
                 new InetSocketAddress(11812), new InetSocketAddress(11813))) {
