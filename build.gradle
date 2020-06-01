@@ -38,11 +38,13 @@ jacocoTestReport {
 }
 
 sonarqube {
-  properties {
-    property "sonar.projectKey", "globalreachtech_tinyradius-netty"
-    property "sonar.organization", "globalreachtech"
-    property "sonar.host.url", "https://sonarcloud.io"
-  }
+    properties {
+        property "sonar.projectKey", "globalreachtech_tinyradius-netty"
+        property "sonar.organization", "globalreachtech"
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.coverage.jacoco.xmlReportPaths", file("${rootProject.projectDir}/build/reports/jacoco/test/jacocoTestReport.xml")
+    }
 }
 
 coveralls {
