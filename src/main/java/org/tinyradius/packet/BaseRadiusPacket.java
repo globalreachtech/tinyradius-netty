@@ -163,8 +163,8 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
-        final byte[] attributes = getAttributeBytes();
-        final int length = HEADER_LENGTH + attributes.length;
+        final byte[] attributeBytes = getAttributeBytes();
+        final int length = HEADER_LENGTH + attributeBytes.length;
 
         MessageDigest md5 = getMd5Digest();
         md5.update(getType());
@@ -172,7 +172,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
         md5.update((byte) (length >> 8));
         md5.update((byte) (length & 0xff));
         md5.update(requestAuthenticator);
-        md5.update(attributes);
+        md5.update(attributeBytes);
         return md5.digest(sharedSecret.getBytes(UTF_8));
     }
 

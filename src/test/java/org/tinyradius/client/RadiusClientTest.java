@@ -44,7 +44,7 @@ class RadiusClientTest {
     private final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
-    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
+    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
     private final InetSocketAddress address = new InetSocketAddress(0);
     private final RadiusEndpoint stubEndpoint = new RadiusEndpoint(address, "secret");
 

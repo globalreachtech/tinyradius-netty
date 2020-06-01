@@ -112,10 +112,10 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
         final int len = attributeBytes.length + 6;
 
         if (len < 7)
-            throw new RuntimeException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
+            throw new IllegalStateException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
 
         if (len > 255)
-            throw new RuntimeException("Vendor-Specific attribute should be less than 256 octets, actual: " + len);
+            throw new IllegalStateException("Vendor-Specific attribute should be less than 256 octets, actual: " + len);
 
         return Unpooled.buffer(len, len)
                 .writeByte(VENDOR_SPECIFIC)

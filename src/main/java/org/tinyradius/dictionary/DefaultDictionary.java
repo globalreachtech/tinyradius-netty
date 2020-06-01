@@ -21,7 +21,7 @@ public class DefaultDictionary {
         try {
             return dictionaryParser.parseDictionary(DEFAULT_SOURCE);
         } catch (IOException e) {
-            throw new RuntimeException("default dictionary unavailable", e);
+            throw new IllegalStateException("Default dictionary unavailable", e);
         }
     }
 }

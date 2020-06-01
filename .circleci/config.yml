@@ -33,7 +33,7 @@ jobs:
 
       - run: ./cc-test-reporter before-build
 
-      - run: ./gradlew build sonarqube -Dio.netty.leakDetectionLevel=paranoid
+      - run: ./gradlew build sonarqube
 
       - run: ./cc-test-reporter after-build --coverage-input-type jacoco --exit-code $?
 

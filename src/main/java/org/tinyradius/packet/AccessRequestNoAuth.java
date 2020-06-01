@@ -23,5 +23,6 @@ class AccessRequestNoAuth extends AccessRequest {
 
     @Override
     protected void verifyAuthMechanism(String sharedSecret) {
+        // no auth - nothing to verify
     }
 }
