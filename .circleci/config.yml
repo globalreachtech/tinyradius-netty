@@ -35,12 +35,12 @@ jobs:
 
       - run: ./gradlew build sonarqube
 
-      - run: ./cc-test-reporter after-build --coverage-input-type jacoco --exit-code $?
-
       - store_test_results:
           path: build/test-results/test/
 
       - run: ./gradlew jacocoTestReport coveralls
+
+      - run: ./cc-test-reporter after-build --coverage-input-type jacoco --exit-code $?
 
       - run: bash <(curl -s https://codecov.io/bash)
 
