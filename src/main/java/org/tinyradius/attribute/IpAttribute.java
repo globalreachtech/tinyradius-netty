@@ -13,8 +13,6 @@ import java.nio.ByteBuffer;
  */
 public abstract class IpAttribute extends RadiusAttribute {
 
-    private final String address;
-
     /**
      * IPv4 Address
      */
@@ -48,25 +46,23 @@ public abstract class IpAttribute extends RadiusAttribute {
     private IpAttribute(Dictionary dictionary, int vendorId, byte type, InetAddress data, Class<? extends InetAddress> clazz) {
         super(dictionary, vendorId, type, data.getAddress());
 
-        this.address = data.getHostAddress();
-
         if (!clazz.isInstance(data))
             throw new IllegalArgumentException("Expected " + clazz.getSimpleName() + ", actual " + data.getClass().getSimpleName());
     }
 
     @Override
     public String getValueString() {
-        return address;
+        return convert(getValue()).getHostAddress();
     }
 
     private static InetAddress convert(String value) {
         if (value.isEmpty())
-            throw new IllegalArgumentException("address can't be empty");
+            throw new IllegalArgumentException("Address can't be empty");
 
         try {
             return InetAddress.getByName(value);
         } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("bad address: " + value, e);
+            throw new IllegalArgumentException("Bad address: " + value, e);
         }
     }
 
@@ -74,7 +70,7 @@ public abstract class IpAttribute extends RadiusAttribute {
         try {
             return InetAddress.getByAddress(data);
         } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("bad address", e);
+            throw new IllegalArgumentException("Bad address", e);
         }
     }
 }

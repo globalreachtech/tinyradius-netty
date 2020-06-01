@@ -15,8 +15,6 @@ import static java.lang.Byte.toUnsignedInt;
  */
 public class Ipv6PrefixAttribute extends RadiusAttribute {
 
-    private final String address;
-
     public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
         this(dictionary, vendorId, type, convertValue(data), toUnsignedInt(data[1]));
     }
@@ -35,7 +33,6 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
 
     private Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, InetAddress address, int prefixLength) {
         super(dictionary, vendorId, type, convertAndCheck(address, prefixLength));
-        this.address = address.getHostAddress() + "/" + prefixLength;
     }
 
     /**
@@ -43,7 +40,8 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
      */
     @Override
     public String getValueString() {
-        return address;
+        final byte[] data = getValue();
+        return extractAddress(data).getHostAddress() + "/" + toUnsignedInt(data[1]);
     }
 
     private static byte[] convertAndCheck(InetAddress address, int prefixLength) {
@@ -80,7 +78,7 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
 
             return InetAddress.getByName(tokens[0]);
         } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("bad IPv6 prefix, invalid IPv6 address: " + value, e);
+            throw new IllegalArgumentException("Bad IPv6 prefix, invalid IPv6 address: " + value, e);
         }
     }
 
@@ -95,11 +93,15 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
             throw new IllegalArgumentException("IPv6 Prefix Prefix-Length declared " + prefixLength + " bits, " +
                     "actual byte array only has space for " + availablePrefixBits + " bits");
 
+        return extractAddress(data);
+    }
+
+    private static InetAddress extractAddress(byte[] data) {
         try {
             final byte[] array = ByteBuffer.allocate(16).put(data, 2, data.length - 2).array();
             return InetAddress.getByAddress(array);
         } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("bad IPv6 prefix, invalid IPv6 address: "
+            throw new IllegalArgumentException("Bad IPv6 prefix, invalid IPv6 address: "
                     + Arrays.toString(Arrays.copyOfRange(data, 2, data.length)), e);
         }
     }
