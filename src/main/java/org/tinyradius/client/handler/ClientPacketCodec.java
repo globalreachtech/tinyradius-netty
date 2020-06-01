@@ -34,6 +34,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
 
     protected DatagramPacket encodePacket(InetSocketAddress localAddress, PendingRequestCtx msg) {
         try {
+            logger.debug("Request shared secret {}", msg.getEndpoint().getSecret());
             final RadiusRequest packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
             final DatagramPacket datagramPacket = PacketCodec.toDatagram(
                     packet, msg.getEndpoint().getAddress(), localAddress);
