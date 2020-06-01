@@ -36,31 +36,33 @@ public class PacketType {
     public static final byte STATUS_REJECT = 48;
     public static final byte RESERVED = (byte) 255;
 
-    private static final HashMap<Byte, String> typeNames = new HashMap<Byte, String>() {{
-        put(ACCESS_REQUEST, "Access-Request");
-        put(ACCESS_ACCEPT, "Access-Accept");
-        put(ACCESS_REJECT, "Access-Reject");
-        put(ACCOUNTING_REQUEST, "Accounting-Request");
-        put(ACCOUNTING_RESPONSE, "Accounting-Response");
-        put(ACCOUNTING_STATUS, "Accounting-Status");
-        put(PASSWORD_REQUEST, "Password-Request");
-        put(PASSWORD_ACCEPT, "Password-Accept");
-        put(PASSWORD_REJECT, "Password-Reject");
-        put(ACCOUNTING_MESSAGE, "Accounting-Message");
-        put(ACCESS_CHALLENGE, "Access-Challenge");
-        put(STATUS_SERVER, "Status-Server");
-        put(STATUS_CLIENT, "Status-Client");
-        put(DISCONNECT_REQUEST, "Disconnect-Request");
-        put(DISCONNECT_ACK, "Disconnect-ACK");
-        put(DISCONNECT_NAK, "Disconnect-NAK");
-        put(COA_REQUEST, "CoA-Request");
-        put(COA_ACK, "CoA-ACK");
-        put(COA_NAK, "CoA-NAK");
-        put(STATUS_REQUEST, "Status-Request");
-        put(STATUS_ACCEPT, "Status-Accept");
-        put(STATUS_REJECT, "Status-Reject");
-        put(RESERVED, "Reserved");
-    }};
+    private static final HashMap<Byte, String> typeNames = new HashMap<>();
+
+    static {
+        typeNames.put(ACCESS_REQUEST, "Access-Request");
+        typeNames.put(ACCESS_ACCEPT, "Access-Accept");
+        typeNames.put(ACCESS_REJECT, "Access-Reject");
+        typeNames.put(ACCOUNTING_REQUEST, "Accounting-Request");
+        typeNames.put(ACCOUNTING_RESPONSE, "Accounting-Response");
+        typeNames.put(ACCOUNTING_STATUS, "Accounting-Status");
+        typeNames.put(PASSWORD_REQUEST, "Password-Request");
+        typeNames.put(PASSWORD_ACCEPT, "Password-Accept");
+        typeNames.put(PASSWORD_REJECT, "Password-Reject");
+        typeNames.put(ACCOUNTING_MESSAGE, "Accounting-Message");
+        typeNames.put(ACCESS_CHALLENGE, "Access-Challenge");
+        typeNames.put(STATUS_SERVER, "Status-Server");
+        typeNames.put(STATUS_CLIENT, "Status-Client");
+        typeNames.put(DISCONNECT_REQUEST, "Disconnect-Request");
+        typeNames.put(DISCONNECT_ACK, "Disconnect-ACK");
+        typeNames.put(DISCONNECT_NAK, "Disconnect-NAK");
+        typeNames.put(COA_REQUEST, "CoA-Request");
+        typeNames.put(COA_ACK, "CoA-ACK");
+        typeNames.put(COA_NAK, "CoA-NAK");
+        typeNames.put(STATUS_REQUEST, "Status-Request");
+        typeNames.put(STATUS_ACCEPT, "Status-Accept");
+        typeNames.put(STATUS_REJECT, "Status-Reject");
+        typeNames.put(RESERVED, "Reserved");
+    }
 
     public static String getPacketTypeName(byte code) {
         return typeNames.getOrDefault(code, "Unknown (" + code + ")");

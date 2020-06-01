@@ -56,8 +56,10 @@ class PacketCodecTest {
         RadiusRequest oversizeRequest = RadiusPackets.createRequest(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
         addBytesToPacket(oversizeRequest, 4097);
 
+        // encode on separate line - encodeRequest() and toDatagram() both throw RadiusPacketException
+        final RadiusRequest encodedRequest = oversizeRequest.encodeRequest("mySecret");
         final RadiusPacketException exception = assertThrows(RadiusPacketException.class,
-                () -> toDatagram(oversizeRequest.encodeRequest("mySecret"), new InetSocketAddress(0)));
+                () -> toDatagram(encodedRequest, new InetSocketAddress(0)));
 
         assertTrue(exception.getMessage().toLowerCase().contains("packet too long"));
 
