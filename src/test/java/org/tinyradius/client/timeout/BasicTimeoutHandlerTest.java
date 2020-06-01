@@ -21,15 +21,6 @@ class BasicTimeoutHandlerTest {
     @Mock
     private Runnable mockRetry;
 
-    private void waitTimer() {
-        while (timer.pendingTimeouts() != 0) {
-            try {
-                Thread.sleep(110);
-            } catch (InterruptedException ignored) {
-            }
-        }
-    }
-
     @Test
     void retryFailIfMaxAttempts() {
         final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
@@ -39,16 +30,18 @@ class BasicTimeoutHandlerTest {
         // totalAttempts < maxAttempts
         retryStrategy.onTimeout(mockRetry, 1, promise);
         assertEquals(1, timer.pendingTimeouts());
-        waitTimer();
 
-        verify(mockRetry, times(1)).run();
+        verify(mockRetry, timeout(500)).run();
+        assertEquals(0, timer.pendingTimeouts());
 
         // totalAttempts >= maxAttempts
         retryStrategy.onTimeout(mockRetry, 2, promise);
         assertEquals(1, timer.pendingTimeouts());
-        waitTimer();
 
-        verify(mockRetry, times(1)).run(); // unchanged
+        // still one invocation after 500ms
+        verify(mockRetry, after(500)).run();
+        assertEquals(0, timer.pendingTimeouts());
+
         assertFalse(promise.isSuccess());
         assertTrue(promise.cause().getMessage().toLowerCase().contains("max attempts reached"));
     }
@@ -62,9 +55,9 @@ class BasicTimeoutHandlerTest {
         // first retry runs
         retryStrategy.onTimeout(mockRetry, 1, promise);
         assertEquals(1, timer.pendingTimeouts());
-        waitTimer();
 
-        verify(mockRetry, times(1)).run();
+        verify(mockRetry, timeout(500)).run();
+        assertEquals(0, timer.pendingTimeouts());
     }
 
     @Test
@@ -78,8 +71,7 @@ class BasicTimeoutHandlerTest {
         retryStrategy.onTimeout(mockRetry, 2, promise);
         assertEquals(1, timer.pendingTimeouts());
 
-        waitTimer();
-
-        verify(mockRetry, never()).run();
+        verify(mockRetry, after(500).never()).run();
+        assertEquals(0, timer.pendingTimeouts());
     }
 }

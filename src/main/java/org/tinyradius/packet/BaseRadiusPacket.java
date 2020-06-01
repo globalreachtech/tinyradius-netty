@@ -180,7 +180,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
         try {
             return MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e); // never happens
+            throw new IllegalArgumentException(e); // never happens
         }
     }
 

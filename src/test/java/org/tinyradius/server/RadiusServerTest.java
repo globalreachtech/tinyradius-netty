@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,7 +30,7 @@ class RadiusServerTest {
     private ChannelHandler acctHandler;
 
     @Test
-    void serverStartStop() throws InterruptedException {
+    void serverStartStop() {
         final RadiusServer server = new RadiusServer(bootstrap, authHandler, acctHandler, new InetSocketAddress(51024), new InetSocketAddress(51025));
 
         // registering event loop and adding handlers is almost instant
@@ -55,11 +56,10 @@ class RadiusServerTest {
         assertTrue(accessPipeline.get(0).contains("ChannelHandler$MockitoMock$"));
 
         server.close();
-        Thread.sleep(300);
 
         // not registered with eventLoop
-        assertFalse(server.getAcctChannel().isRegistered());
-        assertFalse(server.getAuthChannel().isRegistered());
+        await().until(() -> !server.getAcctChannel().isRegistered());
+        await().until(() -> !server.getAuthChannel().isRegistered());
 
         // no handlers registered
         assertEquals(Collections.singletonList(TAIL_CONTEXT), server.getAcctChannel().pipeline().names());

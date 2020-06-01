@@ -23,8 +23,10 @@ import org.tinyradius.util.RadiusEndpoint;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.tinyradius.packet.util.PacketType.ACCOUNTING_RESPONSE;
@@ -46,7 +48,7 @@ class ProxyHandlerTest {
     private ArgumentCaptor<ResponseCtx> responseCaptor;
 
     @Test
-    void handleSuccess() throws InterruptedException {
+    void handleSuccess() {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
@@ -62,14 +64,12 @@ class ProxyHandlerTest {
 
         proxyHandler.channelRead0(ctx, new RequestCtx(request, stubEndpoint));
 
-        Thread.sleep(200);
-
-        verify(ctx).writeAndFlush(responseCaptor.capture());
+        verify(ctx, timeout(200)).writeAndFlush(responseCaptor.capture());
         assertEquals(mockResponse, responseCaptor.getValue().getResponse());
     }
 
     @Test
-    void handleRadiusClientError() throws InterruptedException {
+    void handleRadiusClientError() {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
@@ -83,9 +83,8 @@ class ProxyHandlerTest {
 
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
 
-        Thread.sleep(200);
-
-        verifyNoInteractions(ctx);
+        await().during(500, TimeUnit.MILLISECONDS).untilAsserted(
+                () -> verifyNoInteractions(ctx));
     }
 
     @Test

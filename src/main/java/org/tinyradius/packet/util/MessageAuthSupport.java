@@ -92,7 +92,7 @@ public interface MessageAuthSupport<T extends MessageAuthSupport<?>> extends Rad
             mac.init(secretKeySpec);
             return mac;
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new RuntimeException(e); // never happens
+            throw new IllegalArgumentException(e); // never happens
         }
     }
 }

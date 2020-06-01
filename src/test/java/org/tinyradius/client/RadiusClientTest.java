@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 
 import static io.netty.util.ResourceLeakDetector.Level.PARANOID;
 import static io.netty.util.ResourceLeakDetector.Level.SIMPLE;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -51,7 +52,7 @@ class RadiusClientTest {
     private final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
     @Spy
-    private TimeoutHandler timeoutHandler = new BasicTimeoutHandler(new HashedWheelTimer());
+    private final TimeoutHandler timeoutHandler = new BasicTimeoutHandler(new HashedWheelTimer());
 
     @BeforeAll
     static void beforeAll() {
@@ -78,7 +79,7 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateSuccess() throws InterruptedException, RadiusPacketException {
+    void communicateSuccess() throws RadiusPacketException {
         final byte id = (byte) random.nextInt(256);
         final RadiusResponse response = RadiusPackets.createResponse(DefaultDictionary.INSTANCE, (byte) 2, id, null, Collections.emptyList());
         final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(a -> a.trySuccess(response));
@@ -91,15 +92,13 @@ class RadiusClientTest {
 
         assertFalse(future.isDone());
 
-        Thread.sleep(300);
-
-        assertTrue(future.isDone());
+        await().until(future::isDone);
         assertTrue(future.isSuccess());
         assertSame(response, future.getNow());
     }
 
     @Test
-    void outboundError() throws InterruptedException {
+    void outboundError() {
         final Exception expectedException = new Exception("test 123");
         final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(p -> p.tryFailure(expectedException));
 
@@ -109,9 +108,7 @@ class RadiusClientTest {
         final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
         assertFalse(future.isDone());
 
-        Thread.sleep(300);
-
-        assertTrue(future.isDone());
+        await().until(future::isDone);
         assertFalse(future.isSuccess());
         assertSame(expectedException, future.cause());
     }
