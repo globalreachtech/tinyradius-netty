@@ -23,7 +23,7 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
           
-      - run: ./gradle build sonarqube -Dio.netty.leakDetectionLevel=paranoid
+      - run: ./gradlew build sonarqube -Dio.netty.leakDetectionLevel=paranoid
 
       - store_test_results:
           path: build/test-results/test/
