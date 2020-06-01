@@ -7,7 +7,6 @@ jobs:
 
     environment:
       COVERALLS_REPO_TOKEN: 2xA4TIqqxVf1yNknI6CCrgmReVBMIc168
-      CC_TEST_REPORTER_ID: 40be9c9a6468745b257f8404dcf1e60ddcad486130b1684d4a2dbbc344742c9e
 
     steps:
       - checkout
@@ -31,16 +30,12 @@ jobs:
                      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
                      chmod +x ./cc-test-reporter
 
-      - run: ./cc-test-reporter before-build
-
       - run: ./gradlew build sonarqube
 
       - store_test_results:
           path: build/test-results/test/
 
       - run: ./gradlew jacocoTestReport coveralls
-
-      - run: ./cc-test-reporter after-build --coverage-input-type jacoco --exit-code $?
 
       - run: bash <(curl -s https://codecov.io/bash)
 
