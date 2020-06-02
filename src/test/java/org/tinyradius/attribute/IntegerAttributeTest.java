@@ -62,8 +62,9 @@ class IntegerAttributeTest {
 
     @Test
     void stringTooBig() {
+        final String strLong = Long.toString(0xffffffffffL);
         final NumberFormatException exception = assertThrows(NumberFormatException.class,
-                () -> new IntegerAttribute(dictionary, -1, (byte) 27, Long.toString(0xffffffffffL)));
+                () -> new IntegerAttribute(dictionary, -1, (byte) 27, strLong));
 
         assertTrue(exception.getMessage().toLowerCase().contains("exceeds range"));
     }

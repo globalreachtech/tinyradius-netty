@@ -25,8 +25,9 @@ class RadiusAttributeTest {
         assertEquals(255, bytes.length);
 
         // 254 octets not ok
+        final byte[] oversizedArray = random.generateSeed(254);
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                new RadiusAttribute(dictionary, -1, (byte) 2, random.generateSeed(254)));
+                new RadiusAttribute(dictionary, -1, (byte) 2, oversizedArray));
 
         assertTrue(exception.getMessage().contains("too long"));
     }
