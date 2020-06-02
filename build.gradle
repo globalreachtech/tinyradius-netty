@@ -1,7 +1,6 @@
 plugins {
     id 'java-library'
     id 'jacoco'
-    id 'com.github.kt3k.coveralls' version '2.10.1'
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.5'
     id 'com.jfrog.artifactory' version '4.15.2'
@@ -44,12 +43,8 @@ sonarqube {
         property "sonar.organization", "globalreachtech"
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.java.coveragePlugin", "jacoco"
-        property "sonar.coverage.jacoco.xmlReportPaths", file("${rootProject.projectDir}/build/reports/jacoco/test/jacocoTestReport.xml")
+        property "sonar.coverage.jacoco.xmlReportPaths", file("./build/reports/jacoco/test/jacocoTestReport.xml")
     }
-}
-
-coveralls {
-    jacocoReportPath 'build/reports/jacoco/test/jacocoTestReport.xml'
 }
 
 test {
