@@ -11,7 +11,7 @@ public class StringAttribute extends RadiusAttribute {
 
     public StringAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
         super(dictionary, vendorId, type, data);
-        if (data.length < 1)
+        if (data.length == 0)
             throw new IllegalArgumentException("String attribute value should be min 1 octet, actual: " + data.length);
     }
 

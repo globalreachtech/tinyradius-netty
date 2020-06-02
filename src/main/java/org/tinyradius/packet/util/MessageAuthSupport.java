@@ -49,7 +49,7 @@ public interface MessageAuthSupport<T extends MessageAuthSupport<?>> extends Rad
     default void verifyMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
 
-        if (msgAuthAttr.size() < 1)
+        if (msgAuthAttr.isEmpty())
             return;
 
         if (msgAuthAttr.size() > 1)

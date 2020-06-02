@@ -13,6 +13,9 @@ import static org.tinyradius.packet.util.PacketType.*;
  */
 public class RadiusPackets {
 
+    private RadiusPackets() {
+    }
+
     /**
      * Creates a RadiusPacket object. Depending on the passed type, an
      * appropriate packet is created. Also sets the type, and the

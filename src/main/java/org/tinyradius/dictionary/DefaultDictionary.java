@@ -15,6 +15,9 @@ public class DefaultDictionary {
 
     public static final WritableDictionary INSTANCE = create();
 
+    private DefaultDictionary() {
+    }
+
     private static WritableDictionary create() {
         final DictionaryParser dictionaryParser = DictionaryParser.newClasspathParser();
 

@@ -28,6 +28,9 @@ public class PacketCodec {
 
     private static final int MAX_PACKET_LENGTH = 4096;
 
+    private PacketCodec() {
+    }
+
     /**
      * @param packet    packet to convert
      * @param recipient destination socket

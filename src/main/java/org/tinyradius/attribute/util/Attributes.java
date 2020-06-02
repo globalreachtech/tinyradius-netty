@@ -14,6 +14,9 @@ import static java.lang.Byte.toUnsignedInt;
  */
 public class Attributes {
 
+    private Attributes() {
+    }
+
     /**
      * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
      *
