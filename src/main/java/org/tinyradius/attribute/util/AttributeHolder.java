@@ -103,9 +103,8 @@ public interface AttributeHolder {
     }
 
     /**
-     * Adds a Radius attribute to this packet.
+     * Adds a Radius attribute.
      * Uses AttributeTypes to lookup the type code and converts the value.
-     * Can also be used to add sub-attributes.
      *
      * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
      * @param value value of the attribute, for example "127.0.0.1"
@@ -122,9 +121,7 @@ public interface AttributeHolder {
     }
 
     /**
-     * Adds a Radius attribute to this packet.
-     * <p>
-     * Will add sub-attributes if added from Vendor-Specific Attribute.
+     * Adds a Radius attribute.
      *
      * @param type  attribute type code
      * @param value string value to set

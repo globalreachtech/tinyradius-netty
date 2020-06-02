@@ -2,7 +2,7 @@ package org.tinyradius.client.timeout;
 
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
-import org.tinyradius.packet.RadiusResponse;
+import org.tinyradius.packet.response.RadiusResponse;
 
 import java.io.IOException;
 

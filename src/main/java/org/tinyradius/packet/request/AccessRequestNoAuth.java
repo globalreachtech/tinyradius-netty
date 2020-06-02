@@ -1,4 +1,4 @@
-package org.tinyradius.packet;
+package org.tinyradius.packet.request;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;

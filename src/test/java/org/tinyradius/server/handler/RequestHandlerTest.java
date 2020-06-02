@@ -3,9 +3,9 @@ package org.tinyradius.server.handler;
 import io.netty.channel.ChannelHandlerContext;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.packet.AccessRequest;
-import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.RadiusRequest;
+import org.tinyradius.packet.request.AccessRequest;
+import org.tinyradius.packet.request.AccountingRequest;
+import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.server.RequestCtx;
 
 import java.util.Collections;

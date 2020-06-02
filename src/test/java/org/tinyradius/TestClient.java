@@ -15,9 +15,9 @@ import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.client.timeout.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccessRequestPap;
-import org.tinyradius.packet.AccountingRequest;
-import org.tinyradius.packet.RadiusResponse;
+import org.tinyradius.packet.request.AccessRequestPap;
+import org.tinyradius.packet.request.AccountingRequest;
+import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetSocketAddress;

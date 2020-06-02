@@ -13,7 +13,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.*;
+import org.tinyradius.packet.request.AccessRequest;
+import org.tinyradius.packet.request.AccessRequestPap;
+import org.tinyradius.packet.request.AccountingRequest;
+import org.tinyradius.packet.request.RadiusRequest;
+import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.RequestCtx;
@@ -25,7 +29,7 @@ import org.tinyradius.server.handler.ServerPacketCodec;
 
 import java.net.InetSocketAddress;
 
-import static org.tinyradius.packet.AccessRequest.USER_NAME;
+import static org.tinyradius.packet.request.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.util.PacketType.*;
 
 /**

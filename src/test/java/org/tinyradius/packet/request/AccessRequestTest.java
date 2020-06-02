@@ -1,4 +1,4 @@
-package org.tinyradius.packet;
+package org.tinyradius.packet.request;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.util.Attributes;
@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.packet.AccessRequest.*;
+import static org.tinyradius.packet.request.AccessRequest.*;
 
 class AccessRequestTest {
 

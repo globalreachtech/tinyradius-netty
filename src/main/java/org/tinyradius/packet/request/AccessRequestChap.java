@@ -1,13 +1,13 @@
-package org.tinyradius.packet;
+package org.tinyradius.packet.request;
 
 import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -88,7 +88,7 @@ public class AccessRequestChap extends AccessRequest {
      * @return 17 octet CHAP-encoded password (1 octet for CHAP ID, 16 octets CHAP response)
      */
     private byte[] computeChapPassword(byte chapId, String plaintextPw, byte[] chapChallenge) {
-        MessageDigest md5 = getMd5Digest();
+        MessageDigest md5 = BaseRadiusPacket.getMd5Digest();
         md5.update(chapId);
         md5.update(plaintextPw.getBytes(UTF_8));
         md5.update(chapChallenge);

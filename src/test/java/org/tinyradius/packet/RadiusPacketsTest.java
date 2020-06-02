@@ -3,6 +3,11 @@ package org.tinyradius.packet;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.request.AccessRequest;
+import org.tinyradius.packet.request.AccountingRequest;
+import org.tinyradius.packet.request.RadiusRequest;
+import org.tinyradius.packet.response.AccessResponse;
+import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.packet.util.RadiusPackets;
 
 import java.util.Collections;

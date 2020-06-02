@@ -15,7 +15,7 @@ import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.client.timeout.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.AccountingRequest;
+import org.tinyradius.packet.request.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;

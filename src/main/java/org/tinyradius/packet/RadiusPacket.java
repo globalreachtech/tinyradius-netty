@@ -1,7 +1,7 @@
 package org.tinyradius.packet;
 
-import org.tinyradius.attribute.util.NestedAttributeHolder;
 import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.util.NestedAttributeHolder;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.List;
@@ -36,11 +36,13 @@ public interface RadiusPacket extends NestedAttributeHolder {
     /**
      * @return list of RadiusAttributes in packet
      */
+    @Override
     List<RadiusAttribute> getAttributes();
 
     /**
      * @return the dictionary this Radius packet uses.
      */
+    @Override
     Dictionary getDictionary();
 
     /**

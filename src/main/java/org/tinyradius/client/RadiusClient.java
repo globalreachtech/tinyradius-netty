@@ -9,8 +9,8 @@ import io.netty.util.concurrent.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.timeout.TimeoutHandler;
-import org.tinyradius.packet.RadiusRequest;
-import org.tinyradius.packet.RadiusResponse;
+import org.tinyradius.packet.request.RadiusRequest;
+import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.io.Closeable;

@@ -3,12 +3,13 @@ package org.tinyradius.attribute.util;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * AttributeHolder that supports sub-attributes and filtering by vendorId
+ * AttributeHolder that supports sub-attributes (Vendor-Specific Attributes) and filtering by vendorId
  */
 public interface NestedAttributeHolder extends AttributeHolder {
 
@@ -50,6 +51,48 @@ public interface NestedAttributeHolder extends AttributeHolder {
     default RadiusAttribute getAttribute(int vendorId, byte type) {
         List<RadiusAttribute> attrs = getAttributes(vendorId, type);
         return attrs.isEmpty() ? null : attrs.get(0);
+    }
+
+    /**
+     * Adds a Radius attribute to this packet. Can also be used
+     * to add Vendor-Specific sub-attributes. If a attribute with
+     * a vendor code != -1 is passed in, a VendorSpecificAttribute
+     * is created for the sub-attribute.
+     *
+     * @param attribute RadiusAttribute object
+     */
+    @Override
+    default void addAttribute(RadiusAttribute attribute) {
+        if (attribute.getVendorId() == getChildVendorId()) {
+            getAttributes().add(attribute);
+        } else {
+            VendorSpecificAttribute vsa = new VendorSpecificAttribute(getDictionary(), new ArrayList<>(), attribute.getVendorId());
+            vsa.addAttribute(attribute);
+            getAttributes().add(vsa);
+        }
+    }
+
+    /**
+     * Removes the specified attribute from this packet.
+     *
+     * @param attribute RadiusAttribute to remove
+     */
+    @Override
+    default void removeAttribute(RadiusAttribute attribute) {
+        if (attribute.getVendorId() == getChildVendorId()) {
+            getAttributes().remove(attribute);
+        } else {
+            removeSubAttribute(attribute);
+        }
+    }
+
+    default void removeSubAttribute(RadiusAttribute attribute) {
+        for (VendorSpecificAttribute vsa : getVendorSpecificAttributes(attribute.getVendorId())) {
+            vsa.removeAttribute(attribute);
+            if (vsa.getAttributes().isEmpty())
+                // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
+                getAttributes().remove(vsa);
+        }
     }
 
     /**

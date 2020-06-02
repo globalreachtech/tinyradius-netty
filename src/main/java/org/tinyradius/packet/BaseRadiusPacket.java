@@ -1,7 +1,6 @@
 package org.tinyradius.packet;
 
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.util.PacketType;
 import org.tinyradius.packet.util.RadiusPackets;
@@ -84,48 +83,6 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
     @Override
     public Dictionary getDictionary() {
         return dictionary;
-    }
-
-    /**
-     * Adds a Radius attribute to this packet. Can also be used
-     * to add Vendor-Specific sub-attributes. If a attribute with
-     * a vendor code != -1 is passed in, a VendorSpecificAttribute
-     * is created for the sub-attribute.
-     *
-     * @param attribute RadiusAttribute object
-     */
-    @Override
-    public void addAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() == CHILD_VENDOR_ID) {
-            attributes.add(attribute);
-        } else {
-            VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, new ArrayList<>(), attribute.getVendorId());
-            vsa.addAttribute(attribute);
-            attributes.add(vsa);
-        }
-    }
-
-    /**
-     * Removes the specified attribute from this packet.
-     *
-     * @param attribute RadiusAttribute to remove
-     */
-    @Override
-    public void removeAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() == CHILD_VENDOR_ID) {
-            attributes.remove(attribute);
-        } else {
-            removeSubAttribute(attribute);
-        }
-    }
-
-    private void removeSubAttribute(RadiusAttribute attribute) {
-        for (VendorSpecificAttribute vsa : getVendorSpecificAttributes(attribute.getVendorId())) {
-            vsa.removeAttribute(attribute);
-            if (vsa.getAttributes().isEmpty())
-                // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
-                attributes.remove(vsa);
-        }
     }
 
     /**

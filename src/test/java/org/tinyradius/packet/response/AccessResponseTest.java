@@ -1,4 +1,4 @@
-package org.tinyradius.packet;
+package org.tinyradius.packet.response;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.dictionary.DefaultDictionary;

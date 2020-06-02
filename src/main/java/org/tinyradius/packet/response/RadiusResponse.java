@@ -1,7 +1,8 @@
-package org.tinyradius.packet;
+package org.tinyradius.packet.response;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.util.RadiusPacketException;
 

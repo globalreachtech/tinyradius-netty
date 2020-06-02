@@ -5,7 +5,7 @@
  * getters for the core elements of a packet. {@link org.tinyradius.packet.BaseRadiusPacket}
  * provides the reference implementation with support for managing attributes.
  * <p>
- * {@link org.tinyradius.packet.RadiusRequest} and {@link org.tinyradius.packet.RadiusResponse}
+ * {@link org.tinyradius.packet.request.RadiusRequest} and {@link org.tinyradius.packet.response.RadiusResponse}
  * support encoding and verifying authenticators for requests and responses
  * respectively. Other subclasses inherit from these to support their specific
  * authentication mechanisms and data validation.

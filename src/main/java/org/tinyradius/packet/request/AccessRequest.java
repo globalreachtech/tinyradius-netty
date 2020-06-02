@@ -1,4 +1,4 @@
-package org.tinyradius.packet;
+package org.tinyradius.packet.request;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

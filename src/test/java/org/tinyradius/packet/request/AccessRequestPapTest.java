@@ -1,4 +1,4 @@
-package org.tinyradius.packet;
+package org.tinyradius.packet.request;
 
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
@@ -11,9 +11,9 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.packet.AccessRequest.USER_NAME;
-import static org.tinyradius.packet.AccessRequest.USER_PASSWORD;
-import static org.tinyradius.packet.AccessRequestPap.pad;
+import static org.tinyradius.packet.request.AccessRequest.USER_NAME;
+import static org.tinyradius.packet.request.AccessRequest.USER_PASSWORD;
+import static org.tinyradius.packet.request.AccessRequestPap.pad;
 
 class AccessRequestPapTest {
 

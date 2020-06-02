@@ -1,7 +1,7 @@
 package org.tinyradius.client.timeout;
 
 import io.netty.util.concurrent.Promise;
-import org.tinyradius.packet.RadiusResponse;
+import org.tinyradius.packet.response.RadiusResponse;
 
 /**
  * Schedules a retry in the future and handles timeouts.

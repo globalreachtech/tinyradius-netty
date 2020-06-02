@@ -1,8 +1,8 @@
 package org.tinyradius.client;
 
 import io.netty.util.concurrent.Promise;
-import org.tinyradius.packet.RadiusRequest;
-import org.tinyradius.packet.RadiusResponse;
+import org.tinyradius.packet.request.RadiusRequest;
+import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
 

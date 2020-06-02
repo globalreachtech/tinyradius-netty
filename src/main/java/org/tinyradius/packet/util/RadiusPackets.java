@@ -2,7 +2,11 @@ package org.tinyradius.packet.util;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.*;
+import org.tinyradius.packet.request.AccessRequest;
+import org.tinyradius.packet.request.AccountingRequest;
+import org.tinyradius.packet.request.RadiusRequest;
+import org.tinyradius.packet.response.AccessResponse;
+import org.tinyradius.packet.response.RadiusResponse;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package org.tinyradius.packet;
+package org.tinyradius.packet.request;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.util.Attributes;
@@ -9,7 +9,7 @@ import org.tinyradius.util.RadiusPacketException;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.tinyradius.packet.AccessRequest.EAP_MESSAGE;
+import static org.tinyradius.packet.request.AccessRequest.EAP_MESSAGE;
 import static org.tinyradius.packet.util.MessageAuthSupport.MESSAGE_AUTHENTICATOR;
 
 class AccessRequestEapTest {

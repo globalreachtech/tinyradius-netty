@@ -7,8 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.client.PendingRequestCtx;
-import org.tinyradius.packet.RadiusRequest;
-import org.tinyradius.packet.RadiusResponse;
+import org.tinyradius.packet.request.RadiusRequest;
+import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
