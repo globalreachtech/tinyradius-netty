@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -170,7 +170,7 @@ class PromiseAdapterTest {
     }
 
     @Test
-    void encodeDecodeSuccess() throws InterruptedException {
+    void encodeDecodeSuccess() {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
@@ -198,9 +198,9 @@ class PromiseAdapterTest {
                 Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)))
                 .encodeResponse(secret, requestAuthenticator);
 
+        // decode response
         final List<Object> in1 = new ArrayList<>();
         handler.decode(ctx, goodResponse, in1);
-
         assertTrue(in1.isEmpty());
 
         // check promise is done
@@ -212,18 +212,5 @@ class PromiseAdapterTest {
 
         // check proxyState is removed after reading
         assertEquals(0, decodedResponse.getAttributes().size());
-
-        // pause to avoid race condition
-        Thread.sleep(100);
-
-        // channel read again lookup fails
-        final List<Object> in2 = new ArrayList<>();
-        handler.decode(ctx, goodResponse, in2);
-
-        assertTrue(in2.isEmpty());
-
-        // check promise hasn't changed
-        assertTrue(promise.isDone());
-        assertSame(decodedResponse, promise.getNow());
     }
 }

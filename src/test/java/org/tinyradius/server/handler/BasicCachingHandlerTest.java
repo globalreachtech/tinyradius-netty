@@ -20,6 +20,8 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -34,7 +36,7 @@ class BasicCachingHandlerTest {
     private ChannelHandlerContext ctx;
 
     @Test
-    void cacheHitAndTimeout() throws InterruptedException, RadiusPacketException {
+    void cacheHitAndTimeout() throws RadiusPacketException {
         final BasicCachingHandler<RequestCtx, ResponseCtx> basicCachingHandler =
                 new BasicCachingHandler<>(new HashedWheelTimer(), 500, RequestCtx.class, ResponseCtx.class);
 
@@ -43,47 +45,49 @@ class BasicCachingHandlerTest {
         final ResponseCtx responseContext = requestCtx.withResponse(RadiusPackets.createResponse(dictionary, ACCESS_ACCEPT, (byte) 100, null, Collections.emptyList()));
 
         // cache miss
-        final ArrayList<Object> out1 = new ArrayList<>();
-        basicCachingHandler.decode(ctx, requestCtx, out1);
-        assertEquals(1, out1.size());
-        assertTrue(out1.contains(requestCtx));
+        final ArrayList<Object> in1 = new ArrayList<>();
+        basicCachingHandler.decode(ctx, requestCtx, in1);
+        assertEquals(1, in1.size());
+        assertTrue(in1.contains(requestCtx));
 
         // cache miss again if no response
-        final ArrayList<Object> out2 = new ArrayList<>();
-        basicCachingHandler.decode(ctx, requestCtx, out2);
-        assertEquals(1, out2.size());
-        assertTrue(out2.contains(requestCtx));
+        final ArrayList<Object> in2 = new ArrayList<>();
+        basicCachingHandler.decode(ctx, requestCtx, in2);
+        assertEquals(1, in2.size());
+        assertTrue(in2.contains(requestCtx));
 
         // response
-        final ArrayList<Object> out3 = new ArrayList<>();
-        basicCachingHandler.encode(ctx, responseContext, out3);
+        final ArrayList<Object> in3 = new ArrayList<>();
+        basicCachingHandler.encode(ctx, responseContext, in3);
 
+        // ctx only used if cache hits (to flush response)
         verifyNoInteractions(ctx);
 
         // cache hit
-        final ArrayList<Object> out4 = new ArrayList<>();
-        basicCachingHandler.decode(ctx, requestCtx, out4);
-        assertEquals(0, out4.size());
+        final ArrayList<Object> in4 = new ArrayList<>();
+        basicCachingHandler.decode(ctx, requestCtx, in4);
+        assertEquals(0, in4.size());
 
         // cache hit again
-        final ArrayList<Object> out5 = new ArrayList<>();
-        basicCachingHandler.decode(ctx, requestCtx, out5);
-        assertEquals(0, out5.size());
+        final ArrayList<Object> in5 = new ArrayList<>();
+        basicCachingHandler.decode(ctx, requestCtx, in5);
+        assertEquals(0, in5.size());
+
+        // check 2 cache hits
         verify(ctx, times(2)).writeAndFlush(responseContext);
 
-        // cache timeout
-        Thread.sleep(1000);
-
-        // cache miss
-        final ArrayList<Object> out6 = new ArrayList<>();
-        basicCachingHandler.decode(ctx, requestCtx, out6);
-        assertEquals(1, out6.size());
-        assertTrue(out6.contains(requestCtx));
+        // assert cache miss, but only after 500ms (cache timeout)
+        await().atLeast(500, MILLISECONDS).untilAsserted(() -> {
+            final ArrayList<Object> in6 = new ArrayList<>();
+            basicCachingHandler.decode(ctx, requestCtx, in6);
+            assertEquals(1, in6.size());
+            assertTrue(in6.contains(requestCtx));
+        });
 
         // cache miss again if no response
-        final ArrayList<Object> out7 = new ArrayList<>();
-        basicCachingHandler.decode(ctx, requestCtx, out7);
-        assertEquals(1, out7.size());
-        assertTrue(out7.contains(requestCtx));
+        final ArrayList<Object> in7 = new ArrayList<>();
+        basicCachingHandler.decode(ctx, requestCtx, in7);
+        assertEquals(1, in7.size());
+        assertTrue(in7.contains(requestCtx));
     }
 }

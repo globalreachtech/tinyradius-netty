@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -83,7 +84,7 @@ class ProxyHandlerTest {
 
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
 
-        await().during(500, TimeUnit.MILLISECONDS).untilAsserted(
+        await().during(500, MILLISECONDS).untilAsserted(
                 () -> verifyNoInteractions(ctx));
     }
 
