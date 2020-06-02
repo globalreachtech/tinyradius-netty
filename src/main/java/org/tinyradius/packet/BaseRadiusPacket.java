@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static java.lang.Byte.toUnsignedInt;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
@@ -70,14 +69,6 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
     @Override
     public byte getType() {
         return type;
-    }
-
-    public int getIdInt() {
-        return toUnsignedInt(id);
-    }
-
-    public int getTypeInt() {
-        return toUnsignedInt(type);
     }
 
     @Override
