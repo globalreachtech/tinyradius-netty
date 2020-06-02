@@ -16,6 +16,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Partial implementation for supporting Message-Authenticator (RFC 2869)
+ *
+ * @param <T> same type as implementation
+ */
 public interface MessageAuthSupport<T extends MessageAuthSupport<?>> extends RadiusPacket {
 
     byte MESSAGE_AUTHENTICATOR = 80;

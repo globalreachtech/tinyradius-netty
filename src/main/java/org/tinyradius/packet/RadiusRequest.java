@@ -31,7 +31,7 @@ public class RadiusRequest extends BaseRadiusPacket {
      * @return packet of same type as self, including transient fields if appropriate
      */
     public RadiusRequest copy() {
-        return RadiusPackets.createRequest(getDictionary(), getType(), getId(), getAuthenticator(), new ArrayList<>(getAttributes()));
+        return RadiusPackets.createRequest(getDictionary(), getType(), getId(), getAuthenticator(), getAttributes());
     }
 
     /**
@@ -46,7 +46,7 @@ public class RadiusRequest extends BaseRadiusPacket {
      */
     public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
-        return RadiusPackets.createRequest(getDictionary(), getType(), getId(), authenticator, new ArrayList<>(getAttributes()));
+        return RadiusPackets.createRequest(getDictionary(), getType(), getId(), authenticator, getAttributes());
     }
 
     /**

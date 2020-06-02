@@ -65,7 +65,7 @@ public class AccessRequestChap extends AccessRequest {
             throw new RadiusPacketException("Could not encode CHAP attributes, password not set");
         }
 
-        final AccessRequestChap encoded = new AccessRequestChap(getDictionary(), getId(), newAuth, new ArrayList<>(getAttributes()), password);
+        final AccessRequestChap encoded = new AccessRequestChap(getDictionary(), getId(), newAuth, getAttributes(), password);
         encoded.removeAttributes(CHAP_PASSWORD);
         encoded.removeAttributes(CHAP_CHALLENGE);
 
@@ -135,6 +135,6 @@ public class AccessRequestChap extends AccessRequest {
 
     @Override
     public AccessRequestChap copy() {
-        return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), new ArrayList<>(getAttributes()), password);
+        return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), getAttributes(), password);
     }
 }

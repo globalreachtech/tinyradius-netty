@@ -36,14 +36,14 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
      * <p>
      * Use {@link RadiusPackets#createRequest(Dictionary, byte, byte, byte[], List)}
      * or {@link RadiusPackets#createResponse(Dictionary, byte, byte, byte[], List)}
-     * where possible as that automatically creates Access/Accounting
+     * where possible as that automatically creates Request/Response
      * variants as required.
      *
      * @param dictionary    custom dictionary to use
      * @param type          packet type
      * @param id            packet identifier
      * @param authenticator can be null if creating manually
-     * @param attributes    list of RadiusAttribute objects
+     * @param attributes    list of RadiusAttribute objects (a shallow copy will be created)
      */
     public BaseRadiusPacket(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
         if (authenticator != null && authenticator.length != 16)

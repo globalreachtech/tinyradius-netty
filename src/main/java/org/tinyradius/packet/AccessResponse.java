@@ -5,7 +5,6 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.util.MessageAuthSupport;
 import org.tinyradius.util.RadiusPacketException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AccessResponse extends RadiusResponse implements MessageAuthSupport<AccessResponse> {
@@ -30,6 +29,6 @@ public class AccessResponse extends RadiusResponse implements MessageAuthSupport
 
     @Override
     public AccessResponse copy() {
-        return new AccessResponse(getDictionary(), getType(), getId(), getAuthenticator(), new ArrayList<>(getAttributes()));
+        return new AccessResponse(getDictionary(), getType(), getId(), getAuthenticator(), getAttributes());
     }
 }

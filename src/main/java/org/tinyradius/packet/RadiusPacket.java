@@ -42,4 +42,9 @@ public interface RadiusPacket extends NestedAttributeHolder {
      * @return the dictionary this Radius packet uses.
      */
     Dictionary getDictionary();
+
+    /**
+     * @return packet of same type as self, including intermediate fields
+     */
+    RadiusPacket copy();
 }

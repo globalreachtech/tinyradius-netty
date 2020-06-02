@@ -1,13 +1,12 @@
 package org.tinyradius.packet;
 
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,7 +62,7 @@ public class AccessRequestPap extends AccessRequest {
             logger.warn("Could not encode PAP attributes, password not set");
             throw new RadiusPacketException("Could not encode PAP attributes, password not set");
         }
-        final AccessRequestPap encoded = new AccessRequestPap(getDictionary(), getId(), newAuth, new ArrayList<>(getAttributes()), password);
+        final AccessRequestPap encoded = new AccessRequestPap(getDictionary(), getId(), newAuth, getAttributes(), password);
         encoded.removeAttributes(USER_PASSWORD);
         encoded.addAttribute(Attributes.create(getDictionary(), -1, USER_PASSWORD,
                 encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
@@ -193,7 +192,7 @@ public class AccessRequestPap extends AccessRequest {
 
     @Override
     public AccessRequest copy() {
-        return new AccessRequestPap(getDictionary(), getId(), getAuthenticator(), new ArrayList<>(getAttributes()), password);
+        return new AccessRequestPap(getDictionary(), getId(), getAuthenticator(), getAttributes(), password);
     }
 
 }
