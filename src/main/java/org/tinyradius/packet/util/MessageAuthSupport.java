@@ -88,7 +88,7 @@ public interface MessageAuthSupport<T extends MessageAuthSupport<?>> extends Rad
                 buf.writeBytes(attribute.toByteArray());
         }
 
-        return buf.setShort(2, buf.readableBytes()).array();
+        return buf.setShort(2, buf.readableBytes()).copy().array();
     }
 
     static Mac getHmacMd5(String key) {

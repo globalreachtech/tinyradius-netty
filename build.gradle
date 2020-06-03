@@ -28,6 +28,8 @@ dependencies {
     testImplementation('net.jradius:jradius-core:1.1.5') {
         transitive = false // for reference implementation of hashing utilities
     }
+//    testImplementation 'commons-logging:commons-logging:1.2'
+//    testImplementation 'commons-pool:commons-pool:1.6'
 }
 
 jacocoTestReport {
