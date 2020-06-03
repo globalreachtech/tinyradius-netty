@@ -6,7 +6,7 @@ import org.tinyradius.dictionary.Dictionary;
 
 import java.util.List;
 
-public interface RadiusPacket extends NestedAttributeHolder {
+public interface RadiusPacket extends NestedAttributeHolder.Writable {
 
     int HEADER_LENGTH = 20;
 

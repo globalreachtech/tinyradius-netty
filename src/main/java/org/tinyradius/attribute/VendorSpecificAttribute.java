@@ -6,15 +6,15 @@ import org.tinyradius.dictionary.Dictionary;
 
 import javax.xml.bind.DatatypeConverter;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.tinyradius.attribute.util.Attributes.extractAttributes;
 
 /**
  * This class represents a "Vendor-Specific" attribute.
  */
-public class VendorSpecificAttribute extends RadiusAttribute implements AttributeHolder {
+public class VendorSpecificAttribute extends RadiusAttribute implements AttributeHolder.Writable {
 
     public static final byte VENDOR_SPECIFIC = 26;
 
@@ -146,8 +146,8 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
     }
 
     @Override
-    public Map<String, String> getAttributeMap() {
+    public List<RadiusAttribute> flatten() {
         // VSAs don't hold any actual data, we only care about the sub-attributes
-        return AttributeHolder.super.getAttributeMap();
+        return new ArrayList<>(getAttributes());
     }
 }

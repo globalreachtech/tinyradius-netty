@@ -33,9 +33,9 @@ class RadiusAttributeTest {
     }
 
     @Test
-    void testToMap() {
+    void testFlatten() {
         final RadiusAttribute attribute = new RadiusAttribute(dictionary, -1, (byte) 2, "123456");
-        assertEquals("{User-Password=123456}", attribute.getAttributeMap().toString());
+        assertEquals("[User-Password: 123456]", attribute.flatten().toString());
     }
 
     @Test

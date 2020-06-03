@@ -5,8 +5,8 @@ import org.tinyradius.dictionary.Dictionary;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
@@ -112,16 +112,13 @@ public class RadiusAttribute {
     }
 
     /**
-     * Returns set of entry of Attribute name and Value as string.
-     * Size is generally 1, except in case of VendorSpecificAttribute
-     * where it is merge of sub-attributes.
+     * Returns set of all nested attributes if contains sub-attributes,
+     * otherwise singleton set of current attribute.
      *
      * @return Set of String/String Entry
      */
-    public Map<String, String> getAttributeMap() {
-        final HashMap<String, String> map = new HashMap<>();
-        map.put(getAttributeKey(), getValueString());
-        return map;
+    public List<RadiusAttribute> flatten() {
+        return Collections.singletonList(this);
     }
 
     /**

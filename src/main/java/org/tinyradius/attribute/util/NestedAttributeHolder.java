@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 /**
  * AttributeHolder that supports sub-attributes (Vendor-Specific Attributes) and filtering by vendorId
+ * <p>
+ * Can hold nested/multiple layers of attributes
  */
 public interface NestedAttributeHolder extends AttributeHolder {
 
@@ -54,73 +56,6 @@ public interface NestedAttributeHolder extends AttributeHolder {
     }
 
     /**
-     * Adds a Radius attribute to this packet. Can also be used
-     * to add Vendor-Specific sub-attributes. If a attribute with
-     * a vendor code != -1 is passed in, a VendorSpecificAttribute
-     * is created for the sub-attribute.
-     *
-     * @param attribute RadiusAttribute object
-     */
-    @Override
-    default void addAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() == getChildVendorId()) {
-            getAttributes().add(attribute);
-        } else {
-            VendorSpecificAttribute vsa = new VendorSpecificAttribute(getDictionary(), new ArrayList<>(), attribute.getVendorId());
-            vsa.addAttribute(attribute);
-            getAttributes().add(vsa);
-        }
-    }
-
-    /**
-     * Removes the specified attribute from this packet.
-     *
-     * @param attribute RadiusAttribute to remove
-     */
-    @Override
-    default void removeAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() == getChildVendorId()) {
-            getAttributes().remove(attribute);
-        } else {
-            removeSubAttribute(attribute);
-        }
-    }
-
-    default void removeSubAttribute(RadiusAttribute attribute) {
-        for (VendorSpecificAttribute vsa : getVendorSpecificAttributes(attribute.getVendorId())) {
-            vsa.removeAttribute(attribute);
-            if (vsa.getAttributes().isEmpty())
-                // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
-                getAttributes().remove(vsa);
-        }
-    }
-
-    /**
-     * Removes all (sub)attributes of the given vendor and
-     * type.
-     * <p>
-     * If vendorId doesn't match childVendorId, will search sub-attributes.
-     *
-     * @param vendorId vendor ID, or -1
-     * @param typeCode attribute type code
-     */
-    default void removeAttributes(int vendorId, byte typeCode) {
-        if (vendorId == getChildVendorId()) {
-            removeAttributes(typeCode);
-            return;
-        }
-
-        List<VendorSpecificAttribute> vsas = getVendorSpecificAttributes(vendorId);
-        for (VendorSpecificAttribute vsa : vsas) {
-            List<RadiusAttribute> sas = vsa.getAttributes();
-            sas.removeIf(attr -> attr.getType() == typeCode && attr.getVendorId() == vendorId);
-            if (sas.isEmpty())
-                // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
-                removeAttribute(vsa);
-        }
-    }
-
-    /**
      * Returns the Vendor-Specific attribute(s) for the given vendor ID.
      *
      * @param vendorId vendor ID to filter by
@@ -132,5 +67,85 @@ public interface NestedAttributeHolder extends AttributeHolder {
                 .map(VendorSpecificAttribute.class::cast)
                 .filter(a -> a.getChildVendorId() == vendorId)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * @return List of attributes, flattening VSAs and unwrapping nested attributes if found
+     */
+    default List<RadiusAttribute> getFlattenedAttributes() {
+        return getAttributes().stream()
+                .map(RadiusAttribute::flatten)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
+    interface Writable extends NestedAttributeHolder, AttributeHolder.Writable {
+
+        /**
+         * Adds a Radius attribute to this packet. Can also be used
+         * to add Vendor-Specific sub-attributes. If a attribute with
+         * a vendor code != -1 is passed in, a VendorSpecificAttribute
+         * is created for the sub-attribute.
+         *
+         * @param attribute RadiusAttribute object
+         */
+        @Override
+        default void addAttribute(RadiusAttribute attribute) {
+            if (attribute.getVendorId() == getChildVendorId()) {
+                getAttributes().add(attribute);
+            } else {
+                VendorSpecificAttribute vsa = new VendorSpecificAttribute(getDictionary(), new ArrayList<>(), attribute.getVendorId());
+                vsa.addAttribute(attribute);
+                getAttributes().add(vsa);
+            }
+        }
+
+        /**
+         * Removes the specified attribute from this packet.
+         *
+         * @param attribute RadiusAttribute to remove
+         */
+        @Override
+        default void removeAttribute(RadiusAttribute attribute) {
+            if (attribute.getVendorId() == getChildVendorId()) {
+                getAttributes().remove(attribute);
+            } else {
+                removeSubAttribute(attribute);
+            }
+        }
+
+        default void removeSubAttribute(RadiusAttribute attribute) {
+            for (VendorSpecificAttribute vsa : getVendorSpecificAttributes(attribute.getVendorId())) {
+                vsa.removeAttribute(attribute);
+                if (vsa.getAttributes().isEmpty())
+                    // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
+                    getAttributes().remove(vsa);
+            }
+        }
+
+        /**
+         * Removes all (sub)attributes of the given vendor and
+         * type.
+         * <p>
+         * If vendorId doesn't match childVendorId, will search sub-attributes.
+         *
+         * @param vendorId vendor ID, or -1
+         * @param typeCode attribute type code
+         */
+        default void removeAttributes(int vendorId, byte typeCode) {
+            if (vendorId == getChildVendorId()) {
+                removeAttributes(typeCode);
+                return;
+            }
+
+            List<VendorSpecificAttribute> vsas = getVendorSpecificAttributes(vendorId);
+            for (VendorSpecificAttribute vsa : vsas) {
+                List<RadiusAttribute> sas = vsa.getAttributes();
+                sas.removeIf(attr -> attr.getType() == typeCode && attr.getVendorId() == vendorId);
+                if (sas.isEmpty())
+                    // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
+                    removeAttribute(vsa);
+            }
+        }
     }
 }

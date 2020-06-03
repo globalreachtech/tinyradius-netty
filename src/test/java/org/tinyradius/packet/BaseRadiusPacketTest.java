@@ -1,15 +1,14 @@
 package org.tinyradius.packet;
 
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
+import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.util.Attributes.create;
@@ -123,7 +122,7 @@ class BaseRadiusPacketTest {
     }
 
     @Test
-    void testGetAttributeMap() {
+    void testFlattenAttributes() {
 
         RadiusPacket radiusPacket = new StubPacket();
 
@@ -136,15 +135,16 @@ class BaseRadiusPacketTest {
         vsa.addAttribute("WISPr-Logoff-URL", "222");
         radiusPacket.addAttribute(vsa);
 
-        Map<String, String> attributeMap = radiusPacket.getAttributeMap();
+        final List<RadiusAttribute> attributes = radiusPacket.getFlattenedAttributes();
 
-        assertEquals("999", attributeMap.get("Service-Type"));
-        assertEquals("abc", attributeMap.get("Filter-Id"));
-        assertEquals("foobar", attributeMap.get("Reply-Message"));
-        assertEquals("222", attributeMap.get("WISPr-Logoff-URL"));
+        assertEquals("Service-Type: 999", attributes.get(0).toString());
+        assertEquals("Filter-Id: abc", attributes.get(1).toString());
+        assertEquals("Reply-Message: foobar", attributes.get(2).toString());
+        assertEquals("WISPr-Logoff-URL: 111", attributes.get(3).toString());
+        assertEquals("WISPr-Logoff-URL: 222", attributes.get(4).toString());
         // getAttributes only gets the last subAttribute of VendorSpecificAttribute
 
-        assertEquals(4, attributeMap.size());
+        assertEquals(5, attributes.size());
     }
 
     private static class StubPacket extends BaseRadiusPacket {

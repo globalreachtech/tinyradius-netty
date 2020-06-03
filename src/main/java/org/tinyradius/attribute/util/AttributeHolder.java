@@ -6,13 +6,13 @@ import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Generic attribute holder, for VendorSpecificAttribute (to hold sub-attributes) or RadiusPackets
+ * Basic attribute holder, for VendorSpecificAttribute (to hold sub-attributes) or RadiusPackets
+ * <p>
+ * Should only hold single layer of attributes
  */
 public interface AttributeHolder {
 
@@ -26,8 +26,6 @@ public interface AttributeHolder {
     List<RadiusAttribute> getAttributes();
 
     void addAttribute(RadiusAttribute attribute);
-
-    void removeAttribute(RadiusAttribute attribute);
 
     default AttributeType lookupAttributeType(String name) {
         final AttributeType type = getDictionary().getAttributeTypeByName(name);
@@ -106,71 +104,6 @@ public interface AttributeHolder {
     }
 
     /**
-     * Adds a Radius attribute.
-     * Uses AttributeTypes to lookup the type code and converts the value.
-     *
-     * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
-     * @param value value of the attribute, for example "127.0.0.1"
-     * @throws IllegalArgumentException if type name or value is invalid
-     */
-    default void addAttribute(String name, String value) {
-        if (name == null || name.isEmpty())
-            throw new IllegalArgumentException("Type name is null/empty");
-        if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("Value is null/empty");
-
-        addAttribute(
-                lookupAttributeType(name).create(getDictionary(), value));
-    }
-
-    /**
-     * Adds a Radius attribute.
-     *
-     * @param type  attribute type code
-     * @param value string value to set
-     */
-    default void addAttribute(byte type, String value) {
-        if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("Value is null/empty");
-
-        addAttribute(
-                Attributes.create(getDictionary(), getChildVendorId(), type, value));
-    }
-
-    /**
-     * Removes all attributes from this packet which have got the specified type.
-     *
-     * @param type attribute type to remove
-     */
-    default void removeAttributes(byte type) {
-        List<RadiusAttribute> attrs = getAttributes(type);
-        attrs.forEach(this::removeAttribute);
-    }
-
-    /**
-     * Removes the last occurrence of the attribute of the given
-     * type from the packet.
-     *
-     * @param type attribute type code
-     */
-    default void removeLastAttribute(byte type) {
-        List<RadiusAttribute> attrs = getAttributes(type);
-        if (attrs.isEmpty())
-            return;
-
-        removeAttribute(attrs.get(attrs.size() - 1));
-    }
-
-    /**
-     * @return Map of attribute key-value
-     */
-    default Map<String, String> getAttributeMap() {
-        final HashMap<String, String> map = new HashMap<>();
-        getAttributes().forEach(a -> map.putAll(a.getAttributeMap()));
-        return map;
-    }
-
-    /**
      * Encodes the attributes of this Radius packet to a byte array.
      *
      * @return byte array with encoded attributes
@@ -183,5 +116,66 @@ public interface AttributeHolder {
         }
 
         return buffer.copy().array();
+    }
+
+    interface Writable extends AttributeHolder {
+
+        void removeAttribute(RadiusAttribute attribute);
+
+        /**
+         * Adds a Radius attribute.
+         * Uses AttributeTypes to lookup the type code and converts the value.
+         *
+         * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
+         * @param value value of the attribute, for example "127.0.0.1"
+         * @throws IllegalArgumentException if type name or value is invalid
+         */
+        default void addAttribute(String name, String value) {
+            if (name == null || name.isEmpty())
+                throw new IllegalArgumentException("Type name is null/empty");
+            if (value == null || value.isEmpty())
+                throw new IllegalArgumentException("Value is null/empty");
+
+            addAttribute(
+                    lookupAttributeType(name).create(getDictionary(), value));
+        }
+
+        /**
+         * Adds a Radius attribute.
+         *
+         * @param type  attribute type code
+         * @param value string value to set
+         */
+        default void addAttribute(byte type, String value) {
+            if (value == null || value.isEmpty())
+                throw new IllegalArgumentException("Value is null/empty");
+
+            addAttribute(
+                    Attributes.create(getDictionary(), getChildVendorId(), type, value));
+        }
+
+        /**
+         * Removes all attributes from this packet which have got the specified type.
+         *
+         * @param type attribute type to remove
+         */
+        default void removeAttributes(byte type) {
+            List<RadiusAttribute> attrs = getAttributes(type);
+            attrs.forEach(this::removeAttribute);
+        }
+
+        /**
+         * Removes the last occurrence of the attribute of the given
+         * type from the packet.
+         *
+         * @param type attribute type code
+         */
+        default void removeLastAttribute(byte type) {
+            List<RadiusAttribute> attrs = getAttributes(type);
+            if (attrs.isEmpty())
+                return;
+
+            removeAttribute(attrs.get(attrs.size() - 1));
+        }
     }
 }
