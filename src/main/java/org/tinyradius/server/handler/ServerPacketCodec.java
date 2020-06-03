@@ -48,7 +48,6 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
         try {
             RadiusRequest request = fromDatagramRequest(dictionary, msg);
             request.verifyRequest(secret);
-            logger.debug("Decode request shared secret {}", secret);
             logger.debug("Received request from {} - {}", remoteAddress, request);
 
             return new RequestCtx(request, new RadiusEndpoint(remoteAddress, secret));
@@ -61,7 +60,6 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
     protected DatagramPacket encodePacket(InetSocketAddress localAddress, ResponseCtx msg) {
         final RadiusResponse packet = msg.getResponse()
                 .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator());
-        logger.debug("Encode response shared secret {}", msg.getEndpoint().getSecret());
         try {
             final DatagramPacket datagramPacket = toDatagram(
                     packet, msg.getEndpoint().getAddress(), localAddress);
