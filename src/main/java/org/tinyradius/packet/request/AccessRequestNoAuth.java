@@ -12,8 +12,8 @@ class AccessRequestNoAuth extends AccessRequest {
     }
 
     @Override
-    protected AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) {
-        return copy();
+    protected AccessRequestNoAuth encodeAuthMechanism(String sharedSecret, byte[] newAuth) {
+        return new AccessRequestNoAuth(getDictionary(), getId(), newAuth, getAttributes());
     }
 
     @Override
