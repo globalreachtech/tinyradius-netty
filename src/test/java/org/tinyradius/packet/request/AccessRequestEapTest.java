@@ -8,7 +8,7 @@ import org.tinyradius.util.RadiusPacketException;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.packet.request.AccessRequest.EAP_MESSAGE;
 import static org.tinyradius.packet.util.MessageAuthSupport.MESSAGE_AUTHENTICATOR;
 
@@ -19,10 +19,12 @@ class AccessRequestEapTest {
     @Test
     void encodeVerify() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
-        final AccessRequestEap accessRequestEap = new AccessRequestEap(dictionary, (byte) 1, new byte[16],
+        final AccessRequestEap accessRequestEap = new AccessRequestEap(dictionary, (byte) 1, null,
                 Collections.singletonList(Attributes.create(dictionary, -1, EAP_MESSAGE, new byte[16])));
 
         final AccessRequest encoded = accessRequestEap.encodeRequest(sharedSecret);
+
+        assertNotNull(encoded.getAuthenticator());
         encoded.verifyRequest(sharedSecret);
     }
 
@@ -35,7 +37,8 @@ class AccessRequestEapTest {
         request.addAttribute(Attributes.create(dictionary, -1, EAP_MESSAGE, new byte[16]));
         assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
 
-        final AccessRequest encoded = request.encodeRequest(sharedSecret); // adds one messageAuth
+        // add one messageAuth
+        final AccessRequest encoded = request.encodeRequest(sharedSecret);
         encoded.verifyRequest(sharedSecret); // should have exactly one instance
 
         encoded.addAttribute(Attributes.create(dictionary, -1, MESSAGE_AUTHENTICATOR, new byte[16]));

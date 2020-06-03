@@ -25,12 +25,13 @@ class AccessRequestChapTest {
 
     @Test
     void encodeVerify() throws RadiusPacketException {
-        final String plaintextPw = "myPassword";
         String sharedSecret = "sharedSecret1";
         final AccessRequestChap accessRequestChap = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList());
-        accessRequestChap.setPlaintextPassword(plaintextPw);
+        accessRequestChap.setPlaintextPassword("myPw");
 
         final AccessRequest encoded = accessRequestChap.encodeRequest(sharedSecret);
+
+        assertNotNull(encoded.getAuthenticator());
         encoded.verifyRequest(sharedSecret);
     }
 

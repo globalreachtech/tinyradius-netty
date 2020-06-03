@@ -27,6 +27,8 @@ class AccessRequestPapTest {
         accessRequestPap.setPlaintextPassword(plaintextPw);
 
         final AccessRequest encoded = accessRequestPap.encodeRequest(sharedSecret);
+
+        assertNotNull(encoded.getAuthenticator());
         encoded.verifyRequest(sharedSecret);
     }
 
