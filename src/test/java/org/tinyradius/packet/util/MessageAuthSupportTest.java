@@ -19,11 +19,12 @@ class MessageAuthSupportTest {
         final String secret = "mySecret";
         final TestPacket testPacket = new TestPacket(dictionary, (byte) 1, (byte) 1, new byte[16], Collections.emptyList());
 
+        // should always pass if nothing to verify
         testPacket.verifyMessageAuth(secret, null);
     }
 
     @Test
-    void encodeVerify() throws RadiusPacketException {
+    void selfEncodeVerify() throws RadiusPacketException {
         final String secret = "mySecret";
         final TestPacket testPacket = new TestPacket(dictionary, (byte) 1, (byte) 1, new byte[16], Collections.emptyList());
 

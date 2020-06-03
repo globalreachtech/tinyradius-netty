@@ -2,8 +2,8 @@ package org.tinyradius.packet.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -80,9 +80,11 @@ public interface MessageAuthSupport<T extends MessageAuthSupport<?>> extends Rad
                 .writeBytes(requestAuth);
 
         for (RadiusAttribute attribute : getAttributes()) {
-            if (attribute.getVendorId() == -1 && attribute.getType() == MESSAGE_AUTHENTICATOR) {
-                buf.writeBytes(new byte[18]);
-            } else
+            if (attribute.getVendorId() == -1 && attribute.getType() == MESSAGE_AUTHENTICATOR)
+                buf.writeByte(MESSAGE_AUTHENTICATOR)
+                        .writeByte(18)
+                        .writeBytes(new byte[16]);
+            else
                 buf.writeBytes(attribute.toByteArray());
         }
 

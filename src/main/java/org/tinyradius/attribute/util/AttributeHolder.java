@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Generic attribute holder, for VendorSpecificAttribute (to hold sub-attributes) or RadiusPackets
+ */
 public interface AttributeHolder {
 
     /**
