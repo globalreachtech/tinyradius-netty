@@ -5,8 +5,8 @@ import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
+import org.tinyradius.dictionary.Dictionary;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.util.Attributes.create;
 
 class BaseRadiusPacketTest {
+
+    private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
     void doesNotMutateOriginalAttributeList() {
@@ -34,7 +36,7 @@ class BaseRadiusPacketTest {
         packet.addAttribute(Attributes.create(packet.getDictionary(), -1, (byte) 97, "fe80::/64"));
         packet.addAttribute(Attributes.create(packet.getDictionary(), -1, (byte) 97, "fe80::/128"));
 
-        final List<VendorSpecificAttribute> vendorAttributes = packet.getVendorSpecificAttributes(14122);
+        final List<VendorSpecificAttribute> vendorAttributes = packet.getVendorAttributes(14122);
         assertEquals(1, vendorAttributes.size());
 
         final List<RadiusAttribute> wisprLocations = vendorAttributes.get(0).getAttributes();
@@ -130,10 +132,12 @@ class BaseRadiusPacketTest {
         radiusPacket.addAttribute("Filter-Id", "abc");
         radiusPacket.addAttribute("Reply-Message", "foobar");
 
-        VendorSpecificAttribute vsa = new VendorSpecificAttribute(DefaultDictionary.INSTANCE, new ArrayList<>(), 14122);
-        vsa.addAttribute("WISPr-Logoff-URL", "111");
-        vsa.addAttribute("WISPr-Logoff-URL", "222");
-        radiusPacket.addAttribute(vsa);
+        final VendorSpecificAttribute.Builder builder = new VendorSpecificAttribute.Builder()
+                .setDictionary(dictionary)
+                .setChildVendorId(14122);
+        builder.addAttribute("WISPr-Logoff-URL", "111");
+        builder.addAttribute("WISPr-Logoff-URL", "222");
+        radiusPacket.addAttribute(builder.build());
 
         final List<RadiusAttribute> attributes = radiusPacket.getFlattenedAttributes();
 
@@ -150,7 +154,7 @@ class BaseRadiusPacketTest {
     private static class StubPacket extends BaseRadiusPacket {
 
         public StubPacket() {
-            super(DefaultDictionary.INSTANCE, (byte) 1, (byte) 1, null, Collections.emptyList());
+            super(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
         }
 
         @Override

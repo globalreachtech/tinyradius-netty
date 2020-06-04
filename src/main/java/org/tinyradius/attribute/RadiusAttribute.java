@@ -4,6 +4,7 @@ import org.tinyradius.attribute.util.AttributeType;
 import org.tinyradius.dictionary.Dictionary;
 
 import javax.xml.bind.DatatypeConverter;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -21,22 +22,21 @@ public class RadiusAttribute {
     private final byte type;
     private final byte[] value;
 
-    private final int vendorId; // for Vendor-Specific (sub)attributes, otherwise -1
+    private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
     /**
      * @param dictionary dictionary to use
      * @param vendorId   vendor ID or -1
      * @param type       attribute type code
-     * @param value      value of attribute as byte array
+     * @param value      value of attribute as byte array, excluding type and length bytes
      */
     public RadiusAttribute(Dictionary dictionary, int vendorId, byte type, byte[] value) {
         this.dictionary = requireNonNull(dictionary, "Dictionary not set");
         this.vendorId = vendorId;
         this.type = type;
-        requireNonNull(value, "Attribute data not set");
+        this.value = requireNonNull(value, "Attribute data not set");
         if (value.length > 253)
             throw new IllegalArgumentException("Attribute data too long, max 253 octets, actual: " + value.length);
-        this.value = value;
     }
 
     /**
@@ -88,12 +88,12 @@ public class RadiusAttribute {
      * @return entire attribute (including headers) as byte array
      */
     public byte[] toByteArray() {
-
-        byte[] attr = new byte[2 + value.length];
-        attr[0] = getType();
-        attr[1] = (byte) (2 + value.length);
-        System.arraycopy(value, 0, attr, 2, value.length);
-        return attr;
+        final int len = value.length + 2;
+        return ByteBuffer.allocate(len)
+                .put(getType())
+                .put((byte) len)
+                .put(value)
+                .array();
     }
 
     @Override

@@ -32,7 +32,7 @@ public class AttributeType {
      * @param vendorId    vendor ID or -1 if N/A
      * @param type        sub-attribute type code
      * @param name        sub-attribute name
-     * @param rawDataType string|octets|integer|date|ipaddr|ipv6addr|ipv6prefix
+     * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      */
     public AttributeType(int vendorId, int type, String name, String rawDataType) {
         if (type < 1 || type > 255)

@@ -23,9 +23,10 @@ public interface AttributeHolder {
 
     Dictionary getDictionary();
 
+    /**
+     * @return list of RadiusAttributes
+     */
     List<RadiusAttribute> getAttributes();
-
-    void addAttribute(RadiusAttribute attribute);
 
     default AttributeType lookupAttributeType(String name) {
         final AttributeType type = getDictionary().getAttributeTypeByName(name);
@@ -109,9 +110,13 @@ public interface AttributeHolder {
      * @return byte array with encoded attributes
      */
     default byte[] getAttributeBytes() {
+        return attributesToBytes(getAttributes());
+    }
+
+    static byte[] attributesToBytes(List<RadiusAttribute> attributes) {
         final ByteBuf buffer = Unpooled.buffer();
 
-        for (RadiusAttribute attribute : getAttributes()) {
+        for (RadiusAttribute attribute : attributes) {
             buffer.writeBytes(attribute.toByteArray());
         }
 
@@ -120,7 +125,27 @@ public interface AttributeHolder {
 
     interface Writable extends AttributeHolder {
 
-        void removeAttribute(RadiusAttribute attribute);
+        /**
+         * Adds a attribute to this attribute container.
+         *
+         * @param attribute attribute to add
+         */
+        default void addAttribute(RadiusAttribute attribute) {
+            if (attribute.getVendorId() != getChildVendorId())
+                throw new IllegalArgumentException("Attribute vendor ID doesn't match: " +
+                        "required " + getChildVendorId() + ", actual " + attribute.getVendorId());
+
+            getAttributes().add(attribute);
+        }
+
+        /**
+         * Removes all instances of the specified attribute from this attribute container.
+         *
+         * @param attribute attribute to remove
+         */
+        default void removeAttribute(RadiusAttribute attribute) {
+            getAttributes().removeAll(Collections.singleton(attribute));
+        }
 
         /**
          * Adds a Radius attribute.

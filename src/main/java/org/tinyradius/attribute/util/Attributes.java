@@ -75,7 +75,8 @@ public class Attributes {
         }
 
         if (pos != data.length)
-            throw new IllegalArgumentException("Attribute malformed, lengths do not match");
+            throw new IllegalArgumentException("Attribute malformed, lengths do not match, " +
+                    "parse position " + pos + ", bytes length " + data.length);
         return attributes;
     }
 }

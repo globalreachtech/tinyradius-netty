@@ -3,15 +3,17 @@ package org.tinyradius.attribute.util;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * AttributeHolder that supports sub-attributes (Vendor-Specific Attributes) and filtering by vendorId
+ * AttributeHolder that supports sub-attributes (wrapped by Vendor-Specific Attributes)
+ * and filtering by vendorId.
  * <p>
- * Can hold nested/multiple layers of attributes
+ * An abstraction of all attribute management methods used by Radius packets.
  */
 public interface NestedAttributeHolder extends AttributeHolder {
 
@@ -29,7 +31,7 @@ public interface NestedAttributeHolder extends AttributeHolder {
         if (vendorId == getChildVendorId())
             return getAttributes(type);
 
-        return getVendorSpecificAttributes(vendorId).stream()
+        return getVendorAttributes(vendorId).stream()
                 .map(VendorSpecificAttribute::getAttributes)
                 .flatMap(Collection::stream)
                 .filter(sa -> sa.getType() == type && sa.getVendorId() == vendorId)
@@ -61,7 +63,7 @@ public interface NestedAttributeHolder extends AttributeHolder {
      * @param vendorId vendor ID to filter by
      * @return List with VendorSpecificAttribute objects, or empty list
      */
-    default List<VendorSpecificAttribute> getVendorSpecificAttributes(int vendorId) {
+    default List<VendorSpecificAttribute> getVendorAttributes(int vendorId) {
         return getAttributes().stream()
                 .filter(VendorSpecificAttribute.class::isInstance)
                 .map(VendorSpecificAttribute.class::cast)
@@ -85,47 +87,49 @@ public interface NestedAttributeHolder extends AttributeHolder {
          * Adds a Radius attribute to this packet. Can also be used
          * to add Vendor-Specific sub-attributes. If a attribute with
          * a vendor code != -1 is passed in, a VendorSpecificAttribute
-         * is created for the sub-attribute.
+         * is automatically created for the sub-attribute.
          *
          * @param attribute RadiusAttribute object
          */
         @Override
         default void addAttribute(RadiusAttribute attribute) {
             if (attribute.getVendorId() == getChildVendorId()) {
-                getAttributes().add(attribute);
+                AttributeHolder.Writable.super.addAttribute(attribute);
             } else {
-                VendorSpecificAttribute vsa = new VendorSpecificAttribute(getDictionary(), new ArrayList<>(), attribute.getVendorId());
-                vsa.addAttribute(attribute);
-                getAttributes().add(vsa);
+                VendorSpecificAttribute vsa = new VendorSpecificAttribute(getDictionary(), Collections.singletonList(attribute), attribute.getVendorId());
+                AttributeHolder.Writable.super.addAttribute(vsa);
             }
         }
 
         /**
-         * Removes the specified attribute from this packet.
+         * Removes all instances of the specified attribute from this packet.
          *
          * @param attribute RadiusAttribute to remove
          */
         @Override
         default void removeAttribute(RadiusAttribute attribute) {
             if (attribute.getVendorId() == getChildVendorId()) {
-                getAttributes().remove(attribute);
-            } else {
-                removeSubAttribute(attribute);
+                AttributeHolder.Writable.super.removeAttribute(attribute);
+                return;
             }
-        }
 
-        default void removeSubAttribute(RadiusAttribute attribute) {
-            for (VendorSpecificAttribute vsa : getVendorSpecificAttributes(attribute.getVendorId())) {
-                vsa.removeAttribute(attribute);
-                if (vsa.getAttributes().isEmpty())
-                    // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
-                    getAttributes().remove(vsa);
-            }
+            getAttributes().replaceAll(a -> {
+                if (a instanceof VendorSpecificAttribute) {
+                    final VendorSpecificAttribute.Builder builder = ((VendorSpecificAttribute) a).toBuilder();
+                    builder.removeAttribute(attribute);
+
+                    return builder.getAttributes().isEmpty() ? null : builder.build();
+                }
+
+                return a;
+            });
+
+            // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
+            getAttributes().removeIf(Objects::isNull);
         }
 
         /**
-         * Removes all (sub)attributes of the given vendor and
-         * type.
+         * Removes all (sub)attributes of the given vendor and type.
          * <p>
          * If vendorId doesn't match childVendorId, will search sub-attributes.
          *
@@ -138,14 +142,20 @@ public interface NestedAttributeHolder extends AttributeHolder {
                 return;
             }
 
-            List<VendorSpecificAttribute> vsas = getVendorSpecificAttributes(vendorId);
-            for (VendorSpecificAttribute vsa : vsas) {
-                List<RadiusAttribute> sas = vsa.getAttributes();
-                sas.removeIf(attr -> attr.getType() == typeCode && attr.getVendorId() == vendorId);
-                if (sas.isEmpty())
-                    // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
-                    removeAttribute(vsa);
-            }
+            getAttributes().replaceAll(a -> {
+                if (a instanceof VendorSpecificAttribute) {
+                    final VendorSpecificAttribute.Builder builder = ((VendorSpecificAttribute) a).toBuilder();
+                    builder.getAttributes().removeIf(attr ->
+                            attr.getType() == typeCode && attr.getVendorId() == vendorId);
+
+                    return builder.getAttributes().isEmpty() ? null : builder.build();
+                }
+
+                return a;
+            });
+
+            // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
+            getAttributes().removeIf(Objects::isNull);
         }
     }
 }
