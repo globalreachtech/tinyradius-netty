@@ -18,11 +18,15 @@ public abstract class IpAttribute extends RadiusAttribute {
      */
     public static class V4 extends IpAttribute {
         public V4(Dictionary dictionary, int vendorId, byte type, byte[] data) {
-            super(dictionary, vendorId, type, IpAttribute.convert(data), Inet4Address.class);
+            this(dictionary, vendorId, type, IpAttribute.convert(data));
         }
 
         public V4(Dictionary dictionary, int vendorId, byte type, String data) {
-            super(dictionary, vendorId, type, IpAttribute.convert(data), Inet4Address.class);
+            this(dictionary, vendorId, type, IpAttribute.convert(data));
+        }
+
+        public V4(Dictionary dictionary, int vendorId, byte type, InetAddress address) {
+            super(dictionary, vendorId, type, address, Inet4Address.class);
         }
 
         public int getValueInt() {
@@ -35,11 +39,15 @@ public abstract class IpAttribute extends RadiusAttribute {
      */
     public static class V6 extends IpAttribute {
         public V6(Dictionary dictionary, int vendorId, byte type, byte[] data) {
-            super(dictionary, vendorId, type, IpAttribute.convert(data), Inet6Address.class);
+            this(dictionary, vendorId, type, IpAttribute.convert(data));
         }
 
         public V6(Dictionary dictionary, int vendorId, byte type, String data) {
-            super(dictionary, vendorId, type, IpAttribute.convert(data), Inet6Address.class);
+            this(dictionary, vendorId, type, IpAttribute.convert(data));
+        }
+
+        public V6(Dictionary dictionary, int vendorId, byte type, InetAddress address) {
+            super(dictionary, vendorId, type, address, Inet6Address.class);
         }
     }
 
