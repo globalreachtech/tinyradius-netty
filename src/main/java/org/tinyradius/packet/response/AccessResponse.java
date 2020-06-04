@@ -7,7 +7,7 @@ import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
-public class AccessResponse extends RadiusResponse implements MessageAuthSupport<AccessResponse> {
+public class AccessResponse extends RadiusResponse implements MessageAuthSupport.Encodable<AccessResponse> {
 
     public AccessResponse(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, type, identifier, authenticator, attributes);

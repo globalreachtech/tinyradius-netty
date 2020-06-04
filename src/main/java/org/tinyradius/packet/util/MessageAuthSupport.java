@@ -17,39 +17,11 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Partial implementation for supporting Message-Authenticator (RFC 2869)
- *
- * @param <T> same type as implementation
+ * Partial implementation for verifying Message-Authenticator (RFC 2869)
  */
-public interface MessageAuthSupport<T extends MessageAuthSupport<?>> extends RadiusPacket {
+public interface MessageAuthSupport extends RadiusPacket {
 
     byte MESSAGE_AUTHENTICATOR = 80;
-
-    /**
-     * @return packet of same type as self, including intermediate/transient fields
-     */
-    T copy();
-
-    /**
-     * @param sharedSecret share secret
-     * @param requestAuth  current packet auth if encoding request, otherwise auth
-     *                     for corresponding request
-     * @return shallow copy of packet
-     */
-    default T encodeMessageAuth(String sharedSecret, byte[] requestAuth) {
-        final T newPacket = this.copy();
-
-        // When the message integrity check is calculated the signature
-        // string should be considered to be sixteen octets of zero.
-        final ByteBuffer buffer = ByteBuffer.allocate(16);
-
-        newPacket.removeAttributes(MESSAGE_AUTHENTICATOR);
-        newPacket.addAttribute(Attributes.create(getDictionary(), -1, MESSAGE_AUTHENTICATOR, buffer.array()));
-
-        buffer.put(newPacket.computeMessageAuth(sharedSecret, requestAuth));
-
-        return newPacket;
-    }
 
     default void verifyMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
@@ -100,6 +72,40 @@ public interface MessageAuthSupport<T extends MessageAuthSupport<?>> extends Rad
             return mac;
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             throw new IllegalArgumentException(e); // never happens
+        }
+    }
+
+    /**
+     * Partial implementation for encoding/verifying Message-Authenticator (RFC 2869)
+     *
+     * @param <T> same type as implementation
+     */
+    interface Encodable<T extends Encodable<?>> extends MessageAuthSupport {
+
+        /**
+         * @return packet of same type as self, including intermediate/transient fields
+         */
+        T copy();
+
+        /**
+         * @param sharedSecret share secret
+         * @param requestAuth  current packet auth if encoding request, otherwise auth
+         *                     for corresponding request
+         * @return shallow copy of packet
+         */
+        default T encodeMessageAuth(String sharedSecret, byte[] requestAuth) {
+            final T newPacket = this.copy();
+
+            // When the message integrity check is calculated the signature
+            // string should be considered to be sixteen octets of zero.
+            final ByteBuffer buffer = ByteBuffer.allocate(16);
+
+            newPacket.removeAttributes(MESSAGE_AUTHENTICATOR);
+            newPacket.addAttribute(Attributes.create(getDictionary(), -1, MESSAGE_AUTHENTICATOR, buffer.array()));
+
+            buffer.put(newPacket.computeMessageAuth(sharedSecret, requestAuth));
+
+            return newPacket;
         }
     }
 }

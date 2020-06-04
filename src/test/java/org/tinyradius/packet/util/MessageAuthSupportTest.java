@@ -79,7 +79,7 @@ class MessageAuthSupportTest {
         System.arraycopy(MD5.hmac_md5(buffer.array(), 0, buffer.position(), secret.getBytes()), 0, hash, 0, 16);
     }
 
-    private static class TestPacket extends BaseRadiusPacket implements MessageAuthSupport<TestPacket> {
+    private static class TestPacket extends BaseRadiusPacket implements MessageAuthSupport.Encodable<TestPacket> {
 
         public TestPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
             super(dictionary, type, identifier, authenticator, attributes);

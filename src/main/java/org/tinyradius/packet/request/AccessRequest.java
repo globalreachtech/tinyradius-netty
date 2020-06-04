@@ -19,7 +19,7 @@ import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 /**
  * This class represents an Access-Request Radius packet.
  */
-public abstract class AccessRequest extends RadiusRequest implements MessageAuthSupport<AccessRequest> {
+public abstract class AccessRequest extends RadiusRequest implements MessageAuthSupport.Encodable<AccessRequest> {
 
     protected static final Logger logger = LogManager.getLogger();
 
