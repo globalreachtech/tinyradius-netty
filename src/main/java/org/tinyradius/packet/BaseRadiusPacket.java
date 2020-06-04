@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class BaseRadiusPacket implements RadiusPacket {
 
+    private static final int HEADER_LENGTH = 20;
     private static final int CHILD_VENDOR_ID = -1;
 
     private final byte type;
@@ -137,8 +138,8 @@ public abstract class BaseRadiusPacket implements RadiusPacket {
 
         s.append(PacketType.getPacketTypeName(getType()));
         s.append(", ID ");
-        s.append(id);
-        for (RadiusAttribute attr : attributes) {
+        s.append(getId());
+        for (RadiusAttribute attr : getAttributes()) {
             s.append("\n");
             s.append(attr.toString());
         }

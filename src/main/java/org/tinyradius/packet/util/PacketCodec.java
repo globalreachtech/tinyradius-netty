@@ -13,7 +13,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 import static org.tinyradius.attribute.util.Attributes.extractAttributes;
-import static org.tinyradius.packet.RadiusPacket.HEADER_LENGTH;
 import static org.tinyradius.packet.util.RadiusPackets.createRequest;
 import static org.tinyradius.packet.util.RadiusPackets.createResponse;
 
@@ -26,6 +25,7 @@ import static org.tinyradius.packet.util.RadiusPackets.createResponse;
  */
 public class PacketCodec {
 
+    private static final int HEADER_LENGTH = 20;
     private static final int MAX_PACKET_LENGTH = 4096;
 
     private PacketCodec() {

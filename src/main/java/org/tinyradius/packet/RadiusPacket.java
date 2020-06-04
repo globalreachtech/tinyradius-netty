@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface RadiusPacket extends NestedAttributeHolder.Writable {
 
-    int HEADER_LENGTH = 20;
-
     /**
      * @return Radius packet type
      */
