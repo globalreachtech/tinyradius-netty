@@ -38,7 +38,7 @@ class PacketCodecTest {
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final InetSocketAddress remoteAddress = new InetSocketAddress(0);
 
-    private void addBytesToPacket(RadiusPacket packet, int targetSize) {
+    private void addBytesToPacket(BaseRadiusPacket packet, int targetSize) {
         int dataSize = targetSize - HEADER_LENGTH;
         for (int i = 0; i < Math.floor((double) dataSize / 200); i++) {
             // add 200 octets per iteration (198 + 2-byte header)

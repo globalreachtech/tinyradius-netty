@@ -68,7 +68,7 @@ class BaseRadiusPacketTest {
 
     @Test
     void removeSpecificAttribute() {
-        RadiusPacket rp = new StubPacket();
+        BaseRadiusPacket rp = new StubPacket();
         RadiusAttribute ra = create(rp.getDictionary(), -1, (byte) 8, new byte[4]);
         rp.addAttribute(ra);
         assertFalse(rp.getAttributes().isEmpty());
@@ -96,7 +96,7 @@ class BaseRadiusPacketTest {
 
     @Test
     void removeAttributesByType() {
-        RadiusPacket rp = new StubPacket();
+        BaseRadiusPacket rp = new StubPacket();
         rp.addAttribute("Service-Type", "1");
         rp.addAttribute("Service-Type", "2");
         rp.addAttribute("User-Name", "user");
@@ -109,7 +109,7 @@ class BaseRadiusPacketTest {
 
     @Test
     void removeLastAttributeForType() {
-        RadiusPacket rp = new StubPacket();
+        BaseRadiusPacket rp = new StubPacket();
         rp.addAttribute("Service-Type", "1");
         rp.addAttribute("Service-Type", "2");
         rp.addAttribute("User-Name", "user");
@@ -125,8 +125,7 @@ class BaseRadiusPacketTest {
 
     @Test
     void testFlattenAttributes() {
-
-        RadiusPacket radiusPacket = new StubPacket();
+        BaseRadiusPacket radiusPacket = new StubPacket();
 
         radiusPacket.addAttribute("Service-Type", "999");
         radiusPacket.addAttribute("Filter-Id", "abc");
@@ -155,11 +154,6 @@ class BaseRadiusPacketTest {
 
         public StubPacket() {
             super(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
-        }
-
-        @Override
-        public RadiusPacket copy() {
-            return null;
         }
     }
 }

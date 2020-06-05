@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.util.Attributes;
+import org.tinyradius.attribute.util.NestedAttributeHolder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -80,7 +81,7 @@ public interface MessageAuthSupport extends RadiusPacket {
      *
      * @param <T> same type as implementation
      */
-    interface Encodable<T extends Encodable<?>> extends MessageAuthSupport {
+    interface Encodable<T extends Encodable<?>> extends MessageAuthSupport, NestedAttributeHolder.Writable {
 
         /**
          * @return packet of same type as self, including intermediate/transient fields

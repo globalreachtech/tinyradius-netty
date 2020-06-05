@@ -1,6 +1,7 @@
 package org.tinyradius.packet;
 
 import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.util.NestedAttributeHolder;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.util.PacketType;
 import org.tinyradius.packet.util.RadiusPackets;
@@ -19,7 +20,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
  */
-public abstract class BaseRadiusPacket implements RadiusPacket {
+public abstract class BaseRadiusPacket implements RadiusPacket, NestedAttributeHolder.Writable {
 
     private static final int HEADER_LENGTH = 20;
     private static final int CHILD_VENDOR_ID = -1;

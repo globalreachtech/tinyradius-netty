@@ -27,7 +27,6 @@ public class RadiusRequest extends BaseRadiusPacket {
         super(dictionary, type, identifier, authenticator, attributes);
     }
 
-    @Override
     public RadiusRequest copy() {
         return RadiusPackets.createRequest(getDictionary(), getType(), getId(), getAuthenticator(), getAttributes());
     }

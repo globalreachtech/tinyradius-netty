@@ -27,11 +27,6 @@ public class RadiusResponse extends BaseRadiusPacket {
         super(dictionary, type, identifier, authenticator, attributes);
     }
 
-    @Override
-    public RadiusResponse copy() {
-        return RadiusPackets.createResponse(getDictionary(), getType(), getId(), getAuthenticator(), getAttributes());
-    }
-
     /**
      * Encode and generate authenticator. Should be idempotent.
      * <p>

@@ -6,7 +6,7 @@ import org.tinyradius.dictionary.Dictionary;
 
 import java.util.List;
 
-public interface RadiusPacket extends NestedAttributeHolder.Writable {
+public interface RadiusPacket extends NestedAttributeHolder {
 
     /**
      * @return Radius packet type
@@ -42,9 +42,4 @@ public interface RadiusPacket extends NestedAttributeHolder.Writable {
      */
     @Override
     Dictionary getDictionary();
-
-    /**
-     * @return packet of same type as self, including intermediate fields
-     */
-    RadiusPacket copy();
 }
