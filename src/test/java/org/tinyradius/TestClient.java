@@ -67,8 +67,8 @@ public class TestClient {
         final RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1813), shared);
 
         // 1. Send Access-Request
-        AccessRequestPap ar = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList());
-        ar.setPlaintextPassword(pass);
+        AccessRequestPap ar = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
+                .withPassword(pass);
         ar.addAttribute("User-Name", user);
         ar.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
         ar.addAttribute("NAS-IP-Address", "192.168.0.100");

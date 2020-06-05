@@ -49,10 +49,7 @@ public interface RadiusRequest extends RadiusPacket {
      * @return RadiusPacket with new authenticator and/or encoded attributes
      * @throws RadiusPacketException if invalid or missing attributes
      */
-    default RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
-        final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
-        return create(getDictionary(), getType(), getId(), authenticator, getAttributes());
-    }
+     RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException;
 
     /**
      * Checks the request authenticator against the supplied shared secret.

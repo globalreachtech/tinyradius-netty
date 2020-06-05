@@ -27,7 +27,7 @@ class AccessRequestChapTest {
     void encodeVerify() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
         final AccessRequestChap accessRequestChap = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList());
-        accessRequestChap.setPlaintextPassword("myPw");
+        accessRequestChap.withPassword("myPw");
 
         final AccessRequest encoded = accessRequestChap.encodeRequest(sharedSecret);
 
@@ -56,7 +56,7 @@ class AccessRequestChapTest {
 
         AccessRequestChap request = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList());
         request.addAttribute(USER_NAME, user);
-        request.setPlaintextPassword(plaintextPw);
+        request.withPassword(plaintextPw);
         final AccessRequestChap encoded = (AccessRequestChap) request.encodeRequest(sharedSecret);
 
         assertNull(request.getAttribute("User-Password"));
@@ -75,7 +75,7 @@ class AccessRequestChapTest {
         assertNull(encoded.getAttribute("User-Password"));
 
         // check transient fields copied across
-        assertEquals(plaintextPw, encoded.getPlaintextPassword());
+        assertEquals(plaintextPw, encoded.getPassword());
         assertEquals(user, encoded.getAttributeString(USER_NAME));
     }
 

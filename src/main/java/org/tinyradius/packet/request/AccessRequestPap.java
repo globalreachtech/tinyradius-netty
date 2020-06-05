@@ -3,6 +3,7 @@ package org.tinyradius.packet.request;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -13,38 +14,40 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
-public class AccessRequestPap extends AccessRequest {
+public class AccessRequestPap extends BaseRadiusPacket implements AccessRequest {
 
-    private transient String password;
+    private final String password;
 
     public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
-        this(dictionary, identifier, authenticator, attributes);
-        setPlaintextPassword(plaintextPw);
+        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
+        requireNonNull(plaintextPw, "User password not set");
+        if (plaintextPw.isEmpty())
+            throw new IllegalArgumentException("Password is empty");
+        this.password = plaintextPw;
     }
 
     public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, identifier, authenticator, attributes);
+        this(dictionary, identifier, authenticator, attributes, null);
     }
 
     /**
      * Sets the plain-text user password.
      *
-     * @param userPassword user password to set
+     * @param password user password to set
+     * @return AccessRequestPap with updated password
      */
-    public void setPlaintextPassword(String userPassword) {
-        requireNonNull(userPassword, "User password not set");
-        if (userPassword.isEmpty())
-            throw new IllegalArgumentException("Password is empty");
-        this.password = userPassword;
+    public AccessRequestPap withPassword(String password) {
+        return new AccessRequestPap(getDictionary(), getId(), getAuthenticator(), getAttributes(), password);
     }
 
     /**
      * Retrieves the plain-text user password.
      *
-     * @return user password in plaintext if decoded
+     * @return user password in plaintext if decoded (verified)
      */
-    public String getPlaintextPassword() {
+    public String getPassword() {
         return password;
     }
 
@@ -58,7 +61,7 @@ public class AccessRequestPap extends AccessRequest {
      * @return List of RadiusAttributes to override
      */
     @Override
-    protected AccessRequestPap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
+    public AccessRequestPap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
         if (password == null || password.isEmpty()) {
             logger.warn("Could not encode PAP attributes, password not set");
             throw new RadiusPacketException("Could not encode PAP attributes, password not set");
@@ -84,7 +87,7 @@ public class AccessRequestPap extends AccessRequest {
             return false;
         }
 
-        final String userPassword = getPlaintextPassword();
+        final String userPassword = getPassword();
         if (userPassword == null || userPassword.isEmpty()) {
             logger.warn("Password to check is empty - verify and decode with shared secret first");
             return false;
@@ -94,12 +97,12 @@ public class AccessRequestPap extends AccessRequest {
     }
 
     @Override
-    protected void verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
+    public AccessRequestPap verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> attrs = getAttributes(USER_PASSWORD);
         if (attrs.size() != 1) {
             throw new RadiusPacketException("AccessRequest (PAP) should have exactly one User-Password attribute, has " + attrs.size());
         }
-        password = decodePapPassword(attrs.get(0).getValue(), sharedSecret.getBytes(UTF_8));
+        return withPassword(decodePapPassword(attrs.get(0).getValue(), sharedSecret.getBytes(UTF_8)));
     }
 
     /**

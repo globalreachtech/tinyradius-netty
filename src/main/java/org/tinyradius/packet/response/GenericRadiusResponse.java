@@ -24,4 +24,10 @@ public class GenericRadiusResponse extends BaseRadiusPacket implements RadiusRes
     public GenericRadiusResponse(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, type, identifier, authenticator, attributes);
     }
+
+    @Override
+    public GenericRadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
+        final byte[] newAuth = createHashedAuthenticator(sharedSecret, requestAuth);
+        return new GenericRadiusResponse(getDictionary(), getType(), getId(), newAuth, getAttributes());
+    }
 }

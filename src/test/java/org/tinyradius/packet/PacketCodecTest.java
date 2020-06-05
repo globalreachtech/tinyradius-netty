@@ -37,7 +37,7 @@ class PacketCodecTest {
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final InetSocketAddress remoteAddress = new InetSocketAddress(0);
 
-    private void addBytesToPacket(BaseRadiusPacket packet, int targetSize) {
+    private void addBytesToPacket(RadiusPacket packet, int targetSize) {
         int dataSize = targetSize - HEADER_LENGTH;
         for (int i = 0; i < Math.floor((double) dataSize / 200); i++) {
             // add 200 octets per iteration (198 + 2-byte header)
@@ -208,9 +208,9 @@ class PacketCodecTest {
         String password = "myPassword";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequestPap rawRequest = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList());
+        AccessRequestPap rawRequest = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
+                .withPassword(password);
         rawRequest.addAttribute(USER_NAME, user);
-        rawRequest.setPlaintextPassword(password);
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
 
         DatagramPacket datagramPacket = toDatagram(request, remoteAddress);
@@ -223,7 +223,7 @@ class PacketCodecTest {
         AccessRequestPap packet = (AccessRequestPap) radiusPacket;
         assertEquals(rawRequest.getId(), packet.getId());
         assertEquals(rawRequest.getAttributeString(USER_NAME), packet.getAttributeString(USER_NAME));
-        assertEquals(rawRequest.getPlaintextPassword(), packet.getPlaintextPassword());
+        assertEquals(rawRequest.getPassword(), packet.getPassword());
     }
 
     @Test
@@ -234,9 +234,9 @@ class PacketCodecTest {
 
         final byte id = (byte) random.nextInt(256);
 
-        final AccessRequestPap request = new AccessRequestPap(dictionary, id, null, Collections.emptyList());
+        final AccessRequestPap request = new AccessRequestPap(dictionary, id, null, Collections.emptyList())
+                .withPassword(plaintextPw);
         request.addAttribute(USER_NAME, user);
-        request.setPlaintextPassword(plaintextPw);
         final AccessRequest encodedRequest = request.encodeRequest(sharedSecret);
 
         final RadiusResponse response = new AccessResponse(dictionary, (byte) 2, id, null, Collections.emptyList());

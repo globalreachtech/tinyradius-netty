@@ -1,23 +1,19 @@
 package org.tinyradius.packet;
 
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.util.NestedAttributeHolder;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.packet.util.PacketType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
  */
-public abstract class BaseRadiusPacket implements RadiusPacket, NestedAttributeHolder.Writable {
+public abstract class BaseRadiusPacket implements RadiusPacket {
 
     private static final int CHILD_VENDOR_ID = -1;
 
@@ -49,7 +45,7 @@ public abstract class BaseRadiusPacket implements RadiusPacket, NestedAttributeH
         this.type = type;
         this.id = id;
         this.authenticator = authenticator;
-        this.attributes = new ArrayList<>(attributes); // catch nulls, avoid mutating original list
+        this.attributes = Collections.unmodifiableList(new ArrayList<>(attributes));
         this.dictionary = requireNonNull(dictionary, "Dictionary is null");
     }
 

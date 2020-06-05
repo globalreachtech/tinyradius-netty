@@ -3,6 +3,7 @@ package org.tinyradius.packet.request;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
@@ -23,5 +24,11 @@ public class AccountingRequest extends BaseRadiusPacket implements RadiusRequest
      */
     public AccountingRequest(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCOUNTING_REQUEST, identifier, authenticator, attributes);
+    }
+
+    @Override
+    public RadiusRequest encodeRequest(String sharedSecret) {
+        final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
+        return new AccountingRequest(getDictionary(),getId(), authenticator, getAttributes());
     }
 }

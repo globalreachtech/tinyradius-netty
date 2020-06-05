@@ -14,10 +14,8 @@ import static org.tinyradius.attribute.util.Attributes.extractAttributes;
 
 /**
  * This class represents a "Vendor-Specific" attribute. Both an attribute itself and an attribute container.
- * <p>
- * Immutable. To mutate, see {@link Builder}
  */
-public class VendorSpecificAttribute extends RadiusAttribute implements AttributeHolder {
+public class VendorSpecificAttribute extends RadiusAttribute implements AttributeHolder<VendorSpecificAttribute> {
 
     public static final byte VENDOR_SPECIFIC = 26;
 
@@ -31,6 +29,7 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
      * @param data          data as hex to parse for childVendorId and sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, String data) {
+        // todo fail fast?
         this(dictionary, vendorId, attributeType, DatatypeConverter.parseHexBinary(data));
     }
 
@@ -96,9 +95,11 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
         return attributes;
     }
 
-    /**
-     * Returns a string representation for debugging.
-     */
+    @Override
+    public VendorSpecificAttribute withAttributes(List<RadiusAttribute> attributes) {
+        return new VendorSpecificAttribute(getDictionary(), attributes, getChildVendorId());
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -119,56 +120,5 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
     @Override
     public List<RadiusAttribute> flatten() {
         return new ArrayList<>(getAttributes());
-    }
-
-    public Builder toBuilder() {
-        return new Builder()
-                .setDictionary(getDictionary())
-                .setChildVendorId(getChildVendorId())
-                .setAttributes(getAttributes());
-    }
-
-    /**
-     * Builder for attribute manipulation before building immutable attribute
-     */
-    public static class Builder implements AttributeHolder.Writable {
-
-        private Dictionary dictionary;
-        private List<RadiusAttribute> attributes = new ArrayList<>();
-        private int childVendorId;
-
-        public VendorSpecificAttribute build() {
-            return new VendorSpecificAttribute(dictionary, attributes, childVendorId);
-        }
-
-        @Override
-        public int getChildVendorId() {
-            return childVendorId;
-        }
-
-        @Override
-        public Dictionary getDictionary() {
-            return dictionary;
-        }
-
-        @Override
-        public List<RadiusAttribute> getAttributes() {
-            return attributes;
-        }
-
-        public Builder setDictionary(Dictionary dictionary) {
-            this.dictionary = dictionary;
-            return this;
-        }
-
-        public Builder setAttributes(List<RadiusAttribute> attributes) {
-            this.attributes = new ArrayList<>(attributes);
-            return this;
-        }
-
-        public Builder setChildVendorId(int childVendorId) {
-            this.childVendorId = childVendorId;
-            return this;
-        }
     }
 }

@@ -43,10 +43,7 @@ public interface RadiusResponse extends RadiusPacket {
      * @param requestAuth  request packet authenticator
      * @return new RadiusPacket instance with same properties and valid authenticator
      */
-    default RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
-        final byte[] newAuth = createHashedAuthenticator(sharedSecret, requestAuth);
-        return create(getDictionary(), getType(), getId(), newAuth, getAttributes());
-    }
+    RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth);
 
     /**
      * Verifies the response authenticator against the supplied shared secret.

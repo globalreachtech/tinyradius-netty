@@ -3,6 +3,7 @@ package org.tinyradius.packet.request;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -12,33 +13,31 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.requireNonNull;
+import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
-public class AccessRequestChap extends AccessRequest {
+public class AccessRequestChap extends BaseRadiusPacket implements AccessRequest {
 
     protected static final byte CHAP_CHALLENGE = 60;
 
-    private transient String password;
+    private final String password;
 
     public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
-        this(dictionary, identifier, authenticator, attributes);
-        setPlaintextPassword(plaintextPw);
+        super(dictionary, ACCESS_REQUEST,identifier, authenticator, attributes);
+        this.password = plaintextPw;
     }
 
     public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, identifier, authenticator, attributes);
+        this(dictionary,  identifier, authenticator, attributes, null);
     }
 
     /**
      * Sets the plain-text user password.
      *
-     * @param userPassword user password to set
+     * @param password user password to set
+     * @return AccessRequestChap with updated password
      */
-    public void setPlaintextPassword(String userPassword) {
-        requireNonNull(userPassword, "User password not set");
-        if (userPassword.isEmpty())
-            throw new IllegalArgumentException("Password is empty");
-        this.password = userPassword;
+    public AccessRequestChap withPassword(String password) {
+        return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), getAttributes(), password);
     }
 
     /**
@@ -47,7 +46,7 @@ public class AccessRequestChap extends AccessRequest {
      * @return user password in plaintext, only available if set in memory,
      * cannot be extracted from packet
      */
-    public String getPlaintextPassword() {
+    public String getPassword() {
         return password;
     }
 
@@ -59,7 +58,7 @@ public class AccessRequestChap extends AccessRequest {
      * @return List of RadiusAttributes to override
      */
     @Override
-    protected AccessRequestChap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
+    public AccessRequestChap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
         if (password == null || password.isEmpty()) {
             logger.warn("Could not encode CHAP attributes, password not set");
             throw new RadiusPacketException("Could not encode CHAP attributes, password not set");
@@ -69,7 +68,7 @@ public class AccessRequestChap extends AccessRequest {
         encoded.removeAttributes(CHAP_PASSWORD);
         encoded.removeAttributes(CHAP_CHALLENGE);
 
-        byte[] challenge = random16bytes();
+        byte[] challenge = AccessRequest.random16bytes();
 
         encoded.addAttribute(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge));
         encoded.addAttribute(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
@@ -126,11 +125,12 @@ public class AccessRequestChap extends AccessRequest {
     }
 
     @Override
-    protected void verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
+    public AccessRequest verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> attrs = getAttributes(CHAP_PASSWORD);
         if (attrs.size() != 1) {
             throw new RadiusPacketException("AccessRequest (CHAP) should have exactly one CHAP-Password attribute, has " + attrs.size());
         }
+        return null;
     }
 
     @Override

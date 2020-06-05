@@ -23,8 +23,8 @@ class AccessRequestPapTest {
     void encodeVerify() throws RadiusPacketException {
         final String plaintextPw = "myPassword";
         String sharedSecret = "sharedSecret1";
-        final AccessRequestPap accessRequestPap = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList());
-        accessRequestPap.setPlaintextPassword(plaintextPw);
+        final AccessRequestPap accessRequestPap = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
+                .withPassword(plaintextPw);
 
         final AccessRequest encoded = accessRequestPap.encodeRequest(sharedSecret);
 
@@ -51,15 +51,15 @@ class AccessRequestPapTest {
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList());
+        AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList())
+                .withPassword(plaintextPw);
         request.addAttribute(USER_NAME, user);
-        request.setPlaintextPassword(plaintextPw);
 
         // encode
         final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
 
         final byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
-                request.getPlaintextPassword().getBytes(UTF_8), encoded.getAuthenticator(), sharedSecret);
+                request.getPassword().getBytes(UTF_8), encoded.getAuthenticator(), sharedSecret);
 
         // check correct encode
         assertEquals(1, encoded.getType());
@@ -69,14 +69,12 @@ class AccessRequestPapTest {
         // check password fields
         assertNull(request.getAttribute("User-Password"));
         assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").getValue());
-        assertEquals(plaintextPw, encoded.getPlaintextPassword());
-
-        // flush transient fields
-        encoded.setPlaintextPassword("something else");
+        assertEquals(plaintextPw, encoded.getPassword());
 
         // check verify decodes password
-        encoded.verifyRequest(sharedSecret);
-        assertEquals(plaintextPw, encoded.getPlaintextPassword());
+        encoded.withPassword("something else")
+                .verifyRequest(sharedSecret);
+        assertEquals(plaintextPw, encoded.getPassword());
     }
 
     @Test

@@ -100,9 +100,9 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         final byte id = (byte) random.nextInt(256);
 
-        final AccessRequestPap accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList());
+        final AccessRequestPap accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList())
+                .withPassword(password);
         accessRequest.addAttribute(USER_NAME, username);
-        accessRequest.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
         when(ctx.channel()).thenReturn(mock(Channel.class));
@@ -119,7 +119,7 @@ class ClientPacketCodecTest {
         // check user details correctly encoded
         assertEquals(id, sentAccessPacket.getId());
         assertEquals(username, sentAccessPacket.getAttributeString(USER_NAME));
-        assertEquals(password, sentAccessPacket.getPlaintextPassword());
+        assertEquals(password, sentAccessPacket.getPassword());
     }
 
     @Test
@@ -129,9 +129,9 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        final AccessRequestPap packet = new AccessRequestPap(dictionary, (byte) id, null, Collections.emptyList());
+        final AccessRequestPap packet = new AccessRequestPap(dictionary, (byte) id, null, Collections.emptyList())
+                .withPassword(password);
         packet.addAttribute(USER_NAME, username);
-        packet.setPlaintextPassword(password);
         final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
 
         when(ctx.channel()).thenReturn(mock(Channel.class));
