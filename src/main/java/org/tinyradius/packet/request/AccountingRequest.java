@@ -2,6 +2,7 @@ package org.tinyradius.packet.request;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.BaseRadiusPacket;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 /**
  * This class represents a Radius packet of the type Accounting-Request.
  */
-public class AccountingRequest extends RadiusRequest {
+public class AccountingRequest extends BaseRadiusPacket implements RadiusRequest {
 
     /**
      * Constructs an Accounting-Request packet to be sent to a Radius server.

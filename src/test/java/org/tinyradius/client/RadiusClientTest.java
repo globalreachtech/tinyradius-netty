@@ -23,7 +23,6 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.AccountingRequest;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
-import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -81,7 +80,7 @@ class RadiusClientTest {
     @Test
     void communicateSuccess() throws RadiusPacketException {
         final byte id = (byte) random.nextInt(256);
-        final RadiusResponse response = RadiusPackets.createResponse(DefaultDictionary.INSTANCE, (byte) 2, id, null, Collections.emptyList());
+        final RadiusResponse response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, Collections.emptyList());
         final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(a -> a.trySuccess(response));
 
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, customOutboundHandler);
@@ -103,7 +102,7 @@ class RadiusClientTest {
         final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(p -> p.tryFailure(expectedException));
 
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, customOutboundHandler);
-        final RadiusRequest request = RadiusPackets.createRequest(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
 
         final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
         assertFalse(future.isDone());

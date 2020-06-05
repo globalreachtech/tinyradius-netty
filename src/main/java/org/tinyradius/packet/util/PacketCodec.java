@@ -13,8 +13,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 import static org.tinyradius.attribute.util.Attributes.extractAttributes;
-import static org.tinyradius.packet.util.RadiusPackets.createRequest;
-import static org.tinyradius.packet.util.RadiusPackets.createResponse;
 
 /**
  * To encode/decode packets to/from Datagram.
@@ -100,7 +98,7 @@ public class PacketCodec {
      */
     public static RadiusResponse fromDatagramResponse(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
         final RadiusRequest rr = fromByteBuf(dictionary, datagram.content());
-        return createResponse(rr.getDictionary(), rr.getType(), rr.getId(), rr.getAuthenticator(), rr.getAttributes());
+        return RadiusResponse.create(rr.getDictionary(), rr.getType(), rr.getId(), rr.getAuthenticator(), rr.getAttributes());
     }
 
     /**
@@ -140,7 +138,7 @@ public class PacketCodec {
         byte[] attributes = new byte[content.remaining()];
         content.get(attributes);
 
-        return createRequest(dictionary, type, packetId, authenticator,
+        return RadiusRequest.create(dictionary, type, packetId, authenticator,
                 extractAttributes(dictionary, -1, attributes, 0));
     }
 }

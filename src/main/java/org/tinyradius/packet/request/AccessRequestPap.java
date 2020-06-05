@@ -3,7 +3,7 @@ package org.tinyradius.packet.request;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.nio.ByteBuffer;
@@ -156,7 +156,7 @@ public class AccessRequestPap extends AccessRequest {
 
 
     private byte[] md5(byte[] a, byte[] b) {
-        MessageDigest md = BaseRadiusPacket.getMd5Digest();
+        MessageDigest md = RadiusPacket.getMd5Digest();
         md.update(a);
         return md.digest(b);
     }

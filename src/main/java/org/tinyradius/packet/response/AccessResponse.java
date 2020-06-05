@@ -2,12 +2,13 @@ package org.tinyradius.packet.response;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.packet.util.MessageAuthSupport;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
-public class AccessResponse extends RadiusResponse implements MessageAuthSupport.Encodable<AccessResponse> {
+public class AccessResponse extends BaseRadiusPacket implements RadiusResponse, MessageAuthSupport.Encodable<AccessResponse> {
 
     public AccessResponse(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, type, identifier, authenticator, attributes);
@@ -23,7 +24,7 @@ public class AccessResponse extends RadiusResponse implements MessageAuthSupport
 
     @Override
     public void verifyResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        super.verifyResponse(sharedSecret, requestAuth);
+        RadiusResponse.super.verifyResponse(sharedSecret, requestAuth);
         verifyMessageAuth(sharedSecret, requestAuth);
     }
 

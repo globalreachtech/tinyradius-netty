@@ -10,7 +10,7 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.AccountingRequest;
 import org.tinyradius.packet.request.RadiusRequest;
-import org.tinyradius.packet.util.RadiusPackets;
+import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
 import org.tinyradius.util.RadiusEndpoint;
@@ -42,7 +42,7 @@ class BasicCachingHandlerTest {
 
         final RadiusRequest request = new AccountingRequest(dictionary, (byte) 100, null, Collections.emptyList()).encodeRequest("test");
         final RequestCtx requestCtx = new RequestCtx(request, new RadiusEndpoint(new InetSocketAddress(0), "foo"));
-        final ResponseCtx responseContext = requestCtx.withResponse(RadiusPackets.createResponse(dictionary, ACCESS_ACCEPT, (byte) 100, null, Collections.emptyList()));
+        final ResponseCtx responseContext = requestCtx.withResponse(RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 100, null, Collections.emptyList()));
 
         // cache miss
         final ArrayList<Object> in1 = new ArrayList<>();

@@ -18,7 +18,6 @@ import org.tinyradius.packet.request.AccessRequestPap;
 import org.tinyradius.packet.request.AccountingRequest;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
-import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
@@ -105,7 +104,7 @@ public class TestServer {
             String password = request.getAttributeString(USER_NAME).equals("test") ? "password" : null;
             byte type = request.checkPassword(password) ? ACCESS_ACCEPT : ACCESS_REJECT;
 
-            RadiusResponse answer = RadiusPackets.createResponse(request.getDictionary(), type, request.getId(), null, request.getAttributes((byte) 33));
+            RadiusResponse answer = RadiusResponse.create(request.getDictionary(), type, request.getId(), null, request.getAttributes((byte) 33));
 
             ctx.writeAndFlush(msg.withResponse(answer));
         }
@@ -122,7 +121,7 @@ public class TestServer {
         protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
             final RadiusRequest request = msg.getRequest();
 
-            RadiusResponse answer = RadiusPackets.createResponse(request.getDictionary(), ACCOUNTING_RESPONSE, request.getId(), null, request.getAttributes((byte) 33));
+            RadiusResponse answer = RadiusResponse.create(request.getDictionary(), ACCOUNTING_RESPONSE, request.getId(), null, request.getAttributes((byte) 33));
 
             ctx.writeAndFlush(msg.withResponse(answer));
         }

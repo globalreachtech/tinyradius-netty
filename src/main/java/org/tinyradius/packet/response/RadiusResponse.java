@@ -2,29 +2,36 @@ package org.tinyradius.packet.response;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.BaseRadiusPacket;
-import org.tinyradius.packet.util.RadiusPackets;
+import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
-public class RadiusResponse extends BaseRadiusPacket {
+import static org.tinyradius.packet.util.PacketType.*;
+
+public interface RadiusResponse extends RadiusPacket {
 
     /**
-     * Builds a Radius packet with the given type, identifier and attributes.
-     * <p>
-     * Use {@link RadiusPackets#createResponse(Dictionary, byte, byte, byte[], List)}
-     * where possible as that automatically creates Access/Accounting
-     * variants as required.
+     * Creates a RadiusPacket object. Depending on the passed type, an
+     * appropriate packet is created. Also sets the type, and the
+     * the packet identifier.
      *
      * @param dictionary    custom dictionary to use
      * @param type          packet type
      * @param identifier    packet identifier
-     * @param authenticator can be null if creating manually
-     * @param attributes    list of RadiusAttribute objects
+     * @param authenticator authenticator for packet, nullable
+     * @param attributes    list of attributes for packet
+     * @return RadiusPacket object
      */
-    public RadiusResponse(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, type, identifier, authenticator, attributes);
+    static RadiusResponse create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+        switch (type) {
+            case ACCESS_ACCEPT:
+            case ACCESS_REJECT:
+            case ACCESS_CHALLENGE:
+                return new AccessResponse(dictionary, type, identifier, authenticator, attributes);
+            default:
+                return new GenericRadiusResponse(dictionary, type, identifier, authenticator, attributes);
+        }
     }
 
     /**
@@ -36,9 +43,9 @@ public class RadiusResponse extends BaseRadiusPacket {
      * @param requestAuth  request packet authenticator
      * @return new RadiusPacket instance with same properties and valid authenticator
      */
-    public RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
+    default RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
         final byte[] newAuth = createHashedAuthenticator(sharedSecret, requestAuth);
-        return RadiusPackets.createResponse(getDictionary(), getType(), getId(), newAuth, getAttributes());
+        return create(getDictionary(), getType(), getId(), newAuth, getAttributes());
     }
 
     /**
@@ -48,7 +55,7 @@ public class RadiusResponse extends BaseRadiusPacket {
      * @param requestAuth  authenticator for corresponding request
      * @throws RadiusPacketException if authenticator check fails
      */
-    public void verifyResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    default void verifyResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         verifyPacketAuth(sharedSecret, requestAuth);
     }
 }

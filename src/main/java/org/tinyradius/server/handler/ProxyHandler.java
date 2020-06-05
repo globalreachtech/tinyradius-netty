@@ -9,7 +9,6 @@ import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
-import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
 
@@ -50,7 +49,7 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
         radiusClient.communicate(request, serverEndpoint.get()).addListener(f -> {
             final RadiusResponse packet = (RadiusResponse) f.getNow();
             if (f.isSuccess() && packet != null) {
-                final RadiusResponse response = RadiusPackets.createResponse(
+                final RadiusResponse response = RadiusResponse.create(
                         request.getDictionary(), packet.getType(), packet.getId(), packet.getAuthenticator(), packet.getAttributes());
                 ctx.writeAndFlush(msg.withResponse(response));
             }

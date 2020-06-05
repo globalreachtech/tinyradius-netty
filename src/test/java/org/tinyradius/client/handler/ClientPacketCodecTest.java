@@ -16,7 +16,6 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.request.AccessRequestPap;
 import org.tinyradius.packet.response.RadiusResponse;
-import org.tinyradius.packet.util.RadiusPackets;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -53,7 +52,7 @@ class ClientPacketCodecTest {
     void decodeSuccess() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusResponse response = RadiusPackets.createResponse(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList());
+        final RadiusResponse response = RadiusResponse.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList());
 
         final List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, toDatagram(
@@ -68,7 +67,7 @@ class ClientPacketCodecTest {
     void decodeRadiusException() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusResponse response = RadiusPackets.createResponse(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList());
+        final RadiusResponse response = RadiusResponse.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList());
 
         final DatagramPacket datagram = toDatagram(
                 response.encodeResponse("mySecret", requestAuth), address, address);
@@ -85,7 +84,7 @@ class ClientPacketCodecTest {
     void decodeRemoteAddressNull() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusResponse response = RadiusPackets.createResponse(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList());
+        final RadiusResponse response = RadiusResponse.create(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList());
 
         final List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, toDatagram(

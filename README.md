@@ -44,10 +44,11 @@ See the [example implementations](src/test/java/org/tinyradius) on usage as Clie
  - `VendorSpecificAttribute` stores lists of vendor-specific attributes instead of attribute data itself, and serializes its data by concatenating byte array representations of sub-attributes with its type/vendorId/length header.
 
 ### Packet
- - `RadiusPacket` represents packet and associated data, with `RadiusRequest` and `RadiusResponse` as main concrete classes.
+ - `RadiusPacket` represents packet and associated data, with `RadiusRequest` and `RadiusResponse` as the two variants.
    - `encodeRequest()` and `encodeResponse()` return a new copy of the current RadiusPacket with the Authenticator
    - `AccessRequest` and `AccessResponse` has a different way of encoding/verifying the packet authenticator compared to other Radius request/response types and encodes the appropriate password/Message-Authenticator attributes.
- - `RadiusPackets` contains utils for creating packets and using a more specific subclass where possible, and for generating a valid packet identifier.
+ - `RadiusRequest` and `RadiusResponse` has static methods for creating packets and using a more specific subclass where possible, and for generating a valid packet identifier.
+   - If no specicfic subclass is appropriate, defaults to `GenericRadiusRequest` and `GenericRadiusReponse` respectively
  - `PacketType` contains list of constants of packet types. It's intentionally not an enum to allow for types that aren't included in the list / added in the future.
  - `PacketEncoder` contains methods for converting to/from netty Datagram and ByteBufs.
 

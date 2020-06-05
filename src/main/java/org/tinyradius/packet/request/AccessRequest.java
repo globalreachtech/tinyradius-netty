@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.packet.util.MessageAuthSupport;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -19,7 +20,7 @@ import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 /**
  * This class represents an Access-Request Radius packet.
  */
-public abstract class AccessRequest extends RadiusRequest implements MessageAuthSupport.Encodable<AccessRequest> {
+public abstract class AccessRequest extends BaseRadiusPacket implements RadiusRequest, MessageAuthSupport.Encodable<AccessRequest> {
 
     protected static final Logger logger = LogManager.getLogger();
 
