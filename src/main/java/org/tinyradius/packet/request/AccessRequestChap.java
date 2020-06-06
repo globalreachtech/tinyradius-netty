@@ -134,11 +134,6 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
     }
 
     @Override
-    public AccessRequestChap copy() {
-        return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), getAttributes(), password);
-    }
-
-    @Override
     public AccessRequestChap withAttributes(List<RadiusAttribute> attributes) {
         return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), attributes, password);
     }

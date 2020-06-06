@@ -13,7 +13,7 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
-public interface RadiusPacket extends NestedAttributeHolder {
+public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttributeHolder.Writable<T> {
 
     int HEADER_LENGTH = 20;
 

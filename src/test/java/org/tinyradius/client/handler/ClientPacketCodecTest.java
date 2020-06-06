@@ -100,9 +100,8 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         final byte id = (byte) random.nextInt(256);
 
-        final AccessRequestPap accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList())
-                .withPassword(password);
-        accessRequest.addAttribute(USER_NAME, username);
+        final AccessRequestPap accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList(),password)
+                .addAttribute(USER_NAME, username);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
         when(ctx.channel()).thenReturn(mock(Channel.class));
@@ -129,9 +128,8 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        final AccessRequestPap packet = new AccessRequestPap(dictionary, (byte) id, null, Collections.emptyList())
-                .withPassword(password);
-        packet.addAttribute(USER_NAME, username);
+        final AccessRequestPap packet = new AccessRequestPap(dictionary, (byte) id, null, Collections.emptyList(),password)
+                .addAttribute(USER_NAME, username);
         final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
 
         when(ctx.channel()).thenReturn(mock(Channel.class));

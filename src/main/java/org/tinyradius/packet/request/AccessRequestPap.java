@@ -97,6 +97,12 @@ public class AccessRequestPap extends BaseRadiusPacket<AccessRequestPap> impleme
     }
 
     @Override
+    public AccessRequestPap verifyRequest(String sharedSecret) throws RadiusPacketException {
+        verifyMessageAuth(sharedSecret, getAuthenticator());
+        return verifyAuthMechanism(sharedSecret);
+    }
+
+    @Override
     public AccessRequestPap verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> attrs = getAttributes(USER_PASSWORD);
         if (attrs.size() != 1) {
@@ -192,11 +198,6 @@ public class AccessRequestPap extends BaseRadiusPacket<AccessRequestPap> impleme
                 (int) (Math.ceil((double) val.length / 16) * 16), 16);
 
         return Arrays.copyOf(val, length);
-    }
-
-    @Override
-    public AccessRequestPap copy() {
-        return new AccessRequestPap(getDictionary(), getId(), getAuthenticator(), getAttributes(), password);
     }
 
     @Override

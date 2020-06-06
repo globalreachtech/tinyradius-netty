@@ -21,12 +21,10 @@ class AccessRequestPapTest {
 
     @Test
     void encodeVerify() throws RadiusPacketException {
-        final String plaintextPw = "myPassword";
         String sharedSecret = "sharedSecret1";
-        final AccessRequestPap accessRequestPap = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
-                .withPassword(plaintextPw);
+        final AccessRequestPap accessRequestPap = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList(), "myPassword");
 
-        final AccessRequest encoded = accessRequestPap.encodeRequest(sharedSecret);
+        final AccessRequestPap encoded = accessRequestPap.encodeRequest(sharedSecret);
 
         assertNotNull(encoded.getAuthenticator());
         encoded.verifyRequest(sharedSecret);
@@ -51,12 +49,11 @@ class AccessRequestPapTest {
         String plaintextPw = "myPassword1";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList())
-                .withPassword(plaintextPw);
-        request.addAttribute(USER_NAME, user);
+        AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList(), plaintextPw)
+                .addAttribute(USER_NAME, user);
 
         // encode
-        final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
+        final AccessRequestPap encoded = request.encodeRequest(sharedSecret);
 
         final byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
                 request.getPassword().getBytes(UTF_8), encoded.getAuthenticator(), sharedSecret);
@@ -83,7 +80,7 @@ class AccessRequestPapTest {
         String sharedSecret = "sharedSecret1";
 
         AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList(), plaintextPw);
-        final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
+        final AccessRequestPap encoded = request.encodeRequest(sharedSecret);
 
         assertTrue(encoded.checkPassword(plaintextPw));
         assertFalse(encoded.checkPassword("badPw"));

@@ -20,11 +20,6 @@ class AccessRequestNoAuth extends BaseRadiusPacket<AccessRequestNoAuth> implemen
     }
 
     @Override
-    public AccessRequestNoAuth copy() {
-        return new AccessRequestNoAuth(getDictionary(), getId(), getAuthenticator(), getAttributes());
-    }
-
-    @Override
     public AccessRequestNoAuth verifyAuthMechanism(String sharedSecret) {
         return this;
     }

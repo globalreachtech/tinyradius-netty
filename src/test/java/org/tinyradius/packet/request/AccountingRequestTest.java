@@ -48,11 +48,11 @@ class AccountingRequestTest {
     void encodeNewAccountingRequestWithUsernameAndAcctStatus() throws RadiusPacketException {
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
-        AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null, new ArrayList<>());
-        request.addAttribute("User-Name", user);
-        request.addAttribute("Acct-Status-Type", "7");
+        AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null, new ArrayList<>())
+                .addAttribute("User-Name", user)
+                .addAttribute("Acct-Status-Type", "7");
 
-        AccountingRequest encoded = (AccountingRequest) request.encodeRequest(sharedSecret);
+        AccountingRequest encoded = request.encodeRequest(sharedSecret);
         assertEquals(request.getAttributeString(USER_NAME), encoded.getAttributeString(USER_NAME));
         assertEquals(7, ((IntegerAttribute) encoded.getAttribute(ACCT_STATUS_TYPE)).getValueInt());
         assertEquals(request.getAttribute(ACCT_STATUS_TYPE), encoded.getAttribute(ACCT_STATUS_TYPE));

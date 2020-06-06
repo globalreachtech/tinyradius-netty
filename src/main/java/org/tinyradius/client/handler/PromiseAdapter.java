@@ -40,7 +40,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
-        final RadiusRequest packet = msg.getRequest();
+        final RadiusRequest<?> packet = msg.getRequest();
         final String requestId = nextProxyStateId();
 
         try {
@@ -49,7 +49,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
              * however we need to generate a copy of the authenticator now for later lookups
              * encodeRequest() should be idempotent anyway
              */
-            final RadiusRequest encodedRequest = packet
+            final RadiusRequest<?> encodedRequest = packet
                     .addAttribute(create(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)))
                     .encodeRequest(msg.getEndpoint().getSecret());
 
@@ -90,17 +90,16 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
         try {
             msg.verifyResponse(request.secret, request.authenticator);
+
+            msg.removeLastAttribute(PROXY_STATE);
+
+            logger.info("Found request for response identifier => {}", msg.getId());
+            request.promise.trySuccess(msg);
+
+            // intentionally nothing to pass through - listeners should hook onto promise
         } catch (RadiusPacketException e) {
             logger.warn(e.getMessage());
-            return;
         }
-
-        msg.removeLastAttribute(PROXY_STATE);
-
-        logger.info("Found request for response identifier => {}", msg.getId());
-        request.promise.trySuccess(msg);
-
-        // intentionally nothing to pass through - listeners should hook onto promise¬
     }
 
     private static class Request {

@@ -10,7 +10,7 @@ import java.util.List;
 import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 
-public interface RadiusRequest extends RadiusPacket {
+public interface RadiusRequest<T extends RadiusRequest<T>> extends RadiusPacket<T> {
 
     /**
      * Creates a RadiusPacket object. Depending on the passed type, an
@@ -24,7 +24,7 @@ public interface RadiusRequest extends RadiusPacket {
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    static RadiusRequest create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    static RadiusRequest<?> create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
             case ACCESS_REQUEST:
                 return AccessRequest.create(dictionary, identifier, authenticator, attributes);
@@ -33,10 +33,6 @@ public interface RadiusRequest extends RadiusPacket {
             default:
                 return new GenericRadiusRequest(dictionary, type, identifier, authenticator, attributes);
         }
-    }
-
-    default RadiusRequest copy() {
-        return create(getDictionary(), getType(), getId(), getAuthenticator(), getAttributes());
     }
 
     /**
@@ -49,7 +45,7 @@ public interface RadiusRequest extends RadiusPacket {
      * @return RadiusPacket with new authenticator and/or encoded attributes
      * @throws RadiusPacketException if invalid or missing attributes
      */
-    RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException;
+    T encodeRequest(String sharedSecret) throws RadiusPacketException;
 
     /**
      * Checks the request authenticator against the supplied shared secret.
@@ -57,7 +53,8 @@ public interface RadiusRequest extends RadiusPacket {
      * @param sharedSecret shared secret
      * @throws RadiusPacketException if authenticator check fails
      */
-    default void verifyRequest(String sharedSecret) throws RadiusPacketException {
+    default RadiusRequest<T> verifyRequest(String sharedSecret) throws RadiusPacketException {
         verifyPacketAuth(sharedSecret, new byte[16]);
+        return this;
     }
 }

@@ -35,11 +35,6 @@ public class AccessRequestEap extends BaseRadiusPacket<AccessRequestEap> impleme
     }
 
     @Override
-    public AccessRequestEap copy() {
-        return new AccessRequestEap(getDictionary(), getId(), getAuthenticator(), getAttributes());
-    }
-
-    @Override
     public AccessRequestEap withAttributes(List<RadiusAttribute> attributes) {
         return new AccessRequestEap(getDictionary(), getId(), getAuthenticator(), attributes);
     }

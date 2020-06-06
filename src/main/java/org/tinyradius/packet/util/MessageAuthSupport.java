@@ -22,7 +22,7 @@ import java.util.Objects;
  *
  * @param <T> same type as implementation
  */
-public interface MessageAuthSupport<T extends MessageAuthSupport<T>> extends RadiusPacket, NestedAttributeHolder.Writable<T> {
+public interface MessageAuthSupport<T extends MessageAuthSupport<T>> extends RadiusPacket<T>, NestedAttributeHolder.Writable<T> {
 
     byte MESSAGE_AUTHENTICATOR = 80;
 
@@ -77,11 +77,6 @@ public interface MessageAuthSupport<T extends MessageAuthSupport<T>> extends Rad
             throw new IllegalArgumentException(e); // never happens
         }
     }
-
-    /**
-     * @return packet of same type as self, including intermediate/transient fields
-     */
-    T copy();
 
     /**
      * @param sharedSecret share secret

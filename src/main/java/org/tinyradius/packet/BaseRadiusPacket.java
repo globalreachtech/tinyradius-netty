@@ -14,7 +14,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
  */
-public abstract class BaseRadiusPacket<T extends BaseRadiusPacket<T>> implements RadiusPacket, NestedAttributeHolder.Writable<T> {
+public abstract class BaseRadiusPacket<T extends BaseRadiusPacket<T>> implements RadiusPacket<T> {
 
     private static final int CHILD_VENDOR_ID = -1;
 

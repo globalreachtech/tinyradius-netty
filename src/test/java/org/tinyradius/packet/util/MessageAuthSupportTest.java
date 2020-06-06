@@ -48,7 +48,7 @@ class MessageAuthSupportTest {
     @Test
     void testEncode() throws Exception {
         // impl under test
-        final AccessRequest encodedRequest = new AccessRequestEap(dictionary, (byte) 1, null, Collections.emptyList())
+        final AccessRequest<?> encodedRequest = new AccessRequestEap(dictionary, (byte) 1, null, Collections.emptyList())
                 .encodeRequest(secret);
         final byte[] actualMsgAuth = encodedRequest.getAttributes().get(0).getValue();
 
@@ -79,15 +79,15 @@ class MessageAuthSupportTest {
         System.arraycopy(MD5.hmac_md5(buffer.array(), 0, buffer.position(), secret.getBytes()), 0, hash, 0, 16);
     }
 
-    private static class TestPacket extends BaseRadiusPacket implements MessageAuthSupport.Encodable<TestPacket> {
+    private static class TestPacket extends BaseRadiusPacket<TestPacket> implements MessageAuthSupport<TestPacket> {
 
         public TestPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
             super(dictionary, type, identifier, authenticator, attributes);
         }
 
         @Override
-        public TestPacket copy() {
-            return new TestPacket(getDictionary(), getType(), getId(), getAuthenticator(), getAttributes());
+        public TestPacket withAttributes(List<RadiusAttribute> attributes) {
+            return new TestPacket(getDictionary(), getType(), getId(), getAuthenticator(), attributes);
         }
     }
 }

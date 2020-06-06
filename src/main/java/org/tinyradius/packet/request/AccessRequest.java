@@ -18,11 +18,11 @@ import static java.util.stream.Collectors.toSet;
 /**
  * This class represents an Access-Request Radius packet.
  */
-public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest, MessageAuthSupport<T> {
+public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest<T>, MessageAuthSupport<T> {
 
-     Logger logger = LogManager.getLogger();
+    Logger logger = LogManager.getLogger();
 
-     SecureRandom RANDOM = new SecureRandom();
+    SecureRandom RANDOM = new SecureRandom();
 
     byte USER_PASSWORD = 2;
     byte CHAP_PASSWORD = 3;
@@ -42,12 +42,7 @@ public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest
      * @return RadiusPacket with new authenticator and encoded attributes
      * @throws RadiusPacketException if invalid or missing attributes
      */
-     T encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
-
-    /**
-     * @return AccessRequest implementation copy including intermediate/transient values and passwords
-     */
-    T copy();
+    T encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
 
     /**
      * AccessRequest overrides this method to generate a randomized authenticator (RFC 2865)
@@ -75,7 +70,7 @@ public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest
      * @param sharedSecret shared secret
      * @throws RadiusPacketException if invalid or missing attributes
      */
-     T verifyAuthMechanism(String sharedSecret) throws RadiusPacketException;
+    T verifyAuthMechanism(String sharedSecret) throws RadiusPacketException;
 
     /**
      * AccessRequest cannot verify authenticator as they
@@ -85,11 +80,13 @@ public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest
      * are present and attempt decryption, depending on auth protocol.
      *
      * @param sharedSecret shared secret, only applicable for PAP
+     * @return
      */
     @Override
-    default void verifyRequest(String sharedSecret) throws RadiusPacketException {
+    default AccessRequest<T> verifyRequest(String sharedSecret) throws RadiusPacketException {
         verifyMessageAuth(sharedSecret, getAuthenticator());
         verifyAuthMechanism(sharedSecret);
+        return this;
     }
 
     /**
@@ -102,7 +99,7 @@ public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest
      *                      or a stub AccessRequest will be returned
      * @return AccessRequest auth mechanism-specific implementation
      */
-     static AccessRequest create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    static AccessRequest<?> create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         return lookupAuthType(attributes).newInstance(dictionary, identifier, authenticator, attributes);
     }
 

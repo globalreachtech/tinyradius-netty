@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.tinyradius.packet.util.PacketType.*;
 
-public interface RadiusResponse extends RadiusPacket {
+public interface RadiusResponse<T extends RadiusResponse<T>> extends RadiusPacket<T> {
 
     /**
      * Creates a RadiusPacket object. Depending on the passed type, an
@@ -23,7 +23,7 @@ public interface RadiusResponse extends RadiusPacket {
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    static RadiusResponse create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    static RadiusResponse<?> create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
             case ACCESS_ACCEPT:
             case ACCESS_REJECT:
@@ -43,7 +43,7 @@ public interface RadiusResponse extends RadiusPacket {
      * @param requestAuth  request packet authenticator
      * @return new RadiusPacket instance with same properties and valid authenticator
      */
-    RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth);
+    RadiusResponse<T> encodeResponse(String sharedSecret, byte[] requestAuth);
 
     /**
      * Verifies the response authenticator against the supplied shared secret.

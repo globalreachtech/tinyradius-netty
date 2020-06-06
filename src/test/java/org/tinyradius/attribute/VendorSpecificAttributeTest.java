@@ -48,11 +48,8 @@ class VendorSpecificAttributeTest {
 
     @Test
     void getVsaSubAttributeValueStringByName() {
-        final VendorSpecificAttribute.Builder builder = new VendorSpecificAttribute.Builder()
-                .setDictionary(dictionary)
-                .setChildVendorId(14122);
-        builder.addAttribute("WISPr-Location-ID", "myLocationId");
-        VendorSpecificAttribute vsa = builder.build();
+        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, Collections.emptyList(), 14122)
+                .addAttribute("WISPr-Location-ID", "myLocationId");
 
         assertFalse(vsa.getAttributes().isEmpty());
         assertEquals("myLocationId", vsa.getAttribute("WISPr-Location-ID").getValueString());
@@ -61,43 +58,34 @@ class VendorSpecificAttributeTest {
     @Test
     void addSubAttributeOk() {
         String data = "myLocationId";
-        final VendorSpecificAttribute.Builder builder = new VendorSpecificAttribute.Builder()
-                .setDictionary(dictionary)
-                .setChildVendorId(14122);
-        builder.addAttribute(Attributes.create(dictionary, 14122, (byte) 2, data));
-        final VendorSpecificAttribute build = builder.build();
+        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, Collections.emptyList(), 14122)
+                .addAttribute(Attributes.create(dictionary, 14122, (byte) 2, data));
 
-        assertEquals(1, build.getAttributes().size());
-        assertEquals(data, build.getAttribute((byte) 2).getValueString());
+        assertEquals(1, vsa.getAttributes().size());
+        assertEquals(data, vsa.getAttribute((byte) 2).getValueString());
     }
 
     @Test
     void addNonVsaSubAttribute() {
-        final VendorSpecificAttribute.Builder builder = new VendorSpecificAttribute.Builder()
-                .setDictionary(dictionary)
-                .setChildVendorId(14122);
-        Exception exception = assertThrows(RuntimeException.class, () -> builder.addAttribute("User-Name", "test1"));
+        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, Collections.emptyList(), 14122);
+
+        Exception exception = assertThrows(RuntimeException.class, () -> vsa.addAttribute("User-Name", "test1"));
         assertTrue(exception.getMessage().toLowerCase().contains("vendor id doesn't match"));
     }
 
     @Test
     void addEmptySubAttribute() {
-        final VendorSpecificAttribute.Builder builder = new VendorSpecificAttribute.Builder()
-                .setDictionary(dictionary)
-                .setChildVendorId(14122);
-        Exception exception = assertThrows(RuntimeException.class, () -> builder.addAttribute("", "myLocationId"));
+        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, Collections.emptyList(), 14122);
+
+        Exception exception = assertThrows(RuntimeException.class, () -> vsa.addAttribute("", "myLocationId"));
         assertTrue(exception.getMessage().toLowerCase().contains("type name is null/empty"));
     }
 
     @Test
     void vsaToFromByteArray() {
-        final VendorSpecificAttribute.Builder builder = new VendorSpecificAttribute.Builder()
-                .setDictionary(dictionary)
-                .setChildVendorId(14122);
-        builder.addAttribute(Attributes.create(dictionary, 14122, (byte) 2, "hiii")); //new byte[8]
-        builder.addAttribute("WISPr-Location-ID", "myLocationId");
-
-        final VendorSpecificAttribute vsa = builder.build();
+        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, Collections.emptyList(), 14122)
+                .addAttribute(Attributes.create(dictionary, 14122, (byte) 2, "hiii"))
+                .addAttribute("WISPr-Location-ID", "myLocationId");
         assertEquals(2, vsa.getAttributes().size());
 
         // convert to bytes
@@ -136,14 +124,10 @@ class VendorSpecificAttributeTest {
 
     @Test
     void vsaToByteArrayTooLong() {
-        final VendorSpecificAttribute.Builder builder = new VendorSpecificAttribute.Builder()
-                .setDictionary(dictionary)
-                .setChildVendorId(14122);
-        builder.addAttribute(new RadiusAttribute(dictionary, 14122, (byte) 26, new byte[253]));
-        builder.addAttribute("WISPr-Location-ID", "myLocationId");
+        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, Collections.emptyList(), 14122)
+                .addAttribute(new RadiusAttribute(dictionary, 14122, (byte) 26, new byte[253]));
 
-        assertEquals(2, builder.getAttributes().size());
-        Exception exception = assertThrows(IllegalArgumentException.class, builder::build);
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> vsa.addAttribute("WISPr-Location-ID", "myLocationId"));
         assertTrue(exception.getMessage().toLowerCase().contains("attribute data too long, max 253 octets"));
     }
 
@@ -156,26 +140,22 @@ class VendorSpecificAttributeTest {
 
     @Test
     void testFlatten() {
-        final VendorSpecificAttribute.Builder builder = new VendorSpecificAttribute.Builder()
-                .setDictionary(dictionary)
-                .setChildVendorId(14122);
-        builder.addAttribute("WISPr-Location-ID", "myLocationId");
-        builder.addAttribute("WISPr-Location-Name", "myLocationName");
+        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, Collections.emptyList(), 14122)
+                .addAttribute("WISPr-Location-ID", "myLocationId")
+                .addAttribute("WISPr-Location-Name", "myLocationName");
 
         assertEquals("[WISPr-Location-ID: myLocationId, WISPr-Location-Name: myLocationName]",
-                builder.build().flatten().toString());
+                vsa.flatten().toString());
     }
 
     @Test
     void testToString() {
-        final VendorSpecificAttribute.Builder builder = new VendorSpecificAttribute.Builder()
-                .setDictionary(dictionary)
-                .setChildVendorId(14122);
-        builder.addAttribute("WISPr-Location-ID", "myLocationId");
-        builder.addAttribute("WISPr-Location-Name", "myLocationName");
+        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, Collections.emptyList(), 14122)
+                .addAttribute("WISPr-Location-ID", "myLocationId")
+                .addAttribute("WISPr-Location-Name", "myLocationName");
 
         assertEquals("Vendor-Specific: WISPr (14122)\n" +
                 "  WISPr-Location-ID: myLocationId\n" +
-                "  WISPr-Location-Name: myLocationName", builder.build().toString());
+                "  WISPr-Location-Name: myLocationName", vsa.toString());
     }
 }
