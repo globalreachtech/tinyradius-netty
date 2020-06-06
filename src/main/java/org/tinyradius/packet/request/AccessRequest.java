@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toSet;
 /**
  * This class represents an Access-Request Radius packet.
  */
-public interface AccessRequest extends RadiusRequest, MessageAuthSupport.Encodable<AccessRequest> {
+public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest, MessageAuthSupport<T> {
 
      Logger logger = LogManager.getLogger();
 
@@ -42,12 +42,12 @@ public interface AccessRequest extends RadiusRequest, MessageAuthSupport.Encodab
      * @return RadiusPacket with new authenticator and encoded attributes
      * @throws RadiusPacketException if invalid or missing attributes
      */
-     AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
+     T encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
 
     /**
      * @return AccessRequest implementation copy including intermediate/transient values and passwords
      */
-    AccessRequest copy();
+    T copy();
 
     /**
      * AccessRequest overrides this method to generate a randomized authenticator (RFC 2865)
@@ -58,7 +58,7 @@ public interface AccessRequest extends RadiusRequest, MessageAuthSupport.Encodab
      * @return RadiusPacket with new authenticator and encoded attributes
      */
     @Override
-    default AccessRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+    default T encodeRequest(String sharedSecret) throws RadiusPacketException {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
@@ -75,7 +75,7 @@ public interface AccessRequest extends RadiusRequest, MessageAuthSupport.Encodab
      * @param sharedSecret shared secret
      * @throws RadiusPacketException if invalid or missing attributes
      */
-     AccessRequest verifyAuthMechanism(String sharedSecret) throws RadiusPacketException;
+     T verifyAuthMechanism(String sharedSecret) throws RadiusPacketException;
 
     /**
      * AccessRequest cannot verify authenticator as they

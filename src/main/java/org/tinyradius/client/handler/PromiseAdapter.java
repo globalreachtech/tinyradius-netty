@@ -40,10 +40,8 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
-        final RadiusRequest packet = msg.getRequest().copy();
+        final RadiusRequest packet = msg.getRequest();
         final String requestId = nextProxyStateId();
-
-        packet.addAttribute(create(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)));
 
         try {
             /*
@@ -51,7 +49,9 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
              * however we need to generate a copy of the authenticator now for later lookups
              * encodeRequest() should be idempotent anyway
              */
-            final RadiusRequest encodedRequest = packet.encodeRequest(msg.getEndpoint().getSecret());
+            final RadiusRequest encodedRequest = packet
+                    .addAttribute(create(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)))
+                    .encodeRequest(msg.getEndpoint().getSecret());
 
             msg.getResponse().addListener(f -> requests.remove(requestId));
             requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getId(), msg.getResponse()));

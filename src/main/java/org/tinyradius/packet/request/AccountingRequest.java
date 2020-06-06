@@ -12,7 +12,7 @@ import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 /**
  * This class represents a Radius packet of the type Accounting-Request.
  */
-public class AccountingRequest extends BaseRadiusPacket implements RadiusRequest {
+public class AccountingRequest extends BaseRadiusPacket<AccountingRequest> implements RadiusRequest {
 
     /**
      * Constructs an Accounting-Request packet to be sent to a Radius server.
@@ -27,8 +27,13 @@ public class AccountingRequest extends BaseRadiusPacket implements RadiusRequest
     }
 
     @Override
-    public RadiusRequest encodeRequest(String sharedSecret) {
+    public AccountingRequest encodeRequest(String sharedSecret) {
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
         return new AccountingRequest(getDictionary(),getId(), authenticator, getAttributes());
+    }
+
+    @Override
+    public AccountingRequest withAttributes(List<RadiusAttribute> attributes) {
+        return new AccountingRequest(getDictionary(), getId(), getAuthenticator(), attributes);
     }
 }

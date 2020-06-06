@@ -15,19 +15,19 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
-public class AccessRequestChap extends BaseRadiusPacket implements AccessRequest {
+public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> implements AccessRequest<AccessRequestChap> {
 
     protected static final byte CHAP_CHALLENGE = 60;
 
     private final String password;
 
     public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
-        super(dictionary, ACCESS_REQUEST,identifier, authenticator, attributes);
+        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
         this.password = plaintextPw;
     }
 
     public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        this(dictionary,  identifier, authenticator, attributes, null);
+        this(dictionary, identifier, authenticator, attributes, null);
     }
 
     /**
@@ -125,16 +125,21 @@ public class AccessRequestChap extends BaseRadiusPacket implements AccessRequest
     }
 
     @Override
-    public AccessRequest verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
+    public AccessRequestChap verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> attrs = getAttributes(CHAP_PASSWORD);
         if (attrs.size() != 1) {
             throw new RadiusPacketException("AccessRequest (CHAP) should have exactly one CHAP-Password attribute, has " + attrs.size());
         }
-        return null;
+        return this;
     }
 
     @Override
     public AccessRequestChap copy() {
         return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), getAttributes(), password);
+    }
+
+    @Override
+    public AccessRequestChap withAttributes(List<RadiusAttribute> attributes) {
+        return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), attributes, password);
     }
 }

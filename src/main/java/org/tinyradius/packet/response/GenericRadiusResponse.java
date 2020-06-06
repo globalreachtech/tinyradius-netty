@@ -6,7 +6,7 @@ import org.tinyradius.packet.BaseRadiusPacket;
 
 import java.util.List;
 
-public class GenericRadiusResponse extends BaseRadiusPacket implements RadiusResponse {
+public class GenericRadiusResponse extends BaseRadiusPacket<GenericRadiusResponse> implements RadiusResponse {
 
     /**
      * Builds a Radius packet with the given type, identifier and attributes.
@@ -29,5 +29,10 @@ public class GenericRadiusResponse extends BaseRadiusPacket implements RadiusRes
     public GenericRadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
         final byte[] newAuth = createHashedAuthenticator(sharedSecret, requestAuth);
         return new GenericRadiusResponse(getDictionary(), getType(), getId(), newAuth, getAttributes());
+    }
+
+    @Override
+    public GenericRadiusResponse withAttributes(List<RadiusAttribute> attributes) {
+        return new GenericRadiusResponse(getDictionary(), getType(), getId(), getAuthenticator(), attributes);
     }
 }

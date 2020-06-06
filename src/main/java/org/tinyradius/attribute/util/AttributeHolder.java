@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * <p>
  * Should only hold single layer of attributes
  */
-public interface AttributeHolder<T extends AttributeHolder<?>> {
+public interface AttributeHolder {
 
     /**
      * @return VendorId to restrict (sub)attributes, or -1 for top level
@@ -124,90 +124,91 @@ public interface AttributeHolder<T extends AttributeHolder<?>> {
         return buffer.copy().array();
     }
 
+    interface Writable<T extends Writable<T>> extends AttributeHolder {
 
-    T withAttributes(List<RadiusAttribute> attributes);
+        T withAttributes(List<RadiusAttribute> attributes);
 
+        /**
+         * Adds a attribute to this attribute container.
+         *
+         * @param attribute attribute to add
+         */
+        default T addAttribute(RadiusAttribute attribute) {
+            if (attribute.getVendorId() != getChildVendorId())
+                throw new IllegalArgumentException("Attribute vendor ID doesn't match: " +
+                        "required " + getChildVendorId() + ", actual " + attribute.getVendorId());
 
-    /**
-     * Adds a attribute to this attribute container.
-     *
-     * @param attribute attribute to add
-     */
-    default T addAttribute(RadiusAttribute attribute) {
-        if (attribute.getVendorId() != getChildVendorId())
-            throw new IllegalArgumentException("Attribute vendor ID doesn't match: " +
-                    "required " + getChildVendorId() + ", actual " + attribute.getVendorId());
+            final ArrayList<RadiusAttribute> attributes = new ArrayList<>(getAttributes());
+            attributes.add(attribute);
+            return withAttributes(attributes);
+        }
 
-        final ArrayList<RadiusAttribute> attributes = new ArrayList<>(getAttributes());
-        attributes.add(attribute);
-        return withAttributes(attributes);
-    }
+        /**
+         * Adds a Radius attribute.
+         * Uses AttributeTypes to lookup the type code and converts the value.
+         *
+         * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
+         * @param value value of the attribute, for example "127.0.0.1"
+         * @throws IllegalArgumentException if type name or value is invalid
+         */
+        default T addAttribute(String name, String value) {
+            if (name == null || name.isEmpty())
+                throw new IllegalArgumentException("Type name is null/empty");
+            if (value == null || value.isEmpty())
+                throw new IllegalArgumentException("Value is null/empty");
 
-    /**
-     * Adds a Radius attribute.
-     * Uses AttributeTypes to lookup the type code and converts the value.
-     *
-     * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
-     * @param value value of the attribute, for example "127.0.0.1"
-     * @throws IllegalArgumentException if type name or value is invalid
-     */
-    default T addAttribute(String name, String value) {
-        if (name == null || name.isEmpty())
-            throw new IllegalArgumentException("Type name is null/empty");
-        if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("Value is null/empty");
+            return addAttribute(
+                    lookupAttributeType(name).create(getDictionary(), value));
+        }
 
-        return addAttribute(
-                lookupAttributeType(name).create(getDictionary(), value));
-    }
+        /**
+         * Adds a Radius attribute.
+         *
+         * @param type  attribute type code
+         * @param value string value to set
+         */
+        default T addAttribute(byte type, String value) {
+            if (value == null || value.isEmpty())
+                throw new IllegalArgumentException("Value is null/empty");
 
-    /**
-     * Adds a Radius attribute.
-     *
-     * @param type  attribute type code
-     * @param value string value to set
-     */
-    default T addAttribute(byte type, String value) {
-        if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("Value is null/empty");
+            return addAttribute(
+                    Attributes.create(getDictionary(), getChildVendorId(), type, value));
+        }
 
-        return addAttribute(
-                Attributes.create(getDictionary(), getChildVendorId(), type, value));
-    }
+        /**
+         * Removes all instances of the specified attribute from this attribute container.
+         *
+         * @param attribute attributes to remove
+         */
+        default T removeAttribute(RadiusAttribute attribute) {
+            return withAttributes(getAttributes().stream()
+                    .filter(a -> !a.equals(attribute))
+                    .collect(Collectors.toList()));
+        }
 
-    /**
-     * Removes all instances of the specified attribute from this attribute container.
-     *
-     * @param attribute attributes to remove
-     */
-    default T removeAttribute(RadiusAttribute attribute) {
-        return withAttributes(getAttributes().stream()
-                .filter(a -> !a.equals(attribute))
-                .collect(Collectors.toList()));
-    }
+        /**
+         * Removes all attributes from this packet which have got the specified type.
+         *
+         * @param type attribute type to remove
+         */
+        default T removeAttributes(byte type) {
+            return withAttributes(getAttributes().stream()
+                    .filter(a -> a.getType() != type)
+                    .collect(Collectors.toList()));
+        }
 
-    /**
-     * Removes all attributes from this packet which have got the specified type.
-     *
-     * @param type attribute type to remove
-     */
-    default T removeAttributes(byte type) {
-        return withAttributes(getAttributes().stream()
-                .filter(a -> a.getType() != type)
-                .collect(Collectors.toList()));
-    }
+        /**
+         * Removes the last occurrence of the attribute of the given
+         * type from the packet.
+         *
+         * @param type attribute type code
+         */
+        default T removeLastAttribute(byte type) {
+            List<RadiusAttribute> attributes = getAttributes(type);
+            if (attributes.isEmpty())
+                return withAttributes(Collections.emptyList());
 
-    /**
-     * Removes the last occurrence of the attribute of the given
-     * type from the packet.
-     *
-     * @param type attribute type code
-     */
-    default T removeLastAttribute(byte type) {
-        List<RadiusAttribute> attrs = getAttributes(type);
-        if (attrs.isEmpty())
-            return withAttributes(Collections.emptyList());
-
-        return removeAttribute(attrs.get(attrs.size() - 1));
+            return removeAttribute(attributes.get(attributes.size() - 1));
+        }
     }
 }

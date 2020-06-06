@@ -15,7 +15,7 @@ import static org.tinyradius.attribute.util.Attributes.extractAttributes;
 /**
  * This class represents a "Vendor-Specific" attribute. Both an attribute itself and an attribute container.
  */
-public class VendorSpecificAttribute extends RadiusAttribute implements AttributeHolder<VendorSpecificAttribute> {
+public class VendorSpecificAttribute extends RadiusAttribute implements AttributeHolder.Writable<VendorSpecificAttribute> {
 
     public static final byte VENDOR_SPECIFIC = 26;
 

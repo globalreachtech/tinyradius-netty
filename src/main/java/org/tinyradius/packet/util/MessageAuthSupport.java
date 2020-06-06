@@ -18,9 +18,11 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Partial implementation for verifying Message-Authenticator (RFC 2869)
+ * Partial implementation for encoding/verifying Message-Authenticator (RFC 2869)
+ *
+ * @param <T> same type as implementation
  */
-public interface MessageAuthSupport extends RadiusPacket {
+public interface MessageAuthSupport<T extends MessageAuthSupport<T>> extends RadiusPacket, NestedAttributeHolder.Writable<T> {
 
     byte MESSAGE_AUTHENTICATOR = 80;
 
@@ -77,36 +79,27 @@ public interface MessageAuthSupport extends RadiusPacket {
     }
 
     /**
-     * Partial implementation for encoding/verifying Message-Authenticator (RFC 2869)
-     *
-     * @param <T> same type as implementation
+     * @return packet of same type as self, including intermediate/transient fields
      */
-    interface Encodable<T extends Encodable<?>> extends MessageAuthSupport, NestedAttributeHolder.Writable {
+    T copy();
 
-        /**
-         * @return packet of same type as self, including intermediate/transient fields
-         */
-        T copy();
+    /**
+     * @param sharedSecret share secret
+     * @param requestAuth  current packet auth if encoding request, otherwise auth
+     *                     for corresponding request
+     * @return shallow copy of packet
+     */
+    default T encodeMessageAuth(String sharedSecret, byte[] requestAuth) {
+        // When the message integrity check is calculated the signature
+        // string should be considered to be sixteen octets of zero.
+        final ByteBuffer buffer = ByteBuffer.allocate(16);
 
-        /**
-         * @param sharedSecret share secret
-         * @param requestAuth  current packet auth if encoding request, otherwise auth
-         *                     for corresponding request
-         * @return shallow copy of packet
-         */
-        default T encodeMessageAuth(String sharedSecret, byte[] requestAuth) {
-            final T newPacket = this.copy();
+        final T newPacket = this
+                .removeAttributes(MESSAGE_AUTHENTICATOR)
+                .addAttribute(Attributes.create(getDictionary(), -1, MESSAGE_AUTHENTICATOR, buffer.array()));
 
-            // When the message integrity check is calculated the signature
-            // string should be considered to be sixteen octets of zero.
-            final ByteBuffer buffer = ByteBuffer.allocate(16);
+        buffer.put(newPacket.computeMessageAuth(sharedSecret, requestAuth));
 
-            newPacket.removeAttributes(MESSAGE_AUTHENTICATOR);
-            newPacket.addAttribute(Attributes.create(getDictionary(), -1, MESSAGE_AUTHENTICATOR, buffer.array()));
-
-            buffer.put(newPacket.computeMessageAuth(sharedSecret, requestAuth));
-
-            return newPacket;
-        }
+        return newPacket;
     }
 }

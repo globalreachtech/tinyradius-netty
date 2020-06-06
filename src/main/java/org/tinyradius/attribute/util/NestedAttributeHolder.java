@@ -81,7 +81,7 @@ public interface NestedAttributeHolder extends AttributeHolder {
                 .collect(Collectors.toList());
     }
 
-    interface Writable extends NestedAttributeHolder, AttributeHolder.Writable {
+    interface Writable<T extends Writable<T>> extends NestedAttributeHolder, AttributeHolder.Writable<T> {
 
         /**
          * Adds a Radius attribute to this packet. Can also be used
@@ -92,13 +92,12 @@ public interface NestedAttributeHolder extends AttributeHolder {
          * @param attribute RadiusAttribute object
          */
         @Override
-        default void addAttribute(RadiusAttribute attribute) {
-            if (attribute.getVendorId() == getChildVendorId()) {
-                AttributeHolder.Writable.super.addAttribute(attribute);
-            } else {
-                VendorSpecificAttribute vsa = new VendorSpecificAttribute(getDictionary(), Collections.singletonList(attribute), attribute.getVendorId());
-                AttributeHolder.Writable.super.addAttribute(vsa);
-            }
+        default T addAttribute(RadiusAttribute attribute) {
+            final RadiusAttribute toAdd = attribute.getVendorId() == getChildVendorId() ?
+                    attribute :
+                    new VendorSpecificAttribute(getDictionary(), Collections.singletonList(attribute), attribute.getVendorId());
+
+            return AttributeHolder.Writable.super.addAttribute(toAdd);
         }
 
         /**
@@ -107,25 +106,27 @@ public interface NestedAttributeHolder extends AttributeHolder {
          * @param attribute RadiusAttribute to remove
          */
         @Override
-        default void removeAttribute(RadiusAttribute attribute) {
-            if (attribute.getVendorId() == getChildVendorId()) {
-                AttributeHolder.Writable.super.removeAttribute(attribute);
-                return;
-            }
+        default T removeAttribute(RadiusAttribute attribute) {
+            if (attribute.getVendorId() == getChildVendorId())
+                return AttributeHolder.Writable.super.removeAttribute(attribute);
 
-            getAttributes().replaceAll(a -> {
+            final List<RadiusAttribute> attributes = getAttributes().stream().map(a -> {
                 if (a instanceof VendorSpecificAttribute) {
-                    final VendorSpecificAttribute.Builder builder = ((VendorSpecificAttribute) a).toBuilder();
-                    builder.removeAttribute(attribute);
+                    final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
 
-                    return builder.getAttributes().isEmpty() ? null : builder.build();
+                    if (vsa.getAttributes().contains(attribute)) {
+                        final List<RadiusAttribute> vsaAttributes = vsa.getAttributes().stream()
+                                .filter(sa -> !sa.equals(attribute))
+                                .collect(Collectors.toList());
+
+                        return vsaAttributes.isEmpty() ? null : vsa.withAttributes(vsaAttributes);
+                    }
                 }
 
                 return a;
-            });
+            }).filter(Objects::nonNull).collect(Collectors.toList());
 
-            // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
-            getAttributes().removeIf(Objects::isNull);
+            return withAttributes(attributes);
         }
 
         /**
@@ -136,26 +137,25 @@ public interface NestedAttributeHolder extends AttributeHolder {
          * @param vendorId vendor ID, or -1
          * @param typeCode attribute type code
          */
-        default void removeAttributes(int vendorId, byte typeCode) {
-            if (vendorId == getChildVendorId()) {
-                removeAttributes(typeCode);
-                return;
-            }
+        default T removeAttributes(int vendorId, byte typeCode) {
+            if (vendorId == getChildVendorId())
+                return removeAttributes(typeCode);
 
-            getAttributes().replaceAll(a -> {
+            final List<RadiusAttribute> attributes = getAttributes().stream().map(a -> {
                 if (a instanceof VendorSpecificAttribute) {
-                    final VendorSpecificAttribute.Builder builder = ((VendorSpecificAttribute) a).toBuilder();
-                    builder.getAttributes().removeIf(attr ->
-                            attr.getType() == typeCode && attr.getVendorId() == vendorId);
+                    final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
 
-                    return builder.getAttributes().isEmpty() ? null : builder.build();
+                    final List<RadiusAttribute> vsaAttributes = vsa.getAttributes().stream()
+                            .filter(sa -> sa.getType() != typeCode || sa.getVendorId() != vendorId)
+                            .collect(Collectors.toList());
+
+                    return vsaAttributes.isEmpty() ? null : vsa.withAttributes(vsaAttributes);
                 }
 
                 return a;
-            });
+            }).filter(Objects::nonNull).collect(Collectors.toList());
 
-            // removed the last sub-attribute --> remove the whole Vendor-Specific attribute
-            getAttributes().removeIf(Objects::isNull);
+            return withAttributes(attributes);
         }
     }
 }

@@ -16,7 +16,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
-public class AccessRequestPap extends BaseRadiusPacket implements AccessRequest {
+public class AccessRequestPap extends BaseRadiusPacket<AccessRequestPap> implements AccessRequest<AccessRequestPap> {
 
     private final String password;
 
@@ -195,8 +195,12 @@ public class AccessRequestPap extends BaseRadiusPacket implements AccessRequest 
     }
 
     @Override
-    public AccessRequest copy() {
+    public AccessRequestPap copy() {
         return new AccessRequestPap(getDictionary(), getId(), getAuthenticator(), getAttributes(), password);
     }
 
+    @Override
+    public AccessRequestPap withAttributes(List<RadiusAttribute> attributes) {
+        return new AccessRequestPap(getDictionary(), getId(), getAuthenticator(), attributes, password);
+    }
 }

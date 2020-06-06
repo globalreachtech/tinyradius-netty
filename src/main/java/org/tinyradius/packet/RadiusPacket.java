@@ -13,8 +13,7 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
-// todo remove Writable
-public interface RadiusPacket extends NestedAttributeHolder.Writable {
+public interface RadiusPacket extends NestedAttributeHolder {
 
     int HEADER_LENGTH = 20;
 
