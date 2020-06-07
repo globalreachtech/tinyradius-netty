@@ -18,13 +18,11 @@ import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
 public class AccessRequestPap extends BaseRadiusPacket<AccessRequestPap> implements AccessRequest<AccessRequestPap> {
 
+    // password needs to be set to encode - either using withPassword() or from verifyRequest(secret)
     private final String password;
 
     public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
         super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
-        requireNonNull(plaintextPw, "User password not set");
-        if (plaintextPw.isEmpty())
-            throw new IllegalArgumentException("Password is empty");
         this.password = plaintextPw;
     }
 
@@ -66,12 +64,10 @@ public class AccessRequestPap extends BaseRadiusPacket<AccessRequestPap> impleme
             logger.warn("Could not encode PAP attributes, password not set");
             throw new RadiusPacketException("Could not encode PAP attributes, password not set");
         }
-        final AccessRequestPap encoded = new AccessRequestPap(getDictionary(), getId(), newAuth, getAttributes(), password);
-        encoded.removeAttributes(USER_PASSWORD);
-        encoded.addAttribute(Attributes.create(getDictionary(), -1, USER_PASSWORD,
-                encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
 
-        return encoded;
+        return removeAttributes(USER_PASSWORD)
+                .addAttribute(Attributes.create(getDictionary(), -1, USER_PASSWORD,
+                        encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
     }
 
     /**
@@ -94,12 +90,6 @@ public class AccessRequestPap extends BaseRadiusPacket<AccessRequestPap> impleme
         }
 
         return userPassword.equals(plaintext);
-    }
-
-    @Override
-    public AccessRequestPap verifyRequest(String sharedSecret) throws RadiusPacketException {
-        verifyMessageAuth(sharedSecret, getAuthenticator());
-        return verifyAuthMechanism(sharedSecret);
     }
 
     @Override

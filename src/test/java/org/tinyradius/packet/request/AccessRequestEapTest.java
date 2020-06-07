@@ -22,7 +22,7 @@ class AccessRequestEapTest {
         final AccessRequestEap accessRequestEap = new AccessRequestEap(dictionary, (byte) 1, null,
                 Collections.singletonList(Attributes.create(dictionary, -1, EAP_MESSAGE, new byte[16])));
 
-        final AccessRequest encoded = accessRequestEap.encodeRequest(sharedSecret);
+        final AccessRequestEap encoded = accessRequestEap.encodeRequest(sharedSecret);
 
         assertNotNull(encoded.getAuthenticator());
         encoded.verifyRequest(sharedSecret);
@@ -34,14 +34,15 @@ class AccessRequestEapTest {
         final AccessRequestEap request = new AccessRequestEap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
 
-        request.addAttribute(Attributes.create(dictionary, -1, EAP_MESSAGE, new byte[16]));
-        assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
+        final AccessRequestEap request1 = request.addAttribute(Attributes.create(dictionary, -1, EAP_MESSAGE, new byte[16]));
+        assertThrows(RadiusPacketException.class, () -> request1.verifyRequest(sharedSecret));
 
         // add one messageAuth
-        final AccessRequest encoded = request.encodeRequest(sharedSecret);
-        encoded.verifyRequest(sharedSecret); // should have exactly one instance
+        final AccessRequestEap request2 = request1.encodeRequest(sharedSecret);
+        request2.verifyRequest(sharedSecret);
 
-        encoded.addAttribute(Attributes.create(dictionary, -1, MESSAGE_AUTHENTICATOR, new byte[16]));
-        assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
+        final AccessRequestEap request3 = request2.addAttribute(Attributes.create(dictionary, -1, MESSAGE_AUTHENTICATOR, new byte[16]));
+        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request3.verifyRequest(sharedSecret));
+        assertTrue(e.getMessage().toLowerCase().contains("at most one message-authenticator"));
     }
 }

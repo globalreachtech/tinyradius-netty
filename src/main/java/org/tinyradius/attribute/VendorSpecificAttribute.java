@@ -40,11 +40,11 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
      * @param data          data to parse for childVendorId and sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, byte[] data) {
-        this(dictionary, extractAttributes(dictionary, vendorId(data), data, 4), vendorId(data), data);
+        this(dictionary, vendorId(data), extractAttributes(dictionary, vendorId(data), data, 4), data);
         if (vendorId != -1)
-            throw new IllegalStateException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
+            throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
         if (attributeType != 26)
-            throw new IllegalStateException("Vendor-Specific attribute attributeType should always be 26, actual: " + attributeType);
+            throw new IllegalArgumentException("Vendor-Specific attribute attributeType should always be 26, actual: " + attributeType);
     }
 
     /**
@@ -57,13 +57,12 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
 
     /**
      * Constructs a new Vendor-Specific attribute
-     *
-     * @param dictionary    dictionary to use for (sub)attributes
-     * @param attributes    sub-attributes held
+     *  @param dictionary    dictionary to use for (sub)attributes
      * @param childVendorId vendor ID of the sub-attributes
+     * @param attributes    sub-attributes held
      */
-    public VendorSpecificAttribute(Dictionary dictionary, List<RadiusAttribute> attributes, int childVendorId) {
-        this(dictionary, attributes, childVendorId, Unpooled.buffer()
+    public VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes) {
+        this(dictionary, childVendorId, attributes, Unpooled.buffer()
                 .writeInt(childVendorId)
                 .writeBytes(AttributeHolder.attributesToBytes(attributes))
                 .copy().array());
@@ -71,18 +70,18 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
 
     /**
      * @param dictionary    dictionary to use for (sub)attributes
-     * @param attributes    sub-attributes held
      * @param childVendorId vendor ID of the sub-attributes
+     * @param attributes    sub-attributes held
      * @param data          equivalent of childVendorId + subattribute data in byte array form
      */
-    private VendorSpecificAttribute(Dictionary dictionary, List<RadiusAttribute> attributes, int childVendorId, byte[] data) {
+    private VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes, byte[] data) {
         super(dictionary, -1, VENDOR_SPECIFIC, data);
         this.childVendorId = childVendorId;
         this.attributes = Collections.unmodifiableList(attributes);
 
         final int len = data.length + 2;
         if (len < 7) // VSA headers are 6 bytes
-            throw new IllegalStateException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
+            throw new IllegalArgumentException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
     }
 
     @Override
@@ -97,7 +96,7 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
 
     @Override
     public VendorSpecificAttribute withAttributes(List<RadiusAttribute> attributes) {
-        return new VendorSpecificAttribute(getDictionary(), attributes, getChildVendorId());
+        return new VendorSpecificAttribute(getDictionary(), getChildVendorId(), attributes);
     }
 
     @Override

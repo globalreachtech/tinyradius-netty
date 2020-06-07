@@ -19,35 +19,22 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
 
     protected static final byte CHAP_CHALLENGE = 60;
 
-    private final String password;
-
-    public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
-        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
-        this.password = plaintextPw;
-    }
-
     public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        this(dictionary, identifier, authenticator, attributes, null);
+        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
     }
 
-    /**
-     * Sets the plain-text user password.
-     *
-     * @param password user password to set
-     * @return AccessRequestChap with updated password
-     */
-    public AccessRequestChap withPassword(String password) {
-        return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), getAttributes(), password);
-    }
+    public AccessRequestChap withPassword(String password) throws IllegalArgumentException {
+        if (password == null || password.isEmpty())
+            throw new IllegalArgumentException("Could not encode CHAP attributes, password not set");
 
-    /**
-     * Retrieves the plain-text user password.
-     *
-     * @return user password in plaintext, only available if set in memory,
-     * cannot be extracted from packet
-     */
-    public String getPassword() {
-        return password;
+        byte[] challenge = AccessRequest.random16bytes();
+
+        return this
+                .removeAttributes(CHAP_PASSWORD)
+                .removeAttributes(CHAP_CHALLENGE)
+                .addAttribute(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge))
+                .addAttribute(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
+                        computeChapPassword((byte) RANDOM.nextInt(256), password, challenge)));
     }
 
     /**
@@ -59,22 +46,15 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
      */
     @Override
     public AccessRequestChap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
-        if (password == null || password.isEmpty()) {
-            logger.warn("Could not encode CHAP attributes, password not set");
-            throw new RadiusPacketException("Could not encode CHAP attributes, password not set");
-        }
+        final int challengeCount = getAttributes(CHAP_CHALLENGE).size();
+        if (challengeCount != 1)
+            throw new RadiusPacketException("Cannot encode - must have one CHAP-Challenge attribute, actual: " + challengeCount);
 
-        final AccessRequestChap encoded = new AccessRequestChap(getDictionary(), getId(), newAuth, getAttributes(), password);
-        encoded.removeAttributes(CHAP_PASSWORD);
-        encoded.removeAttributes(CHAP_CHALLENGE);
+        final int passwordCount = getAttributes(CHAP_PASSWORD).size();
+        if (passwordCount != 1)
+            throw new RadiusPacketException("Cannot encode - must have one CHAP-Password attribute, actual: " + passwordCount);
 
-        byte[] challenge = AccessRequest.random16bytes();
-
-        encoded.addAttribute(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge));
-        encoded.addAttribute(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
-                computeChapPassword((byte) RANDOM.nextInt(256), password, challenge)));
-
-        return encoded;
+        return new AccessRequestChap(getDictionary(), getId(), newAuth, getAttributes());
     }
 
     /**
@@ -135,6 +115,6 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
 
     @Override
     public AccessRequestChap withAttributes(List<RadiusAttribute> attributes) {
-        return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), attributes, password);
+        return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), attributes);
     }
 }

@@ -80,13 +80,12 @@ public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest
      * are present and attempt decryption, depending on auth protocol.
      *
      * @param sharedSecret shared secret, only applicable for PAP
-     * @return
+     * @return verified / decoded request
      */
     @Override
     default AccessRequest<T> verifyRequest(String sharedSecret) throws RadiusPacketException {
         verifyMessageAuth(sharedSecret, getAuthenticator());
-        verifyAuthMechanism(sharedSecret);
-        return this;
+        return verifyAuthMechanism(sharedSecret);
     }
 
     /**

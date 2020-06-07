@@ -26,6 +26,6 @@ class AccessRequestNoAuth extends BaseRadiusPacket<AccessRequestNoAuth> implemen
 
     @Override
     public AccessRequestNoAuth withAttributes(List<RadiusAttribute> attributes) {
-        return this;
+        return new AccessRequestNoAuth(getDictionary(), getId(), getAuthenticator(), attributes);
     }
 }

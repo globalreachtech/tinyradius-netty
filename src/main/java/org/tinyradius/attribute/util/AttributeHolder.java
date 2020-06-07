@@ -143,22 +143,10 @@ public interface AttributeHolder {
             return withAttributes(attributes);
         }
 
-        /**
-         * Adds a Radius attribute.
-         * Uses AttributeTypes to lookup the type code and converts the value.
-         *
-         * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
-         * @param value value of the attribute, for example "127.0.0.1"
-         * @throws IllegalArgumentException if type name or value is invalid
-         */
-        default T addAttribute(String name, String value) {
-            if (name == null || name.isEmpty())
-                throw new IllegalArgumentException("Type name is null/empty");
-            if (value == null || value.isEmpty())
-                throw new IllegalArgumentException("Value is null/empty");
 
+        default T addAttribute(String name, String value) {
             return addAttribute(
-                    lookupAttributeType(name).create(getDictionary(), value));
+                    Attributes.create(getDictionary(), name, value));
         }
 
         /**
@@ -168,9 +156,6 @@ public interface AttributeHolder {
          * @param value string value to set
          */
         default T addAttribute(byte type, String value) {
-            if (value == null || value.isEmpty())
-                throw new IllegalArgumentException("Value is null/empty");
-
             return addAttribute(
                     Attributes.create(getDictionary(), getChildVendorId(), type, value));
         }

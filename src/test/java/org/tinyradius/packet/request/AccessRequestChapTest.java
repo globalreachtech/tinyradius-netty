@@ -38,14 +38,15 @@ class AccessRequestChapTest {
     @Test
     void verifyAttributeCount() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
-        final AccessRequestChap request = new AccessRequestChap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
-        assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
+        final AccessRequestChap request1 = new AccessRequestChap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
+        assertThrows(RadiusPacketException.class, () -> request1.verifyRequest(sharedSecret));
 
-        request.addAttribute(Attributes.create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
-        request.verifyRequest(sharedSecret); // should have exactly one instance
+        final AccessRequestChap request2 = request1.addAttribute(create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
+        request2.verifyRequest(sharedSecret); // should have exactly one instance
 
-        request.addAttribute(Attributes.create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
-        assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
+        final AccessRequestChap request3 = request1.addAttribute(create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
+        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request1.verifyRequest(sharedSecret));
+        System.out.println(e.getMessage());
     }
 
     @Test

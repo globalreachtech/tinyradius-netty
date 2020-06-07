@@ -22,9 +22,9 @@ class AccessRequestPapTest {
     @Test
     void encodeVerify() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
-        final AccessRequestPap accessRequestPap = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList(), "myPassword");
 
-        final AccessRequestPap encoded = accessRequestPap.encodeRequest(sharedSecret);
+        final AccessRequestPap encoded = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList(), "myPassword")
+                .encodeRequest(sharedSecret);
 
         assertNotNull(encoded.getAuthenticator());
         encoded.verifyRequest(sharedSecret);
@@ -33,14 +33,16 @@ class AccessRequestPapTest {
     @Test
     void verifyAttributeCount() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
-        final AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
-        assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
+        final AccessRequestPap request1 = new AccessRequestPap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
+        assertThrows(RadiusPacketException.class, () -> request1.verifyRequest(sharedSecret));
 
-        request.addAttribute(Attributes.create(dictionary, -1, USER_PASSWORD, new byte[16]));
-        request.verifyRequest(sharedSecret); // should have exactly one instance
+        // add one user-password
+        final AccessRequestPap request2 = request1.encodeRequest(sharedSecret);
+        request2.verifyRequest(sharedSecret);
 
-        request.addAttribute(Attributes.create(dictionary, -1, USER_PASSWORD, new byte[16]));
-        assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
+        final AccessRequestPap request3 = request2.addAttribute(Attributes.create(dictionary, -1, USER_PASSWORD, new byte[16]));
+        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request3.verifyRequest(sharedSecret));
+        System.out.println(e.getMessage());
     }
 
     @Test

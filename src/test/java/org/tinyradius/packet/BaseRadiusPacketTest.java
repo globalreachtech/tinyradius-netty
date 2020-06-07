@@ -7,6 +7,7 @@ import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,7 +21,7 @@ class BaseRadiusPacketTest {
     @Test
     void doesNotMutateOriginalAttributeList() {
         final List<RadiusAttribute> attributes = Collections.emptyList();
-        BaseRadiusPacket rp = new StubPacket()
+        StubPacket rp = new StubPacket()
                 .addAttribute("WISPr-Location-ID", "myLocationId");
 
         assertEquals(0, attributes.size());
@@ -29,7 +30,7 @@ class BaseRadiusPacketTest {
 
     @Test
     void addAttribute() {
-        BaseRadiusPacket packet = new StubPacket();
+        StubPacket packet = new StubPacket();
         packet.addAttribute("WISPr-Location-ID", "myLocationId");
         packet.addAttribute(create(packet.getDictionary(), -1, (byte) 8, "1234567"));
         packet.addAttribute(create(packet.getDictionary(), -1, (byte) 168, "fe80::"));
@@ -80,18 +81,19 @@ class BaseRadiusPacketTest {
 
     @Test
     void removeSpecificVendorAttributes() {
-        StubPacket rp = new StubPacket();
-        rp.addAttribute("WISPr-Location-ID", "myLocationId");
-        assertEquals(1, rp.getAttributes().size());
+        final StubPacket rp1 = new StubPacket()
+                .addAttribute("WISPr-Location-ID", "myLocationId");
+        assertEquals(1, rp1.getAttributes().size());
+        assertTrue(rp1.getAttributes().get(0) instanceof VendorSpecificAttribute);
 
-        rp.removeAttributes(14122, (byte) 1);
-        assertTrue(rp.getAttributes().isEmpty());
+        final StubPacket rp2 = rp1.removeAttributes(14122, (byte) 1);
+        assertTrue(rp2.getAttributes().isEmpty());
 
-        rp.addAttribute("WISPr-Location-ID", "myLocationId");
-        RadiusAttribute ra = rp.getAttribute(14122, (byte) 1);
+        final StubPacket rp3 = rp2.addAttribute("WISPr-Location-ID", "myLocationId");
+        RadiusAttribute ra = rp3.getAttribute(14122, (byte) 1);
 
-        rp.removeAttribute(ra);
-        assertEquals(0, rp.getAttributes().size());
+        final StubPacket rp4 = rp3.removeAttribute(ra);
+        assertEquals(0, rp4.getAttributes().size());
     }
 
     @Test
@@ -125,16 +127,17 @@ class BaseRadiusPacketTest {
 
     @Test
     void testFlattenAttributes() {
-        BaseRadiusPacket radiusPacket = new StubPacket();
+        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122,
+                Arrays.asList(
+                        Attributes.create(dictionary, "WISPr-Logoff-URL", "111"),
+                        Attributes.create(dictionary, "WISPr-Logoff-URL", "222")
+                ));
 
-        radiusPacket.addAttribute("Service-Type", "999");
-        radiusPacket.addAttribute("Filter-Id", "abc");
-        radiusPacket.addAttribute("Reply-Message", "foobar");
-
-        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, Collections.emptyList(), 14122)
-                .addAttribute("WISPr-Logoff-URL", "111")
-                .addAttribute("WISPr-Logoff-URL", "222");
-        radiusPacket.addAttribute(vsa);
+        StubPacket radiusPacket = new StubPacket()
+                .addAttribute("Service-Type", "999")
+                .addAttribute("Filter-Id", "abc")
+                .addAttribute("Reply-Message", "foobar")
+                .addAttribute(vsa);
 
         final List<RadiusAttribute> attributes = radiusPacket.getFlattenedAttributes();
 
@@ -151,7 +154,11 @@ class BaseRadiusPacketTest {
     private static class StubPacket extends BaseRadiusPacket<StubPacket> {
 
         public StubPacket() {
-            super(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+            this(Collections.emptyList());
+        }
+
+        public StubPacket(List<RadiusAttribute> attributes) {
+            super(dictionary, (byte) 1, (byte) 1, null, attributes);
         }
 
         @Override

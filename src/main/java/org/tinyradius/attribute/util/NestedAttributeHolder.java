@@ -95,7 +95,7 @@ public interface NestedAttributeHolder extends AttributeHolder {
         default T addAttribute(RadiusAttribute attribute) {
             final RadiusAttribute toAdd = attribute.getVendorId() == getChildVendorId() ?
                     attribute :
-                    new VendorSpecificAttribute(getDictionary(), Collections.singletonList(attribute), attribute.getVendorId());
+                    new VendorSpecificAttribute(getDictionary(), attribute.getVendorId(), Collections.singletonList(attribute));
 
             return AttributeHolder.Writable.super.addAttribute(toAdd);
         }

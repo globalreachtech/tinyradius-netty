@@ -23,15 +23,15 @@ public class Attributes {
      * @param dictionary Dictionary to use
      * @param vendorId   vendor ID or -1
      * @param type       attribute type
-     * @param data       attribute data as byte array
+     * @param value      attribute data as byte array
      * @return RadiusAttribute object
      */
-    public static RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, byte[] data) {
+    public static RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, byte[] value) {
         final AttributeType attributeType = dictionary.getAttributeTypeByCode(vendorId, type);
         if (attributeType != null)
-            return attributeType.create(dictionary, data);
+            return attributeType.create(dictionary, value);
 
-        return new RadiusAttribute(dictionary, vendorId, type, data);
+        return new RadiusAttribute(dictionary, vendorId, type, value);
     }
 
     /**
@@ -40,15 +40,36 @@ public class Attributes {
      * @param dictionary Dictionary to use
      * @param vendorId   vendor ID or -1
      * @param type       attribute type
-     * @param data       attribute data as String
+     * @param value      attribute data as String
      * @return RadiusAttribute object
      */
-    public static RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, String data) {
+    public static RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, String value) {
         final AttributeType attributeType = dictionary.getAttributeTypeByCode(vendorId, type);
         if (attributeType != null)
-            return attributeType.create(dictionary, data);
+            return attributeType.create(dictionary, value);
 
-        return new RadiusAttribute(dictionary, vendorId, type, data);
+        return new RadiusAttribute(dictionary, vendorId, type, value);
+    }
+
+    /**
+     * Creates a Radius attribute.
+     * Uses AttributeTypes to lookup the type code and converts the value.
+     *
+     * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
+     * @param value value of the attribute, for example "127.0.0.1"
+     * @throws IllegalArgumentException if type name or value is invalid
+     */
+    public static RadiusAttribute create(Dictionary dictionary, String name, String value) {
+        if (name == null || name.isEmpty())
+            throw new IllegalArgumentException("Type name is null/empty");
+        if (value == null || value.isEmpty())
+            throw new IllegalArgumentException("Value is null/empty");
+
+        final AttributeType type = dictionary.getAttributeTypeByName(name);
+        if (type == null)
+            throw new IllegalArgumentException("Unknown attribute type name'" + name + "'");
+
+        return type.create(dictionary, value);
     }
 
     /**
