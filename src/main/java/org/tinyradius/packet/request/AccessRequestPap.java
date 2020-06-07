@@ -18,16 +18,16 @@ import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
 public class AccessRequestPap extends BaseRadiusPacket<AccessRequestPap> implements AccessRequest<AccessRequestPap> {
 
-    // password needs to be set to encode - either using withPassword() or from verifyRequest(secret)
+    // password needs to be set - either using withPassword() or from decodeRequest()
     private final String password;
-
-    public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintextPw) {
-        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
-        this.password = plaintextPw;
-    }
 
     public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         this(dictionary, identifier, authenticator, attributes, null);
+    }
+
+    public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintext) {
+        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
+        this.password = plaintext;
     }
 
     /**
@@ -65,7 +65,8 @@ public class AccessRequestPap extends BaseRadiusPacket<AccessRequestPap> impleme
             throw new RadiusPacketException("Could not encode PAP attributes, password not set");
         }
 
-        return removeAttributes(USER_PASSWORD)
+        return new AccessRequestPap(getDictionary(), getId(), newAuth, getAttributes(), password)
+                .removeAttributes(USER_PASSWORD)
                 .addAttribute(Attributes.create(getDictionary(), -1, USER_PASSWORD,
                         encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
     }

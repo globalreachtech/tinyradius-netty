@@ -121,7 +121,7 @@ class PacketCodecTest {
         assertEquals(4096, datagram.content().readableBytes());
 
         RadiusRequest result = fromDatagramRequest(dictionary, datagram);
-        result.verifyRequest(sharedSecret);
+        result.decodeRequest(sharedSecret);
 
         assertEquals(maxSizeRequest.getType(), result.getType());
         assertEquals(maxSizeRequest.getId(), result.getId());
@@ -173,7 +173,7 @@ class PacketCodecTest {
 
         DatagramPacket datagramPacket = toDatagram(request, remoteAddress);
         RadiusRequest packet = fromDatagramRequest(dictionary, datagramPacket);
-        packet.verifyRequest(sharedSecret);
+        packet.decodeRequest(sharedSecret);
 
         assertEquals(ACCOUNTING_REQUEST, packet.getType());
         assertTrue(packet instanceof AccountingRequest);
@@ -199,7 +199,7 @@ class PacketCodecTest {
 
         final RadiusRequest newRequest = fromDatagramRequest(dictionary, datagramPacket);
         final RadiusPacketException radiusPacketException = assertThrows(RadiusPacketException.class,
-                () -> newRequest.verifyRequest(sharedSecret));
+                () -> newRequest.decodeRequest(sharedSecret));
 
         assertTrue(radiusPacketException.getMessage().toLowerCase().contains("authenticator check failed"));
     }
@@ -216,8 +216,8 @@ class PacketCodecTest {
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
 
         DatagramPacket datagramPacket = toDatagram(request, remoteAddress);
-        RadiusRequest radiusPacket = fromDatagramRequest(dictionary, datagramPacket);
-        radiusPacket.verifyRequest(sharedSecret);
+        RadiusRequest radiusPacket = fromDatagramRequest(dictionary, datagramPacket)
+                .decodeRequest(sharedSecret);
 
         assertEquals(ACCESS_REQUEST, radiusPacket.getType());
         assertTrue(radiusPacket instanceof AccessRequest);
@@ -247,7 +247,7 @@ class PacketCodecTest {
 
         DatagramPacket datagramPacket = toDatagram(encodedResponse, remoteAddress);
         RadiusResponse packet = fromDatagramResponse(dictionary, datagramPacket);
-        packet.verifyResponse(sharedSecret, encodedRequest.getAuthenticator());
+        packet.decodeResponse(sharedSecret, encodedRequest.getAuthenticator());
 
         assertEquals(encodedResponse.getId(), packet.getId());
         assertEquals("state3333", new String(packet.getAttribute((byte) 33).getValue()));

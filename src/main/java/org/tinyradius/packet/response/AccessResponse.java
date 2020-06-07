@@ -23,9 +23,10 @@ public class AccessResponse extends BaseRadiusPacket<AccessResponse> implements 
     }
 
     @Override
-    public void verifyResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        RadiusResponse.super.verifyResponse(sharedSecret, requestAuth);
+    public AccessResponse decodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+        RadiusResponse.super.decodeResponse(sharedSecret, requestAuth);
         verifyMessageAuth(sharedSecret, requestAuth);
+        return this;
     }
 
     @Override

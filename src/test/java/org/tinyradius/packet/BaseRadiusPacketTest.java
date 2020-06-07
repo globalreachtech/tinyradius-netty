@@ -30,12 +30,12 @@ class BaseRadiusPacketTest {
 
     @Test
     void addAttribute() {
-        StubPacket packet = new StubPacket();
-        packet.addAttribute("WISPr-Location-ID", "myLocationId");
-        packet.addAttribute(create(packet.getDictionary(), -1, (byte) 8, "1234567"));
-        packet.addAttribute(create(packet.getDictionary(), -1, (byte) 168, "fe80::"));
-        packet.addAttribute(create(packet.getDictionary(), -1, (byte) 97, "fe80::/64"));
-        packet.addAttribute(create(packet.getDictionary(), -1, (byte) 97, "fe80::/128"));
+        StubPacket packet = new StubPacket()
+                .addAttribute("WISPr-Location-ID", "myLocationId")
+                .addAttribute((byte) 8, "1234567")
+                .addAttribute((byte) 168, "fe80::")
+                .addAttribute((byte) 97, "fe80::/64")
+                .addAttribute((byte) 97, "fe80::/128");
 
         final List<VendorSpecificAttribute> vendorAttributes = packet.getVendorAttributes(14122);
         assertEquals(1, vendorAttributes.size());
@@ -111,17 +111,17 @@ class BaseRadiusPacketTest {
 
     @Test
     void removeLastAttributeForType() {
-        StubPacket rp = new StubPacket();
-        rp.addAttribute("Service-Type", "1");
-        rp.addAttribute("Service-Type", "2");
-        rp.addAttribute("User-Name", "user");
+        StubPacket rp = new StubPacket()
+                .addAttribute("Service-Type", "1")
+                .addAttribute("Service-Type", "2")
+                .addAttribute("User-Name", "user");
         assertEquals(3, rp.getAttributes().size());
 
-        rp.removeLastAttribute((byte) 6);
-        RadiusAttribute attribute = rp.getAttribute((byte) 6);
+        final StubPacket rp2 = rp.removeLastAttribute((byte) 6);
+        RadiusAttribute attribute = rp2.getAttribute((byte) 6);
 
         assertFalse(rp.getAttributes().isEmpty());
-        assertEquals(2, rp.getAttributes().size());
+        assertEquals(2, rp2.getAttributes().size());
         assertEquals("Login-User", attribute.getValueString());
     }
 
@@ -163,7 +163,7 @@ class BaseRadiusPacketTest {
 
         @Override
         public StubPacket withAttributes(List<RadiusAttribute> attributes) {
-            return new StubPacket();
+            return new StubPacket(attributes);
         }
     }
 }

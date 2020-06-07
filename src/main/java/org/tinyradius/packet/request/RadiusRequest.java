@@ -53,7 +53,7 @@ public interface RadiusRequest<T extends RadiusRequest<T>> extends RadiusPacket<
      * @param sharedSecret shared secret
      * @throws RadiusPacketException if authenticator check fails
      */
-    default RadiusRequest<T> verifyRequest(String sharedSecret) throws RadiusPacketException {
+    default RadiusRequest<T> decodeRequest(String sharedSecret) throws RadiusPacketException {
         verifyPacketAuth(sharedSecret, new byte[16]);
         return this;
     }

@@ -47,7 +47,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
 
         try {
             RadiusRequest request = fromDatagramRequest(dictionary, msg);
-            request.verifyRequest(secret);
+            request.decodeRequest(secret);
             logger.debug("Received request from {} - {}", remoteAddress, request);
 
             return new RequestCtx(request, new RadiusEndpoint(remoteAddress, secret));

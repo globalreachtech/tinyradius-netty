@@ -23,8 +23,17 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
         super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
     }
 
-    public AccessRequestChap withPassword(String password) throws IllegalArgumentException {
-        if (password == null || password.isEmpty())
+    /**
+     * Set CHAP-Password / CHAP-Challenge attributes with provided password.
+     *
+     * Will remove existing attributes if exists already
+     *
+     * @param plaintext password to encode into CHAP-Password
+     * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
+     * @throws IllegalArgumentException invalid password
+     */
+    public AccessRequestChap withPassword(String plaintext) throws IllegalArgumentException {
+        if (plaintext == null || plaintext.isEmpty())
             throw new IllegalArgumentException("Could not encode CHAP attributes, password not set");
 
         byte[] challenge = AccessRequest.random16bytes();
@@ -34,7 +43,7 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
                 .removeAttributes(CHAP_CHALLENGE)
                 .addAttribute(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge))
                 .addAttribute(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
-                        computeChapPassword((byte) RANDOM.nextInt(256), password, challenge)));
+                        computeChapPassword((byte) RANDOM.nextInt(256), plaintext, challenge)));
     }
 
     /**
@@ -46,14 +55,7 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
      */
     @Override
     public AccessRequestChap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
-        final int challengeCount = getAttributes(CHAP_CHALLENGE).size();
-        if (challengeCount != 1)
-            throw new RadiusPacketException("Cannot encode - must have one CHAP-Challenge attribute, actual: " + challengeCount);
-
-        final int passwordCount = getAttributes(CHAP_PASSWORD).size();
-        if (passwordCount != 1)
-            throw new RadiusPacketException("Cannot encode - must have one CHAP-Password attribute, actual: " + passwordCount);
-
+        validateChapAttributes();
         return new AccessRequestChap(getDictionary(), getId(), newAuth, getAttributes());
     }
 
@@ -106,15 +108,19 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
 
     @Override
     public AccessRequestChap verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> attrs = getAttributes(CHAP_PASSWORD);
-        if (attrs.size() != 1) {
-            throw new RadiusPacketException("AccessRequest (CHAP) should have exactly one CHAP-Password attribute, has " + attrs.size());
-        }
+        validateChapAttributes();
         return this;
     }
 
     @Override
     public AccessRequestChap withAttributes(List<RadiusAttribute> attributes) {
         return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), attributes);
+    }
+
+    private void validateChapAttributes() throws RadiusPacketException {
+        final int passwordCount = getAttributes(CHAP_PASSWORD).size();
+        if (passwordCount != 1)
+            throw new RadiusPacketException("AccessRequest (CHAP) should have exactly one CHAP-Password attribute, has " + passwordCount);
+        // CHAP-Challenge can use Request Authenticator instead of attribute
     }
 }

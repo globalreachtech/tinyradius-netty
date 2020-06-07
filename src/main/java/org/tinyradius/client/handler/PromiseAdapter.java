@@ -24,7 +24,7 @@ import static org.tinyradius.attribute.util.Attributes.create;
  * outbound packets. This avoids problem with mismatched requests/responses when using
  * packetIdentifier, which is limited to 256 unique IDs.
  */
-public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, PendingRequestCtx> {
+public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse<?>, PendingRequestCtx> {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -64,7 +64,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, RadiusResponse msg, List<Object> out) {
+    protected void decode(ChannelHandlerContext ctx, RadiusResponse<?> msg, List<Object> out) {
 
         // retrieve my Proxy-State attribute (the last)
         List<RadiusAttribute> proxyStates = msg.getAttributes(PROXY_STATE);
@@ -89,12 +89,11 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
         }
 
         try {
-            msg.verifyResponse(request.secret, request.authenticator);
+            final RadiusResponse<?> response = msg.decodeResponse(request.secret, request.authenticator)
+                    .removeLastAttribute(PROXY_STATE);
 
-            msg.removeLastAttribute(PROXY_STATE);
-
-            logger.info("Found request for response identifier => {}", msg.getId());
-            request.promise.trySuccess(msg);
+            logger.info("Found request for response identifier => {}", response.getId());
+            request.promise.trySuccess(response);
 
             // intentionally nothing to pass through - listeners should hook onto promise
         } catch (RadiusPacketException e) {

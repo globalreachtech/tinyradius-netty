@@ -25,24 +25,24 @@ class AccessRequestEapTest {
         final AccessRequestEap encoded = accessRequestEap.encodeRequest(sharedSecret);
 
         assertNotNull(encoded.getAuthenticator());
-        encoded.verifyRequest(sharedSecret);
+        encoded.decodeRequest(sharedSecret);
     }
 
     @Test
     void verifyAttributeCount() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
         final AccessRequestEap request = new AccessRequestEap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
-        assertThrows(RadiusPacketException.class, () -> request.verifyRequest(sharedSecret));
+        assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
 
         final AccessRequestEap request1 = request.addAttribute(Attributes.create(dictionary, -1, EAP_MESSAGE, new byte[16]));
-        assertThrows(RadiusPacketException.class, () -> request1.verifyRequest(sharedSecret));
+        assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one messageAuth
         final AccessRequestEap request2 = request1.encodeRequest(sharedSecret);
-        request2.verifyRequest(sharedSecret);
+        request2.decodeRequest(sharedSecret);
 
         final AccessRequestEap request3 = request2.addAttribute(Attributes.create(dictionary, -1, MESSAGE_AUTHENTICATOR, new byte[16]));
-        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request3.verifyRequest(sharedSecret));
+        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
         assertTrue(e.getMessage().toLowerCase().contains("at most one message-authenticator"));
     }
 }

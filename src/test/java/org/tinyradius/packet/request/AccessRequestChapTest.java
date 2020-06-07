@@ -2,7 +2,6 @@ package org.tinyradius.packet.request;
 
 import net.jradius.util.CHAP;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -32,21 +31,23 @@ class AccessRequestChapTest {
         final AccessRequestChap encoded = accessRequestChap.encodeRequest(sharedSecret);
 
         assertNotNull(encoded.getAuthenticator());
-        encoded.verifyRequest(sharedSecret);
+        encoded.decodeRequest(sharedSecret);
     }
 
     @Test
     void verifyAttributeCount() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
         final AccessRequestChap request1 = new AccessRequestChap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
-        assertThrows(RadiusPacketException.class, () -> request1.verifyRequest(sharedSecret));
+        assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
-        final AccessRequestChap request2 = request1.addAttribute(create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
-        request2.verifyRequest(sharedSecret); // should have exactly one instance
+        // add one pw attribute
+        final AccessRequestChap request2 = request1.withPassword("myPw");
+        request2.decodeRequest(sharedSecret);
 
-        final AccessRequestChap request3 = request1.addAttribute(create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
-        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request1.verifyRequest(sharedSecret));
-        System.out.println(e.getMessage());
+        // add one more pw attribute
+        final AccessRequestChap request3 = request2.addAttribute(create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
+        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
+        assertTrue(e.getMessage().contains("should have exactly one CHAP-Password"));
     }
 
     @Test
@@ -55,29 +56,28 @@ class AccessRequestChapTest {
         String plaintextPw = "password123456789";
         String sharedSecret = "sharedSecret";
 
-        AccessRequestChap request = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList())
+        final AccessRequestChap emptyRequest = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList());
+
+        assertNull(emptyRequest.getAttribute("User-Password"));
+        assertNull(emptyRequest.getAttribute("CHAP-Password"));
+
+        AccessRequestChap request = emptyRequest
                 .addAttribute(USER_NAME, user)
                 .withPassword(plaintextPw);
-        final AccessRequestChap encoded = request.encodeRequest(sharedSecret);
 
-        assertNull(request.getAttribute("User-Password"));
-        assertNull(request.getAttribute("CHAP-Password"));
+        final AccessRequestChap encoded = request.encodeRequest(sharedSecret);
         assertEquals(request.getType(), encoded.getType());
         assertEquals(request.getId(), encoded.getId());
+        assertEquals(user, encoded.getAttributeString(USER_NAME));
         assertEquals(request.getAttributeString(USER_NAME), encoded.getAttributeString(USER_NAME));
+        assertNull(encoded.getAttribute("User-Password"));
 
         // randomly generated, need to extract
         final byte[] chapChallenge = encoded.getAttribute("CHAP-Challenge").getValue();
         final byte[] chapPassword = encoded.getAttribute("CHAP-Password").getValue();
-
         final byte[] expectedChapPassword = CHAP.chapResponse(chapPassword[0], plaintextPw.getBytes(UTF_8), chapChallenge);
 
         assertArrayEquals(expectedChapPassword, chapPassword);
-        assertNull(encoded.getAttribute("User-Password"));
-
-        // check transient fields copied across
-        assertEquals(plaintextPw, encoded.getPassword());
-        assertEquals(user, encoded.getAttributeString(USER_NAME));
     }
 
     @Test

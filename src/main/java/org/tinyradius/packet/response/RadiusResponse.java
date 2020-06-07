@@ -43,7 +43,7 @@ public interface RadiusResponse<T extends RadiusResponse<T>> extends RadiusPacke
      * @param requestAuth  request packet authenticator
      * @return new RadiusPacket instance with same properties and valid authenticator
      */
-    RadiusResponse<T> encodeResponse(String sharedSecret, byte[] requestAuth);
+    T encodeResponse(String sharedSecret, byte[] requestAuth);
 
     /**
      * Verifies the response authenticator against the supplied shared secret.
@@ -51,8 +51,10 @@ public interface RadiusResponse<T extends RadiusResponse<T>> extends RadiusPacke
      * @param sharedSecret shared secret
      * @param requestAuth  authenticator for corresponding request
      * @throws RadiusPacketException if authenticator check fails
+     * @return
      */
-    default void verifyResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    default RadiusResponse<T> decodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         verifyPacketAuth(sharedSecret, requestAuth);
+        return this;
     }
 }

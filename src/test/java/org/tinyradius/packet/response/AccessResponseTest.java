@@ -20,6 +20,6 @@ class AccessResponseTest {
 
         final AccessResponse accessResponse = new AccessResponse(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList());
         final AccessResponse encodedResponse = accessResponse.encodeResponse(sharedSecret, requestAuth);
-        encodedResponse.verifyResponse(sharedSecret, requestAuth);
+        encodedResponse.decodeResponse(sharedSecret, requestAuth);
     }
 }

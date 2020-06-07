@@ -100,7 +100,7 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         final byte id = (byte) random.nextInt(256);
 
-        final AccessRequestPap accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList(),password)
+        final AccessRequestPap accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList(), password)
                 .addAttribute(USER_NAME, username);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
@@ -111,9 +111,8 @@ class ClientPacketCodecTest {
         codec.encode(ctx, new PendingRequestCtx(accessRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
-        final AccessRequestPap sentAccessPacket = (AccessRequestPap) fromDatagramRequest(
-                dictionary, (DatagramPacket) out1.get(0));
-        sentAccessPacket.verifyRequest(secret);
+        final AccessRequestPap sentAccessPacket = (AccessRequestPap) fromDatagramRequest(dictionary, (DatagramPacket) out1.get(0))
+                .decodeRequest(secret);
 
         // check user details correctly encoded
         assertEquals(id, sentAccessPacket.getId());
@@ -128,7 +127,7 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        final AccessRequestPap packet = new AccessRequestPap(dictionary, (byte) id, null, Collections.emptyList(),password)
+        AccessRequestPap packet = new AccessRequestPap(dictionary, (byte) id, null, Collections.emptyList(), password)
                 .addAttribute(USER_NAME, username);
         final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
 
@@ -136,7 +135,7 @@ class ClientPacketCodecTest {
 
         // make packet too long to force encoder error
         for (int i = 0; i < 4000; i++) {
-            packet.addAttribute(Attributes.create(dictionary, -1, USER_NAME, username));
+            packet = packet.addAttribute(Attributes.create(dictionary, -1, USER_NAME, username));
         }
 
         // process
