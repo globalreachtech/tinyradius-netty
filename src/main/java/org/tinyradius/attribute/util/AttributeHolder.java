@@ -118,6 +118,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * Adds a attribute to this attribute container.
      *
      * @param attribute attribute to add
+     * @return object of same type with appended attribute
      */
     default T addAttribute(RadiusAttribute attribute) {
         if (attribute.getVendorId() != getChildVendorId())
@@ -140,6 +141,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      *
      * @param type  attribute type code
      * @param value string value to set
+     * @return object of same type with appended attribute
      */
     default T addAttribute(byte type, String value) {
         return addAttribute(
@@ -150,6 +152,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * Removes all instances of the specified attribute from this attribute container.
      *
      * @param attribute attributes to remove
+     * @return object of same type with removed attribute
      */
     default T removeAttribute(RadiusAttribute attribute) {
         return withAttributes(getAttributes().stream()
@@ -161,6 +164,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * Removes all attributes from this packet which have got the specified type.
      *
      * @param type attribute type to remove
+     * @return object of same type with removed attributes
      */
     default T removeAttributes(byte type) {
         return withAttributes(getAttributes().stream()
@@ -173,6 +177,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * type from the packet.
      *
      * @param type attribute type code
+     * @return object of same type with removed attribute
      */
     default T removeLastAttribute(byte type) {
         List<RadiusAttribute> attributes = getAttributes(type);

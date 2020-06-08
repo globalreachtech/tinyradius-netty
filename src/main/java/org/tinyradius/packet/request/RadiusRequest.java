@@ -42,7 +42,7 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
      *
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client
-     * @return RadiusPacket with new authenticator and/or encoded attributes
+     * @return RadiusRequest with new authenticator and/or encoded attributes
      * @throws RadiusPacketException if invalid or missing attributes
      */
     RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException;
@@ -51,6 +51,7 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
      * Checks the request authenticator against the supplied shared secret.
      *
      * @param sharedSecret shared secret
+     * @return verified RadiusRequest with decoded attributes if appropriate
      * @throws RadiusPacketException if authenticator check fails
      */
     default RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {

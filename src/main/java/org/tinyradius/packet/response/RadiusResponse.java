@@ -50,7 +50,7 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      *
      * @param sharedSecret shared secret
      * @param requestAuth  authenticator for corresponding request
-     * @return decoded / verified response
+     * @return verified RadiusResponse with decoded attributes if appropriate
      * @throws RadiusPacketException if authenticator check fails
      */
     default RadiusResponse decodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {

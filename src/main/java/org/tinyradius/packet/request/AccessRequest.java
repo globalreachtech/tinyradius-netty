@@ -126,6 +126,7 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends BaseRadi
      * Verify packet for specific auth protocols
      *
      * @param sharedSecret shared secret
+     * @return verified AccessRequest with decoded attributes if appropriate
      * @throws RadiusPacketException if invalid or missing attributes
      */
     protected abstract T decodeAuthMechanism(String sharedSecret) throws RadiusPacketException;

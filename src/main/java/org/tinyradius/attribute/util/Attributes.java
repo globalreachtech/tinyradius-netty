@@ -20,7 +20,7 @@ public class Attributes {
     /**
      * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
      *
-     * @param dictionary Dictionary to use
+     * @param dictionary dictionary to use
      * @param vendorId   vendor ID or -1
      * @param type       attribute type
      * @param value      attribute data as byte array
@@ -37,7 +37,7 @@ public class Attributes {
     /**
      * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
      *
-     * @param dictionary Dictionary to use
+     * @param dictionary dictionary to use
      * @param vendorId   vendor ID or -1
      * @param type       attribute type
      * @param value      attribute data as String
@@ -55,8 +55,10 @@ public class Attributes {
      * Creates a Radius attribute.
      * Uses AttributeTypes to lookup the type code and converts the value.
      *
-     * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
-     * @param value value of the attribute, for example "127.0.0.1"
+     * @param dictionary dictionary to use
+     * @param name       name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
+     * @param value      value of the attribute, for example "127.0.0.1"
+     * @return RadiusAttribute object
      * @throws IllegalArgumentException if type name or value is invalid
      */
     public static RadiusAttribute create(Dictionary dictionary, String name, String value) {
