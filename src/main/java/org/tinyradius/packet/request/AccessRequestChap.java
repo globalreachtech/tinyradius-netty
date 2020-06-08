@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
+public class AccessRequestChap extends AccessRequest {
 
     protected static final byte CHAP_CHALLENGE = 60;
 
