@@ -54,7 +54,7 @@ class VendorSpecificAttributeTest {
         ));
 
         assertFalse(vsa.getAttributes().isEmpty());
-        assertEquals("myLocationId", vsa.getAttribute("WISPr-Location-ID").getValueString());
+        assertEquals("myLocationId", vsa.getAttribute("WISPr-Location-ID").get().getValueString());
     }
 
     @Test
@@ -65,7 +65,7 @@ class VendorSpecificAttributeTest {
         )).addAttribute(Attributes.create(dictionary, 14122, (byte) 2, data));
 
         assertEquals(2, vsa.getAttributes().size());
-        assertEquals(data, vsa.getAttribute((byte) 2).getValueString());
+        assertEquals(data, vsa.getAttribute((byte) 2).get().getValueString());
     }
 
     @Test

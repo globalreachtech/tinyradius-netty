@@ -8,6 +8,7 @@ import org.tinyradius.dictionary.Dictionary;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -37,25 +38,13 @@ public interface AttributeHolder {
     }
 
     /**
-     * Convenience method to get single attribute as string.
-     *
-     * @param type attribute type name
-     * @return RadiusAttribute object or null if there is no such attribute
-     */
-    default String getAttributeString(byte type) {
-        List<RadiusAttribute> attrs = getAttributes(type);
-        return attrs.isEmpty() ? null : attrs.get(0).getValueString();
-    }
-
-    /**
      * Convenience method to get single attribute.
      *
      * @param type attribute type name
      * @return RadiusAttribute object or null if there is no such attribute
      */
-    default RadiusAttribute getAttribute(String type) {
-        List<RadiusAttribute> attrs = getAttributes(type);
-        return attrs.isEmpty() ? null : attrs.get(0);
+    default Optional<RadiusAttribute> getAttribute(String type) {
+        return getAttributes(type).stream().findFirst();
     }
 
     /**
@@ -64,9 +53,8 @@ public interface AttributeHolder {
      * @param type attribute type
      * @return RadiusAttribute object or null if there is no such attribute
      */
-    default RadiusAttribute getAttribute(byte type) {
-        List<RadiusAttribute> attrs = getAttributes(type);
-        return attrs.isEmpty() ? null : attrs.get(0);
+    default Optional<RadiusAttribute> getAttribute(byte type) {
+        return getAttributes(type).stream().findFirst();
     }
 
     /**

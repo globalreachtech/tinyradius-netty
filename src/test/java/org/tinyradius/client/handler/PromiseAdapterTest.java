@@ -51,7 +51,7 @@ class PromiseAdapterTest {
     private final PromiseAdapter handler = new PromiseAdapter();
 
     @Test
-    void encodeAppendProxyState() throws RadiusPacketException {
+    void encodeAppendProxyState() {
         final String secret = "test";
         byte id = (byte) random.nextInt(256);
 
@@ -68,7 +68,7 @@ class PromiseAdapterTest {
 
         // check proxy-state added
         assertEquals(1, attributes1.size());
-        final byte[] proxyState1 = processedPacket1.getAttribute("Proxy-State").getValue();
+        final byte[] proxyState1 = processedPacket1.getAttribute("Proxy-State").get().getValue();
         assertEquals("1", new String(proxyState1, UTF_8));
 
         // process again
@@ -129,7 +129,7 @@ class PromiseAdapterTest {
         assertEquals(1, out.size());
 
         final RadiusRequest preparedRequest = ((PendingRequestCtx) out.get(0)).getRequest();
-        final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
+        final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).get().getValue();
 
         // using id 99
         final RadiusResponse response = RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 99, null,
@@ -158,7 +158,7 @@ class PromiseAdapterTest {
 
         assertEquals(1, out.size());
         final RadiusRequest preparedRequest = ((RequestCtx) out.get(0)).getRequest();
-        final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
+        final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).get().getValue();
 
         final RadiusResponse response = RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 1, null,
                 Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)));
@@ -191,7 +191,7 @@ class PromiseAdapterTest {
         final RadiusRequest preparedRequest = ((RequestCtx) out.get(0)).getRequest();
 
         // capture request details
-        final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).getValue();
+        final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).get().getValue();
         final byte[] requestAuthenticator = preparedRequest.getAuthenticator();
 
         assertFalse(promise.isDone());

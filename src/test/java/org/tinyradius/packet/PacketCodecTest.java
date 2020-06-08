@@ -178,7 +178,7 @@ class PacketCodecTest {
         assertEquals(ACCOUNTING_REQUEST, packet.getType());
         assertTrue(packet instanceof AccountingRequest);
         assertEquals(rawRequest.getId(), packet.getId());
-        assertEquals(rawRequest.getAttributeString(USER_NAME), packet.getAttributeString(USER_NAME));
+        assertEquals(rawRequest.getAttribute(USER_NAME), packet.getAttribute(USER_NAME));
     }
 
     @Test
@@ -224,7 +224,7 @@ class PacketCodecTest {
 
         AccessRequestPap packet = (AccessRequestPap) radiusPacket;
         assertEquals(rawRequest.getId(), packet.getId());
-        assertEquals(rawRequest.getAttributeString(USER_NAME), packet.getAttributeString(USER_NAME));
+        assertEquals(rawRequest.getAttribute(USER_NAME), packet.getAttribute(USER_NAME));
         assertEquals(rawRequest.getPassword(), packet.getPassword());
     }
 
@@ -250,7 +250,7 @@ class PacketCodecTest {
         packet.decodeResponse(sharedSecret, encodedRequest.getAuthenticator());
 
         assertEquals(encodedResponse.getId(), packet.getId());
-        assertEquals("state3333", new String(packet.getAttribute((byte) 33).getValue()));
+        assertEquals("state3333", new String(packet.getAttribute((byte) 33).get().getValue()));
         assertArrayEquals(encodedResponse.getAuthenticator(), packet.getAuthenticator());
     }
 }

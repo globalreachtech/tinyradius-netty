@@ -58,8 +58,8 @@ class AccessRequestChapTest {
 
         final AccessRequestChap emptyRequest = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList());
 
-        assertNull(emptyRequest.getAttribute("User-Password"));
-        assertNull(emptyRequest.getAttribute("CHAP-Password"));
+        assertFalse(emptyRequest.getAttribute("User-Password").isPresent());
+        assertFalse(emptyRequest.getAttribute("CHAP-Password").isPresent());
 
         AccessRequestChap request = emptyRequest
                 .addAttribute(USER_NAME, user)
@@ -68,13 +68,13 @@ class AccessRequestChapTest {
         final AccessRequestChap encoded = request.encodeRequest(sharedSecret);
         assertEquals(request.getType(), encoded.getType());
         assertEquals(request.getId(), encoded.getId());
-        assertEquals(user, encoded.getAttributeString(USER_NAME));
-        assertEquals(request.getAttributeString(USER_NAME), encoded.getAttributeString(USER_NAME));
-        assertNull(encoded.getAttribute("User-Password"));
+        assertEquals(user, encoded.getAttribute(USER_NAME).get().getValueString());
+        assertEquals(request.getAttribute(USER_NAME), encoded.getAttribute(USER_NAME));
+        assertFalse(encoded.getAttribute("User-Password").isPresent());
 
         // randomly generated, need to extract
-        final byte[] chapChallenge = encoded.getAttribute("CHAP-Challenge").getValue();
-        final byte[] chapPassword = encoded.getAttribute("CHAP-Password").getValue();
+        final byte[] chapChallenge = encoded.getAttribute("CHAP-Challenge").get().getValue();
+        final byte[] chapPassword = encoded.getAttribute("CHAP-Password").get().getValue();
         final byte[] expectedChapPassword = CHAP.chapResponse(chapPassword[0], plaintextPw.getBytes(UTF_8), chapChallenge);
 
         assertArrayEquals(expectedChapPassword, chapPassword);

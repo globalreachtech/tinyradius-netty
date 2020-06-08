@@ -53,8 +53,8 @@ class AccountingRequestTest {
                 .addAttribute("Acct-Status-Type", "7");
 
         AccountingRequest encoded = request.encodeRequest(sharedSecret);
-        assertEquals(request.getAttributeString(USER_NAME), encoded.getAttributeString(USER_NAME));
-        assertEquals(7, ((IntegerAttribute) encoded.getAttribute(ACCT_STATUS_TYPE)).getValueInt());
+        assertEquals(request.getAttribute(USER_NAME), encoded.getAttribute(USER_NAME));
+        assertEquals(7, ((IntegerAttribute) encoded.getAttribute(ACCT_STATUS_TYPE).get()).getValueInt());
         assertEquals(request.getAttribute(ACCT_STATUS_TYPE), encoded.getAttribute(ACCT_STATUS_TYPE));
     }
 }

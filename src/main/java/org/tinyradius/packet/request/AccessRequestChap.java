@@ -25,7 +25,7 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
 
     /**
      * Set CHAP-Password / CHAP-Challenge attributes with provided password.
-     *
+     * <p>
      * Will remove existing attributes if exists already
      *
      * @param plaintext password to encode into CHAP-Password
@@ -93,11 +93,13 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
             return false;
         }
 
-        final RadiusAttribute chapChallengeAttr = getAttribute(CHAP_CHALLENGE);
-        final byte[] chapChallenge = chapChallengeAttr != null ?
-                chapChallengeAttr.getValue() : getAuthenticator();
+        final byte[] chapChallenge = getAttribute(CHAP_CHALLENGE)
+                .map(RadiusAttribute::getValue)
+                .orElse(getAuthenticator());
 
-        final byte[] chapPassword = getAttribute(CHAP_PASSWORD).getValue();
+        final byte[] chapPassword = getAttribute(CHAP_PASSWORD)
+                .map(RadiusAttribute::getValue)
+                .orElse(null);
         if (chapPassword == null || chapPassword.length != 17) {
             logger.warn("CHAP-Password must be 17 bytes");
             return false;

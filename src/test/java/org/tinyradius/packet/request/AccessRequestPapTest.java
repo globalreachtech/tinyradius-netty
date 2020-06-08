@@ -65,11 +65,11 @@ class AccessRequestPapTest {
         // check correct encode
         assertEquals(1, encoded.getType());
         assertEquals(2, encoded.getId());
-        assertEquals(user, encoded.getAttributeString(USER_NAME));
+        assertEquals(user, encoded.getAttribute(USER_NAME).get().getValueString());
 
         // check password fields
-        assertNull(request.getAttribute("User-Password"));
-        assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").getValue());
+        assertFalse(request.getAttribute("User-Password").isPresent());
+        assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").get().getValue());
         assertEquals(password1, encoded.getPassword());
 
         // set password to something else

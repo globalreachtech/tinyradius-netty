@@ -3,10 +3,7 @@ package org.tinyradius.attribute.util;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -52,9 +49,9 @@ public interface NestedAttributeHolder extends AttributeHolder {
      * @param type     attribute type
      * @return RadiusAttribute object or null if there is no such attribute
      */
-    default RadiusAttribute getAttribute(int vendorId, byte type) {
+    default Optional<RadiusAttribute> getAttribute(int vendorId, byte type) {
         List<RadiusAttribute> attrs = getAttributes(vendorId, type);
-        return attrs.isEmpty() ? null : attrs.get(0);
+        return attrs.stream().findFirst();
     }
 
     /**

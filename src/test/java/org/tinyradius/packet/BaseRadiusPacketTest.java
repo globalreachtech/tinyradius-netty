@@ -44,15 +44,15 @@ class BaseRadiusPacketTest {
         assertEquals(1, wisprLocations.size());
         assertEquals("myLocationId", wisprLocations.get(0).getValueString());
 
-        assertEquals("myLocationId", packet.getAttribute(14122, (byte) 1).getValueString());
+        assertEquals("myLocationId", packet.getAttribute(14122, (byte) 1).get().getValueString());
         final List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, (byte) 1);
         assertEquals(1, wisprLocations2.size());
         assertEquals("myLocationId", wisprLocations2.get(0).getValueString());
 
-        assertEquals("0.18.214.135", packet.getAttribute((byte) 8).getValueString());
-        assertEquals("0.18.214.135", packet.getAttribute("Framed-IP-Address").getValueString());
-        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute((byte) 168).getValueString());
-        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute("Framed-IPv6-Address").getValueString());
+        assertEquals("0.18.214.135", packet.getAttribute((byte) 8).get().getValueString());
+        assertEquals("0.18.214.135", packet.getAttribute("Framed-IP-Address").get().getValueString());
+        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute((byte) 168).get().getValueString());
+        assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute("Framed-IPv6-Address").get().getValueString());
 
         final List<RadiusAttribute> ipV6Attributes = packet.getAttributes((byte) 97);
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
@@ -90,7 +90,7 @@ class BaseRadiusPacketTest {
         assertTrue(rp2.getAttributes().isEmpty());
 
         final StubPacket rp3 = rp2.addAttribute("WISPr-Location-ID", "myLocationId");
-        RadiusAttribute ra = rp3.getAttribute(14122, (byte) 1);
+        RadiusAttribute ra = rp3.getAttribute(14122, (byte) 1).get();
 
         final StubPacket rp4 = rp3.removeAttribute(ra);
         assertEquals(0, rp4.getAttributes().size());
@@ -118,7 +118,7 @@ class BaseRadiusPacketTest {
         assertEquals(3, rp.getAttributes().size());
 
         final StubPacket rp2 = rp.removeLastAttribute((byte) 6);
-        RadiusAttribute attribute = rp2.getAttribute((byte) 6);
+        RadiusAttribute attribute = rp2.getAttribute((byte) 6).get();
 
         assertFalse(rp.getAttributes().isEmpty());
         assertEquals(2, rp2.getAttributes().size());
