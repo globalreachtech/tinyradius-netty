@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
-public class AccessRequestPap extends AccessRequest {
+public class AccessRequestPap extends AccessRequest<AccessRequestPap> {
 
     // password needs to be set - either using withPassword() or from decodeRequest()
     private final String password;

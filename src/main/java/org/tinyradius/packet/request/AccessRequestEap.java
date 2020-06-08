@@ -6,7 +6,7 @@ import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
-public class AccessRequestEap extends AccessRequest {
+public class AccessRequestEap extends AccessRequest<AccessRequestEap> {
 
     public AccessRequestEap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, identifier, authenticator, attributes);

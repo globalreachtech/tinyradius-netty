@@ -5,7 +5,7 @@ import org.tinyradius.dictionary.Dictionary;
 
 import java.util.List;
 
-class AccessRequestNoAuth extends AccessRequest {
+class AccessRequestNoAuth extends AccessRequest<AccessRequestNoAuth> {
 
     public AccessRequestNoAuth(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, identifier, authenticator, attributes);

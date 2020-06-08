@@ -20,7 +20,7 @@ import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 /**
  * This class represents an Access-Request Radius packet.
  */
-public abstract class AccessRequest extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest, MessageAuthSupport<RadiusRequest> {
+public abstract class AccessRequest<T extends AccessRequest<T>> extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest, MessageAuthSupport<RadiusRequest> {
 
     protected static final Logger logger = LogManager.getLogger();
 
@@ -45,7 +45,7 @@ public abstract class AccessRequest extends BaseRadiusPacket<RadiusRequest> impl
      *                      or a stub AccessRequest will be returned
      * @return AccessRequest auth mechanism-specific implementation
      */
-    static AccessRequest create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    static AccessRequest<?> create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         return lookupAuthType(attributes).newInstance(dictionary, identifier, authenticator, attributes);
     }
 
@@ -98,7 +98,7 @@ public abstract class AccessRequest extends BaseRadiusPacket<RadiusRequest> impl
      * @return RadiusPacket with new authenticator and encoded attributes
      * @throws RadiusPacketException if invalid or missing attributes
      */
-    abstract AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
+    abstract T encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
 
     /**
      * AccessRequest overrides this method to generate a randomized authenticator (RFC 2865)
@@ -127,7 +127,7 @@ public abstract class AccessRequest extends BaseRadiusPacket<RadiusRequest> impl
      * @return verified AccessRequest with decoded attributes if appropriate
      * @throws RadiusPacketException if invalid or missing attributes
      */
-    protected abstract AccessRequest decodeAuthMechanism(String sharedSecret) throws RadiusPacketException;
+    protected abstract T decodeAuthMechanism(String sharedSecret) throws RadiusPacketException;
 
     /**
      * AccessRequest cannot verify authenticator as they
@@ -140,13 +140,13 @@ public abstract class AccessRequest extends BaseRadiusPacket<RadiusRequest> impl
      * @return decoded request
      */
     @Override
-    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
+    public T decodeRequest(String sharedSecret) throws RadiusPacketException {
         verifyMessageAuth(sharedSecret, getAuthenticator());
         return decodeAuthMechanism(sharedSecret);
     }
 
     interface AccessRequestConstructor {
-        AccessRequest newInstance(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes);
+        AccessRequest<?> newInstance(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes);
     }
 
 }
