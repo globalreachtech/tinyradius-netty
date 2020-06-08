@@ -69,7 +69,7 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
     private VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes, byte[] data) {
         super(dictionary, -1, VENDOR_SPECIFIC, data);
         this.childVendorId = childVendorId;
-        this.attributes = Collections.unmodifiableList(attributes);
+        this.attributes = Collections.unmodifiableList(new ArrayList<>(attributes));
 
         final int len = data.length + 2;
         if (len < 7) // VSA headers are 6 bytes
