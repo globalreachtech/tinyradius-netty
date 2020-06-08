@@ -15,8 +15,6 @@ import static java.util.Objects.requireNonNull;
 
 public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttributeHolder<T> {
 
-    int HEADER_LENGTH = 20;
-
     static MessageDigest getMd5Digest() {
         try {
             return MessageDigest.getInstance("MD5");
@@ -88,6 +86,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
+        final int HEADER_LENGTH = 20;
         final byte[] attributeBytes = getAttributeBytes();
         final int length = HEADER_LENGTH + attributeBytes.length;
 

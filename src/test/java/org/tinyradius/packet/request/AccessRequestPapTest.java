@@ -78,7 +78,7 @@ class AccessRequestPapTest {
         assertEquals(password2, encoded2.getPassword());
 
         // check decodes password
-        final AccessRequestPap encoded3 = encoded2.decodeRequest(sharedSecret);
+        final AccessRequestPap encoded3 = (AccessRequestPap) encoded2.decodeRequest(sharedSecret);
         assertEquals(password1, encoded3.getPassword());
     }
 
