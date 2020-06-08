@@ -7,7 +7,6 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -143,7 +142,7 @@ class VendorSpecificAttributeTest {
     @Test
     void vsaToByteArrayWithNoSubAttributes() {
         Exception exception = assertThrows(RuntimeException.class,
-                () -> new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>()));
+                () -> new VendorSpecificAttribute(dictionary, 14122, Collections.emptyList()));
         assertTrue(exception.getMessage().toLowerCase().contains("should be greater than 6 octets"));
     }
 

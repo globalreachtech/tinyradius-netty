@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -196,5 +197,19 @@ public class AccessRequestPap extends AccessRequest<AccessRequestPap> {
     @Override
     public AccessRequestPap withAttributes(List<RadiusAttribute> attributes) {
         return new AccessRequestPap(getDictionary(), getId(), getAuthenticator(), attributes, password);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AccessRequestPap)) return false;
+        if (!super.equals(o)) return false;
+        final AccessRequestPap that = (AccessRequestPap) o;
+        return Objects.equals(password, that.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), password);
     }
 }
