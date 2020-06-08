@@ -62,5 +62,5 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
      *               (containing the address, port number and shared secret)
      * @return RadiusEndpoint to proxy packet to
      */
-    protected abstract Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client);
+    protected abstract Optional<RadiusEndpoint> getProxyServer(RadiusPacket<?> packet, RadiusEndpoint client);
 }

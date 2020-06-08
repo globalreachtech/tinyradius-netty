@@ -35,7 +35,7 @@ public class PacketCodec {
      * @return converted DatagramPacket
      * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
      */
-    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient) throws RadiusPacketException {
+    public static DatagramPacket toDatagram(RadiusPacket<?> packet, InetSocketAddress recipient) throws RadiusPacketException {
         return new DatagramPacket(toByteBuf(packet), recipient);
     }
 
@@ -46,11 +46,11 @@ public class PacketCodec {
      * @return converted DatagramPacket
      * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
      */
-    public static DatagramPacket toDatagram(RadiusPacket packet, InetSocketAddress recipient, InetSocketAddress sender) throws RadiusPacketException {
+    public static DatagramPacket toDatagram(RadiusPacket<?> packet, InetSocketAddress recipient, InetSocketAddress sender) throws RadiusPacketException {
         return new DatagramPacket(toByteBuf(packet), recipient, sender);
     }
 
-    public static ByteBuf toByteBuf(RadiusPacket packet) throws RadiusPacketException {
+    public static ByteBuf toByteBuf(RadiusPacket<?> packet) throws RadiusPacketException {
         byte[] attributes = packet.getAttributeBytes();
         int length = HEADER_LENGTH + attributes.length;
         if (length > MAX_PACKET_LENGTH)

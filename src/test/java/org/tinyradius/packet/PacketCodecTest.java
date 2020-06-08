@@ -24,7 +24,6 @@ import static java.lang.Byte.toUnsignedInt;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.util.Attributes.create;
-import static org.tinyradius.packet.request.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.util.PacketCodec.*;
 import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
@@ -32,6 +31,7 @@ import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 class PacketCodecTest {
 
     private static final int HEADER_LENGTH = 20;
+    private static final byte USER_NAME = 1;
 
     private final SecureRandom random = new SecureRandom();
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;

@@ -29,7 +29,6 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
      * @param data          data as hex to parse for childVendorId and sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, String data) {
-        // todo fail fast?
         this(dictionary, vendorId, attributeType, DatatypeConverter.parseHexBinary(data));
     }
 

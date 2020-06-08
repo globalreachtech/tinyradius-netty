@@ -31,8 +31,6 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends BaseRadi
     protected static final byte EAP_MESSAGE = 79;
     private static final Set<Byte> AUTH_ATTRS = new HashSet<>(Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, EAP_MESSAGE));
 
-    public static byte USER_NAME = 1;
-
     protected AccessRequest(Dictionary dictionary, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCESS_REQUEST, id, authenticator, attributes);
     }

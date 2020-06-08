@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
@@ -132,9 +133,10 @@ class VendorSpecificAttributeTest {
 
     @Test
     void vsaToByteArrayTooLong() {
+        final List<RadiusAttribute> attributes = Collections.singletonList(
+                new RadiusAttribute(dictionary, 14122, (byte) 26, new byte[253]));
         Exception exception = assertThrows(IllegalArgumentException.class,
-                () -> new VendorSpecificAttribute(dictionary, 14122,
-                        Collections.singletonList(new RadiusAttribute(dictionary, 14122, (byte) 26, new byte[253]))));
+                () -> new VendorSpecificAttribute(dictionary, 14122, attributes));
         assertTrue(exception.getMessage().toLowerCase().contains("attribute data too long, max 253 octets"));
     }
 

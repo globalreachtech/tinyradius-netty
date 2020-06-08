@@ -30,7 +30,6 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.tinyradius.packet.request.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.util.PacketCodec.fromDatagramRequest;
 import static org.tinyradius.packet.util.PacketCodec.toDatagram;
 
@@ -42,6 +41,8 @@ class ClientPacketCodecTest {
 
     private final ClientPacketCodec codec = new ClientPacketCodec(dictionary);
     private final InetSocketAddress address = new InetSocketAddress(0);
+
+    private static final byte USER_NAME = 1;
 
     @Mock
     private ChannelHandlerContext ctx;

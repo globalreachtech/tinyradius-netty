@@ -69,9 +69,11 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
     default void verifyPacketAuth(String sharedSecret, byte[] auth) throws RadiusPacketException {
         byte[] expectedAuth = createHashedAuthenticator(sharedSecret, auth);
         byte[] receivedAuth = getAuthenticator();
-        if (receivedAuth.length != 16 ||
-                !Arrays.equals(expectedAuth, receivedAuth))
-            throw new RadiusPacketException("Authenticator check failed (bad authenticator or shared secret)");
+        if (receivedAuth == null)
+            throw new RadiusPacketException("Authenticator check failed - authenticator missing");
+
+        if (receivedAuth.length != 16 || !Arrays.equals(expectedAuth, receivedAuth))
+            throw new RadiusPacketException("Authenticator check failed - bad authenticator or shared secret");
     }
 
     /**

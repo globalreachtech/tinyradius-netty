@@ -14,11 +14,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.tinyradius.attribute.util.Attributes.create;
-import static org.tinyradius.packet.request.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 
 class AccountingRequestTest {
 
+    private static final byte USER_NAME = 1;
     private static final int HEADER_LENGTH = 20;
     private static final byte ACCT_STATUS_TYPE = 40;
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;

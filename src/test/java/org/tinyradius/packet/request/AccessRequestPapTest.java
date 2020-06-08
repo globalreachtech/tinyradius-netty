@@ -11,13 +11,14 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.packet.request.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.request.AccessRequest.USER_PASSWORD;
 import static org.tinyradius.packet.request.AccessRequestPap.pad;
 
 class AccessRequestPapTest {
 
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
+
+    private static final byte USER_NAME = 1;
 
     @Test
     void encodeVerify() throws RadiusPacketException {

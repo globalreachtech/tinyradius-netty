@@ -31,7 +31,7 @@ public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
      * @throws IllegalArgumentException invalid password
      */
-    public AccessRequestChap withPassword(String plaintext) throws IllegalArgumentException {
+    public AccessRequestChap withPassword(String plaintext) {
         if (plaintext == null || plaintext.isEmpty())
             throw new IllegalArgumentException("Could not encode CHAP attributes, password not set");
 

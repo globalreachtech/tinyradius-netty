@@ -15,12 +15,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.attribute.util.Attributes.create;
 import static org.tinyradius.packet.request.AccessRequest.CHAP_PASSWORD;
-import static org.tinyradius.packet.request.AccessRequest.USER_NAME;
 
 class AccessRequestChapTest {
 
     private static final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
+
+    private static final byte USER_NAME = 1;
 
     @Test
     void encodeVerify() throws RadiusPacketException {

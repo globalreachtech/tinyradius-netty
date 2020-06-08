@@ -71,7 +71,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     @Override
     public byte[] getAuthenticator() {
-        return authenticator == null ? null : authenticator.clone();
+        return authenticator;
     }
 
     @Override

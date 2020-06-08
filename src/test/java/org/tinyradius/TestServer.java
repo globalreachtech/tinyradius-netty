@@ -28,7 +28,6 @@ import org.tinyradius.server.handler.ServerPacketCodec;
 
 import java.net.InetSocketAddress;
 
-import static org.tinyradius.packet.request.AccessRequest.USER_NAME;
 import static org.tinyradius.packet.util.PacketType.*;
 
 /**
@@ -36,6 +35,8 @@ import static org.tinyradius.packet.util.PacketType.*;
  * packets with Access-Accept/Reject or Accounting-Response, respectively.
  */
 public class TestServer {
+
+    private static final byte USER_NAME = 1;
 
     private static final Logger logger = LogManager.getLogger();
 
