@@ -21,7 +21,7 @@ TinyRadius-Netty is a fork of the TinyRadius Radius library, rebuilt with Java 8
 - Handlers follow Netty's interceptor filter pattern, blocking calls use promises
 - log4j2 instead of commons-logging
 - Java 6-8 features (generics, NIO, lambdas, streams)
-- Packets and Attributes are (shallow) immutable
+- Packets and Attributes are fully immutable
 - 80%+ test coverage
 - Proxy no longer a separate implementation, but a promise-based adapter between the client and server classes
 
