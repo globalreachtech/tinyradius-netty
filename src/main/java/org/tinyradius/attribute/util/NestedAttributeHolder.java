@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * <p>
  * An abstraction of all attribute management methods used by Radius packets.
  */
-public interface NestedAttributeHolder extends AttributeHolder {
+public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> extends AttributeHolder<T> {
 
     /**
      * Returns all attributes of this packet that match the
@@ -78,81 +78,79 @@ public interface NestedAttributeHolder extends AttributeHolder {
                 .collect(Collectors.toList());
     }
 
-    interface Writable<T extends Writable<T>> extends NestedAttributeHolder, AttributeHolder.Writable<T> {
+    /**
+     * Adds a Radius attribute to this packet. Can also be used
+     * to add Vendor-Specific sub-attributes. If a attribute with
+     * a vendor code != -1 is passed in, a VendorSpecificAttribute
+     * is automatically created for the sub-attribute.
+     *
+     * @param attribute RadiusAttribute object
+     */
+    @Override
+    default T addAttribute(RadiusAttribute attribute) {
+        final RadiusAttribute toAdd = attribute.getVendorId() == getChildVendorId() ?
+                attribute :
+                new VendorSpecificAttribute(getDictionary(), attribute.getVendorId(), Collections.singletonList(attribute));
 
-        /**
-         * Adds a Radius attribute to this packet. Can also be used
-         * to add Vendor-Specific sub-attributes. If a attribute with
-         * a vendor code != -1 is passed in, a VendorSpecificAttribute
-         * is automatically created for the sub-attribute.
-         *
-         * @param attribute RadiusAttribute object
-         */
-        @Override
-        default T addAttribute(RadiusAttribute attribute) {
-            final RadiusAttribute toAdd = attribute.getVendorId() == getChildVendorId() ?
-                    attribute :
-                    new VendorSpecificAttribute(getDictionary(), attribute.getVendorId(), Collections.singletonList(attribute));
+        return AttributeHolder.super.addAttribute(toAdd);
+    }
 
-            return AttributeHolder.Writable.super.addAttribute(toAdd);
-        }
+    /**
+     * Removes all instances of the specified attribute from this packet.
+     *
+     * @param attribute RadiusAttribute to remove
+     */
+    @Override
+    default T removeAttribute(RadiusAttribute attribute) {
+        if (attribute.getVendorId() == getChildVendorId())
+            return AttributeHolder.super.removeAttribute(attribute);
 
-        /**
-         * Removes all instances of the specified attribute from this packet.
-         *
-         * @param attribute RadiusAttribute to remove
-         */
-        @Override
-        default T removeAttribute(RadiusAttribute attribute) {
-            if (attribute.getVendorId() == getChildVendorId())
-                return AttributeHolder.Writable.super.removeAttribute(attribute);
+        final List<RadiusAttribute> attributes = getAttributes().stream().map(a -> {
+            if (a instanceof VendorSpecificAttribute) {
+                final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
 
-            final List<RadiusAttribute> attributes = getAttributes().stream().map(a -> {
-                if (a instanceof VendorSpecificAttribute) {
-                    final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
-
-                    if (vsa.getAttributes().contains(attribute)) {
-                        final List<RadiusAttribute> vsaAttributes = vsa.getAttributes().stream()
-                                .filter(sa -> !sa.equals(attribute))
-                                .collect(Collectors.toList());
-
-                        return vsaAttributes.isEmpty() ? null : vsa.withAttributes(vsaAttributes);
-                    }
-                }
-
-                return a;
-            }).filter(Objects::nonNull).collect(Collectors.toList());
-
-            return withAttributes(attributes);
-        }
-
-        /**
-         * Removes all (sub)attributes of the given vendor and type.
-         * <p>
-         * If vendorId doesn't match childVendorId, will search sub-attributes.
-         *
-         * @param vendorId vendor ID, or -1
-         * @param typeCode attribute type code
-         */
-        default T removeAttributes(int vendorId, byte typeCode) {
-            if (vendorId == getChildVendorId())
-                return removeAttributes(typeCode);
-
-            final List<RadiusAttribute> attributes = getAttributes().stream().map(a -> {
-                if (a instanceof VendorSpecificAttribute) {
-                    final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
-
+                if (vsa.getAttributes().contains(attribute)) {
                     final List<RadiusAttribute> vsaAttributes = vsa.getAttributes().stream()
-                            .filter(sa -> sa.getType() != typeCode || sa.getVendorId() != vendorId)
+                            .filter(sa -> !sa.equals(attribute))
                             .collect(Collectors.toList());
 
                     return vsaAttributes.isEmpty() ? null : vsa.withAttributes(vsaAttributes);
                 }
+            }
 
-                return a;
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+            return a;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
 
-            return withAttributes(attributes);
-        }
+        return withAttributes(attributes);
+    }
+
+    /**
+     * Removes all (sub)attributes of the given vendor and type.
+     * <p>
+     * If vendorId doesn't match childVendorId, will search sub-attributes.
+     *
+     * @param vendorId vendor ID, or -1
+     * @param typeCode attribute type code
+     */
+    default T removeAttributes(int vendorId, byte typeCode) {
+        if (vendorId == getChildVendorId())
+            return removeAttributes(typeCode);
+
+        final List<RadiusAttribute> attributes = getAttributes().stream().map(a -> {
+            if (a instanceof VendorSpecificAttribute) {
+                final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
+
+                final List<RadiusAttribute> vsaAttributes = vsa.getAttributes().stream()
+                        .filter(sa -> sa.getType() != typeCode || sa.getVendorId() != vendorId)
+                        .collect(Collectors.toList());
+
+                return vsaAttributes.isEmpty() ? null : vsa.withAttributes(vsaAttributes);
+            }
+
+            return a;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        return withAttributes(attributes);
+
     }
 }

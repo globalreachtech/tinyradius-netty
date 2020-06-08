@@ -2,17 +2,14 @@ package org.tinyradius.packet.request;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
-import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
-
-public class AccessRequestEap extends BaseRadiusPacket<RadiusRequest> implements AccessRequest<AccessRequestEap> {
+public class AccessRequestEap extends AccessRequest<AccessRequestEap> {
 
     public AccessRequestEap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
+        super(dictionary, identifier, authenticator, attributes);
     }
 
     @Override

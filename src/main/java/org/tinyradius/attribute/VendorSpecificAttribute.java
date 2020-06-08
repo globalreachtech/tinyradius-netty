@@ -15,7 +15,7 @@ import static org.tinyradius.attribute.util.Attributes.extractAttributes;
 /**
  * This class represents a "Vendor-Specific" attribute. Both an attribute itself and an attribute container.
  */
-public class VendorSpecificAttribute extends RadiusAttribute implements AttributeHolder.Writable<VendorSpecificAttribute> {
+public class VendorSpecificAttribute extends RadiusAttribute implements AttributeHolder<VendorSpecificAttribute> {
 
     public static final byte VENDOR_SPECIFIC = 26;
 
@@ -48,16 +48,9 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
     }
 
     /**
-     * @param data byte array, length minimum 4
-     * @return vendorId
-     */
-    private static int vendorId(byte[] data) {
-        return ByteBuffer.wrap(data).getInt();
-    }
-
-    /**
      * Constructs a new Vendor-Specific attribute
-     *  @param dictionary    dictionary to use for (sub)attributes
+     *
+     * @param dictionary    dictionary to use for (sub)attributes
      * @param childVendorId vendor ID of the sub-attributes
      * @param attributes    sub-attributes held
      */
@@ -82,6 +75,14 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
         final int len = data.length + 2;
         if (len < 7) // VSA headers are 6 bytes
             throw new IllegalArgumentException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
+    }
+
+    /**
+     * @param data byte array, length minimum 4
+     * @return vendorId
+     */
+    private static int vendorId(byte[] data) {
+        return ByteBuffer.wrap(data).getInt();
     }
 
     @Override

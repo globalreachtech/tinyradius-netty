@@ -8,15 +8,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.util.PacketCodec;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
+import org.tinyradius.packet.util.PacketCodec;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import static org.tinyradius.packet.util.PacketCodec.*;
+import static org.tinyradius.packet.util.PacketCodec.fromDatagramResponse;
 
 /**
  * Datagram codec for sending requests and receiving responses.

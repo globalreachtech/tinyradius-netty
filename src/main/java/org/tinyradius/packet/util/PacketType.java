@@ -7,9 +7,6 @@ import java.util.HashMap;
  */
 public class PacketType {
 
-    private PacketType() {
-    }
-
     public static final byte ACCESS_REQUEST = 1; // RFC 2865
     public static final byte ACCESS_ACCEPT = 2;
     public static final byte ACCESS_REJECT = 3;
@@ -65,6 +62,9 @@ public class PacketType {
         typeNames.put(STATUS_ACCEPT, "Status-Accept");
         typeNames.put(STATUS_REJECT, "Status-Reject");
         typeNames.put(RESERVED, "Reserved");
+    }
+
+    private PacketType() {
     }
 
     public static String getPacketTypeName(byte code) {

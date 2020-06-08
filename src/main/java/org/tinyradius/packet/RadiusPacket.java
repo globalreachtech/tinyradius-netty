@@ -13,9 +13,17 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
-public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttributeHolder.Writable<T> {
+public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttributeHolder<T> {
 
     int HEADER_LENGTH = 20;
+
+    static MessageDigest getMd5Digest() {
+        try {
+            return MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException(e); // never happens
+        }
+    }
 
     /**
      * @return Radius packet type
@@ -51,8 +59,6 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      */
     @Override
     Dictionary getDictionary();
-
-    // Internal methods
 
     /**
      * @param sharedSecret shared secret
@@ -91,13 +97,5 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         md5.update(requestAuthenticator);
         md5.update(attributeBytes);
         return md5.digest(sharedSecret.getBytes(UTF_8));
-    }
-
-    static MessageDigest getMd5Digest() {
-        try {
-            return MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException(e); // never happens
-        }
     }
 }

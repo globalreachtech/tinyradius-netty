@@ -27,6 +27,26 @@ public class IntegerAttribute extends RadiusAttribute {
     }
 
     /**
+     * Sets the value of this attribute.
+     *
+     * @throws NumberFormatException if value is not a number and constant cannot be resolved
+     */
+    private static byte[] convertValue(int value) {
+        return ByteBuffer.allocate(4).putInt(value).array();
+    }
+
+    private static int convertValue(String value, Dictionary dictionary, byte attributeType, int vendorId) {
+        AttributeType at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
+        if (at != null) {
+            Integer val = at.getEnumeration(value);
+            if (val != null)
+                return val;
+        }
+
+        return parseUnsignedInt(value);
+    }
+
+    /**
      * Returns the long value of this attribute.
      *
      * @return a long
@@ -59,25 +79,5 @@ public class IntegerAttribute extends RadiusAttribute {
         }
 
         return toUnsignedString(value);
-    }
-
-    /**
-     * Sets the value of this attribute.
-     *
-     * @throws NumberFormatException if value is not a number and constant cannot be resolved
-     */
-    private static byte[] convertValue(int value) {
-        return ByteBuffer.allocate(4).putInt(value).array();
-    }
-
-    private static int convertValue(String value, Dictionary dictionary, byte attributeType, int vendorId) {
-        AttributeType at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
-        if (at != null) {
-            Integer val = at.getEnumeration(value);
-            if (val != null)
-                return val;
-        }
-
-        return parseUnsignedInt(value);
     }
 }

@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.packet.util.MessageAuthSupport;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -14,77 +15,26 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
+import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
 /**
  * This class represents an Access-Request Radius packet.
  */
-public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest, MessageAuthSupport<RadiusRequest> {
+public abstract class AccessRequest<T extends AccessRequest<T>> extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest, MessageAuthSupport<RadiusRequest> {
 
-    Logger logger = LogManager.getLogger();
+    protected static final Logger logger = LogManager.getLogger();
 
-    SecureRandom RANDOM = new SecureRandom();
+    protected static final SecureRandom RANDOM = new SecureRandom();
 
-    byte USER_PASSWORD = 2;
-    byte CHAP_PASSWORD = 3;
-    byte EAP_MESSAGE = 79;
-    Set<Byte> AUTH_ATTRS = new HashSet<>(Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, EAP_MESSAGE));
+    protected static final byte USER_PASSWORD = 2;
+    protected static final byte CHAP_PASSWORD = 3;
+    protected static final byte EAP_MESSAGE = 79;
+    private static final Set<Byte> AUTH_ATTRS = new HashSet<>(Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, EAP_MESSAGE));
 
-    byte USER_NAME = 1;
+    public static byte USER_NAME = 1;
 
-    /**
-     * Create copy of AccessRequest with new authenticator and encoded attributes
-     *
-     * @param sharedSecret shared secret that secures the communication
-     *                     with the other Radius server/client
-     * @param newAuth      authenticator to use to encode PAP password,
-     *                     nullable if using different auth protocol
-     * @return RadiusPacket with new authenticator and encoded attributes
-     * @throws RadiusPacketException if invalid or missing attributes
-     */
-    T encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
-
-    /**
-     * AccessRequest overrides this method to generate a randomized authenticator (RFC 2865)
-     * and encode required attributes (e.g. User-Password).
-     *
-     * @param sharedSecret shared secret that secures the communication
-     *                     with the other Radius server/client
-     * @return RadiusPacket with new authenticator and encoded attributes
-     */
-    @Override
-    default RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
-        if (sharedSecret == null || sharedSecret.isEmpty())
-            throw new IllegalArgumentException("Shared secret cannot be null/empty");
-
-        // create authenticator only if needed - maintain idempotence
-        byte[] newAuth = getAuthenticator() == null ? random16bytes() : getAuthenticator();
-
-        return encodeAuthMechanism(sharedSecret, newAuth)
-                .encodeMessageAuth(sharedSecret, newAuth);
-    }
-
-    /**
-     * Verify packet for specific auth protocols
-     *
-     * @param sharedSecret shared secret
-     * @throws RadiusPacketException if invalid or missing attributes
-     */
-    T decodeAuthMechanism(String sharedSecret) throws RadiusPacketException;
-
-    /**
-     * AccessRequest cannot verify authenticator as they
-     * contain random bytes.
-     * <p>
-     * It can, however, check the User-Password/Challenge attributes
-     * are present and attempt decryption, depending on auth protocol.
-     *
-     * @param sharedSecret shared secret, only applicable for PAP
-     * @return decoded request
-     */
-    @Override
-    default T decodeRequest(String sharedSecret) throws RadiusPacketException {
-        verifyMessageAuth(sharedSecret, getAuthenticator());
-        return decodeAuthMechanism(sharedSecret);
+    protected AccessRequest(Dictionary dictionary, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
+        super(dictionary, ACCESS_REQUEST, id, authenticator, attributes);
     }
 
     /**
@@ -138,6 +88,62 @@ public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest
         byte[] randomBytes = new byte[16];
         RANDOM.nextBytes(randomBytes);
         return randomBytes;
+    }
+
+    /**
+     * Create copy of AccessRequest with new authenticator and encoded attributes
+     *
+     * @param sharedSecret shared secret that secures the communication
+     *                     with the other Radius server/client
+     * @param newAuth      authenticator to use to encode PAP password,
+     *                     nullable if using different auth protocol
+     * @return RadiusPacket with new authenticator and encoded attributes
+     * @throws RadiusPacketException if invalid or missing attributes
+     */
+    abstract T encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
+
+    /**
+     * AccessRequest overrides this method to generate a randomized authenticator (RFC 2865)
+     * and encode required attributes (e.g. User-Password).
+     *
+     * @param sharedSecret shared secret that secures the communication
+     *                     with the other Radius server/client
+     * @return RadiusPacket with new authenticator and encoded attributes
+     */
+    @Override
+    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+        if (sharedSecret == null || sharedSecret.isEmpty())
+            throw new IllegalArgumentException("Shared secret cannot be null/empty");
+
+        // create authenticator only if needed - maintain idempotence
+        byte[] newAuth = getAuthenticator() == null ? random16bytes() : getAuthenticator();
+
+        return encodeAuthMechanism(sharedSecret, newAuth)
+                .encodeMessageAuth(sharedSecret, newAuth);
+    }
+
+    /**
+     * Verify packet for specific auth protocols
+     *
+     * @param sharedSecret shared secret
+     * @throws RadiusPacketException if invalid or missing attributes
+     */
+    protected abstract T decodeAuthMechanism(String sharedSecret) throws RadiusPacketException;
+
+    /**
+     * AccessRequest cannot verify authenticator as they
+     * contain random bytes.
+     * <p>
+     * It can, however, check the User-Password/Challenge attributes
+     * are present and attempt decryption, depending on auth protocol.
+     *
+     * @param sharedSecret shared secret, only applicable for PAP
+     * @return decoded request
+     */
+    @Override
+    public T decodeRequest(String sharedSecret) throws RadiusPacketException {
+        verifyMessageAuth(sharedSecret, getAuthenticator());
+        return decodeAuthMechanism(sharedSecret);
     }
 
     interface AccessRequestConstructor {

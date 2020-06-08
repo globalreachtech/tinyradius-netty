@@ -23,7 +23,7 @@ public class MemoryDictionary implements WritableDictionary {
      * Returns the specified AttributeType object.
      *
      * @param vendorCode vendor ID or -1 for "no vendor"
-     * @param type   attribute type code
+     * @param type       attribute type code
      * @return AttributeType or null
      */
     @Override

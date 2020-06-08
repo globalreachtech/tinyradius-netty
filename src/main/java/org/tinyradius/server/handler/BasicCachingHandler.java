@@ -89,14 +89,14 @@ public class BasicCachingHandler<I extends RequestCtx, O extends ResponseCtx> ex
         private final InetSocketAddress remoteAddress;
         private final byte[] authenticator;
 
-        private static Packet from(RequestCtx ctx) {
-            return new Packet(ctx.getRequest().getId(), ctx.getEndpoint().getAddress(), ctx.getRequest().getAuthenticator());
-        }
-
         private Packet(int identifier, InetSocketAddress remoteAddress, byte[] authenticator) {
             this.identifier = identifier;
             this.remoteAddress = remoteAddress;
             this.authenticator = authenticator;
+        }
+
+        private static Packet from(RequestCtx ctx) {
+            return new Packet(ctx.getRequest().getId(), ctx.getEndpoint().getAddress(), ctx.getRequest().getAuthenticator());
         }
 
         @Override

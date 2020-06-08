@@ -3,7 +3,6 @@ package org.tinyradius.packet.request;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -14,14 +13,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
-public class AccessRequestChap extends BaseRadiusPacket<RadiusRequest> implements AccessRequest<AccessRequestChap> {
+public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
 
     protected static final byte CHAP_CHALLENGE = 60;
 
     public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
+        super(dictionary, identifier, authenticator, attributes);
     }
 
     /**

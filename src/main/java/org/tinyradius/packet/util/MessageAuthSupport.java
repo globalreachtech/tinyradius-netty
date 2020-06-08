@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.util.Attributes;
-import org.tinyradius.attribute.util.NestedAttributeHolder;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -22,30 +21,9 @@ import java.util.Objects;
  *
  * @param <T> same type as implementation
  */
-public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPacket<T>, NestedAttributeHolder.Writable<T> {
+public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPacket<T> {
 
     byte MESSAGE_AUTHENTICATOR = 80;
-
-    default void verifyMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
-
-        if (msgAuthAttr.isEmpty())
-            return;
-
-        if (msgAuthAttr.size() > 1)
-            throw new RadiusPacketException("Packet should have at most one Message-Authenticator attribute, has " + msgAuthAttr.size());
-
-        final byte[] messageAuth = msgAuthAttr.get(0).getValue();
-
-        if (!Arrays.equals(messageAuth, computeMessageAuth(this, sharedSecret, requestAuth)))
-            throw new RadiusPacketException("Message-Authenticator attribute check failed");
-    }
-
-    default byte[] computeMessageAuth(RadiusPacket<?> packet, String sharedSecret, byte[] requestAuth) {
-        Objects.requireNonNull(requestAuth, "Request Authenticator cannot be null for Message-Authenticator hashing");
-        final byte[] messageAuthInput = calcMessageAuthInput(packet, requestAuth);
-        return getHmacMd5(sharedSecret).doFinal(messageAuthInput);
-    }
 
     static byte[] calcMessageAuthInput(RadiusPacket<?> packet, byte[] requestAuth) {
         final ByteBuf buf = Unpooled.buffer()
@@ -76,6 +54,27 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             throw new IllegalArgumentException(e); // never happens
         }
+    }
+
+    default void verifyMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+        final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
+
+        if (msgAuthAttr.isEmpty())
+            return;
+
+        if (msgAuthAttr.size() > 1)
+            throw new RadiusPacketException("Packet should have at most one Message-Authenticator attribute, has " + msgAuthAttr.size());
+
+        final byte[] messageAuth = msgAuthAttr.get(0).getValue();
+
+        if (!Arrays.equals(messageAuth, computeMessageAuth(this, sharedSecret, requestAuth)))
+            throw new RadiusPacketException("Message-Authenticator attribute check failed");
+    }
+
+    default byte[] computeMessageAuth(RadiusPacket<?> packet, String sharedSecret, byte[] requestAuth) {
+        Objects.requireNonNull(requestAuth, "Request Authenticator cannot be null for Message-Authenticator hashing");
+        final byte[] messageAuthInput = calcMessageAuthInput(packet, requestAuth);
+        return getHmacMd5(sharedSecret).doFinal(messageAuthInput);
     }
 
     /**

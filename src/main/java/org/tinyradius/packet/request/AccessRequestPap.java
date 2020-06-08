@@ -3,7 +3,6 @@ package org.tinyradius.packet.request;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -15,9 +14,8 @@ import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
-public class AccessRequestPap extends BaseRadiusPacket<RadiusRequest> implements AccessRequest<AccessRequestPap> {
+public class AccessRequestPap extends AccessRequest<AccessRequestPap> {
 
     // password needs to be set - either using withPassword() or from decodeRequest()
     private final String password;
@@ -27,8 +25,43 @@ public class AccessRequestPap extends BaseRadiusPacket<RadiusRequest> implements
     }
 
     public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes, String plaintext) {
-        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
+        super(dictionary, identifier, authenticator, attributes);
         this.password = plaintext;
+    }
+
+    private static String stripNullPadding(String s) {
+        int i = s.indexOf('\0');
+        return (i > 0) ? s.substring(0, i) : s;
+    }
+
+    private static byte[] xor16(byte[] src1, int src1offset, byte[] src2) {
+
+        byte[] dst = new byte[16];
+
+        requireNonNull(src1, "src1 is null");
+        requireNonNull(src2, "src2 is null");
+
+        if (src1offset < 0)
+            throw new IndexOutOfBoundsException("src1offset is less than 0");
+        if ((src1offset + 16) > src1.length)
+            throw new IndexOutOfBoundsException("bytes in src1 is less than src1offset plus 16");
+        if (16 > src2.length)
+            throw new IndexOutOfBoundsException("bytes in src2 is less than 16");
+
+        for (int i = 0; i < 16; i++) {
+            dst[i] = (byte) (src1[i + src1offset] ^ src2[i]);
+        }
+
+        return dst;
+    }
+
+    static byte[] pad(byte[] val) {
+        requireNonNull(val, "Byte array cannot be null");
+
+        int length = Math.max(
+                (int) (Math.ceil((double) val.length / 16) * 16), 16);
+
+        return Arrays.copyOf(val, length);
     }
 
     /**
@@ -154,46 +187,10 @@ public class AccessRequestPap extends BaseRadiusPacket<RadiusRequest> implements
         return stripNullPadding(new String(buffer.array(), UTF_8));
     }
 
-    private static String stripNullPadding(String s) {
-        int i = s.indexOf('\0');
-        return (i > 0) ? s.substring(0, i) : s;
-    }
-
-
     private byte[] md5(byte[] a, byte[] b) {
         MessageDigest md = RadiusPacket.getMd5Digest();
         md.update(a);
         return md.digest(b);
-    }
-
-    private static byte[] xor16(byte[] src1, int src1offset, byte[] src2) {
-
-        byte[] dst = new byte[16];
-
-        requireNonNull(src1, "src1 is null");
-        requireNonNull(src2, "src2 is null");
-
-        if (src1offset < 0)
-            throw new IndexOutOfBoundsException("src1offset is less than 0");
-        if ((src1offset + 16) > src1.length)
-            throw new IndexOutOfBoundsException("bytes in src1 is less than src1offset plus 16");
-        if (16 > src2.length)
-            throw new IndexOutOfBoundsException("bytes in src2 is less than 16");
-
-        for (int i = 0; i < 16; i++) {
-            dst[i] = (byte) (src1[i + src1offset] ^ src2[i]);
-        }
-
-        return dst;
-    }
-
-    static byte[] pad(byte[] val) {
-        requireNonNull(val, "Byte array cannot be null");
-
-        int length = Math.max(
-                (int) (Math.ceil((double) val.length / 16) * 16), 16);
-
-        return Arrays.copyOf(val, length);
     }
 
     @Override

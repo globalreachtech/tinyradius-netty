@@ -35,15 +35,6 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
         super(dictionary, vendorId, type, convertAndCheck(address, prefixLength));
     }
 
-    /**
-     * Returns the attribute value as a string of the format "x:x:x:x:x:x:x:x/yy".
-     */
-    @Override
-    public String getValueString() {
-        final byte[] data = getValue();
-        return extractAddress(data).getHostAddress() + "/" + toUnsignedInt(data[1]);
-    }
-
     private static byte[] convertAndCheck(InetAddress address, int prefixLength) {
         if (prefixLength > 128 || prefixLength < 0)
             throw new IllegalArgumentException("IPv6 Prefix Prefix-Length should be between 0 and 128, declared: " + prefixLength);
@@ -104,5 +95,14 @@ public class Ipv6PrefixAttribute extends RadiusAttribute {
             throw new IllegalArgumentException("Bad IPv6 prefix, invalid IPv6 address: "
                     + Arrays.toString(Arrays.copyOfRange(data, 2, data.length)), e);
         }
+    }
+
+    /**
+     * Returns the attribute value as a string of the format "x:x:x:x:x:x:x:x/yy".
+     */
+    @Override
+    public String getValueString() {
+        final byte[] data = getValue();
+        return extractAddress(data).getHostAddress() + "/" + toUnsignedInt(data[1]);
     }
 }

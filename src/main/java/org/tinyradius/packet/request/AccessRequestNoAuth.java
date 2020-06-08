@@ -2,16 +2,13 @@ package org.tinyradius.packet.request;
 
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.BaseRadiusPacket;
 
 import java.util.List;
 
-import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
-
-class AccessRequestNoAuth extends BaseRadiusPacket<RadiusRequest> implements AccessRequest<AccessRequestNoAuth> {
+class AccessRequestNoAuth extends AccessRequest<AccessRequestNoAuth> {
 
     public AccessRequestNoAuth(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
+        super(dictionary, identifier, authenticator, attributes);
     }
 
     @Override

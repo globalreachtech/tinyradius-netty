@@ -97,7 +97,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof BaseRadiusPacket)) return false;
-        BaseRadiusPacket that = (BaseRadiusPacket) o;
+        BaseRadiusPacket<?> that = (BaseRadiusPacket<?>) o;
         return type == that.type &&
                 id == that.id &&
                 Objects.equals(attributes, that.attributes) &&
