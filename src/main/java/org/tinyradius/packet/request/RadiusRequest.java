@@ -10,7 +10,7 @@ import java.util.List;
 import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 
-public interface RadiusRequest<T extends RadiusRequest<T>> extends RadiusPacket<T> {
+public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
 
     /**
      * Creates a RadiusPacket object. Depending on the passed type, an
@@ -24,7 +24,7 @@ public interface RadiusRequest<T extends RadiusRequest<T>> extends RadiusPacket<
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    static RadiusRequest<?> create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    static RadiusRequest create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
             case ACCESS_REQUEST:
                 return AccessRequest.create(dictionary, identifier, authenticator, attributes);
@@ -45,7 +45,7 @@ public interface RadiusRequest<T extends RadiusRequest<T>> extends RadiusPacket<
      * @return RadiusPacket with new authenticator and/or encoded attributes
      * @throws RadiusPacketException if invalid or missing attributes
      */
-    T encodeRequest(String sharedSecret) throws RadiusPacketException;
+    RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException;
 
     /**
      * Checks the request authenticator against the supplied shared secret.
@@ -53,7 +53,7 @@ public interface RadiusRequest<T extends RadiusRequest<T>> extends RadiusPacket<
      * @param sharedSecret shared secret
      * @throws RadiusPacketException if authenticator check fails
      */
-    default RadiusRequest<T> decodeRequest(String sharedSecret) throws RadiusPacketException {
+    default RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
         verifyPacketAuth(sharedSecret, new byte[16]);
         return this;
     }

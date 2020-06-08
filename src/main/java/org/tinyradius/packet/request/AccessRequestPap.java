@@ -11,12 +11,13 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
-public class AccessRequestPap extends BaseRadiusPacket<AccessRequestPap> implements AccessRequest<AccessRequestPap> {
+public class AccessRequestPap extends BaseRadiusPacket<RadiusRequest> implements AccessRequest<AccessRequestPap> {
 
     // password needs to be set - either using withPassword() or from decodeRequest()
     private final String password;
@@ -65,10 +66,14 @@ public class AccessRequestPap extends BaseRadiusPacket<AccessRequestPap> impleme
             throw new RadiusPacketException("Could not encode PAP attributes, password not set");
         }
 
-        return new AccessRequestPap(getDictionary(), getId(), newAuth, getAttributes(), password)
-                .removeAttributes(USER_PASSWORD)
-                .addAttribute(Attributes.create(getDictionary(), -1, USER_PASSWORD,
-                        encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
+        final List<RadiusAttribute> attributes = getAttributes().stream()
+                .filter(a -> a.getType() != USER_PASSWORD)
+                .collect(Collectors.toList());
+
+        attributes.add(Attributes.create(getDictionary(), -1, USER_PASSWORD,
+                encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
+
+        return new AccessRequestPap(getDictionary(), getId(), newAuth, attributes, password);
     }
 
     /**
@@ -94,7 +99,7 @@ public class AccessRequestPap extends BaseRadiusPacket<AccessRequestPap> impleme
     }
 
     @Override
-    public AccessRequestPap verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
+    public AccessRequestPap decodeAuthMechanism(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> attrs = getAttributes(USER_PASSWORD);
         if (attrs.size() != 1) {
             throw new RadiusPacketException("AccessRequest (PAP) should have exactly one User-Password attribute, has " + attrs.size());

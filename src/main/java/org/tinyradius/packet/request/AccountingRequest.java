@@ -11,7 +11,7 @@ import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 /**
  * This class represents a Radius packet of the type Accounting-Request.
  */
-public class AccountingRequest extends BaseRadiusPacket<AccountingRequest> implements RadiusRequest<AccountingRequest> {
+public class AccountingRequest extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest {
 
     /**
      * Constructs an Accounting-Request packet to be sent to a Radius server.

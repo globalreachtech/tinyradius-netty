@@ -28,7 +28,7 @@ class AccessRequestChapTest {
         final AccessRequestChap accessRequestChap = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList())
                 .withPassword("myPw");
 
-        final AccessRequestChap encoded = accessRequestChap.encodeRequest(sharedSecret);
+        final RadiusRequest encoded = accessRequestChap.encodeRequest(sharedSecret);
 
         assertNotNull(encoded.getAuthenticator());
         encoded.decodeRequest(sharedSecret);
@@ -45,7 +45,7 @@ class AccessRequestChapTest {
         request2.decodeRequest(sharedSecret);
 
         // add one more pw attribute
-        final AccessRequestChap request3 = request2.addAttribute(create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
+        final RadiusRequest request3 = request2.addAttribute(create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
         assertTrue(e.getMessage().contains("should have exactly one CHAP-Password"));
     }
@@ -61,11 +61,9 @@ class AccessRequestChapTest {
         assertFalse(emptyRequest.getAttribute("User-Password").isPresent());
         assertFalse(emptyRequest.getAttribute("CHAP-Password").isPresent());
 
-        AccessRequestChap request = emptyRequest
-                .addAttribute(USER_NAME, user)
-                .withPassword(plaintextPw);
+        final AccessRequestChap request = (AccessRequestChap) emptyRequest.addAttribute(USER_NAME, user);
 
-        final AccessRequestChap encoded = request.encodeRequest(sharedSecret);
+        final RadiusRequest encoded = request.withPassword(plaintextPw).encodeRequest(sharedSecret);
         assertEquals(request.getType(), encoded.getType());
         assertEquals(request.getId(), encoded.getId());
         assertEquals(user, encoded.getAttribute(USER_NAME).get().getValueString());

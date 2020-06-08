@@ -22,7 +22,7 @@ import java.util.Objects;
  *
  * @param <T> same type as implementation
  */
-public interface MessageAuthSupport<T extends MessageAuthSupport<T>> extends RadiusPacket<T>, NestedAttributeHolder.Writable<T> {
+public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPacket<T>, NestedAttributeHolder.Writable<T> {
 
     byte MESSAGE_AUTHENTICATOR = 80;
 
@@ -37,24 +37,24 @@ public interface MessageAuthSupport<T extends MessageAuthSupport<T>> extends Rad
 
         final byte[] messageAuth = msgAuthAttr.get(0).getValue();
 
-        if (!Arrays.equals(messageAuth, computeMessageAuth(sharedSecret, requestAuth)))
+        if (!Arrays.equals(messageAuth, computeMessageAuth(this, sharedSecret, requestAuth)))
             throw new RadiusPacketException("Message-Authenticator attribute check failed");
     }
 
-    default byte[] computeMessageAuth(String sharedSecret, byte[] requestAuth) {
+    default byte[] computeMessageAuth(RadiusPacket<?> packet, String sharedSecret, byte[] requestAuth) {
         Objects.requireNonNull(requestAuth, "Request Authenticator cannot be null for Message-Authenticator hashing");
-        final Mac mac = getHmacMd5(sharedSecret);
-        return mac.doFinal(calcMessageAuthInput(requestAuth));
+        final byte[] messageAuthInput = calcMessageAuthInput(packet, requestAuth);
+        return getHmacMd5(sharedSecret).doFinal(messageAuthInput);
     }
 
-    default byte[] calcMessageAuthInput(byte[] requestAuth) {
+    static byte[] calcMessageAuthInput(RadiusPacket<?> packet, byte[] requestAuth) {
         final ByteBuf buf = Unpooled.buffer()
-                .writeByte(getType())
-                .writeByte(getId())
+                .writeByte(packet.getType())
+                .writeByte(packet.getId())
                 .writeShort(0) // placeholder
                 .writeBytes(requestAuth);
 
-        for (RadiusAttribute attribute : getAttributes()) {
+        for (RadiusAttribute attribute : packet.getAttributes()) {
             if (attribute.getVendorId() == -1 && attribute.getType() == MESSAGE_AUTHENTICATOR)
                 buf.writeByte(MESSAGE_AUTHENTICATOR)
                         .writeByte(18)
@@ -93,7 +93,7 @@ public interface MessageAuthSupport<T extends MessageAuthSupport<T>> extends Rad
                 .removeAttributes(MESSAGE_AUTHENTICATOR)
                 .addAttribute(Attributes.create(getDictionary(), -1, MESSAGE_AUTHENTICATOR, buffer.array()));
 
-        buffer.put(newPacket.computeMessageAuth(sharedSecret, requestAuth));
+        buffer.put(computeMessageAuth(newPacket, sharedSecret, requestAuth));
 
         return newPacket;
     }

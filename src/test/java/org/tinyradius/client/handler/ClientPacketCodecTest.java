@@ -15,6 +15,7 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.request.AccessRequestPap;
+import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
 import org.tinyradius.util.RadiusPacketException;
@@ -100,7 +101,7 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         final byte id = (byte) random.nextInt(256);
 
-        final AccessRequestPap accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList(), password)
+        final RadiusRequest accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList(), password)
                 .addAttribute(USER_NAME, username);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
@@ -127,7 +128,7 @@ class ClientPacketCodecTest {
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        AccessRequestPap packet = new AccessRequestPap(dictionary, (byte) id, null, Collections.emptyList(), password)
+        RadiusRequest packet = new AccessRequestPap(dictionary, (byte) id, null, Collections.emptyList(), password)
                 .addAttribute(USER_NAME, username);
         final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
 

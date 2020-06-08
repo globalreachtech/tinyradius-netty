@@ -24,7 +24,7 @@ class AccountingRequestTest {
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
-    void encodeAccountingRequest() throws RadiusPacketException {
+    void encodeAccountingRequest() {
 
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
@@ -48,11 +48,11 @@ class AccountingRequestTest {
     void encodeNewAccountingRequestWithUsernameAndAcctStatus() throws RadiusPacketException {
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
-        AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null, new ArrayList<>())
+        RadiusRequest request = new AccountingRequest(dictionary, (byte) 1, null, new ArrayList<>())
                 .addAttribute("User-Name", user)
                 .addAttribute("Acct-Status-Type", "7");
 
-        AccountingRequest encoded = request.encodeRequest(sharedSecret);
+        RadiusRequest encoded = request.encodeRequest(sharedSecret);
         assertEquals(request.getAttribute(USER_NAME), encoded.getAttribute(USER_NAME));
         assertEquals(7, ((IntegerAttribute) encoded.getAttribute(ACCT_STATUS_TYPE).get()).getValueInt());
         assertEquals(request.getAttribute(ACCT_STATUS_TYPE), encoded.getAttribute(ACCT_STATUS_TYPE));

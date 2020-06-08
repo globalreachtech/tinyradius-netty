@@ -10,8 +10,8 @@ import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.BaseRadiusPacket;
-import org.tinyradius.packet.request.AccessRequest;
 import org.tinyradius.packet.request.AccessRequestEap;
+import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.io.IOException;
@@ -48,7 +48,7 @@ class MessageAuthSupportTest {
     @Test
     void testEncode() throws Exception {
         // impl under test
-        final AccessRequest<?> encodedRequest = new AccessRequestEap(dictionary, (byte) 1, null, Collections.emptyList())
+        final RadiusRequest encodedRequest = new AccessRequestEap(dictionary, (byte) 1, null, Collections.emptyList())
                 .encodeRequest(secret);
         final byte[] actualMsgAuth = encodedRequest.getAttributes().get(0).getValue();
 

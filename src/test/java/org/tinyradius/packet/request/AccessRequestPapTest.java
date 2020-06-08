@@ -23,7 +23,7 @@ class AccessRequestPapTest {
     void encodeVerify() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
 
-        final AccessRequestPap encoded = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList(), "myPassword")
+        final RadiusRequest encoded = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList(), "myPassword")
                 .encodeRequest(sharedSecret);
 
         assertNotNull(encoded.getAuthenticator());
@@ -37,12 +37,12 @@ class AccessRequestPapTest {
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one pw attribute
-        final AccessRequestPap request2 = request1.withPassword("myPassword")
+        final RadiusRequest request2 = request1.withPassword("myPassword")
                 .encodeRequest(sharedSecret);
         request2.decodeRequest(sharedSecret);
 
         // add one pw attribute
-        final AccessRequestPap request3 = request2.addAttribute(Attributes.create(dictionary, -1, USER_PASSWORD, new byte[16]));
+        final RadiusRequest request3 = request2.addAttribute(Attributes.create(dictionary, -1, USER_PASSWORD, new byte[16]));
         assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
     }
 
@@ -53,14 +53,14 @@ class AccessRequestPapTest {
         String password2 = "myPw2";
         String sharedSecret = "sharedSecret1";
 
-        AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList(), password1)
+        RadiusRequest request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList(), password1)
                 .addAttribute(USER_NAME, user);
 
         // encode
-        final AccessRequestPap encoded = request.encodeRequest(sharedSecret);
+        final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
 
         final byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
-                request.getPassword().getBytes(UTF_8), encoded.getAuthenticator(), sharedSecret);
+                ((AccessRequestPap) request).getPassword().getBytes(UTF_8), encoded.getAuthenticator(), sharedSecret);
 
         // check correct encode
         assertEquals(1, encoded.getType());
@@ -87,7 +87,7 @@ class AccessRequestPapTest {
         String sharedSecret = "sharedSecret1";
 
         AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList(), plaintextPw);
-        final AccessRequestPap encoded = request.encodeRequest(sharedSecret);
+        final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
 
         assertTrue(encoded.checkPassword(plaintextPw));
         assertFalse(encoded.checkPassword("badPw"));

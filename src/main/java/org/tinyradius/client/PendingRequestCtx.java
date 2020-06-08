@@ -13,7 +13,7 @@ public class PendingRequestCtx extends RequestCtx {
 
     private final Promise<RadiusResponse> response;
 
-    public PendingRequestCtx(RadiusRequest<?> packet, RadiusEndpoint endpoint, Promise<RadiusResponse> response) {
+    public PendingRequestCtx(RadiusRequest packet, RadiusEndpoint endpoint, Promise<RadiusResponse> response) {
         super(packet, endpoint);
         this.response = response;
     }

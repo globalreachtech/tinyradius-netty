@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
-public class AccessRequestEap extends BaseRadiusPacket<AccessRequestEap> implements AccessRequest<AccessRequestEap> {
+public class AccessRequestEap extends BaseRadiusPacket<RadiusRequest> implements AccessRequest<AccessRequestEap> {
 
     public AccessRequestEap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
@@ -21,7 +21,7 @@ public class AccessRequestEap extends BaseRadiusPacket<AccessRequestEap> impleme
     }
 
     @Override
-    public AccessRequestEap verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
+    public AccessRequestEap decodeAuthMechanism(String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> eapMessageAttr = getAttributes(EAP_MESSAGE);
         if (eapMessageAttr.isEmpty()) {
             throw new RadiusPacketException("EAP-Message expected but not found");

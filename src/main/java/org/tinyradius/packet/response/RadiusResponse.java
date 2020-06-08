@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.tinyradius.packet.util.PacketType.*;
 
-public interface RadiusResponse<T extends RadiusResponse<T>> extends RadiusPacket<T> {
+public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
 
     /**
      * Creates a RadiusPacket object. Depending on the passed type, an
@@ -23,7 +23,7 @@ public interface RadiusResponse<T extends RadiusResponse<T>> extends RadiusPacke
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    static RadiusResponse<?> create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    static RadiusResponse create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
             case ACCESS_ACCEPT:
             case ACCESS_REJECT:
@@ -43,7 +43,7 @@ public interface RadiusResponse<T extends RadiusResponse<T>> extends RadiusPacke
      * @param requestAuth  request packet authenticator
      * @return new RadiusPacket instance with same properties and valid authenticator
      */
-    T encodeResponse(String sharedSecret, byte[] requestAuth);
+    RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth);
 
     /**
      * Verifies the response authenticator against the supplied shared secret.
@@ -51,9 +51,9 @@ public interface RadiusResponse<T extends RadiusResponse<T>> extends RadiusPacke
      * @param sharedSecret shared secret
      * @param requestAuth  authenticator for corresponding request
      * @throws RadiusPacketException if authenticator check fails
-     * @return
+     * @return decoded / verified response
      */
-    default RadiusResponse<T> decodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    default RadiusResponse decodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         verifyPacketAuth(sharedSecret, requestAuth);
         return this;
     }

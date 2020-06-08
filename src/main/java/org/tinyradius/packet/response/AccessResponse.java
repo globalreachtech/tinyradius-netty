@@ -8,7 +8,7 @@ import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
-public class AccessResponse extends BaseRadiusPacket<AccessResponse> implements RadiusResponse<AccessResponse>, MessageAuthSupport<AccessResponse> {
+public class AccessResponse extends BaseRadiusPacket<RadiusResponse> implements RadiusResponse, MessageAuthSupport<RadiusResponse> {
 
     public AccessResponse(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, type, identifier, authenticator, attributes);
@@ -16,7 +16,7 @@ public class AccessResponse extends BaseRadiusPacket<AccessResponse> implements 
 
     @Override
     public AccessResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
-        final AccessResponse response = encodeMessageAuth(sharedSecret, requestAuth);
+        final RadiusResponse response = encodeMessageAuth(sharedSecret, requestAuth);
         final byte[] newAuth = response.createHashedAuthenticator(sharedSecret, requestAuth);
 
         return new AccessResponse(response.getDictionary(), response.getType(), response.getId(), newAuth, response.getAttributes());

@@ -24,7 +24,7 @@ import static org.tinyradius.attribute.util.Attributes.create;
  * outbound packets. This avoids problem with mismatched requests/responses when using
  * packetIdentifier, which is limited to 256 unique IDs.
  */
-public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse<?>, PendingRequestCtx> {
+public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, PendingRequestCtx> {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -40,7 +40,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse<?>, Pen
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
-        final RadiusRequest<?> packet = msg.getRequest();
+        final RadiusRequest packet = msg.getRequest();
         final String requestId = nextProxyStateId();
 
         try {
@@ -49,7 +49,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse<?>, Pen
              * however we need to generate a copy of the authenticator now for later lookups
              * encodeRequest() should be idempotent anyway
              */
-            final RadiusRequest<?> encodedRequest = packet
+            final RadiusRequest encodedRequest = packet
                     .addAttribute(create(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)))
                     .encodeRequest(msg.getEndpoint().getSecret());
 
@@ -64,7 +64,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse<?>, Pen
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, RadiusResponse<?> msg, List<Object> out) {
+    protected void decode(ChannelHandlerContext ctx, RadiusResponse msg, List<Object> out) {
 
         // retrieve my Proxy-State attribute (the last)
         List<RadiusAttribute> proxyStates = msg.getAttributes(PROXY_STATE);
@@ -89,7 +89,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse<?>, Pen
         }
 
         try {
-            final RadiusResponse<?> response = msg.decodeResponse(request.secret, request.authenticator)
+            final RadiusResponse response = msg.decodeResponse(request.secret, request.authenticator)
                     .removeLastAttribute(PROXY_STATE);
 
             logger.info("Found request for response identifier => {}", response.getId());

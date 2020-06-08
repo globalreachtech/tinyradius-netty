@@ -11,11 +11,12 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
-public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> implements AccessRequest<AccessRequestChap> {
+public class AccessRequestChap extends BaseRadiusPacket<RadiusRequest> implements AccessRequest<AccessRequestChap> {
 
     protected static final byte CHAP_CHALLENGE = 60;
 
@@ -38,12 +39,15 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
 
         byte[] challenge = AccessRequest.random16bytes();
 
-        return this
-                .removeAttributes(CHAP_PASSWORD)
-                .removeAttributes(CHAP_CHALLENGE)
-                .addAttribute(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge))
-                .addAttribute(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
-                        computeChapPassword((byte) RANDOM.nextInt(256), plaintext, challenge)));
+        final List<RadiusAttribute> attributes = getAttributes().stream()
+                .filter(a -> a.getType() != CHAP_PASSWORD && a.getType() != CHAP_CHALLENGE)
+                .collect(Collectors.toList());
+
+        attributes.add(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge));
+        attributes.add(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
+                computeChapPassword((byte) RANDOM.nextInt(256), plaintext, challenge)));
+
+        return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), attributes);
     }
 
     /**
@@ -109,7 +113,7 @@ public class AccessRequestChap extends BaseRadiusPacket<AccessRequestChap> imple
     }
 
     @Override
-    public AccessRequestChap verifyAuthMechanism(String sharedSecret) throws RadiusPacketException {
+    public AccessRequestChap decodeAuthMechanism(String sharedSecret) throws RadiusPacketException {
         validateChapAttributes();
         return this;
     }

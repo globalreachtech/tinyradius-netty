@@ -37,7 +37,7 @@ class PacketCodecTest {
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final InetSocketAddress remoteAddress = new InetSocketAddress(0);
 
-    private RadiusRequest<?> addBytesToPacket(RadiusRequest<?> packet, int targetSize) {
+    private RadiusRequest addBytesToPacket(RadiusRequest packet, int targetSize) {
         int dataSize = targetSize - HEADER_LENGTH;
         for (int i = 0; i < Math.floor((double) dataSize / 200); i++) {
             // add 200 octets per iteration (198 + 2-byte header)
@@ -236,14 +236,14 @@ class PacketCodecTest {
 
         final byte id = (byte) random.nextInt(256);
 
-        final AccessRequestPap request = new AccessRequestPap(dictionary, id, null, Collections.emptyList())
+        final RadiusRequest request = new AccessRequestPap(dictionary, id, null, Collections.emptyList())
                 .withPassword(plaintextPw)
                 .addAttribute(USER_NAME, user);
-        final AccessRequestPap encodedRequest = request.encodeRequest(sharedSecret);
+        final RadiusRequest encodedRequest = request.encodeRequest(sharedSecret);
 
-        final AccessResponse response = new AccessResponse(dictionary, (byte) 2, id, null, Collections.emptyList())
+        final RadiusResponse response = new AccessResponse(dictionary, (byte) 2, id, null, Collections.emptyList())
                 .addAttribute(create(dictionary, -1, (byte) 33, "state3333".getBytes(UTF_8)));
-        final AccessResponse encodedResponse = response.encodeResponse(sharedSecret, encodedRequest.getAuthenticator());
+        final RadiusResponse encodedResponse = response.encodeResponse(sharedSecret, encodedRequest.getAuthenticator());
 
         DatagramPacket datagramPacket = toDatagram(encodedResponse, remoteAddress);
         RadiusResponse packet = fromDatagramResponse(dictionary, datagramPacket);

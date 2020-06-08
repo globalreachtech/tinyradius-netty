@@ -22,7 +22,7 @@ class AccessRequestEapTest {
         final AccessRequestEap accessRequestEap = new AccessRequestEap(dictionary, (byte) 1, null,
                 Collections.singletonList(Attributes.create(dictionary, -1, EAP_MESSAGE, new byte[16])));
 
-        final AccessRequestEap encoded = accessRequestEap.encodeRequest(sharedSecret);
+        final RadiusRequest encoded = accessRequestEap.encodeRequest(sharedSecret);
 
         assertNotNull(encoded.getAuthenticator());
         encoded.decodeRequest(sharedSecret);
@@ -34,14 +34,14 @@ class AccessRequestEapTest {
         final AccessRequestEap request = new AccessRequestEap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
 
-        final AccessRequestEap request1 = request.addAttribute(Attributes.create(dictionary, -1, EAP_MESSAGE, new byte[16]));
+        final RadiusRequest request1 = request.addAttribute(Attributes.create(dictionary, -1, EAP_MESSAGE, new byte[16]));
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one messageAuth
-        final AccessRequestEap request2 = request1.encodeRequest(sharedSecret);
+        final RadiusRequest request2 = request1.encodeRequest(sharedSecret);
         request2.decodeRequest(sharedSecret);
 
-        final AccessRequestEap request3 = request2.addAttribute(Attributes.create(dictionary, -1, MESSAGE_AUTHENTICATOR, new byte[16]));
+        final RadiusRequest request3 = request2.addAttribute(Attributes.create(dictionary, -1, MESSAGE_AUTHENTICATOR, new byte[16]));
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
         assertTrue(e.getMessage().toLowerCase().contains("at most one message-authenticator"));
     }

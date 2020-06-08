@@ -8,7 +8,7 @@ import java.util.List;
 
 import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 
-class AccessRequestNoAuth extends BaseRadiusPacket<AccessRequestNoAuth> implements AccessRequest<AccessRequestNoAuth> {
+class AccessRequestNoAuth extends BaseRadiusPacket<RadiusRequest> implements AccessRequest<AccessRequestNoAuth> {
 
     public AccessRequestNoAuth(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCESS_REQUEST, identifier, authenticator, attributes);
@@ -20,7 +20,7 @@ class AccessRequestNoAuth extends BaseRadiusPacket<AccessRequestNoAuth> implemen
     }
 
     @Override
-    public AccessRequestNoAuth verifyAuthMechanism(String sharedSecret) {
+    public AccessRequestNoAuth decodeAuthMechanism(String sharedSecret) {
         return this;
     }
 

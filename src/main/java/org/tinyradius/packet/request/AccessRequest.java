@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toSet;
 /**
  * This class represents an Access-Request Radius packet.
  */
-public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest<T>, MessageAuthSupport<T> {
+public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest, MessageAuthSupport<RadiusRequest> {
 
     Logger logger = LogManager.getLogger();
 
@@ -30,7 +30,6 @@ public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest
     Set<Byte> AUTH_ATTRS = new HashSet<>(Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, EAP_MESSAGE));
 
     byte USER_NAME = 1;
-
 
     /**
      * Create copy of AccessRequest with new authenticator and encoded attributes
@@ -53,7 +52,7 @@ public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest
      * @return RadiusPacket with new authenticator and encoded attributes
      */
     @Override
-    default T encodeRequest(String sharedSecret) throws RadiusPacketException {
+    default RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
@@ -70,7 +69,7 @@ public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest
      * @param sharedSecret shared secret
      * @throws RadiusPacketException if invalid or missing attributes
      */
-    T verifyAuthMechanism(String sharedSecret) throws RadiusPacketException;
+    T decodeAuthMechanism(String sharedSecret) throws RadiusPacketException;
 
     /**
      * AccessRequest cannot verify authenticator as they
@@ -85,7 +84,7 @@ public interface AccessRequest<T extends AccessRequest<T>> extends RadiusRequest
     @Override
     default T decodeRequest(String sharedSecret) throws RadiusPacketException {
         verifyMessageAuth(sharedSecret, getAuthenticator());
-        return verifyAuthMechanism(sharedSecret);
+        return decodeAuthMechanism(sharedSecret);
     }
 
     /**

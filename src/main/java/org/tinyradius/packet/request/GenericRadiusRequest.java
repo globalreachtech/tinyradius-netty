@@ -6,7 +6,7 @@ import org.tinyradius.packet.BaseRadiusPacket;
 
 import java.util.List;
 
-public class GenericRadiusRequest extends BaseRadiusPacket<GenericRadiusRequest> implements RadiusRequest<GenericRadiusRequest> {
+public class GenericRadiusRequest extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest {
 
     /**
      * Builds a Radius packet with the given type, identifier and attributes.
