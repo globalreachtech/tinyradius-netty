@@ -15,8 +15,8 @@ import org.tinyradius.client.handler.PromiseAdapter;
 import org.tinyradius.client.timeout.BasicTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.request.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.request.AccountingRequest;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;
 import org.tinyradius.server.handler.ProxyHandler;
@@ -66,7 +66,7 @@ public class TestProxy {
                 bootstrap, new InetSocketAddress(0), retryStrategy, new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-                ch.pipeline().addLast(new PromiseAdapter(), new ClientPacketCodec(dictionary));
+                ch.pipeline().addLast(new ClientPacketCodec(dictionary), new PromiseAdapter());
             }
         });
 
