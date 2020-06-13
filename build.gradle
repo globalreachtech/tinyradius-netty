@@ -1,11 +1,10 @@
 plugins {
     id 'java-library'
-    id 'jacoco'
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.5'
     id 'com.jfrog.artifactory' version '4.15.2'
-    id "com.github.ben-manes.versions" version "0.28.0"
     id "org.sonarqube" version "3.0"
+    id 'jacoco'
 }
 
 sourceCompatibility = 1.8
@@ -91,14 +90,11 @@ artifactory {
         }
         defaults {
             publications('mavenJava')
-            publishArtifacts = true
-            publishPom = true
         }
     }
     resolve {
         repoKey = 'jcenter'
     }
-    clientConfig.info.setBuildNumber('' + new java.util.Random(System.currentTimeMillis()).nextInt(20000))
 }
 
 def pomConfig = {
