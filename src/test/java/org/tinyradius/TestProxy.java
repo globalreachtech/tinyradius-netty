@@ -53,7 +53,7 @@ public class TestProxy {
         final Bootstrap bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
         final SecretProvider secretProvider = remote -> {
-            if (remote.getPort() == 1812 || remote.getPort() == 1813)
+            if (remote.getPort() == 11812 || remote.getPort() == 11813)
                 return "testing123";
 
             return remote.getAddress().getHostAddress().equals("127.0.0.1") ?
@@ -66,7 +66,7 @@ public class TestProxy {
                 bootstrap, new InetSocketAddress(0), retryStrategy, new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-                ch.pipeline().addLast(new PromiseAdapter(), new ClientPacketCodec(dictionary));
+                ch.pipeline().addLast(new ClientPacketCodec(dictionary), new PromiseAdapter());
             }
         });
 
@@ -78,7 +78,7 @@ public class TestProxy {
                     public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
                         try {
                             InetAddress address = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
-                            int port = packet instanceof AccountingRequest ? 1813 : 1812;
+                            int port = packet instanceof AccountingRequest ? 11813 : 11812;
                             return Optional.of(new RadiusEndpoint(new InetSocketAddress(address, port), "testing123"));
                         } catch (UnknownHostException e) {
                             return Optional.empty();
@@ -90,7 +90,7 @@ public class TestProxy {
 
         try (RadiusServer proxy = new RadiusServer(bootstrap,
                 channelInitializer, channelInitializer,
-                new InetSocketAddress(11812), new InetSocketAddress(11813))) {
+                new InetSocketAddress(1812), new InetSocketAddress(1813))) {
 
             proxy.isReady().addListener(future1 -> {
                 if (future1.isSuccess()) {
