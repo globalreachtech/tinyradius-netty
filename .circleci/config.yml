@@ -27,7 +27,7 @@ jobs:
                      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
                      chmod +x ./cc-test-reporter
 
-      - run: ./gradlew build sonarqube jacocoTestReport
+      - run: ./gradlew bintrayUpload sonarqube jacocoTestReport
 
       - store_test_results:
           path: build/test-results/test/

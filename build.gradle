@@ -65,8 +65,8 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 bintray {
-    user = ''
-    key = ''
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
     publications = ['mavenJava']
     pkg {
         repo = 'grt-maven'
@@ -79,6 +79,26 @@ bintray {
             released = new Date()
         }
     }
+}
+
+artifactory {
+    contextUrl = 'http://oss.jfrog.org'
+    publish {
+        repository {
+            repoKey = 'oss-snapshot-local'
+            username = System.getProperty('BINTRAY_USER')
+            password = System.getProperty('BINTRAY_KEY')
+        }
+        defaults {
+            publications('mavenJava')
+            publishArtifacts = true
+            publishPom = true
+        }
+    }
+    resolve {
+        repoKey = 'jcenter'
+    }
+    clientConfig.info.setBuildNumber('' + new java.util.Random(System.currentTimeMillis()).nextInt(20000))
 }
 
 def pomConfig = {
