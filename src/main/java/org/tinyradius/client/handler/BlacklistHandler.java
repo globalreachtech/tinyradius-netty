@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * outcomes to catch all failure scenarios (e.g. timeouts). However, the earlier it's hooked, the
  * sooner it can fail fast the request if the endpoint is blacklisted.
  */
-public class BlacklistOutboundHandler extends ChannelOutboundHandlerAdapter {
+public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -31,7 +31,7 @@ public class BlacklistOutboundHandler extends ChannelOutboundHandlerAdapter {
     private final Map<SocketAddress, AtomicInteger> failureCounts = new ConcurrentHashMap<>();
     private final Map<SocketAddress, Long> blacklisted = new ConcurrentHashMap<>();
 
-    public BlacklistOutboundHandler(long blacklistTtlMs, int failCountThreshold) {
+    public BlacklistHandler(long blacklistTtlMs, int failCountThreshold) {
         this.blacklistTtlMs = blacklistTtlMs;
         this.failCountThreshold = failCountThreshold;
     }
@@ -54,7 +54,7 @@ public class BlacklistOutboundHandler extends ChannelOutboundHandlerAdapter {
     }
 
 
-    boolean isBlacklisted(SocketAddress socketAddress) {
+    private boolean isBlacklisted(SocketAddress socketAddress) {
         final Long blacklistExpiry = blacklisted.get(socketAddress);
 
         if (blacklistExpiry == null)
@@ -72,13 +72,14 @@ public class BlacklistOutboundHandler extends ChannelOutboundHandlerAdapter {
         return false;
     }
 
-    void logResult(SocketAddress socketAddress, boolean isSuccess) {
-        if (isSuccess) {
+    private void logResult(SocketAddress socketAddress, boolean success) {
+        if (success) {
+            blacklisted.remove(socketAddress); // edge case where successful response after blacklisted
             failureCounts.remove(socketAddress);
         } else {
             final int i = failureCounts.computeIfAbsent(socketAddress, d -> new AtomicInteger()).incrementAndGet();
             if (i >= failCountThreshold) {
-                // dont reset countdown time if already blacklisted
+                // dont reset ttl if already blacklisted, can be skewed by slow responses
                 final Long prevBlacklist = blacklisted.putIfAbsent(socketAddress, System.currentTimeMillis() + blacklistTtlMs);
                 if (prevBlacklist == null)
                     logger.debug("Endpoint {} added to blacklist", socketAddress);
