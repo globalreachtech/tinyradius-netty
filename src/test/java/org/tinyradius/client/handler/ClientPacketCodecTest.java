@@ -13,7 +13,6 @@ import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.request.AccessRequestPap;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
@@ -61,7 +60,7 @@ class ClientPacketCodecTest {
                 response.encodeResponse("mySecret", requestAuth), address, address), out1);
 
         assertEquals(1, out1.size());
-        RadiusPacket actual = (RadiusPacket) out1.get(0);
+        RadiusResponse actual = (RadiusResponse) out1.get(0);
         assertEquals(response.toString(), actual.toString());
     }
 

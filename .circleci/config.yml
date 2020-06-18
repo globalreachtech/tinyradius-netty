@@ -27,14 +27,15 @@ jobs:
                      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
                      chmod +x ./cc-test-reporter
 
-#      - run:   ./gradlew clean build artifactoryPublish -x test
-#      - run: ./gradlew clean build bintrayUpload sonarqube jacocoTestReport
       - run: ./gradlew clean build sonarqube jacocoTestReport
 
       - store_test_results:
           path: build/test-results/test/
 
       - run: bash <(curl -s https://codecov.io/bash)
+
+#      - run: ./gradlew artifactoryPublish -x test
+#      - run: ./gradlew bintrayUpload -x test
 
 workflows:
   main:
