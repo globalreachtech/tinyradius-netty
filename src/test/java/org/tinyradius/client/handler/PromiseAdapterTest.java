@@ -19,7 +19,6 @@ import org.tinyradius.packet.response.AccessResponse;
 import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
-import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;

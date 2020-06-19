@@ -28,8 +28,8 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
     private final long blacklistTtlMs;
     private final int failCountThreshold;
 
-    private final Map<SocketAddress, AtomicInteger> failureCounts = new ConcurrentHashMap<>();
-    private final Map<SocketAddress, Long> blacklisted = new ConcurrentHashMap<>();
+    private final Map<SocketAddress, AtomicInteger> failCounts = new ConcurrentHashMap<>();
+    private final Map<SocketAddress, Long> blacklist = new ConcurrentHashMap<>();
 
     public BlacklistHandler(long blacklistTtlMs, int failCountThreshold) {
         this.blacklistTtlMs = blacklistTtlMs;
@@ -53,37 +53,42 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
         ctx.write(msg, promise);
     }
 
-
     private boolean isBlacklisted(SocketAddress socketAddress) {
-        final Long blacklistExpiry = blacklisted.get(socketAddress);
+        final Long blacklistExpiry = blacklist.get(socketAddress);
 
+        // not blacklisted
         if (blacklistExpiry == null)
             return false;
 
+        // blacklist active
         if (System.currentTimeMillis() < blacklistExpiry) {
             logger.debug("Endpoint blacklisted while proxying packet to {}", socketAddress);
             return true;
         }
 
-        // expired
-        blacklisted.remove(socketAddress);
-        failureCounts.remove(socketAddress);
+        // blacklist expired
+        reset(socketAddress);
         logger.info("Endpoint {} removed from blacklist (expired)", socketAddress);
         return false;
     }
 
     private void logResult(SocketAddress socketAddress, boolean success) {
         if (success) {
-            blacklisted.remove(socketAddress); // edge case where successful response after blacklisted
-            failureCounts.remove(socketAddress);
+            reset(socketAddress);
         } else {
-            final int i = failureCounts.computeIfAbsent(socketAddress, d -> new AtomicInteger()).incrementAndGet();
-            if (i >= failCountThreshold) {
-                // dont reset ttl if already blacklisted, can be skewed by slow responses
-                final Long prevBlacklist = blacklisted.putIfAbsent(socketAddress, System.currentTimeMillis() + blacklistTtlMs);
-                if (prevBlacklist == null)
-                    logger.debug("Endpoint {} added to blacklist", socketAddress);
+            final int i = failCounts.computeIfAbsent(socketAddress, d -> new AtomicInteger()).incrementAndGet();
+
+            if (i >= failCountThreshold && blacklist.get(socketAddress) == null) {
+
+                // only set if isn't already blacklisted, to avoid delayed responses extending ttl
+                blacklist.put(socketAddress, System.currentTimeMillis() + blacklistTtlMs);
+                logger.debug("Endpoint {} added to blacklist", socketAddress);
             }
         }
+    }
+
+    private void reset(SocketAddress socketAddress) {
+        blacklist.remove(socketAddress);
+        failCounts.remove(socketAddress);
     }
 }
