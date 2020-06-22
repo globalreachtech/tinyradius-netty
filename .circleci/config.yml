@@ -27,7 +27,9 @@ jobs:
                      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
                      chmod +x ./cc-test-reporter
 
-      - run: ./gradlew clean build sonarqube jacocoTestReport
+      - run:
+          no_output_timeout: 20m
+          command: ./gradlew clean build sonarqube jacocoTestReport
 
       - store_test_results:
           path: build/test-results/test/
