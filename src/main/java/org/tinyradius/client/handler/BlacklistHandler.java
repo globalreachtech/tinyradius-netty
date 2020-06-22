@@ -43,7 +43,7 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
             final InetSocketAddress address = request.getEndpoint().getAddress();
 
             if (isBlacklisted(address)) {
-                request.getResponse().tryFailure(new IOException("Client send failed, endpoint blacklisted: " + address));
+                request.getResponse().tryFailure(new IOException("Client send failed - endpoint blacklisted: " + address));
                 return;
             }
 

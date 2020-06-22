@@ -14,7 +14,9 @@ import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.net.SocketAddress;
+import java.util.List;
 
 /**
  * A simple Radius client which binds to a specific socket, and can
@@ -41,6 +43,44 @@ public class RadiusClient implements Closeable {
         channelFuture = bootstrap.clone().handler(handler).bind(listenAddress);
     }
 
+    /**
+     * Sends packet to specified endpoints in turn until an endpoint succeeds or all fail.
+     *
+     * @param packet    packet to send
+     * @param endpoints endpoints to send packet to
+     * @return deferred response containing response packet or exception
+     */
+    public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints) {
+        if (endpoints.isEmpty())
+            return eventLoopGroup.next().newFailedFuture(new IOException("Client send failed - no valid endpoints"));
+
+        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
+        communicate(packet, endpoints, 0, promise);
+
+        return promise;
+    }
+
+    private void communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, int endpointIndex, Promise<RadiusResponse> promise) {
+        if (endpointIndex >= endpoints.size()) {
+            promise.tryFailure(new IOException("Client send failed - all endpoints failed"));
+            return;
+        }
+
+        communicate(packet, endpoints.get(endpointIndex)).addListener((Future<RadiusResponse> f) -> {
+            if (f.isSuccess())
+                promise.trySuccess(f.getNow());
+            else
+                communicate(packet, endpoints, endpointIndex + 1, promise);
+        });
+    }
+
+    /**
+     * Sends packet to specified endpoint.
+     *
+     * @param packet   packet to send
+     * @param endpoint endpoint to send packet to
+     * @return deferred response containing response packet or exception
+     */
     public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint) {
         final Promise<RadiusResponse> promise = eventLoopGroup.next().<RadiusResponse>newPromise().addListener(f -> {
             if (f.isSuccess())

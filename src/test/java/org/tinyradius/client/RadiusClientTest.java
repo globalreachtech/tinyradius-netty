@@ -24,7 +24,6 @@ import org.tinyradius.packet.request.AccountingRequest;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
-import org.tinyradius.util.RadiusPacketException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -64,7 +63,7 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateWithTimeout() throws RadiusPacketException {
+    void communicateWithTimeout() {
         RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new CustomOutboundHandler(a -> {
         }));
 
@@ -78,7 +77,7 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateSuccess() throws RadiusPacketException {
+    void communicateSuccess() {
         final byte id = (byte) random.nextInt(256);
         final RadiusResponse response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, Collections.emptyList());
         final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(a -> a.trySuccess(response));
