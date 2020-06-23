@@ -13,7 +13,6 @@ import java.util.Collections;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.tinyradius.attribute.util.Attributes.create;
 import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
 
 class AccountingRequestTest {
@@ -29,7 +28,7 @@ class AccountingRequestTest {
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
         AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
-        request.addAttribute(create(dictionary, -1, (byte) 1, user.getBytes(UTF_8)));
+        request.addAttribute(dictionary.createAttribute(-1, (byte) 1, user.getBytes(UTF_8)));
 
         final byte[] attributeBytes = request.getAttributeBytes();
         final int length = attributeBytes.length + HEADER_LENGTH;

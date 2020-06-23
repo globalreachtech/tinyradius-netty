@@ -1,7 +1,6 @@
 package org.tinyradius.packet.request;
 
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -39,15 +38,15 @@ class AccessRequestTest {
         final byte[] encodedPw = random.generateSeed(16);
 
         final AccessRequest papRequest = AccessRequest.create(dictionary, (byte) 1, null,
-                Collections.singletonList(Attributes.create(dictionary, -1, USER_PASSWORD, encodedPw)));
+                Collections.singletonList(dictionary.createAttribute( -1, USER_PASSWORD, encodedPw)));
         assertTrue(papRequest instanceof AccessRequestPap);
 
         final AccessRequest chapRequest = AccessRequest.create(dictionary, (byte) 1, null,
-                Collections.singletonList(Attributes.create(dictionary, -1, CHAP_PASSWORD, encodedPw)));
+                Collections.singletonList(dictionary.createAttribute( -1, CHAP_PASSWORD, encodedPw)));
         assertTrue(chapRequest instanceof AccessRequestChap);
 
         final AccessRequest eapRequest = AccessRequest.create(dictionary, (byte) 1, null,
-                Collections.singletonList(Attributes.create(dictionary, -1, EAP_MESSAGE, encodedPw)));
+                Collections.singletonList(dictionary.createAttribute( -1, EAP_MESSAGE, encodedPw)));
         assertTrue(eapRequest instanceof AccessRequestEap);
 
         final AccessRequest unknown = AccessRequest.create(dictionary, (byte) 1, null, Collections.emptyList());
@@ -55,8 +54,8 @@ class AccessRequestTest {
 
         final AccessRequest invalid = AccessRequest.create(dictionary, (byte) 1, null,
                 Arrays.asList(
-                        Attributes.create(dictionary, -1, CHAP_PASSWORD, encodedPw),
-                        Attributes.create(dictionary, -1, EAP_MESSAGE, encodedPw)
+                        dictionary.createAttribute( -1, CHAP_PASSWORD, encodedPw),
+                        dictionary.createAttribute( -1, EAP_MESSAGE, encodedPw)
                 ));
         assertTrue(invalid instanceof AccessRequestNoAuth);
     }

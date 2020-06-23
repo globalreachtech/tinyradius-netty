@@ -1,7 +1,6 @@
 package org.tinyradius.packet.request;
 
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
@@ -104,7 +103,7 @@ public class AccessRequestPap extends AccessRequest {
                 .filter(a -> a.getType() != USER_PASSWORD)
                 .collect(Collectors.toList());
 
-        attributes.add(Attributes.create(getDictionary(), -1, USER_PASSWORD,
+        attributes.add(getDictionary().createAttribute(-1, USER_PASSWORD,
                 encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8))));
 
         return new AccessRequestPap(getDictionary(), getId(), newAuth, attributes, password);

@@ -3,7 +3,6 @@ package org.tinyradius.packet.util;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -90,7 +89,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
 
         final T newPacket = this
                 .removeAttributes(MESSAGE_AUTHENTICATOR)
-                .addAttribute(Attributes.create(getDictionary(), -1, MESSAGE_AUTHENTICATOR, buffer.array()));
+                .addAttribute(getDictionary().createAttribute(-1, MESSAGE_AUTHENTICATOR, buffer.array()));
 
         buffer.put(computeMessageAuth(newPacket, sharedSecret, requestAuth));
 

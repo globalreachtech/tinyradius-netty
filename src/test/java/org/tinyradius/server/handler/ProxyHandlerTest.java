@@ -8,7 +8,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -57,7 +56,7 @@ class ProxyHandlerTest {
 
         final AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
         final RadiusResponse mockResponse = RadiusResponse.create(dictionary, ACCOUNTING_RESPONSE, (byte) 123, null,
-                Collections.singletonList(Attributes.create(dictionary, -1, (byte) 33, "state1".getBytes(UTF_8))));
+                Collections.singletonList(dictionary.createAttribute( -1, (byte) 33, "state1".getBytes(UTF_8))));
 
         when(client.communicate(any(RadiusRequest.class), any(RadiusEndpoint.class))).thenReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(mockResponse));
 

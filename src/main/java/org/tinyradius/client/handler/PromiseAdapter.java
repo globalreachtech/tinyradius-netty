@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.tinyradius.attribute.util.Attributes.create;
 
 /**
  * ClientHandler that matches requests/response by appending Proxy-State attribute to
@@ -50,7 +49,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
              * encodeRequest() should be idempotent anyway
              */
             final RadiusRequest encodedRequest = packet
-                    .addAttribute(create(packet.getDictionary(), -1, PROXY_STATE, requestId.getBytes(UTF_8)))
+                    .addAttribute(packet.getDictionary().createAttribute(-1, PROXY_STATE, requestId.getBytes(UTF_8)))
                     .encodeRequest(msg.getEndpoint().getSecret());
 
             msg.getResponse().addListener(f -> requests.remove(requestId));

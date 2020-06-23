@@ -145,7 +145,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
     default T addAttribute(String name, String value) {
         return addAttribute(
-                Attributes.create(getDictionary(), name, value));
+                getDictionary().createAttribute(name, value));
     }
 
     /**
@@ -157,7 +157,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      */
     default T addAttribute(byte type, String value) {
         return addAttribute(
-                Attributes.create(getDictionary(), getChildVendorId(), type, value));
+                getDictionary().createAttribute(getChildVendorId(), type, value));
     }
 
     /**

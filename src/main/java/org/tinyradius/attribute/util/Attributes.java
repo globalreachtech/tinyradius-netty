@@ -18,63 +18,6 @@ public class Attributes {
     }
 
     /**
-     * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
-     *
-     * @param dictionary dictionary to use
-     * @param vendorId   vendor ID or -1
-     * @param type       attribute type
-     * @param value      attribute data as byte array
-     * @return RadiusAttribute object
-     */
-    public static RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, byte[] value) {
-        final AttributeType attributeType = dictionary.getAttributeTypeByCode(vendorId, type);
-        if (attributeType != null)
-            return attributeType.create(dictionary, value);
-
-        return new RadiusAttribute(dictionary, vendorId, type, value);
-    }
-
-    /**
-     * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
-     *
-     * @param dictionary dictionary to use
-     * @param vendorId   vendor ID or -1
-     * @param type       attribute type
-     * @param value      attribute data as String
-     * @return RadiusAttribute object
-     */
-    public static RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, String value) {
-        final AttributeType attributeType = dictionary.getAttributeTypeByCode(vendorId, type);
-        if (attributeType != null)
-            return attributeType.create(dictionary, value);
-
-        return new RadiusAttribute(dictionary, vendorId, type, value);
-    }
-
-    /**
-     * Creates a Radius attribute.
-     * Uses AttributeTypes to lookup the type code and converts the value.
-     *
-     * @param dictionary dictionary to use
-     * @param name       name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
-     * @param value      value of the attribute, for example "127.0.0.1"
-     * @return RadiusAttribute object
-     * @throws IllegalArgumentException if type name or value is invalid
-     */
-    public static RadiusAttribute create(Dictionary dictionary, String name, String value) {
-        if (name == null || name.isEmpty())
-            throw new IllegalArgumentException("Type name is null/empty");
-        if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("Value is null/empty");
-
-        final AttributeType type = dictionary.getAttributeTypeByName(name);
-        if (type == null)
-            throw new IllegalArgumentException("Unknown attribute type name'" + name + "'");
-
-        return type.create(dictionary, value);
-    }
-
-    /**
      * @param dictionary dictionary to create attribute
      * @param vendorId   vendor Id to set attributes
      * @param data       byte array to parse
@@ -93,7 +36,7 @@ public class Attributes {
                 throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >=2");
             if (expectedLen > data.length - pos)
                 throw new IllegalArgumentException("Invalid attribute length " + length + ", remaining bytes " + (data.length - pos));
-            attributes.add(create(dictionary, vendorId, type, Arrays.copyOfRange(data, pos + 2, pos + length)));
+            attributes.add(dictionary.createAttribute(vendorId, type, Arrays.copyOfRange(data, pos + 2, pos + length)));
             pos += length;
         }
 

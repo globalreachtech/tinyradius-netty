@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -136,7 +135,7 @@ class ClientPacketCodecTest {
 
         // make packet too long to force encoder error
         for (int i = 0; i < 4000; i++) {
-            packet = packet.addAttribute(Attributes.create(dictionary, -1, USER_NAME, username));
+            packet = packet.addAttribute(dictionary.createAttribute(-1, USER_NAME, username));
         }
 
         // process

@@ -23,7 +23,6 @@ import java.util.Collections;
 import static java.lang.Byte.toUnsignedInt;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.util.Attributes.create;
 import static org.tinyradius.packet.util.PacketCodec.*;
 import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
@@ -41,9 +40,9 @@ class PacketCodecTest {
         int dataSize = targetSize - HEADER_LENGTH;
         for (int i = 0; i < Math.floor((double) dataSize / 200); i++) {
             // add 200 octets per iteration (198 + 2-byte header)
-            packet = packet.addAttribute(create(dictionary, -1, (byte) 33, random.generateSeed(198)));
+            packet = packet.addAttribute(dictionary.createAttribute(-1, (byte) 33, random.generateSeed(198)));
         }
-        packet = packet.addAttribute(create(dictionary, -1, (byte) 33, random.generateSeed((dataSize % 200) - 2)));
+        packet = packet.addAttribute(dictionary.createAttribute(-1, (byte) 33, random.generateSeed((dataSize % 200) - 2)));
 
         return packet;
     }
@@ -80,8 +79,8 @@ class PacketCodecTest {
         final byte[] proxyState = random.generateSeed(198);
 
         RadiusRequest request = RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList())
-                .addAttribute(create(dictionary, -1, (byte) 33, proxyState))
-                .addAttribute(create(dictionary, -1, (byte) 33, random.generateSeed(198)));
+                .addAttribute(dictionary.createAttribute(-1, (byte) 33, proxyState))
+                .addAttribute(dictionary.createAttribute(-1, (byte) 33, random.generateSeed(198)));
 
         final RadiusRequest encoded = request.encodeRequest("mySecret");
 
@@ -147,7 +146,7 @@ class PacketCodecTest {
         assertEquals(4090, validBytes.length);
 
         // create 7 octet attribute
-        final byte[] attribute = create(dictionary, -1, (byte) 33, random.generateSeed(5)).toByteArray();
+        final byte[] attribute = dictionary.createAttribute(-1, (byte) 33, random.generateSeed(5)).toByteArray();
         assertEquals(7, attribute.length);
 
         // append attribute
@@ -242,7 +241,7 @@ class PacketCodecTest {
         final RadiusRequest encodedRequest = request.encodeRequest(sharedSecret);
 
         final RadiusResponse response = new AccessResponse(dictionary, (byte) 2, id, null, Collections.emptyList())
-                .addAttribute(create(dictionary, -1, (byte) 33, "state3333".getBytes(UTF_8)));
+                .addAttribute(dictionary.createAttribute(-1, (byte) 33, "state3333".getBytes(UTF_8)));
         final RadiusResponse encodedResponse = response.encodeResponse(sharedSecret, encodedRequest.getAuthenticator());
 
         DatagramPacket datagramPacket = toDatagram(encodedResponse, remoteAddress);

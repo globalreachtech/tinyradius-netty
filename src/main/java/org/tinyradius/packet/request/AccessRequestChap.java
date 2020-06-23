@@ -1,7 +1,6 @@
 package org.tinyradius.packet.request;
 
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
@@ -41,8 +40,8 @@ public class AccessRequestChap extends AccessRequest {
                 .filter(a -> a.getType() != CHAP_PASSWORD && a.getType() != CHAP_CHALLENGE)
                 .collect(Collectors.toList());
 
-        attributes.add(Attributes.create(getDictionary(), -1, CHAP_CHALLENGE, challenge));
-        attributes.add(Attributes.create(getDictionary(), -1, CHAP_PASSWORD,
+        attributes.add(getDictionary().createAttribute(-1, CHAP_CHALLENGE, challenge));
+        attributes.add(getDictionary().createAttribute(-1, CHAP_PASSWORD,
                 computeChapPassword((byte) RANDOM.nextInt(256), plaintext, challenge)));
 
         return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), attributes);

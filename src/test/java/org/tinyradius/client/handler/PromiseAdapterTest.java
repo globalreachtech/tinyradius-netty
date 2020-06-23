@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -28,7 +27,6 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.util.Attributes.create;
 import static org.tinyradius.packet.util.PacketType.ACCESS_ACCEPT;
 import static org.tinyradius.packet.util.PacketType.ACCOUNTING_RESPONSE;
 
@@ -101,7 +99,7 @@ class PromiseAdapterTest {
     @Test
     void decodeProxyStateNotFound() {
         final RadiusResponse response = new AccessResponse(dictionary, ACCESS_ACCEPT, (byte) 1, null,
-                Collections.singletonList(Attributes.create(dictionary, -1, PROXY_STATE, "123abc")));
+                Collections.singletonList(dictionary.createAttribute(-1, PROXY_STATE, "123abc")));
 
         final List<Object> in = new ArrayList<>();
         handler.decode(ctx, response, in);
@@ -132,7 +130,7 @@ class PromiseAdapterTest {
 
         // using id 99
         final RadiusResponse response = RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 99, null,
-                Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)));
+                Collections.singletonList(dictionary.createAttribute(-1, PROXY_STATE, requestProxyState)));
 
         final List<Object> in = new ArrayList<>();
         handler.decode(ctx, response.encodeResponse(secret, requestAuth), in);
@@ -160,7 +158,7 @@ class PromiseAdapterTest {
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).get().getValue();
 
         final RadiusResponse response = RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 1, null,
-                Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)));
+                Collections.singletonList(dictionary.createAttribute(-1, PROXY_STATE, requestProxyState)));
 
         // response uses different auth
         final byte[] randomAuth = random.generateSeed(16);
@@ -197,7 +195,7 @@ class PromiseAdapterTest {
 
         // channel read correct proxyState returns packet
         final RadiusResponse goodResponse = RadiusResponse.create(dictionary, ACCOUNTING_RESPONSE, (byte) 1, null,
-                Collections.singletonList(create(dictionary, -1, PROXY_STATE, requestProxyState)))
+                Collections.singletonList(dictionary.createAttribute(-1, PROXY_STATE, requestProxyState)))
                 .encodeResponse(secret, requestAuthenticator);
 
         // decode response

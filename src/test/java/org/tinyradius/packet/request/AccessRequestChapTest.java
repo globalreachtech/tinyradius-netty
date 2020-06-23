@@ -13,7 +13,6 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.util.Attributes.create;
 import static org.tinyradius.packet.request.AccessRequest.CHAP_PASSWORD;
 
 class AccessRequestChapTest {
@@ -46,7 +45,7 @@ class AccessRequestChapTest {
         request2.decodeRequest(sharedSecret);
 
         // add one more pw attribute
-        final RadiusRequest request3 = request2.addAttribute(create(dictionary, -1, CHAP_PASSWORD, new byte[16]));
+        final RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute(-1, CHAP_PASSWORD, new byte[16]));
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
         assertTrue(e.getMessage().contains("should have exactly one CHAP-Password"));
     }
@@ -88,20 +87,20 @@ class AccessRequestChapTest {
         final byte[] password = CHAP.chapResponse((byte) chapId, plaintextPw.getBytes(UTF_8), challenge);
 
         AccessRequestChap goodRequest = (AccessRequestChap) AccessRequest.create(dictionary, (byte) 1, null, Arrays.asList(
-                create(dictionary, -1, (byte) 60, challenge),
-                create(dictionary, -1, (byte) 3, password)));
+                dictionary.createAttribute(-1, (byte) 60, challenge),
+                dictionary.createAttribute(-1, (byte) 3, password)));
         assertTrue(goodRequest.checkPassword(plaintextPw));
         assertFalse(goodRequest.checkPassword("badPw"));
 
         AccessRequestChap badChallenge = (AccessRequestChap) AccessRequest.create(dictionary, (byte) 1, null, Arrays.asList(
-                create(dictionary, -1, (byte) 60, random.generateSeed(16)),
-                create(dictionary, -1, (byte) 3, password)));
+                dictionary.createAttribute(-1, (byte) 60, random.generateSeed(16)),
+                dictionary.createAttribute(-1, (byte) 3, password)));
         assertFalse(badChallenge.checkPassword(plaintextPw));
 
         password[0] = (byte) ((chapId + 1) % 256);
         AccessRequestChap badPassword = (AccessRequestChap) AccessRequest.create(dictionary, (byte) 1, null, Arrays.asList(
-                create(dictionary, -1, (byte) 60, challenge),
-                create(dictionary, -1, (byte) 3, password)));
+                dictionary.createAttribute(-1, (byte) 60, challenge),
+                dictionary.createAttribute(-1, (byte) 3, password)));
         assertFalse(badPassword.checkPassword(plaintextPw));
     }
 }

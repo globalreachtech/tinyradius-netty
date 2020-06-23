@@ -3,7 +3,6 @@ package org.tinyradius.packet;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.attribute.VendorSpecificAttribute;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 
@@ -12,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.util.Attributes.create;
 
 class BaseRadiusPacketTest {
 
@@ -69,7 +67,7 @@ class BaseRadiusPacketTest {
 
     @Test
     void removeSpecificAttribute() {
-        RadiusAttribute ra = create(dictionary, -1, (byte) 8, new byte[4]);
+        RadiusAttribute ra = dictionary.createAttribute(-1, (byte) 8, new byte[4]);
         StubPacket rp = new StubPacket()
                 .addAttribute(ra);
         assertFalse(rp.getAttributes().isEmpty());
@@ -145,8 +143,8 @@ class BaseRadiusPacketTest {
     void testFlattenAttributes() {
         VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122,
                 Arrays.asList(
-                        Attributes.create(dictionary, "WISPr-Logoff-URL", "111"),
-                        Attributes.create(dictionary, "WISPr-Logoff-URL", "222")
+                        dictionary.createAttribute("WISPr-Logoff-URL", "111"),
+                        dictionary.createAttribute("WISPr-Logoff-URL", "222")
                 ));
 
         StubPacket radiusPacket = new StubPacket()

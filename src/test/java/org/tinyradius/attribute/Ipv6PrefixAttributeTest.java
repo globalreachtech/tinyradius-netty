@@ -1,12 +1,10 @@
 package org.tinyradius.attribute;
 
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.util.Attributes.create;
 
 class Ipv6PrefixAttributeTest {
 
@@ -53,7 +51,7 @@ class Ipv6PrefixAttributeTest {
     void bitsOutsidePrefixLengthIsZero() {
         // string constructor
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
-                () -> Attributes.create(dictionary, -1, (byte) 97, "fe80:fe80:fe80:fe80:fe80:fe80:fe80:fe80/64"));
+                () -> dictionary.createAttribute(-1, (byte) 97, "fe80:fe80:fe80:fe80:fe80:fe80:fe80:fe80/64"));
 
         assertTrue(e1.getMessage().toLowerCase().contains("bits outside of the prefix-length must be zero"));
 
@@ -64,7 +62,7 @@ class Ipv6PrefixAttributeTest {
         bytes[3] = (byte) 0xff; // violates rfc requirement that "Bits outside of the Prefix-Length, if included, must be zero."
 
         final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
-                () -> create(dictionary, -1, (byte) 97, bytes));
+                () -> dictionary.createAttribute(-1, (byte) 97, bytes));
 
         assertTrue(e2.getMessage().toLowerCase().contains("bits outside of the prefix-length must be zero"));
     }
@@ -77,7 +75,7 @@ class Ipv6PrefixAttributeTest {
         bytes[3] = 0; // set 8 bits to 0, but also part of prefix
         bytes[4] = 0; // empty octet as padding
 
-        final RadiusAttribute attribute = create(dictionary, -1, (byte) 97, bytes);
+        final RadiusAttribute attribute = dictionary.createAttribute(-1, (byte) 97, bytes);
         assertEquals("fe00:0:0:0:0:0:0:0/16", attribute.getValueString());
     }
 
@@ -87,12 +85,12 @@ class Ipv6PrefixAttributeTest {
         final byte[] bytes = new byte[4]; // prefix capacity 2
         bytes[1] = 16; // 16 bits require 2 bytes
 
-        final RadiusAttribute attribute = create(dictionary, -1, (byte) 97, bytes);
+        final RadiusAttribute attribute = dictionary.createAttribute(-1, (byte) 97, bytes);
         assertEquals("0:0:0:0:0:0:0:0/16", attribute.getValueString());
 
         bytes[1] = 17; // 17 bits require 3 bytes;
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> create(dictionary, -1, (byte) 97, bytes));
+                () -> dictionary.createAttribute(-1, (byte) 97, bytes));
         assertTrue(exception.getMessage().toLowerCase().contains("actual byte array only has space for 16 bits"));
         assertTrue(exception.getMessage().toLowerCase().contains("prefix-length declared 17 bits"));
     }

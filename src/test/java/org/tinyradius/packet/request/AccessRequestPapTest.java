@@ -2,7 +2,6 @@ package org.tinyradius.packet.request;
 
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -43,7 +42,7 @@ class AccessRequestPapTest {
         request2.decodeRequest(sharedSecret);
 
         // add one pw attribute
-        final RadiusRequest request3 = request2.addAttribute(Attributes.create(dictionary, -1, USER_PASSWORD, new byte[16]));
+        final RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute( -1, USER_PASSWORD, new byte[16]));
         assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
     }
 
