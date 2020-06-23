@@ -164,7 +164,7 @@ class VendorSpecificAttributeTest {
                 dictionary.createAttribute("WISPr-Location-Name", "myLocationName")
         ));
 
-        assertEquals("Vendor-Specific: WISPr (14122)\n" +
+        assertEquals("Vendor-Specific: Vendor ID 14122 (WISPr)\n" +
                 "  WISPr-Location-ID: myLocationId\n" +
                 "  WISPr-Location-Name: myLocationName", vsa.toString());
     }

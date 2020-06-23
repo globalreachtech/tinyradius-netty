@@ -1,10 +1,8 @@
 package org.tinyradius.attribute.type;
 
-import org.tinyradius.attribute.AttributeTemplate;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.nio.ByteBuffer;
-import java.util.Optional;
 
 import static java.lang.Integer.*;
 
@@ -37,14 +35,9 @@ public class IntegerAttribute extends RadiusAttribute {
     }
 
     private static int convertValue(String value, Dictionary dictionary, byte attributeId, int vendorId) {
-        Optional<AttributeTemplate> at = dictionary.getAttributeTemplate(vendorId, attributeId);
-        if (at.isPresent()) {
-            Integer val = at.get().getEnumeration(value);
-            if (val != null)
-                return val;
-        }
-
-        return parseUnsignedInt(value);
+        return dictionary.getAttributeTemplate(vendorId, attributeId)
+                .map(at -> at.getEnumeration(value))
+                .orElse(parseUnsignedInt(value));
     }
 
     /**
@@ -71,14 +64,9 @@ public class IntegerAttribute extends RadiusAttribute {
      */
     @Override
     public String getValueString() {
-        int value = getValueInt();
-        Optional<AttributeTemplate> at = getAttributeTemplate();
-        if (at.isPresent()) {
-            String name = at.get().getEnumeration(value);
-            if (name != null)
-                return name;
-        }
-
-        return toUnsignedString(value);
+        final int value = getValueInt();
+        return getAttributeTemplate()
+                .map(at -> at.getEnumeration(value))
+                .orElse(toUnsignedString(value));
     }
 }
