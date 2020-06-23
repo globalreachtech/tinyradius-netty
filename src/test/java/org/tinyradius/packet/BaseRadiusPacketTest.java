@@ -57,7 +57,7 @@ class BaseRadiusPacketTest {
                 ipV6Attributes.stream().map(RadiusAttribute::getValueString).toArray());
 
         assertEquals("Access-Request, ID 1\n" +
-                "Vendor-Specific: Vender ID 14122 (WISPr)\n" +
+                "Vendor-Specific: Vendor ID 14122 (WISPr)\n" +
                 "  WISPr-Location-ID: myLocationId\n" +
                 "Framed-IP-Address: 0.18.214.135\n" +
                 "Framed-IPv6-Address: fe80:0:0:0:0:0:0:0\n" +
