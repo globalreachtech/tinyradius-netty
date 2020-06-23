@@ -37,7 +37,7 @@ public class IntegerAttribute extends RadiusAttribute {
     private static int convertValue(String value, Dictionary dictionary, byte attributeId, int vendorId) {
         return dictionary.getAttributeTemplate(vendorId, attributeId)
                 .map(at -> at.getEnumeration(value))
-                .orElse(parseUnsignedInt(value));
+                .orElseGet(() -> parseUnsignedInt(value));
     }
 
     /**
@@ -67,6 +67,6 @@ public class IntegerAttribute extends RadiusAttribute {
         final int value = getValueInt();
         return getAttributeTemplate()
                 .map(at -> at.getEnumeration(value))
-                .orElse(toUnsignedString(value));
+                .orElseGet(() -> toUnsignedString(value));
     }
 }

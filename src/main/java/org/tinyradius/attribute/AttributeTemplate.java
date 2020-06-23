@@ -18,6 +18,7 @@ public class AttributeTemplate {
     private final int vendorId;
     private final byte type;
     private final String name;
+    private final short encrypt = 0;
 
     private final String dataType;
     private final ByteArrayConstructor byteArrayConstructor;
