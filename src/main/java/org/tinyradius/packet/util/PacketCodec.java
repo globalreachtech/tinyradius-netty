@@ -3,6 +3,7 @@ package org.tinyradius.packet.util;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
+import org.tinyradius.attribute.AttributeHolder;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.request.RadiusRequest;
@@ -12,7 +13,6 @@ import org.tinyradius.util.RadiusPacketException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import static org.tinyradius.attribute.Attributes.extractAttributes;
 
 /**
  * To encode/decode packets to/from Datagram.
@@ -139,6 +139,6 @@ public class PacketCodec {
         content.get(attributes);
 
         return RadiusRequest.create(dictionary, type, packetId, authenticator,
-                extractAttributes(dictionary, -1, attributes, 0));
+                AttributeHolder.extractAttributes(dictionary, -1, attributes, 0));
     }
 }

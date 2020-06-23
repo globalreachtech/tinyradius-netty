@@ -5,12 +5,11 @@ import io.netty.buffer.Unpooled;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static java.lang.Byte.toUnsignedInt;
 
 /**
  * Basic attribute holder, for VendorSpecificAttribute (to hold sub-attributes) or RadiusPackets
@@ -27,6 +26,35 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         }
 
         return buffer.copy().array();
+    }
+
+    /**
+     * @param dictionary dictionary to create attribute
+     * @param vendorId   vendor Id to set attributes
+     * @param data       byte array to parse
+     * @param pos        position in byte array at which to parse
+     * @return list of RadiusAttributes
+     */
+    static List<RadiusAttribute> extractAttributes(Dictionary dictionary, int vendorId, byte[] data, int pos) {
+        final ArrayList<RadiusAttribute> attributes = new ArrayList<>();
+
+        // at least 2 octets left
+        while (data.length - pos >= 2) {
+            final byte type = data[pos];
+            final int length = toUnsignedInt(data[pos + 1]); // max 255
+            final int expectedLen = length - 2;
+            if (expectedLen < 0)
+                throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >=2");
+            if (expectedLen > data.length - pos)
+                throw new IllegalArgumentException("Invalid attribute length " + length + ", remaining bytes " + (data.length - pos));
+            attributes.add(dictionary.createAttribute(vendorId, type, Arrays.copyOfRange(data, pos + 2, pos + length)));
+            pos += length;
+        }
+
+        if (pos != data.length)
+            throw new IllegalArgumentException("Attribute malformed, lengths do not match, " +
+                    "parse position " + pos + ", bytes length " + data.length);
+        return attributes;
     }
 
     /**
@@ -138,7 +166,6 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         attributes.add(attribute);
         return withAttributes(attributes);
     }
-
 
     default T addAttribute(String name, String value) {
         return addAttribute(

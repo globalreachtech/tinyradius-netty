@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.tinyradius.attribute.Attributes.extractAttributes;
 
 /**
  * This class represents a "Vendor-Specific" attribute. Both an attribute itself and an attribute container.
@@ -23,23 +22,23 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
     private final List<RadiusAttribute> attributes;
 
     /**
-     * @param dictionary    dictionary to use for (sub)attributes
-     * @param vendorId      ignored, VSAs should always be -1 (top level attribute)
+     * @param dictionary  dictionary to use for (sub)attributes
+     * @param vendorId    ignored, VSAs should always be -1 (top level attribute)
      * @param attributeId ignored, should always be Vendor-Specific (26)
-     * @param data          data as hex to parse for childVendorId and sub-attributes
+     * @param data        data as hex to parse for childVendorId and sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeId, String data) {
         this(dictionary, vendorId, attributeId, DatatypeConverter.parseHexBinary(data));
     }
 
     /**
-     * @param dictionary    dictionary to use for (sub)attributes
-     * @param vendorId      ignored, VSAs should always be -1 (top level attribute)
+     * @param dictionary  dictionary to use for (sub)attributes
+     * @param vendorId    ignored, VSAs should always be -1 (top level attribute)
      * @param attributeId ignored, should always be Vendor-Specific (26)
-     * @param data          data to parse for childVendorId and sub-attributes
+     * @param data        data to parse for childVendorId and sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeId, byte[] data) {
-        this(dictionary, vendorId(data), extractAttributes(dictionary, vendorId(data), data, 4), data);
+        this(dictionary, vendorId(data), AttributeHolder.extractAttributes(dictionary, vendorId(data), data, 4), data);
         if (vendorId != -1)
             throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
         if (attributeId != 26)
