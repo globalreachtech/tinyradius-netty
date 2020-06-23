@@ -18,6 +18,12 @@ class AccessRequestNoAuth extends AccessRequest {
 
     @Override
     public AccessRequestNoAuth decodeAuthMechanism(String sharedSecret) {
+        final List<RadiusAttribute> messageAuthAttr = filterAttributes(MESSAGE_AUTHENTICATOR);
+        if (messageAuthAttr.size() != 1) {
+            logger.debug("AccessRequest without one of User-Password/CHAP-Password/ARAP-Password/EAP-Message " +
+                    "should contain a Message-Authenticator");
+        }
+
         return this;
     }
 

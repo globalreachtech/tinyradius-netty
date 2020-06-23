@@ -1,7 +1,5 @@
 package org.tinyradius.packet.request;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.BaseRadiusPacket;
@@ -22,14 +20,13 @@ import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
  */
 public abstract class AccessRequest extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest, MessageAuthSupport<RadiusRequest> {
 
-    protected static final Logger logger = LogManager.getLogger();
-
     protected static final SecureRandom RANDOM = new SecureRandom();
 
     protected static final byte USER_PASSWORD = 2;
     protected static final byte CHAP_PASSWORD = 3;
     protected static final byte EAP_MESSAGE = 79;
-    private static final Set<Byte> AUTH_ATTRS = new HashSet<>(Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, EAP_MESSAGE));
+    protected static final byte ARAP_PASSWORD = 70;
+    private static final Set<Byte> AUTH_ATTRS = new HashSet<>(Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE));
 
     protected AccessRequest(Dictionary dictionary, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, ACCESS_REQUEST, id, authenticator, attributes);
@@ -77,12 +74,14 @@ public abstract class AccessRequest extends BaseRadiusPacket<RadiusRequest> impl
                 return AccessRequestChap::new;
             case USER_PASSWORD:
                 return AccessRequestPap::new;
+            case ARAP_PASSWORD:
+                return AccessRequestArap::new;
             default:
                 return AccessRequestNoAuth::new;
         }
     }
 
-    static byte[] random16bytes() {
+    protected static byte[] random16bytes() {
         byte[] randomBytes = new byte[16];
         RANDOM.nextBytes(randomBytes);
         return randomBytes;

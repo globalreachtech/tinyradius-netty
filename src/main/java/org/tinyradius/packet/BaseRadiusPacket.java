@@ -1,5 +1,7 @@
 package org.tinyradius.packet;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.RadiusRequest;
@@ -14,6 +16,8 @@ import static java.util.Objects.requireNonNull;
  * Base Radius Packet implementation without support for authenticators or encoding
  */
 public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements RadiusPacket<T> {
+
+    protected static final Logger logger = LogManager.getLogger();
 
     private static final int CHILD_VENDOR_ID = -1;
 
