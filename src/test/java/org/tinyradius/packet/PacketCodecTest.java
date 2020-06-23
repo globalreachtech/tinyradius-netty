@@ -128,7 +128,7 @@ class PacketCodecTest {
         assertArrayEquals(maxSizeRequest.getAuthenticator(), result.getAuthenticator());
         assertArrayEquals(maxSizeRequest.getAttributeBytes(), result.getAttributeBytes());
 
-        assertEquals(maxSizeRequest.getAttributes((byte) 33).size(), result.getAttributes((byte) 33).size());
+        assertEquals(maxSizeRequest.filterAttributes((byte) 33).size(), result.filterAttributes((byte) 33).size());
 
         // reconvert to check if bytes match
         assertArrayEquals(datagram.content().array(), toDatagram(result, new InetSocketAddress(0)).content().array());

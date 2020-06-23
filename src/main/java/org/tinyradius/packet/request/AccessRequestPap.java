@@ -134,7 +134,7 @@ public class AccessRequestPap extends AccessRequest {
 
     @Override
     public AccessRequestPap decodeAuthMechanism(String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> attrs = getAttributes(USER_PASSWORD);
+        final List<RadiusAttribute> attrs = filterAttributes(USER_PASSWORD);
         if (attrs.size() != 1) {
             throw new RadiusPacketException("AccessRequest (PAP) should have exactly one User-Password attribute, has " + attrs.size());
         }

@@ -19,12 +19,12 @@ public class AccessRequestEap extends AccessRequest {
 
     @Override
     public AccessRequestEap decodeAuthMechanism(String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> eapMessageAttr = getAttributes(EAP_MESSAGE);
+        final List<RadiusAttribute> eapMessageAttr = filterAttributes(EAP_MESSAGE);
         if (eapMessageAttr.isEmpty()) {
             throw new RadiusPacketException("EAP-Message expected but not found");
         }
 
-        final List<RadiusAttribute> messageAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
+        final List<RadiusAttribute> messageAuthAttr = filterAttributes(MESSAGE_AUTHENTICATOR);
         if (messageAuthAttr.size() != 1) {
             throw new RadiusPacketException("AccessRequest (EAP) should have exactly one Message-Authenticator attribute, has " + messageAuthAttr.size());
         }

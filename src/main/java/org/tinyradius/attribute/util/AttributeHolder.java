@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +55,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return RadiusAttribute object or null if there is no such attribute
      */
     default Optional<RadiusAttribute> getAttribute(String type) {
-        return getAttributes(type).stream().findFirst();
+        return filterAttributes(type).stream().findFirst();
     }
 
     /**
@@ -64,7 +65,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return RadiusAttribute object or null if there is no such attribute
      */
     default Optional<RadiusAttribute> getAttribute(byte type) {
-        return getAttributes(type).stream().findFirst();
+        return filterAttributes(type).stream().findFirst();
     }
 
     /**
@@ -73,10 +74,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type type of attributes to get
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> getAttributes(byte type) {
-        return getAttributes().stream()
-                .filter(a -> a.getType() == type)
-                .collect(Collectors.toList());
+    default List<RadiusAttribute> filterAttributes(byte type) {
+        return filterAttributes(a -> a.getType() == type);
     }
 
     /**
@@ -86,8 +85,20 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type attribute type name
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> getAttributes(String type) {
-        return getAttributes(lookupAttributeType(type));
+    default List<RadiusAttribute> filterAttributes(String type) {
+        return filterAttributes(lookupAttributeType(type));
+    }
+
+    /**
+     * Returns attributes of the given type, filtered by given predicate
+     *
+     * @param filter RadiusAttribute filter predicate
+     * @return list of RadiusAttribute objects, or empty list
+     */
+    default List<RadiusAttribute> filterAttributes(Predicate<RadiusAttribute> filter) {
+        return getAttributes().stream()
+                .filter(filter)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -97,9 +108,10 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type attribute type name
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> getAttributes(AttributeType type) {
+    default List<RadiusAttribute> filterAttributes(AttributeType type) {
         if (type.getVendorId() == getChildVendorId())
-            return getAttributes(type.getType());
+            return filterAttributes(type.getType());
+
         return Collections.emptyList();
     }
 
@@ -155,9 +167,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return object of same type with removed attribute
      */
     default T removeAttribute(RadiusAttribute attribute) {
-        return withAttributes(getAttributes().stream()
-                .filter(a -> !a.equals(attribute))
-                .collect(Collectors.toList()));
+        return withAttributes(
+                filterAttributes(a -> !a.equals(attribute)));
     }
 
     /**
@@ -167,9 +178,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return object of same type with removed attributes
      */
     default T removeAttributes(byte type) {
-        return withAttributes(getAttributes().stream()
-                .filter(a -> a.getType() != type)
-                .collect(Collectors.toList()));
+        return withAttributes(
+                filterAttributes(a -> a.getType() != type));
     }
 
     /**
@@ -180,9 +190,9 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return object of same type with removed attribute
      */
     default T removeLastAttribute(byte type) {
-        List<RadiusAttribute> attributes = getAttributes(type);
+        List<RadiusAttribute> attributes = filterAttributes(type);
         if (attributes.isEmpty())
-            return withAttributes(Collections.emptyList());
+            return withAttributes(getAttributes());
 
         return removeAttribute(attributes.get(attributes.size() - 1));
     }

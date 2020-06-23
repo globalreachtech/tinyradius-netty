@@ -24,9 +24,9 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @param type     attribute type code
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> getAttributes(int vendorId, byte type) {
+    default List<RadiusAttribute> filterAttributes(int vendorId, byte type) {
         if (vendorId == getChildVendorId())
-            return getAttributes(type);
+            return filterAttributes(type);
 
         return getVendorAttributes(vendorId).stream()
                 .map(VendorSpecificAttribute::getAttributes)
@@ -36,8 +36,8 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
     }
 
     @Override
-    default List<RadiusAttribute> getAttributes(AttributeType type) {
-        return getAttributes(type.getVendorId(), type.getType());
+    default List<RadiusAttribute> filterAttributes(AttributeType type) {
+        return filterAttributes(type.getVendorId(), type.getType());
     }
 
     /**
@@ -50,8 +50,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @return RadiusAttribute object or null if there is no such attribute
      */
     default Optional<RadiusAttribute> getAttribute(int vendorId, byte type) {
-        List<RadiusAttribute> attrs = getAttributes(vendorId, type);
-        return attrs.stream().findFirst();
+        return filterAttributes(vendorId, type).stream().findFirst();
     }
 
     /**
@@ -105,21 +104,17 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
         if (attribute.getVendorId() == getChildVendorId())
             return AttributeHolder.super.removeAttribute(attribute);
 
-        final List<RadiusAttribute> attributes = getAttributes().stream().map(a -> {
-            if (a instanceof VendorSpecificAttribute) {
-                final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
+        final List<RadiusAttribute> attributes = getAttributes().stream()
+                .map(a -> {
+                    if (!(a instanceof VendorSpecificAttribute))
+                        return a;
 
-                if (vsa.getAttributes().contains(attribute)) {
-                    final List<RadiusAttribute> vsaAttributes = vsa.getAttributes().stream()
-                            .filter(sa -> !sa.equals(attribute))
-                            .collect(Collectors.toList());
-
-                    return vsaAttributes.isEmpty() ? null : vsa.withAttributes(vsaAttributes);
-                }
-            }
-
-            return a;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+                    final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
+                    final List<RadiusAttribute> subAttributes = vsa.filterAttributes(sa -> !sa.equals(attribute));
+                    return subAttributes.isEmpty() ? null : vsa.withAttributes(subAttributes);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
         return withAttributes(attributes);
     }
@@ -137,21 +132,18 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
         if (vendorId == getChildVendorId())
             return removeAttributes(typeCode);
 
-        final List<RadiusAttribute> attributes = getAttributes().stream().map(a -> {
-            if (a instanceof VendorSpecificAttribute) {
-                final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
+        final List<RadiusAttribute> attributes = getAttributes().stream()
+                .map(a -> {
+                    if (!(a instanceof VendorSpecificAttribute))
+                        return a;
 
-                final List<RadiusAttribute> vsaAttributes = vsa.getAttributes().stream()
-                        .filter(sa -> sa.getType() != typeCode || sa.getVendorId() != vendorId)
-                        .collect(Collectors.toList());
-
-                return vsaAttributes.isEmpty() ? null : vsa.withAttributes(vsaAttributes);
-            }
-
-            return a;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+                    final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
+                    final List<RadiusAttribute> subAttributes = vsa.filterAttributes(sa -> sa.getType() != typeCode || sa.getVendorId() != vendorId);
+                    return subAttributes.isEmpty() ? null : vsa.withAttributes(subAttributes);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
         return withAttributes(attributes);
-
     }
 }

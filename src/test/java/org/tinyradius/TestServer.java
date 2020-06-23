@@ -105,7 +105,7 @@ public class TestServer {
             String password = request.getAttribute(USER_NAME).get().getValueString().equals("test") ? "password" : null;
             byte type = request.checkPassword(password) ? ACCESS_ACCEPT : ACCESS_REJECT;
 
-            RadiusResponse answer = RadiusResponse.create(request.getDictionary(), type, request.getId(), null, request.getAttributes((byte) 33));
+            RadiusResponse answer = RadiusResponse.create(request.getDictionary(), type, request.getId(), null, request.filterAttributes((byte) 33));
 
             ctx.writeAndFlush(msg.withResponse(answer));
         }
@@ -122,7 +122,7 @@ public class TestServer {
         protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
             final RadiusRequest request = msg.getRequest();
 
-            RadiusResponse answer = RadiusResponse.create(request.getDictionary(), ACCOUNTING_RESPONSE, request.getId(), null, request.getAttributes((byte) 33));
+            RadiusResponse answer = RadiusResponse.create(request.getDictionary(), ACCOUNTING_RESPONSE, request.getId(), null, request.filterAttributes((byte) 33));
 
             ctx.writeAndFlush(msg.withResponse(answer));
         }

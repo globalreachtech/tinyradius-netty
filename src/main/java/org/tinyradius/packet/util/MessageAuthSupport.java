@@ -57,7 +57,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
     }
 
     default void verifyMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
+        final List<RadiusAttribute> msgAuthAttr = filterAttributes(MESSAGE_AUTHENTICATOR);
 
         if (msgAuthAttr.isEmpty())
             return;

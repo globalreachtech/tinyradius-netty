@@ -82,7 +82,7 @@ class PromiseAdapterTest {
         assertEquals(1, attributes1.size());
         assertEquals(2, attributes2.size());
 
-        final List<RadiusAttribute> attributes = processedPacket2.getAttributes(PROXY_STATE);
+        final List<RadiusAttribute> attributes = processedPacket2.filterAttributes(PROXY_STATE);
         assertEquals("1", new String(attributes.get(0).getValue(), UTF_8));
         assertEquals("2", new String(attributes.get(1).getValue(), UTF_8));
     }

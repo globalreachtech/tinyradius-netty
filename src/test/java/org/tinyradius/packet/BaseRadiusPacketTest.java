@@ -45,7 +45,7 @@ class BaseRadiusPacketTest {
         assertEquals("myLocationId", wisprLocations.get(0).getValueString());
 
         assertEquals("myLocationId", packet.getAttribute(14122, (byte) 1).get().getValueString());
-        final List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, (byte) 1);
+        final List<RadiusAttribute> wisprLocations2 = packet.filterAttributes(14122, (byte) 1);
         assertEquals(1, wisprLocations2.size());
         assertEquals("myLocationId", wisprLocations2.get(0).getValueString());
 
@@ -54,7 +54,7 @@ class BaseRadiusPacketTest {
         assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute((byte) 168).get().getValueString());
         assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute("Framed-IPv6-Address").get().getValueString());
 
-        final List<RadiusAttribute> ipV6Attributes = packet.getAttributes((byte) 97);
+        final List<RadiusAttribute> ipV6Attributes = packet.filterAttributes((byte) 97);
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
                 ipV6Attributes.stream().map(RadiusAttribute::getValueString).toArray());
 
@@ -115,14 +115,30 @@ class BaseRadiusPacketTest {
                 .addAttribute("Service-Type", "1")
                 .addAttribute("Service-Type", "2")
                 .addAttribute("User-Name", "user");
-        assertEquals(3, rp.getAttributes().size());
 
+        // remove once
         final StubPacket rp2 = rp.removeLastAttribute((byte) 6);
-        RadiusAttribute attribute = rp2.getAttribute((byte) 6).get();
 
-        assertFalse(rp.getAttributes().isEmpty());
+        List<RadiusAttribute> rp2Attributes = rp2.filterAttributes((byte) 6);
+        assertEquals(1, rp2Attributes.size());
+        assertEquals("Login-User", rp2Attributes.get(0).getValueString());
+
+        // remove again
+        final StubPacket rp3 = rp2.removeLastAttribute((byte) 6);
+
+        List<RadiusAttribute> rp3Attributes = rp3.filterAttributes((byte) 6);
+        assertEquals(0, rp3Attributes.size());
+
+        // last remove should do nothing
+        final StubPacket rp4 = rp3.removeLastAttribute((byte) 6);
+
+        List<RadiusAttribute> rp4Attributes = rp4.filterAttributes((byte) 6);
+        assertEquals(0, rp4Attributes.size());
+
+        assertEquals(3, rp.getAttributes().size());
         assertEquals(2, rp2.getAttributes().size());
-        assertEquals("Login-User", attribute.getValueString());
+        assertEquals(1, rp3.getAttributes().size());
+        assertEquals(1, rp4.getAttributes().size());
     }
 
     @Test

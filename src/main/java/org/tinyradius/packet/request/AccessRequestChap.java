@@ -122,7 +122,7 @@ public class AccessRequestChap extends AccessRequest {
     }
 
     private void validateChapAttributes() throws RadiusPacketException {
-        final int passwordCount = getAttributes(CHAP_PASSWORD).size();
+        final int passwordCount = filterAttributes(CHAP_PASSWORD).size();
         if (passwordCount != 1)
             throw new RadiusPacketException("AccessRequest (CHAP) should have exactly one CHAP-Password attribute, has " + passwordCount);
         // CHAP-Challenge can use Request Authenticator instead of attribute

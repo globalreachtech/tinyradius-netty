@@ -12,8 +12,8 @@ import org.tinyradius.attribute.util.Attributes;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.packet.request.AccountingRequest;
+import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
@@ -50,7 +50,7 @@ class ProxyHandlerTest {
     void handleSuccess() {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
+            public Optional<RadiusEndpoint> getProxyServer(RadiusRequest request, RadiusEndpoint client) {
                 return Optional.of(stubEndpoint);
             }
         };
@@ -59,7 +59,7 @@ class ProxyHandlerTest {
         final RadiusResponse mockResponse = RadiusResponse.create(dictionary, ACCOUNTING_RESPONSE, (byte) 123, null,
                 Collections.singletonList(Attributes.create(dictionary, -1, (byte) 33, "state1".getBytes(UTF_8))));
 
-        when(client.communicate(any(), any())).thenReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(mockResponse));
+        when(client.communicate(any(RadiusRequest.class), any(RadiusEndpoint.class))).thenReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(mockResponse));
 
         proxyHandler.channelRead0(ctx, new RequestCtx(request, stubEndpoint));
 
@@ -71,12 +71,12 @@ class ProxyHandlerTest {
     void handleRadiusClientError() {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
+            public Optional<RadiusEndpoint> getProxyServer(RadiusRequest request, RadiusEndpoint client) {
                 return Optional.of(stubEndpoint);
             }
         };
 
-        when(client.communicate(any(), any())).thenReturn(GlobalEventExecutor.INSTANCE.newFailedFuture(new Exception("test")));
+        when(client.communicate(any(RadiusRequest.class), any(RadiusEndpoint.class))).thenReturn(GlobalEventExecutor.INSTANCE.newFailedFuture(new Exception("test")));
 
         final AccountingRequest packet = new AccountingRequest(dictionary, (byte) 123, null, Collections.emptyList());
 
@@ -91,7 +91,7 @@ class ProxyHandlerTest {
 
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getProxyServer(RadiusPacket packet, RadiusEndpoint client) {
+            public Optional<RadiusEndpoint> getProxyServer(RadiusRequest request, RadiusEndpoint client) {
                 return Optional.empty();
             }
         };
