@@ -3,7 +3,7 @@
  * a dictionary of Radius attribute types.
  * <p>
  * Each attribute type is represented by an instance of the
- * object <code>AttributeType</code>. This class stores the
+ * object <code>AttributeTemplate</code>. This class stores the
  * type code, the type name and the vendor ID for each
  * attribute type.
  * <p>

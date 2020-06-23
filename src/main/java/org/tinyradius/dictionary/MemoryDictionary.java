@@ -1,55 +1,38 @@
 package org.tinyradius.dictionary;
 
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.AttributeTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.lang.Byte.toUnsignedInt;
 
 /**
  * A dictionary that keeps the values and names in hash maps
  * in the memory. The dictionary has to be filled using the
- * methods <code>addAttributeType</code> and
+ * methods <code>addAttributeTemplate</code> and
  * <code>addVendor</code>.
  */
 public class MemoryDictionary implements WritableDictionary {
 
     private final Map<Integer, String> vendorsByCode = new HashMap<>();
-    private final Map<Integer, Map<Byte, AttributeType>> attributesByCode = new HashMap<>();
-    private final Map<String, AttributeType> attributesByName = new HashMap<>();
+    private final Map<Integer, Map<Byte, AttributeTemplate>> attributesByCode = new HashMap<>();
+    private final Map<String, AttributeTemplate> attributesByName = new HashMap<>();
 
-    /**
-     * Returns the specified AttributeType object.
-     *
-     * @param vendorCode vendor ID or -1 for "no vendor"
-     * @param type       attribute type code
-     * @return AttributeType or null
-     */
     @Override
-    public AttributeType getAttributeTypeByCode(int vendorCode, byte type) {
-        Map<Byte, AttributeType> vendorAttributes = attributesByCode.get(vendorCode);
-        return vendorAttributes == null ?
-                null : vendorAttributes.get(type);
+    public Optional<AttributeTemplate> getAttributeTemplate(int vendorCode, byte attributeId) {
+        Map<Byte, AttributeTemplate> vendorAttributes = attributesByCode.get(vendorCode);
+        return Optional.ofNullable(vendorAttributes)
+                .map(va -> va.get(attributeId));
     }
 
-    /**
-     * Retrieves the attribute type with the given name.
-     *
-     * @param typeName name of the attribute type
-     * @return AttributeType or null
-     */
-    public AttributeType getAttributeTypeByName(String typeName) {
-        return attributesByName.get(typeName);
+    @Override
+    public Optional<AttributeTemplate> getAttributeTemplate(String name) {
+        return Optional.ofNullable(attributesByName.get(name));
     }
 
-    /**
-     * Searches the vendor with the given name and returns its
-     * code. This method is seldomly used.
-     *
-     * @param vendorName vendor name
-     * @return vendor code or -1
-     */
+    @Override
     public int getVendorId(String vendorName) {
         for (Map.Entry<Integer, String> v : vendorsByCode.entrySet()) {
             if (v.getValue().equals(vendorName))
@@ -58,28 +41,16 @@ public class MemoryDictionary implements WritableDictionary {
         return -1;
     }
 
-    /**
-     * Retrieves the name of the vendor with the given code from
-     * the cache.
-     *
-     * @param vendorId vendor number
-     * @return vendor name or null
-     */
-    public String getVendorName(int vendorId) {
-        return vendorsByCode.get(vendorId);
+    @Override
+    public Optional<String> getVendorName(int vendorId) {
+        return Optional.ofNullable(vendorsByCode.get(vendorId));
     }
 
-    /**
-     * Adds the given vendor to the cache.
-     *
-     * @param vendorId   vendor ID
-     * @param vendorName name of the vendor
-     * @throws IllegalArgumentException empty vendor name, invalid vendor ID
-     */
+    @Override
     public void addVendor(int vendorId, String vendorName) {
         if (vendorId < 0)
             throw new IllegalArgumentException("Vendor ID must be positive");
-        if (getVendorName(vendorId) != null)
+        if (getVendorName(vendorId).isPresent())
             throw new IllegalArgumentException("Duplicate vendor code");
         if (vendorName == null || vendorName.isEmpty())
             throw new IllegalArgumentException("Vendor name empty");
@@ -87,28 +58,29 @@ public class MemoryDictionary implements WritableDictionary {
     }
 
     /**
-     * Adds an AttributeType object to the cache.
+     * Adds an AttributeTemplate object to the cache.
      *
-     * @param attributeType AttributeType object
+     * @param attributeTemplate AttributeTemplate object
      * @throws IllegalArgumentException duplicate attribute name/type code
      */
-    public void addAttributeType(AttributeType attributeType) {
-        if (attributeType == null)
+    @Override
+    public void addAttributeTemplate(AttributeTemplate attributeTemplate) {
+        if (attributeTemplate == null)
             throw new IllegalArgumentException("Attribute type must not be null");
 
-        int vendorId = attributeType.getVendorId();
-        byte typeCode = attributeType.getType();
-        String attributeName = attributeType.getName();
+        int vendorId = attributeTemplate.getVendorId();
+        byte typeCode = attributeTemplate.getType();
+        String attributeName = attributeTemplate.getName();
 
         if (attributesByName.containsKey(attributeName))
             throw new IllegalArgumentException("Duplicate attribute name: " + attributeName);
 
-        Map<Byte, AttributeType> vendorAttributes = attributesByCode
+        Map<Byte, AttributeTemplate> vendorAttributes = attributesByCode
                 .computeIfAbsent(vendorId, k -> new HashMap<>());
         if (vendorAttributes.containsKey(typeCode))
             throw new IllegalArgumentException("Duplicate type code: " + toUnsignedInt(typeCode));
 
-        attributesByName.put(attributeName, attributeType);
-        vendorAttributes.put(typeCode, attributeType);
+        attributesByName.put(attributeName, attributeTemplate);
+        vendorAttributes.put(typeCode, attributeTemplate);
     }
 }

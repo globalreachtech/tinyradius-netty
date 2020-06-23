@@ -33,14 +33,14 @@ See the [example implementations](src/test/java/org/tinyradius) on usage as Clie
    - Singleton is available at `DefaultDictionary.INSTANCE`
  - `DictionaryParser` parses custom resources and takes a `ResourceResolver` parameter.
    - Factory methods `newFileParser()` and `newClasspathParser()` resolves resources on file system and classpath respectively. Dictionaries can include other files to parse, and paths are resolved differently in each case.
- - Results of dictionary parses are stored as `AttributeType`.
+ - Results of dictionary parses are stored as `AttributeTemplate`.
 
 ### Attribute
  - `RadiusAttribute` is used for octets attributes and attributes without a dictionary entry or specific subtype.
    - Attribute subtypes such as `IntegerAttribute` store the same data, but have convenience methods for maniupulation and stricter data validation.
- - `AttributeType` contains the attribute type, name, data type, and enumeration of valid values if appropriate.
+ - `AttributeTemplate` contains the attribute type, name, data type, and enumeration of valid values if appropriate.
    - A `create()` method is used to create attributes directly for that type.
-   - If only the attribute type ID is known, rather than the AttributeType object, use `Attributes.create()` which will create a basic `RadiusAttribute`. This is safer as it will always successfully create an attribute even if there's no dictionary entry for the type ID.
+   - If only the attribute type ID is known, rather than the AttributeTemplate object, use `dictionary.create()` which will create a basic `RadiusAttribute`. This is safer as it will always successfully create an attribute even if there's no dictionary entry for the type ID.
  - `VendorSpecificAttribute` stores lists of vendor-specific attributes instead of attribute data itself, and serializes its data by concatenating byte array representations of sub-attributes with its type/vendorId/length header.
 
 ### Packet

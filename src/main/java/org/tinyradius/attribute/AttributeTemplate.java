@@ -13,7 +13,7 @@ import static org.tinyradius.attribute.type.VendorSpecificAttribute.VENDOR_SPECI
 /**
  * Represents a Radius attribute type.
  */
-public class AttributeType {
+public class AttributeTemplate {
 
     private final int vendorId;
     private final byte type;
@@ -34,7 +34,7 @@ public class AttributeType {
      * @param name        sub-attribute name
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      */
-    public AttributeType(int vendorId, int type, String name, String rawDataType) {
+    public AttributeTemplate(int vendorId, int type, String name, String rawDataType) {
         if (type < 1 || type > 255)
             throw new IllegalArgumentException("Attribute type code out of bounds");
         if (name == null || name.isEmpty())

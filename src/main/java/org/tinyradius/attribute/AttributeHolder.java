@@ -41,13 +41,6 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      */
     List<RadiusAttribute> getAttributes();
 
-    default AttributeType lookupAttributeType(String name) {
-        final AttributeType type = getDictionary().getAttributeTypeByName(name);
-        if (type == null)
-            throw new IllegalArgumentException("Unknown attribute type name'" + name + "'");
-        return type;
-    }
-
     /**
      * Convenience method to get single attribute.
      *
@@ -82,11 +75,15 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * Returns attributes of the given type name.
      * Also searches sub-attributes if appropriate.
      *
-     * @param type attribute type name
+     * @param name attribute type name
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> filterAttributes(String type) {
-        return filterAttributes(lookupAttributeType(type));
+    default List<RadiusAttribute> filterAttributes(String name) {
+        final Optional<AttributeTemplate> type = getDictionary().getAttributeTemplate(name);
+        if (type.isPresent())
+            return filterAttributes(type.get());
+
+        throw new IllegalArgumentException("Unknown attribute type name'" + name + "'");
     }
 
     /**
@@ -108,7 +105,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type attribute type name
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> filterAttributes(AttributeType type) {
+    default List<RadiusAttribute> filterAttributes(AttributeTemplate type) {
         if (type.getVendorId() == getChildVendorId())
             return filterAttributes(type.getType());
 

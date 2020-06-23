@@ -1,14 +1,11 @@
 package org.tinyradius.attribute.type;
 
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.AttributeTemplate;
 import org.tinyradius.dictionary.Dictionary;
 
 import javax.xml.bind.DatatypeConverter;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
@@ -98,13 +95,13 @@ public class RadiusAttribute {
 
     @Override
     public String toString() {
-        return getAttributeKey() + ": " + getValueString();
+        return getAttributeName() + ": " + getValueString();
     }
 
-    public String getAttributeKey() {
-        AttributeType at = getAttributeType();
-        if (at != null)
-            return at.getName();
+    public String getAttributeName() {
+        Optional<AttributeTemplate> at = getAttributeTemplate();
+        if (at.isPresent())
+            return at.get().getName();
         else if (getVendorId() != -1)
             return "Unknown-Sub-Attribute-" + getType();
         else
@@ -122,10 +119,10 @@ public class RadiusAttribute {
     }
 
     /**
-     * @return AttributeType object for (sub-)attribute or null
+     * @return AttributeTemplate
      */
-    public AttributeType getAttributeType() {
-        return dictionary.getAttributeTypeByCode(getVendorId(), getType());
+    public Optional<AttributeTemplate> getAttributeTemplate() {
+        return dictionary.getAttributeTemplate(getVendorId(), getType());
     }
 
     // do not remove - for removing from list of attributes

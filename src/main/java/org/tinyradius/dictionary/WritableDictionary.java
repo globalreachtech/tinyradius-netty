@@ -1,6 +1,6 @@
 package org.tinyradius.dictionary;
 
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.AttributeTemplate;
 
 /**
  * A dictionary that is not read-only. Provides methods
@@ -13,14 +13,15 @@ public interface WritableDictionary extends Dictionary {
      *
      * @param vendorId   vendor ID
      * @param vendorName name of the vendor
+     * @throws IllegalArgumentException empty vendor name, invalid vendor ID
      */
     void addVendor(int vendorId, String vendorName);
 
     /**
-     * Adds an AttributeType object to the dictionary.
+     * Adds an AttributeTemplate object to the dictionary.
      *
-     * @param attributeType AttributeType object
+     * @param attributeTemplate AttributeTemplate object
      */
-    void addAttributeType(AttributeType attributeType);
+    void addAttributeTemplate(AttributeTemplate attributeTemplate);
 
 }

@@ -3,16 +3,17 @@ package org.tinyradius.dictionary;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.AttributeTemplate;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DictionaryParserTest {
 
@@ -45,10 +46,10 @@ class DictionaryParserTest {
 
         final Dictionary dictionary = parser.parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
 
-        final AttributeType serviceTypeAttr = dictionary.getAttributeTypeByCode((byte) 6);
-        assertNotNull(serviceTypeAttr);
-        assertEquals("Service-Type", serviceTypeAttr.getName());
-        assertEquals("Login-User", serviceTypeAttr.getEnumeration(1));
+        final Optional<AttributeTemplate> serviceTypeAttr = dictionary.getAttributeTemplate((byte) 6);
+        assertTrue(serviceTypeAttr.isPresent());
+        assertEquals("Service-Type", serviceTypeAttr.get().getName());
+        assertEquals("Login-User", serviceTypeAttr.get().getEnumeration(1));
     }
 
     @Test
@@ -57,10 +58,10 @@ class DictionaryParserTest {
 
         final Dictionary dictionary = parser.parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
 
-        final AttributeType serviceTypeAttr = dictionary.getAttributeTypeByCode((byte) 6);
-        assertNotNull(serviceTypeAttr);
-        assertEquals("Service-Type", serviceTypeAttr.getName());
-        assertEquals("Login-User", serviceTypeAttr.getEnumeration(1));
+        final Optional<AttributeTemplate> serviceTypeAttr = dictionary.getAttributeTemplate((byte) 6);
+        assertTrue(serviceTypeAttr.isPresent());
+        assertEquals("Service-Type", serviceTypeAttr.get().getName());
+        assertEquals("Login-User", serviceTypeAttr.get().getEnumeration(1));
     }
 
     private static void copyDic(Path tempDir, String fileName) throws IOException {

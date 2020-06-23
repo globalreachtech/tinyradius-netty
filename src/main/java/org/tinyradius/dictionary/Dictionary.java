@@ -1,11 +1,12 @@
 package org.tinyradius.dictionary;
 
+import org.tinyradius.attribute.AttributeTemplate;
 import org.tinyradius.attribute.type.RadiusAttribute;
-import org.tinyradius.attribute.AttributeType;
+
+import java.util.Optional;
 
 /**
- * A dictionary retrieves AttributeType objects by name or
- * type code.
+ * A dictionary retrieves AttributeTemplate objects by name or attribute ID.
  */
 public interface Dictionary {
 
@@ -18,9 +19,9 @@ public interface Dictionary {
      * @return RadiusAttribute object
      */
     default RadiusAttribute createAttribute(int vendorId, byte type, byte[] value) {
-        final AttributeType attributeType = getAttributeTypeByCode(vendorId, type);
-        if (attributeType != null)
-            return attributeType.create(this, value);
+        final Optional<AttributeTemplate> attributeTemplate = getAttributeTemplate(vendorId, type);
+        if (attributeTemplate.isPresent())
+            return attributeTemplate.get().create(this, value);
 
         return new RadiusAttribute(this, vendorId, type, value);
     }
@@ -34,16 +35,16 @@ public interface Dictionary {
      * @return RadiusAttribute object
      */
     default RadiusAttribute createAttribute(int vendorId, byte type, String value) {
-        final AttributeType attributeType = getAttributeTypeByCode(vendorId, type);
-        if (attributeType != null)
-            return attributeType.create(this, value);
+        final Optional<AttributeTemplate> attributeTemplate = getAttributeTemplate(vendorId, type);
+        if (attributeTemplate.isPresent())
+            return attributeTemplate.get().create(this, value);
 
         return new RadiusAttribute(this, vendorId, type, value);
     }
 
     /**
      * Creates a Radius attribute.
-     * Uses AttributeTypes to lookup the type code and converts the value.
+     * Uses AttributeTemplate to lookup the type code and converts the value.
      *
      * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
      * @param value value of the attribute, for example "127.0.0.1"
@@ -56,42 +57,42 @@ public interface Dictionary {
         if (value == null || value.isEmpty())
             throw new IllegalArgumentException("Value is null/empty");
 
-        final AttributeType type = getAttributeTypeByName(name);
-        if (type == null)
-            throw new IllegalArgumentException("Unknown attribute type name'" + name + "'");
+        final Optional<AttributeTemplate> type = getAttributeTemplate(name);
+        if (type.isPresent())
+            return type.get().create(this, value);
 
-        return type.create(this, value);
+        throw new IllegalArgumentException("Unknown attribute type name'" + name + "'");
     }
 
     /**
-     * Retrieves an attribute type by name. This includes
+     * Retrieves an AttributeTemplate by name. This includes
      * vendor-specific attribute types whose name is prefixed
      * by the vendor name.
      *
-     * @param typeName name of the attribute type
-     * @return AttributeType object or null
+     * @param name attribute name
+     * @return AttributeTemplate object or null
      */
-    AttributeType getAttributeTypeByName(String typeName);
+    Optional<AttributeTemplate> getAttributeTemplate(String name);
 
     /**
-     * Returns the AttributeType for the vendor -1 from the cache.
+     * Returns the AttributeTemplate for the vendor -1 from the cache.
      *
-     * @param type type code
-     * @return AttributeType object or null
+     * @param attributeId attributeId 1-255
+     * @return AttributeTemplate
      */
-    default AttributeType getAttributeTypeByCode(byte type) {
-        return getAttributeTypeByCode(-1, type);
+    default Optional<AttributeTemplate> getAttributeTemplate(byte attributeId) {
+        return getAttributeTemplate(-1, attributeId);
     }
 
     /**
-     * Retrieves an attribute type for a vendor-specific
+     * Retrieves an AttributeTemplate for a vendor-specific
      * attribute.
      *
-     * @param vendorId vendor ID
-     * @param type     type code, 1-255
-     * @return AttributeType object or null
+     * @param vendorId    vendorId if appropriate or -1
+     * @param attributeId attributeId 1-255
+     * @return AttributeTemplate
      */
-    AttributeType getAttributeTypeByCode(int vendorId, byte type);
+    Optional<AttributeTemplate> getAttributeTemplate(int vendorId, byte attributeId);
 
     /**
      * Retrieves the name of the vendor with the given
@@ -100,14 +101,14 @@ public interface Dictionary {
      * @param vendorId vendor number
      * @return vendor name or null
      */
-    String getVendorName(int vendorId);
+    Optional<String> getVendorName(int vendorId);
 
     /**
      * Retrieves the ID of the vendor with the given
      * name.
      *
      * @param vendorName name of the vendor
-     * @return vendor ID or -1
+     * @return vendorId or -1
      */
     int getVendorId(String vendorName);
 

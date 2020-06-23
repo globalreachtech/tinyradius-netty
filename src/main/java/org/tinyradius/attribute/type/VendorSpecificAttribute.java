@@ -25,25 +25,25 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
     /**
      * @param dictionary    dictionary to use for (sub)attributes
      * @param vendorId      ignored, VSAs should always be -1 (top level attribute)
-     * @param attributeType ignored, should always be Vendor-Specific (26)
+     * @param attributeId ignored, should always be Vendor-Specific (26)
      * @param data          data as hex to parse for childVendorId and sub-attributes
      */
-    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, String data) {
-        this(dictionary, vendorId, attributeType, DatatypeConverter.parseHexBinary(data));
+    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeId, String data) {
+        this(dictionary, vendorId, attributeId, DatatypeConverter.parseHexBinary(data));
     }
 
     /**
      * @param dictionary    dictionary to use for (sub)attributes
      * @param vendorId      ignored, VSAs should always be -1 (top level attribute)
-     * @param attributeType ignored, should always be Vendor-Specific (26)
+     * @param attributeId ignored, should always be Vendor-Specific (26)
      * @param data          data to parse for childVendorId and sub-attributes
      */
-    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeType, byte[] data) {
+    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeId, byte[] data) {
         this(dictionary, vendorId(data), extractAttributes(dictionary, vendorId(data), data, 4), data);
         if (vendorId != -1)
             throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
-        if (attributeType != 26)
-            throw new IllegalArgumentException("Vendor-Specific attribute attributeType should always be 26, actual: " + attributeType);
+        if (attributeId != 26)
+            throw new IllegalArgumentException("Vendor-Specific attribute attributeId should always be 26, actual: " + attributeId);
     }
 
     /**
@@ -102,14 +102,9 @@ public class VendorSpecificAttribute extends RadiusAttribute implements Attribut
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Vendor-Specific: ");
-        String vendorName = getDictionary().getVendorName(getChildVendorId());
-        if (vendorName != null) {
-            sb.append(vendorName)
-                    .append(" (").append(getChildVendorId()).append(")");
-        } else {
-            sb.append("Vendor ID ").append(getChildVendorId());
-        }
+        sb.append("Vendor-Specific: Vendor ID ").append(getChildVendorId());
+        getDictionary().getVendorName(getChildVendorId())
+                .ifPresent(s -> sb.append(" (").append(s).append(")"));
         for (RadiusAttribute sa : getAttributes()) {
             sb.append("\n  ").append(sa.toString());
         }

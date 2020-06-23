@@ -1,6 +1,6 @@
 package org.tinyradius.dictionary;
 
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.AttributeTemplate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static java.lang.Integer.parseInt;
 
@@ -114,7 +115,7 @@ public class DictionaryParser {
         String typeStr = tok[3];
 
         // create and cache object
-        dictionary.addAttributeType(new AttributeType(-1, type, name, typeStr));
+        dictionary.addAttributeTemplate(new AttributeTemplate(-1, type, name, typeStr));
     }
 
     /**
@@ -125,15 +126,15 @@ public class DictionaryParser {
             throw new IOException("Value parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
 
-        String typeName = tok[1];
+        String attributeName = tok[1];
         String enumName = tok[2];
         String valStr = tok[3];
 
-        AttributeType at = dictionary.getAttributeTypeByName(typeName);
-        if (at == null)
-            throw new IOException("Unknown attribute type: " + typeName + ", line: " + lineNum);
+        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(attributeName);
+        if (attributeTemplate.isPresent())
+            attributeTemplate.get().addEnumerationValue(parseInt(valStr), enumName);
         else
-            at.addEnumerationValue(parseInt(valStr), enumName);
+            throw new IOException("Unknown attribute type: " + attributeName + ", line: " + lineNum);
     }
 
     /**
@@ -149,7 +150,7 @@ public class DictionaryParser {
         int code = parseInt(tok[3]);
         String typeStr = tok[4];
 
-        dictionary.addAttributeType(new AttributeType(vendor, code, name, typeStr));
+        dictionary.addAttributeTemplate(new AttributeTemplate(vendor, code, name, typeStr));
     }
 
     /**

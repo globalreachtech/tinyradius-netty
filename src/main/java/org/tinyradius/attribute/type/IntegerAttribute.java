@@ -1,9 +1,10 @@
 package org.tinyradius.attribute.type;
 
-import org.tinyradius.attribute.AttributeType;
+import org.tinyradius.attribute.AttributeTemplate;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 import static java.lang.Integer.*;
 
@@ -35,10 +36,10 @@ public class IntegerAttribute extends RadiusAttribute {
         return ByteBuffer.allocate(4).putInt(value).array();
     }
 
-    private static int convertValue(String value, Dictionary dictionary, byte attributeType, int vendorId) {
-        AttributeType at = dictionary.getAttributeTypeByCode(vendorId, attributeType);
-        if (at != null) {
-            Integer val = at.getEnumeration(value);
+    private static int convertValue(String value, Dictionary dictionary, byte attributeId, int vendorId) {
+        Optional<AttributeTemplate> at = dictionary.getAttributeTemplate(vendorId, attributeId);
+        if (at.isPresent()) {
+            Integer val = at.get().getEnumeration(value);
             if (val != null)
                 return val;
         }
@@ -71,9 +72,9 @@ public class IntegerAttribute extends RadiusAttribute {
     @Override
     public String getValueString() {
         int value = getValueInt();
-        AttributeType at = getAttributeType();
-        if (at != null) {
-            String name = at.getEnumeration(value);
+        Optional<AttributeTemplate> at = getAttributeTemplate();
+        if (at.isPresent()) {
+            String name = at.get().getEnumeration(value);
             if (name != null)
                 return name;
         }
