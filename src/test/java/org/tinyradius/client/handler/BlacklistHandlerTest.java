@@ -21,7 +21,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class BlacklistHandlerTest {
 
-    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
 
     private final BlacklistHandler handler = new BlacklistHandler(5000, 2);
 
@@ -46,7 +46,15 @@ class BlacklistHandlerTest {
     }
 
     @Test
-    void blacklistEndByTimeout() {
+    void blacklistEndByExpire() {
+        final PendingRequestCtx request = genRequest(0);
+
+        handler.write(handlerContext, request, channelPromise);
+        verify(handlerContext).write(request, channelPromise);
+    }
+
+    @Test
+    void repeatFailsDontExtendBlacklist() {
 
     }
 

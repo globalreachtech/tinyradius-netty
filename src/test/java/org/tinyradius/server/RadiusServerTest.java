@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class RadiusServerTest {
 
-    private final NioEventLoopGroup eventExecutors = new NioEventLoopGroup(4);
+    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
 
-    private final Bootstrap bootstrap = new Bootstrap().group(eventExecutors).channel(NioDatagramChannel.class);
+    private final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
     @Mock
     private ChannelHandler authHandler;

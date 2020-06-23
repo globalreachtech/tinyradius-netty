@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 class BasicTimeoutHandlerTest {
 
     private final HashedWheelTimer timer = new HashedWheelTimer();
-    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
 
     @Mock
     private Runnable mockRetry;

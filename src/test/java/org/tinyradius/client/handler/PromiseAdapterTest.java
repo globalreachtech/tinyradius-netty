@@ -37,7 +37,7 @@ class PromiseAdapterTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
-    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
 
     @Mock
     private ChannelHandlerContext ctx;
