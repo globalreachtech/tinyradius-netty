@@ -2,6 +2,8 @@ package org.tinyradius.attribute;
 
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.type.RadiusAttribute;
+import org.tinyradius.attribute.type.VendorSpecificAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 
@@ -11,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
+import static org.tinyradius.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 class VendorSpecificAttributeTest {
 

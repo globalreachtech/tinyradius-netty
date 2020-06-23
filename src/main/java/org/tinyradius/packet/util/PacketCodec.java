@@ -12,7 +12,7 @@ import org.tinyradius.util.RadiusPacketException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import static org.tinyradius.attribute.util.Attributes.extractAttributes;
+import static org.tinyradius.attribute.Attributes.extractAttributes;
 
 /**
  * To encode/decode packets to/from Datagram.

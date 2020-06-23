@@ -1,8 +1,8 @@
 package org.tinyradius.packet;
 
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.VendorSpecificAttribute;
+import org.tinyradius.attribute.type.RadiusAttribute;
+import org.tinyradius.attribute.type.VendorSpecificAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 

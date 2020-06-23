@@ -1,6 +1,6 @@
 package org.tinyradius.packet.request;
 
-import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.List;

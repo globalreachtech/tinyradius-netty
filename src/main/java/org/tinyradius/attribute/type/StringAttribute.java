@@ -1,4 +1,4 @@
-package org.tinyradius.attribute;
+package org.tinyradius.attribute.type;
 
 import org.tinyradius.dictionary.Dictionary;
 

@@ -1,7 +1,7 @@
-package org.tinyradius.attribute.util;
+package org.tinyradius.attribute;
 
-import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.VendorSpecificAttribute;
+import org.tinyradius.attribute.type.RadiusAttribute;
+import org.tinyradius.attribute.type.VendorSpecificAttribute;
 
 import java.util.*;
 import java.util.stream.Collectors;

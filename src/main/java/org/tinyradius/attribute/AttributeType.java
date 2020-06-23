@@ -1,6 +1,6 @@
-package org.tinyradius.attribute.util;
+package org.tinyradius.attribute;
 
-import org.tinyradius.attribute.*;
+import org.tinyradius.attribute.type.*;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.Map;
 
 import static java.lang.Byte.toUnsignedInt;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.VendorSpecificAttribute.VENDOR_SPECIFIC;
+import static org.tinyradius.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
  * Represents a Radius attribute type.

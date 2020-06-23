@@ -5,7 +5,7 @@ import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.concurrent.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;

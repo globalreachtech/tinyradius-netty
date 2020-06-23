@@ -1,6 +1,6 @@
-package org.tinyradius.attribute;
+package org.tinyradius.attribute.type;
 
-import org.tinyradius.attribute.util.AttributeType;
+import org.tinyradius.attribute.AttributeType;
 import org.tinyradius.dictionary.Dictionary;
 
 import javax.xml.bind.DatatypeConverter;

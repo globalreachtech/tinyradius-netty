@@ -6,7 +6,7 @@ import net.jradius.packet.attribute.Attr_UnknownAttribute;
 import net.jradius.util.MD5;
 import net.jradius.util.MessageAuthenticator;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.RadiusAttribute;
+import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.BaseRadiusPacket;

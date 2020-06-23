@@ -1,7 +1,7 @@
-package org.tinyradius.attribute;
+package org.tinyradius.attribute.type;
 
 import io.netty.buffer.Unpooled;
-import org.tinyradius.attribute.util.AttributeHolder;
+import org.tinyradius.attribute.AttributeHolder;
 import org.tinyradius.dictionary.Dictionary;
 
 import javax.xml.bind.DatatypeConverter;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.tinyradius.attribute.util.Attributes.extractAttributes;
+import static org.tinyradius.attribute.Attributes.extractAttributes;
 
 /**
  * This class represents a "Vendor-Specific" attribute. Both an attribute itself and an attribute container.

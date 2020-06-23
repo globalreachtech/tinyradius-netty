@@ -1,7 +1,7 @@
 package org.tinyradius.packet;
 
-import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.util.NestedAttributeHolder;
+import org.tinyradius.attribute.type.RadiusAttribute;
+import org.tinyradius.attribute.NestedAttributeHolder;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 

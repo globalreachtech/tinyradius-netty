@@ -1,6 +1,8 @@
 package org.tinyradius.attribute;
 
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.type.Ipv6PrefixAttribute;
+import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 

@@ -1,7 +1,7 @@
 package org.tinyradius.dictionary;
 
-import org.tinyradius.attribute.RadiusAttribute;
-import org.tinyradius.attribute.util.AttributeType;
+import org.tinyradius.attribute.type.RadiusAttribute;
+import org.tinyradius.attribute.AttributeType;
 
 /**
  * A dictionary retrieves AttributeType objects by name or
