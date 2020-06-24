@@ -19,11 +19,9 @@ public interface Dictionary {
      * @return RadiusAttribute object
      */
     default RadiusAttribute createAttribute(int vendorId, byte type, byte[] value) {
-        final Optional<AttributeTemplate> attributeTemplate = getAttributeTemplate(vendorId, type);
-        if (attributeTemplate.isPresent())
-            return attributeTemplate.get().create(this, value);
-
-        return new RadiusAttribute(this, vendorId, type, value);
+        return getAttributeTemplate(vendorId, type)
+                .map(at -> at.create(this, value))
+                .orElseGet(() -> new RadiusAttribute(this, vendorId, type, value));
     }
 
     /**
@@ -35,11 +33,9 @@ public interface Dictionary {
      * @return RadiusAttribute object
      */
     default RadiusAttribute createAttribute(int vendorId, byte type, String value) {
-        final Optional<AttributeTemplate> attributeTemplate = getAttributeTemplate(vendorId, type);
-        if (attributeTemplate.isPresent())
-            return attributeTemplate.get().create(this, value);
-
-        return new RadiusAttribute(this, vendorId, type, value);
+        return getAttributeTemplate(vendorId, type)
+                .map(at -> at.create(this, value))
+                .orElseGet(() -> new RadiusAttribute(this, vendorId, type, value));
     }
 
     /**
@@ -111,6 +107,5 @@ public interface Dictionary {
      * @return vendorId or -1
      */
     int getVendorId(String vendorName);
-
 
 }
