@@ -85,7 +85,7 @@ class VendorSpecificAttributeTest {
         ));
 
         Exception exception = assertThrows(RuntimeException.class, () -> vsa.addAttribute("", "myLocationId"));
-        assertTrue(exception.getMessage().toLowerCase().contains("type name is null/empty"));
+        assertEquals("Unknown attribute type name: ''", exception.getMessage());
     }
 
     @Test

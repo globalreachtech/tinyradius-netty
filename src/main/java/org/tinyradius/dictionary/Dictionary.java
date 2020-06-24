@@ -45,19 +45,11 @@ public interface Dictionary {
      * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
      * @param value value of the attribute, for example "127.0.0.1"
      * @return RadiusAttribute object
-     * @throws IllegalArgumentException if type name or value is invalid
      */
     default RadiusAttribute createAttribute(String name, String value) {
-        if (name == null || name.isEmpty())
-            throw new IllegalArgumentException("Type name is null/empty");
-        if (value == null || value.isEmpty())
-            throw new IllegalArgumentException("Value is null/empty");
-
-        final Optional<AttributeTemplate> type = getAttributeTemplate(name);
-        if (type.isPresent())
-            return type.get().create(this, value);
-
-        throw new IllegalArgumentException("Unknown attribute type name'" + name + "'");
+        return getAttributeTemplate(name)
+                .map(at -> at.create(this, value))
+                .orElseThrow(() -> new IllegalArgumentException("Unknown attribute type name: '" + name + "'"));
     }
 
     /**
