@@ -69,8 +69,12 @@ public class DictionaryParser {
     }
 
     private void parseLine(WritableDictionary dictionary, String rawLine, int lineNum, String resource) throws IOException {
-        final String line = rawLine.trim();
-        if (line.startsWith("#") || line.isEmpty())
+        final int commentIndex = rawLine.indexOf('#');
+        final String line = commentIndex == -1 ?
+                rawLine.trim() :
+                rawLine.substring(0, commentIndex).trim();
+
+        if (line.isEmpty())
             return;
 
         final String[] tokens = line.split("\\s+");
@@ -97,7 +101,7 @@ public class DictionaryParser {
                 parseVendorLine(dictionary, tokens, lineNum);
                 break;
             default:
-                throw new IOException("Unknown line type: " + tokens[0] + " line: " + lineNum);
+                throw new IOException("Could not decode tokens on line " + lineNum + ": " + Arrays.toString(tokens));
         }
     }
 
@@ -205,7 +209,7 @@ public class DictionaryParser {
             if (Files.exists(path))
                 return Files.newInputStream(path);
 
-            throw new IOException("could not open stream, file not found: " + resource);
+            throw new IOException("Could not open stream, file not found: " + resource);
         }
     }
 
@@ -223,7 +227,7 @@ public class DictionaryParser {
             if (stream != null)
                 return stream;
 
-            throw new IOException("could not open stream, classpath resource not found: " + resource);
+            throw new IOException("Could not open stream, classpath resource not found: " + resource);
         }
     }
 }
