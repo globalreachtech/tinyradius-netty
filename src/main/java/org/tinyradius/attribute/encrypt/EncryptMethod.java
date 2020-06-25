@@ -1,5 +1,8 @@
 package org.tinyradius.attribute.encrypt;
 
+/**
+ * Attribute encryption methods as used in FreeRadius dictionary files
+ */
 public enum EncryptMethod {
     NONE((byte) 0),
     RFC2865_USER_PASSWORD((byte) 1),

@@ -46,49 +46,31 @@ public class OctetsAttribute implements RadiusAttribute {
         this(dictionary, vendorId, type, DatatypeConverter.parseHexBinary(value));
     }
 
-    /**
-     * @return attribute data as raw bytes
-     */
     @Override
     public byte[] getValue() {
         return value;
     }
 
-    /**
-     * @return attribute type code, 0-255
-     */
     @Override
     public byte getType() {
         return type;
     }
 
-    /**
-     * @return value of this attribute as a hex string.
-     */
     @Override
     public String getValueString() {
         return DatatypeConverter.printHexBinary(value);
     }
 
-    /**
-     * @return vendor Id if Vendor-Specific attribute or sub-attribute, otherwise -1
-     */
     @Override
     public int getVendorId() {
         return vendorId;
     }
 
-    /**
-     * @return dictionary that attribute uses
-     */
     @Override
     public Dictionary getDictionary() {
         return dictionary;
     }
 
-    /**
-     * @return entire attribute (including headers) as byte array
-     */
     @Override
     public byte[] toByteArray() {
         final int len = value.length + 2;
@@ -113,20 +95,11 @@ public class OctetsAttribute implements RadiusAttribute {
                         "Unknown-Attribute-" + getType());
     }
 
-    /**
-     * Returns set of all nested attributes if contains sub-attributes,
-     * otherwise singleton set of current attribute.
-     *
-     * @return Set of String/String Entry
-     */
     @Override
     public List<RadiusAttribute> flatten() {
         return Collections.singletonList(this);
     }
 
-    /**
-     * @return AttributeTemplate
-     */
     @Override
     public Optional<AttributeTemplate> getAttributeTemplate() {
         return dictionary.getAttributeTemplate(getVendorId(), getType());
