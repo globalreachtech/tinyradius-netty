@@ -1,6 +1,7 @@
 package org.tinyradius.dictionary;
 
 import org.tinyradius.attribute.AttributeTemplate;
+import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
 
 import java.util.Optional;
@@ -21,7 +22,7 @@ public interface Dictionary {
     default RadiusAttribute createAttribute(int vendorId, byte type, byte[] value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, value))
-                .orElseGet(() -> new RadiusAttribute(this, vendorId, type, value));
+                .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));
     }
 
     /**
@@ -35,7 +36,7 @@ public interface Dictionary {
     default RadiusAttribute createAttribute(int vendorId, byte type, String value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, value))
-                .orElseGet(() -> new RadiusAttribute(this, vendorId, type, value));
+                .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));
     }
 
     /**

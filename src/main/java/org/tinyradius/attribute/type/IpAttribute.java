@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 /**
  * This class represents a Radius attribute for an IP address.
  */
-public abstract class IpAttribute extends RadiusAttribute {
+public abstract class IpAttribute extends OctetsAttribute {
 
     private IpAttribute(Dictionary dictionary, int vendorId, byte type, InetAddress data, Class<? extends InetAddress> clazz) {
         super(dictionary, vendorId, type, data.getAddress());

@@ -1,6 +1,7 @@
 package org.tinyradius.attribute;
 
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -18,7 +19,7 @@ class RadiusAttributeTest {
     @Test
     void createMaxSizeAttribute() {
         // 253 octets ok
-        final RadiusAttribute maxSizeAttribute = new RadiusAttribute(dictionary, -1, (byte) 2, random.generateSeed(253));
+        final RadiusAttribute maxSizeAttribute = new OctetsAttribute(dictionary, -1, (byte) 2, random.generateSeed(253));
         final byte[] bytes = maxSizeAttribute.toByteArray();
 
         assertEquals(0xFF, toUnsignedInt(bytes[1]));
@@ -28,20 +29,20 @@ class RadiusAttributeTest {
         // 254 octets not ok
         final byte[] oversizedArray = random.generateSeed(254);
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                new RadiusAttribute(dictionary, -1, (byte) 2, oversizedArray));
+                new OctetsAttribute(dictionary, -1, (byte) 2, oversizedArray));
 
         assertTrue(exception.getMessage().contains("too long"));
     }
 
     @Test
     void testFlatten() {
-        final RadiusAttribute attribute = new RadiusAttribute(dictionary, -1, (byte) 2, "123456");
+        final RadiusAttribute attribute = new OctetsAttribute(dictionary, -1, (byte) 2, "123456");
         assertEquals("[User-Password: 123456]", attribute.flatten().toString());
     }
 
     @Test
     void testToString() {
-        final RadiusAttribute attribute = new RadiusAttribute(dictionary, -1, (byte) 2, "123456");
+        final RadiusAttribute attribute = new OctetsAttribute(dictionary, -1, (byte) 2, "123456");
         assertEquals("User-Password: 123456", attribute.toString());
     }
 }

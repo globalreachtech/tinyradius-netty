@@ -5,10 +5,10 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.AccessRequest;
 import org.tinyradius.packet.request.AccountingRequest;
-import org.tinyradius.packet.request.GenericRadiusRequest;
+import org.tinyradius.packet.request.GenericRequest;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.AccessResponse;
-import org.tinyradius.packet.response.GenericRadiusResponse;
+import org.tinyradius.packet.response.GenericResponse;
 import org.tinyradius.packet.response.RadiusResponse;
 
 import java.util.Collections;
@@ -29,7 +29,7 @@ class RadiusPacketsTest {
 
         RadiusRequest coaRequest = RadiusRequest.create(dictionary, COA_REQUEST, (byte) 2, null, Collections.emptyList());
         assertEquals(COA_REQUEST, coaRequest.getType());
-        assertEquals(GenericRadiusRequest.class, coaRequest.getClass());
+        assertEquals(GenericRequest.class, coaRequest.getClass());
 
         RadiusRequest accountingRequest = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 3, null, Collections.emptyList());
         assertEquals(ACCOUNTING_REQUEST, accountingRequest.getType());
@@ -44,6 +44,6 @@ class RadiusPacketsTest {
 
         RadiusResponse accountingResponse = RadiusResponse.create(dictionary, ACCOUNTING_RESPONSE, (byte) 2, null, Collections.emptyList());
         assertEquals(ACCOUNTING_RESPONSE, accountingResponse.getType());
-        assertEquals(GenericRadiusResponse.class, accountingResponse.getClass());
+        assertEquals(GenericResponse.class, accountingResponse.getClass());
     }
 }

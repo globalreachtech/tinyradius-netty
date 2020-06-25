@@ -9,12 +9,12 @@ import static java.lang.Integer.*;
 /**
  * This class represents a Radius attribute which only contains a 32 bit integer.
  */
-public class IntegerAttribute extends RadiusAttribute {
+public class IntegerAttribute extends OctetsAttribute {
 
     public IntegerAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
         super(dictionary, vendorId, type, data);
         if (data.length != 4)
-            throw new IllegalArgumentException("Integer attribute value should be 4 octets, actual: " + data.length);
+            throw new IllegalArgumentException("Integer / Date attribute value should be 4 octets, actual: " + data.length);
     }
 
     public IntegerAttribute(Dictionary dictionary, int vendorId, byte type, String value) {

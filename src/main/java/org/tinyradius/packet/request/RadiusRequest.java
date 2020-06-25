@@ -31,7 +31,7 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
             case ACCOUNTING_REQUEST:
                 return new AccountingRequest(dictionary, identifier, authenticator, attributes);
             default:
-                return new GenericRadiusRequest(dictionary, type, identifier, authenticator, attributes);
+                return new GenericRequest(dictionary, type, identifier, authenticator, attributes);
         }
     }
 

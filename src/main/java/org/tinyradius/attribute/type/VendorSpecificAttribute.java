@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * This class represents a "Vendor-Specific" attribute. Both an attribute itself and an attribute container.
  */
-public class VendorSpecificAttribute extends RadiusAttribute implements AttributeHolder<VendorSpecificAttribute> {
+public class VendorSpecificAttribute extends OctetsAttribute implements AttributeHolder<VendorSpecificAttribute> {
 
     public static final byte VENDOR_SPECIFIC = 26;
 

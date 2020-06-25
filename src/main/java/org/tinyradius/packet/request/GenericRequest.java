@@ -6,7 +6,7 @@ import org.tinyradius.packet.BaseRadiusPacket;
 
 import java.util.List;
 
-public class GenericRadiusRequest extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest {
+public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest {
 
     /**
      * Builds a Radius packet with the given type, identifier and attributes.
@@ -21,18 +21,18 @@ public class GenericRadiusRequest extends BaseRadiusPacket<RadiusRequest> implem
      * @param authenticator can be null if creating manually
      * @param attributes    list of RadiusAttribute objects
      */
-    public GenericRadiusRequest(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    public GenericRequest(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, type, identifier, authenticator, attributes);
     }
 
     @Override
-    public GenericRadiusRequest encodeRequest(String sharedSecret) {
+    public GenericRequest encodeRequest(String sharedSecret) {
         final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
-        return new GenericRadiusRequest(getDictionary(), getType(), getId(), authenticator, getAttributes());
+        return new GenericRequest(getDictionary(), getType(), getId(), authenticator, getAttributes());
     }
 
     @Override
-    public GenericRadiusRequest withAttributes(List<RadiusAttribute> attributes) {
-        return new GenericRadiusRequest(getDictionary(), getType(), getId(), getAuthenticator(), attributes);
+    public GenericRequest withAttributes(List<RadiusAttribute> attributes) {
+        return new GenericRequest(getDictionary(), getType(), getId(), getAuthenticator(), attributes);
     }
 }

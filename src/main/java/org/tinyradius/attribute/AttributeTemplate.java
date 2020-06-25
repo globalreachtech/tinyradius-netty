@@ -57,7 +57,15 @@ public class AttributeTemplate {
         this.vendorId = vendorId;
         this.type = (byte) type;
         this.name = name;
-        this.encrypt = encrypt;
+
+        if (vendorId == -1 && type == 2) // User-Password
+            this.encrypt = 1;
+        else if (vendorId == -1 && type == 1) // Tunnel-Password
+            this.encrypt = 2;
+        else if (vendorId == 529 && type == 214) // Ascend-Send-Secret
+            this.encrypt = 3;
+        else
+            this.encrypt = encrypt;
 
         dataType = rawDataType.toLowerCase();
 
@@ -91,8 +99,8 @@ public class AttributeTemplate {
                 break;
             case "octets":
             default:
-                byteArrayConstructor = RadiusAttribute::new;
-                stringConstructor = RadiusAttribute::new;
+                byteArrayConstructor = OctetsAttribute::new;
+                stringConstructor = OctetsAttribute::new;
         }
     }
 

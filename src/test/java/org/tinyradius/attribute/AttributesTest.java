@@ -1,6 +1,7 @@
 package org.tinyradius.attribute;
 
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.IpAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.attribute.type.StringAttribute;
@@ -31,9 +32,9 @@ class AttributesTest {
     @Test
     void createAttributeUnknownTypes() {
         final RadiusAttribute a1 = dictionary.createAttribute( -1, (byte) 255, new byte[5]);
-        assertEquals(RadiusAttribute.class, a1.getClass());
+        assertEquals(OctetsAttribute.class, a1.getClass());
 
         final RadiusAttribute a2 = dictionary.createAttribute( -1, (byte) 255, "");
-        assertEquals(RadiusAttribute.class, a2.getClass());
+        assertEquals(OctetsAttribute.class, a2.getClass());
     }
 }

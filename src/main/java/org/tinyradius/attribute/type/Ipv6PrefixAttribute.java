@@ -13,7 +13,7 @@ import static java.lang.Byte.toUnsignedInt;
 /**
  * This class represents a Radius attribute for an IPv6 prefix.
  */
-public class Ipv6PrefixAttribute extends RadiusAttribute {
+public class Ipv6PrefixAttribute extends OctetsAttribute {
 
     public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
         this(dictionary, vendorId, type, convertValue(data), toUnsignedInt(data[1]));

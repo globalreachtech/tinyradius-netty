@@ -30,7 +30,7 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
             case ACCESS_CHALLENGE:
                 return new AccessResponse(dictionary, type, identifier, authenticator, attributes);
             default:
-                return new GenericRadiusResponse(dictionary, type, identifier, authenticator, attributes);
+                return new GenericResponse(dictionary, type, identifier, authenticator, attributes);
         }
     }
 

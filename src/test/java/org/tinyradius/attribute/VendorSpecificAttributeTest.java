@@ -2,6 +2,7 @@ package org.tinyradius.attribute;
 
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.attribute.type.VendorSpecificAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
@@ -133,7 +134,7 @@ class VendorSpecificAttributeTest {
     @Test
     void vsaToByteArrayTooLong() {
         final List<RadiusAttribute> attributes = Collections.singletonList(
-                new RadiusAttribute(dictionary, 14122, (byte) 26, new byte[253]));
+                new OctetsAttribute(dictionary, 14122, (byte) 26, new byte[253]));
         Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> new VendorSpecificAttribute(dictionary, 14122, attributes));
         assertTrue(exception.getMessage().toLowerCase().contains("attribute data too long, max 253 octets"));

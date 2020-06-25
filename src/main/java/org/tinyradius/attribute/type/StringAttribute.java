@@ -7,7 +7,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * This class represents a Radius attribute which only contains a string.
  */
-public class StringAttribute extends RadiusAttribute {
+public class StringAttribute extends OctetsAttribute {
 
     public StringAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
         super(dictionary, vendorId, type, data);
