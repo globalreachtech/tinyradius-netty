@@ -3,7 +3,7 @@ package org.tinyradius.attribute.encrypt;
 /**
  * Attribute encryption methods as used in FreeRadius dictionary files
  */
-public enum EncryptMethod {
+public enum AttributeCodecType {
     NO_ENCRYPT((byte) 0),
     RFC2865_USER_PASSWORD((byte) 1),
     RFC2868_TUNNEL_PASSWORD((byte) 2),
@@ -11,11 +11,11 @@ public enum EncryptMethod {
 
     private final byte id;
 
-    EncryptMethod(byte id) {
+    AttributeCodecType(byte id) {
         this.id = id;
     }
 
-    public static EncryptMethod fromId(byte id) {
+    public static AttributeCodecType fromId(byte id) {
         switch (id) {
             case 1:
                 return RFC2865_USER_PASSWORD;

@@ -1,6 +1,6 @@
 package org.tinyradius.attribute;
 
-import org.tinyradius.attribute.encrypt.EncryptMethod;
+import org.tinyradius.attribute.encrypt.AttributeCodecType;
 import org.tinyradius.attribute.type.AttributeType;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 import static java.lang.Byte.toUnsignedInt;
 import static java.util.Objects.requireNonNull;
-import static org.tinyradius.attribute.encrypt.EncryptMethod.*;
+import static org.tinyradius.attribute.encrypt.AttributeCodecType.*;
 import static org.tinyradius.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
@@ -21,7 +21,7 @@ public class AttributeTemplate {
     private final int vendorId;
     private final byte type;
     private final String name;
-    private final EncryptMethod encrypt;
+    private final AttributeCodecType encrypt;
 
     private final String dataType;
     private final AttributeType rawType;

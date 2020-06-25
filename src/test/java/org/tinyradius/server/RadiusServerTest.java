@@ -31,7 +31,7 @@ class RadiusServerTest {
 
     @Test
     void serverStartStop() {
-        final RadiusServer server = new RadiusServer(bootstrap, authHandler, acctHandler, new InetSocketAddress(51024), new InetSocketAddress(51025));
+        final RadiusServer server = new RadiusServer(bootstrap, authHandler, acctHandler, new InetSocketAddress(0), new InetSocketAddress(0));
 
         // registering event loop and adding handlers is almost instant
         // socket binding is variable, possible race condition, so we sync

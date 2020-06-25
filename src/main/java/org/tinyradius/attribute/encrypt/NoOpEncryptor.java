@@ -1,4 +1,4 @@
 package org.tinyradius.attribute.encrypt;
 
-public class NoOpEncryptor implements Encryptor {
+public class NoOpEncryptor implements AttributeCodec {
 }

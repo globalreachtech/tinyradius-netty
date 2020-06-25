@@ -13,33 +13,33 @@ import java.util.Arrays;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
-public class UserPasswordEncryptor implements Encryptor {
+public class UserPasswordCodec implements AttributeCodec {
 
     private static final Logger logger = LogManager.getLogger();
 
-    public RadiusAttribute encrypt(RadiusAttribute attribute, String password, String sharedSecret, byte[] newAuth) {
+    public RadiusAttribute encrypt(RadiusAttribute attribute, String sharedSecret, byte[] newAuth) {
 
         return attribute.getDictionary().createAttribute(attribute.getVendorId(), attribute.getType(),
-                encodePapPassword(newAuth, password.getBytes(UTF_8), sharedSecret.getBytes(UTF_8)));
+                encodeData(newAuth, attribute.getValue(), sharedSecret.getBytes(UTF_8)));
     }
 
     public String decrypt(RadiusAttribute attribute, String sharedSecret, byte[] auth) throws RadiusPacketException {
-        return decodePapPassword(attribute.getValue(), sharedSecret.getBytes(UTF_8), auth);
+        return decodeData(attribute.getValue(), sharedSecret.getBytes(UTF_8), auth);
     }
 
     /**
-     * This method encodes the plaintext user password according to RFC 2865.
+     * This method encodes plaintext data according to RFC 2865 for User-Password
      *
-     * @param password     the password to encrypt
+     * @param data         the data to encrypt
      * @param sharedSecret shared secret
-     * @return the byte array containing the encrypted password
+     * @return the byte array containing the encrypted data
      */
-    private byte[] encodePapPassword(byte[] authenticator, byte[] password, byte[] sharedSecret) {
-        requireNonNull(password, "Password cannot be null");
+    private byte[] encodeData(byte[] authenticator, byte[] data, byte[] sharedSecret) {
+        requireNonNull(data, "Password cannot be null");
         requireNonNull(sharedSecret, "Shared secret cannot be null");
 
         byte[] ciphertext = authenticator;
-        byte[] pw = pad(password);
+        byte[] pw = pad(data);
         final ByteBuffer buffer = ByteBuffer.allocate(pw.length);
 
         for (int i = 0; i < pw.length; i += 16) {
@@ -52,24 +52,24 @@ public class UserPasswordEncryptor implements Encryptor {
 
 
     /**
-     * Decodes the passed encoded password and returns the cleartext form.
+     * Decodes the passed encoded attribute data and returns the cleartext form.
      *
      * @param sharedSecret shared secret
-     * @return decrypted password
+     * @return decrypted data
      */
-    private String decodePapPassword(byte[] encodedPw, byte[] sharedSecret, byte[] auth) throws RadiusPacketException {
-        if (encodedPw.length < 16) {
+    private String decodeData(byte[] encodedData, byte[] sharedSecret, byte[] auth) throws RadiusPacketException {
+        if (encodedData.length < 16) {
             // PAP passwords require at least 16 bytes, or multiples thereof
-            logger.warn("Malformed packet: User-Password attribute length must be greater than 15, actual {}", encodedPw.length);
+            logger.warn("Malformed packet: User-Password attribute length must be greater than 15, actual {}", encodedData.length);
             throw new RadiusPacketException("Malformed User-Password attribute");
         }
 
-        final ByteBuffer buffer = ByteBuffer.allocate(encodedPw.length);
+        final ByteBuffer buffer = ByteBuffer.allocate(encodedData.length);
         byte[] ciphertext = auth;
 
-        for (int i = 0; i < encodedPw.length; i += 16) {
-            buffer.put(xor16(encodedPw, i, md5(sharedSecret, ciphertext)));
-            ciphertext = Arrays.copyOfRange(encodedPw, i, 16);
+        for (int i = 0; i < encodedData.length; i += 16) {
+            buffer.put(xor16(encodedData, i, md5(sharedSecret, ciphertext)));
+            ciphertext = Arrays.copyOfRange(encodedData, i, 16);
         }
 
         return stripNullPadding(new String(buffer.array(), UTF_8));
