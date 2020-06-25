@@ -1,6 +1,8 @@
 package org.tinyradius.attribute;
 
-import org.tinyradius.attribute.type.*;
+import org.tinyradius.attribute.encrypt.EncryptMethod;
+import org.tinyradius.attribute.type.AttributeType;
+import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 
 import java.util.HashMap;
@@ -8,6 +10,7 @@ import java.util.Map;
 
 import static java.lang.Byte.toUnsignedInt;
 import static java.util.Objects.requireNonNull;
+import static org.tinyradius.attribute.encrypt.EncryptMethod.*;
 import static org.tinyradius.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
@@ -18,11 +21,11 @@ public class AttributeTemplate {
     private final int vendorId;
     private final byte type;
     private final String name;
-    private final byte encrypt;
+    private final EncryptMethod encrypt;
 
     private final String dataType;
-    private final ByteArrayConstructor byteArrayConstructor;
-    private final StringConstructor stringConstructor;
+    private final AttributeType rawType;
+    private final AttributeType encodedType;
 
     private final Map<Integer, String> int2str = new HashMap<>();
     private final Map<String, Integer> str2int = new HashMap<>();
@@ -57,59 +60,31 @@ public class AttributeTemplate {
         this.vendorId = vendorId;
         this.type = (byte) type;
         this.name = name;
+        this.dataType = rawDataType.toLowerCase();
+
+        rawType = vendorId == -1 && type == VENDOR_SPECIFIC ?
+                AttributeType.VSA :
+                AttributeType.fromDataType(this.dataType);
 
         if (vendorId == -1 && type == 2) // User-Password
-            this.encrypt = 1;
+            this.encrypt = RFC2865_USER_PASSWORD;
         else if (vendorId == -1 && type == 1) // Tunnel-Password
-            this.encrypt = 2;
+            this.encrypt = RFC2868_TUNNEL_PASSWORD;
         else if (vendorId == 529 && type == 214) // Ascend-Send-Secret
-            this.encrypt = 3;
+            this.encrypt = ASCENT_SEND_SECRET;
         else
-            this.encrypt = encrypt;
+            this.encrypt = fromId(encrypt);
 
-        dataType = rawDataType.toLowerCase();
-
-        if (dataType.equals("vsa") || (vendorId == -1 && type == VENDOR_SPECIFIC)) {
-            byteArrayConstructor = VendorSpecificAttribute::new;
-            stringConstructor = VendorSpecificAttribute::new;
-            return;
-        }
-
-        switch (dataType) {
-            case "string":
-                byteArrayConstructor = StringAttribute::new;
-                stringConstructor = StringAttribute::new;
-                break;
-            case "integer":
-            case "date":
-                byteArrayConstructor = IntegerAttribute::new;
-                stringConstructor = IntegerAttribute::new;
-                break;
-            case "ipaddr":
-                byteArrayConstructor = IpAttribute.V4::new;
-                stringConstructor = IpAttribute.V4::new;
-                break;
-            case "ipv6addr":
-                byteArrayConstructor = IpAttribute.V6::new;
-                stringConstructor = IpAttribute.V6::new;
-                break;
-            case "ipv6prefix":
-                byteArrayConstructor = Ipv6PrefixAttribute::new;
-                stringConstructor = Ipv6PrefixAttribute::new;
-                break;
-            case "octets":
-            default:
-                byteArrayConstructor = OctetsAttribute::new;
-                stringConstructor = OctetsAttribute::new;
-        }
+        encodedType = this.encrypt == NO_ENCRYPT ?
+                rawType : AttributeType.OCTETS;
     }
 
     public RadiusAttribute create(Dictionary dictionary, byte[] data) {
-        return byteArrayConstructor.newInstance(dictionary, vendorId, type, data);
+        return rawType.create(dictionary, vendorId, type, data);
     }
 
     public RadiusAttribute create(Dictionary dictionary, String data) {
-        return stringConstructor.newInstance(dictionary, vendorId, type, data);
+        return rawType.create(dictionary, vendorId, type, data);
     }
 
     /**
@@ -174,13 +149,5 @@ public class AttributeTemplate {
         if (getVendorId() != -1)
             s += " (Vendor " + getVendorId() + ")";
         return s;
-    }
-
-    interface ByteArrayConstructor {
-        RadiusAttribute newInstance(Dictionary dictionary, int vendorId, byte type, byte[] data);
-    }
-
-    interface StringConstructor {
-        RadiusAttribute newInstance(Dictionary dictionary, int vendorId, byte type, String data);
     }
 }
