@@ -18,7 +18,7 @@ public class AttributeTemplate {
     private final int vendorId;
     private final byte type;
     private final String name;
-    private final short encrypt = 0;
+    private final byte encrypt;
 
     private final String dataType;
     private final ByteArrayConstructor byteArrayConstructor;
@@ -36,6 +36,19 @@ public class AttributeTemplate {
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      */
     public AttributeTemplate(int vendorId, int type, String name, String rawDataType) {
+        this(vendorId, type, name, rawDataType, (byte) 0);
+    }
+
+    /**
+     * Create a new attribute type.
+     *
+     * @param vendorId    vendor ID or -1 if N/A
+     * @param type        sub-attribute type code
+     * @param name        sub-attribute name
+     * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
+     * @param encrypt     encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or 0 for no encryption
+     */
+    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encrypt) {
         if (type < 1 || type > 255)
             throw new IllegalArgumentException("Attribute type code out of bounds");
         if (name == null || name.isEmpty())
@@ -44,6 +57,7 @@ public class AttributeTemplate {
         this.vendorId = vendorId;
         this.type = (byte) type;
         this.name = name;
+        this.encrypt = encrypt;
 
         dataType = rawDataType.toLowerCase();
 
