@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.client.timeout.BasicTimeoutHandler;
+import org.tinyradius.client.timeout.FixedTimeoutHandler;
 import org.tinyradius.client.timeout.TimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
@@ -50,7 +50,7 @@ class RadiusClientTest {
     private final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
     @Spy
-    private final TimeoutHandler timeoutHandler = new BasicTimeoutHandler(new HashedWheelTimer());
+    private final TimeoutHandler timeoutHandler = new FixedTimeoutHandler(new HashedWheelTimer());
 
     @BeforeAll
     static void beforeAll() {

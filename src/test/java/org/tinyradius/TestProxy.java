@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.ClientPacketCodec;
 import org.tinyradius.client.handler.PromiseAdapter;
-import org.tinyradius.client.timeout.BasicTimeoutHandler;
+import org.tinyradius.client.timeout.FixedTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.AccountingRequest;
@@ -60,7 +60,7 @@ public class TestProxy {
                     "proxytest" : null;
         };
 
-        final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 3, 1000);
+        final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 3, 1000);
 
         final RadiusClient radiusClient = new RadiusClient(
                 bootstrap, new InetSocketAddress(0), retryStrategy, new ChannelInitializer<DatagramChannel>() {

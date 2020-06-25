@@ -12,13 +12,13 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * TimeoutHandler that waits a fixed period for every timeout,
  * up to a predefined max attempt count.
  */
-public class BasicTimeoutHandler implements TimeoutHandler {
+public class FixedTimeoutHandler implements TimeoutHandler {
 
     private final Timer timer;
     private final int maxAttempts;
     private final int timeoutMs;
 
-    public BasicTimeoutHandler(Timer timer) {
+    public FixedTimeoutHandler(Timer timer) {
         this(timer, 1, 1000);
     }
 
@@ -27,7 +27,7 @@ public class BasicTimeoutHandler implements TimeoutHandler {
      * @param maxAttempts max number of attempts to try before returning failure
      * @param timeoutMs   time to wait before timeout or next retry, in milliseconds
      */
-    public BasicTimeoutHandler(Timer timer, int maxAttempts, int timeoutMs) {
+    public FixedTimeoutHandler(Timer timer, int maxAttempts, int timeoutMs) {
         this.timer = timer;
         this.maxAttempts = maxAttempts;
         this.timeoutMs = timeoutMs;

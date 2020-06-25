@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.tinyradius.client.RadiusClient;
 import org.tinyradius.client.handler.ClientPacketCodec;
 import org.tinyradius.client.handler.PromiseAdapter;
-import org.tinyradius.client.timeout.BasicTimeoutHandler;
+import org.tinyradius.client.timeout.FixedTimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.AccessRequestPap;
@@ -56,7 +56,7 @@ public class TestClient {
         final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
         RadiusClient rc = new RadiusClient(
-                bootstrap, new InetSocketAddress(0), new BasicTimeoutHandler(timer), new ChannelInitializer<DatagramChannel>() {
+                bootstrap, new InetSocketAddress(0), new FixedTimeoutHandler(timer), new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
                 ch.pipeline().addLast(new ClientPacketCodec(dictionary), new PromiseAdapter());

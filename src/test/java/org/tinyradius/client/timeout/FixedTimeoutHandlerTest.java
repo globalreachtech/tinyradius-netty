@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class BasicTimeoutHandlerTest {
+class FixedTimeoutHandlerTest {
 
     private final HashedWheelTimer timer = new HashedWheelTimer();
     private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
@@ -25,7 +25,7 @@ class BasicTimeoutHandlerTest {
     void retryFailIfMaxAttempts() {
         final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
 
-        final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 2, 0);
+        final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 2, 0);
 
         // totalAttempts < maxAttempts
         retryStrategy.onTimeout(mockRetry, 1, promise);
@@ -50,7 +50,7 @@ class BasicTimeoutHandlerTest {
     void retryRunOk() {
         final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
 
-        final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 3, 100);
+        final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 3, 100);
 
         // first retry runs
         retryStrategy.onTimeout(mockRetry, 1, promise);
@@ -62,7 +62,7 @@ class BasicTimeoutHandlerTest {
 
     @Test
     void noRetryIfPromiseDone() {
-        final BasicTimeoutHandler retryStrategy = new BasicTimeoutHandler(timer, 3, 0);
+        final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 3, 0);
 
         final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
         promise.trySuccess(null);
