@@ -2,8 +2,6 @@ package org.tinyradius.attribute.encrypt;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -18,8 +16,6 @@ import static java.util.Objects.requireNonNull;
  * Attribute is encrypted with the method as defined in RFC2865 for the User-Password attribute
  */
 public class UserPasswordCodec implements AttributeCodec {
-
-    private static final Logger logger = LogManager.getLogger();
 
     @Override
     public byte[] encode(byte[] data, String sharedSecret, byte[] authenticator) {
@@ -48,19 +44,13 @@ public class UserPasswordCodec implements AttributeCodec {
     }
 
     private byte[] decodeData(byte[] encodedData, byte[] sharedSecret, byte[] auth) throws RadiusPacketException {
-        if (encodedData.length < 16) {
-            // User-Password require at least 16 bytes, or multiples thereof
-            logger.warn("Malformed attribute while decoding with RFC2865 User-Password method - " +
-                    "data must be at least 16 octets, actual {}", encodedData.length);
-            throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 User-Password method - data must be at least 16 octets");
-        }
+        if (encodedData.length < 16)
+            throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 User-Password method - " +
+                    "data must be at least 16 octets, actual: " + encodedData.length);
 
-        if (encodedData.length % 16 != 0) {
-            // User-Password require at least 16 bytes, or multiples thereof
-            logger.warn("Malformed attribute while decoding with RFC2865 User-Password method - " +
-                    "data length must multiple of 16, actual {}", encodedData.length);
-            throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 User-Password method - data octets must be multiple of 16");
-        }
+        if (encodedData.length % 16 != 0)
+            throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 User-Password method - " +
+                    "data octets must be multiple of 16, actual: " + encodedData.length);
 
         final ByteBuf buf = Unpooled.buffer(encodedData.length, encodedData.length);
         byte[] ciphertext = auth;
@@ -70,13 +60,11 @@ public class UserPasswordCodec implements AttributeCodec {
             ciphertext = Arrays.copyOfRange(encodedData, i, 16);
         }
 
-        final int nullIndex = buf.indexOf(0, encodedData.length - 1, (byte) (int) '\0');
+        final int nullIndex = buf.indexOf(0, encodedData.length - 1, (byte) 0);
 
-        if (nullIndex == -1)
-            return buf.copy().array();
-
-        return buf.writerIndex(nullIndex)
-                .copy().array();
+        return nullIndex == -1 ?
+                buf.copy().array() :
+                buf.writerIndex(nullIndex).copy().array();
     }
 
     private byte[] md5(byte[] a, byte[] b) {
@@ -84,7 +72,6 @@ public class UserPasswordCodec implements AttributeCodec {
         md.update(a);
         return md.digest(b);
     }
-
 
     private static byte[] xor16(byte[] src1, int src1offset, byte[] src2) {
 

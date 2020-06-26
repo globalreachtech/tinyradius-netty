@@ -63,7 +63,7 @@ public class AttributeTemplate {
             throw new IllegalArgumentException("Name is empty");
         requireNonNull(rawDataType, "Data type is null");
         this.vendorId = vendorId;
-        this.type = (byte) type;
+        this.type = type;
         this.name = name;
         this.dataType = rawDataType.toLowerCase();
 
