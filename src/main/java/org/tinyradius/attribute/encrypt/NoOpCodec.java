@@ -1,5 +1,8 @@
 package org.tinyradius.attribute.encrypt;
 
+/**
+ * No-op encryption
+ */
 public class NoOpCodec implements AttributeCodec {
 
     @Override

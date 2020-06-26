@@ -14,12 +14,15 @@ import java.util.Arrays;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Attribute is encrypted with the method as defined in RFC2865 for the User-Password attribute
+ */
 public class UserPasswordCodec implements AttributeCodec {
 
     private static final Logger logger = LogManager.getLogger();
 
     @Override
-    public byte[] encode(byte[] data, String sharedSecret, byte[] authenticator) throws RadiusPacketException {
+    public byte[] encode(byte[] data, String sharedSecret, byte[] authenticator) {
         return encodeData(authenticator, data, sharedSecret.getBytes(UTF_8));
     }
 

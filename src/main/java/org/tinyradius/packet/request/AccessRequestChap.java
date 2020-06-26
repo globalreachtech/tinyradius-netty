@@ -31,7 +31,7 @@ public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
      * <p>
      * Will remove existing attributes if exists already
      *
-     * @param password password to encode into CHAP-Password
+     * @param password plaintext password to encode into CHAP-Password
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
      * @throws IllegalArgumentException invalid password
      */
@@ -88,11 +88,11 @@ public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
      * Checks that the passed plain-text password matches the password
      * (hash) send with this Access-Request packet.
      *
-     * @param plaintext password to verify packet against
+     * @param password plaintext password to verify packet against
      * @return true if the password is valid, false otherwise
      */
-    public boolean checkPassword(String plaintext) {
-        if (plaintext == null || plaintext.isEmpty()) {
+    public boolean checkPassword(String password) {
+        if (password == null || password.isEmpty()) {
             logger.warn("Plaintext password to check against is empty");
             return false;
         }
@@ -109,7 +109,7 @@ public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
             return false;
         }
 
-        return Arrays.equals(chapPassword, computeChapPassword(chapPassword[0], plaintext, chapChallenge));
+        return Arrays.equals(chapPassword, computeChapPassword(chapPassword[0], password, chapChallenge));
     }
 
     @Override

@@ -2,6 +2,7 @@ package org.tinyradius.packet.request;
 
 import net.jradius.util.CHAP;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -23,20 +24,25 @@ class AccessRequestChapTest {
     private static final byte USER_NAME = 1;
 
     @Test
-    void encodeVerify() throws RadiusPacketException {
-        String sharedSecret = "sharedSecret1";
-        final AccessRequestChap accessRequestChap = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList())
-                .withPassword("myPw");
+    void encodeDecode() throws RadiusPacketException {
+        final String sharedSecret = "sharedSecret1";
+        final String username = "myUsername";
+
+        final RadiusRequest accessRequestChap = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList())
+                .withPassword("myPw")
+                .addAttribute(dictionary.createAttribute("User-Name", username));
 
         final RadiusRequest encoded = accessRequestChap.encodeRequest(sharedSecret);
-
         assertNotNull(encoded.getAuthenticator());
-        encoded.decodeRequest(sharedSecret);
+
+        final RadiusRequest decodeRequest = encoded.decodeRequest(sharedSecret);
+        final RadiusAttribute attribute = decodeRequest.getAttribute("User-Name").get();
+        assertEquals(username, attribute.getValueString());
     }
 
     @Test
     void verifyAttributeCount() throws RadiusPacketException {
-        String sharedSecret = "sharedSecret1";
+        final String sharedSecret = "sharedSecret1";
         final AccessRequestChap request1 = new AccessRequestChap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
@@ -52,9 +58,9 @@ class AccessRequestChapTest {
 
     @Test
     void encodeChapPassword() throws NoSuchAlgorithmException, RadiusPacketException {
-        String user = "user";
-        String plaintextPw = "password123456789";
-        String sharedSecret = "sharedSecret";
+        final String user = "user";
+        final String plaintextPw = "password123456789";
+        final String sharedSecret = "sharedSecret";
 
         final AccessRequestChap emptyRequest = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList());
 
@@ -80,7 +86,7 @@ class AccessRequestChapTest {
 
     @Test
     void verifyChapPassword() throws NoSuchAlgorithmException {
-        String plaintextPw = "password123456789";
+        final String plaintextPw = "password123456789";
 
         final int chapId = random.nextInt(256);
         final byte[] challenge = random.generateSeed(16);

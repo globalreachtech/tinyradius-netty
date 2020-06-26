@@ -53,7 +53,7 @@ public class AttributeTemplate {
      * Create a new attribute type.
      *
      * @param vendorId    vendor ID or -1 if N/A
-     * @param type        sub-attribute type code
+     * @param type        sub-attribute type code, as unsigned byte
      * @param name        sub-attribute name
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or 0 for no encryption

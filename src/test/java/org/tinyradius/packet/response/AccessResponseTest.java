@@ -29,10 +29,10 @@ class AccessResponseTest {
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> response.decodeResponse(sharedSecret, requestAuth));
         assertTrue(e.getMessage().contains("authenticator missing"));
 
-        final RadiusResponse encodedResponse = response.encodeResponse(sharedSecret, requestAuth);
-        final RadiusResponse decodedResponse = encodedResponse.decodeResponse(sharedSecret, requestAuth);
+        final RadiusResponse encodeResponse = response.encodeResponse(sharedSecret, requestAuth);
+        final RadiusResponse decodeResponse = encodeResponse.decodeResponse(sharedSecret, requestAuth);
 
-        final RadiusAttribute attribute = decodedResponse.getAttribute("User-Name").get();
+        final RadiusAttribute attribute = decodeResponse.getAttribute("User-Name").get();
         assertEquals(username, attribute.getValueString());
     }
 }
