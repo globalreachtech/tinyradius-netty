@@ -240,7 +240,7 @@ class PacketCodecTest {
                 .addAttribute(USER_NAME, user);
         final RadiusRequest encodedRequest = request.encodeRequest(sharedSecret);
 
-        final RadiusResponse response = new AccessResponse(dictionary, (byte) 2, id, null, Collections.emptyList())
+        final RadiusResponse response = new AccessResponse.Accept(dictionary, id, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, (byte) 33, "state3333".getBytes(UTF_8)));
         final RadiusResponse encodedResponse = response.encodeResponse(sharedSecret, encodedRequest.getAuthenticator());
 

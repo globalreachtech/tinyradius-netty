@@ -60,12 +60,12 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * @param sharedSecret shared secret
-     * @param auth         should be set to request authenticator if verifying response,
+     * @param requestAuth  request authenticator if verifying response,
      *                     otherwise set to 16 zero octets
      * @throws RadiusPacketException if authenticator check fails
      */
-    default void verifyPacketAuth(String sharedSecret, byte[] auth) throws RadiusPacketException {
-        final byte[] expectedAuth = genHashedAuth(sharedSecret, auth);
+    default void verifyPacketAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+        final byte[] expectedAuth = genHashedAuth(sharedSecret, requestAuth);
         final byte[] receivedAuth = getAuthenticator();
         if (receivedAuth == null)
             throw new RadiusPacketException("Authenticator check failed - authenticator missing");
@@ -75,10 +75,13 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
     }
 
     /**
-     * Creates an authenticator for a Radius response packet.
+     * Generates an authenticator for a Radius packet.
+     * <p>
+     * Note: 'this' packet authenticator is ignored, only requestAuth param is used.
      *
-     * @param sharedSecret         shared secret
-     * @param requestAuth request packet authenticator
+     * @param sharedSecret shared secret
+     * @param requestAuth  request authenticator if hashing for response,
+     *                     otherwise set to 16 zero octets
      * @return new 16 byte response authenticator
      */
     default byte[] genHashedAuth(String sharedSecret, byte[] requestAuth) {

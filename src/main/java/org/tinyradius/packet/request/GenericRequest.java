@@ -5,7 +5,6 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest {
@@ -44,31 +43,11 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
     @Override
     public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
         verifyPacketAuth(sharedSecret, new byte[16]);
-        return withAttributes(decodeAttributes(sharedSecret));
+        return withAttributes(decodeAttributes(sharedSecret, getAuthenticator()));
     }
 
     @Override
     public RadiusRequest withAttributes(List<RadiusAttribute> attributes) {
         return new GenericRequest(getDictionary(), getType(), getId(), getAuthenticator(), attributes);
-    }
-
-    // attribute encoding only supported for requests, not responses
-    protected List<RadiusAttribute> encodeAttributes(String sharedSecret, byte[] auth) throws RadiusPacketException {
-        final List<RadiusAttribute> attributes = new ArrayList<>();
-        for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute encode = a.encode(sharedSecret, auth);
-            attributes.add(encode);
-        }
-        return attributes;
-    }
-
-    // attribute encoding only supported for requests, not responses
-    protected List<RadiusAttribute> decodeAttributes(String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> attributes = new ArrayList<>();
-        for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute decode = a.decode(sharedSecret, getAuthenticator());
-            attributes.add(decode);
-        }
-        return attributes;
     }
 }

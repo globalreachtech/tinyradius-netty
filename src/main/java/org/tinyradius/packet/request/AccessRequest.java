@@ -124,7 +124,7 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
     public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
         // authenticator is random, can't run verifyPacketAuth()
         verifyMessageAuth(sharedSecret, getAuthenticator());
-        return withAttributes(decodeAttributes(sharedSecret));
+        return withAttributes(decodeAttributes(sharedSecret, getAuthenticator()));
     }
 
     @Override

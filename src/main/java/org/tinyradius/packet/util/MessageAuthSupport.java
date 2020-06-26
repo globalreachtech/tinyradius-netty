@@ -77,12 +77,14 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
     }
 
     /**
+     * Creates packet with an encoded Message-Authenticator attribute.
+     * <p>
      * Note: 'this' packet authenticator is ignored, only requestAuth param is used.
      *
-     * @param sharedSecret share secret
-     * @param requestAuth  current packet auth if encoding request, otherwise auth
-     *                     for corresponding request
-     * @return shallow copy of packet
+     * @param sharedSecret shared secret
+     * @param requestAuth  current packet auth if encoding request,
+     *                     otherwise corresponding request auth
+     * @return encoded copy of packet
      */
     default T encodeMessageAuth(String sharedSecret, byte[] requestAuth) {
         // When the message integrity check is calculated the signature

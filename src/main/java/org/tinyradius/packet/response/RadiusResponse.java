@@ -26,9 +26,11 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
     static RadiusResponse create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         switch (type) {
             case ACCESS_ACCEPT:
+                return new AccessResponse.Accept(dictionary, identifier, authenticator, attributes);
             case ACCESS_REJECT:
+                return new AccessResponse.Reject(dictionary, identifier, authenticator, attributes);
             case ACCESS_CHALLENGE:
-                return new AccessResponse(dictionary, type, identifier, authenticator, attributes);
+                return new AccessResponse.Challenge(dictionary, identifier, authenticator, attributes);
             default:
                 return new GenericResponse(dictionary, type, identifier, authenticator, attributes);
         }

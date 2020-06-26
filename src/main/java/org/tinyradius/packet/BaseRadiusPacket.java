@@ -41,7 +41,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
      * @param type          packet type
      * @param id            packet identifier
      * @param authenticator can be null if creating manually
-     * @param attributes    list of RadiusAttribute objects (a shallow copy will be created)
+     * @param attributes    list of RadiusAttributes
      */
     public BaseRadiusPacket(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
         if (authenticator != null && authenticator.length != 16)
@@ -82,6 +82,24 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     @Override
     public Dictionary getDictionary() {
         return dictionary;
+    }
+
+    protected List<RadiusAttribute> encodeAttributes(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+        final List<RadiusAttribute> attributes = new ArrayList<>();
+        for (RadiusAttribute a : getAttributes()) {
+            RadiusAttribute encode = a.encode(sharedSecret, requestAuth);
+            attributes.add(encode);
+        }
+        return attributes;
+    }
+
+    protected List<RadiusAttribute> decodeAttributes(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+        final List<RadiusAttribute> attributes = new ArrayList<>();
+        for (RadiusAttribute a : getAttributes()) {
+            RadiusAttribute decode = a.decode(sharedSecret, requestAuth);
+            attributes.add(decode);
+        }
+        return attributes;
     }
 
     public String toString() {

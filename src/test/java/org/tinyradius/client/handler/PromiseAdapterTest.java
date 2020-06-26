@@ -89,7 +89,7 @@ class PromiseAdapterTest {
 
     @Test
     void decodeNoProxyState() {
-        final RadiusResponse response = new AccessResponse(dictionary, ACCESS_ACCEPT, (byte) 1, null, Collections.emptyList());
+        final RadiusResponse response = new AccessResponse.Accept(dictionary, (byte) 1, null, Collections.emptyList());
 
         final List<Object> in = new ArrayList<>();
         handler.decode(ctx, response, in);
@@ -99,7 +99,7 @@ class PromiseAdapterTest {
 
     @Test
     void decodeProxyStateNotFound() {
-        final RadiusResponse response = new AccessResponse(dictionary, ACCESS_ACCEPT, (byte) 1, null,
+        final RadiusResponse response = new AccessResponse.Accept(dictionary, (byte) 1, null,
                 Collections.singletonList(dictionary.createAttribute(-1, PROXY_STATE, "123abc")));
 
         final List<Object> in = new ArrayList<>();
