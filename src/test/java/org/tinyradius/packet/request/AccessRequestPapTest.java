@@ -30,8 +30,8 @@ class AccessRequestPapTest {
                 .encodeRequest(sharedSecret);
 
         assertNotEquals(password, ((AccessRequestPap) encoded).getPassword().get());
-
         assertNotNull(encoded.getAuthenticator());
+
         final RadiusRequest decoded = encoded.decodeRequest(sharedSecret);
         assertEquals(password, ((AccessRequestPap) decoded).getPassword().get());
     }
@@ -74,7 +74,6 @@ class AccessRequestPapTest {
         assertEquals(user, encoded.getAttribute(USER_NAME).get().getValueString());
 
         // check password fields
-//        assertFalse(request.getAttribute("User-Password").isPresent());
         assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").get().getValue());
         assertEquals(password, encoded.getPassword().get());
 

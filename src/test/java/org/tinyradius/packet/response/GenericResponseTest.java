@@ -11,7 +11,7 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AccessResponseTest {
+public class GenericResponseTest {
 
     private static final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
@@ -23,7 +23,7 @@ class AccessResponseTest {
 
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusResponse response = new AccessResponse(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList())
+        final RadiusResponse response = new GenericResponse(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute("User-Name", username));
 
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> response.decodeResponse(sharedSecret, requestAuth));

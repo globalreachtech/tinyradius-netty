@@ -97,24 +97,6 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         return s.toString();
     }
 
-    protected List<RadiusAttribute> encodeAttributes(String sharedSecret, byte[] auth) throws RadiusPacketException {
-        final List<RadiusAttribute> attributes = new ArrayList<>();
-        for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute encode = a.encode(sharedSecret, auth);
-            attributes.add(encode);
-        }
-        return attributes;
-    }
-
-    protected List<RadiusAttribute> decodeAttributes(String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> attributes = new ArrayList<>();
-        for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute decode = a.decode(sharedSecret, getAuthenticator());
-            attributes.add(decode);
-        }
-        return attributes;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

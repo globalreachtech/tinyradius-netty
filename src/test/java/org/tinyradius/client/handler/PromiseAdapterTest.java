@@ -18,6 +18,7 @@ import org.tinyradius.packet.response.AccessResponse;
 import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.util.RadiusEndpoint;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
@@ -108,7 +109,7 @@ class PromiseAdapterTest {
     }
 
     @Test
-    void encodeDecodeIdMismatch() {
+    void encodeDecodeIdMismatch() throws RadiusPacketException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final byte[] requestAuth = random.generateSeed(16);
@@ -141,7 +142,7 @@ class PromiseAdapterTest {
     }
 
     @Test
-    void decodeAuthCheckFail() {
+    void decodeAuthCheckFail() throws RadiusPacketException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
@@ -172,7 +173,7 @@ class PromiseAdapterTest {
     }
 
     @Test
-    void encodeDecodeSuccess() {
+    void encodeDecodeSuccess() throws RadiusPacketException {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 

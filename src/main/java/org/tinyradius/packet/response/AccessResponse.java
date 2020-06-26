@@ -14,10 +14,11 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
     }
 
     @Override
-    public RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        final byte[] auth = genHashedAuth(sharedSecret, requestAuth);
-        return new AccessResponse(getDictionary(), getType(), getId(), auth, encodeAttributes(sharedSecret, auth))
-                .encodeMessageAuth(sharedSecret, requestAuth);
+    public RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
+        final RadiusResponse response = encodeMessageAuth(sharedSecret, requestAuth);
+
+        final byte[] auth = response.genHashedAuth(sharedSecret, requestAuth);
+        return new AccessResponse(getDictionary(), getType(), getId(), auth, response.getAttributes());
     }
 
     @Override

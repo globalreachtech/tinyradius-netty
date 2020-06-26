@@ -16,10 +16,10 @@ class AccessRequestEapTest {
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
-    void encodeVerify() throws RadiusPacketException {
-        String sharedSecret = "sharedSecret1";
+    void encodeDecode() throws RadiusPacketException {
+        final String sharedSecret = "sharedSecret1";
         final AccessRequestEap accessRequestEap = new AccessRequestEap(dictionary, (byte) 1, null,
-                Collections.singletonList(dictionary.createAttribute( -1, EAP_MESSAGE, new byte[16])));
+                Collections.singletonList(dictionary.createAttribute(-1, EAP_MESSAGE, new byte[16])));
 
         final RadiusRequest encoded = accessRequestEap.encodeRequest(sharedSecret);
 
@@ -33,15 +33,15 @@ class AccessRequestEapTest {
         final AccessRequestEap request = new AccessRequestEap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
 
-        final RadiusRequest request1 = request.addAttribute(dictionary.createAttribute( -1, EAP_MESSAGE, new byte[16]));
+        final RadiusRequest request1 = request.addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, new byte[16]));
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one messageAuth
         final RadiusRequest request2 = request1.encodeRequest(sharedSecret);
         request2.decodeRequest(sharedSecret);
 
-        final RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute( -1, MESSAGE_AUTHENTICATOR, new byte[16]));
+        final RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute(-1, MESSAGE_AUTHENTICATOR, new byte[16]));
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
-        assertTrue(e.getMessage().toLowerCase().contains("at most one message-authenticator"));
+        assertEquals("AccessRequest (EAP) should have exactly one Message-Authenticator attribute, has 2", e.getMessage());
     }
 }

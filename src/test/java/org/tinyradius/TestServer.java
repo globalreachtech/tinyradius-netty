@@ -103,7 +103,7 @@ public class TestServer {
             final AccessRequestPap request = (AccessRequestPap) msg.getRequest();
 
             final String password = request.getAttribute(USER_NAME).get().getValueString().equals("test") ? "password" : null;
-            byte type = request.getPassword()
+            final byte type = request.getPassword()
                     .filter(p -> p.equals(password))
                     .map(x -> ACCESS_ACCEPT)
                     .orElse(ACCESS_REJECT);
