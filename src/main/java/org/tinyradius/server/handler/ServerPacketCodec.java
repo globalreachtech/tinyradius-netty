@@ -59,9 +59,9 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
     }
 
     protected DatagramPacket encodePacket(InetSocketAddress localAddress, ResponseCtx msg) {
-        final RadiusResponse packet = msg.getResponse()
-                .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator());
         try {
+            final RadiusResponse packet = msg.getResponse()
+                    .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator());
             final DatagramPacket datagramPacket = toDatagram(
                     packet, msg.getEndpoint().getAddress(), localAddress);
             logger.debug("Sending response to {}", msg.getEndpoint().getAddress());

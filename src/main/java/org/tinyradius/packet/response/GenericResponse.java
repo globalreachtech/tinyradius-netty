@@ -27,15 +27,15 @@ public class GenericResponse extends BaseRadiusPacket<RadiusResponse> implements
     }
 
     @Override
-    public GenericResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
-        final byte[] auth = createHashedAuthenticator(sharedSecret, requestAuth);
-        return new GenericResponse(getDictionary(), getType(), getId(), auth, getAttributes());
+    public RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+        final byte[] auth = genHashedAuth(sharedSecret, requestAuth);
+        return new GenericResponse(getDictionary(), getType(), getId(), auth, encodeAttributes(sharedSecret, auth));
     }
 
     @Override
     public RadiusResponse decodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         verifyPacketAuth(sharedSecret, requestAuth);
-        return this;
+        return withAttributes(decodeAttributes(sharedSecret));
     }
 
     @Override

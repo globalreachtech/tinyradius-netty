@@ -45,7 +45,7 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @param requestAuth  request packet authenticator
      * @return new RadiusPacket instance with same properties and valid authenticator
      */
-    RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth);
+    RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException;
 
     /**
      * Decodes the response against the supplied shared secret and request authenticator.

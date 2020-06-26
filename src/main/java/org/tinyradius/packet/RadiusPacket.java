@@ -1,7 +1,7 @@
 package org.tinyradius.packet;
 
-import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.attribute.NestedAttributeHolder;
+import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -65,8 +65,8 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * @throws RadiusPacketException if authenticator check fails
      */
     default void verifyPacketAuth(String sharedSecret, byte[] auth) throws RadiusPacketException {
-        byte[] expectedAuth = createHashedAuthenticator(sharedSecret, auth);
-        byte[] receivedAuth = getAuthenticator();
+        final byte[] expectedAuth = genHashedAuth(sharedSecret, auth);
+        final byte[] receivedAuth = getAuthenticator();
         if (receivedAuth == null)
             throw new RadiusPacketException("Authenticator check failed - authenticator missing");
 
@@ -78,11 +78,11 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * Creates an authenticator for a Radius response packet.
      *
      * @param sharedSecret         shared secret
-     * @param requestAuthenticator request packet authenticator
+     * @param requestAuth request packet authenticator
      * @return new 16 byte response authenticator
      */
-    default byte[] createHashedAuthenticator(String sharedSecret, byte[] requestAuthenticator) {
-        requireNonNull(requestAuthenticator, "Authenticator cannot be null");
+    default byte[] genHashedAuth(String sharedSecret, byte[] requestAuth) {
+        requireNonNull(requestAuth, "Authenticator cannot be null");
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
@@ -95,7 +95,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         md5.update(getId());
         md5.update((byte) (length >> 8));
         md5.update((byte) (length & 0xff));
-        md5.update(requestAuthenticator);
+        md5.update(requestAuth);
         md5.update(attributeBytes);
         return md5.digest(sharedSecret.getBytes(UTF_8));
     }

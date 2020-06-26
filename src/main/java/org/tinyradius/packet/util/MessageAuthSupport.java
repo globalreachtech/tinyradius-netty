@@ -77,6 +77,8 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
     }
 
     /**
+     * Note: 'this' packet authenticator is ignored, only requestAuth param is used.
+     *
      * @param sharedSecret share secret
      * @param requestAuth  current packet auth if encoding request, otherwise auth
      *                     for corresponding request
