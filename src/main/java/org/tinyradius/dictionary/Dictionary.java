@@ -49,8 +49,8 @@ public interface Dictionary {
      */
     default RadiusAttribute createAttribute(String name, String value) {
         return getAttributeTemplate(name)
-                .map(at -> at.create(this, value))
-                .orElseThrow(() -> new IllegalArgumentException("Unknown attribute type name: '" + name + "'"));
+                .orElseThrow(() -> new IllegalArgumentException("Unknown attribute type name: '" + name + "'"))
+                .create(this, value);
     }
 
     /**

@@ -2,33 +2,40 @@ package org.tinyradius.packet.request;
 
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
-class AccessRequestNoAuth extends AccessRequest {
+public class AccessRequestNoAuth extends AccessRequest<AccessRequestNoAuth> {
 
     public AccessRequestNoAuth(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, identifier, authenticator, attributes);
     }
 
     @Override
-    public AccessRequestNoAuth encodeAuthMechanism(String sharedSecret, byte[] newAuth) {
-        return new AccessRequestNoAuth(getDictionary(), getId(), newAuth, getAttributes());
+    protected AccessRequestFactory<AccessRequestNoAuth> factory() {
+        return AccessRequestNoAuth::new;
     }
 
     @Override
-    public AccessRequestNoAuth decodeAuthMechanism(String sharedSecret) {
-        final List<RadiusAttribute> messageAuthAttr = filterAttributes(MESSAGE_AUTHENTICATOR);
-        if (messageAuthAttr.size() != 1) {
-            logger.debug("AccessRequest without one of User-Password/CHAP-Password/ARAP-Password/EAP-Message " +
+    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+        final RadiusRequest radiusRequest = super.encodeRequest(sharedSecret);
+        checkMessageAuth(radiusRequest.getAttributes()); // MessageAuthSupport should append Message-Auth during encoding
+        return radiusRequest;
+    }
+
+    @Override
+    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
+        checkMessageAuth(getAttributes());
+        return super.decodeRequest(sharedSecret);
+    }
+
+    private static void checkMessageAuth(List<RadiusAttribute> attributes) {
+        final long count = attributes.stream()
+                .filter(a -> a.getType() == MESSAGE_AUTHENTICATOR)
+                .count();
+        if (count != 1)
+            logger.warn("AccessRequest without one of User-Password/CHAP-Password/ARAP-Password/EAP-Message " +
                     "should contain a Message-Authenticator");
-        }
-
-        return this;
-    }
-
-    @Override
-    public AccessRequestNoAuth withAttributes(List<RadiusAttribute> attributes) {
-        return new AccessRequestNoAuth(getDictionary(), getId(), getAuthenticator(), attributes);
     }
 }

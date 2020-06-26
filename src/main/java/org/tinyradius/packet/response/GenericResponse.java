@@ -28,8 +28,8 @@ public class GenericResponse extends BaseRadiusPacket<RadiusResponse> implements
 
     @Override
     public GenericResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
-        final byte[] newAuth = createHashedAuthenticator(sharedSecret, requestAuth);
-        return new GenericResponse(getDictionary(), getType(), getId(), newAuth, getAttributes());
+        final byte[] auth = createHashedAuthenticator(sharedSecret, requestAuth);
+        return new GenericResponse(getDictionary(), getType(), getId(), auth, getAttributes());
     }
 
     @Override

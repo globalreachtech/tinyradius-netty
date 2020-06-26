@@ -17,7 +17,7 @@ import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 /**
  * This class represents an Access-Request Radius packet.
  */
-public abstract class AccessRequest extends GenericRequest implements MessageAuthSupport<RadiusRequest> {
+public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericRequest implements MessageAuthSupport<RadiusRequest> {
 
     protected static final SecureRandom RANDOM = new SecureRandom();
 
@@ -31,6 +31,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         super(dictionary, ACCESS_REQUEST, id, authenticator, attributes);
     }
 
+
     /**
      * Create new AccessRequest, tries to identify auth protocol from attributes.
      *
@@ -41,11 +42,11 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      *                      or a stub AccessRequest will be returned
      * @return AccessRequest auth mechanism-specific implementation
      */
-    static AccessRequest create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    static AccessRequest<?> create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         return lookupAuthType(attributes).newInstance(dictionary, identifier, authenticator, attributes);
     }
 
-    static AccessRequestConstructor lookupAuthType(List<RadiusAttribute> attributes) {
+    public static AccessRequestFactory<?> lookupAuthType(List<RadiusAttribute> attributes) {
         /*
          * An Access-Request that contains either a User-Password or
          * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
@@ -57,33 +58,35 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
                 .collect(toSet());
 
         if (detectedAuth.isEmpty()) {
-            logger.warn("AccessRequest no auth mechanism found, parsing as AccessRequestNoAuth");
+            logger.warn("AccessRequest no auth mechanism found, parsing as NoAuth");
             return AccessRequestNoAuth::new;
         }
 
         if (detectedAuth.size() > 1) {
-            logger.warn("AccessRequest identified multiple auth mechanisms, parsing as AccessRequestNoAuth");
+            logger.warn("AccessRequest identified multiple auth mechanisms, parsing as NoAuth");
             return AccessRequestNoAuth::new;
         }
 
         switch (detectedAuth.iterator().next()) {
             case EAP_MESSAGE:
-                logger.debug("Parsing AccessRequest as AccessRequestEap");
+                logger.debug("Parsing AccessRequest as EAP");
                 return AccessRequestEap::new;
             case CHAP_PASSWORD:
-                logger.debug("Parsing AccessRequest as AccessRequestChap");
+                logger.debug("Parsing AccessRequest as CHAP");
                 return AccessRequestChap::new;
             case USER_PASSWORD:
-                logger.debug("Parsing AccessRequest as AccessRequestPap");
+                logger.debug("Parsing AccessRequest as PAP");
                 return AccessRequestPap::new;
             case ARAP_PASSWORD:
-                logger.debug("Parsing AccessRequest as AccessRequestArap");
+                logger.debug("Parsing AccessRequest as ARAP");
                 return AccessRequestArap::new;
             default:
-                logger.debug("Parsing AccessRequest as AccessRequestNoAuth");
+                logger.debug("Parsing AccessRequest as NoAuth");
                 return AccessRequestNoAuth::new;
         }
     }
+
+    protected abstract AccessRequestFactory<T> factory();
 
     protected static byte[] random16bytes() {
         byte[] randomBytes = new byte[16];
@@ -91,20 +94,9 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         return randomBytes;
     }
 
-    /**
-     * Create copy of AccessRequest with new authenticator and encoded attributes
-     *
-     * @param sharedSecret shared secret that secures the communication
-     *                     with the other Radius server/client
-     * @param newAuth      authenticator to use to encode PAP password,
-     *                     nullable if using different auth protocol
-     * @return RadiusPacket with new authenticator and encoded attributes
-     * @throws RadiusPacketException if invalid or missing attributes
-     */
-    abstract AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
-
     @Override
     protected byte[] genAuth(String sharedSecret) {
+        // create authenticator only if needed - maintain idempotence
         return getAuthenticator() == null ? random16bytes() : getAuthenticator();
     }
 
@@ -121,41 +113,26 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
-        // create authenticator only if needed - maintain idempotence
+        final byte[] auth = genAuth(sharedSecret);
 
-        final byte[] newAuth = genAuth(sharedSecret);
-
-        return encodeAuthMechanism(sharedSecret, newAuth)
-                .encodeMessageAuth(sharedSecret, newAuth);
+        return factory()
+                .newInstance(getDictionary(), getId(), auth, encodeAttributes(sharedSecret, auth))
+                .encodeMessageAuth(sharedSecret, auth);
     }
 
-    /**
-     * Verify packet for specific auth protocols
-     *
-     * @param sharedSecret shared secret
-     * @return verified AccessRequest with decoded attributes if appropriate
-     * @throws RadiusPacketException if invalid or missing attributes
-     */
-    protected abstract AccessRequest decodeAuthMechanism(String sharedSecret) throws RadiusPacketException;
-
-    /**
-     * AccessRequest cannot verify authenticator as they
-     * contain random bytes.
-     * <p>
-     * It can, however, check the User-Password/Challenge attributes
-     * are present and attempt decryption, depending on auth protocol.
-     *
-     * @param sharedSecret shared secret, only applicable for PAP
-     * @return decoded request
-     */
     @Override
     public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
         verifyMessageAuth(sharedSecret, getAuthenticator());
-        return decodeAuthMechanism(sharedSecret);
+
+        return withAttributes(decodeAttributes(sharedSecret));
     }
 
-    interface AccessRequestConstructor {
-        AccessRequest newInstance(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes);
+    @Override
+    public T withAttributes(List<RadiusAttribute> attributes) {
+        return factory().newInstance(getDictionary(), getId(), getAuthenticator(), attributes);
     }
 
+    public interface AccessRequestFactory<U extends AccessRequest<?>> {
+        U newInstance(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes);
+    }
 }

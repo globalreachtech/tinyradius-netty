@@ -55,10 +55,10 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
         }
 
         try {
-            // can't verify until we know corresponding request auth
-            RadiusResponse packet = fromDatagramResponse(dictionary, msg);
-            logger.debug("Received packet from {} - {}", remoteAddress, packet);
-            return packet;
+            // can't decode/verify until we know corresponding request auth
+            RadiusResponse response = fromDatagramResponse(dictionary, msg);
+            logger.debug("Received response from {} - {}", remoteAddress, response);
+            return response;
         } catch (RadiusPacketException e) {
             logger.warn("Could not decode Radius packet: {}", e.getMessage());
             return null;

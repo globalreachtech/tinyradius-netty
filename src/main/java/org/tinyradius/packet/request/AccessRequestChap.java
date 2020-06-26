@@ -13,12 +13,17 @@ import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class AccessRequestChap extends AccessRequest {
+public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
 
-    protected static final byte CHAP_CHALLENGE = 60;
+    private static final byte CHAP_CHALLENGE = 60;
 
     public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, identifier, authenticator, attributes);
+    }
+
+    @Override
+    protected AccessRequestFactory<AccessRequestChap> factory() {
+        return AccessRequestChap::new;
     }
 
     /**
@@ -26,12 +31,12 @@ public class AccessRequestChap extends AccessRequest {
      * <p>
      * Will remove existing attributes if exists already
      *
-     * @param plaintext password to encode into CHAP-Password
+     * @param password password to encode into CHAP-Password
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
      * @throws IllegalArgumentException invalid password
      */
-    public AccessRequestChap withPassword(String plaintext) {
-        if (plaintext == null || plaintext.isEmpty())
+    public AccessRequestChap withPassword(String password) {
+        if (password == null || password.isEmpty())
             throw new IllegalArgumentException("Could not encode CHAP attributes, password not set");
 
         byte[] challenge = AccessRequest.random16bytes();
@@ -42,22 +47,20 @@ public class AccessRequestChap extends AccessRequest {
 
         attributes.add(getDictionary().createAttribute(-1, CHAP_CHALLENGE, challenge));
         attributes.add(getDictionary().createAttribute(-1, CHAP_PASSWORD,
-                computeChapPassword((byte) RANDOM.nextInt(256), plaintext, challenge)));
+                computeChapPassword((byte) RANDOM.nextInt(256), password, challenge)));
 
-        return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), attributes);
+        return withAttributes(attributes);
     }
 
     /**
      * Sets and encodes the CHAP-Password and CHAP-Challenge attributes.
      *
      * @param sharedSecret shared secret not used to encode
-     * @param newAuth      ignored, not used for CHAP
-     * @return List of RadiusAttributes to override
      */
     @Override
-    public AccessRequestChap encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException {
+    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
         validateChapAttributes();
-        return new AccessRequestChap(getDictionary(), getId(), newAuth, getAttributes());
+        return super.encodeRequest(sharedSecret);
     }
 
     /**
@@ -110,20 +113,15 @@ public class AccessRequestChap extends AccessRequest {
     }
 
     @Override
-    public AccessRequestChap decodeAuthMechanism(String sharedSecret) throws RadiusPacketException {
+    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
         validateChapAttributes();
-        return this;
-    }
-
-    @Override
-    public AccessRequestChap withAttributes(List<RadiusAttribute> attributes) {
-        return new AccessRequestChap(getDictionary(), getId(), getAuthenticator(), attributes);
+        return super.decodeRequest(sharedSecret);
     }
 
     private void validateChapAttributes() throws RadiusPacketException {
-        final int passwordCount = filterAttributes(CHAP_PASSWORD).size();
-        if (passwordCount != 1)
-            throw new RadiusPacketException("AccessRequest (CHAP) should have exactly one CHAP-Password attribute, has " + passwordCount);
+        final int count = filterAttributes(CHAP_PASSWORD).size();
+        if (count != 1)
+            throw new RadiusPacketException("AccessRequest (CHAP) should have exactly one CHAP-Password attribute, has " + count);
         // CHAP-Challenge can use Request Authenticator instead of attribute
     }
 }

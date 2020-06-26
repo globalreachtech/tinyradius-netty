@@ -7,6 +7,7 @@ import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.packet.util.PacketType;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.util.*;
 
@@ -83,7 +84,6 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         return dictionary;
     }
 
-
     public String toString() {
         StringBuilder s = new StringBuilder();
 
@@ -95,6 +95,24 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
             s.append(attr.toString());
         }
         return s.toString();
+    }
+
+    protected List<RadiusAttribute> encodeAttributes(String sharedSecret, byte[] auth) throws RadiusPacketException {
+        final List<RadiusAttribute> attributes = new ArrayList<>();
+        for (RadiusAttribute a : getAttributes()) {
+            RadiusAttribute encode = a.encode(sharedSecret, auth);
+            attributes.add(encode);
+        }
+        return attributes;
+    }
+
+    protected List<RadiusAttribute> decodeAttributes(String sharedSecret) throws RadiusPacketException {
+        final List<RadiusAttribute> attributes = new ArrayList<>();
+        for (RadiusAttribute a : getAttributes()) {
+            RadiusAttribute decode = a.decode(sharedSecret, getAuthenticator());
+            attributes.add(decode);
+        }
+        return attributes;
     }
 
     @Override
