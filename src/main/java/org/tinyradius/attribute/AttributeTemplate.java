@@ -4,6 +4,7 @@ import org.tinyradius.attribute.encrypt.AttributeCodecType;
 import org.tinyradius.attribute.type.AttributeType;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,10 +22,10 @@ public class AttributeTemplate {
     private final int vendorId;
     private final byte type;
     private final String name;
-    private final AttributeCodecType encrypt;
+    private final AttributeCodecType codecType;
 
     private final String dataType;
-    private final AttributeType rawType;
+    private final AttributeType decodedType;
     private final AttributeType encodedType;
 
     private final Map<Integer, String> int2str = new HashMap<>();
@@ -49,9 +50,9 @@ public class AttributeTemplate {
      * @param type        sub-attribute type code
      * @param name        sub-attribute name
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
-     * @param encrypt     encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or 0 for no encryption
+     * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or 0 for no encryption
      */
-    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encrypt) {
+    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encryptFlag) {
         if (type < 1 || type > 255)
             throw new IllegalArgumentException("Attribute type code out of bounds");
         if (name == null || name.isEmpty())
@@ -62,29 +63,26 @@ public class AttributeTemplate {
         this.name = name;
         this.dataType = rawDataType.toLowerCase();
 
-        rawType = vendorId == -1 && type == VENDOR_SPECIFIC ?
+        decodedType = vendorId == -1 && type == VENDOR_SPECIFIC ?
                 AttributeType.VSA :
                 AttributeType.fromDataType(this.dataType);
 
-        if (vendorId == -1 && type == 2) // User-Password
-            this.encrypt = RFC2865_USER_PASSWORD;
-        else if (vendorId == -1 && type == 1) // Tunnel-Password
-            this.encrypt = RFC2868_TUNNEL_PASSWORD;
-        else if (vendorId == 529 && type == 214) // Ascend-Send-Secret
-            this.encrypt = ASCENT_SEND_SECRET;
-        else
-            this.encrypt = fromId(encrypt);
+        this.codecType = detectAttributeCodec(vendorId, type, encryptFlag);
 
-        encodedType = this.encrypt == NO_ENCRYPT ?
-                rawType : AttributeType.OCTETS;
+        this.encodedType = this.codecType == NO_ENCRYPT ?
+                decodedType : AttributeType.OCTETS;
     }
 
     public RadiusAttribute create(Dictionary dictionary, byte[] data) {
-        return rawType.create(dictionary, vendorId, type, data);
+        return decodedType.create(dictionary, vendorId, type, data);
     }
 
     public RadiusAttribute create(Dictionary dictionary, String data) {
-        return rawType.create(dictionary, vendorId, type, data);
+        return decodedType.create(dictionary, vendorId, type, data);
+    }
+
+    private RadiusAttribute createEncoded(Dictionary dictionary, byte[] data) {
+        return encodedType.create(dictionary, vendorId, type, data);
     }
 
     /**
@@ -144,10 +142,53 @@ public class AttributeTemplate {
         str2int.put(name, num);
     }
 
+    /**
+     * @param attribute attribute to encode
+     * @param secret    shared secret to encode with
+     * @param auth      packet authenticator
+     * @return attribute with encoded data
+     */
+    public RadiusAttribute encode(RadiusAttribute attribute, String secret, byte[] auth) throws RadiusPacketException {
+        try {
+            return createEncoded(attribute.getDictionary(),
+                    codecType.getCodec().encode(attribute.getValue(), secret, auth));
+        } catch (Exception e) {
+            throw new RadiusPacketException("Error encoding attribute " + attribute.toString(), e);
+        }
+    }
+
+    /**
+     * @param attribute attribute to decode
+     * @param secret    shared secret to decode with
+     * @param auth      packet authenticator
+     * @return attribute with decoded data
+     */
+    public RadiusAttribute decode(RadiusAttribute attribute, String secret, byte[] auth) throws RadiusPacketException {
+        try {
+            return create(attribute.getDictionary(),
+                    codecType.getCodec().decode(attribute.getValue(), secret, auth));
+        } catch (Exception e) {
+            throw new RadiusPacketException("Error decoding attribute " + attribute.toString(), e);
+        }
+    }
+
     public String toString() {
         String s = toUnsignedInt(getType()) + "/" + getName() + ": " + getDataType();
         if (getVendorId() != -1)
             s += " (Vendor " + getVendorId() + ")";
         return s;
+    }
+
+    protected AttributeCodecType detectAttributeCodec(int vendorId, int type, byte encryptFlag) {
+        if (vendorId == -1 && type == 2) // User-Password
+            return RFC2865_USER_PASSWORD;
+
+        if (vendorId == -1 && type == 69) // Tunnel-Password
+            return RFC2868_TUNNEL_PASSWORD;
+
+        if (vendorId == 529 && type == 214) // Ascend-Send-Secret
+            return ASCENT_SEND_SECRET;
+
+        return fromId(encryptFlag);
     }
 }

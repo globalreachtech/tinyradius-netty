@@ -36,9 +36,9 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
     }
 
     /**
-     * Encode request and generate authenticator. Should be idempotent.
+     * Encode request and generate authenticator.
      * <p>
-     * Base implementation generates hashed authenticator.
+     * Must be idempotent.
      *
      * @param sharedSecret shared secret that secures the communication
      *                     with the other Radius server/client
@@ -48,7 +48,9 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
     RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException;
 
     /**
-     * Checks the request authenticator against the supplied shared secret.
+     * Decodes the request against the supplied shared secret.
+     * <p>
+     * Must be idempotent.
      *
      * @param sharedSecret shared secret
      * @return verified RadiusRequest with decoded attributes if appropriate

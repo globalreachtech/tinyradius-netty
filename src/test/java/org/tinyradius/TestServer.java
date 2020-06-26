@@ -102,8 +102,11 @@ public class TestServer {
 
             final AccessRequestPap request = (AccessRequestPap) msg.getRequest();
 
-            String password = request.getAttribute(USER_NAME).get().getValueString().equals("test") ? "password" : null;
-            byte type = request.checkPassword(password) ? ACCESS_ACCEPT : ACCESS_REJECT;
+            final String password = request.getAttribute(USER_NAME).get().getValueString().equals("test") ? "password" : null;
+            byte type = request.getPassword()
+                    .filter(p -> p.equals(password))
+                    .map(x -> ACCESS_ACCEPT)
+                    .orElse(ACCESS_REJECT);
 
             RadiusResponse answer = RadiusResponse.create(request.getDictionary(), type, request.getId(), null, request.filterAttributes((byte) 33));
 

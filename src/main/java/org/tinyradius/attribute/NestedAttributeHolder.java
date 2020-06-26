@@ -125,12 +125,12 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * If vendorId doesn't match childVendorId, will search sub-attributes.
      *
      * @param vendorId vendor ID, or -1
-     * @param typeCode attribute type code
+     * @param type     attribute type code
      * @return object of same type with removed attributes
      */
-    default T removeAttributes(int vendorId, byte typeCode) {
+    default T removeAttributes(int vendorId, byte type) {
         if (vendorId == getChildVendorId())
-            return removeAttributes(typeCode);
+            return removeAttributes(type);
 
         final List<RadiusAttribute> attributes = getAttributes().stream()
                 .map(a -> {
@@ -138,7 +138,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
                         return a;
 
                     final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
-                    final List<RadiusAttribute> subAttributes = vsa.filterAttributes(sa -> sa.getType() != typeCode || sa.getVendorId() != vendorId);
+                    final List<RadiusAttribute> subAttributes = vsa.filterAttributes(sa -> sa.getType() != type || sa.getVendorId() != vendorId);
                     return subAttributes.isEmpty() ? null : vsa.withAttributes(subAttributes);
                 })
                 .filter(Objects::nonNull)

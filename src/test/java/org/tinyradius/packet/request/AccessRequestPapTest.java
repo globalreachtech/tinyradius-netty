@@ -2,16 +2,18 @@ package org.tinyradius.packet.request;
 
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.packet.request.AccessRequest.USER_PASSWORD;
-import static org.tinyradius.packet.request.AccessRequestPap.pad;
 
 class AccessRequestPapTest {
 
@@ -19,15 +21,20 @@ class AccessRequestPapTest {
 
     private static final byte USER_NAME = 1;
 
-    @Test
-    void encodeVerify() throws RadiusPacketException {
+    @ValueSource(strings = {"shortPw", "my16charPassword", "myMuchLongerPassword"})
+    @ParameterizedTest
+    void encodeVerify(String password) throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
 
-        final RadiusRequest encoded = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList(), "myPassword")
+        final RadiusRequest encoded = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
+                .withPassword(password)
                 .encodeRequest(sharedSecret);
 
+        assertNotEquals(password, ((AccessRequestPap) encoded).getPassword().get());
+
         assertNotNull(encoded.getAuthenticator());
-        encoded.decodeRequest(sharedSecret);
+        final RadiusRequest decoded = encoded.decodeRequest(sharedSecret);
+        assertEquals(password, ((AccessRequestPap) decoded).getPassword().get());
     }
 
     @Test
@@ -42,25 +49,26 @@ class AccessRequestPapTest {
         request2.decodeRequest(sharedSecret);
 
         // add one pw attribute
-        final RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute( -1, USER_PASSWORD, new byte[16]));
+        final RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute(-1, USER_PASSWORD, new byte[16]));
         assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
     }
 
     @Test
     void encodePapPassword() throws RadiusPacketException {
         String user = "myUser1";
-        String password1 = "myPw1";
+        String password1 = "myPw1"; // todo test longer passwords
         String password2 = "myPw2";
         String sharedSecret = "sharedSecret1";
 
-        RadiusRequest request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList(), password1)
+        RadiusRequest request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList())
+                .withPassword(password1)
                 .addAttribute(USER_NAME, user);
 
         // encode
         final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
 
         final byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
-                ((AccessRequestPap) request).getPassword().getBytes(UTF_8), encoded.getAuthenticator(), sharedSecret);
+                ((AccessRequestPap) request).getPassword().get().getBytes(UTF_8), encoded.getAuthenticator(), sharedSecret);
 
         // check correct encode
         assertEquals(1, encoded.getType());
@@ -68,41 +76,22 @@ class AccessRequestPapTest {
         assertEquals(user, encoded.getAttribute(USER_NAME).get().getValueString());
 
         // check password fields
-        assertFalse(request.getAttribute("User-Password").isPresent());
+        System.out.println(Arrays.toString(expectedEncodedPassword));
+        System.out.println(Arrays.toString(encoded.getAttribute("User-Password").get().getValue()));
+//        assertFalse(request.getAttribute("User-Password").isPresent());
         assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").get().getValue());
-        assertEquals(password1, encoded.getPassword());
+        System.out.println(expectedEncodedPassword);
+        System.out.println(encoded.getAttribute("User-Password").get().getValue());
+        assertEquals(password1, encoded.getPassword().get());
 
         // set password to something else
         final AccessRequestPap encoded2 = encoded.withPassword(password2);
-        assertEquals(password2, encoded2.getPassword());
+        assertEquals(password2, encoded2.getPassword().get());
 
         // check decodes password
         final AccessRequestPap encoded3 = (AccessRequestPap) encoded2.decodeRequest(sharedSecret);
-        assertEquals(password1, encoded3.getPassword());
+        assertEquals(password1, encoded3.getPassword().get());
     }
 
-    @Test
-    void checkPassword() throws RadiusPacketException {
-        String plaintextPw = "myPassword1";
-        String sharedSecret = "sharedSecret1";
-
-        AccessRequestPap request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList(), plaintextPw);
-        final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
-
-        assertTrue(encoded.checkPassword(plaintextPw));
-        assertFalse(encoded.checkPassword("badPw"));
-    }
-
-    @Test
-    void testPad() {
-        assertEquals(16, pad(new byte[0]).length);
-        assertEquals(16, pad(new byte[1]).length);
-        assertEquals(16, pad(new byte[2]).length);
-        assertEquals(16, pad(new byte[15]).length);
-        assertEquals(16, pad(new byte[16]).length);
-        assertEquals(32, pad(new byte[17]).length);
-        assertEquals(32, pad(new byte[18]).length);
-        assertEquals(32, pad(new byte[32]).length);
-        assertEquals(48, pad(new byte[33]).length);
-    }
+    // todo test encode is idempotent
 }

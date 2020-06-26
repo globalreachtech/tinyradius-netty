@@ -12,8 +12,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static java.lang.Integer.parseInt;
-
 /**
  * Parses a dictionary in Radiator format and fills a WritableDictionary.
  */
@@ -115,7 +113,7 @@ public class DictionaryParser {
 
         // read name, type code, type string
         String name = tok[1];
-        int type = parseInt(tok[2]);
+        int type = Integer.parseInt(tok[2]);
         String typeStr = tok[3];
 
         // create and cache object
@@ -136,7 +134,7 @@ public class DictionaryParser {
 
         final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(attributeName);
         if (attributeTemplate.isPresent())
-            attributeTemplate.get().addEnumerationValue(parseInt(valStr), enumName);
+            attributeTemplate.get().addEnumerationValue(Integer.parseInt(valStr), enumName);
         else
             throw new IOException("Unknown attribute type: " + attributeName + ", line: " + lineNum);
     }
@@ -149,9 +147,10 @@ public class DictionaryParser {
             throw new IOException("Vendor Attribute parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
 
-        int vendor = parseInt(tok[1]);
+        int vendor = Integer.parseInt(tok[1]);
         String name = tok[2];
-        int code = parseInt(tok[3]);
+//        Byte.parseByte() todo
+        int code = Integer.parseInt(tok[3]);
         String typeStr = tok[4];
 
         dictionary.addAttributeTemplate(new AttributeTemplate(vendor, code, name, typeStr));
@@ -165,7 +164,7 @@ public class DictionaryParser {
             throw new IOException("Vendor parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
 
-        int vendorId = parseInt(tok[1]);
+        int vendorId = Integer.parseInt(tok[1]);
         String vendorName = tok[2];
 
         dictionary.addVendor(vendorId, vendorName);

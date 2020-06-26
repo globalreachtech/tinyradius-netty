@@ -1,8 +1,9 @@
 package org.tinyradius.attribute.encrypt;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -17,25 +18,18 @@ public class UserPasswordCodec implements AttributeCodec {
 
     private static final Logger logger = LogManager.getLogger();
 
-    public RadiusAttribute encrypt(RadiusAttribute attribute, String sharedSecret, byte[] newAuth) {
-
-        return attribute.getDictionary().createAttribute(attribute.getVendorId(), attribute.getType(),
-                encodeData(newAuth, attribute.getValue(), sharedSecret.getBytes(UTF_8)));
+    @Override
+    public byte[] encode(byte[] data, String sharedSecret, byte[] authenticator) throws RadiusPacketException {
+        return encodeData(authenticator, data, sharedSecret.getBytes(UTF_8));
     }
 
-    public String decrypt(RadiusAttribute attribute, String sharedSecret, byte[] auth) throws RadiusPacketException {
-        return decodeData(attribute.getValue(), sharedSecret.getBytes(UTF_8), auth);
+    @Override
+    public byte[] decode(byte[] data, String sharedSecret, byte[] authenticator) throws RadiusPacketException {
+        return decodeData(data, sharedSecret.getBytes(UTF_8), authenticator);
     }
 
-    /**
-     * This method encodes plaintext data according to RFC 2865 for User-Password
-     *
-     * @param data         the data to encrypt
-     * @param sharedSecret shared secret
-     * @return the byte array containing the encrypted data
-     */
     private byte[] encodeData(byte[] authenticator, byte[] data, byte[] sharedSecret) {
-        requireNonNull(data, "Password cannot be null");
+        requireNonNull(data, "Data to encode cannot be null");
         requireNonNull(sharedSecret, "Shared secret cannot be null");
 
         byte[] ciphertext = authenticator;
@@ -50,29 +44,36 @@ public class UserPasswordCodec implements AttributeCodec {
         return buffer.array();
     }
 
-
-    /**
-     * Decodes the passed encoded attribute data and returns the cleartext form.
-     *
-     * @param sharedSecret shared secret
-     * @return decrypted data
-     */
-    private String decodeData(byte[] encodedData, byte[] sharedSecret, byte[] auth) throws RadiusPacketException {
+    private byte[] decodeData(byte[] encodedData, byte[] sharedSecret, byte[] auth) throws RadiusPacketException {
         if (encodedData.length < 16) {
-            // PAP passwords require at least 16 bytes, or multiples thereof
-            logger.warn("Malformed packet: User-Password attribute length must be greater than 15, actual {}", encodedData.length);
-            throw new RadiusPacketException("Malformed User-Password attribute");
+            // User-Password require at least 16 bytes, or multiples thereof
+            logger.warn("Malformed attribute while decoding with RFC2865 User-Password method - " +
+                    "data must be at least 16 octets, actual {}", encodedData.length);
+            throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 User-Password method - data must be at least 16 octets");
         }
 
-        final ByteBuffer buffer = ByteBuffer.allocate(encodedData.length);
+        if (encodedData.length % 16 != 0) {
+            // User-Password require at least 16 bytes, or multiples thereof
+            logger.warn("Malformed attribute while decoding with RFC2865 User-Password method - " +
+                    "data length must multiple of 16, actual {}", encodedData.length);
+            throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 User-Password method - data octets must be multiple of 16");
+        }
+
+        final ByteBuf buf = Unpooled.buffer(encodedData.length, encodedData.length);
         byte[] ciphertext = auth;
 
         for (int i = 0; i < encodedData.length; i += 16) {
-            buffer.put(xor16(encodedData, i, md5(sharedSecret, ciphertext)));
+            buf.writeBytes(xor16(encodedData, i, md5(sharedSecret, ciphertext)));
             ciphertext = Arrays.copyOfRange(encodedData, i, 16);
         }
 
-        return stripNullPadding(new String(buffer.array(), UTF_8));
+        final int nullIndex = buf.indexOf(0, encodedData.length - 1, (byte) (int) '\0');
+
+        if (nullIndex == -1)
+            return buf.copy().array();
+
+        return buf.writerIndex(nullIndex)
+                .copy().array();
     }
 
     private byte[] md5(byte[] a, byte[] b) {
@@ -110,10 +111,5 @@ public class UserPasswordCodec implements AttributeCodec {
                 (int) (Math.ceil((double) val.length / 16) * 16), 16);
 
         return Arrays.copyOf(val, length);
-    }
-
-    private static String stripNullPadding(String s) {
-        int i = s.indexOf('\0');
-        return (i > 0) ? s.substring(0, i) : s;
     }
 }

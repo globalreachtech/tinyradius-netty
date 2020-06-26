@@ -35,9 +35,11 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
     }
 
     /**
-     * Encode and generate authenticator. Should be idempotent.
+     * Encode and generate authenticator.
      * <p>
-     * Requires request authenticator to generator response authenticator.
+     * Requires request authenticator to generate response authenticator.
+     * <p>
+     * Must be idempotent.
      *
      * @param sharedSecret shared secret to be used to encode this packet
      * @param requestAuth  request packet authenticator
@@ -46,7 +48,9 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
     RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth);
 
     /**
-     * Verifies the response authenticator against the supplied shared secret.
+     * Decodes the response against the supplied shared secret and request authenticator.
+     * <p>
+     * Must be idempotent.
      *
      * @param sharedSecret shared secret
      * @param requestAuth  authenticator for corresponding request
