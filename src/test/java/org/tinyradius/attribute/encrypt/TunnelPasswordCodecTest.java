@@ -2,7 +2,9 @@ package org.tinyradius.attribute.encrypt;
 
 import org.junit.jupiter.api.Test;
 
-class UserPasswordCodecTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+class TunnelPasswordCodecTest {
 
     @Test
     void encode() {
