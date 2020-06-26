@@ -30,6 +30,7 @@ class DictionaryParserTest {
         assertTrue(serviceTypeAttr.isPresent());
         assertEquals("Service-Type", serviceTypeAttr.get().getName());
         assertEquals("Login-User", serviceTypeAttr.get().getEnumeration(1));
+        assertEquals("Digest-Attributes", dictionary.getAttributeTemplate(-1, (byte) 207).get().getName());
     }
 
     @Test
@@ -46,6 +47,7 @@ class DictionaryParserTest {
         assertTrue(serviceTypeAttr.isPresent());
         assertEquals("Service-Type", serviceTypeAttr.get().getName());
         assertEquals("Login-User", serviceTypeAttr.get().getEnumeration(1));
+        assertEquals("Digest-Attributes", dictionary.getAttributeTemplate(-1, (byte) 207).get().getName());
 
         Files.delete(tmpPath.resolve(TEST_DICTIONARY));
         Files.delete(tmpPath.resolve(DEFAULT_DICTIONARY));

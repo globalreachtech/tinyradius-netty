@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Parses a dictionary in Radiator format and fills a WritableDictionary.
@@ -40,7 +39,7 @@ public class DictionaryParser {
      * @throws IOException parse error reading from input
      */
     public WritableDictionary parseDictionary(String resource) throws IOException {
-        WritableDictionary d = new MemoryDictionary();
+        final WritableDictionary d = new MemoryDictionary();
         parseDictionary(d, resource);
         return d;
     }
@@ -112,9 +111,9 @@ public class DictionaryParser {
         }
 
         // read name, type code, type string
-        String name = tok[1];
-        int type = Integer.parseInt(tok[2]);
-        String typeStr = tok[3];
+        final String name = tok[1];
+        final int type = Integer.parseInt(tok[2]);
+        final String typeStr = tok[3];
 
         // create and cache object
         dictionary.addAttributeTemplate(new AttributeTemplate(-1, type, name, typeStr));
@@ -128,15 +127,13 @@ public class DictionaryParser {
             throw new IOException("Value parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
 
-        String attributeName = tok[1];
-        String enumName = tok[2];
-        String valStr = tok[3];
+        final String attributeName = tok[1];
+        final String enumName = tok[2];
+        final String valStr = tok[3];
 
-        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(attributeName);
-        if (attributeTemplate.isPresent())
-            attributeTemplate.get().addEnumerationValue(Integer.parseInt(valStr), enumName);
-        else
-            throw new IOException("Unknown attribute type: " + attributeName + ", line: " + lineNum);
+        dictionary.getAttributeTemplate(attributeName)
+                .orElseThrow(() -> new IOException("Unknown attribute type: " + attributeName + ", line: " + lineNum))
+                .addEnumerationValue(Integer.parseInt(valStr), enumName);
     }
 
     /**
@@ -147,11 +144,10 @@ public class DictionaryParser {
             throw new IOException("Vendor Attribute parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
 
-        int vendor = Integer.parseInt(tok[1]);
-        String name = tok[2];
-//        Byte.parseByte() todo
-        int code = Integer.parseInt(tok[3]);
-        String typeStr = tok[4];
+        final int vendor = Integer.parseInt(tok[1]);
+        final String name = tok[2];
+        final int code = Integer.parseInt(tok[3]);
+        final String typeStr = tok[4];
 
         dictionary.addAttributeTemplate(new AttributeTemplate(vendor, code, name, typeStr));
     }
@@ -164,8 +160,8 @@ public class DictionaryParser {
             throw new IOException("Vendor parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
 
-        int vendorId = Integer.parseInt(tok[1]);
-        String vendorName = tok[2];
+        final int vendorId = Integer.parseInt(tok[1]);
+        final String vendorName = tok[2];
 
         dictionary.addVendor(vendorId, vendorName);
     }
@@ -177,7 +173,7 @@ public class DictionaryParser {
         if (tok.length != 2) {
             throw new IOException("Dictionary include parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
-        String includeFile = tok[1];
+        final String includeFile = tok[1];
 
         final String nextResource = resourceResolver.resolve(currentResource, includeFile);
 

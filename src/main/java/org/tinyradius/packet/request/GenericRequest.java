@@ -3,6 +3,7 @@ package org.tinyradius.packet.request;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
@@ -25,14 +26,27 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
         super(dictionary, type, identifier, authenticator, attributes);
     }
 
-    @Override
-    public GenericRequest encodeRequest(String sharedSecret) {
-        final byte[] authenticator = createHashedAuthenticator(sharedSecret, new byte[16]);
-        return new GenericRequest(getDictionary(), getType(), getId(), authenticator, getAttributes());
+    /**
+     * @param sharedSecret to generate authenticator
+     * @return new authenticator, must be idempotent
+     */
+    protected byte[] genAuth(String sharedSecret) {
+        return createHashedAuthenticator(sharedSecret, new byte[16]);
     }
 
     @Override
-    public GenericRequest withAttributes(List<RadiusAttribute> attributes) {
+    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+        return new GenericRequest(getDictionary(), getType(), getId(), genAuth(sharedSecret), getAttributes());
+    }
+
+    @Override
+    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
+        verifyPacketAuth(sharedSecret, new byte[16]);
+        return this;
+    }
+
+    @Override
+    public RadiusRequest withAttributes(List<RadiusAttribute> attributes) {
         return new GenericRequest(getDictionary(), getType(), getId(), getAuthenticator(), attributes);
     }
 }

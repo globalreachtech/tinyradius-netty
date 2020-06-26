@@ -40,7 +40,13 @@ public class AttributeTemplate {
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      */
     public AttributeTemplate(int vendorId, int type, String name, String rawDataType) {
-        this(vendorId, type, name, rawDataType, (byte) 0);
+        this(vendorId, convertType(type), name, rawDataType, (byte) 0);
+    }
+
+    private static byte convertType(int type) {
+        if (type < 1 || type > 255)
+            throw new IllegalArgumentException("Attribute type code out of bounds");
+        return (byte) type;
     }
 
     /**
@@ -52,9 +58,7 @@ public class AttributeTemplate {
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or 0 for no encryption
      */
-    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encryptFlag) {
-        if (type < 1 || type > 255)
-            throw new IllegalArgumentException("Attribute type code out of bounds");
+    public AttributeTemplate(int vendorId, byte type, String name, String rawDataType, byte encryptFlag) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
         requireNonNull(rawDataType, "Data type is null");

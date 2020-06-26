@@ -2,7 +2,6 @@ package org.tinyradius.packet.request;
 
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.BaseRadiusPacket;
 import org.tinyradius.packet.util.MessageAuthSupport;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -18,7 +17,7 @@ import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
 /**
  * This class represents an Access-Request Radius packet.
  */
-public abstract class AccessRequest extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest, MessageAuthSupport<RadiusRequest> {
+public abstract class AccessRequest extends GenericRequest implements MessageAuthSupport<RadiusRequest> {
 
     protected static final SecureRandom RANDOM = new SecureRandom();
 
@@ -58,25 +57,30 @@ public abstract class AccessRequest extends BaseRadiusPacket<RadiusRequest> impl
                 .collect(toSet());
 
         if (detectedAuth.isEmpty()) {
-            logger.debug("AccessRequest no auth mechanism found, passing through");
+            logger.warn("AccessRequest no auth mechanism found, parsing as AccessRequestNoAuth");
             return AccessRequestNoAuth::new;
         }
 
         if (detectedAuth.size() > 1) {
-            logger.warn("AccessRequest identified multiple auth mechanisms");
+            logger.warn("AccessRequest identified multiple auth mechanisms, parsing as AccessRequestNoAuth");
             return AccessRequestNoAuth::new;
         }
 
         switch (detectedAuth.iterator().next()) {
             case EAP_MESSAGE:
+                logger.debug("Parsing AccessRequest as AccessRequestEap");
                 return AccessRequestEap::new;
             case CHAP_PASSWORD:
+                logger.debug("Parsing AccessRequest as AccessRequestChap");
                 return AccessRequestChap::new;
             case USER_PASSWORD:
+                logger.debug("Parsing AccessRequest as AccessRequestPap");
                 return AccessRequestPap::new;
             case ARAP_PASSWORD:
+                logger.debug("Parsing AccessRequest as AccessRequestArap");
                 return AccessRequestArap::new;
             default:
+                logger.debug("Parsing AccessRequest as AccessRequestNoAuth");
                 return AccessRequestNoAuth::new;
         }
     }
@@ -99,6 +103,11 @@ public abstract class AccessRequest extends BaseRadiusPacket<RadiusRequest> impl
      */
     abstract AccessRequest encodeAuthMechanism(String sharedSecret, byte[] newAuth) throws RadiusPacketException;
 
+    @Override
+    protected byte[] genAuth(String sharedSecret) {
+        return getAuthenticator() == null ? random16bytes() : getAuthenticator();
+    }
+
     /**
      * AccessRequest overrides this method to generate a randomized authenticator (RFC 2865)
      * and encode required attributes (e.g. User-Password).
@@ -113,7 +122,8 @@ public abstract class AccessRequest extends BaseRadiusPacket<RadiusRequest> impl
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
         // create authenticator only if needed - maintain idempotence
-        byte[] newAuth = getAuthenticator() == null ? random16bytes() : getAuthenticator();
+
+        final byte[] newAuth = genAuth(sharedSecret);
 
         return encodeAuthMechanism(sharedSecret, newAuth)
                 .encodeMessageAuth(sharedSecret, newAuth);

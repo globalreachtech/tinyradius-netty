@@ -3,6 +3,7 @@ package org.tinyradius.packet.response;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.BaseRadiusPacket;
+import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
@@ -29,6 +30,12 @@ public class GenericResponse extends BaseRadiusPacket<RadiusResponse> implements
     public GenericResponse encodeResponse(String sharedSecret, byte[] requestAuth) {
         final byte[] newAuth = createHashedAuthenticator(sharedSecret, requestAuth);
         return new GenericResponse(getDictionary(), getType(), getId(), newAuth, getAttributes());
+    }
+
+    @Override
+    public RadiusResponse decodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+        verifyPacketAuth(sharedSecret, requestAuth);
+        return this;
     }
 
     @Override

@@ -8,7 +8,6 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -24,7 +23,7 @@ class AccessRequestPapTest {
     @ValueSource(strings = {"shortPw", "my16charPassword", "myMuchLongerPassword"})
     @ParameterizedTest
     void encodeVerify(String password) throws RadiusPacketException {
-        String sharedSecret = "sharedSecret1";
+        final String sharedSecret = "sharedSecret1";
 
         final RadiusRequest encoded = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
                 .withPassword(password)
@@ -38,8 +37,8 @@ class AccessRequestPapTest {
     }
 
     @Test
-    void verifyAttributeCount() throws RadiusPacketException {
-        String sharedSecret = "sharedSecret1";
+    void decodeVerifyAttributeCount() throws RadiusPacketException {
+        final String sharedSecret = "sharedSecret1";
         final AccessRequestPap request1 = new AccessRequestPap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
@@ -53,15 +52,14 @@ class AccessRequestPapTest {
         assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
     }
 
-    @Test
-    void encodePapPassword() throws RadiusPacketException {
-        String user = "myUser1";
-        String password1 = "myPw1"; // todo test longer passwords
-        String password2 = "myPw2";
-        String sharedSecret = "sharedSecret1";
+    @ValueSource(strings = {"shortPw", "my16charPassword", "myMuchLongerPassword"})
+    @ParameterizedTest
+    void encodePapPassword(String password) throws RadiusPacketException {
+        final String user = "myUser1";
+        final String sharedSecret = "sharedSecret1";
 
         RadiusRequest request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList())
-                .withPassword(password1)
+                .withPassword(password)
                 .addAttribute(USER_NAME, user);
 
         // encode
@@ -76,21 +74,18 @@ class AccessRequestPapTest {
         assertEquals(user, encoded.getAttribute(USER_NAME).get().getValueString());
 
         // check password fields
-        System.out.println(Arrays.toString(expectedEncodedPassword));
-        System.out.println(Arrays.toString(encoded.getAttribute("User-Password").get().getValue()));
 //        assertFalse(request.getAttribute("User-Password").isPresent());
         assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").get().getValue());
-        System.out.println(expectedEncodedPassword);
-        System.out.println(encoded.getAttribute("User-Password").get().getValue());
-        assertEquals(password1, encoded.getPassword().get());
+        assertEquals(password, encoded.getPassword().get());
 
         // set password to something else
+        final String password2 = "myPw2";
         final AccessRequestPap encoded2 = encoded.withPassword(password2);
         assertEquals(password2, encoded2.getPassword().get());
 
         // check decodes password
         final AccessRequestPap encoded3 = (AccessRequestPap) encoded2.decodeRequest(sharedSecret);
-        assertEquals(password1, encoded3.getPassword().get());
+        assertEquals(password, encoded3.getPassword().get());
     }
 
     // todo test encode is idempotent
