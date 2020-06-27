@@ -17,7 +17,7 @@ public class UserPasswordCodec extends AbstractCodec {
 
     @Override
     public byte[] encode(byte[] data, String sharedSecret, byte[] requestAuth) {
-        return encodeData(requestAuth, data, sharedSecret.getBytes(UTF_8));
+        return encodeData(data, requestAuth, sharedSecret.getBytes(UTF_8));
     }
 
     @Override
@@ -25,16 +25,17 @@ public class UserPasswordCodec extends AbstractCodec {
         return decodeData(data, sharedSecret.getBytes(UTF_8), requestAuth);
     }
 
-    private byte[] encodeData(byte[] auth, byte[] data, byte[] secret) {
+    private byte[] encodeData(byte[] data, byte[] auth, byte[] secret) {
         requireNonNull(data, "Data to encode cannot be null");
         requireNonNull(secret, "Shared secret cannot be null");
 
-        byte[] C = auth;
-        byte[] pw = pad16(data);
-        final ByteBuffer buffer = ByteBuffer.allocate(pw.length);
+        final byte[] str = pad16x(data);
+        final ByteBuffer buffer = ByteBuffer.allocate(str.length);
 
-        for (int i = 0; i < pw.length; i += 16) {
-            C = xor16(pw, i, md5(secret, C));
+        byte[] C = auth;
+
+        for (int i = 0; i < str.length; i += 16) {
+            C = xor16(str, i, md5(secret, C));
             buffer.put(C);
         }
 

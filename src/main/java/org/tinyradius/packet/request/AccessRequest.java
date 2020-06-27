@@ -89,7 +89,7 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
     protected abstract AccessRequestFactory<T> factory();
 
     protected static byte[] random16bytes() {
-        byte[] randomBytes = new byte[16];
+        final byte[] randomBytes = new byte[16];
         RANDOM.nextBytes(randomBytes);
         return randomBytes;
     }

@@ -4,7 +4,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.tinyradius.attribute.encrypt.AbstractCodec.pad16;
+import static org.tinyradius.attribute.encrypt.AbstractCodec.pad16x;
 
 class AbstractCodecTest {
 
@@ -22,6 +22,6 @@ class AbstractCodecTest {
     })
     @ParameterizedTest
     void testPad(int before, int after) {
-        assertEquals(after, pad16(new byte[before]).length);
+        assertEquals(after, pad16x(new byte[before]).length);
     }
 }

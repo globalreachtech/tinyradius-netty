@@ -1,18 +1,24 @@
 package org.tinyradius.attribute.encrypt;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.tinyradius.util.RadiusPacketException;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Arrays;
 
 /**
  * Attribute is encrypted with the method as defined in RFC2868 for the Tunnel-Password attribute
  */
 public class TunnelPasswordCodec extends AbstractCodec {
 
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     @Override
     public byte[] encode(byte[] data, String sharedSecret, byte[] requestAuth) {
-
-        return encryptData(data, requestAuth, new byte[]{}, sharedSecret.getBytes(StandardCharsets.UTF_8));
+        return encryptData(data, requestAuth, sharedSecret.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
@@ -20,54 +26,78 @@ public class TunnelPasswordCodec extends AbstractCodec {
         return decodeData(data, requestAuth, sharedSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    private byte[] encryptData(byte[] value, byte[] auth, byte[] salt, byte[] secret) {
+    /**
+     * @param data   password sub-field (excl. salt, length, padding)
+     * @param auth   request authenticator
+     * @param secret shared secret
+     * @return byte array representing salt+string
+     */
+    private byte[] encryptData(byte[] data, byte[] auth, byte[] secret) {
+        final byte[] salt = genSalt();
+        final byte[] combined = ByteBuffer.allocate(data.length + 1)
+                .put((byte) data.length)
+                .put(data)
+                .array();
 
-        int length = ((value.length + 1 + 16) / 16) * 16;
+        final byte[] plaintext = pad16x(combined);
+        final ByteBuffer buffer = ByteBuffer.allocate(plaintext.length + 2)
+                .put(salt);
 
-        byte[] P = new byte[length];
-        byte[] C = new byte[auth.length + salt.length];
+        byte[] C = ByteBuffer.allocate(18)
+                .put(auth)
+                .put(salt)
+                .array();
 
-        P[0] = (byte) value.length;
-
-        System.arraycopy(value, 0, P, 1, value.length);
-        System.arraycopy(auth, 0, C, 0, auth.length);
-        System.arraycopy(salt, 0, C, auth.length, salt.length);
-
-        byte[] result = new byte[P.length + salt.length];
-
-        for (int i = 0; i < P.length; i += 16) {
-            C = md5(secret, C);
-            C = xor16(P, i, C);
-            System.arraycopy(C, 0, result, i + salt.length, 16);
+        for (int i = 0; i < plaintext.length; i += 16) {
+            C = xor16(plaintext, i, md5(secret, C));
+            buffer.put(C);
         }
 
-        System.arraycopy(salt, 0, result, 0, salt.length);
-
-        return result;
+        return buffer.array();
     }
 
-    private byte[] decodeData(byte[] value, byte[] auth, byte[] secret) {
+    /**
+     * @param encodedData byte array representing salt+string
+     * @param auth        request authenticator
+     * @param secret      shared secret
+     * @return password sub-field (excl. salt, length, padding)
+     */
+    private byte[] decodeData(byte[] encodedData, byte[] auth, byte[] secret) throws RadiusPacketException {
+        final int strLen = encodedData.length - 2;
+        if (strLen < 16)
+            throw new RadiusPacketException("Malformed attribute while decoding with RFC2868 Tunnel-Password method - " +
+                    "string must be at least 16 octets, actual: " + strLen);
 
-        byte[] P = new byte[value.length - 2];
-        byte[] C = new byte[auth.length + 2];
+        if (strLen % 16 != 0)
+            throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 Tunnel-Password method - " +
+                    "string octets must be multiple of 16, actual: " + strLen);
 
-        System.arraycopy(value, 2, P, 0, P.length);
-        System.arraycopy(auth, 0, C, 0, auth.length);
-        System.arraycopy(value, 0, C, auth.length, 2);
+        final byte[] encodedStr = Arrays.copyOfRange(encodedData, 2, encodedData.length);
+        final byte[] salt = Arrays.copyOfRange(encodedData, 0, 2);
 
-        byte[] tmp = new byte[P.length];
+        byte[] C = ByteBuffer.allocate(18)
+                .put(auth)
+                .put(salt)
+                .array();
 
-        for (int i = 0; i < P.length; i += 16) {
-            C = md5(secret, C);
-            C = xor16(P, i, C);
-            System.arraycopy(C, 0, tmp, i, 16);
-            System.arraycopy(P, i, C, 0, 16);
+        final ByteBuf plaintext = Unpooled.buffer(encodedStr.length, encodedStr.length);
+
+        for (int i = 0; i < strLen; i += 16) {
+            plaintext.writeBytes(xor16(encodedStr, i, md5(secret, C)));
+            C = Arrays.copyOfRange(encodedStr, i, 16);
         }
 
-        byte[] result = new byte[tmp[0]];
+        final byte len = plaintext.readByte(); // first
 
-        System.arraycopy(tmp, 1, result, 0, result.length);
+        return plaintext
+                .writerIndex(len + 1) // strip padding
+                .copy().array();
+    }
 
-        return result;
+    private static byte[] genSalt() {
+        final byte[] randomBytes = new byte[2];
+        RANDOM.nextBytes(randomBytes);
+        randomBytes[0] = (byte) (randomBytes[0] | 0b1000_0000); // MSF must be set
+        return randomBytes;
     }
 }

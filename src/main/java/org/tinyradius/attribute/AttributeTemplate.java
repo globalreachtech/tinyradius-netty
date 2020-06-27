@@ -22,6 +22,7 @@ public class AttributeTemplate {
     private final int vendorId;
     private final byte type;
     private final String name;
+    private final boolean hasTag = false; // todo
     private final AttributeCodecType codecType;
 
     private final String dataType;
@@ -35,18 +36,12 @@ public class AttributeTemplate {
      * Create a new attribute type.
      *
      * @param vendorId    vendor ID or -1 if N/A
-     * @param type        sub-attribute type code
+     * @param type        sub-attribute type code, as unsigned byte
      * @param name        sub-attribute name
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      */
-    public AttributeTemplate(int vendorId, int type, String name, String rawDataType) {
-        this(vendorId, convertType(type), name, rawDataType, (byte) 0);
-    }
-
-    private static byte convertType(int type) {
-        if (type < 1 || type > 255)
-            throw new IllegalArgumentException("Attribute type code out of bounds");
-        return (byte) type;
+    public AttributeTemplate(int vendorId, byte type, String name, String rawDataType) {
+        this(vendorId, type, name, rawDataType, (byte) 0);
     }
 
     /**
@@ -147,30 +142,30 @@ public class AttributeTemplate {
     }
 
     /**
-     * @param attribute attribute to encode
-     * @param secret    shared secret to encode with
-     * @param auth      packet authenticator
+     * @param attribute   attribute to encode
+     * @param secret      shared secret to encode with
+     * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with encoded data
      */
-    public RadiusAttribute encode(RadiusAttribute attribute, String secret, byte[] auth) throws RadiusPacketException {
+    public RadiusAttribute encode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
         try {
             return createEncoded(attribute.getDictionary(),
-                    codecType.getCodec().encode(attribute.getValue(), secret, auth));
+                    codecType.getCodec().encode(attribute.getValue(), secret, requestAuth));
         } catch (Exception e) {
             throw new RadiusPacketException("Error encoding attribute " + attribute.toString(), e);
         }
     }
 
     /**
-     * @param attribute attribute to decode
-     * @param secret    shared secret to decode with
-     * @param auth      packet authenticator
+     * @param attribute   attribute to decode
+     * @param secret      shared secret to decode with
+     * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with decoded data
      */
-    public RadiusAttribute decode(RadiusAttribute attribute, String secret, byte[] auth) throws RadiusPacketException {
+    public RadiusAttribute decode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
         try {
             return create(attribute.getDictionary(),
-                    codecType.getCodec().decode(attribute.getValue(), secret, auth));
+                    codecType.getCodec().decode(attribute.getValue(), secret, requestAuth));
         } catch (Exception e) {
             throw new RadiusPacketException("Error decoding attribute " + attribute.toString(), e);
         }

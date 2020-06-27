@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RadiusAttribute {
+
     /**
      * @return attribute data as raw bytes
      */
@@ -60,30 +61,30 @@ public interface RadiusAttribute {
 
     /**
      * @param secret shared secret to encode with
-     * @param auth   packet authenticator
+     * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with encoded data
      */
-    default RadiusAttribute encode(String secret, byte[] auth) throws RadiusPacketException {
+    default RadiusAttribute encode(String secret, byte[] requestAuth) throws RadiusPacketException {
 //        if (isEncoded())
 //            return this;
 
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
-                template.get().encode(this, secret, auth) :
+                template.get().encode(this, secret, requestAuth) :
                 this;
     }
 
     /**
      * @param secret shared secret to encode with
-     * @param auth   packet authenticator
+     * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with encoded data
      */
-    default RadiusAttribute decode(String secret, byte[] auth) throws RadiusPacketException {
+    default RadiusAttribute decode(String secret, byte[] requestAuth) throws RadiusPacketException {
 //        if (!isEncoded())
 //            return this;
 
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
-                template.get().decode(this, secret, auth) : this;
+                template.get().decode(this, secret, requestAuth) : this;
     }
 }

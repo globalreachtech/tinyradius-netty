@@ -13,9 +13,9 @@ public abstract class AbstractCodec {
     /**
      * Encodes plaintext data
      *
-     * @param data          the data to encrypt
-     * @param sharedSecret  shared secret
-     * @param requestAuth packet authenticator
+     * @param data         the data to encrypt
+     * @param sharedSecret shared secret
+     * @param requestAuth  packet authenticator
      * @return the byte array containing the encrypted data
      */
     public abstract byte[] encode(byte[] data, String sharedSecret, byte[] requestAuth) throws RadiusPacketException;
@@ -23,9 +23,9 @@ public abstract class AbstractCodec {
     /**
      * Decodes the passed encoded attribute data and returns the cleartext form as bytes
      *
-     * @param data          data to decrypt
-     * @param sharedSecret  shared secret
-     * @param requestAuth packet authenticator
+     * @param data         data to decrypt
+     * @param sharedSecret shared secret
+     * @param requestAuth  packet authenticator
      * @return decrypted data
      */
     public abstract byte[] decode(byte[] data, String sharedSecret, byte[] requestAuth) throws RadiusPacketException;
@@ -56,7 +56,11 @@ public abstract class AbstractCodec {
         return md.digest(b);
     }
 
-    protected static byte[] pad16(byte[] val) {
+    /**
+     * @param val byte array to pad
+     * @return byte array containing input, padded size multiple of 16
+     */
+    protected static byte[] pad16x(byte[] val) {
         requireNonNull(val, "Byte array cannot be null");
 
         int length = Math.max(

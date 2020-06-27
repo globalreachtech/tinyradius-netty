@@ -112,7 +112,7 @@ public class DictionaryParser {
 
         // read name, type code, type string
         final String name = tok[1];
-        final int type = Integer.parseInt(tok[2]);
+        final byte type = convertType(Integer.parseInt(tok[2]));
         final String typeStr = tok[3];
 
         // create and cache object
@@ -146,7 +146,7 @@ public class DictionaryParser {
 
         final int vendor = Integer.parseInt(tok[1]);
         final String name = tok[2];
-        final int code = Integer.parseInt(tok[3]);
+        final byte code = convertType(Integer.parseInt(tok[3]));
         final String typeStr = tok[4];
 
         dictionary.addAttributeTemplate(new AttributeTemplate(vendor, code, name, typeStr));
@@ -181,6 +181,12 @@ public class DictionaryParser {
             parseDictionary(dictionary, nextResource);
         else
             throw new IOException("Included file '" + includeFile + "' was not found, line " + lineNum + ", " + currentResource);
+    }
+
+    private static byte convertType(int type) {
+        if (type < 1 || type > 255)
+            throw new IllegalArgumentException("Attribute type code out of bounds");
+        return (byte) type;
     }
 
     public interface ResourceResolver {
