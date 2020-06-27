@@ -14,7 +14,7 @@ public class AscendSendSecretCodec extends AbstractCodec {
     }
 
     @Override
-    public byte[] decode(byte[] data, String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    public byte[] decode(byte[] data, String sharedSecret, byte[] requestAuth) {
         return data;
     }
 }

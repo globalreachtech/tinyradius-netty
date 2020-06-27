@@ -72,16 +72,27 @@ public class AttributeTemplate {
                 decodedType : AttributeType.OCTETS;
     }
 
-    public RadiusAttribute create(Dictionary dictionary, byte[] data) {
-        return decodedType.create(dictionary, vendorId, type, data);
+    public RadiusAttribute create(Dictionary dictionary, byte[] value) {
+        return decodedType.create(dictionary, vendorId, type, value);
     }
 
-    public RadiusAttribute create(Dictionary dictionary, String data) {
-        return decodedType.create(dictionary, vendorId, type, data);
+    public RadiusAttribute create(Dictionary dictionary, String value) {
+        return decodedType.create(dictionary, vendorId, type, value);
     }
 
-    private RadiusAttribute createEncoded(Dictionary dictionary, byte[] data) {
-        return encodedType.create(dictionary, vendorId, type, data);
+    /**
+     * Create RadiusAttribute with encoded data.
+     * <p>
+     * If attribute type has encryption enabled, this parses as OctetsAttribute
+     * so contents aren't validated at construction and can be decoded separately
+     * later. Otherwise will create same attribute type as {@link #create(Dictionary, byte[])}.
+     *
+     * @param dictionary  dictionary to use
+     * @param encodedData encoded data, attribute data excl. type/length/tag
+     * @return new RadiusAttribute
+     */
+    public RadiusAttribute createEncoded(Dictionary dictionary, byte[] encodedData) {
+        return encodedType.create(dictionary, vendorId, type, encodedData);
     }
 
     /**

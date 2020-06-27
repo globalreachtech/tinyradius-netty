@@ -93,7 +93,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
 
         final T newPacket = this
                 .removeAttributes(MESSAGE_AUTHENTICATOR)
-                .addAttribute(getDictionary().createAttribute(-1, MESSAGE_AUTHENTICATOR, buffer.array()));
+                .addAttribute(getDictionary().createEncodedAttribute(-1, MESSAGE_AUTHENTICATOR, buffer.array()));
 
         buffer.put(computeMessageAuth(newPacket, sharedSecret, requestAuth));
 

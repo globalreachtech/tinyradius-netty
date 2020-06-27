@@ -87,11 +87,6 @@ class AccessRequestPapTest {
         final String password2 = "myPw2";
         final AccessRequestPap encoded2 = encoded.withPassword(password2);
         assertEquals(password2, encoded2.getPassword().get());
-
-        // check decodes password
-        // Message-Auth fails as attributes have been modified todo
-//        final AccessRequestPap encoded3 = (AccessRequestPap) encoded2.decodeRequest(sharedSecret);
-//        assertEquals(password, encoded3.getPassword().get());
     }
 
     // todo test encode is idempotent

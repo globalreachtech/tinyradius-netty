@@ -19,12 +19,12 @@ public enum AttributeType {
         this.stringConstructor = stringConstructor;
     }
 
-    public RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, byte[] data) {
-        return byteArrayConstructor.newInstance(dictionary, vendorId, type, data);
+    public RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, byte[] value) {
+        return byteArrayConstructor.newInstance(dictionary, vendorId, type, value);
     }
 
-    public RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, String data) {
-        return stringConstructor.newInstance(dictionary, vendorId, type, data);
+    public RadiusAttribute create(Dictionary dictionary, int vendorId, byte type, String value) {
+        return stringConstructor.newInstance(dictionary, vendorId, type, value);
     }
 
     public static AttributeType fromDataType(String dataType) {

@@ -54,6 +54,20 @@ public interface Dictionary {
     }
 
     /**
+     * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
+     *
+     * @param vendorId vendor ID or -1
+     * @param type     attribute type
+     * @param value    attribute data as byte array
+     * @return RadiusAttribute object
+     */
+    default RadiusAttribute createEncodedAttribute(int vendorId, byte type, byte[] value) {
+        return getAttributeTemplate(vendorId, type)
+                .map(at -> at.createEncoded(this, value))
+                .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));
+    }
+
+    /**
      * Retrieves an AttributeTemplate by name. This includes
      * vendor-specific attribute types whose name is prefixed
      * by the vendor name.
