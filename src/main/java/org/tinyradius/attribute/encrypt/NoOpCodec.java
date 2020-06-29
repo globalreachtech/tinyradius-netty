@@ -3,7 +3,7 @@ package org.tinyradius.attribute.encrypt;
 /**
  * No-op encryption
  */
-public class NoOpCodec extends AbstractCodec {
+class NoOpCodec extends BaseCodec {
 
     @Override
     public byte[] encode(byte[] data, String sharedSecret, byte[] requestAuth) {

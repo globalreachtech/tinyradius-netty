@@ -1,12 +1,10 @@
 package org.tinyradius.attribute.encrypt;
 
-import org.tinyradius.util.RadiusPacketException;
-
 /**
  * Attribute is encrypted as per Ascend's definitions for the Ascend-Send-Secret attribute
  * TODO
  */
-public class AscendSendSecretCodec extends AbstractCodec {
+class AscendSendSecretCodec extends BaseCodec {
 
     @Override
     public byte[] encode(byte[] data, String sharedSecret, byte[] requestAuth) {

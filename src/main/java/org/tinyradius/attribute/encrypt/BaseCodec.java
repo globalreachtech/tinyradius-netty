@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 import static java.util.Objects.requireNonNull;
 
-public abstract class AbstractCodec {
+public abstract class BaseCodec {
 
     /**
      * Encodes plaintext data

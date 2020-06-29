@@ -2,6 +2,8 @@ package org.tinyradius.packet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.tinyradius.attribute.type.EncodedAttribute;
+import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.RadiusRequest;
@@ -87,7 +89,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     protected List<RadiusAttribute> encodeAttributes(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         final List<RadiusAttribute> attributes = new ArrayList<>();
         for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute encode = a.encode(sharedSecret, requestAuth);
+            EncodedAttribute encode = a.encode(sharedSecret, requestAuth);
             attributes.add(encode);
         }
         return attributes;
@@ -96,7 +98,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     protected List<RadiusAttribute> decodeAttributes(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         final List<RadiusAttribute> attributes = new ArrayList<>();
         for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute decode = a.decode(sharedSecret, requestAuth);
+            OctetsAttribute decode = a.decode(sharedSecret, requestAuth);
             attributes.add(decode);
         }
         return attributes;

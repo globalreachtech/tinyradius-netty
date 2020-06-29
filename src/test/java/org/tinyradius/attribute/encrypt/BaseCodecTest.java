@@ -4,9 +4,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.tinyradius.attribute.encrypt.AbstractCodec.pad16x;
+import static org.tinyradius.attribute.encrypt.BaseCodec.pad16x;
 
-class AbstractCodecTest {
+class BaseCodecTest {
 
     @CsvSource({
             "0,16",

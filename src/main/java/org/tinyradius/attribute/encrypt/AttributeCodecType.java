@@ -10,9 +10,9 @@ public enum AttributeCodecType {
     ASCENT_SEND_SECRET((byte) 3, new AscendSendSecretCodec());
 
     private final byte id;
-    private final AbstractCodec codec;
+    private final BaseCodec codec;
 
-    AttributeCodecType(byte id, AbstractCodec codec) {
+    AttributeCodecType(byte id, BaseCodec codec) {
         this.id = id;
         this.codec = codec;
     }
@@ -21,7 +21,7 @@ public enum AttributeCodecType {
         return id;
     }
 
-    public AbstractCodec getCodec() {
+    public BaseCodec getCodec() {
         return codec;
     }
 

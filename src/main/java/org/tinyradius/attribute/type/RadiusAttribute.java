@@ -54,39 +54,17 @@ public interface RadiusAttribute {
      */
     Optional<AttributeTemplate> getAttributeTemplate();
 
-    // todo use flag or subtypes to prevent encoding/decoding multiple times
-    default boolean isEncoded() {
-        return false;
-    }
-
-    // todo two methods, encodable(), decodable() ?
-
     /**
-     * @param secret shared secret to encode with
+     * @param secret      shared secret to encode with
      * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with encoded data
      */
-    default RadiusAttribute encode(String secret, byte[] requestAuth) throws RadiusPacketException {
-//        if (isEncoded())
-//            return this;
-
-        final Optional<AttributeTemplate> template = getAttributeTemplate();
-        return template.isPresent() ?
-                template.get().encode(this, secret, requestAuth) :
-                this;
-    }
+    EncodedAttribute encode(String secret, byte[] requestAuth) throws RadiusPacketException;
 
     /**
-     * @param secret shared secret to encode with
+     * @param secret      shared secret to encode with
      * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with encoded data
      */
-    default RadiusAttribute decode(String secret, byte[] requestAuth) throws RadiusPacketException {
-//        if (!isEncoded())
-//            return this;
-
-        final Optional<AttributeTemplate> template = getAttributeTemplate();
-        return template.isPresent() ?
-                template.get().decode(this, secret, requestAuth) : this;
-    }
+    OctetsAttribute decode(String secret, byte[] requestAuth) throws RadiusPacketException;
 }

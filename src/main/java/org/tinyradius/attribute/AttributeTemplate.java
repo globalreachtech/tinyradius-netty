@@ -2,6 +2,8 @@ package org.tinyradius.attribute;
 
 import org.tinyradius.attribute.encrypt.AttributeCodecType;
 import org.tinyradius.attribute.type.AttributeType;
+import org.tinyradius.attribute.type.EncodedAttribute;
+import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -22,10 +24,11 @@ public class AttributeTemplate {
     private final int vendorId;
     private final byte type;
     private final String name;
+    private final String dataType;
+
     private final boolean hasTag = false; // todo
     private final AttributeCodecType codecType;
 
-    private final String dataType;
     private final AttributeType decodedType;
     private final AttributeType encodedType;
 
@@ -72,11 +75,11 @@ public class AttributeTemplate {
                 decodedType : AttributeType.OCTETS;
     }
 
-    public RadiusAttribute create(Dictionary dictionary, byte[] value) {
+    public OctetsAttribute create(Dictionary dictionary, byte[] value) {
         return decodedType.create(dictionary, vendorId, type, value);
     }
 
-    public RadiusAttribute create(Dictionary dictionary, String value) {
+    public OctetsAttribute create(Dictionary dictionary, String value) {
         return decodedType.create(dictionary, vendorId, type, value);
     }
 
@@ -91,8 +94,8 @@ public class AttributeTemplate {
      * @param encodedData encoded data, attribute data excl. type/length/tag
      * @return new RadiusAttribute
      */
-    public RadiusAttribute createEncoded(Dictionary dictionary, byte[] encodedData) {
-        return encodedType.create(dictionary, vendorId, type, encodedData);
+    public EncodedAttribute createEncoded(Dictionary dictionary, byte[] encodedData) {
+        return new EncodedAttribute(encodedType.create(dictionary, vendorId, type, encodedData));
     }
 
     /**
@@ -116,8 +119,18 @@ public class AttributeTemplate {
         return vendorId;
     }
 
+    /**
+     * @return string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
+     */
     public String getDataType() {
         return dataType;
+    }
+
+    /**
+     * @return one of AttributeCodecType enum
+     */
+    public AttributeCodecType getCodecType() {
+        return codecType;
     }
 
     /**
@@ -158,7 +171,7 @@ public class AttributeTemplate {
      * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with encoded data
      */
-    public RadiusAttribute encode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
+    public EncodedAttribute encode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
         try {
             return createEncoded(attribute.getDictionary(),
                     codecType.getCodec().encode(attribute.getValue(), secret, requestAuth));
@@ -173,7 +186,7 @@ public class AttributeTemplate {
      * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with decoded data
      */
-    public RadiusAttribute decode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
+    public OctetsAttribute decode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
         try {
             return create(attribute.getDictionary(),
                     codecType.getCodec().decode(attribute.getValue(), secret, requestAuth));

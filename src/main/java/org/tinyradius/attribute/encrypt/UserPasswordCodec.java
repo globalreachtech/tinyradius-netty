@@ -13,7 +13,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Attribute is encrypted with the method as defined in RFC2865 for the User-Password attribute
  */
-public class UserPasswordCodec extends AbstractCodec {
+class UserPasswordCodec extends BaseCodec {
 
     @Override
     public byte[] encode(byte[] data, String sharedSecret, byte[] requestAuth) {

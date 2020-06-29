@@ -1,6 +1,7 @@
 package org.tinyradius.dictionary;
 
 import org.tinyradius.attribute.AttributeTemplate;
+import org.tinyradius.attribute.type.EncodedAttribute;
 import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
 
@@ -61,10 +62,10 @@ public interface Dictionary {
      * @param value    attribute data as byte array
      * @return RadiusAttribute object
      */
-    default RadiusAttribute createEncodedAttribute(int vendorId, byte type, byte[] value) {
+    default EncodedAttribute createEncodedAttribute(int vendorId, byte type, byte[] value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.createEncoded(this, value))
-                .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));
+                .orElseGet(() -> new EncodedAttribute(new OctetsAttribute(this, vendorId, type, value)));
     }
 
     /**

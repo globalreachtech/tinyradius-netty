@@ -2,6 +2,7 @@ package org.tinyradius.attribute.type;
 
 import org.tinyradius.attribute.AttributeTemplate;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.util.RadiusPacketException;
 
 import javax.xml.bind.DatatypeConverter;
 import java.nio.ByteBuffer;
@@ -10,8 +11,8 @@ import java.util.*;
 import static java.util.Objects.requireNonNull;
 
 /**
- * This class represents a generic Radius attribute. Subclasses implement
- * methods to access the fields of special attributes.
+ * The basic generic Radius attribute. All type-specific implementations extend this class
+ * by adding additional type conversion methods and validations.
  */
 public class OctetsAttribute implements RadiusAttribute {
 
@@ -103,6 +104,19 @@ public class OctetsAttribute implements RadiusAttribute {
     @Override
     public Optional<AttributeTemplate> getAttributeTemplate() {
         return dictionary.getAttributeTemplate(getVendorId(), getType());
+    }
+
+    @Override
+    public EncodedAttribute encode(String secret, byte[] requestAuth) throws RadiusPacketException {
+        final Optional<AttributeTemplate> template = getAttributeTemplate();
+        return template.isPresent() ?
+                template.get().encode(this, secret, requestAuth) :
+                new EncodedAttribute(this);
+    }
+
+    @Override
+    public OctetsAttribute decode(String secret, byte[] requestAuth) {
+        return this;
     }
 
     // do not remove - for removing from list of attributes

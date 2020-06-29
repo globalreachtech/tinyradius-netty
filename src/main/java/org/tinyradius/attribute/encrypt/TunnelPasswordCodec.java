@@ -12,7 +12,7 @@ import java.util.Arrays;
 /**
  * Attribute is encrypted with the method as defined in RFC2868 for the Tunnel-Password attribute
  */
-public class TunnelPasswordCodec extends AbstractCodec {
+class TunnelPasswordCodec extends BaseCodec {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
