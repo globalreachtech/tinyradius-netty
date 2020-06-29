@@ -53,7 +53,9 @@ public class TestServer {
         final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(dictionary, secretProvider);
 
         final Timer timer = new HashedWheelTimer();
-        final BasicCachingHandler<RequestCtx, ResponseCtx> cachingHandler =
+        final BasicCachingHandler<RequestCtx, ResponseCtx> cachingHandlerAuth =
+                new BasicCachingHandler<>(timer, 5000, RequestCtx.class, ResponseCtx.class);
+        final BasicCachingHandler<RequestCtx, ResponseCtx> cachingHandlerAcct =
                 new BasicCachingHandler<>(timer, 5000, RequestCtx.class, ResponseCtx.class);
 
         final SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler();
@@ -63,13 +65,13 @@ public class TestServer {
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
                     protected void initChannel(DatagramChannel ch) {
-                        ch.pipeline().addLast(serverPacketCodec, cachingHandler, simpleAccessHandler);
+                        ch.pipeline().addLast(serverPacketCodec, cachingHandlerAuth, simpleAccessHandler);
                     }
                 },
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
                     protected void initChannel(DatagramChannel ch) {
-                        ch.pipeline().addLast(serverPacketCodec, cachingHandler, simpleAccountingHandler);
+                        ch.pipeline().addLast(serverPacketCodec, cachingHandlerAcct, simpleAccountingHandler);
                     }
                 },
                 new InetSocketAddress(11812), new InetSocketAddress(11813))) {
