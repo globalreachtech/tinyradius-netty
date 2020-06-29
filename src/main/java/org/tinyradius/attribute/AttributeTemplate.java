@@ -152,10 +152,6 @@ public class AttributeTemplate {
         str2int.put(name, num);
     }
 
-    public boolean isEncrypt(){
-        return codecType != NO_ENCRYPT;
-    }
-
     /**
      * @param attribute   attribute to encode
      * @param secret      shared secret to encode with

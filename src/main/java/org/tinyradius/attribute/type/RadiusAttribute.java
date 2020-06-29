@@ -59,6 +59,8 @@ public interface RadiusAttribute {
         return false;
     }
 
+    // todo two methods, encodable(), decodable() ?
+
     /**
      * @param secret shared secret to encode with
      * @param requestAuth (corresponding) request packet authenticator
