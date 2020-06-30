@@ -47,7 +47,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
                 throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >=2");
             if (expectedLen > data.length - pos)
                 throw new IllegalArgumentException("Invalid attribute length " + length + ", remaining bytes " + (data.length - pos));
-            attributes.add(dictionary.createEncodedAttribute(vendorId, type, Arrays.copyOfRange(data, pos + 2, pos + length)));
+            attributes.add(dictionary.parseEncodedAttribute(vendorId, type, Arrays.copyOfRange(data, pos + 2, pos + length)));
             pos += length;
         }
 

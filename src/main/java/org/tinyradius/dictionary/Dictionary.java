@@ -21,8 +21,20 @@ public interface Dictionary {
      * @return RadiusAttribute object
      */
     default RadiusAttribute createAttribute(int vendorId, byte type, byte[] value) {
+        return createAttribute(vendorId, type, (byte) 0, value);
+    }
+
+    /**
+     * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
+     *
+     * @param vendorId vendor ID or -1
+     * @param type     attribute type
+     * @param value    attribute data as byte array
+     * @return RadiusAttribute object
+     */
+    default RadiusAttribute createAttribute(int vendorId, byte type, byte tag, byte[] value) {
         return getAttributeTemplate(vendorId, type)
-                .map(at -> at.parse(this, value))
+                .map(at -> at.create(this, tag, value))
                 .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));
     }
 
@@ -87,7 +99,21 @@ public interface Dictionary {
      * @param value    attribute data as byte array
      * @return RadiusAttribute object
      */
-    default EncodedDecorator createEncodedAttribute(int vendorId, byte type, byte[] value) {
+    default EncodedDecorator createEncodedAttribute(int vendorId, byte type, byte tag, byte[] value) {
+        return getAttributeTemplate(vendorId, type)
+                .map(at -> at.createEncoded(this, tag, value))
+                .orElseGet(() -> new EncodedDecorator(new OctetsAttribute(this, vendorId, type, value)));
+    }
+
+    /**
+     * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
+     *
+     * @param vendorId vendor ID or -1
+     * @param type     attribute type
+     * @param value    attribute data as byte array
+     * @return RadiusAttribute object
+     */
+    default EncodedDecorator parseEncodedAttribute(int vendorId, byte type, byte[] value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.parseEncoded(this, value))
                 .orElseGet(() -> new EncodedDecorator(new OctetsAttribute(this, vendorId, type, value)));
