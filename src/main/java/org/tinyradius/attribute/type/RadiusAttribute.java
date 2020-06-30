@@ -10,9 +10,9 @@ import java.util.Optional;
 public interface RadiusAttribute {
 
     /**
-     * @return attribute data as raw bytes
+     * @return vendor Id if Vendor-Specific attribute or sub-attribute, otherwise -1
      */
-    byte[] getValue();
+    int getVendorId();
 
     /**
      * @return attribute type code, 0-255
@@ -20,14 +20,20 @@ public interface RadiusAttribute {
     byte getType();
 
     /**
+     * @return Tag if available and specified for attribute type (RFC2868)
+     */
+    byte getTag();
+
+    /**
+     * @return attribute data as raw bytes
+     */
+    byte[] getValue();
+
+    /**
      * @return value of this attribute as a hex string.
      */
     String getValueString();
 
-    /**
-     * @return vendor Id if Vendor-Specific attribute or sub-attribute, otherwise -1
-     */
-    int getVendorId();
 
     /**
      * @return dictionary that attribute uses
@@ -55,16 +61,20 @@ public interface RadiusAttribute {
     Optional<AttributeTemplate> getAttributeTemplate();
 
     /**
+     * Encodes attribute. Must be idempotent.
+     *
      * @param secret      shared secret to encode with
      * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with encoded data
      */
-    EncodedAttribute encode(String secret, byte[] requestAuth) throws RadiusPacketException;
+    RadiusAttribute encode(String secret, byte[] requestAuth) throws RadiusPacketException;
 
     /**
+     * Decodes attribute. Must be idempotent.
+     *
      * @param secret      shared secret to encode with
      * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with encoded data
      */
-    OctetsAttribute decode(String secret, byte[] requestAuth) throws RadiusPacketException;
+    RadiusAttribute decode(String secret, byte[] requestAuth) throws RadiusPacketException;
 }

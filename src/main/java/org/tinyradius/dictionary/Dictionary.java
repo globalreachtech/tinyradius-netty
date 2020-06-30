@@ -1,9 +1,9 @@
 package org.tinyradius.dictionary;
 
 import org.tinyradius.attribute.AttributeTemplate;
-import org.tinyradius.attribute.type.EncodedAttribute;
 import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
+import org.tinyradius.attribute.type.decorator.EncodedDecorator;
 
 import java.util.Optional;
 
@@ -22,9 +22,10 @@ public interface Dictionary {
      */
     default RadiusAttribute createAttribute(int vendorId, byte type, byte[] value) {
         return getAttributeTemplate(vendorId, type)
-                .map(at -> at.create(this, value))
+                .map(at -> at.parse(this, value))
                 .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));
     }
+
 
     /**
      * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
@@ -35,8 +36,20 @@ public interface Dictionary {
      * @return RadiusAttribute object
      */
     default RadiusAttribute createAttribute(int vendorId, byte type, String value) {
+        return createAttribute(vendorId, type, (byte) 0, value);
+    }
+
+    /**
+     * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
+     *
+     * @param vendorId vendor ID or -1
+     * @param type     attribute type
+     * @param value    attribute data as String
+     * @return RadiusAttribute object
+     */
+    default RadiusAttribute createAttribute(int vendorId, byte type, byte tag, String value) {
         return getAttributeTemplate(vendorId, type)
-                .map(at -> at.create(this, value))
+                .map(at -> at.create(this, tag, value))
                 .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));
     }
 
@@ -49,9 +62,21 @@ public interface Dictionary {
      * @return RadiusAttribute object
      */
     default RadiusAttribute createAttribute(String name, String value) {
+        return createAttribute(name, (byte) 0, value);
+    }
+
+    /**
+     * Creates a Radius attribute.
+     * Uses AttributeTemplate to lookup the type code and converts the value.
+     *
+     * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
+     * @param value value of the attribute, for example "127.0.0.1"
+     * @return RadiusAttribute object
+     */
+    default RadiusAttribute createAttribute(String name, byte tag, String value) {
         return getAttributeTemplate(name)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown attribute type name: '" + name + "'"))
-                .create(this, value);
+                .create(this, tag, value);
     }
 
     /**
@@ -62,10 +87,10 @@ public interface Dictionary {
      * @param value    attribute data as byte array
      * @return RadiusAttribute object
      */
-    default EncodedAttribute createEncodedAttribute(int vendorId, byte type, byte[] value) {
+    default EncodedDecorator createEncodedAttribute(int vendorId, byte type, byte[] value) {
         return getAttributeTemplate(vendorId, type)
-                .map(at -> at.createEncoded(this, value))
-                .orElseGet(() -> new EncodedAttribute(new OctetsAttribute(this, vendorId, type, value)));
+                .map(at -> at.parseEncoded(this, value))
+                .orElseGet(() -> new EncodedDecorator(new OctetsAttribute(this, vendorId, type, value)));
     }
 
     /**

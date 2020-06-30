@@ -2,8 +2,6 @@ package org.tinyradius.packet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tinyradius.attribute.type.EncodedAttribute;
-import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.RadiusRequest;
@@ -86,24 +84,37 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         return dictionary;
     }
 
+    /**
+     * @param sharedSecret shared secret with server/client to encode attributes
+     * @param requestAuth  request authenticator to encode attributes
+     * @return encoded version of attributes
+     * @throws RadiusPacketException errors encoding attributes
+     */
     protected List<RadiusAttribute> encodeAttributes(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         final List<RadiusAttribute> attributes = new ArrayList<>();
         for (RadiusAttribute a : getAttributes()) {
-            EncodedAttribute encode = a.encode(sharedSecret, requestAuth);
+            RadiusAttribute encode = a.encode(sharedSecret, requestAuth);
             attributes.add(encode);
         }
         return attributes;
     }
 
+    /**
+     * @param sharedSecret shared secret with server/client to decode attributes
+     * @param requestAuth  request authenticator to decode attributes
+     * @return decoded/original version of attributes
+     * @throws RadiusPacketException errors decoding attributes
+     */
     protected List<RadiusAttribute> decodeAttributes(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         final List<RadiusAttribute> attributes = new ArrayList<>();
         for (RadiusAttribute a : getAttributes()) {
-            OctetsAttribute decode = a.decode(sharedSecret, requestAuth);
+            RadiusAttribute decode = a.decode(sharedSecret, requestAuth);
             attributes.add(decode);
         }
         return attributes;
     }
 
+    @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
 

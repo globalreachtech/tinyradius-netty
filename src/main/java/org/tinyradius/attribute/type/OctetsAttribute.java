@@ -1,6 +1,7 @@
 package org.tinyradius.attribute.type;
 
 import org.tinyradius.attribute.AttributeTemplate;
+import org.tinyradius.attribute.type.decorator.EncodedDecorator;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -48,8 +49,8 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     @Override
-    public byte[] getValue() {
-        return value;
+    public int getVendorId() {
+        return vendorId;
     }
 
     @Override
@@ -58,13 +59,18 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     @Override
-    public String getValueString() {
-        return DatatypeConverter.printHexBinary(value);
+    public byte getTag() {
+        return 0;
     }
 
     @Override
-    public int getVendorId() {
-        return vendorId;
+    public byte[] getValue() {
+        return value;
+    }
+
+    @Override
+    public String getValueString() {
+        return DatatypeConverter.printHexBinary(value);
     }
 
     @Override
@@ -74,11 +80,11 @@ public class OctetsAttribute implements RadiusAttribute {
 
     @Override
     public byte[] toByteArray() {
-        final int len = value.length + 2;
+        final int len = getValue().length + 2;
         return ByteBuffer.allocate(len)
                 .put(getType())
                 .put((byte) len)
-                .put(value)
+                .put(getValue())
                 .array();
     }
 
@@ -107,15 +113,15 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     @Override
-    public EncodedAttribute encode(String secret, byte[] requestAuth) throws RadiusPacketException {
+    public RadiusAttribute encode(String secret, byte[] requestAuth) throws RadiusPacketException {
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().encode(this, secret, requestAuth) :
-                new EncodedAttribute(this);
+                new EncodedDecorator(this);
     }
 
     @Override
-    public OctetsAttribute decode(String secret, byte[] requestAuth) {
+    public RadiusAttribute decode(String secret, byte[] requestAuth) {
         return this;
     }
 

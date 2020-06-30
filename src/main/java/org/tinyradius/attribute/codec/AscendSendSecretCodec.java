@@ -1,4 +1,4 @@
-package org.tinyradius.attribute.encrypt;
+package org.tinyradius.attribute.codec;
 
 /**
  * Attribute is encrypted as per Ascend's definitions for the Ascend-Send-Secret attribute

@@ -29,7 +29,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     }
 
     /**
-     * @param dictionary dictionary to create attribute
+     * @param dictionary dictionary to parse attribute
      * @param vendorId   vendor Id to set attributes
      * @param data       byte array to parse
      * @param pos        position in byte array at which to parse

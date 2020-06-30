@@ -1,4 +1,4 @@
-package org.tinyradius.attribute.encrypt;
+package org.tinyradius.attribute.codec;
 
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
