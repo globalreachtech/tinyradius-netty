@@ -16,7 +16,7 @@ import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -98,7 +98,7 @@ class BlacklistHandlerTest {
         assertFalse(blacklisted1.getResponse().isSuccess());
 
         // expired
-        await().atLeast(5000, MILLISECONDS).untilAsserted(() -> {
+        await().atLeast(5, SECONDS).untilAsserted(() -> {
             final PendingRequestCtx laterRequest = genRequest(0);
             handler.write(handlerContext, laterRequest, channelPromise);
             verify(handlerContext).write(laterRequest, channelPromise);
@@ -139,7 +139,39 @@ class BlacklistHandlerTest {
     }
 
     @Test
-    void repeatFailsDontExtendBlacklist() {
-// todo
+    void repeatFailsDontExtendBlacklist() throws InterruptedException {
+        final PendingRequestCtx request1 = genRequest(0);
+        handler.write(handlerContext, request1, channelPromise);
+
+        final PendingRequestCtx request2 = genRequest(0);
+        handler.write(handlerContext, request2, channelPromise);
+
+        final PendingRequestCtx request3 = genRequest(0);
+        handler.write(handlerContext, request3, channelPromise);
+
+        // two failures to trigger blacklist
+        request1.getResponse().tryFailure(new Exception());
+        request2.getResponse().tryFailure(new Exception());
+
+        // next request blacklisted
+        final PendingRequestCtx blacklisted1 = genRequest(0);
+        handler.write(handlerContext, blacklisted1, channelPromise);
+
+        verify(handlerContext, never()).write(blacklisted1, channelPromise);
+        assertTrue(blacklisted1.getResponse().isDone());
+        assertFalse(blacklisted1.getResponse().isSuccess());
+
+        Thread.sleep(4000);
+
+        // fail again
+        request3.getResponse().tryFailure(new Exception());
+
+        // still expires 5sec after first failure
+        await().atLeast(1, SECONDS).atMost(2, SECONDS).untilAsserted(() -> {
+            final PendingRequestCtx laterRequest = genRequest(0);
+            handler.write(handlerContext, laterRequest, channelPromise);
+            verify(handlerContext).write(laterRequest, channelPromise);
+        });
+
     }
 }
