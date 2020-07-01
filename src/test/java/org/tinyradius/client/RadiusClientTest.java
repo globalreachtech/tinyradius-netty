@@ -25,7 +25,9 @@ import org.tinyradius.util.RadiusEndpoint;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static org.awaitility.Awaitility.await;
@@ -98,6 +100,14 @@ class RadiusClientTest {
 
     @Test
     void communicateEndpointList() {
+        final InetSocketAddress address2 = new InetSocketAddress(0);
+        final RadiusEndpoint stubEndpoint2 = new RadiusEndpoint(address2, "secret2");
+
+        final InetSocketAddress address3 = new InetSocketAddress(0);
+        final RadiusEndpoint stubEndpoint3 = new RadiusEndpoint(address3, "secret3");
+
+        final List<RadiusEndpoint> endpoints = Arrays.asList(stubEndpoint, stubEndpoint2, stubEndpoint3);
+
         // todo
     }
 

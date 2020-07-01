@@ -1,7 +1,8 @@
 package org.tinyradius.client.timeout;
 
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,14 +17,14 @@ import static org.mockito.Mockito.*;
 class FixedTimeoutHandlerTest {
 
     private final HashedWheelTimer timer = new HashedWheelTimer();
-    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
+    private final EventExecutor eventExecutor = ImmediateEventExecutor.INSTANCE;
 
     @Mock
     private Runnable mockRetry;
 
     @Test
     void retryFailIfMaxAttempts() {
-        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
+        final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
         final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 2, 0);
 
@@ -48,7 +49,7 @@ class FixedTimeoutHandlerTest {
 
     @Test
     void retryRunOk() {
-        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
+        final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
         final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 3, 100);
 
@@ -64,7 +65,7 @@ class FixedTimeoutHandlerTest {
     void noRetryIfPromiseDone() {
         final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 3, 0);
 
-        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
+        final Promise<RadiusResponse> promise = eventExecutor.newPromise();
         promise.trySuccess(null);
         assertTrue(promise.isDone());
 

@@ -1,7 +1,8 @@
 package org.tinyradius.client.handler;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +39,7 @@ class PromiseAdapterTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
-    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
+    private final EventExecutor eventExecutor = ImmediateEventExecutor.INSTANCE;
 
     @Mock
     private ChannelHandlerContext ctx;
@@ -119,7 +120,7 @@ class PromiseAdapterTest {
                 .withPassword("myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
-        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
+        final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
         // add remoteAddress-secret and identifier mapping to handler
         final List<Object> out = new ArrayList<>();
@@ -150,7 +151,7 @@ class PromiseAdapterTest {
                 .withPassword("myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
-        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
+        final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
         // add remoteAddress-secret and identifier mapping to handler
         final List<Object> out = new ArrayList<>();
@@ -177,7 +178,7 @@ class PromiseAdapterTest {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
-        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
+        final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
         final RadiusRequest request = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);

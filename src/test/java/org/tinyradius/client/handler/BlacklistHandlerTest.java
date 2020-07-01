@@ -97,8 +97,8 @@ class BlacklistHandlerTest {
         assertTrue(blacklisted1.getResponse().isDone());
         assertFalse(blacklisted1.getResponse().isSuccess());
 
-        // expired
-        await().atLeast(5, SECONDS).untilAsserted(() -> {
+        // expires after at least 4sec (actual 5)
+        await().atLeast(4, SECONDS).untilAsserted(() -> {
             final PendingRequestCtx laterRequest = genRequest(0);
             handler.write(handlerContext, laterRequest, channelPromise);
             verify(handlerContext).write(laterRequest, channelPromise);
@@ -166,12 +166,11 @@ class BlacklistHandlerTest {
         // fail again
         request3.getResponse().tryFailure(new Exception());
 
-        // still expires 5sec after first failure
-        await().atLeast(1, SECONDS).atMost(2, SECONDS).untilAsserted(() -> {
+        // still expires at most 6sec (actual 5) after first failure
+        await().atMost(2, SECONDS).untilAsserted(() -> {
             final PendingRequestCtx laterRequest = genRequest(0);
             handler.write(handlerContext, laterRequest, channelPromise);
             verify(handlerContext).write(laterRequest, channelPromise);
         });
-
     }
 }
