@@ -6,9 +6,9 @@ import org.tinyradius.util.RadiusPacketException;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Attribute is encrypted with the method as defined in RFC2865 for the User-Password attribute
@@ -26,8 +26,9 @@ class UserPasswordCodec extends BaseCodec {
     }
 
     private byte[] encodeData(byte[] data, byte[] auth, byte[] secret) {
-        requireNonNull(data, "Data to encode cannot be null");
-        requireNonNull(secret, "Shared secret cannot be null");
+        // todo add length checks
+        Objects.requireNonNull(data, "Data to encode cannot be null");
+        Objects.requireNonNull(secret, "Shared secret cannot be null");
 
         final byte[] str = pad16x(data);
         final ByteBuffer buffer = ByteBuffer.allocate(str.length);
@@ -42,6 +43,7 @@ class UserPasswordCodec extends BaseCodec {
         return buffer.array();
     }
 
+    // todo same arg order
     private byte[] decodeData(byte[] encodedData, byte[] secret, byte[] auth) throws RadiusPacketException {
         if (encodedData.length < 16)
             throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 User-Password method - " +

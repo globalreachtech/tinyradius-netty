@@ -5,7 +5,7 @@ package org.tinyradius.attribute.codec;
  * TODO
  */
 class AscendSendSecretCodec extends BaseCodec {
-
+    // todo
     @Override
     public byte[] encode(byte[] data, String sharedSecret, byte[] requestAuth) {
         return data;

@@ -66,6 +66,7 @@ public interface RadiusAttribute {
      * @param secret      shared secret to encode with
      * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with encoded data
+     * @throws RadiusPacketException errors encoding attribute
      */
     RadiusAttribute encode(String secret, byte[] requestAuth) throws RadiusPacketException;
 
@@ -75,6 +76,7 @@ public interface RadiusAttribute {
      * @param secret      shared secret to encode with
      * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with encoded data
+     * @throws RadiusPacketException errors decoding attribute
      */
     RadiusAttribute decode(String secret, byte[] requestAuth) throws RadiusPacketException;
 }

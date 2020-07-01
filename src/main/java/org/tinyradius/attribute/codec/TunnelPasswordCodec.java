@@ -33,6 +33,8 @@ class TunnelPasswordCodec extends BaseCodec {
      * @return byte array representing salt+string
      */
     private byte[] encryptData(byte[] data, byte[] auth, byte[] secret) {
+        // todo add length / null checks
+
         final byte[] salt = genSalt();
         final byte[] combined = ByteBuffer.allocate(data.length + 1)
                 .put((byte) data.length)

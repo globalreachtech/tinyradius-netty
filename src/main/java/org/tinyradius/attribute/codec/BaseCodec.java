@@ -17,6 +17,7 @@ public abstract class BaseCodec {
      * @param sharedSecret shared secret
      * @param requestAuth  packet authenticator
      * @return the byte array containing the encrypted data
+     * @throws RadiusPacketException errors encoding attribute data
      */
     public abstract byte[] encode(byte[] data, String sharedSecret, byte[] requestAuth) throws RadiusPacketException;
 
@@ -27,6 +28,7 @@ public abstract class BaseCodec {
      * @param sharedSecret shared secret
      * @param requestAuth  packet authenticator
      * @return decrypted data
+     * @throws RadiusPacketException errors decoding attribute data
      */
     public abstract byte[] decode(byte[] data, String sharedSecret, byte[] requestAuth) throws RadiusPacketException;
 

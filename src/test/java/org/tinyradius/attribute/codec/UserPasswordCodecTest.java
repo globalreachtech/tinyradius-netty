@@ -30,6 +30,7 @@ class UserPasswordCodecTest {
 
         final RadiusAttribute attribute = dictionary.createAttribute(-1, USER_PASSWORD, password.getBytes(UTF_8));
         assertEquals(password, new String(attribute.getValue(), UTF_8));
+        // todo test encode is idempotent
 
         final byte[] encode = codec.encode(attribute.getValue(), sharedSecret, requestAuth);
         assertNotEquals(password, new String(encode, UTF_8));

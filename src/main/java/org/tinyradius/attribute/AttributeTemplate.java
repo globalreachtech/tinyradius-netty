@@ -57,6 +57,7 @@ public class AttributeTemplate {
      * @param name        sub-attribute name
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or 0 for no encryption
+     * @param hasTag      whether attribute supports tags, as defined in RFC2868
      */
     public AttributeTemplate(int vendorId, byte type, String name, String rawDataType, byte encryptFlag, boolean hasTag) {
         if (name == null || name.isEmpty())
@@ -226,6 +227,7 @@ public class AttributeTemplate {
      * @param secret      shared secret to encode with
      * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with encoded data
+     * @throws RadiusPacketException errors encoding attribute
      */
     public RadiusAttribute encode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
         try {
@@ -241,6 +243,7 @@ public class AttributeTemplate {
      * @param secret      shared secret to decode with
      * @param requestAuth (corresponding) request packet authenticator
      * @return attribute with decoded data
+     * @throws RadiusPacketException errors decoding attribute
      */
     public RadiusAttribute decode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
         try {

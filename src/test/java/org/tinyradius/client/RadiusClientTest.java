@@ -7,11 +7,8 @@ import io.netty.channel.ChannelPromise;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
-import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
@@ -31,8 +28,6 @@ import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.function.Consumer;
 
-import static io.netty.util.ResourceLeakDetector.Level.PARANOID;
-import static io.netty.util.ResourceLeakDetector.Level.SIMPLE;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -51,16 +46,6 @@ class RadiusClientTest {
 
     @Spy
     private final TimeoutHandler timeoutHandler = new FixedTimeoutHandler(new HashedWheelTimer());
-
-    @BeforeAll
-    static void beforeAll() {
-        ResourceLeakDetector.setLevel(PARANOID);
-    }
-
-    @AfterAll
-    static void afterAll() {
-        ResourceLeakDetector.setLevel(SIMPLE);
-    }
 
     @Test
     void communicateWithTimeout() {
@@ -109,6 +94,11 @@ class RadiusClientTest {
         await().until(future::isDone);
         assertFalse(future.isSuccess());
         assertSame(expectedException, future.cause());
+    }
+
+    @Test
+    void communicateEndpointList() {
+        // todo
     }
 
     private static class CustomOutboundHandler extends ChannelOutboundHandlerAdapter {
