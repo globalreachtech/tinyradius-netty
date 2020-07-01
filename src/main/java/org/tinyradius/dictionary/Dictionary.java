@@ -29,6 +29,7 @@ public interface Dictionary {
      *
      * @param vendorId vendor ID or -1
      * @param type     attribute type
+     * @param tag      tag as per RFC2868, nullable, ignored if not supported by attribute
      * @param value    attribute data as byte array
      * @return RadiusAttribute object
      */
@@ -37,7 +38,6 @@ public interface Dictionary {
                 .map(at -> at.create(this, tag, value))
                 .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));
     }
-
 
     /**
      * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
@@ -56,6 +56,7 @@ public interface Dictionary {
      *
      * @param vendorId vendor ID or -1
      * @param type     attribute type
+     * @param tag      tag as per RFC2868, nullable, ignored if not supported by attribute
      * @param value    attribute data as String
      * @return RadiusAttribute object
      */
@@ -82,6 +83,7 @@ public interface Dictionary {
      * Uses AttributeTemplate to lookup the type code and converts the value.
      *
      * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
+     * @param tag   tag as per RFC2868, nullable, ignored if not supported by attribute
      * @param value value of the attribute, for example "127.0.0.1"
      * @return RadiusAttribute object
      */
@@ -96,6 +98,7 @@ public interface Dictionary {
      *
      * @param vendorId vendor ID or -1
      * @param type     attribute type
+     * @param tag      tag as per RFC2868, nullable, ignored if not supported by attribute
      * @param value    attribute data as byte array
      * @return RadiusAttribute object
      */

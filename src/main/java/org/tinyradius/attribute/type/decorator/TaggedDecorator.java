@@ -9,7 +9,7 @@ public class TaggedDecorator extends BaseDecorator {
 
     private final byte tag;
 
-    public TaggedDecorator(OctetsAttribute attribute, byte tag) {
+    public TaggedDecorator(byte tag, OctetsAttribute attribute) {
         super(attribute);
         this.tag = tag;
     }

@@ -81,16 +81,6 @@ public class AttributeTemplate {
      * Create RadiusAttribute.
      *
      * @param dictionary dictionary to use
-     * @param data       bytes to parse for value and optional tag
-     */
-    public RadiusAttribute parse(Dictionary dictionary, byte[] data) {
-        return parse(decodedType, dictionary, data);
-    }
-
-    /**
-     * Create RadiusAttribute.
-     *
-     * @param dictionary dictionary to use
      * @param tag        tag as per RFC2868
      * @param value      value to set attribute
      * @return new RadiusAttribute
@@ -103,11 +93,12 @@ public class AttributeTemplate {
      * Create RadiusAttribute.
      *
      * @param dictionary dictionary to use
+     * @param tag        tag as per RFC2868
      * @param value      value to set attribute
      * @return new RadiusAttribute
      */
     public RadiusAttribute create(Dictionary dictionary, byte tag, String value) {
-        return autoWrapTag(decodedType.create(dictionary, vendorId, type, value), tag);
+        return autoWrapTag(tag, decodedType.create(dictionary, vendorId, type, value));
     }
 
     /**
@@ -121,7 +112,15 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public EncodedDecorator parseEncoded(Dictionary dictionary, byte[] encodedData) {
-        return new EncodedDecorator(parse(encodedType, dictionary, encodedData));
+        if (hasTag) {
+            if (encodedData.length == 0)
+                throw new IllegalArgumentException("Attribute data (excl. type, length fields) cannot be empty if attribute requires tag.");
+
+            return new EncodedDecorator(new TaggedDecorator(encodedData[0],
+                    encodedType.create(dictionary, vendorId, type, Arrays.copyOfRange(encodedData, 1, encodedData.length))));
+        }
+
+        return new EncodedDecorator(encodedType.create(dictionary, vendorId, type, encodedData));
     }
 
     /**
@@ -139,19 +138,13 @@ public class AttributeTemplate {
         return new EncodedDecorator(create(encodedType, dictionary, tag, encodedValue));
     }
 
-    private RadiusAttribute parse(AttributeType attributeType, Dictionary dictionary, byte[] data) {
-        if (hasTag && data.length == 0)
-            throw new IllegalArgumentException("Attribute data (excl. type, length fields) cannot be empty if attribute requires tag.");
-        return create(attributeType, dictionary, data[0], Arrays.copyOfRange(data, 1, data.length));
-    }
-
     private RadiusAttribute create(AttributeType attributeType, Dictionary dictionary, byte tag, byte[] value) {
-        return autoWrapTag(attributeType.create(dictionary, vendorId, type, value), tag);
+        return autoWrapTag(tag, attributeType.create(dictionary, vendorId, type, value));
     }
 
-    private RadiusAttribute autoWrapTag(OctetsAttribute attribute, byte tag) {
+    private RadiusAttribute autoWrapTag(byte tag, OctetsAttribute attribute) {
         return hasTag ?
-                new TaggedDecorator(attribute, tag) : attribute;
+                new TaggedDecorator(tag, attribute) : attribute;
     }
 
     /**
