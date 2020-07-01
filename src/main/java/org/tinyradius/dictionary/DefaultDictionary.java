@@ -1,5 +1,7 @@
 package org.tinyradius.dictionary;
 
+import org.tinyradius.dictionary.parse.DictionaryParser;
+
 import java.io.IOException;
 
 /**

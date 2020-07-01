@@ -95,8 +95,8 @@ public class TestServer {
     public static class SimpleAccessHandler extends RequestHandler {
 
         @Override
-        protected Class<AccessRequest> acceptedPacketType() {
-            return AccessRequest.class;
+        protected boolean acceptRequestType(RadiusRequest request) {
+            return request instanceof AccessRequest;
         }
 
         @Override
@@ -119,8 +119,8 @@ public class TestServer {
     public static class SimpleAccountingHandler extends RequestHandler {
 
         @Override
-        protected Class<AccountingRequest> acceptedPacketType() {
-            return AccountingRequest.class;
+        protected boolean acceptRequestType(RadiusRequest request) {
+            return request instanceof AccountingRequest;
         }
 
         @Override

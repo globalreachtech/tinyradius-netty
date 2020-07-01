@@ -36,7 +36,7 @@ class BasicCachingHandlerTest {
     private ChannelHandlerContext ctx;
 
     @Test
-    void cacheHitAndTimeout() throws RadiusPacketException {
+    void cacheHitAndTimeout() {
         final BasicCachingHandler<RequestCtx, ResponseCtx> basicCachingHandler =
                 new BasicCachingHandler<>(new HashedWheelTimer(), 500, RequestCtx.class, ResponseCtx.class);
 

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.attribute.type.VendorSpecificAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.dictionary.DictionaryParser;
+import org.tinyradius.dictionary.parse.DictionaryParser;
 
 import java.io.IOException;
 import java.util.Arrays;

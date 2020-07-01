@@ -10,7 +10,11 @@ public abstract class RequestHandler extends SimpleChannelInboundHandler<Request
 
     private final Logger logger = LogManager.getLogger();
 
-    protected abstract Class<? extends RadiusRequest> acceptedPacketType();
+    /**
+     * @param request incoming RadiusRequest
+     * @return true if RadiusRequest type is accepted by this handler
+     */
+    protected abstract boolean acceptRequestType(RadiusRequest request);
 
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception {
@@ -20,7 +24,7 @@ public abstract class RequestHandler extends SimpleChannelInboundHandler<Request
 
         final RadiusRequest request = ((RequestCtx) msg).getRequest();
 
-        if (acceptedPacketType().isInstance(request)) {
+        if (acceptRequestType(request)) {
             return true;
         } else {
             logger.debug("{} does not accept <{}>", getClass().getSimpleName(), request.getClass().getSimpleName());

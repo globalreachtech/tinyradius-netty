@@ -2,6 +2,7 @@ package org.tinyradius.dictionary;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.AttributeTemplate;
+import org.tinyradius.dictionary.parse.DictionaryParser;
 
 import java.io.File;
 import java.io.IOException;

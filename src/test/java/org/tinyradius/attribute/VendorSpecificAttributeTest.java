@@ -7,7 +7,7 @@ import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.attribute.type.VendorSpecificAttribute;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.dictionary.DictionaryParser;
+import org.tinyradius.dictionary.parse.DictionaryParser;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

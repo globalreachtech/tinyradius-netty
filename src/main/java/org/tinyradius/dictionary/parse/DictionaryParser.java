@@ -1,14 +1,13 @@
-package org.tinyradius.dictionary;
+package org.tinyradius.dictionary.parse;
 
 import org.tinyradius.attribute.AttributeTemplate;
+import org.tinyradius.dictionary.MemoryDictionary;
+import org.tinyradius.dictionary.WritableDictionary;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -189,47 +188,5 @@ public class DictionaryParser {
         return (byte) type;
     }
 
-    public interface ResourceResolver {
-        String resolve(String currentResource, String nextResource);
-
-        InputStream openStream(String resource) throws IOException;
-    }
-
-    private static class FileResourceResolver implements ResourceResolver {
-
-        @Override
-        public String resolve(String currentResource, String nextResource) {
-            final Path path = Paths.get(currentResource).getParent().resolve(nextResource);
-            return Files.exists(path) ?
-                    path.toString() : "";
-        }
-
-        @Override
-        public InputStream openStream(String resource) throws IOException {
-            final Path path = Paths.get(resource);
-            if (Files.exists(path))
-                return Files.newInputStream(path);
-
-            throw new IOException("Could not open stream, file not found: " + resource);
-        }
-    }
-
-    private static class ClasspathResourceResolver implements ResourceResolver {
-        @Override
-        public String resolve(String currentResource, String nextResource) {
-            final String path = Paths.get(currentResource).getParent().resolve(nextResource).toString();
-            return this.getClass().getClassLoader().getResource(path) != null ?
-                    path : "";
-        }
-
-        @Override
-        public InputStream openStream(String resource) throws IOException {
-            final InputStream stream = this.getClass().getClassLoader().getResourceAsStream(resource);
-            if (stream != null)
-                return stream;
-
-            throw new IOException("Could not open stream, classpath resource not found: " + resource);
-        }
-    }
 }
 
