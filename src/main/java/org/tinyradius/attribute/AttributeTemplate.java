@@ -103,25 +103,28 @@ public class AttributeTemplate {
     }
 
     /**
-     * Create RadiusAttribute with encoded data.
+     * Parse RadiusAttribute from raw byte data.
      * <p>
-     * If attribute type has encryption, this will always use OctetsAttribute as
-     * underlying implementation so contents aren't validated at construction.
+     * If attribute type has encryption, this will create an OctetsAttribute wrapped in EncoderDecorator,
+     * otherwise uses the type specified in dictionary.
      *
-     * @param dictionary  dictionary to use
-     * @param encodedData encoded data, attribute data excl. type/length, possibly including tag
+     * @param dictionary dictionary to use
+     * @param rawData    attribute data to parse excl. type/length
      * @return new RadiusAttribute
      */
-    public EncodedDecorator parseEncoded(Dictionary dictionary, byte[] encodedData) {
-        if (hasTag) {
-            if (encodedData.length == 0)
+    public RadiusAttribute parse(Dictionary dictionary, byte[] rawData) {
+        if (hasTag()) {
+            if (rawData.length == 0)
                 throw new IllegalArgumentException("Attribute data (excl. type, length fields) cannot be empty if attribute requires tag.");
 
-            return new EncodedDecorator(new TaggedDecorator(encodedData[0],
-                    encodedType.create(dictionary, vendorId, type, Arrays.copyOfRange(encodedData, 1, encodedData.length))));
+            final TaggedDecorator taggedDecorator = new TaggedDecorator(rawData[0],
+                    encodedType.create(dictionary, vendorId, type, Arrays.copyOfRange(rawData, 1, rawData.length)));
+
+            return encryptEnabled() ? new EncodedDecorator(taggedDecorator) : taggedDecorator;
         }
 
-        return new EncodedDecorator(encodedType.create(dictionary, vendorId, type, encodedData));
+        final OctetsAttribute attribute = encodedType.create(dictionary, vendorId, type, rawData);
+        return encryptEnabled() ? new EncodedDecorator(attribute) : attribute;
     }
 
     /**
@@ -144,7 +147,7 @@ public class AttributeTemplate {
     }
 
     private RadiusAttribute autoWrapTag(byte tag, OctetsAttribute attribute) {
-        return hasTag ?
+        return hasTag() ?
                 new TaggedDecorator(tag, attribute) : attribute;
     }
 
@@ -179,8 +182,12 @@ public class AttributeTemplate {
     /**
      * @return whether attribute supports Tag field as per RFC2868
      */
-    public boolean getHasTag() {
+    public boolean hasTag() {
         return hasTag;
+    }
+
+    public boolean encryptEnabled() {
+        return codecType != NO_ENCRYPT;
     }
 
     /**
@@ -230,7 +237,7 @@ public class AttributeTemplate {
      * @throws RadiusPacketException errors encoding attribute
      */
     public RadiusAttribute encode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
-        if (codecType == NO_ENCRYPT)
+        if (!encryptEnabled())
             return attribute;
 
         try {

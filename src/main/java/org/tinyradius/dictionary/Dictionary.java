@@ -3,7 +3,6 @@ package org.tinyradius.dictionary;
 import org.tinyradius.attribute.AttributeTemplate;
 import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
-import org.tinyradius.attribute.type.decorator.EncodedDecorator;
 
 import java.util.Optional;
 
@@ -67,30 +66,21 @@ public interface Dictionary {
     }
 
     /**
-     * Creates a Radius attribute.
-     * Uses AttributeTemplate to lookup the type code and converts the value.
+     * Convenience method to create a Radius attribute.
+     * <p>
+     * Uses AttributeTemplate to lookup the type code and parses String value
+     * depending on the type.
+     * <p>
+     * If attribute has tag field, will be set to 0x00.
      *
      * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
      * @param value value of the attribute, for example "127.0.0.1"
      * @return RadiusAttribute object
      */
     default RadiusAttribute createAttribute(String name, String value) {
-        return createAttribute(name, (byte) 0, value);
-    }
-
-    /**
-     * Creates a Radius attribute.
-     * Uses AttributeTemplate to lookup the type code and converts the value.
-     *
-     * @param name  name of the attribute, for example "NAS-IP-Address", should NOT be 'Vendor-Specific'
-     * @param tag   tag as per RFC2868, nullable, ignored if not supported by attribute
-     * @param value value of the attribute, for example "127.0.0.1"
-     * @return RadiusAttribute object
-     */
-    default RadiusAttribute createAttribute(String name, byte tag, String value) {
         return getAttributeTemplate(name)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown attribute type name: '" + name + "'"))
-                .create(this, tag, value);
+                .create(this, (byte) 0, value);
     }
 
     /**
@@ -98,13 +88,13 @@ public interface Dictionary {
      *
      * @param vendorId vendor ID or -1
      * @param type     attribute type
-     * @param value    attribute data as byte array
+     * @param rawData  attribute data to parse excl. type/length
      * @return RadiusAttribute object
      */
-    default EncodedDecorator parseEncodedAttribute(int vendorId, byte type, byte[] value) {
+    default RadiusAttribute parseAttribute(int vendorId, byte type, byte[] rawData) {
         return getAttributeTemplate(vendorId, type)
-                .map(at -> at.parseEncoded(this, value))
-                .orElseGet(() -> new EncodedDecorator(new OctetsAttribute(this, vendorId, type, value)));
+                .map(at -> at.parse(this, rawData))
+                .orElseGet(() -> new OctetsAttribute(this, vendorId, type, rawData));
     }
 
     /**
