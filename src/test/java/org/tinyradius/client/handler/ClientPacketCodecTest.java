@@ -3,10 +3,11 @@ package org.tinyradius.client.handler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.client.PendingRequestCtx;
@@ -25,8 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.tinyradius.packet.util.PacketCodec.fromDatagramRequest;
 import static org.tinyradius.packet.util.PacketCodec.toDatagram;
@@ -36,17 +36,16 @@ class ClientPacketCodecTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
+    private final EventExecutor eventExecutor = ImmediateEventExecutor.INSTANCE;
 
     private final ClientPacketCodec codec = new ClientPacketCodec(dictionary);
     private final InetSocketAddress address = new InetSocketAddress(0);
+    private final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
     private static final byte USER_NAME = 1;
 
     @Mock
     private ChannelHandlerContext ctx;
-
-    @Mock
-    private Promise<RadiusResponse> promise;
 
     @Test
     void decodeSuccess() throws RadiusPacketException {
@@ -145,9 +144,9 @@ class ClientPacketCodecTest {
         codec.encode(ctx, new PendingRequestCtx(packet, endpoint, promise), out1);
 
         // check
-        ArgumentCaptor<Exception> e = ArgumentCaptor.forClass(Exception.class);
-        verify(promise).tryFailure(e.capture());
-        assertEquals(RadiusPacketException.class, e.getValue().getClass());
+        assertTrue(promise.isDone());
+        assertFalse(promise.isSuccess());
+        assertEquals(RadiusPacketException.class, promise.cause().getClass());
         assertEquals(0, out1.size());
     }
 }

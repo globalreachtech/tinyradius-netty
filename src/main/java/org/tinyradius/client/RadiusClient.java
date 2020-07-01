@@ -55,14 +55,15 @@ public class RadiusClient implements Closeable {
             return eventLoopGroup.next().newFailedFuture(new IOException("Client send failed - no valid endpoints"));
 
         final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
-        communicate(packet, endpoints, 0, promise);
+        communicate(packet, endpoints, 0, promise, null);
 
         return promise;
     }
 
-    private void communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, int endpointIndex, Promise<RadiusResponse> promise) {
+    private void communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, int endpointIndex,
+                             Promise<RadiusResponse> promise, Throwable lastException) {
         if (endpointIndex >= endpoints.size()) {
-            promise.tryFailure(new IOException("Client send failed - all endpoints failed"));
+            promise.tryFailure(new IOException("Client send failed - all endpoints failed", lastException));
             return;
         }
 
@@ -70,7 +71,7 @@ public class RadiusClient implements Closeable {
             if (f.isSuccess())
                 promise.trySuccess(f.getNow());
             else
-                communicate(packet, endpoints, endpointIndex + 1, promise);
+                communicate(packet, endpoints, endpointIndex + 1, promise, f.cause());
         });
     }
 

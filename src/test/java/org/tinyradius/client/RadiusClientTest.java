@@ -17,7 +17,6 @@ import org.tinyradius.client.timeout.FixedTimeoutHandler;
 import org.tinyradius.client.timeout.TimeoutHandler;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.request.AccountingRequest;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.util.RadiusEndpoint;
@@ -25,6 +24,7 @@ import org.tinyradius.util.RadiusEndpoint;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -51,11 +51,10 @@ class RadiusClientTest {
 
     @Test
     void communicateWithTimeout() {
-        RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new CustomOutboundHandler(a -> {
+        RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new CapturingOutboundHandler(a -> {
         }));
 
-        final RadiusRequest request = new AccountingRequest(dictionary, (byte) random.nextInt(256), null, Collections.emptyList()).encodeRequest("test");
-
+        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
         final IOException e = assertThrows(IOException.class,
                 () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
 
@@ -67,12 +66,10 @@ class RadiusClientTest {
     void communicateSuccess() {
         final byte id = (byte) random.nextInt(256);
         final RadiusResponse response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, Collections.emptyList());
-        final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(a -> a.trySuccess(response));
+        final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(a -> a.trySuccess(response));
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
 
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, customOutboundHandler);
-
-        final RadiusRequest request = new AccountingRequest(dictionary, id, null, Collections.emptyList()).encodeRequest("test");
-
+        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
         final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
 
         assertFalse(future.isDone());
@@ -85,11 +82,10 @@ class RadiusClientTest {
     @Test
     void outboundError() {
         final Exception expectedException = new Exception("test 123");
-        final CustomOutboundHandler customOutboundHandler = new CustomOutboundHandler(p -> p.tryFailure(expectedException));
+        final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(p -> p.tryFailure(expectedException));
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
 
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, customOutboundHandler);
         final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
-
         final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
         assertFalse(future.isDone());
 
@@ -100,26 +96,45 @@ class RadiusClientTest {
 
     @Test
     void communicateEndpointList() {
-        final InetSocketAddress address2 = new InetSocketAddress(0);
+        final Exception expectedException = new Exception("test 123");
+        final CapturingOutboundHandler capturingOutboundHandler = spy(new CapturingOutboundHandler(p -> p.tryFailure(expectedException)));
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
+
+        final InetSocketAddress address2 = new InetSocketAddress(1);
         final RadiusEndpoint stubEndpoint2 = new RadiusEndpoint(address2, "secret2");
 
-        final InetSocketAddress address3 = new InetSocketAddress(0);
+        final InetSocketAddress address3 = new InetSocketAddress(2);
         final RadiusEndpoint stubEndpoint3 = new RadiusEndpoint(address3, "secret3");
 
         final List<RadiusEndpoint> endpoints = Arrays.asList(stubEndpoint, stubEndpoint2, stubEndpoint3);
 
-        // todo
+        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final Future<RadiusResponse> future = radiusClient.communicate(request, endpoints);
+        assertFalse(future.isDone());
+
+        await().until(future::isDone);
+        assertFalse(future.isSuccess());
+
+        assertTrue(future.cause().getMessage().contains("all endpoints failed"));
+        assertSame(expectedException, future.cause().getCause());
+
+        assertEquals(3, capturingOutboundHandler.requests.size());
+        assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().getSecret());
+        assertEquals("secret2", capturingOutboundHandler.requests.get(1).getEndpoint().getSecret());
+        assertEquals("secret3", capturingOutboundHandler.requests.get(2).getEndpoint().getSecret());
     }
 
-    private static class CustomOutboundHandler extends ChannelOutboundHandlerAdapter {
+    private static class CapturingOutboundHandler extends ChannelOutboundHandlerAdapter {
 
         private final Consumer<Promise<RadiusResponse>> failFast;
+        private final List<PendingRequestCtx> requests = new ArrayList<>();
 
-        private CustomOutboundHandler(Consumer<Promise<RadiusResponse>> failFast) {
+        private CapturingOutboundHandler(Consumer<Promise<RadiusResponse>> failFast) {
             this.failFast = failFast;
         }
 
         public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
+            requests.add((PendingRequestCtx) msg);
             failFast.accept(((PendingRequestCtx) msg).getResponse());
         }
     }
