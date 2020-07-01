@@ -1,13 +1,15 @@
 package org.tinyradius.attribute;
 
 import io.netty.buffer.Unpooled;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.attribute.type.VendorSpecificAttribute;
-import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.dictionary.DictionaryParser;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,7 +20,13 @@ import static org.tinyradius.attribute.type.VendorSpecificAttribute.VENDOR_SPECI
 
 class VendorSpecificAttributeTest {
 
-    private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private static Dictionary dictionary;
+
+    @BeforeAll
+    static void setup() throws IOException {
+        dictionary = DictionaryParser.newClasspathParser().parseDictionary("org/tinyradius/dictionary/test_dictionary");
+
+    }
 
     @Test
     void parseChildVendorIdZero() {
