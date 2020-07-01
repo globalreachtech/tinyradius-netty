@@ -2,4 +2,5 @@
    # line comment indented
 $INCLUDE default_dictionary           # comment end of line
 $INCLUDE dictionary.rfc5904
+$INCLUDE dictionary.ascend
 
