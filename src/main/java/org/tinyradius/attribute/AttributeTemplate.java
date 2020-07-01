@@ -230,6 +230,9 @@ public class AttributeTemplate {
      * @throws RadiusPacketException errors encoding attribute
      */
     public RadiusAttribute encode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
+        if (codecType == NO_ENCRYPT)
+            return attribute;
+
         try {
             return createEncoded(attribute.getDictionary(), attribute.getTag(),
                     codecType.getCodec().encode(attribute.getValue(), secret, requestAuth));

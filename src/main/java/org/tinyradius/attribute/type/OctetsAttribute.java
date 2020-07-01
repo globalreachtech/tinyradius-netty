@@ -1,7 +1,6 @@
 package org.tinyradius.attribute.type;
 
 import org.tinyradius.attribute.AttributeTemplate;
-import org.tinyradius.attribute.type.decorator.EncodedDecorator;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -117,7 +116,7 @@ public class OctetsAttribute implements RadiusAttribute {
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().encode(this, secret, requestAuth) :
-                new EncodedDecorator(this);
+                this;
     }
 
     @Override

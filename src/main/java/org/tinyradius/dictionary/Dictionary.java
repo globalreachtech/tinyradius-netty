@@ -98,21 +98,6 @@ public interface Dictionary {
      *
      * @param vendorId vendor ID or -1
      * @param type     attribute type
-     * @param tag      tag as per RFC2868, nullable, ignored if not supported by attribute
-     * @param value    attribute data as byte array
-     * @return RadiusAttribute object
-     */
-    default EncodedDecorator createEncodedAttribute(int vendorId, byte type, byte tag, byte[] value) {
-        return getAttributeTemplate(vendorId, type)
-                .map(at -> at.createEncoded(this, tag, value))
-                .orElseGet(() -> new EncodedDecorator(new OctetsAttribute(this, vendorId, type, value)));
-    }
-
-    /**
-     * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
-     *
-     * @param vendorId vendor ID or -1
-     * @param type     attribute type
      * @param value    attribute data as byte array
      * @return RadiusAttribute object
      */
