@@ -5,7 +5,6 @@ import io.netty.buffer.Unpooled;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
@@ -17,24 +16,7 @@ class TunnelPasswordCodec extends BaseCodec {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     @Override
-    public byte[] encode(byte[] data, String sharedSecret, byte[] requestAuth) {
-        return encryptData(data, requestAuth, sharedSecret.getBytes(StandardCharsets.UTF_8));
-    }
-
-    @Override
-    public byte[] decode(byte[] data, String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        return decodeData(data, requestAuth, sharedSecret.getBytes(StandardCharsets.UTF_8));
-    }
-
-    /**
-     * @param data   password sub-field (excl. salt, length, padding)
-     * @param auth   request authenticator
-     * @param secret shared secret
-     * @return byte array representing salt+string
-     */
-    private byte[] encryptData(byte[] data, byte[] auth, byte[] secret) {
-        // todo add length / null checks
-
+    protected byte[] encodeData(byte[] data, byte[] auth, byte[] secret) {
         final byte[] salt = genSalt();
         final byte[] combined = ByteBuffer.allocate(data.length + 1)
                 .put((byte) data.length)
@@ -58,13 +40,8 @@ class TunnelPasswordCodec extends BaseCodec {
         return buffer.array();
     }
 
-    /**
-     * @param encodedData byte array representing salt+string
-     * @param auth        request authenticator
-     * @param secret      shared secret
-     * @return password sub-field (excl. salt, length, padding)
-     */
-    private byte[] decodeData(byte[] encodedData, byte[] auth, byte[] secret) throws RadiusPacketException {
+    @Override
+    protected byte[] decodeData(byte[] encodedData, byte[] auth, byte[] secret) throws RadiusPacketException {
         final int strLen = encodedData.length - 2;
         if (strLen < 16)
             throw new RadiusPacketException("Malformed attribute while decoding with RFC2868 Tunnel-Password method - " +

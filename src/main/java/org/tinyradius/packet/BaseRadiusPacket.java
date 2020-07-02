@@ -1,7 +1,5 @@
 package org.tinyradius.packet;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.RadiusRequest;
@@ -17,8 +15,6 @@ import static java.util.Objects.requireNonNull;
  * Base Radius Packet implementation without support for authenticators or encoding
  */
 public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements RadiusPacket<T> {
-
-    protected static final Logger logger = LogManager.getLogger();
 
     private static final int CHILD_VENDOR_ID = -1;
 
@@ -85,30 +81,30 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     }
 
     /**
-     * @param sharedSecret shared secret with server/client to encode attributes
      * @param requestAuth  request authenticator to encode attributes
+     * @param sharedSecret shared secret with server/client to encode attributes
      * @return encoded version of attributes
      * @throws RadiusPacketException errors encoding attributes
      */
-    protected List<RadiusAttribute> encodeAttributes(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    protected List<RadiusAttribute> encodeAttributes(byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> attributes = new ArrayList<>();
         for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute encode = a.encode(sharedSecret, requestAuth);
+            RadiusAttribute encode = a.encode(requestAuth, sharedSecret);
             attributes.add(encode);
         }
         return attributes;
     }
 
     /**
-     * @param sharedSecret shared secret with server/client to decode attributes
      * @param requestAuth  request authenticator to decode attributes
+     * @param sharedSecret shared secret with server/client to decode attributes
      * @return decoded/original version of attributes
      * @throws RadiusPacketException errors decoding attributes
      */
-    protected List<RadiusAttribute> decodeAttributes(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    protected List<RadiusAttribute> decodeAttributes(byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
         final List<RadiusAttribute> attributes = new ArrayList<>();
         for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute decode = a.decode(sharedSecret, requestAuth);
+            RadiusAttribute decode = a.decode(requestAuth, sharedSecret);
             attributes.add(decode);
         }
         return attributes;

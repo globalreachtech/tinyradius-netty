@@ -6,12 +6,12 @@ package org.tinyradius.attribute.codec;
 class NoOpCodec extends BaseCodec {
 
     @Override
-    public byte[] encode(byte[] data, String sharedSecret, byte[] requestAuth) {
+    protected byte[] encodeData(byte[] data, byte[] auth, byte[] secret) {
         return data;
     }
 
     @Override
-    public byte[] decode(byte[] data, String sharedSecret, byte[] requestAuth) {
-        return data;
+    protected byte[] decodeData(byte[] encodedData, byte[] auth, byte[] secret) {
+        return encodedData;
     }
 }

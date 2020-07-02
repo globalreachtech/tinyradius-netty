@@ -2,7 +2,6 @@ package org.tinyradius.packet.request;
 
 import net.jradius.util.CHAP;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -35,9 +34,17 @@ class AccessRequestChapTest {
         final RadiusRequest encoded = accessRequestChap.encodeRequest(sharedSecret);
         assertNotNull(encoded.getAuthenticator());
 
-        final RadiusRequest decodeRequest = encoded.decodeRequest(sharedSecret);
-        final RadiusAttribute attribute = decodeRequest.getAttribute("User-Name").get();
-        assertEquals(username, attribute.getValueString());
+        // idempotence check
+        final RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
+        assertArrayEquals(encoded.getAuthenticator(), encoded2.getAuthenticator());
+        assertArrayEquals(encoded.getAttributeBytes(), encoded2.getAttributeBytes());
+
+        final RadiusRequest decoded = encoded2.decodeRequest(sharedSecret);
+        assertEquals(username, decoded.getAttribute("User-Name").get().getValueString());
+
+        // idempotence check
+        final RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
+        assertEquals(username, decoded2.getAttribute("User-Name").get().getValueString());
     }
 
     @Test

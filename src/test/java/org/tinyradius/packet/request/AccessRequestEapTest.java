@@ -5,26 +5,35 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
+import java.security.SecureRandom;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.packet.request.AccessRequest.EAP_MESSAGE;
+import static org.tinyradius.packet.request.AccessRequest.random16bytes;
 import static org.tinyradius.packet.util.MessageAuthSupport.MESSAGE_AUTHENTICATOR;
 
 class AccessRequestEapTest {
 
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private static final SecureRandom random = new SecureRandom();
 
     @Test
     void encodeDecode() throws RadiusPacketException {
         final String sharedSecret = "sharedSecret1";
-        final AccessRequestEap accessRequestEap = new AccessRequestEap(dictionary, (byte) 1, null,
-                Collections.singletonList(dictionary.createAttribute(-1, EAP_MESSAGE, new byte[16])));
+        final byte[] message = random16bytes();
+        final RadiusRequest radiusRequest = new AccessRequestEap(dictionary, (byte) 1, null, Collections.emptyList())
+                .addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, message));
 
-        final RadiusRequest encoded = accessRequestEap.encodeRequest(sharedSecret);
-
+        final RadiusRequest encoded = radiusRequest.encodeRequest(sharedSecret);
         assertNotNull(encoded.getAuthenticator());
+        assertArrayEquals(message, encoded.getAttribute(EAP_MESSAGE).get().getValue());
+
+        final RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
+        assertArrayEquals(encoded.getAuthenticator(), encoded2.getAuthenticator());
+
         encoded.decodeRequest(sharedSecret);
+        // todo idempotence
     }
 
     @Test

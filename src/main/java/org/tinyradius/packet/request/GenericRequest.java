@@ -1,5 +1,7 @@
 package org.tinyradius.packet.request;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.BaseRadiusPacket;
@@ -8,6 +10,8 @@ import org.tinyradius.util.RadiusPacketException;
 import java.util.List;
 
 public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest {
+
+    protected static final Logger logger = LogManager.getLogger();
 
     /**
      * Builds a Radius packet with the given type, identifier and attributes.
@@ -37,13 +41,13 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
     @Override
     public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
         final byte[] auth = genAuth(sharedSecret);
-        return new GenericRequest(getDictionary(), getType(), getId(), auth, encodeAttributes(sharedSecret, auth));
+        return new GenericRequest(getDictionary(), getType(), getId(), auth, encodeAttributes(auth, sharedSecret));
     }
 
     @Override
     public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
         verifyPacketAuth(sharedSecret, new byte[16]);
-        return withAttributes(decodeAttributes(sharedSecret, getAuthenticator()));
+        return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
     }
 
     @Override

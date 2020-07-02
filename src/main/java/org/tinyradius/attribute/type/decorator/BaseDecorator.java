@@ -68,12 +68,12 @@ abstract class BaseDecorator implements RadiusAttribute {
     }
 
     @Override
-    public RadiusAttribute encode(String secret, byte[] requestAuth) {
+    public RadiusAttribute encode(byte[] requestAuth, String secret) {
         return this;
     }
 
     @Override
-    public RadiusAttribute decode(String secret, byte[] requestAuth) throws RadiusPacketException {
+    public RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
         return this;
     }
 

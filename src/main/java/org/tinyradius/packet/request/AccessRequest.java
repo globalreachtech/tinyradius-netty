@@ -116,7 +116,7 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
         final byte[] auth = genAuth(sharedSecret);
 
         return factory()
-                .newInstance(getDictionary(), getId(), auth, encodeAttributes(sharedSecret, auth))
+                .newInstance(getDictionary(), getId(), auth, encodeAttributes(auth, sharedSecret))
                 .encodeMessageAuth(sharedSecret, auth);
     }
 
@@ -124,7 +124,7 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
     public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
         // authenticator is random, can't run verifyPacketAuth()
         verifyMessageAuth(sharedSecret, getAuthenticator());
-        return withAttributes(decodeAttributes(sharedSecret, getAuthenticator()));
+        return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
     }
 
     @Override

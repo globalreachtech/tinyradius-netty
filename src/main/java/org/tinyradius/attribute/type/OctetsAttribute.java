@@ -112,15 +112,15 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     @Override
-    public RadiusAttribute encode(String secret, byte[] requestAuth) throws RadiusPacketException {
+    public RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
-                template.get().encode(this, secret, requestAuth) :
+                template.get().encode(this, requestAuth, secret) :
                 this;
     }
 
     @Override
-    public RadiusAttribute decode(String secret, byte[] requestAuth) {
+    public RadiusAttribute decode(byte[] requestAuth, String secret) {
         return this;
     }
 

@@ -34,7 +34,6 @@ public interface RadiusAttribute {
      */
     String getValueString();
 
-
     /**
      * @return dictionary that attribute uses
      */
@@ -63,20 +62,24 @@ public interface RadiusAttribute {
     /**
      * Encodes attribute. Must be idempotent.
      *
-     * @param secret      shared secret to encode with
      * @param requestAuth (corresponding) request packet authenticator
+     * @param secret      shared secret to encode with
      * @return attribute with encoded data
      * @throws RadiusPacketException errors encoding attribute
      */
-    RadiusAttribute encode(String secret, byte[] requestAuth) throws RadiusPacketException;
+    RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException;
 
     /**
      * Decodes attribute. Must be idempotent.
      *
-     * @param secret      shared secret to encode with
      * @param requestAuth (corresponding) request packet authenticator
+     * @param secret      shared secret to encode with
      * @return attribute with encoded data
      * @throws RadiusPacketException errors decoding attribute
      */
-    RadiusAttribute decode(String secret, byte[] requestAuth) throws RadiusPacketException;
+    RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException;
+
+    default boolean isEncoded() {
+        return false;
+    }
 }

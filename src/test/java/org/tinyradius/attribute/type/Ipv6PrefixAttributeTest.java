@@ -1,4 +1,4 @@
-package org.tinyradius.attribute;
+package org.tinyradius.attribute.type;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.attribute.type.Ipv6PrefixAttribute;

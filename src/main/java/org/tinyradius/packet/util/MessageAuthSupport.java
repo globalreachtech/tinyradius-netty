@@ -2,6 +2,9 @@ package org.tinyradius.packet.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.tinyradius.attribute.AttributeTemplate;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.packet.RadiusPacket;
 import org.tinyradius.util.RadiusPacketException;
@@ -22,6 +25,7 @@ import java.util.Objects;
  */
 public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPacket<T> {
 
+    Logger msgAuthLogger = LogManager.getLogger();
     byte MESSAGE_AUTHENTICATOR = 80;
 
     static byte[] calcMessageAuthInput(RadiusPacket<?> packet, byte[] requestAuth) {
@@ -66,8 +70,19 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
 
         final byte[] messageAuth = msgAuthAttr.get(0).getValue();
 
-        if (!Arrays.equals(messageAuth, computeMessageAuth(this, sharedSecret, requestAuth)))
-            throw new RadiusPacketException("Message-Authenticator attribute check failed");
+        if (!Arrays.equals(messageAuth, computeMessageAuth(this, sharedSecret, requestAuth))) {
+            // find attributes that should be encoded but aren't
+            final boolean decodedAlready = getAttributes().stream()
+                    .filter(a -> a.getAttributeTemplate()
+                            .map(AttributeTemplate::encryptEnabled)
+                            .orElse(false))
+                    .anyMatch(a -> !a.isEncoded());
+
+            if (decodedAlready)
+                msgAuthLogger.info("Skipping Message-Authenticator check - attributes have been decrypted already");
+            else
+                throw new RadiusPacketException("Message-Authenticator check failed");
+        }
     }
 
     default byte[] computeMessageAuth(RadiusPacket<?> packet, String sharedSecret, byte[] requestAuth) {

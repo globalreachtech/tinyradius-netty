@@ -4,7 +4,6 @@ import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -27,23 +26,34 @@ class AccessRequestPapTest {
         final String sharedSecret = "sharedSecret1";
         final String username = "myUsername";
 
-        final RadiusRequest encoded = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
+        final RadiusRequest radiusRequest = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
                 .withPassword(password)
-                .addAttribute(dictionary.createAttribute("User-Name", username))
-                .encodeRequest(sharedSecret);
+                .addAttribute(dictionary.createAttribute("User-Name", username));
+        assertEquals(password, ((AccessRequestPap) radiusRequest).getPassword().get());
 
+        final RadiusRequest encoded = radiusRequest.encodeRequest(sharedSecret);
         assertNotEquals(password, ((AccessRequestPap) encoded).getPassword().get());
         assertNotNull(encoded.getAuthenticator());
 
-        final RadiusRequest decoded = encoded.decodeRequest(sharedSecret);
-        assertEquals(password, ((AccessRequestPap) decoded).getPassword().get());
+        // idempotence check
+        final RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
+        assertArrayEquals(encoded.getAuthenticator(), encoded2.getAuthenticator());
+        assertArrayEquals(encoded.getAttributeBytes(), encoded2.getAttributeBytes());
+        assertEquals(((AccessRequestPap) encoded).getPassword(), ((AccessRequestPap) encoded2).getPassword());
 
-        final RadiusAttribute attribute = decoded.getAttribute("User-Name").get();
-        assertEquals(username, attribute.getValueString());
+        final RadiusRequest decoded = encoded2.decodeRequest(sharedSecret);
+        assertEquals(password, ((AccessRequestPap) decoded).getPassword().get());
+        assertEquals(username, decoded.getAttribute("User-Name").get().getValueString());
+
+        // idempotence check
+        final RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
+        assertArrayEquals(decoded.getAttributeBytes(), decoded2.getAttributeBytes());
+        assertEquals(password, ((AccessRequestPap) decoded2).getPassword().get());
+        assertEquals(username, decoded2.getAttribute("User-Name").get().getValueString());
     }
 
     @Test
-    void decodeVerifyAttributeCount() throws RadiusPacketException {
+    void decodeChecksAttributeCount() throws RadiusPacketException {
         final String sharedSecret = "sharedSecret1";
         final AccessRequestPap request1 = new AccessRequestPap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
@@ -82,12 +92,5 @@ class AccessRequestPapTest {
         // check password fields
         assertArrayEquals(expectedEncodedPassword, encoded.getAttribute("User-Password").get().getValue());
         assertNotEquals(password, encoded.getPassword().get());
-
-        // set password to something else
-        final String password2 = "myPw2";
-        final AccessRequestPap encoded2 = encoded.withPassword(password2);
-        assertEquals(password2, encoded2.getPassword().get());
     }
-
-    // todo test encode is idempotent
 }

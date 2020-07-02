@@ -17,10 +17,15 @@ public class EncodedDecorator extends BaseDecorator {
     }
 
     @Override
-    public RadiusAttribute decode(String secret, byte[] requestAuth) throws RadiusPacketException {
+    public RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
-                template.get().decode(this, secret, requestAuth) : delegate;
+                template.get().decode(this, requestAuth, secret) : delegate;
+    }
+
+    @Override
+    public boolean isEncoded() {
+        return true;
     }
 
     @Override

@@ -72,8 +72,6 @@ class RadiusClientTest {
         final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
         final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
 
-        assertFalse(future.isDone());
-
         await().until(future::isDone);
         assertTrue(future.isSuccess());
         assertSame(response, future.getNow());
@@ -87,7 +85,6 @@ class RadiusClientTest {
 
         final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
         final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
-        assertFalse(future.isDone());
 
         await().until(future::isDone);
         assertFalse(future.isSuccess());
@@ -95,9 +92,49 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateEndpointList() {
+    void communicateEndpointListFirstSuccess() {
+        final byte id = (byte) random.nextInt(256);
+        final RadiusResponse response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, Collections.emptyList());
+        final CapturingOutboundHandler capturingOutboundHandler = spy(new CapturingOutboundHandler(p -> p.trySuccess(response)));
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
+
+        final InetSocketAddress address2 = new InetSocketAddress(1);
+        final RadiusEndpoint stubEndpoint2 = new RadiusEndpoint(address2, "secret2"); // never used
+
+        final InetSocketAddress address3 = new InetSocketAddress(2);
+        final RadiusEndpoint stubEndpoint3 = new RadiusEndpoint(address3, "secret3"); // never used
+
+        final List<RadiusEndpoint> endpoints = Arrays.asList(stubEndpoint, stubEndpoint2, stubEndpoint3);
+
+        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final Future<RadiusResponse> future = radiusClient.communicate(request, endpoints);
+
+        await().until(future::isDone);
+        assertTrue(future.isSuccess());
+        assertEquals(response, future.getNow());
+
+        assertEquals(1, capturingOutboundHandler.requests.size());
+        assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().getSecret());
+    }
+
+    @Test
+    void communicateEndpointListEmpty() {
         final Exception expectedException = new Exception("test 123");
         final CapturingOutboundHandler capturingOutboundHandler = spy(new CapturingOutboundHandler(p -> p.tryFailure(expectedException)));
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
+
+        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final Future<RadiusResponse> future = radiusClient.communicate(request, Collections.emptyList());
+
+        await().until(future::isDone);
+        assertFalse(future.isSuccess());
+        assertTrue(future.cause().getMessage().contains("no valid endpoints"));
+    }
+
+    @Test
+    void communicateEndpointListAllFail() {
+        final Exception expectedException = new Exception("test 123");
+        final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(p -> p.tryFailure(expectedException));
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
 
         final InetSocketAddress address2 = new InetSocketAddress(1);
@@ -110,11 +147,9 @@ class RadiusClientTest {
 
         final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
         final Future<RadiusResponse> future = radiusClient.communicate(request, endpoints);
-        assertFalse(future.isDone());
 
         await().until(future::isDone);
         assertFalse(future.isSuccess());
-
         assertTrue(future.cause().getMessage().contains("all endpoints failed"));
         assertSame(expectedException, future.cause().getCause());
 

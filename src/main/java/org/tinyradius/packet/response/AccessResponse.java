@@ -17,7 +17,7 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
 
     @Override
     public RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        final RadiusResponse response = withAttributes(encodeAttributes(sharedSecret, requestAuth))
+        final RadiusResponse response = withAttributes(encodeAttributes(requestAuth, sharedSecret))
                 .encodeMessageAuth(sharedSecret, requestAuth);
 
         final byte[] auth = response.genHashedAuth(sharedSecret, requestAuth);

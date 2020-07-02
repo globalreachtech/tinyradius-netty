@@ -1,11 +1,8 @@
-package org.tinyradius.attribute;
+package org.tinyradius.attribute.type;
 
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.type.OctetsAttribute;
-import org.tinyradius.attribute.type.RadiusAttribute;
-import org.tinyradius.attribute.type.VendorSpecificAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.dictionary.parse.DictionaryParser;
 

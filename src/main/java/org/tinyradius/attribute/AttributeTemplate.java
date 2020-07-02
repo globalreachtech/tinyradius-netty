@@ -231,18 +231,18 @@ public class AttributeTemplate {
 
     /**
      * @param attribute   attribute to encode
-     * @param secret      shared secret to encode with
      * @param requestAuth (corresponding) request packet authenticator
+     * @param secret      shared secret to encode with
      * @return attribute with encoded data
      * @throws RadiusPacketException errors encoding attribute
      */
-    public RadiusAttribute encode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
-        if (!encryptEnabled())
+    public RadiusAttribute encode(RadiusAttribute attribute, byte[] requestAuth, String secret) throws RadiusPacketException {
+        if (attribute.isEncoded())
             return attribute;
 
         try {
             return createEncoded(attribute.getDictionary(), attribute.getTag(),
-                    codecType.getCodec().encode(attribute.getValue(), secret, requestAuth));
+                    codecType.getCodec().encode(attribute.getValue(), requestAuth, secret));
         } catch (Exception e) {
             throw new RadiusPacketException("Error encoding attribute " + attribute.toString(), e);
         }
@@ -250,15 +250,18 @@ public class AttributeTemplate {
 
     /**
      * @param attribute   attribute to decode
-     * @param secret      shared secret to decode with
      * @param requestAuth (corresponding) request packet authenticator
+     * @param secret      shared secret to decode with
      * @return attribute with decoded data
      * @throws RadiusPacketException errors decoding attribute
      */
-    public RadiusAttribute decode(RadiusAttribute attribute, String secret, byte[] requestAuth) throws RadiusPacketException {
+    public RadiusAttribute decode(RadiusAttribute attribute, byte[] requestAuth, String secret) throws RadiusPacketException {
+        if (!attribute.isEncoded())
+            return attribute;
+
         try {
             return create(attribute.getDictionary(), attribute.getTag(),
-                    codecType.getCodec().decode(attribute.getValue(), secret, requestAuth));
+                    codecType.getCodec().decode(attribute.getValue(), requestAuth, secret));
         } catch (Exception e) {
             throw new RadiusPacketException("Error decoding attribute " + attribute.toString(), e);
         }

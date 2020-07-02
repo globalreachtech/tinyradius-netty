@@ -5,7 +5,9 @@ import org.tinyradius.util.RadiusPacketException;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Objects;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
 public abstract class BaseCodec {
@@ -14,23 +16,57 @@ public abstract class BaseCodec {
      * Encodes plaintext data
      *
      * @param data         the data to encrypt
-     * @param sharedSecret shared secret
      * @param requestAuth  packet authenticator
+     * @param sharedSecret shared secret
      * @return the byte array containing the encrypted data
      * @throws RadiusPacketException errors encoding attribute data
      */
-    public abstract byte[] encode(byte[] data, String sharedSecret, byte[] requestAuth) throws RadiusPacketException;
+    public byte[] encode(byte[] data, byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
+        Objects.requireNonNull(data);
+        Objects.requireNonNull(requestAuth);
+        Objects.requireNonNull(sharedSecret);
+
+        if (requestAuth.length != 16)
+            throw new RadiusPacketException("Request Authenticator must be 16 octets");
+
+        return encodeData(data, requestAuth, sharedSecret.getBytes(UTF_8));
+    }
 
     /**
      * Decodes the passed encoded attribute data and returns the cleartext form as bytes
      *
-     * @param data         data to decrypt
-     * @param sharedSecret shared secret
+     * @param data         data to decrypt, excl. type/length/tag
      * @param requestAuth  packet authenticator
+     * @param sharedSecret shared secret
      * @return decrypted data
      * @throws RadiusPacketException errors decoding attribute data
      */
-    public abstract byte[] decode(byte[] data, String sharedSecret, byte[] requestAuth) throws RadiusPacketException;
+    public byte[] decode(byte[] data, byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
+        Objects.requireNonNull(data);
+        Objects.requireNonNull(requestAuth);
+        Objects.requireNonNull(sharedSecret);
+
+        if (requestAuth.length != 16)
+            throw new RadiusPacketException("Request Authenticator must be 16 octets");
+
+        return decodeData(data, requestAuth, sharedSecret.getBytes(UTF_8));
+    }
+
+    /**
+     * @param data   data to encrypt, excl. derived/random generated data e.g. salt/length/padding
+     * @param auth   request authenticator
+     * @param secret shared secret
+     * @return byte array representing salt+string
+     */
+    protected abstract byte[] encodeData(byte[] data, byte[] auth, byte[] secret);
+
+    /**
+     * @param encodedData byte array representing salt+string
+     * @param auth        request authenticator
+     * @param secret      shared secret
+     * @return password sub-field (excl. salt, length, padding)
+     */
+    protected abstract byte[] decodeData(byte[] encodedData, byte[] auth, byte[] secret) throws RadiusPacketException;
 
     protected static byte[] xor16(byte[] src1, int src1offset, byte[] src2) {
         requireNonNull(src1);

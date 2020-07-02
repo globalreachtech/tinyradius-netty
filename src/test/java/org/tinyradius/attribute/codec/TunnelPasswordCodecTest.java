@@ -29,16 +29,14 @@ class TunnelPasswordCodecTest {
 
         final RadiusAttribute attribute = dictionary.createAttribute(-1, TUNNEL_PASSWORD, password.getBytes(UTF_8));
         assertEquals(password, new String(attribute.getValue(), UTF_8));
-        // todo test encode is idempotent
 
-        final byte[] encode = codec.encode(attribute.getValue(), sharedSecret, requestAuth);
+        final byte[] encode = codec.encode(attribute.getValue(), requestAuth, sharedSecret);
         assertNotEquals(password, new String(encode, UTF_8));
 
-        final byte[] decode = codec.decode(encode, sharedSecret, requestAuth);
+        final byte[] decode = codec.decode(encode, requestAuth, sharedSecret);
         assertEquals(password, new String(decode, UTF_8));
 
         final RadiusAttribute attribute2 = dictionary.createAttribute(-1, TUNNEL_PASSWORD, password.getBytes(UTF_8));
         assertEquals(password, new String(attribute2.getValue(), UTF_8));
     }
-
 }

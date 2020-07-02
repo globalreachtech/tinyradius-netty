@@ -30,5 +30,7 @@ public class GenericRequestTest {
 
         final RadiusAttribute attribute = decodeRequest.getAttribute("User-Name").get();
         assertEquals(username, attribute.getValueString());
+
+        // todo idempotence
     }
 }
