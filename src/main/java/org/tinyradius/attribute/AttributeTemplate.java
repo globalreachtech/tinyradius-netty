@@ -117,20 +117,20 @@ public class AttributeTemplate {
             if (rawData.length == 0)
                 throw new IllegalArgumentException("Attribute data (excl. type, length fields) cannot be empty if attribute requires tag.");
 
-            final TaggedDecorator taggedDecorator = new TaggedDecorator(rawData[0],
-                    encodedType.create(dictionary, vendorId, type, Arrays.copyOfRange(rawData, 1, rawData.length)));
-
-            return encryptEnabled() ? new EncodedDecorator(taggedDecorator) : taggedDecorator;
+            return autoWrapEncode(
+                    autoWrapTag(rawData[0],
+                            encodedType.create(dictionary, vendorId, type, Arrays.copyOfRange(rawData, 1, rawData.length))));
         }
 
         final OctetsAttribute attribute = encodedType.create(dictionary, vendorId, type, rawData);
-        return encryptEnabled() ? new EncodedDecorator(attribute) : attribute;
+        return autoWrapEncode(attribute);
     }
 
     /**
      * Create RadiusAttribute with encoded data.
      * <p>
-     * If attribute type has encryption, this will always use OctetsAttribute as
+     * If attribute type supports encryption, this will
+     * return an use OctetsAttribute as
      * underlying implementation so contents aren't validated at construction.
      *
      * @param dictionary   dictionary to use
@@ -138,8 +138,8 @@ public class AttributeTemplate {
      * @param encodedValue encoded data, attribute data excl. type/length/tag
      * @return new RadiusAttribute
      */
-    public EncodedDecorator createEncoded(Dictionary dictionary, byte tag, byte[] encodedValue) {
-        return new EncodedDecorator(create(encodedType, dictionary, tag, encodedValue));
+    public RadiusAttribute createEncoded(Dictionary dictionary, byte tag, byte[] encodedValue) {
+        return autoWrapEncode(create(encodedType, dictionary, tag, encodedValue));
     }
 
     private RadiusAttribute create(AttributeType attributeType, Dictionary dictionary, byte tag, byte[] value) {
@@ -149,6 +149,11 @@ public class AttributeTemplate {
     private RadiusAttribute autoWrapTag(byte tag, OctetsAttribute attribute) {
         return hasTag() ?
                 new TaggedDecorator(tag, attribute) : attribute;
+    }
+
+    private RadiusAttribute autoWrapEncode(RadiusAttribute attribute) {
+        return encryptEnabled() ?
+                new EncodedDecorator(attribute) : attribute;
     }
 
     /**
@@ -237,7 +242,7 @@ public class AttributeTemplate {
      * @throws RadiusPacketException errors encoding attribute
      */
     public RadiusAttribute encode(RadiusAttribute attribute, byte[] requestAuth, String secret) throws RadiusPacketException {
-        if (attribute.isEncoded())
+        if (!encryptEnabled() || attribute.isEncoded())
             return attribute;
 
         try {

@@ -38,5 +38,7 @@ class TunnelPasswordCodecTest {
 
         final RadiusAttribute attribute2 = dictionary.createAttribute(-1, TUNNEL_PASSWORD, password.getBytes(UTF_8));
         assertEquals(password, new String(attribute2.getValue(), UTF_8));
+
+        // todo test error cases
     }
 }

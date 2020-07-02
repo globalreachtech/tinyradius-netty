@@ -27,12 +27,16 @@ class AccessRequestChapTest {
         final String sharedSecret = "sharedSecret1";
         final String username = "myUsername";
 
-        final RadiusRequest accessRequestChap = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList())
+        final RadiusRequest request = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList())
                 .withPassword("myPw")
                 .addAttribute(dictionary.createAttribute("User-Name", username));
 
-        final RadiusRequest encoded = accessRequestChap.encodeRequest(sharedSecret);
+        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
+        assertTrue(e.getMessage().contains("authenticator missing"));
+
+        final RadiusRequest encoded = request.encodeRequest(sharedSecret);
         assertNotNull(encoded.getAuthenticator());
+        assertEquals(username, encoded.getAttribute("User-Name").get().getValueString());
 
         // idempotence check
         final RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
@@ -44,6 +48,7 @@ class AccessRequestChapTest {
 
         // idempotence check
         final RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
+        assertArrayEquals(decoded.getAttributeBytes(), decoded2.getAttributeBytes());
         assertEquals(username, decoded2.getAttribute("User-Name").get().getValueString());
     }
 

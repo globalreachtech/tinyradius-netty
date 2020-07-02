@@ -1,7 +1,6 @@
 package org.tinyradius.packet.response;
 
 import org.junit.jupiter.api.Test;
-import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -34,13 +33,24 @@ class AccessResponseTest {
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> response.decodeResponse(sharedSecret, requestAuth));
         assertTrue(e.getMessage().contains("authenticator missing"));
 
-        final RadiusResponse encodeResponse = response.encodeResponse(sharedSecret, requestAuth);
-        final RadiusResponse decodeResponse = encodeResponse.decodeResponse(sharedSecret, requestAuth);
+        final RadiusResponse encoded = response.encodeResponse(sharedSecret, requestAuth);
+        assertNotNull(encoded.getAuthenticator());
+        assertEquals(username, encoded.getAttribute("User-Name").get().getValueString());
+        assertEquals(password, new String(encoded.getAttribute("User-Password").get().getValue(), UTF_8));
 
-        final RadiusAttribute usernameAttribute = decodeResponse.getAttribute("User-Name").get();
-        assertEquals(username, usernameAttribute.getValueString());
+        // idempotence check
+        final RadiusResponse encoded2 = encoded.encodeResponse(sharedSecret, requestAuth);
+        assertArrayEquals(encoded.getAuthenticator(), encoded2.getAuthenticator());
+        assertArrayEquals(encoded.getAttributeBytes(), encoded2.getAttributeBytes());
 
-        final RadiusAttribute passwordAttribute = decodeResponse.getAttribute("User-Password").get();
-        assertEquals(password, new String(passwordAttribute.getValue(), UTF_8));
+        final RadiusResponse decoded = encoded2.decodeResponse(sharedSecret, requestAuth);
+        assertEquals(username, decoded.getAttribute("User-Name").get().getValueString());
+        assertEquals(password, new String(decoded.getAttribute("User-Password").get().getValue(), UTF_8));
+
+        // idempotence check
+        final RadiusResponse decoded2 = decoded.decodeResponse(sharedSecret, requestAuth);
+        assertArrayEquals(decoded.getAttributeBytes(), decoded2.getAttributeBytes());
+        assertEquals(username, decoded2.getAttribute("User-Name").get().getValueString());
+        assertEquals(password, new String(decoded2.getAttribute("User-Password").get().getValue(), UTF_8));
     }
 }

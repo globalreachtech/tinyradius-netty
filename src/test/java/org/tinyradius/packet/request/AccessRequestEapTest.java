@@ -5,7 +5,6 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
-import java.security.SecureRandom;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,24 +15,34 @@ import static org.tinyradius.packet.util.MessageAuthSupport.MESSAGE_AUTHENTICATO
 class AccessRequestEapTest {
 
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
-    private static final SecureRandom random = new SecureRandom();
 
     @Test
     void encodeDecode() throws RadiusPacketException {
         final String sharedSecret = "sharedSecret1";
         final byte[] message = random16bytes();
-        final RadiusRequest radiusRequest = new AccessRequestEap(dictionary, (byte) 1, null, Collections.emptyList())
+
+        final RadiusRequest request = new AccessRequestEap(dictionary, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, message));
 
-        final RadiusRequest encoded = radiusRequest.encodeRequest(sharedSecret);
+        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
+        assertTrue(e.getMessage().contains("authenticator missing"));
+
+        final RadiusRequest encoded = request.encodeRequest(sharedSecret);
         assertNotNull(encoded.getAuthenticator());
         assertArrayEquals(message, encoded.getAttribute(EAP_MESSAGE).get().getValue());
 
+        // idempotence check
         final RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
         assertArrayEquals(encoded.getAuthenticator(), encoded2.getAuthenticator());
+        assertArrayEquals(encoded.getAttributeBytes(), encoded2.getAttributeBytes());
 
-        encoded.decodeRequest(sharedSecret);
-        // todo idempotence
+        final RadiusRequest decoded = encoded2.decodeRequest(sharedSecret);
+        assertArrayEquals(message, decoded.getAttribute(EAP_MESSAGE).get().getValue());
+
+        // idempotence check
+        final RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
+        assertArrayEquals(decoded.getAttributeBytes(), decoded2.getAttributeBytes());
+        assertArrayEquals(message, decoded2.getAttribute(EAP_MESSAGE).get().getValue());
     }
 
     @Test

@@ -26,12 +26,15 @@ class AccessRequestPapTest {
         final String sharedSecret = "sharedSecret1";
         final String username = "myUsername";
 
-        final RadiusRequest radiusRequest = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
+        final RadiusRequest request = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
                 .withPassword(password)
                 .addAttribute(dictionary.createAttribute("User-Name", username));
-        assertEquals(password, ((AccessRequestPap) radiusRequest).getPassword().get());
+        assertEquals(password, ((AccessRequestPap) request).getPassword().get());
 
-        final RadiusRequest encoded = radiusRequest.encodeRequest(sharedSecret);
+        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
+        assertTrue(e.getMessage().contains("authenticator missing"));
+
+        final RadiusRequest encoded = request.encodeRequest(sharedSecret);
         assertNotEquals(password, ((AccessRequestPap) encoded).getPassword().get());
         assertNotNull(encoded.getAuthenticator());
 
@@ -39,7 +42,6 @@ class AccessRequestPapTest {
         final RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
         assertArrayEquals(encoded.getAuthenticator(), encoded2.getAuthenticator());
         assertArrayEquals(encoded.getAttributeBytes(), encoded2.getAttributeBytes());
-        assertEquals(((AccessRequestPap) encoded).getPassword(), ((AccessRequestPap) encoded2).getPassword());
 
         final RadiusRequest decoded = encoded2.decodeRequest(sharedSecret);
         assertEquals(password, ((AccessRequestPap) decoded).getPassword().get());
