@@ -25,7 +25,7 @@ class AccessRequestEapTest {
                 .addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, message));
 
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
-        assertTrue(e.getMessage().contains("authenticator missing"));
+        assertTrue(e.getMessage().contains("should have exactly one Message-Authenticator attribute"));
 
         final RadiusRequest encoded = request.encodeRequest(sharedSecret);
         assertNotNull(encoded.getAuthenticator());

@@ -122,7 +122,14 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
 
     @Override
     public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
-        // authenticator is random, can't run verifyPacketAuth()
+        // authenticator is random, so can't run verifyPacketAuth(), but we can do basic checks
+        final byte[] auth = getAuthenticator();
+        if (auth == null)
+            throw new RadiusPacketException("Authenticator check failed - authenticator missing");
+
+        if (auth.length != 16)
+            throw new RadiusPacketException("Authenticator check failed - authenticator must be 16 octets, actual " + auth.length);
+
         verifyMessageAuth(sharedSecret, getAuthenticator());
         return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
     }

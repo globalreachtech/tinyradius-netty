@@ -36,7 +36,7 @@ class AccessResponseTest {
         final RadiusResponse encoded = response.encodeResponse(sharedSecret, requestAuth);
         assertNotNull(encoded.getAuthenticator());
         assertEquals(username, encoded.getAttribute("User-Name").get().getValueString());
-        assertEquals(password, new String(encoded.getAttribute("User-Password").get().getValue(), UTF_8));
+        assertNotEquals(password, new String(encoded.getAttribute("User-Password").get().getValue(), UTF_8));
 
         // idempotence check
         final RadiusResponse encoded2 = encoded.encodeResponse(sharedSecret, requestAuth);

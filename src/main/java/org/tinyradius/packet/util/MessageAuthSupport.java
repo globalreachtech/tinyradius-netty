@@ -66,9 +66,12 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
             return;
 
         if (msgAuthAttr.size() > 1)
-            throw new RadiusPacketException("Packet should have at most one Message-Authenticator attribute, has " + msgAuthAttr.size());
+            throw new RadiusPacketException("Message-Authenticator check failed - should have at most one count, has " + msgAuthAttr.size());
 
         final byte[] messageAuth = msgAuthAttr.get(0).getValue();
+
+        if (messageAuth.length != 16)
+            throw new RadiusPacketException("Message-Authenticator check failed - must be 16 octets, actual " + messageAuth.length);
 
         if (!Arrays.equals(messageAuth, computeMessageAuth(this, sharedSecret, requestAuth))) {
             // find attributes that should be encoded but aren't

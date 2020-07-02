@@ -18,7 +18,8 @@ class AttributeTemplateTest {
     private static final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
-    private static final int TUNNEL_PASSWORD = 69;
+    private static final byte TUNNEL_PASSWORD = 69;
+    private static final byte USER_PASSWORD = 2;
 
     @Test
     void encodeNonEncryptAttribute() throws RadiusPacketException {
@@ -40,43 +41,77 @@ class AttributeTemplateTest {
         final String secret = "secret";
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusAttribute attribute = dictionary.createAttribute("User-Password", pw);
-        final AttributeTemplate template = dictionary.getAttributeTemplate("User-Password").get();
+        final RadiusAttribute attribute = dictionary.createAttribute(-1, USER_PASSWORD, pw.getBytes(UTF_8));
+        final AttributeTemplate template = dictionary.getAttributeTemplate(USER_PASSWORD).get();
 
         assertArrayEquals(pw.getBytes(UTF_8), attribute.getValue());
         assertFalse(attribute.isEncoded());
 
-        final RadiusAttribute encode = template.encode(attribute, requestAuth, secret);
-        assertNotEquals(attribute, encode);
-        assertTrue(encode.isEncoded());
-        assertFalse(Arrays.equals(pw.getBytes(UTF_8), encode.getValue()));
+        final RadiusAttribute encode1 = template.encode(attribute, requestAuth, secret);
+        assertNotEquals(attribute, encode1);
+        assertTrue(encode1.isEncoded());
+        assertFalse(Arrays.equals(pw.getBytes(UTF_8), encode1.getValue()));
 
         // idempotence check
-        final RadiusAttribute encode2 = encode.encode(requestAuth, secret);
-        assertEquals(encode, encode2);
+        final RadiusAttribute encode2 = template.encode(encode1, requestAuth, secret);
+        assertEquals(encode1, encode2);
         assertTrue(encode2.isEncoded());
-        assertArrayEquals(encode.getValue(), encode2.getValue());
+        assertArrayEquals(encode1.getValue(), encode2.getValue());
 
-        final RadiusAttribute decode = encode2.decode(requestAuth, secret);
-        assertFalse(decode.isEncoded());
-        assertFalse(Arrays.equals(pw.getBytes(UTF_8), decode.getValue()));
+        final RadiusAttribute decode1 = template.decode(encode2, requestAuth, secret);
+        assertEquals(attribute, decode1);
+        assertFalse(decode1.isEncoded());
+        assertArrayEquals(pw.getBytes(UTF_8), decode1.getValue());
 
         // idempotence check
-        final RadiusAttribute decode2 = decode.decode(requestAuth, secret);
+        final RadiusAttribute decode2 = template.decode(decode1, requestAuth, secret);
+        assertEquals(decode1, decode2);
         assertFalse(decode2.isEncoded());
-        assertFalse(Arrays.equals(pw.getBytes(UTF_8), decode2.getValue()));
-        // todo
+        assertArrayEquals(pw.getBytes(UTF_8), decode2.getValue());
     }
 
-
     @Test
-    void encodeDecodeWithTag() {
+    void encodeDecodeWithTag() throws RadiusPacketException {
         final String pw = "myPw";
+        final byte tag = random.generateSeed(1)[0];
         final String secret = "secret";
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusAttribute attribute = dictionary.createAttribute("Tunnel-Password", pw);
-        final AttributeTemplate template = dictionary.getAttributeTemplate("User-Password").get();
-        // todo
+        final RadiusAttribute attribute = dictionary.createAttribute(-1, TUNNEL_PASSWORD, tag, pw.getBytes(UTF_8));
+        final AttributeTemplate template = dictionary.getAttributeTemplate(TUNNEL_PASSWORD).get();
+
+        assertEquals(tag, attribute.getTag());
+        assertArrayEquals(pw.getBytes(UTF_8), attribute.getValue());
+        assertFalse(attribute.isEncoded());
+
+        final RadiusAttribute encode1 = template.encode(attribute, requestAuth, secret);
+        assertNotEquals(attribute, encode1);
+        assertTrue(encode1.isEncoded());
+        assertFalse(Arrays.equals(pw.getBytes(UTF_8), encode1.getValue()));
+        assertEquals(tag, attribute.getTag());
+        assertEquals(tag, attribute.toByteArray()[2]);
+
+        // idempotence check
+        final RadiusAttribute encode2 = template.encode(encode1, requestAuth, secret);
+        assertEquals(encode1, encode2);
+        assertTrue(encode2.isEncoded());
+        assertArrayEquals(encode1.getValue(), encode2.getValue());
+        assertEquals(tag, attribute.getTag());
+        assertEquals(tag, attribute.toByteArray()[2]);
+
+        final RadiusAttribute decode1 = template.decode(encode2, requestAuth, secret);
+        assertEquals(attribute, decode1);
+        assertFalse(decode1.isEncoded());
+        assertArrayEquals(pw.getBytes(UTF_8), decode1.getValue());
+        assertEquals(tag, attribute.getTag());
+        assertEquals(tag, attribute.toByteArray()[2]);
+
+        // idempotence check
+        final RadiusAttribute decode2 = template.decode(decode1, requestAuth, secret);
+        assertEquals(decode1, decode2);
+        assertFalse(decode2.isEncoded());
+        assertArrayEquals(pw.getBytes(UTF_8), decode2.getValue());
+        assertEquals(tag, attribute.getTag());
+        assertEquals(tag, attribute.toByteArray()[2]);
     }
 }
