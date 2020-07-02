@@ -1,8 +1,9 @@
 package org.tinyradius.attribute.codec;
 
 /**
+ * *Stub Noop Codec to be implemented*
+ * <p>
  * Attribute is encrypted as per Ascend's definitions for the Ascend-Send-Secret attribute
- * TODO
  */
 class AscendSendSecretCodec extends BaseCodec {
     // todo
