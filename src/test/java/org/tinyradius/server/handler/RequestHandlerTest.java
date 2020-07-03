@@ -22,9 +22,10 @@ class RequestHandlerTest {
     @Test
     void acceptRejectMsg() throws Exception {
         final RequestHandler requestHandler = new RequestHandler() {
+
             @Override
-            protected boolean acceptRequestType(RadiusRequest request) {
-                return request instanceof AccessRequest;
+            protected Class<? extends RadiusRequest> acceptedPacketType() {
+                return AccessRequest.class;
             }
 
             @Override

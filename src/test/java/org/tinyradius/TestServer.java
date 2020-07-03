@@ -15,7 +15,6 @@ import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.AccessRequest;
 import org.tinyradius.packet.request.AccessRequestPap;
-import org.tinyradius.packet.request.AccountingRequest;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.server.RadiusServer;
@@ -95,8 +94,8 @@ public class TestServer {
     public static class SimpleAccessHandler extends RequestHandler {
 
         @Override
-        protected boolean acceptRequestType(RadiusRequest request) {
-            return request instanceof AccessRequest;
+        protected Class<? extends RadiusRequest> acceptedPacketType() {
+            return AccessRequest.class;
         }
 
         @Override
@@ -119,8 +118,8 @@ public class TestServer {
     public static class SimpleAccountingHandler extends RequestHandler {
 
         @Override
-        protected boolean acceptRequestType(RadiusRequest request) {
-            return request instanceof AccountingRequest;
+        protected Class<? extends RadiusRequest> acceptedPacketType() {
+            return AccessRequest.class;
         }
 
         @Override
