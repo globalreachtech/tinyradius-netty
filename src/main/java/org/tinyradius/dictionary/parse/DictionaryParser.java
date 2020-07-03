@@ -17,6 +17,8 @@ public class DictionaryParser {
 
     private final ResourceResolver resourceResolver;
 
+    private String currentVendor;
+
     private DictionaryParser(ResourceResolver resourceResolver) {
         this.resourceResolver = resourceResolver;
     }
@@ -159,10 +161,23 @@ public class DictionaryParser {
             throw new IOException("Vendor parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
 
-        final int vendorId = Integer.parseInt(tok[1]);
-        final String vendorName = tok[2];
+        try {
+            // Legacy TinyRadius format: VENDOR number vendor-name
+            final int vendorId = Integer.parseInt(tok[1]);
+            final String vendorName = tok[2];
 
-        dictionary.addVendor(vendorId, vendorName);
+            dictionary.addVendor(vendorId, vendorName);
+        } catch (NumberFormatException e) {
+            // FreeRadius format: VENDOR vendor-name number
+            try {
+                final String vendorName = tok[1];
+                final int vendorId = Integer.parseInt(tok[2]);
+
+                dictionary.addVendor(vendorId, vendorName);
+            } catch (NumberFormatException e1) {
+                throw new IOException("Vendor parse error on line " + lineNum + ": " + Arrays.toString(tok));
+            }
+        }
     }
 
     /**

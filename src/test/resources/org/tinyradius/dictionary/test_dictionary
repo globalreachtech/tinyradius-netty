@@ -5,3 +5,7 @@ $INCLUDE dictionary.rfc5904
 $INCLUDE dictionary.ascend
 $INCLUDE dictionary.wispr
 
+ATTRIBUTE	Tunnel-Type				64	integer	has_tag
+ATTRIBUTE	Tunnel-Medium-Type			65	integer	has_tag
+óATTRIBUTE	Tunnel-Client-Endpoint			66	string	has_tag
+ATTRIBUTE	Tunnel-Server-Endpoint			67	string	has_tag

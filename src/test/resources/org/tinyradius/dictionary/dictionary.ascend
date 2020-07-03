@@ -1,3 +1,41 @@
-VENDOR			529	Ascend
+# FreeRadius Format
 
+VENDOR		Ascend				529
+
+#
+#  Ascend vendor-specific attributes.
+#
+BEGIN-VENDOR	Ascend
+
+ATTRIBUTE   Ascend-Test                     1   integer has_tag,encrypt=2
+ATTRIBUTE	Ascend-Max-Shared-Users			2	integer  has_tag
+ATTRIBUTE	Ascend-UU-Info				7	string  encrypt=1
+ATTRIBUTE	Ascend-CIR-Timer			9	integer has_tag,encrypt=1
+ATTRIBUTE	Ascend-FR-08-Mode			10	integer encrypt=1,has_tag
+ATTRIBUTE	Ascend-Destination-Nas-Port		11	integer
+ATTRIBUTE	Ascend-FR-SVC-Addr			12	string
+ATTRIBUTE	Ascend-NAS-Port-Format			13	integer
+ATTRIBUTE	Ascend-ATM-Fault-Management		14	integer
+ATTRIBUTE	Ascend-ATM-Loopback-Cell-Loss		15	integer
+ATTRIBUTE	Ascend-Ckt-Type				16	integer
+ATTRIBUTE	Ascend-SVC-Enabled			17	integer
+ATTRIBUTE	Ascend-Session-Type			18	integer
+ATTRIBUTE	Ascend-H323-Gatekeeper			19	ipaddr
+ATTRIBUTE	Ascend-Global-Call-Id			20	string
+ATTRIBUTE	Ascend-H323-Conference-Id		21	integer
+ATTRIBUTE	Ascend-H323-Fegw-Address		22	ipaddr
+ATTRIBUTE	Ascend-H323-Dialed-Time			23	integer
+ATTRIBUTE	Ascend-Dialed-Number			24	string
+ATTRIBUTE	Ascend-Inter-Arrival-Jitter		25	integer
+ATTRIBUTE	Ascend-Dropped-Octets			26	integer
+ATTRIBUTE	Ascend-Dropped-Packets			27	integer
+ATTRIBUTE	Ascend-Auth-Delay			28	integer
+ATTRIBUTE	Ascend-X25-Pad-X3-Profile		29	integer
+ATTRIBUTE	Ascend-X25-Pad-X3-Parameters		30	string
+ATTRIBUTE	Ascend-Source-IP-Check			96	integer
 VENDORATTR      529   Ascend-Send-Secret             214       string
+
+VALUE	Ascend-Source-IP-Check		Source-IP-Check-No	0
+VALUE	Ascend-Source-IP-Check		Source-IP-Check-Yes	1
+
+END-VENDOR Ascend
