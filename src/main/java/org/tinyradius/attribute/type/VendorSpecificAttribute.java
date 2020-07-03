@@ -9,11 +9,10 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 
 /**
- * This class represents a "Vendor-Specific" attribute. Both an attribute itself and an attribute container.
+ * Vendor-Specific attribute. Both an attribute itself and an attribute container for sub-attributes.
  */
 public class VendorSpecificAttribute extends OctetsAttribute implements AttributeHolder<VendorSpecificAttribute> {
 
