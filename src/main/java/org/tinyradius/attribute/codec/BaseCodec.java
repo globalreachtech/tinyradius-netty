@@ -65,6 +65,7 @@ public abstract class BaseCodec {
      * @param auth        request authenticator
      * @param secret      shared secret
      * @return password sub-field (excl. salt, length, padding)
+     * @throws RadiusPacketException error while decoding attribute data
      */
     protected abstract byte[] decodeData(byte[] encodedData, byte[] auth, byte[] secret) throws RadiusPacketException;
 
