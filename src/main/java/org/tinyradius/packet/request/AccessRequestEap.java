@@ -23,6 +23,7 @@ public class AccessRequestEap extends AccessRequest<AccessRequestEap> {
     @Override
     public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
         validateEapAttributes();
+        // Message-Auth added at end of encoding
         return super.encodeRequest(sharedSecret);
     }
 
