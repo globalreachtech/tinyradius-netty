@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * CHAP AccessRequest RFC2865
+ */
 public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
 
     private static final byte CHAP_CHALLENGE = 60;
@@ -52,15 +55,16 @@ public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
         return withAttributes(attributes);
     }
 
-    /**
-     * Sets and encodes the CHAP-Password and CHAP-Challenge attributes.
-     *
-     * @param sharedSecret shared secret not used to encode
-     */
     @Override
     public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
         validateChapAttributes();
         return super.encodeRequest(sharedSecret);
+    }
+
+    @Override
+    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
+        validateChapAttributes();
+        return super.decodeRequest(sharedSecret);
     }
 
     /**
@@ -110,12 +114,6 @@ public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
         }
 
         return Arrays.equals(chapPassword, computeChapPassword(chapPassword[0], password, chapChallenge));
-    }
-
-    @Override
-    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
-        validateChapAttributes();
-        return super.decodeRequest(sharedSecret);
     }
 
     private void validateChapAttributes() throws RadiusPacketException {

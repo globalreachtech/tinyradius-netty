@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * PAP AccessRequest RFC2865
+ */
 public class AccessRequestPap extends AccessRequest<AccessRequestPap> {
 
     public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {

@@ -11,7 +11,7 @@ import java.util.Collections;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GenericResponseTest {
+class GenericResponseTest {
 
     private static final byte USER_PASSWORD = 2;
 

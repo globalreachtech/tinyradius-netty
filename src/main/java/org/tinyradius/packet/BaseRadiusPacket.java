@@ -87,12 +87,12 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
      * @throws RadiusPacketException errors encoding attributes
      */
     protected List<RadiusAttribute> encodeAttributes(byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> attributes = new ArrayList<>();
+        final List<RadiusAttribute> encoded = new ArrayList<>();
         for (RadiusAttribute a : getAttributes()) {
             RadiusAttribute encode = a.encode(requestAuth, sharedSecret);
-            attributes.add(encode);
+            encoded.add(encode);
         }
-        return attributes;
+        return encoded;
     }
 
     /**
@@ -102,12 +102,12 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
      * @throws RadiusPacketException errors decoding attributes
      */
     protected List<RadiusAttribute> decodeAttributes(byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> attributes = new ArrayList<>();
+        final List<RadiusAttribute> decoded = new ArrayList<>();
         for (RadiusAttribute a : getAttributes()) {
             RadiusAttribute decode = a.decode(requestAuth, sharedSecret);
-            attributes.add(decode);
+            decoded.add(decode);
         }
-        return attributes;
+        return decoded;
     }
 
     @Override

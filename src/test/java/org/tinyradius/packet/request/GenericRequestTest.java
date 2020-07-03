@@ -12,7 +12,7 @@ import java.util.Collections;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GenericRequestTest {
+class GenericRequestTest {
 
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 

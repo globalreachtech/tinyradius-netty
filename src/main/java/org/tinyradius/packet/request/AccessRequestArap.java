@@ -7,7 +7,8 @@ import org.tinyradius.util.RadiusPacketException;
 import java.util.List;
 
 /**
- * Stub ARAP AccessRequest
+ * ARAP AccessRequest RFC2869
+ * Stub TODO
  */
 public class AccessRequestArap extends AccessRequest<AccessRequestArap> {
 
@@ -18,6 +19,12 @@ public class AccessRequestArap extends AccessRequest<AccessRequestArap> {
     @Override
     protected AccessRequestFactory<AccessRequestArap> factory() {
         return AccessRequestArap::new;
+    }
+
+    @Override
+    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+        validateArapAttributes();
+        return super.encodeRequest(sharedSecret);
     }
 
     @Override

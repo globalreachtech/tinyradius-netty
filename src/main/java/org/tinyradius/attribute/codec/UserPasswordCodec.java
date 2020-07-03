@@ -17,11 +17,11 @@ class UserPasswordCodec extends BaseCodec {
         final byte[] str = pad16x(data);
         final ByteBuffer buffer = ByteBuffer.allocate(str.length);
 
-        byte[] C = auth;
+        byte[] c = auth;
 
         for (int i = 0; i < str.length; i += 16) {
-            C = xor16(str, i, md5(secret, C));
-            buffer.put(C);
+            c = xor16(str, i, md5(secret, c));
+            buffer.put(c);
         }
 
         return buffer.array();
@@ -38,11 +38,11 @@ class UserPasswordCodec extends BaseCodec {
                     "data octets must be multiple of 16, actual: " + encodedData.length);
 
         final ByteBuf buf = Unpooled.buffer(encodedData.length, encodedData.length);
-        byte[] C = auth;
+        byte[] c = auth;
 
         for (int i = 0; i < encodedData.length; i += 16) {
-            buf.writeBytes(xor16(encodedData, i, md5(secret, C)));
-            C = Arrays.copyOfRange(encodedData, i, 16);
+            buf.writeBytes(xor16(encodedData, i, md5(secret, c)));
+            c = Arrays.copyOfRange(encodedData, i, 16);
         }
 
         final int nullIndex = buf.indexOf(0, encodedData.length - 1, (byte) 0);

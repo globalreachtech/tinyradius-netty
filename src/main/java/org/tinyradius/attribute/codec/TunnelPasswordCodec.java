@@ -27,14 +27,14 @@ class TunnelPasswordCodec extends BaseCodec {
         final ByteBuffer buffer = ByteBuffer.allocate(plaintext.length + 2)
                 .put(salt);
 
-        byte[] C = ByteBuffer.allocate(18)
+        byte[] c = ByteBuffer.allocate(18)
                 .put(auth)
                 .put(salt)
                 .array();
 
         for (int i = 0; i < plaintext.length; i += 16) {
-            C = xor16(plaintext, i, md5(secret, C));
-            buffer.put(C);
+            c = xor16(plaintext, i, md5(secret, c));
+            buffer.put(c);
         }
 
         return buffer.array();
@@ -54,7 +54,7 @@ class TunnelPasswordCodec extends BaseCodec {
         final byte[] encodedStr = Arrays.copyOfRange(encodedData, 2, encodedData.length);
         final byte[] salt = Arrays.copyOfRange(encodedData, 0, 2);
 
-        byte[] C = ByteBuffer.allocate(18)
+        byte[] c = ByteBuffer.allocate(18)
                 .put(auth)
                 .put(salt)
                 .array();
@@ -62,8 +62,8 @@ class TunnelPasswordCodec extends BaseCodec {
         final ByteBuf plaintext = Unpooled.buffer(encodedStr.length, encodedStr.length);
 
         for (int i = 0; i < strLen; i += 16) {
-            plaintext.writeBytes(xor16(encodedStr, i, md5(secret, C)));
-            C = Arrays.copyOfRange(encodedStr, i, 16);
+            plaintext.writeBytes(xor16(encodedStr, i, md5(secret, c)));
+            c = Arrays.copyOfRange(encodedStr, i, 16);
         }
 
         final byte len = plaintext.readByte(); // first

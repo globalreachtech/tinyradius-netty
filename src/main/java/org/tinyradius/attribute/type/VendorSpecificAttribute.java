@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -38,7 +39,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * @param data        data to parse for childVendorId and sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeId, byte[] data) {
-        this(dictionary, vendorId(data), AttributeHolder.extractAttributes(dictionary, vendorId(data), data, 4), data);
+        this(dictionary, childVendorId(data), AttributeHolder.extractAttributes(dictionary, childVendorId(data), data, 4), data);
         if (vendorId != -1)
             throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
         if (attributeId != 26)
@@ -57,6 +58,11 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
                 .writeInt(childVendorId)
                 .writeBytes(AttributeHolder.attributesToBytes(attributes))
                 .copy().array());
+        final boolean mismatchVendorId = attributes.stream()
+                .map(RadiusAttribute::getVendorId)
+                .anyMatch(id -> id != childVendorId);
+        if (mismatchVendorId)
+            throw new IllegalArgumentException("Vendor-Specific attribute sub-attributes must have same vendorId as VSA childVendorId");
     }
 
     /**
@@ -79,7 +85,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * @param data byte array, length minimum 4
      * @return vendorId
      */
-    private static int vendorId(byte[] data) {
+    private static int childVendorId(byte[] data) {
         return ByteBuffer.wrap(data).getInt();
     }
 
@@ -99,6 +105,11 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     }
 
     @Override
+    public List<RadiusAttribute> flatten() {
+        return new ArrayList<>(getAttributes());
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Vendor-Specific: Vendor ID ").append(getChildVendorId());
@@ -108,10 +119,5 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
             sb.append("\n  ").append(sa.toString());
         }
         return sb.toString();
-    }
-
-    @Override
-    public List<RadiusAttribute> flatten() {
-        return new ArrayList<>(getAttributes());
     }
 }

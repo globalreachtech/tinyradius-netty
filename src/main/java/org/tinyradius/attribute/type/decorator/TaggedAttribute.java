@@ -32,7 +32,7 @@ public class TaggedAttribute extends BaseDecorator {
 
     @Override
     public String toString() {
-        return "[Tagged: " + String.valueOf(getTag()) + "] " + delegate.toString();
+        return "[Tagged: " + getTag() + "] " + delegate.toString();
     }
 
     @Override
