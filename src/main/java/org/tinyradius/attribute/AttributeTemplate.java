@@ -105,7 +105,7 @@ public class AttributeTemplate {
     /**
      * Parse RadiusAttribute from raw byte data.
      * <p>
-     * If attribute type has encryption, this will create an OctetsAttribute wrapped in EncoderDecorator,
+     * If attribute type has encryption, this will create an OctetsAttribute wrapped in EncodedDecorator,
      * otherwise uses the type specified in dictionary.
      *
      * @param dictionary dictionary to use
@@ -242,6 +242,7 @@ public class AttributeTemplate {
      * @throws RadiusPacketException errors encoding attribute
      */
     public RadiusAttribute encode(RadiusAttribute attribute, byte[] requestAuth, String secret) throws RadiusPacketException {
+        // avoid wrapping in EncodedDecorator if doesn't support
         if (!encryptEnabled() || attribute.isEncoded())
             return attribute;
 

@@ -17,7 +17,7 @@ public class DictionaryParser {
 
     private final ResourceResolver resourceResolver;
 
-    private String currentVendor;
+    private int currentVendor = -1;
 
     private DictionaryParser(ResourceResolver resourceResolver) {
         this.resourceResolver = resourceResolver;
@@ -63,6 +63,8 @@ public class DictionaryParser {
                 lineNum++;
                 parseLine(dictionary, line, lineNum, resource);
             }
+
+            currentVendor = -1;
         }
     }
 
@@ -83,49 +85,86 @@ public class DictionaryParser {
 
     private void parseTokens(WritableDictionary dictionary, String[] tokens, int lineNum, String resource) throws IOException {
         switch (tokens[0].toUpperCase()) {
+            case "END-VENDOR":
+                parseEndVendor(dictionary, tokens, lineNum);
+                break;
+            case "BEGIN-VENDOR":
+                parseBeginVendor(dictionary, tokens, lineNum);
+                break;
             case "ATTRIBUTE":
-                parseAttributeLine(dictionary, tokens, lineNum);
+            case "VENDORATTR":
+                parseAttribute(dictionary, tokens, lineNum);
                 break;
             case "VALUE":
-                parseValueLine(dictionary, tokens, lineNum);
+                parseValue(dictionary, tokens, lineNum);
                 break;
             case "$INCLUDE":
                 includeDictionaryFile(dictionary, tokens, lineNum, resource);
                 break;
-            case "VENDORATTR":
-                parseVendorAttributeLine(dictionary, tokens, lineNum);
-                break;
             case "VENDOR":
-                parseVendorLine(dictionary, tokens, lineNum);
+                parseVendor(dictionary, tokens, lineNum);
                 break;
             default:
                 throw new IOException("Could not decode tokens on line " + lineNum + ": " + Arrays.toString(tokens));
         }
     }
 
+    private void parseBeginVendor(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
+        if (tok.length != 2)
+            throw new IOException("BEGIN-VENDOR parse error on line " + lineNum + ", " + Arrays.toString(tok));
+
+        currentVendor = dictionary.getVendorId(tok[1]);
+    }
+
+    private void parseEndVendor(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
+        if (tok.length != 2)
+            throw new IOException("End-Vendor parse error on line " + lineNum + ", " + Arrays.toString(tok));
+
+        final int vendorId = dictionary.getVendorId(tok[1]);
+
+        if (currentVendor != vendorId)
+            throw new IOException("END-VENDOR parse error on line " + lineNum + ", " + Arrays.toString(tok) +
+                    " (no corresponding Begin-Vendor found)");
+
+        currentVendor = -1;
+    }
+
     /**
      * Parse a line that declares an attribute.
      */
-    private void parseAttributeLine(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
-        if (tok.length != 4) {
-            throw new IOException("Attribute parse error on line " + lineNum + ", " + Arrays.toString(tok));
+    private void parseAttribute(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
+        // ATTRIBUTE    Ascend-Send-Secret  214	string
+        // VENDORATTR   529     Ascend-Send-Secret  214 string
+
+        // VENDORATTR have extra vendorId field in tok[1]
+        final int offset = tok[0].equals("VENDORATTR") ? 1 : 0;
+
+        if (tok.length < 4 + offset || tok.length > 5 + offset)
+            throw new IOException(tok[0] + " parse error on line " + lineNum + ", " + Arrays.toString(tok));
+
+        final int vendorId = offset == 1 ? Integer.parseInt(tok[1]) : currentVendor;
+        final String name = tok[1 + offset];
+        final byte type = convertType(Integer.parseInt(tok[2 + offset]));
+        final String typeStr = tok[3 + offset];
+
+        // no flags
+        if (tok.length == 4 + offset) {
+            dictionary.addAttributeTemplate(
+                    new AttributeTemplate(vendorId, type, name, typeStr, (byte) 0, false));
+            return;
         }
 
-        // read name, type code, type string
-        final String name = tok[1];
-        final byte type = convertType(Integer.parseInt(tok[2]));
-        final String typeStr = tok[3];
-
-        // create and cache object
-        dictionary.addAttributeTemplate(new AttributeTemplate(-1, type, name, typeStr));
+        final String[] flags = tok[4 + offset].split(",");
+        dictionary.addAttributeTemplate(
+                new AttributeTemplate(vendorId, type, name, typeStr, encryptFlag(flags), tagFlag(flags)));
     }
 
     /**
      * Parses a VALUE line containing an enumeration value.
      */
-    private void parseValueLine(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
+    private void parseValue(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
         if (tok.length != 4) {
-            throw new IOException("Value parse error on line " + lineNum + ": " + Arrays.toString(tok));
+            throw new IOException("VALUE parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
 
         final String attributeName = tok[1];
@@ -137,28 +176,13 @@ public class DictionaryParser {
                 .addEnumerationValue(Integer.parseInt(valStr), enumName);
     }
 
-    /**
-     * Parses a line that declares a Vendor-Specific attribute.
-     */
-    private void parseVendorAttributeLine(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
-        if (tok.length != 5) {
-            throw new IOException("Vendor Attribute parse error on line " + lineNum + ": " + Arrays.toString(tok));
-        }
-
-        final int vendor = Integer.parseInt(tok[1]);
-        final String name = tok[2];
-        final byte code = convertType(Integer.parseInt(tok[3]));
-        final String typeStr = tok[4];
-
-        dictionary.addAttributeTemplate(new AttributeTemplate(vendor, code, name, typeStr));
-    }
 
     /**
      * Parses a line containing a vendor declaration.
      */
-    private void parseVendorLine(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
+    private void parseVendor(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
         if (tok.length != 3) {
-            throw new IOException("Vendor parse error on line " + lineNum + ": " + Arrays.toString(tok));
+            throw new IOException("VENDOR parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
 
         try {
@@ -203,5 +227,20 @@ public class DictionaryParser {
         return (byte) type;
     }
 
+    private byte encryptFlag(String[] flags) {
+        for (final String flag : flags) {
+            if (flag.length() == 9 && flag.startsWith("encrypt="))
+                return Byte.parseByte(flag.substring(8, 9));
+        }
+        return 0;
+    }
+
+    private boolean tagFlag(String[] flags) {
+        for (final String flag : flags) {
+            if (flag.equals("has_tag"))
+                return true;
+        }
+        return false;
+    }
 }
 

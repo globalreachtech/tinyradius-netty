@@ -2,16 +2,13 @@
 
 VENDOR		Ascend				529
 
-#
-#  Ascend vendor-specific attributes.
-#
 BEGIN-VENDOR	Ascend
 
-ATTRIBUTE   Ascend-Test                     1   integer has_tag,encrypt=2
+ATTRIBUTE   Ascend-Test                     1   integer
 ATTRIBUTE	Ascend-Max-Shared-Users			2	integer  has_tag
 ATTRIBUTE	Ascend-UU-Info				7	string  encrypt=1
-ATTRIBUTE	Ascend-CIR-Timer			9	integer has_tag,encrypt=1
-ATTRIBUTE	Ascend-FR-08-Mode			10	integer encrypt=1,has_tag
+ATTRIBUTE	Ascend-CIR-Timer			9	integer has_tag,encrypt=2
+ATTRIBUTE	Ascend-FR-08-Mode			10	integer encrypt=3,has_tag
 ATTRIBUTE	Ascend-Destination-Nas-Port		11	integer
 ATTRIBUTE	Ascend-FR-SVC-Addr			12	string
 ATTRIBUTE	Ascend-NAS-Port-Format			13	integer

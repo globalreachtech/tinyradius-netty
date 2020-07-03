@@ -1,9 +1,5 @@
 # Legacy TinyRadius Format
 
-#       Wi-Fi Alliance - Wireless ISP Roaming - Best Current Practices v1,
-#       Feb 2003, p 14
-#       http://www.weca.net/OpenSection/downloads/WISPr_V1.0.pdf
-
 VENDOR			14122	WISPr
 
 VENDORATTR      14122   WISPr-Location-ID             1       string
@@ -12,8 +8,8 @@ VENDORATTR      14122   WISPr-Logoff-URL              3       string
 VENDORATTR      14122   WISPr-Redirection-URL         4       string
 VENDORATTR      14122   WISPr-Bandwidth-Min-Up         5       integer has_tag
 VENDORATTR      14122   WISPr-Bandwidth-Min-Down       6       integer encrypt=1
-VENDORATTR      14122   WISPr-Bandwidth-Max-Up         7       integer has_tag,encrypt=1
-VENDORATTR      14122   WISPr-Bandwidth-Max-Down       8       integer encrypt=1,has_tag
+VENDORATTR      14122   WISPr-Bandwidth-Max-Up         7       integer has_tag,encrypt=2
+VENDORATTR      14122   WISPr-Bandwidth-Max-Down       8       integer encrypt=3,has_tag
 VENDORATTR      14122   WISPr-Session-Terminate-Time  9       string
 VENDORATTR      14122   WISPr-Session-Terminate-End-Of-Day    10      integer
 VENDORATTR      14122   WISPr-Billing-Class-Of-Service        11      string

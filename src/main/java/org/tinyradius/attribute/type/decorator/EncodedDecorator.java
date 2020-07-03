@@ -21,6 +21,7 @@ public class EncodedDecorator extends BaseDecorator {
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().decode(this, requestAuth, secret) : delegate;
+        // create new attribute instead of getting delegate if EncodedDecorator is not guaranteed to be outermost decorator
     }
 
     @Override

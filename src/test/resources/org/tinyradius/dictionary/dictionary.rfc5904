@@ -3,5 +3,5 @@ ATTRIBUTE                                            PKM-CA-Cert    138     octe
 ATTRIBUTE                                    PKM-Config-Settings    139     octets
 ATTRIBUTE                                   PKM-Cryptosuite-List    140     octets has_tag
 ATTRIBUTE                                               PKM-SAID    141      short encrypt=1
-ATTRIBUTE                                      PKM-SA-Descriptor    142     octets has_tag,encrypt=1
-ATTRIBUTE                                           PKM-Auth-Key    143     octets encrypt=1,has_tag
+ATTRIBUTE                                      PKM-SA-Descriptor    142     octets has_tag,encrypt=2
+ATTRIBUTE                                           PKM-Auth-Key    143     octets encrypt=3,has_tag

@@ -21,6 +21,8 @@ class AttributeTemplateTest {
     private static final byte TUNNEL_PASSWORD = 69;
     private static final byte USER_PASSWORD = 2;
 
+    // todo test encrytFlag / encodedType / decodedType detection
+
     @Test
     void encodeNonEncryptAttribute() throws RadiusPacketException {
         final String username = "myUsername";

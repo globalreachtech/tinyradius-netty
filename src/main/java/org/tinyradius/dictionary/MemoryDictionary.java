@@ -49,11 +49,11 @@ public class MemoryDictionary implements WritableDictionary {
     @Override
     public void addVendor(int vendorId, String vendorName) {
         if (vendorId < 0)
-            throw new IllegalArgumentException("Vendor ID must be positive");
+            throw new IllegalArgumentException("Vendor ID must be positive: " + vendorId);
         if (getVendorName(vendorId).isPresent())
-            throw new IllegalArgumentException("Duplicate vendor code");
+            throw new IllegalArgumentException("Duplicate vendor code: " + vendorId);
         if (vendorName == null || vendorName.isEmpty())
-            throw new IllegalArgumentException("Vendor name empty");
+            throw new IllegalArgumentException("Vendor name empty: " + vendorName);
         vendorsByCode.put(vendorId, vendorName);
     }
 
