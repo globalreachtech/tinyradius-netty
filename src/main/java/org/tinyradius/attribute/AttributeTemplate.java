@@ -4,8 +4,8 @@ import org.tinyradius.attribute.codec.AttributeCodecType;
 import org.tinyradius.attribute.type.AttributeType;
 import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
-import org.tinyradius.attribute.type.decorator.EncodedDecorator;
-import org.tinyradius.attribute.type.decorator.TaggedDecorator;
+import org.tinyradius.attribute.type.decorator.EncodedAttribute;
+import org.tinyradius.attribute.type.decorator.TaggedAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
 
@@ -38,12 +38,13 @@ public class AttributeTemplate {
     private final Map<String, Integer> str2int = new HashMap<>();
 
     /**
-     * Create a new attribute type.
+     * Create a new attribute type. Convenience method that assumes no encrypt and no Tag support.
      *
      * @param vendorId    vendor ID or -1 if N/A
      * @param type        sub-attribute type code, as unsigned byte
      * @param name        sub-attribute name
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
+     * @see AttributeTemplate#AttributeTemplate(int, byte, String, String, byte, boolean)
      */
     public AttributeTemplate(int vendorId, byte type, String name, String rawDataType) {
         this(vendorId, type, name, rawDataType, (byte) 0, false);
@@ -56,8 +57,8 @@ public class AttributeTemplate {
      * @param type        sub-attribute type code, as unsigned byte
      * @param name        sub-attribute name
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
-     * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or 0 for no encryption
-     * @param hasTag      whether attribute supports tags, as defined in RFC2868
+     * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or default 0 for none
+     * @param hasTag      whether attribute supports tags, as defined in RFC2868, default false
      */
     public AttributeTemplate(int vendorId, byte type, String name, String rawDataType, byte encryptFlag, boolean hasTag) {
         if (name == null || name.isEmpty())
@@ -148,12 +149,12 @@ public class AttributeTemplate {
 
     private RadiusAttribute autoWrapTag(byte tag, OctetsAttribute attribute) {
         return hasTag() ?
-                new TaggedDecorator(tag, attribute) : attribute;
+                new TaggedAttribute(tag, attribute) : attribute;
     }
 
     private RadiusAttribute autoWrapEncode(RadiusAttribute attribute) {
         return encryptEnabled() ?
-                new EncodedDecorator(attribute) : attribute;
+                new EncodedAttribute(attribute) : attribute;
     }
 
     /**
@@ -280,19 +281,19 @@ public class AttributeTemplate {
         return s;
     }
 
-    private static boolean detectHasTag(int vendorId, int type, boolean hasTag) {
+    private static boolean detectHasTag(int vendorId, byte type, boolean hasTag) {
         // Tunnel-Password
         return (vendorId == -1 && type == 69) || hasTag;
     }
 
-    private static AttributeCodecType detectAttributeCodec(int vendorId, int type, byte encryptFlag) {
+    private static AttributeCodecType detectAttributeCodec(int vendorId, byte type, byte encryptFlag) {
         if (vendorId == -1 && type == 2) // User-Password
             return RFC2865_USER_PASSWORD;
 
         if (vendorId == -1 && type == 69) // Tunnel-Password
             return RFC2868_TUNNEL_PASSWORD;
 
-        if (vendorId == 529 && type == 214) // Ascend-Send-Secret
+        if (vendorId == 529 && type == (byte) 214) // Ascend-Send-Secret
             return ASCENT_SEND_SECRET;
 
         return fromId(encryptFlag);

@@ -50,9 +50,9 @@ public class IntegerAttribute extends OctetsAttribute {
     }
 
     /**
-     * Returns the int value of this attribute.
+     * Returns the int value of this attribute. May be negative as Java ints are signed.
      *
-     * @return a int
+     * @return an int
      */
     public int getValueInt() {
         return ByteBuffer.wrap(getValue()).getInt();

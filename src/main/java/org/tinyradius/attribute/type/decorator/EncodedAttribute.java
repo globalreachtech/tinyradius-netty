@@ -8,11 +8,11 @@ import org.tinyradius.util.RadiusPacketException;
 import java.util.Objects;
 import java.util.Optional;
 
-public class EncodedDecorator extends BaseDecorator {
+public class EncodedAttribute extends BaseDecorator {
 
-    public EncodedDecorator(RadiusAttribute attribute) {
+    public EncodedAttribute(RadiusAttribute attribute) {
         super(attribute);
-        if (attribute instanceof EncodedDecorator)
+        if (attribute instanceof EncodedAttribute)
             throw new IllegalArgumentException("Cannot wrap EncodedDecorator twice");
     }
 
@@ -40,8 +40,8 @@ public class EncodedDecorator extends BaseDecorator {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof EncodedDecorator)) return false;
-        final EncodedDecorator that = (EncodedDecorator) o;
+        if (!(o instanceof EncodedAttribute)) return false;
+        final EncodedAttribute that = (EncodedAttribute) o;
         return delegate.equals(that.delegate);
     }
 

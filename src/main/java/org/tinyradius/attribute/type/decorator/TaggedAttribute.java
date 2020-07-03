@@ -5,11 +5,11 @@ import org.tinyradius.attribute.type.OctetsAttribute;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-public class TaggedDecorator extends BaseDecorator {
+public class TaggedAttribute extends BaseDecorator {
 
     private final byte tag;
 
-    public TaggedDecorator(byte tag, OctetsAttribute attribute) {
+    public TaggedAttribute(byte tag, OctetsAttribute attribute) {
         super(attribute);
         this.tag = tag;
     }
@@ -38,8 +38,8 @@ public class TaggedDecorator extends BaseDecorator {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TaggedDecorator)) return false;
-        final TaggedDecorator that = (TaggedDecorator) o;
+        if (!(o instanceof TaggedAttribute)) return false;
+        final TaggedAttribute that = (TaggedAttribute) o;
         return delegate.equals(that.delegate);
     }
 

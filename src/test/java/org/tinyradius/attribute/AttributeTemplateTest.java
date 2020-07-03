@@ -1,8 +1,11 @@
 package org.tinyradius.attribute;
 
 import org.junit.jupiter.api.Test;
+import org.tinyradius.attribute.type.IntegerAttribute;
 import org.tinyradius.attribute.type.OctetsAttribute;
 import org.tinyradius.attribute.type.RadiusAttribute;
+import org.tinyradius.attribute.type.decorator.EncodedAttribute;
+import org.tinyradius.attribute.type.decorator.TaggedAttribute;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.util.RadiusPacketException;
@@ -12,6 +15,7 @@ import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.attribute.codec.AttributeCodecType.*;
 
 class AttributeTemplateTest {
 
@@ -21,7 +25,33 @@ class AttributeTemplateTest {
     private static final byte TUNNEL_PASSWORD = 69;
     private static final byte USER_PASSWORD = 2;
 
-    // todo test encrytFlag / encodedType / decodedType detection
+    @Test
+    void testFlagDetection() {
+        final AttributeTemplate template = new AttributeTemplate(-1, (byte) 1, "TestAttr", "integer", (byte) 0, false);
+        assertEquals(NO_ENCRYPT, template.getCodecType());
+        assertEquals(IntegerAttribute.class, template.create(dictionary, (byte) 1, new byte[4]).getClass());
+        assertEquals(IntegerAttribute.class, template.createEncoded(dictionary, (byte) 1, new byte[4]).getClass());
+
+        final AttributeTemplate userPassword = new AttributeTemplate(-1, (byte) 2, "Test-User-Password", "integer", (byte) 0, false);
+        assertEquals(RFC2865_USER_PASSWORD, userPassword.getCodecType());
+        assertEquals(IntegerAttribute.class, userPassword.create(dictionary, (byte) 1, new byte[4]).getClass());
+        assertEquals(EncodedAttribute.class, userPassword.createEncoded(dictionary, (byte) 1, new byte[4]).getClass());
+
+        final AttributeTemplate tunnelPassword = new AttributeTemplate(-1, (byte) 69, "Test-Tunnel-Password", "integer", (byte) 0, false);
+        assertEquals(RFC2868_TUNNEL_PASSWORD, tunnelPassword.getCodecType());
+        assertEquals(TaggedAttribute.class, tunnelPassword.create(dictionary, (byte) 1, new byte[4]).getClass());
+        assertEquals(EncodedAttribute.class, tunnelPassword.createEncoded(dictionary, (byte) 1, new byte[4]).getClass());
+
+        final AttributeTemplate ascendSend = new AttributeTemplate(529, (byte) 214, "Test-Ascend-Send-Secret", "integer", (byte) 0, false);
+        assertEquals(ASCENT_SEND_SECRET, ascendSend.getCodecType());
+        assertEquals(IntegerAttribute.class, ascendSend.create(dictionary, (byte) 1, new byte[4]).getClass());
+        assertEquals(EncodedAttribute.class, ascendSend.createEncoded(dictionary, (byte) 1, new byte[4]).getClass());
+
+        final AttributeTemplate custom = new AttributeTemplate(123, (byte) 123, "Test-Custom", "integer", (byte) 1, true);
+        assertEquals(RFC2865_USER_PASSWORD, custom.getCodecType());
+        assertEquals(TaggedAttribute.class, custom.create(dictionary, (byte) 1, new byte[4]).getClass());
+        assertEquals(EncodedAttribute.class, custom.createEncoded(dictionary, (byte) 1, new byte[4]).getClass());
+    }
 
     @Test
     void encodeNonEncryptAttribute() throws RadiusPacketException {
