@@ -1,5 +1,7 @@
 package org.tinyradius.packet.request;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.util.MessageAuthSupport;
@@ -19,6 +21,7 @@ import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
  */
 public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericRequest implements MessageAuthSupport<RadiusRequest> {
 
+    protected static final Logger logger = LogManager.getLogger();
     protected static final SecureRandom RANDOM = new SecureRandom();
 
     protected static final byte USER_PASSWORD = 2;
