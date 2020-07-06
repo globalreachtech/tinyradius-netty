@@ -48,9 +48,8 @@ public class ServerDatagramCodec extends MessageToMessageCodec<DatagramPacket, R
             final RadiusRequest request = fromDatagram(dictionary, msg);
             logger.debug("Received request from {} - {}", remoteAddress, request);
             // log first before errors may be thrown
-            request.decodeRequest(secret); // todo bug? add tests
 
-            return new RequestCtx(request, new RadiusEndpoint(remoteAddress, secret));
+            return new RequestCtx(request.decodeRequest(secret), new RadiusEndpoint(remoteAddress, secret));
         } catch (RadiusPacketException e) {
             logger.warn("Could not decode Radius packet: {}", e.getMessage());
             return null;

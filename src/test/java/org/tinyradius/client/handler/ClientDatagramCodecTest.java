@@ -50,16 +50,18 @@ class ClientDatagramCodecTest {
     @Test
     void decodeSuccess() throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);
+        final String password = "myPw";
 
-        final RadiusResponse response = RadiusResponse.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList());
+        final RadiusResponse encodeResponse = RadiusResponse.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList())
+                .addAttribute("User-Password", password)
+                .encodeResponse("mySecret", requestAuth);
 
         final List<Object> out1 = new ArrayList<>();
-        codec.decode(ctx, response.encodeResponse("mySecret", requestAuth).toDatagram(
-                address, address), out1);
+        codec.decode(ctx, encodeResponse.toDatagram(address, address), out1);
 
         assertEquals(1, out1.size());
         final RadiusResponse actual = (RadiusResponse) out1.get(0);
-        assertEquals(response.toString(), actual.toString());
+        assertEquals(encodeResponse.toString(), actual.toString()); // should still be encoded
     }
 
     @Test

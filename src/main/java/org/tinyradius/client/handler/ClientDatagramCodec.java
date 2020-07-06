@@ -16,6 +16,7 @@ import java.util.List;
 
 import static org.tinyradius.packet.response.RadiusResponse.fromDatagram;
 
+// todo document clientCodec doesnt decode packets on inbound
 /**
  * Datagram codec for sending requests and receiving responses.
  */

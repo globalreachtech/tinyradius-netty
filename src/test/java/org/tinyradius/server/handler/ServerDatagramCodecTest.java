@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.dictionary.DefaultDictionary;
 import org.tinyradius.dictionary.Dictionary;
+import org.tinyradius.packet.request.AccessRequestPap;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
@@ -61,24 +62,29 @@ class ServerDatagramCodecTest {
     @Test
     void decodeEncodeSuccess() throws RadiusPacketException {
         final String secret = "mySecret";
+        final String password = "myPw";
         final ServerDatagramCodec codec = new ServerDatagramCodec(dictionary, address -> secret);
         when(ctx.channel()).thenReturn(mock(Channel.class));
 
         // create datagram
-        final RadiusRequest requestPacket = RadiusRequest.create(dictionary, (byte) 3, (byte) 1, null, Collections.emptyList()).encodeRequest(secret);
+        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList())
+                .addAttribute("User-Password", password)
+                .encodeRequest(secret);
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final DatagramPacket request = requestPacket.toDatagram(address, remoteAddress);
+        final DatagramPacket datagram = request.toDatagram(address, remoteAddress);
 
         // decode
         final ArrayList<Object> out1 = new ArrayList<>();
-        codec.decode(ctx, request, out1);
+        codec.decode(ctx, datagram, out1);
         assertEquals(1, out1.size());
 
         // check decoded
         final RequestCtx requestCtx = (RequestCtx) out1.get(0);
         assertEquals(remoteAddress, requestCtx.getEndpoint().getAddress());
         assertEquals(secret, requestCtx.getEndpoint().getSecret());
-        assertEquals(requestPacket, requestCtx.getRequest());
+        final AccessRequestPap decodedRequest = (AccessRequestPap) requestCtx.getRequest();
+        assertEquals(password, decodedRequest.getPassword().get());
+        assertEquals(1, decodedRequest.getId());
 
         final RadiusResponse responsePacket = RadiusResponse.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
 
@@ -90,6 +96,6 @@ class ServerDatagramCodecTest {
         // check encoded
         final DatagramPacket response = (DatagramPacket) out2.get(0);
         assertArrayEquals(response.content().array(),
-                responsePacket.encodeResponse(secret, requestPacket.getAuthenticator()).toDatagram(remoteAddress, address).content().array());
+                responsePacket.encodeResponse(secret, request.getAuthenticator()).toDatagram(remoteAddress, address).content().array());
     }
 }
