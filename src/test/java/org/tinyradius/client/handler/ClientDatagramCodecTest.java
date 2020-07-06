@@ -32,13 +32,13 @@ import static org.mockito.Mockito.when;
 import static org.tinyradius.packet.request.RadiusRequest.fromDatagram;
 
 @ExtendWith(MockitoExtension.class)
-class ClientPacketCodecTest {
+class ClientDatagramCodecTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
     private final EventExecutor eventExecutor = ImmediateEventExecutor.INSTANCE;
 
-    private final ClientPacketCodec codec = new ClientPacketCodec(dictionary);
+    private final ClientDatagramCodec codec = new ClientDatagramCodec(dictionary);
     private final InetSocketAddress address = new InetSocketAddress(0);
     private final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
@@ -58,7 +58,7 @@ class ClientPacketCodecTest {
                 address, address), out1);
 
         assertEquals(1, out1.size());
-        RadiusResponse actual = (RadiusResponse) out1.get(0);
+        final RadiusResponse actual = (RadiusResponse) out1.get(0);
         assertEquals(response.toString(), actual.toString());
     }
 

@@ -1,6 +1,7 @@
 package org.tinyradius.packet;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Packet type codes.
@@ -36,32 +37,34 @@ public class PacketType {
     public static final byte STATUS_REJECT = 48;
     public static final byte RESERVED = (byte) 255;
 
-    private static final HashMap<Byte, String> typeNames = new HashMap<>();
+    private static final Map<Byte, String> typeNames = setupTypeNames();
 
-    static {
-        typeNames.put(ACCESS_REQUEST, "Access-Request");
-        typeNames.put(ACCESS_ACCEPT, "Access-Accept");
-        typeNames.put(ACCESS_REJECT, "Access-Reject");
-        typeNames.put(ACCOUNTING_REQUEST, "Accounting-Request");
-        typeNames.put(ACCOUNTING_RESPONSE, "Accounting-Response");
-        typeNames.put(ACCOUNTING_STATUS, "Accounting-Status");
-        typeNames.put(PASSWORD_REQUEST, "Password-Request");
-        typeNames.put(PASSWORD_ACCEPT, "Password-Accept");
-        typeNames.put(PASSWORD_REJECT, "Password-Reject");
-        typeNames.put(ACCOUNTING_MESSAGE, "Accounting-Message");
-        typeNames.put(ACCESS_CHALLENGE, "Access-Challenge");
-        typeNames.put(STATUS_SERVER, "Status-Server");
-        typeNames.put(STATUS_CLIENT, "Status-Client");
-        typeNames.put(DISCONNECT_REQUEST, "Disconnect-Request");
-        typeNames.put(DISCONNECT_ACK, "Disconnect-ACK");
-        typeNames.put(DISCONNECT_NAK, "Disconnect-NAK");
-        typeNames.put(COA_REQUEST, "CoA-Request");
-        typeNames.put(COA_ACK, "CoA-ACK");
-        typeNames.put(COA_NAK, "CoA-NAK");
-        typeNames.put(STATUS_REQUEST, "Status-Request");
-        typeNames.put(STATUS_ACCEPT, "Status-Accept");
-        typeNames.put(STATUS_REJECT, "Status-Reject");
-        typeNames.put(RESERVED, "Reserved");
+    private static Map<Byte, String> setupTypeNames() {
+        final Map<Byte, String> map = new HashMap<>();
+        map.put(ACCESS_REQUEST, "Access-Request");
+        map.put(ACCESS_ACCEPT, "Access-Accept");
+        map.put(ACCESS_REJECT, "Access-Reject");
+        map.put(ACCOUNTING_REQUEST, "Accounting-Request");
+        map.put(ACCOUNTING_RESPONSE, "Accounting-Response");
+        map.put(ACCOUNTING_STATUS, "Accounting-Status");
+        map.put(PASSWORD_REQUEST, "Password-Request");
+        map.put(PASSWORD_ACCEPT, "Password-Accept");
+        map.put(PASSWORD_REJECT, "Password-Reject");
+        map.put(ACCOUNTING_MESSAGE, "Accounting-Message");
+        map.put(ACCESS_CHALLENGE, "Access-Challenge");
+        map.put(STATUS_SERVER, "Status-Server");
+        map.put(STATUS_CLIENT, "Status-Client");
+        map.put(DISCONNECT_REQUEST, "Disconnect-Request");
+        map.put(DISCONNECT_ACK, "Disconnect-ACK");
+        map.put(DISCONNECT_NAK, "Disconnect-NAK");
+        map.put(COA_REQUEST, "CoA-Request");
+        map.put(COA_ACK, "CoA-ACK");
+        map.put(COA_NAK, "CoA-NAK");
+        map.put(STATUS_REQUEST, "Status-Request");
+        map.put(STATUS_ACCEPT, "Status-Accept");
+        map.put(STATUS_REJECT, "Status-Reject");
+        map.put(RESERVED, "Reserved");
+        return map;
     }
 
     private PacketType() {

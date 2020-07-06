@@ -8,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.RadiusRequest;
-import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
 import org.tinyradius.server.SecretProvider;
@@ -24,14 +23,14 @@ import static org.tinyradius.packet.request.RadiusRequest.fromDatagram;
  * Datagram codec for receiving requests and sending responses
  */
 @ChannelHandler.Sharable
-public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, ResponseCtx> {
+public class ServerDatagramCodec extends MessageToMessageCodec<DatagramPacket, ResponseCtx> {
 
     private static final Logger logger = LogManager.getLogger();
 
     private final Dictionary dictionary;
     private final SecretProvider secretProvider;
 
-    public ServerPacketCodec(Dictionary dictionary, SecretProvider secretProvider) {
+    public ServerDatagramCodec(Dictionary dictionary, SecretProvider secretProvider) {
         this.dictionary = dictionary;
         this.secretProvider = secretProvider;
     }
@@ -46,9 +45,10 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
         }
 
         try {
-            RadiusRequest request = fromDatagram(dictionary, msg);
+            final RadiusRequest request = fromDatagram(dictionary, msg);
             logger.debug("Received request from {} - {}", remoteAddress, request);
-            request.decodeRequest(secret);
+            // log first before errors may be thrown
+            request.decodeRequest(secret); // todo bug? add tests
 
             return new RequestCtx(request, new RadiusEndpoint(remoteAddress, secret));
         } catch (RadiusPacketException e) {
@@ -59,10 +59,10 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
 
     protected DatagramPacket encodePacket(InetSocketAddress localAddress, ResponseCtx msg) {
         try {
-            final RadiusResponse packet = msg.getResponse()
-                    .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator());
-            final DatagramPacket datagramPacket = packet.toDatagram(
-                    msg.getEndpoint().getAddress(), localAddress);
+            final DatagramPacket datagramPacket = msg
+                    .getResponse()
+                    .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator())
+                    .toDatagram(msg.getEndpoint().getAddress(), localAddress);
             logger.debug("Sending response to {}", msg.getEndpoint().getAddress());
             return datagramPacket;
         } catch (RadiusPacketException e) {
