@@ -29,8 +29,8 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.packet.util.PacketType.ACCESS_ACCEPT;
-import static org.tinyradius.packet.util.PacketType.ACCOUNTING_RESPONSE;
+import static org.tinyradius.packet.PacketType.ACCESS_ACCEPT;
+import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
 
 @ExtendWith(MockitoExtension.class)
 class PromiseAdapterTest {

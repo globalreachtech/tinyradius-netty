@@ -27,7 +27,7 @@ import org.tinyradius.server.handler.ServerPacketCodec;
 
 import java.net.InetSocketAddress;
 
-import static org.tinyradius.packet.util.PacketType.*;
+import static org.tinyradius.packet.PacketType.*;
 
 /**
  * TestServer can answer both to Access-Request and Access-Response

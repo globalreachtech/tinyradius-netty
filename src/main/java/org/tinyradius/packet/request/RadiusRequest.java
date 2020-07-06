@@ -1,5 +1,6 @@
 package org.tinyradius.packet.request;
 
+import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
@@ -7,8 +8,8 @@ import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
-import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
-import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
+import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
+import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 
 public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
 
@@ -36,6 +37,22 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
     }
 
     /**
+     * Reads a request from the given input stream and
+     * creates an appropriate RadiusPacket/subclass.
+     * <p>
+     * Decodes the encrypted fields and attributes of the packet, and checks
+     * authenticator if appropriate.
+     *
+     * @param dictionary dictionary to use for attributes
+     * @param datagram   DatagramPacket to read packet from
+     * @return new RadiusPacket object
+     * @throws RadiusPacketException malformed packet
+     */
+    static RadiusRequest fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
+        return RadiusPacket.fromByteBuf(dictionary, datagram.content());
+    }
+
+    /**
      * Encode request and generate authenticator.
      * <p>
      * Must be idempotent.
@@ -56,5 +73,5 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
      * @return verified RadiusRequest with decoded attributes if appropriate
      * @throws RadiusPacketException if authenticator check fails
      */
-     RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException;
+    RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException;
 }

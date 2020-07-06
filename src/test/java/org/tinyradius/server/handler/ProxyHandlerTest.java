@@ -27,7 +27,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.tinyradius.packet.util.PacketType.ACCOUNTING_RESPONSE;
+import static org.tinyradius.packet.PacketType.ACCOUNTING_RESPONSE;
 
 @ExtendWith(MockitoExtension.class)
 class ProxyHandlerTest {

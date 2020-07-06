@@ -10,13 +10,12 @@ import org.tinyradius.client.PendingRequestCtx;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.packet.response.RadiusResponse;
-import org.tinyradius.packet.util.PacketCodec;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import static org.tinyradius.packet.util.PacketCodec.fromDatagramResponse;
+import static org.tinyradius.packet.response.RadiusResponse.fromDatagram;
 
 /**
  * Datagram codec for sending requests and receiving responses.
@@ -35,8 +34,8 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
     protected DatagramPacket encodePacket(InetSocketAddress localAddress, PendingRequestCtx msg) {
         try {
             final RadiusRequest packet = msg.getRequest().encodeRequest(msg.getEndpoint().getSecret());
-            final DatagramPacket datagramPacket = PacketCodec.toDatagram(
-                    packet, msg.getEndpoint().getAddress(), localAddress);
+            final DatagramPacket datagramPacket = packet.toDatagram(
+                    msg.getEndpoint().getAddress(), localAddress);
             logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
             return datagramPacket;
         } catch (RadiusPacketException e) {
@@ -56,7 +55,7 @@ public class ClientPacketCodec extends MessageToMessageCodec<DatagramPacket, Pen
 
         try {
             // can't decode/verify until we know corresponding request auth
-            RadiusResponse response = fromDatagramResponse(dictionary, msg);
+            RadiusResponse response = fromDatagram(dictionary, msg);
             logger.debug("Received response from {} - {}", remoteAddress, response);
             return response;
         } catch (RadiusPacketException e) {

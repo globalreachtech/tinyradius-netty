@@ -14,7 +14,6 @@ import org.tinyradius.packet.response.RadiusResponse;
 import org.tinyradius.server.RequestCtx;
 import org.tinyradius.server.ResponseCtx;
 import org.tinyradius.util.RadiusEndpoint;
-import org.tinyradius.util.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.tinyradius.packet.util.PacketType.ACCESS_ACCEPT;
+import static org.tinyradius.packet.PacketType.ACCESS_ACCEPT;
 
 @ExtendWith(MockitoExtension.class)
 class BasicCachingHandlerTest {

@@ -12,7 +12,7 @@ import java.util.Collections;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.tinyradius.packet.util.PacketType.ACCOUNTING_REQUEST;
+import static org.tinyradius.packet.PacketType.ACCOUNTING_REQUEST;
 
 class AccountingRequestTest {
 

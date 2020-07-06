@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
-import static org.tinyradius.packet.util.PacketType.ACCESS_REQUEST;
+import static org.tinyradius.packet.PacketType.ACCESS_REQUEST;
 
 /**
  * This class represents an Access-Request Radius packet.

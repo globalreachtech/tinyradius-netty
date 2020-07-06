@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.tinyradius.packet.util.PacketCodec.toDatagram;
+import static org.tinyradius.packet.RadiusPacket.toDatagram;
 
 @ExtendWith(MockitoExtension.class)
 class ServerPacketCodecTest {
@@ -50,7 +50,7 @@ class ServerPacketCodecTest {
     @Test
     void decodeExceptionDropPacket() throws RadiusPacketException {
         final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList()).encodeRequest("mySecret");
-        final DatagramPacket datagram = toDatagram(request, address);
+        final DatagramPacket datagram = request.toDatagram(address);
         final ServerPacketCodec codec = new ServerPacketCodec(dictionary, x -> "bad secret");
 
         final List<Object> out1 = new ArrayList<>();
@@ -68,7 +68,7 @@ class ServerPacketCodecTest {
         // create datagram
         final RadiusRequest requestPacket = RadiusRequest.create(dictionary, (byte) 3, (byte) 1, null, Collections.emptyList()).encodeRequest(secret);
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final DatagramPacket request = toDatagram(requestPacket, address, remoteAddress);
+        final DatagramPacket request = requestPacket.toDatagram(address, remoteAddress);
 
         // decode
         final ArrayList<Object> out1 = new ArrayList<>();
@@ -91,6 +91,6 @@ class ServerPacketCodecTest {
         // check encoded
         final DatagramPacket response = (DatagramPacket) out2.get(0);
         assertArrayEquals(response.content().array(),
-                toDatagram(responsePacket.encodeResponse(secret, requestPacket.getAuthenticator()), remoteAddress, address).content().array());
+                responsePacket.encodeResponse(secret, requestPacket.getAuthenticator()).toDatagram(remoteAddress, address).content().array());
     }
 }

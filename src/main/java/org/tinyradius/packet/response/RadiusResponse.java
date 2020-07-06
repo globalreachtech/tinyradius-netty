@@ -1,13 +1,15 @@
 package org.tinyradius.packet.response;
 
+import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.attribute.type.RadiusAttribute;
 import org.tinyradius.dictionary.Dictionary;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
-import static org.tinyradius.packet.util.PacketType.*;
+import static org.tinyradius.packet.PacketType.*;
 
 public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
 
@@ -34,6 +36,23 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
             default:
                 return new GenericResponse(dictionary, type, identifier, authenticator, attributes);
         }
+    }
+
+    /**
+     * Reads a response from the given input stream and
+     * creates an appropriate RadiusPacket/subclass.
+     * <p>
+     * Decodes the encrypted fields and attributes of the packet, and checks
+     * authenticator if appropriate.
+     *
+     * @param dictionary dictionary to use for attributes
+     * @param datagram   DatagramPacket to read packet from
+     * @return new RadiusPacket object
+     * @throws RadiusPacketException malformed packet
+     */
+    static RadiusResponse fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
+        final RadiusRequest rr = RadiusPacket.fromByteBuf(dictionary, datagram.content());
+        return create(rr.getDictionary(), rr.getType(), rr.getId(), rr.getAuthenticator(), rr.getAttributes());
     }
 
     /**

@@ -7,7 +7,7 @@ import org.tinyradius.util.RadiusPacketException;
 
 import java.util.List;
 
-import static org.tinyradius.packet.util.PacketType.*;
+import static org.tinyradius.packet.PacketType.*;
 
 public class AccessResponse extends GenericResponse implements MessageAuthSupport<RadiusResponse> {
 

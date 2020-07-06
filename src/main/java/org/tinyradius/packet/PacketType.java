@@ -1,4 +1,4 @@
-package org.tinyradius.packet.util;
+package org.tinyradius.packet;
 
 import java.util.HashMap;
 

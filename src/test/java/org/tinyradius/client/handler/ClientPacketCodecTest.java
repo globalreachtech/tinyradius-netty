@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.tinyradius.packet.util.PacketCodec.fromDatagramRequest;
-import static org.tinyradius.packet.util.PacketCodec.toDatagram;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.tinyradius.packet.request.RadiusRequest.fromDatagram;
 
 @ExtendWith(MockitoExtension.class)
 class ClientPacketCodecTest {
@@ -54,8 +54,8 @@ class ClientPacketCodecTest {
         final RadiusResponse response = RadiusResponse.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList());
 
         final List<Object> out1 = new ArrayList<>();
-        codec.decode(ctx, toDatagram(
-                response.encodeResponse("mySecret", requestAuth), address, address), out1);
+        codec.decode(ctx, response.encodeResponse("mySecret", requestAuth).toDatagram(
+                address, address), out1);
 
         assertEquals(1, out1.size());
         RadiusResponse actual = (RadiusResponse) out1.get(0);
@@ -68,8 +68,8 @@ class ClientPacketCodecTest {
 
         final RadiusResponse response = RadiusResponse.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList());
 
-        final DatagramPacket datagram = toDatagram(
-                response.encodeResponse("mySecret", requestAuth), address, address);
+        final DatagramPacket datagram = response.encodeResponse("mySecret", requestAuth).toDatagram(
+                address, address);
 
         datagram.content().array()[3] = 7; // corrupt bytes to trigger error
 
@@ -86,8 +86,8 @@ class ClientPacketCodecTest {
         final RadiusResponse response = RadiusResponse.create(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList());
 
         final List<Object> out1 = new ArrayList<>();
-        codec.decode(ctx, toDatagram(
-                response.encodeResponse("mySecret", requestAuth), address), out1);
+        codec.decode(ctx, response.encodeResponse("mySecret", requestAuth).toDatagram(
+                address), out1);
 
         assertTrue(out1.isEmpty());
     }
@@ -111,7 +111,7 @@ class ClientPacketCodecTest {
         codec.encode(ctx, new PendingRequestCtx(accessRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
-        final AccessRequestPap sentAccessPacket = (AccessRequestPap) fromDatagramRequest(dictionary, (DatagramPacket) out1.get(0))
+        final AccessRequestPap sentAccessPacket = (AccessRequestPap) fromDatagram(dictionary, (DatagramPacket) out1.get(0))
                 .decodeRequest(secret);
 
         // check user details correctly encoded
