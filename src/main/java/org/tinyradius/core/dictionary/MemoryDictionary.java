@@ -86,8 +86,8 @@ public class MemoryDictionary implements WritableDictionary {
 
         // support multiple names with same code for compatibility
         if (vendorAttributes.containsKey(typeCode))
-            logger.warn("Duplicate type code [" + vendorId + "," + toUnsignedInt(typeCode) + "], overwriting " +
-                    vendorAttributes.get(typeCode).getName() + " with " + attributeTemplate.getName());
+            logger.warn("Duplicate type code [{},{}], overwriting {} with {}",
+                    vendorId, toUnsignedInt(typeCode), vendorAttributes.get(typeCode).getName(), attributeTemplate.getName());
 
         vendorAttributes.put(typeCode, attributeTemplate);
     }
