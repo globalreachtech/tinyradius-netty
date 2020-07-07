@@ -189,7 +189,7 @@ public class DictionaryParser {
 
         return d -> d.getAttributeTemplate(attributeName)
                 .orElseThrow(() -> new RuntimeException(new IOException("Unknown attribute type: " + attributeName + ", line: " + lineNum)))
-                .addEnumerationValue(Integer.parseInt(valStr), enumName);
+                .addEnumerationValue(Integer.decode(valStr), enumName);
     }
 
     /**

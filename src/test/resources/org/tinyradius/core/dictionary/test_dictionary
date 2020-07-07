@@ -10,3 +10,15 @@ ATTRIBUTE	Tunnel-Type				64	integer	has_tag
 ATTRIBUTE	Tunnel-Medium-Type			65	integer	has_tag
 ATTRIBUTE	Tunnel-Client-Endpoint			66	string	has_tag
 ATTRIBUTE	Tunnel-Server-Endpoint			67	string	has_tag
+
+#
+#	Define additional Bay Networks specific values for the main
+#	RADIUS dictionary
+#
+#	Note that '0x0630' == 1584, which is the Vendor-ID for Bay Networks.
+#	Nice design, and probably the best way of adding vendor-specific
+#	VALUE extensions to the standard RADIUS attributes.
+#
+
+VALUE	Service-Type			Annex-Authorize-Only	0x06300001
+VALUE	Acct-Status-Type		Annex-User-Reject	0x06300001

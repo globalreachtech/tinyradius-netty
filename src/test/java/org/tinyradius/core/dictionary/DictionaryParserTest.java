@@ -128,7 +128,23 @@ class DictionaryParserTest {
         final AttributeTemplate template = dictionary.getAttributeTemplate("Timetra-Restrict-To-Home").get();
 
         assertEquals("true", template.getEnumeration(1));
+        assertEquals(1, template.getEnumeration("true"));
         assertEquals("false", template.getEnumeration(2));
+        assertEquals(2, template.getEnumeration("false"));
+    }
+
+    @Test
+    void valueAttributeNonDecimal() throws IOException {
+        final Dictionary dictionary = DictionaryParser.newClasspathParser()
+                .parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
+
+        final AttributeTemplate serviceType = dictionary.getAttributeTemplate("Service-Type").get();
+        assertEquals(0x06300001, serviceType.getEnumeration("Annex-Authorize-Only"));
+        assertEquals("Annex-Authorize-Only", serviceType.getEnumeration(0x06300001));
+
+        final AttributeTemplate acctStatusType = dictionary.getAttributeTemplate("Acct-Status-Type").get();
+        assertEquals(0x06300001, acctStatusType.getEnumeration("Annex-User-Reject"));
+        assertEquals("Annex-User-Reject", acctStatusType.getEnumeration(0x06300001));
     }
 
     @Test
