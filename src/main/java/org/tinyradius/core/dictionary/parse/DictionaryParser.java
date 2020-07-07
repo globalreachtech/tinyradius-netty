@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Parses a dictionary in Radiator format and fills a WritableDictionary.
@@ -18,6 +21,7 @@ public class DictionaryParser {
     private final ResourceResolver resourceResolver;
 
     private int currentVendor = -1;
+    private final List<Consumer<WritableDictionary>> deferred = new LinkedList<>();
 
     private DictionaryParser(ResourceResolver resourceResolver) {
         this.resourceResolver = resourceResolver;
@@ -65,6 +69,16 @@ public class DictionaryParser {
             }
 
             currentVendor = -1;
+
+            try {
+                for (Consumer<WritableDictionary> d : deferred) {
+                    d.accept(dictionary);
+                }
+            } catch (RuntimeException e) {
+                if (e.getCause() instanceof IOException)
+                    throw (IOException) e.getCause();
+                throw e;
+            }
         }
     }
 
@@ -96,7 +110,7 @@ public class DictionaryParser {
                 parseAttribute(dictionary, tokens, lineNum);
                 break;
             case "VALUE":
-                parseValue(dictionary, tokens, lineNum);
+                deferred.add(parseValue(tokens, lineNum));
                 break;
             case "$INCLUDE":
                 includeDictionaryFile(dictionary, tokens, lineNum, resource);
@@ -161,8 +175,10 @@ public class DictionaryParser {
 
     /**
      * Parses a VALUE line containing an enumeration value.
+     *
+     * @return deferred Dictionary write, so it can be processed before ATTRIBUTE
      */
-    private void parseValue(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
+    private Consumer<WritableDictionary> parseValue(String[] tok, int lineNum) throws IOException {
         if (tok.length != 4) {
             throw new IOException("VALUE parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
@@ -171,11 +187,10 @@ public class DictionaryParser {
         final String enumName = tok[2];
         final String valStr = tok[3];
 
-        dictionary.getAttributeTemplate(attributeName)
-                .orElseThrow(() -> new IOException("Unknown attribute type: " + attributeName + ", line: " + lineNum))
+        return d -> d.getAttributeTemplate(attributeName)
+                .orElseThrow(() -> new RuntimeException(new IOException("Unknown attribute type: " + attributeName + ", line: " + lineNum)))
                 .addEnumerationValue(Integer.parseInt(valStr), enumName);
     }
-
 
     /**
      * Parses a line containing a vendor declaration.

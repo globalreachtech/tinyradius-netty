@@ -4,6 +4,7 @@ $INCLUDE default_dictionary           # comment end of line
 $INCLUDE dictionary.rfc5904
 $INCLUDE dictionary.ascend
 $INCLUDE dictionary.wispr
+$INCLUDE dictionary.alcatel.sr
 
 ATTRIBUTE	Tunnel-Type				64	integer	has_tag
 ATTRIBUTE	Tunnel-Medium-Type			65	integer	has_tag

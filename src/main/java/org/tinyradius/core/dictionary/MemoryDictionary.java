@@ -1,5 +1,7 @@
 package org.tinyradius.core.dictionary;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.attribute.AttributeTemplate;
 
 import java.util.HashMap;
@@ -15,6 +17,8 @@ import static java.lang.Byte.toUnsignedInt;
  * <code>addVendor</code>.
  */
 public class MemoryDictionary implements WritableDictionary {
+
+    private static final Logger logger = LogManager.getLogger();
 
     private final Map<Integer, String> vendorsByCode = new HashMap<>();
     private final Map<Integer, Map<Byte, AttributeTemplate>> attributesByCode = new HashMap<>();
@@ -75,12 +79,16 @@ public class MemoryDictionary implements WritableDictionary {
         if (attributesByName.containsKey(attributeName))
             throw new IllegalArgumentException("Duplicate attribute name: " + attributeName);
 
-        Map<Byte, AttributeTemplate> vendorAttributes = attributesByCode
-                .computeIfAbsent(vendorId, k -> new HashMap<>());
-        if (vendorAttributes.containsKey(typeCode))
-            throw new IllegalArgumentException("Duplicate type code: " + toUnsignedInt(typeCode));
-
         attributesByName.put(attributeName, attributeTemplate);
+
+        final Map<Byte, AttributeTemplate> vendorAttributes = attributesByCode
+                .computeIfAbsent(vendorId, k -> new HashMap<>());
+
+        // support multiple names with same code for compatibility
+        if (vendorAttributes.containsKey(typeCode))
+            logger.warn("Duplicate type code [" + vendorId + "," + toUnsignedInt(typeCode) + "], overwriting " +
+                    vendorAttributes.get(typeCode).getName() + " with " + attributeTemplate.getName());
+
         vendorAttributes.put(typeCode, attributeTemplate);
     }
 }

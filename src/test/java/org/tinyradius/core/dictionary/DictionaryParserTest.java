@@ -119,6 +119,19 @@ class DictionaryParserTest {
     }
 
     @Test
+    void valueEnumDeferred() throws IOException {
+        // parse VALUE before corresponding ATTRIBUTE
+
+        final Dictionary dictionary = DictionaryParser.newClasspathParser()
+                .parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
+
+        final AttributeTemplate template = dictionary.getAttributeTemplate("Timetra-Restrict-To-Home").get();
+
+        assertEquals("true", template.getEnumeration(1));
+        assertEquals("false", template.getEnumeration(2));
+    }
+
+    @Test
     void fileSystemIncludeDict() throws IOException {
         final Path tmpPath = Files.createTempDirectory("tinyradius_test_");
         copyDict(tmpPath, TEST_DICTIONARY);
@@ -126,6 +139,7 @@ class DictionaryParserTest {
         copyDict(tmpPath, "dictionary.rfc5904");
         copyDict(tmpPath, "dictionary.wispr");
         copyDict(tmpPath, "dictionary.ascend");
+        copyDict(tmpPath, "dictionary.alcatel.sr");
 
         final DictionaryParser parser = DictionaryParser.newFileParser();
         final Dictionary dictionary = parser.parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
