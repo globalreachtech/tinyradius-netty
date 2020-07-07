@@ -23,7 +23,7 @@ import org.tinyradius.server.ResponseCtx;
 import org.tinyradius.server.SecretProvider;
 import org.tinyradius.server.handler.BasicCachingHandler;
 import org.tinyradius.server.handler.RequestHandler;
-import org.tinyradius.server.handler.ServerDatagramCodec;
+import org.tinyradius.server.handler.ServerPacketCodec;
 
 import java.net.InetSocketAddress;
 
@@ -49,7 +49,7 @@ public class TestServer {
         final SecretProvider secretProvider = remote ->
                 remote.getAddress().getHostAddress().equals("127.0.0.1") ? "testing123" : null;
 
-        final ServerDatagramCodec serverDatagramCodec = new ServerDatagramCodec(dictionary, secretProvider);
+        final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(dictionary, secretProvider);
 
         final Timer timer = new HashedWheelTimer();
         final BasicCachingHandler<RequestCtx, ResponseCtx> cachingHandlerAuth =
@@ -64,13 +64,13 @@ public class TestServer {
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
                     protected void initChannel(DatagramChannel ch) {
-                        ch.pipeline().addLast(serverDatagramCodec, cachingHandlerAuth, simpleAccessHandler);
+                        ch.pipeline().addLast(serverPacketCodec, cachingHandlerAuth, simpleAccessHandler);
                     }
                 },
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
                     protected void initChannel(DatagramChannel ch) {
-                        ch.pipeline().addLast(serverDatagramCodec, cachingHandlerAcct, simpleAccountingHandler);
+                        ch.pipeline().addLast(serverPacketCodec, cachingHandlerAcct, simpleAccountingHandler);
                     }
                 },
                 new InetSocketAddress(11812), new InetSocketAddress(11813))) {

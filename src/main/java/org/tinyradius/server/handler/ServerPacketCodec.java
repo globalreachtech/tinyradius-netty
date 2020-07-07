@@ -20,28 +20,45 @@ import java.util.List;
 import static org.tinyradius.packet.request.RadiusRequest.fromDatagram;
 
 /**
- * Datagram codec for receiving requests and sending responses
+ * Codec for receiving requests and sending responses.
+ * <p>
+ * Both converts to/from datagrams and calls encodeResponse() / decodeRequest()
  */
 @ChannelHandler.Sharable
-public class ServerDatagramCodec extends MessageToMessageCodec<DatagramPacket, ResponseCtx> {
+public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, ResponseCtx> {
 
     private static final Logger logger = LogManager.getLogger();
 
     private final Dictionary dictionary;
     private final SecretProvider secretProvider;
 
-    public ServerDatagramCodec(Dictionary dictionary, SecretProvider secretProvider) {
+    public ServerPacketCodec(Dictionary dictionary, SecretProvider secretProvider) {
         this.dictionary = dictionary;
         this.secretProvider = secretProvider;
     }
 
-    protected RequestCtx decodePacket(DatagramPacket msg) {
+    @Override
+    protected void encode(ChannelHandlerContext ctx, ResponseCtx msg, List<Object> out) {
+        try {
+            final DatagramPacket datagramPacket = msg
+                    .getResponse()
+                    .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator())
+                    .toDatagram(msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
+            logger.debug("Sending response to {}", msg.getEndpoint().getAddress());
+            out.add(datagramPacket);
+        } catch (RadiusPacketException e) {
+            logger.warn("Could not encode Radius packet: {}", e.getMessage());
+        }
+    }
+
+    @Override
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
         final InetSocketAddress remoteAddress = msg.sender();
 
         String secret = secretProvider.getSharedSecret(remoteAddress);
         if (secret == null) {
             logger.warn("Ignoring request from {}, shared secret lookup failed", remoteAddress);
-            return null;
+            return;
         }
 
         try {
@@ -49,38 +66,9 @@ public class ServerDatagramCodec extends MessageToMessageCodec<DatagramPacket, R
             logger.debug("Received request from {} - {}", remoteAddress, request);
             // log first before errors may be thrown
 
-            return new RequestCtx(request.decodeRequest(secret), new RadiusEndpoint(remoteAddress, secret));
+            out.add(new RequestCtx(request.decodeRequest(secret), new RadiusEndpoint(remoteAddress, secret)));
         } catch (RadiusPacketException e) {
             logger.warn("Could not decode Radius packet: {}", e.getMessage());
-            return null;
         }
-    }
-
-    protected DatagramPacket encodePacket(InetSocketAddress localAddress, ResponseCtx msg) {
-        try {
-            final DatagramPacket datagramPacket = msg
-                    .getResponse()
-                    .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator())
-                    .toDatagram(msg.getEndpoint().getAddress(), localAddress);
-            logger.debug("Sending response to {}", msg.getEndpoint().getAddress());
-            return datagramPacket;
-        } catch (RadiusPacketException e) {
-            logger.warn("Could not encode Radius packet: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
-    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
-        final RequestCtx requestCtx = decodePacket(msg);
-        if (requestCtx != null)
-            out.add(requestCtx);
-    }
-
-    @Override
-    protected void encode(ChannelHandlerContext ctx, ResponseCtx msg, List<Object> out) {
-        final DatagramPacket datagramPacket = encodePacket((InetSocketAddress) ctx.channel().localAddress(), msg);
-        if (datagramPacket != null)
-            out.add(datagramPacket);
     }
 }

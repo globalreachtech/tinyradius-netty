@@ -103,7 +103,8 @@ class ClientDatagramCodecTest {
 
         final RadiusRequest accessRequest = new AccessRequestPap(dictionary, id, null, Collections.emptyList())
                 .withPassword(password)
-                .addAttribute(USER_NAME, username);
+                .addAttribute(USER_NAME, username)
+                .encodeRequest(secret);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
         when(ctx.channel()).thenReturn(mock(Channel.class));

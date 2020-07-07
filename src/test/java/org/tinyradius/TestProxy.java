@@ -20,7 +20,7 @@ import org.tinyradius.packet.request.RadiusRequest;
 import org.tinyradius.server.RadiusServer;
 import org.tinyradius.server.SecretProvider;
 import org.tinyradius.server.handler.ProxyHandler;
-import org.tinyradius.server.handler.ServerDatagramCodec;
+import org.tinyradius.server.handler.ServerPacketCodec;
 import org.tinyradius.util.RadiusEndpoint;
 
 import java.net.InetAddress;
@@ -73,7 +73,7 @@ public class TestProxy {
         final ChannelInitializer<DatagramChannel> channelInitializer = new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-                ch.pipeline().addLast(new ServerDatagramCodec(dictionary, secretProvider), new ProxyHandler(radiusClient) {
+                ch.pipeline().addLast(new ServerPacketCodec(dictionary, secretProvider), new ProxyHandler(radiusClient) {
                     @Override
                     public Optional<RadiusEndpoint> getProxyServer(RadiusRequest request, RadiusEndpoint client) {
                         try {

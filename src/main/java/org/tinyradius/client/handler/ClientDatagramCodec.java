@@ -16,9 +16,10 @@ import java.util.List;
 
 import static org.tinyradius.packet.response.RadiusResponse.fromDatagram;
 
-// todo document clientCodec doesnt decode packets on inbound
 /**
  * Datagram codec for sending requests and receiving responses.
+ * <p>
+ * Only manages datagram conversion, does not call encodeRequest() / decodeResponse().
  */
 @ChannelHandler.Sharable
 public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, PendingRequestCtx> {
@@ -31,27 +32,27 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
         this.dictionary = dictionary;
     }
 
-    protected DatagramPacket encodePacket(InetSocketAddress localAddress, PendingRequestCtx msg) {
+    @Override
+    protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
         try {
             final DatagramPacket datagramPacket = msg
                     .getRequest()
-                    .encodeRequest(msg.getEndpoint().getSecret())
-                    .toDatagram(msg.getEndpoint().getAddress(), localAddress);
+                    .toDatagram(msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
             logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
-            return datagramPacket;
+            out.add(datagramPacket);
         } catch (RadiusPacketException e) {
             logger.warn("Could not encode Radius packet: {}", e.getMessage());
             msg.getResponse().tryFailure(e);
-            return null;
         }
     }
 
-    protected RadiusResponse decodePacket(DatagramPacket msg) {
-        InetSocketAddress remoteAddress = msg.sender();
+    @Override
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
+        final InetSocketAddress remoteAddress = msg.sender();
 
         if (remoteAddress == null) {
             logger.warn("Ignoring response, remoteAddress is null");
-            return null;
+            return;
         }
 
         try {
@@ -59,24 +60,9 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
             logger.debug("Received response from {} - {}", remoteAddress, response);
 
             // can't decode/verify until we know corresponding request auth
-            return response;
+            out.add(response);
         } catch (RadiusPacketException e) {
             logger.warn("Could not decode Radius packet: {}", e.getMessage());
-            return null;
         }
-    }
-
-    @Override
-    protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
-        final DatagramPacket datagramPacket = encodePacket((InetSocketAddress) ctx.channel().localAddress(), msg);
-        if (datagramPacket != null)
-            out.add(datagramPacket);
-    }
-
-    @Override
-    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
-        final RadiusResponse radiusPacket = decodePacket(msg);
-        if (radiusPacket != null)
-            out.add(radiusPacket);
     }
 }
