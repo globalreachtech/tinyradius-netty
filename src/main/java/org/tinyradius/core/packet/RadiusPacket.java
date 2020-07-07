@@ -195,7 +195,6 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
-        final int HEADER_LENGTH = 20;
         final byte[] attributeBytes = getAttributeBytes();
         final int length = HEADER_LENGTH + attributeBytes.length;
 

@@ -147,8 +147,9 @@ class VendorSpecificAttributeTest {
 
     @Test
     void vsaToByteArrayWithNoSubAttributes() {
+        final List<RadiusAttribute> list = Collections.emptyList();
         Exception exception = assertThrows(RuntimeException.class,
-                () -> new VendorSpecificAttribute(dictionary, 14122, Collections.emptyList()));
+                () -> new VendorSpecificAttribute(dictionary, 14122, list));
         assertTrue(exception.getMessage().toLowerCase().contains("should be greater than 6 octets"));
     }
 

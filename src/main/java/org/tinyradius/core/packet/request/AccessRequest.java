@@ -2,11 +2,11 @@ package org.tinyradius.core.packet.request;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.PacketType;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -45,11 +45,11 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
      *                      or a stub AccessRequest will be returned
      * @return AccessRequest auth mechanism-specific implementation
      */
-    static AccessRequest<?> create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    static RadiusRequest create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
         return lookupAuthType(attributes).newInstance(dictionary, identifier, authenticator, attributes);
     }
 
-    public static AccessRequestFactory<?> lookupAuthType(List<RadiusAttribute> attributes) {
+    private static AccessRequestFactory<?> lookupAuthType(List<RadiusAttribute> attributes) {
         /*
          * An Access-Request that contains either a User-Password or
          * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
