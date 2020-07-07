@@ -11,23 +11,23 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tinyradius.dictionary.DefaultDictionary;
-import org.tinyradius.dictionary.Dictionary;
-import org.tinyradius.packet.request.AccessRequest;
-import org.tinyradius.packet.request.AccessRequestPap;
-import org.tinyradius.packet.request.RadiusRequest;
-import org.tinyradius.packet.response.RadiusResponse;
-import org.tinyradius.server.RadiusServer;
-import org.tinyradius.server.RequestCtx;
-import org.tinyradius.server.ResponseCtx;
-import org.tinyradius.server.SecretProvider;
-import org.tinyradius.server.handler.BasicCachingHandler;
-import org.tinyradius.server.handler.RequestHandler;
-import org.tinyradius.server.handler.ServerPacketCodec;
+import org.tinyradius.core.dictionary.DefaultDictionary;
+import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.packet.request.AccessRequest;
+import org.tinyradius.core.packet.request.AccessRequestPap;
+import org.tinyradius.core.packet.request.RadiusRequest;
+import org.tinyradius.core.packet.response.RadiusResponse;
+import org.tinyradius.io.server.RadiusServer;
+import org.tinyradius.io.server.RequestCtx;
+import org.tinyradius.io.server.ResponseCtx;
+import org.tinyradius.io.server.SecretProvider;
+import org.tinyradius.io.server.handler.BasicCachingHandler;
+import org.tinyradius.io.server.handler.RequestHandler;
+import org.tinyradius.io.server.handler.ServerPacketCodec;
 
 import java.net.InetSocketAddress;
 
-import static org.tinyradius.packet.PacketType.*;
+import static org.tinyradius.core.packet.PacketType.*;
 
 /**
  * TestServer can answer both to Access-Request and Access-Response
