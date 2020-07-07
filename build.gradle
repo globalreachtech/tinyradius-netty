@@ -9,7 +9,7 @@ plugins {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-def versionName = '1.4.1'
+def versionName = '1.4.2-SNAPSHOT'
 
 repositories {
     mavenCentral()
