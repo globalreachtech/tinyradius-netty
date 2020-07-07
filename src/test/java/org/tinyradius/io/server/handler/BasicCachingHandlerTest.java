@@ -36,8 +36,8 @@ class BasicCachingHandlerTest {
 
     @Test
     void cacheHitAndTimeout() {
-        final BasicCachingHandler<RequestCtx, ResponseCtx> basicCachingHandler =
-                new BasicCachingHandler<>(new HashedWheelTimer(), 500, RequestCtx.class, ResponseCtx.class);
+        final BasicCachingHandler basicCachingHandler =
+                new BasicCachingHandler(new HashedWheelTimer(), 500);
 
         final RadiusRequest request = new AccountingRequest(dictionary, (byte) 100, null, Collections.emptyList()).encodeRequest("test");
         final RequestCtx requestCtx = new RequestCtx(request, new RadiusEndpoint(new InetSocketAddress(0), "foo"));

@@ -18,26 +18,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
- * @param <I> Inbound object type
- * @param <O> Outbound object type
+ * Simple caching handler backed by ConcurrentHashMap, invalidates using {@link Timer}.
  */
-public class BasicCachingHandler<I extends RequestCtx, O extends ResponseCtx> extends MessageToMessageCodec<I, O> {
+public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, ResponseCtx> {
 
     private static final Logger logger = LogManager.getLogger();
 
     private final Timer timer;
     private final int ttlMs;
 
-    private final Map<Packet, O> requests = new ConcurrentHashMap<>();
+    private final Map<Packet, ResponseCtx> requests = new ConcurrentHashMap<>();
 
     /**
-     * @param timer         for cache eviction
-     * @param ttlMs         time for items to stay cached after being returned, in milliseconds
-     * @param inboundClass  explicit class due to type erasure
-     * @param outboundClass explicit class due to type erasure
+     * @param timer for cache eviction
+     * @param ttlMs time for items to stay cached after being returned, in milliseconds
      */
-    public BasicCachingHandler(Timer timer, int ttlMs, Class<I> inboundClass, Class<O> outboundClass) {
-        super(inboundClass, outboundClass);
+    public BasicCachingHandler(Timer timer, int ttlMs) {
         this.timer = timer;
         this.ttlMs = ttlMs;
     }
@@ -47,7 +43,7 @@ public class BasicCachingHandler<I extends RequestCtx, O extends ResponseCtx> ex
      * @param requestCtx inbound request context
      * @param out        list to which decoded messages should be added
      */
-    protected void onMiss(ChannelHandlerContext ctx, I requestCtx, List<Object> out) {
+    protected void onMiss(ChannelHandlerContext ctx, RequestCtx requestCtx, List<Object> out) {
         out.add(requestCtx);
     }
 
@@ -57,26 +53,26 @@ public class BasicCachingHandler<I extends RequestCtx, O extends ResponseCtx> ex
      * @param responseCtx outbound response context
      * @param out         list to which decoded messages should be added
      */
-    protected void onHit(ChannelHandlerContext ctx, I requestCtx, O responseCtx, List<Object> out) {
+    protected void onHit(ChannelHandlerContext ctx, RequestCtx requestCtx, ResponseCtx responseCtx, List<Object> out) {
         ctx.writeAndFlush(responseCtx);
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, I requestCtx, List<Object> out) {
+    protected void decode(ChannelHandlerContext ctx, RequestCtx requestCtx, List<Object> out) {
         final Packet packet = Packet.from(requestCtx);
-        final O responseContext = requests.get(packet);
+        final ResponseCtx responseContext = requests.get(packet);
 
         if (responseContext != null) {
-            logger.debug("Cache hit, resending response, id: {}, remote address: {}", packet.identifier, packet.remoteAddress);
+            logger.debug("Cache hit, resending response, id: {}, remote address: {}", packet.id, packet.remoteAddress);
             onHit(ctx, requestCtx, responseContext, out);
         } else {
-            logger.debug("Cache miss, proxying request, id: {}, remote address: {}", packet.identifier, packet.remoteAddress);
+            logger.debug("Cache miss, proxying request, id: {}, remote address: {}", packet.id, packet.remoteAddress);
             onMiss(ctx, requestCtx, out);
         }
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, O msg, List<Object> out) {
+    protected void encode(ChannelHandlerContext ctx, ResponseCtx msg, List<Object> out) {
         final Packet packet = Packet.from(msg);
         requests.put(packet, msg);
         timer.newTimeout(t -> requests.remove(packet), ttlMs, MILLISECONDS);
@@ -85,12 +81,12 @@ public class BasicCachingHandler<I extends RequestCtx, O extends ResponseCtx> ex
 
     private static class Packet {
 
-        private final int identifier;
+        private final int id;
         private final InetSocketAddress remoteAddress;
         private final byte[] authenticator;
 
-        private Packet(int identifier, InetSocketAddress remoteAddress, byte[] authenticator) {
-            this.identifier = identifier;
+        private Packet(int id, InetSocketAddress remoteAddress, byte[] authenticator) {
+            this.id = id;
             this.remoteAddress = remoteAddress;
             this.authenticator = authenticator;
         }
@@ -104,14 +100,14 @@ public class BasicCachingHandler<I extends RequestCtx, O extends ResponseCtx> ex
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Packet packet = (Packet) o;
-            return identifier == packet.identifier &&
+            return id == packet.id &&
                     Objects.equals(remoteAddress, packet.remoteAddress) &&
                     Arrays.equals(authenticator, packet.authenticator);
         }
 
         @Override
         public int hashCode() {
-            int result = Objects.hash(identifier, remoteAddress);
+            int result = Objects.hash(id, remoteAddress);
             result = 31 * result + Arrays.hashCode(authenticator);
             return result;
         }

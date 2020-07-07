@@ -19,7 +19,6 @@ import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.server.RadiusServer;
 import org.tinyradius.io.server.RequestCtx;
-import org.tinyradius.io.server.ResponseCtx;
 import org.tinyradius.io.server.SecretProvider;
 import org.tinyradius.io.server.handler.BasicCachingHandler;
 import org.tinyradius.io.server.handler.RequestHandler;
@@ -52,10 +51,8 @@ public class TestServer {
         final ServerPacketCodec serverPacketCodec = new ServerPacketCodec(dictionary, secretProvider);
 
         final Timer timer = new HashedWheelTimer();
-        final BasicCachingHandler<RequestCtx, ResponseCtx> cachingHandlerAuth =
-                new BasicCachingHandler<>(timer, 5000, RequestCtx.class, ResponseCtx.class);
-        final BasicCachingHandler<RequestCtx, ResponseCtx> cachingHandlerAcct =
-                new BasicCachingHandler<>(timer, 5000, RequestCtx.class, ResponseCtx.class);
+        final BasicCachingHandler cachingHandlerAuth = new BasicCachingHandler(timer, 5000);
+        final BasicCachingHandler cachingHandlerAcct = new BasicCachingHandler(timer, 5000);
 
         final SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler();
         final SimpleAccountingHandler simpleAccountingHandler = new SimpleAccountingHandler();

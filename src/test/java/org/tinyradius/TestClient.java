@@ -9,16 +9,17 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tinyradius.io.client.RadiusClient;
-import org.tinyradius.io.client.handler.ClientDatagramCodec;
-import org.tinyradius.io.client.handler.PromiseAdapter;
-import org.tinyradius.io.client.timeout.FixedTimeoutHandler;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.AccessRequestPap;
 import org.tinyradius.core.packet.request.AccountingRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
+import org.tinyradius.io.client.RadiusClient;
+import org.tinyradius.io.client.handler.BlacklistHandler;
+import org.tinyradius.io.client.handler.ClientDatagramCodec;
+import org.tinyradius.io.client.handler.PromiseAdapter;
+import org.tinyradius.io.client.timeout.FixedTimeoutHandler;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -59,7 +60,10 @@ public class TestClient {
                 bootstrap, new InetSocketAddress(0), new FixedTimeoutHandler(timer), new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-                ch.pipeline().addLast(new ClientDatagramCodec(dictionary), new PromiseAdapter());
+                ch.pipeline().addLast(
+                        new ClientDatagramCodec(dictionary),
+                        new PromiseAdapter(),
+                        new BlacklistHandler(60_000, 3));
             }
         });
 
