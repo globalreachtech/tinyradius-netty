@@ -1,3 +1,4 @@
+# testing flags with ATTRIBUTE
 ATTRIBUTE                                    PKM-Config-Settings    139     octets
 ATTRIBUTE                                   PKM-Cryptosuite-List    140     octets has_tag
 ATTRIBUTE                                               PKM-SAID    141      short encrypt=1

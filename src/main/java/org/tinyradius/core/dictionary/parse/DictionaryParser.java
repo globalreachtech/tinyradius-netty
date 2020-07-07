@@ -196,18 +196,18 @@ public class DictionaryParser {
      * Parses a line containing a vendor declaration.
      */
     private void parseVendor(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
-        if (tok.length != 3) {
+        if (tok.length < 3 || tok.length > 4) {
             throw new IOException("VENDOR parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
 
         try {
-            // Legacy TinyRadius format: VENDOR number vendor-name
+            // Legacy TinyRadius format: VENDOR number vendor-name [format]
             final int vendorId = Integer.parseInt(tok[1]);
             final String vendorName = tok[2];
 
             dictionary.addVendor(vendorId, vendorName);
         } catch (NumberFormatException e) {
-            // FreeRadius format: VENDOR vendor-name number
+            // FreeRadius format: VENDOR vendor-name number [format]
             try {
                 final String vendorName = tok[1];
                 final int vendorId = Integer.parseInt(tok[2]);

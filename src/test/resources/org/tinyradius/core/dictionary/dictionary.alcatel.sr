@@ -2,6 +2,7 @@ VENDOR		Alcatel-Lucent-Service-Router	6527
 
 BEGIN-VENDOR	Alcatel-Lucent-Service-Router
 
+# testing VALUE line before relevant ATTRIBUTE
 VALUE	Timetra-Restrict-To-Home	true			1
 VALUE	Timetra-Restrict-To-Home	false			2
 ATTRIBUTE	Timetra-Restrict-To-Home		3	integer

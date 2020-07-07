@@ -1,4 +1,4 @@
-# FreeRadius Format
+# testing VALUE and attribute flags with ATTRIBUTE / BEGIN-VENDOR
 
 VENDOR		Ascend				529
 
@@ -9,9 +9,6 @@ ATTRIBUTE	Ascend-Max-Shared-Users			2	integer  has_tag
 ATTRIBUTE	Ascend-UU-Info				7	string  encrypt=1
 ATTRIBUTE	Ascend-CIR-Timer			9	integer has_tag,encrypt=2
 ATTRIBUTE	Ascend-FR-08-Mode			10	integer encrypt=3,has_tag
-ATTRIBUTE	Ascend-Destination-Nas-Port		11	integer
-ATTRIBUTE	Ascend-FR-SVC-Addr			12	string
-ATTRIBUTE	Ascend-NAS-Port-Format			13	integer
 ATTRIBUTE	Ascend-Source-IP-Check			96	integer
 VENDORATTR      529   Ascend-Send-Secret             214       string
 
