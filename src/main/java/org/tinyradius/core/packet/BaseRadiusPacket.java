@@ -4,7 +4,6 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.*;
 
@@ -77,36 +76,6 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     @Override
     public Dictionary getDictionary() {
         return dictionary;
-    }
-
-    /**
-     * @param requestAuth  request authenticator to encode attributes
-     * @param sharedSecret shared secret with server/client to encode attributes
-     * @return encoded version of attributes
-     * @throws RadiusPacketException errors encoding attributes
-     */
-    protected List<RadiusAttribute> encodeAttributes(byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> encoded = new ArrayList<>();
-        for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute encode = a.encode(requestAuth, sharedSecret);
-            encoded.add(encode);
-        }
-        return encoded;
-    }
-
-    /**
-     * @param requestAuth  request authenticator to decode attributes
-     * @param sharedSecret shared secret with server/client to decode attributes
-     * @return decoded/original version of attributes
-     * @throws RadiusPacketException errors decoding attributes
-     */
-    protected List<RadiusAttribute> decodeAttributes(byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> decoded = new ArrayList<>();
-        for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute decode = a.decode(requestAuth, sharedSecret);
-            decoded.add(decode);
-        }
-        return decoded;
     }
 
     @Override

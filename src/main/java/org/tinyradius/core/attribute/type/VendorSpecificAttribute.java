@@ -1,6 +1,7 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.Unpooled;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.dictionary.Dictionary;
 
@@ -106,6 +107,16 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     @Override
     public List<RadiusAttribute> flatten() {
         return new ArrayList<>(getAttributes());
+    }
+
+    @Override
+    public RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
+        return new VendorSpecificAttribute(getDictionary(), getChildVendorId(), encodeAttributes(requestAuth, secret));
+    }
+
+    @Override
+    public RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
+        return new VendorSpecificAttribute(getDictionary(), getChildVendorId(), decodeAttributes(requestAuth, secret));
     }
 
     @Override

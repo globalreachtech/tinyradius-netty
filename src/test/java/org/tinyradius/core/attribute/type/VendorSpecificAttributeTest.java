@@ -3,11 +3,15 @@ package org.tinyradius.core.attribute.type;
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.type.decorator.EncodedAttribute;
+import org.tinyradius.core.attribute.type.decorator.TaggedAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.parse.DictionaryParser;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,12 +21,12 @@ import static org.tinyradius.core.attribute.type.VendorSpecificAttribute.VENDOR_
 
 class VendorSpecificAttributeTest {
 
+    private final SecureRandom random = new SecureRandom();
     private static Dictionary dictionary;
 
     @BeforeAll
     static void setup() throws IOException {
         dictionary = DictionaryParser.newClasspathParser().parseDictionary("org/tinyradius/core/dictionary/test_dictionary");
-
     }
 
     @Test
@@ -31,7 +35,7 @@ class VendorSpecificAttributeTest {
         final byte[] bytes = new byte[6];
         bytes[5] = 2; // subattribute length
 
-        VendorSpecificAttribute vsa =
+        final VendorSpecificAttribute vsa =
                 new VendorSpecificAttribute(dictionary, -1, VENDOR_SPECIFIC, bytes);
 
         assertEquals(26, vsa.getType());
@@ -45,7 +49,7 @@ class VendorSpecificAttributeTest {
                 (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, // childVendorId
                 (byte) 0x00, (byte) 0x02 // subattribute
         };
-        VendorSpecificAttribute vsa =
+        final VendorSpecificAttribute vsa =
                 new VendorSpecificAttribute(dictionary, -1, VENDOR_SPECIFIC, bytes);
 
         assertEquals(26, vsa.getType());
@@ -55,7 +59,7 @@ class VendorSpecificAttributeTest {
 
     @Test
     void getVsaSubAttributeValueStringByName() {
-        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
                 dictionary.createAttribute("WISPr-Location-ID", "myLocationId")
         ));
 
@@ -65,8 +69,8 @@ class VendorSpecificAttributeTest {
 
     @Test
     void addSubAttributeOk() {
-        String data = "myLocationId";
-        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
+        final String data = "myLocationId";
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
                 dictionary.createAttribute("WISPr-Location-ID", "myLocationId")
         )).addAttribute(dictionary.createAttribute(14122, (byte) 2, data));
 
@@ -76,27 +80,27 @@ class VendorSpecificAttributeTest {
 
     @Test
     void addNonVsaSubAttribute() {
-        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
                 dictionary.createAttribute("WISPr-Location-ID", "myLocationId")
         ));
 
-        Exception exception = assertThrows(RuntimeException.class, () -> vsa.addAttribute("User-Name", "test1"));
+        final Exception exception = assertThrows(RuntimeException.class, () -> vsa.addAttribute("User-Name", "test1"));
         assertTrue(exception.getMessage().toLowerCase().contains("vendor id doesn't match"));
     }
 
     @Test
     void addEmptySubAttribute() {
-        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
                 dictionary.createAttribute("WISPr-Location-ID", "myLocationId")
         ));
 
-        Exception exception = assertThrows(RuntimeException.class, () -> vsa.addAttribute("", "myLocationId"));
+        final Exception exception = assertThrows(RuntimeException.class, () -> vsa.addAttribute("", "myLocationId"));
         assertEquals("Unknown attribute type name: ''", exception.getMessage());
     }
 
     @Test
     void vsaToFromByteArray() {
-        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Arrays.asList(
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Arrays.asList(
                 dictionary.createAttribute(14122, (byte) 2, "hiii"),
                 dictionary.createAttribute("WISPr-Location-ID", "myLocationId")
         ));
@@ -125,12 +129,12 @@ class VendorSpecificAttributeTest {
 
     @Test
     void vsaToByteArrayLargestUnsignedVendorId() {
-        RadiusAttribute radiusAttribute = dictionary.createAttribute(Integer.parseUnsignedInt("4294967295"), (byte) 1, new byte[4]);
-        VendorSpecificAttribute vsa = new VendorSpecificAttribute(
+        final RadiusAttribute radiusAttribute = dictionary.createAttribute(Integer.parseUnsignedInt("4294967295"), (byte) 1, new byte[4]);
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(
                 dictionary, Integer.parseUnsignedInt("4294967295"), Collections.singletonList(radiusAttribute));
         assertEquals(1, vsa.getAttributes().size());
 
-        byte[] bytes = vsa.toByteArray();
+        final byte[] bytes = vsa.toByteArray();
         assertEquals(12, bytes.length);
         assertEquals(-1, ByteBuffer.wrap(bytes).getInt(2));
         // int unsigned max == -1 signed
@@ -140,7 +144,7 @@ class VendorSpecificAttributeTest {
     void vsaToByteArrayTooLong() {
         final List<RadiusAttribute> attributes = Collections.singletonList(
                 new OctetsAttribute(dictionary, 14122, (byte) 26, new byte[253]));
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        final Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> new VendorSpecificAttribute(dictionary, 14122, attributes));
         assertTrue(exception.getMessage().toLowerCase().contains("attribute data too long, max 253 octets"));
     }
@@ -148,14 +152,14 @@ class VendorSpecificAttributeTest {
     @Test
     void vsaToByteArrayWithNoSubAttributes() {
         final List<RadiusAttribute> list = Collections.emptyList();
-        Exception exception = assertThrows(RuntimeException.class,
+        final Exception exception = assertThrows(RuntimeException.class,
                 () -> new VendorSpecificAttribute(dictionary, 14122, list));
         assertTrue(exception.getMessage().toLowerCase().contains("should be greater than 6 octets"));
     }
 
     @Test
     void testFlatten() {
-        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Arrays.asList(
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Arrays.asList(
                 dictionary.createAttribute("WISPr-Location-ID", "myLocationId"),
                 dictionary.createAttribute("WISPr-Location-Name", "myLocationName")
         ));
@@ -166,7 +170,7 @@ class VendorSpecificAttributeTest {
 
     @Test
     void testToString() {
-        VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Arrays.asList(
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Arrays.asList(
                 dictionary.createAttribute("WISPr-Location-ID", "myLocationId"),
                 dictionary.createAttribute("WISPr-Location-Name", "myLocationName")
         ));
@@ -174,5 +178,86 @@ class VendorSpecificAttributeTest {
         assertEquals("Vendor-Specific: Vendor ID 14122 (WISPr)\n" +
                 "  WISPr-Location-ID: myLocationId\n" +
                 "  WISPr-Location-Name: myLocationName", vsa.toString());
+    }
+
+    @Test
+    void encodeDecode() throws RadiusPacketException {
+        final int vendorId = 14122;
+        final String secret = "mySecret";
+        final byte tag = 123;
+        final byte[] requestAuth = random.generateSeed(16);
+
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, vendorId, Arrays.asList(
+                dictionary.createAttribute(vendorId, (byte) 5, tag, "12345"),
+                dictionary.createAttribute(vendorId, (byte) 6, tag, "12345"),
+                dictionary.createAttribute(vendorId, (byte) 7, tag, "12345")
+        ));
+        assertEquals(-1, vsa.getVendorId());
+        assertEquals(vendorId, vsa.getChildVendorId());
+
+        final RadiusAttribute minUp = vsa.getAttribute("WISPr-Bandwidth-Min-Up").get();
+        assertTrue(minUp instanceof TaggedAttribute);
+        assertEquals(12345, ByteBuffer.wrap(minUp.getValue()).getInt());
+        assertEquals(tag, minUp.getTag());
+
+        final RadiusAttribute minDown = vsa.getAttribute("WISPr-Bandwidth-Min-Down").get();
+        assertTrue(minDown instanceof IntegerAttribute);
+        assertEquals(12345, ByteBuffer.wrap(minDown.getValue()).getInt());
+        assertEquals(0, minDown.getTag());
+
+        final RadiusAttribute maxUp = vsa.getAttribute("WISPr-Bandwidth-Max-Up").get();
+        assertTrue(maxUp instanceof TaggedAttribute);
+        assertEquals(12345, ByteBuffer.wrap(maxUp.getValue()).getInt());
+        assertEquals(tag, maxUp.getTag());
+
+        // encode
+        final VendorSpecificAttribute encode = (VendorSpecificAttribute) vsa.encode(requestAuth, secret);
+        assertEquals(-1, encode.getVendorId());
+        assertEquals(vendorId, encode.getChildVendorId());
+
+        final RadiusAttribute encodeMinUp = encode.getAttribute("WISPr-Bandwidth-Min-Up").get();
+        assertTrue(encodeMinUp instanceof TaggedAttribute);
+        assertEquals(12345, ByteBuffer.wrap(encodeMinUp.getValue()).getInt());
+        assertEquals(tag, encodeMinUp.getTag());
+
+        final RadiusAttribute encodeMinDown = encode.getAttribute("WISPr-Bandwidth-Min-Down").get();
+        assertTrue(encodeMinDown instanceof EncodedAttribute);
+        assertNotEquals(12345, ByteBuffer.wrap(encodeMinDown.getValue()).getInt());
+        assertEquals(0, encodeMinDown.getTag());
+
+        final RadiusAttribute encodeMaxUp = encode.getAttribute("WISPr-Bandwidth-Max-Up").get();
+        assertTrue(encodeMaxUp instanceof EncodedAttribute);
+        assertNotEquals(12345, ByteBuffer.wrap(encodeMaxUp.getValue()).getInt());
+        assertEquals(tag, encodeMaxUp.getTag());
+
+        // use different encoding
+        assertNotEquals(ByteBuffer.wrap(encodeMinDown.getValue()).getInt(), ByteBuffer.wrap(encodeMaxUp.getValue()).getInt());
+
+        // encode again
+        final RadiusAttribute encode1 = encode.encode(requestAuth, secret);
+        assertEquals(encode, encode1);
+
+        // decode
+        final VendorSpecificAttribute decode = (VendorSpecificAttribute) encode.decode(requestAuth, secret);
+        assertEquals(-1, decode.getVendorId());
+        assertEquals(vendorId, decode.getChildVendorId());
+
+        final RadiusAttribute decodeMinUp = decode.getAttribute("WISPr-Bandwidth-Min-Up").get();
+        assertTrue(decodeMinUp instanceof TaggedAttribute);
+        assertEquals(12345, ByteBuffer.wrap(decodeMinUp.getValue()).getInt());
+        assertEquals(tag, decodeMinUp.getTag());
+
+        final RadiusAttribute decodeMinDown = decode.getAttribute("WISPr-Bandwidth-Min-Down").get();
+        assertTrue(decodeMinDown instanceof IntegerAttribute);
+        assertEquals(12345, ByteBuffer.wrap(decodeMinUp.getValue()).getInt());
+        assertEquals(0, decodeMinDown.getTag());
+
+        final RadiusAttribute decodeMaxUp = decode.getAttribute("WISPr-Bandwidth-Max-Up").get();
+        assertTrue(decodeMaxUp instanceof TaggedAttribute);
+        assertEquals(12345, ByteBuffer.wrap(decodeMinUp.getValue()).getInt());
+        assertEquals(tag, decodeMaxUp.getTag());
+
+        final RadiusAttribute decode1 = decode.decode(requestAuth, secret);
+        assertEquals(decode1, decode);
     }
 }
