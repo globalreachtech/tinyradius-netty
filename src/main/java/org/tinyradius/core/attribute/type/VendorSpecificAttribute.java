@@ -4,6 +4,7 @@ import io.netty.buffer.Unpooled;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.dictionary.Vendor;
 
 import javax.xml.bind.DatatypeConverter;
 import java.nio.ByteBuffer;
@@ -123,7 +124,9 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Vendor-Specific: Vendor ID ").append(getChildVendorId());
-        getDictionary().getVendorName(getChildVendorId())
+        getDictionary()
+                .getVendor(getChildVendorId())
+                .map(Vendor::getName)
                 .ifPresent(s -> sb.append(" (").append(s).append(")"));
         for (RadiusAttribute sa : getAttributes()) {
             sb.append("\n  ").append(sa.toString());

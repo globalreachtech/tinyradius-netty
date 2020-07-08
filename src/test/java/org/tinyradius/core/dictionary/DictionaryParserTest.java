@@ -148,6 +148,26 @@ class DictionaryParserTest {
     }
 
     @Test
+    void vendorFormatFlag() throws IOException {
+        final Dictionary dictionary = DictionaryParser.newClasspathParser()
+                .parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
+
+        final Vendor wispr = dictionary.getVendor("WISPr").get();
+        assertSame(dictionary.getVendor(14122).get(), wispr);
+        assertEquals(14122, wispr.getId());
+        assertEquals("WISPr", wispr.getName());
+        assertEquals(1, wispr.getTypeSize());
+        assertEquals(1, wispr.getLengthSize());
+
+        final Vendor lucent = dictionary.getVendor("Lucent").get();
+        assertSame(dictionary.getVendor(4846).get(), lucent);
+        assertEquals(4846, lucent.getId());
+        assertEquals("Lucent", lucent.getName());
+        assertEquals(2, lucent.getTypeSize());
+        assertEquals(1, lucent.getLengthSize());
+    }
+
+    @Test
     void fileSystemIncludeDict() throws IOException {
         final Path tmpPath = Files.createTempDirectory("tinyradius_test_");
         copyDict(tmpPath, TEST_DICTIONARY);

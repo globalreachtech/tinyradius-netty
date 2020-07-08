@@ -1,7 +1,10 @@
 package org.tinyradius.core.dictionary.parse;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.MemoryDictionary;
+import org.tinyradius.core.dictionary.Vendor;
 import org.tinyradius.core.dictionary.WritableDictionary;
 
 import java.io.BufferedReader;
@@ -17,6 +20,8 @@ import java.util.function.Consumer;
  * Parses a dictionary in Radiator format and fills a WritableDictionary.
  */
 public class DictionaryParser {
+
+    private static final Logger logger = LogManager.getLogger();
 
     private final ResourceResolver resourceResolver;
 
@@ -128,14 +133,18 @@ public class DictionaryParser {
         if (tok.length != 2)
             throw new IOException("BEGIN-VENDOR parse error on line " + lineNum + ", " + Arrays.toString(tok));
 
-        currentVendor = dictionary.getVendorId(tok[1]);
+        currentVendor = dictionary.getVendor(tok[1])
+                .map(Vendor::getId)
+                .orElse(-1);
     }
 
     private void parseEndVendor(WritableDictionary dictionary, String[] tok, int lineNum) throws IOException {
         if (tok.length != 2)
             throw new IOException("End-Vendor parse error on line " + lineNum + ", " + Arrays.toString(tok));
 
-        final int vendorId = dictionary.getVendorId(tok[1]);
+        final int vendorId = dictionary.getVendor(tok[1])
+                .map(Vendor::getId)
+                .orElse(-1);
 
         if (currentVendor != vendorId)
             throw new IOException("END-VENDOR parse error on line " + lineNum + ", " + Arrays.toString(tok) +
@@ -201,19 +210,22 @@ public class DictionaryParser {
             throw new IOException("VENDOR parse error on line " + lineNum + ": " + Arrays.toString(tok));
         }
 
+        final int[] format = tok.length == 4 ?
+                formatFlag(tok[3]) : new int[]{1, 1};
+
         try {
             // Legacy TinyRadius format: VENDOR number vendor-name [format]
-            final int vendorId = Integer.parseInt(tok[1]);
-            final String vendorName = tok[2];
+            final int id = Integer.parseInt(tok[1]);
+            final String name = tok[2];
 
-            dictionary.addVendor(vendorId, vendorName);
+            dictionary.addVendor(new Vendor(id, name, format[0], format[1]));
         } catch (NumberFormatException e) {
             // FreeRadius format: VENDOR vendor-name number [format]
             try {
-                final String vendorName = tok[1];
-                final int vendorId = Integer.parseInt(tok[2]);
+                final String name = tok[1];
+                final int id = Integer.parseInt(tok[2]);
 
-                dictionary.addVendor(vendorId, vendorName);
+                dictionary.addVendor(new Vendor(id, name, format[0], format[1]));
             } catch (NumberFormatException e1) {
                 throw new IOException("Vendor parse error on line " + lineNum + ": " + Arrays.toString(tok));
             }
@@ -243,6 +255,19 @@ public class DictionaryParser {
         return (byte) type;
     }
 
+    private int[] formatFlag(String flag) {
+        if (flag.startsWith("format=")) {
+            final String[] values = flag.substring(7).split(",");
+            if (values.length == 2)
+                try {
+                    return new int[]{Integer.parseInt(values[0]), Integer.parseInt(values[1])};
+                } catch (Exception ignored) {
+                }
+        }
+        logger.warn("Ignoring vendor flag - invalid format: {}", flag);
+        return new int[]{1, 1};
+    }
+
     private byte encryptFlag(String[] flags) {
         for (final String flag : flags) {
             if (flag.length() == 9 && flag.startsWith("encrypt="))
@@ -259,4 +284,3 @@ public class DictionaryParser {
         return false;
     }
 }
-

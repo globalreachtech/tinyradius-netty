@@ -2,18 +2,36 @@ package org.tinyradius.core.dictionary;
 
 import java.util.Objects;
 
+/**
+ * Vendor definition
+ */
 public class Vendor {
 
     private final int id;
     private final String name;
-    private final int typeLength;
-    private final int lengthLength;
+    private final int typeSize;
+    private final int lengthSize;
 
-    public Vendor(int id, String name, int typeLength, int lengthLength) {
+    /**
+     * @param id         Vendor ID
+     * @param name       Vendor Name
+     * @param typeSize   number of octets for vendor 'type' field
+     * @param lengthSize number of octets for vendor 'length' field
+     */
+    public Vendor(int id, String name, int typeSize, int lengthSize) {
         this.id = id;
         this.name = Objects.requireNonNull(name);
-        this.typeLength = typeLength;
-        this.lengthLength = lengthLength;
+        this.typeSize = typeSize;
+        this.lengthSize = lengthSize;
+
+        if (id < 0)
+            throw new IllegalArgumentException("Vendor ID must be positive: " + id + " (" + name + ")");
+        if (name.isEmpty())
+            throw new IllegalArgumentException("Vendor name empty: " + name + " (vendorId" + id + ")");
+        if (typeSize != 1 && typeSize != 2 && typeSize != 4)
+            throw new IllegalArgumentException("Vendor typeSize must be 1, 2, or 4");
+        if (lengthSize != 0 && lengthSize != 1 && lengthSize != 2)
+            throw new IllegalArgumentException("Vendor lengthSize must be 0, 1, or 2");
     }
 
     public int getId() {
@@ -24,12 +42,12 @@ public class Vendor {
         return name;
     }
 
-    public int getTypeLength() {
-        return typeLength;
+    public int getTypeSize() {
+        return typeSize;
     }
 
-    public int getLengthLength() {
-        return lengthLength;
+    public int getLengthSize() {
+        return lengthSize;
     }
 
     @Override
@@ -38,14 +56,14 @@ public class Vendor {
         if (!(o instanceof Vendor)) return false;
         final Vendor vendor = (Vendor) o;
         return id == vendor.id &&
-                typeLength == vendor.typeLength &&
-                lengthLength == vendor.lengthLength &&
+                typeSize == vendor.typeSize &&
+                lengthSize == vendor.lengthSize &&
                 name.equals(vendor.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, typeLength, lengthLength);
+        return Objects.hash(id, name, typeSize, lengthSize);
     }
 
     @Override
@@ -53,8 +71,8 @@ public class Vendor {
         return "Vendor{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", typeLength=" + typeLength +
-                ", lengthLength=" + lengthLength +
+                ", typeLength=" + typeSize +
+                ", lengthLength=" + lengthSize +
                 '}';
     }
 }

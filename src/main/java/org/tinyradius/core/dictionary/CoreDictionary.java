@@ -36,15 +36,13 @@ public interface CoreDictionary {
      */
     Optional<AttributeTemplate> getAttributeTemplate(int vendorId, byte attributeId);
 
-
     /**
-     * Retrieves the name of the vendor with the given
-     * vendor code.
+     * Retrieves the vendor with the given vendor code.
      *
      * @param vendorId vendor number
-     * @return vendor name or null
+     * @return vendor
      */
-    Optional<String> getVendorName(int vendorId);
+    Optional<Vendor> getVendor(int vendorId);
 
     /**
      * Retrieves the ID of the vendor with the given
@@ -53,6 +51,6 @@ public interface CoreDictionary {
      * @param vendorName name of the vendor
      * @return vendorId or -1
      */
-    int getVendorId(String vendorName);
+    Optional<Vendor> getVendor(String vendorName);
 
 }

@@ -72,23 +72,22 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
             return;
         }
 
-        final RadiusAttribute proxyState = proxyStates.get(proxyStates.size() - 1);
-        final String proxyStateId = new String(proxyState.getValue(), UTF_8);
-
-        final Request request = requests.get(proxyStateId);
+        final String requestId = new String(proxyStates.get(proxyStates.size() - 1).getValue(), UTF_8);
+        final Request request = requests.get(requestId);
 
         if (request == null) {
-            logger.warn("Ignoring response - request context not found");
+            logger.warn("Ignoring response - request context not found, requestId {}", requestId);
             return;
         }
 
-        if (msg.getId() != request.identifier) {
-            logger.warn("Ignoring response - identifier mismatch, request ID {}, response ID {}", request.identifier, msg.getId());
+        if (msg.getId() != request.id) {
+            logger.warn("Ignoring response - identifier mismatch, requestId {}, responseId {}",
+                    request.id, msg.getId());
             return;
         }
 
         try {
-            final RadiusResponse response = msg.decodeResponse(request.secret, request.authenticator)
+            final RadiusResponse response = msg.decodeResponse(request.secret, request.auth)
                     .removeLastAttribute(PROXY_STATE);
 
             logger.info("Found request for response identifier => {}", response.getId());
@@ -103,14 +102,14 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
     private static class Request {
 
         private final String secret;
-        private final byte[] authenticator;
-        private final int identifier;
+        private final byte[] auth;
+        private final int id;
         private final Promise<RadiusResponse> promise;
 
-        Request(String secret, byte[] authenticator, int identifier, Promise<RadiusResponse> promise) {
+        Request(String secret, byte[] auth, int id, Promise<RadiusResponse> promise) {
             this.secret = secret;
-            this.authenticator = authenticator;
-            this.identifier = identifier;
+            this.auth = auth;
+            this.id = id;
             this.promise = promise;
         }
     }

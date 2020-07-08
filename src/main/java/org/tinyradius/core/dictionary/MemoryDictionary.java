@@ -20,7 +20,7 @@ public class MemoryDictionary implements WritableDictionary {
 
     private static final Logger logger = LogManager.getLogger();
 
-    private final Map<Integer, String> vendorsByCode = new HashMap<>();
+    private final Map<Integer, Vendor> vendorsByCode = new HashMap<>();
     private final Map<Integer, Map<Byte, AttributeTemplate>> attributesByCode = new HashMap<>();
     private final Map<String, AttributeTemplate> attributesByName = new HashMap<>();
 
@@ -37,38 +37,32 @@ public class MemoryDictionary implements WritableDictionary {
     }
 
     @Override
-    public int getVendorId(String vendorName) {
-        for (Map.Entry<Integer, String> v : vendorsByCode.entrySet()) {
-            if (v.getValue().equals(vendorName))
-                return v.getKey();
-        }
-        return -1;
+    public Optional<Vendor> getVendor(String vendorName) {
+        return vendorsByCode.values()
+                .stream()
+                .filter(e -> e.getName().equals(vendorName))
+                .findFirst();
     }
 
     @Override
-    public Optional<String> getVendorName(int vendorId) {
+    public Optional<Vendor> getVendor(int vendorId) {
         return Optional.ofNullable(vendorsByCode.get(vendorId));
     }
 
     @Override
-    public void addVendor(int vendorId, String vendorName) {
-        if (vendorId < 0)
-            throw new IllegalArgumentException("Vendor ID must be positive: " + vendorId + " (" + vendorName + ")");
-        if (vendorName == null || vendorName.isEmpty())
-            throw new IllegalArgumentException("Vendor name empty: " + vendorName + " (vendorId" + vendorId + ")");
-
-        // todo check equality, not just name match
-        final Optional<String> existing = getVendorName(vendorId);
+    public void addVendor(Vendor vendor) {
+        final Optional<Vendor> existing = getVendor(vendor.getId());
         if (existing.isPresent())
-            if (existing.get().equals(vendorName)) {
-                logger.info("Ignoring duplicate vendor definition: {} {}", vendorName, vendorId);
+            if (existing.get().equals(vendor)) {
+                logger.info("Ignoring duplicate vendor definition - adding: {}, existing: {}",
+                        vendor, existing.get());
                 return;
             } else {
-                throw new IllegalArgumentException("Duplicate vendor code: " + vendorId +
-                        " (adding " + vendorName + ", but already set to " + existing.get() + ")");
+                throw new IllegalArgumentException("Duplicate vendor code: " + vendor.getId() +
+                        " (adding " + vendor + ", but already set to " + existing.get() + ")");
             }
 
-        vendorsByCode.put(vendorId, vendorName);
+        vendorsByCode.put(vendor.getId(), vendor);
     }
 
     /**

@@ -11,11 +11,10 @@ public interface WritableDictionary extends Dictionary {
     /**
      * Adds the given vendor to the dictionary.
      *
-     * @param vendorId   vendor ID
-     * @param vendorName name of the vendor
+     * @param vendor vendor
      * @throws IllegalArgumentException empty vendor name, invalid vendor ID
      */
-    void addVendor(int vendorId, String vendorName);
+    void addVendor(Vendor vendor);
 
     /**
      * Adds an AttributeTemplate object to the dictionary.
