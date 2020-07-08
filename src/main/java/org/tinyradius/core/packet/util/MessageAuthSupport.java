@@ -26,7 +26,7 @@ import java.util.Objects;
 public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPacket<T> {
 
     Logger msgAuthLogger = LogManager.getLogger();
-    byte MESSAGE_AUTHENTICATOR = 80;
+    int MESSAGE_AUTHENTICATOR = 80;
 
     static byte[] calcMessageAuthInput(RadiusPacket<?> packet, byte[] requestAuth) {
         final ByteBuf buf = Unpooled.buffer()

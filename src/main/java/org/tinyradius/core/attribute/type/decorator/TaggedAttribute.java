@@ -13,7 +13,7 @@ import java.util.Optional;
  * Augments attribute with RFC2868 Tag. If using multiple wrapping decorators,
  * this should be innermost.
  */
-public class TaggedAttribute extends BaseDecorator {
+public class TaggedAttribute extends AbstractDecorator {
 
     private final byte tag;
 

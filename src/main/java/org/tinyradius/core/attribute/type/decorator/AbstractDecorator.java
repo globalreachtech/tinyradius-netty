@@ -17,11 +17,11 @@ import java.util.Objects;
  * The problem is that any method must only call other methods that are in the same level or more inner decorator,
  * but how to enforce?
  */
-abstract class BaseDecorator implements RadiusAttribute {
+abstract class AbstractDecorator implements RadiusAttribute {
 
     protected final RadiusAttribute delegate;
 
-    public BaseDecorator(RadiusAttribute attribute) {
+    public AbstractDecorator(RadiusAttribute attribute) {
         delegate = Objects.requireNonNull(attribute);
     }
 

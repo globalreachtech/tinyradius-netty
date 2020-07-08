@@ -8,7 +8,7 @@ import org.tinyradius.core.RadiusPacketException;
 import java.util.Objects;
 import java.util.Optional;
 
-public class EncodedAttribute extends BaseDecorator {
+public class EncodedAttribute extends AbstractDecorator {
 
     public EncodedAttribute(RadiusAttribute attribute) {
         super(attribute);
@@ -21,7 +21,6 @@ public class EncodedAttribute extends BaseDecorator {
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().decode(this, requestAuth, secret) : delegate;
-        // what if EncodedDecorator is not guaranteed to be outermost decorator?
     }
 
     @Override

@@ -8,7 +8,7 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class BaseDecoratorTest {
+class AbstractDecoratorTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
@@ -18,5 +18,4 @@ class BaseDecoratorTest {
         final RadiusAttribute transformed = attribute.flatten().get(0);
         assertEquals(attribute, transformed);
     }
-
 }

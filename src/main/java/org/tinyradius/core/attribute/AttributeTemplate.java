@@ -28,9 +28,9 @@ public class AttributeTemplate {
     private final String name;
     private final String dataType;
 
-    private final boolean hasTag;
+    private final boolean tagged;
     private final AttributeCodecType codecType;
-    // todo derived fields dynamic lookup?
+
     private final AttributeType decodedType;
     private final AttributeType encodedType;
 
@@ -58,9 +58,9 @@ public class AttributeTemplate {
      * @param name        sub-attribute name
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or default 0 for none
-     * @param hasTag      whether attribute supports tags, as defined in RFC2868, default false
+     * @param tagged      whether attribute supports tags, as defined in RFC2868, default false
      */
-    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encryptFlag, boolean hasTag) {
+    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encryptFlag, boolean tagged) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
         requireNonNull(rawDataType, "Data type is null");
@@ -73,7 +73,7 @@ public class AttributeTemplate {
                 AttributeType.VSA :
                 AttributeType.fromDataType(this.dataType);
 
-        this.hasTag = detectHasTag(vendorId, type, hasTag);
+        this.tagged = detectHasTag(vendorId, type, tagged);
         this.codecType = detectAttributeCodec(vendorId, type, encryptFlag);
         this.encodedType = this.codecType == NO_ENCRYPT ?
                 decodedType : AttributeType.OCTETS;
@@ -114,7 +114,7 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute parse(Dictionary dictionary, byte[] rawData) {
-        if (hasTag()) {
+        if (isTagged()) {
             if (rawData.length == 0)
                 throw new IllegalArgumentException("Attribute data (excl. type, length fields) cannot be empty if attribute requires tag.");
 
@@ -148,7 +148,7 @@ public class AttributeTemplate {
     }
 
     private RadiusAttribute autoWrapTag(byte tag, OctetsAttribute attribute) {
-        return hasTag() ?
+        return isTagged() ?
                 new TaggedAttribute(tag, attribute) : attribute;
     }
 
@@ -188,8 +188,8 @@ public class AttributeTemplate {
     /**
      * @return whether attribute supports Tag field as per RFC2868
      */
-    public boolean hasTag() {
-        return hasTag;
+    public boolean isTagged() {
+        return tagged;
     }
 
     public boolean encryptEnabled() {
@@ -293,7 +293,7 @@ public class AttributeTemplate {
         if (vendorId == -1 && type == 69) // Tunnel-Password
             return RFC2868_TUNNEL_PASSWORD;
 
-        if (vendorId == 529 && type == (byte) 214) // Ascend-Send-Secret
+        if (vendorId == 529 && type == 214) // Ascend-Send-Secret
             return ASCENT_SEND_SECRET;
 
         return fromId(encryptFlag);
@@ -306,7 +306,7 @@ public class AttributeTemplate {
         final AttributeTemplate that = (AttributeTemplate) o;
         return vendorId == that.vendorId &&
                 type == that.type &&
-                hasTag == that.hasTag &&
+                tagged == that.tagged &&
                 name.equals(that.name) &&
                 dataType.equals(that.dataType) &&
                 codecType == that.codecType;
@@ -314,6 +314,6 @@ public class AttributeTemplate {
 
     @Override
     public int hashCode() {
-        return Objects.hash(vendorId, type, name, dataType, hasTag, codecType);
+        return Objects.hash(vendorId, type, name, dataType, tagged, codecType);
     }
 }

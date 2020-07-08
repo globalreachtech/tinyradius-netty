@@ -233,11 +233,11 @@ public class ResourceParser {
     private int validateType(int type, int vendorId) {
         final int max = dictionary.getVendor(vendorId)
                 .map(Vendor::getTypeSize)
-                .map(t -> 2 ^ (8 * t) - 1)
+                .map(t -> (int) Math.pow(2, 8 * t) - 1)
                 .orElse(255);
 
         if (type < 0 || type > max)
-            throw new IllegalArgumentException("Attribute type code out of bounds: " + type);
+            throw new IllegalArgumentException("Attribute type code out of bounds: " + type + ", max " + max);
         return type;
     }
 

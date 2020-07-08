@@ -202,7 +202,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type attribute type to remove
      * @return object of same type with removed attributes
      */
-    default T removeAttributes(byte type) {
+    default T removeAttributes(int type) {
         return withAttributes(
                 filterAttributes(a -> a.getType() != type));
     }
@@ -214,7 +214,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type attribute type code
      * @return object of same type with removed attribute
      */
-    default T removeLastAttribute(byte type) {
+    default T removeLastAttribute(int type) {
         List<RadiusAttribute> attributes = filterAttributes(type);
         if (attributes.isEmpty())
             return withAttributes(getAttributes());

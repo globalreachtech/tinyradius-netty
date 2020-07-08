@@ -83,7 +83,7 @@ public class MemoryDictionary implements WritableDictionary {
             if (existing.equals(attributeTemplate)) {
                 logger.info("Ignoring duplicate attribute definition: {} [{},{}] {}, hasTag={}, encrypt={} ",
                         existing.getName(), existing.getVendorId(), existing.getType(), existing.getDataType(),
-                        existing.hasTag(), existing.getCodecType());
+                        existing.isTagged(), existing.getCodecType());
                 return;
             } else {
                 throw new IllegalArgumentException("Duplicate attribute definition name, " +
