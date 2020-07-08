@@ -86,8 +86,6 @@ public class MemoryDictionary implements WritableDictionary {
         final byte typeCode = attributeTemplate.getType();
         final String attributeName = attributeTemplate.getName();
 
-        // todo allow overwrite or if exact match already exists
-        // what about enums?
         if (attributesByName.containsKey(attributeName)) {
             final AttributeTemplate existing = attributesByName.get(attributeName);
             if (existing.equals(attributeTemplate)) {

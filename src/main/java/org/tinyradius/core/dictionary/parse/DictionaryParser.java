@@ -98,6 +98,7 @@ public class DictionaryParser {
     }
 
     private void parseTokens(WritableDictionary dictionary, String[] tokens, int lineNum, String resource) throws IOException {
+        // todo BEGIN-TLV
         switch (tokens[0].toUpperCase()) {
             case "END-VENDOR":
                 parseEndVendor(dictionary, tokens, lineNum);

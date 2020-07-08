@@ -222,7 +222,6 @@ public class AttributeTemplate {
     public Integer getEnumeration(String value) {
         return str2int.get(value);
     }
-    // todo store enum in attribute or in dictionary?
 
     /**
      * Adds a name for an integer value of this attribute.

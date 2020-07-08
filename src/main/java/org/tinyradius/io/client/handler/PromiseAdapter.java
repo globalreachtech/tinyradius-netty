@@ -5,11 +5,11 @@ import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.concurrent.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.io.client.PendingRequestCtx;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
-import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.io.client.PendingRequestCtx;
 
 import java.util.List;
 import java.util.Map;
@@ -33,22 +33,27 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
     private final Map<String, Request> requests = new ConcurrentHashMap<>();
 
-    private String nextProxyStateId() {
+    private String nextProxyState() {
         return Integer.toString(proxyIndex.getAndIncrement());
     }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
         final RadiusRequest packet = msg.getRequest();
-        final String requestId = nextProxyStateId();
+        final String requestId = nextProxyState();
 
         try {
             final RadiusRequest encodedRequest = packet
                     .addAttribute(packet.getDictionary().createAttribute(-1, PROXY_STATE, requestId.getBytes(UTF_8)))
                     .encodeRequest(msg.getEndpoint().getSecret());
 
-            msg.getResponse().addListener(f -> requests.remove(requestId));
+            msg.getResponse().addListener(f -> {
+                requests.remove(requestId);
+                logger.debug("Removing {} from pending requests", requestId);
+            });
+
             requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getId(), msg.getResponse()));
+            logger.debug("Adding {} to pending requests", requestId);
 
             out.add(new PendingRequestCtx(encodedRequest, msg.getEndpoint(), msg.getResponse()));
         } catch (RadiusPacketException e) {
