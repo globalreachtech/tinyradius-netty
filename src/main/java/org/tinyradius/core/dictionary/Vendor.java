@@ -71,8 +71,8 @@ public class Vendor {
         return "Vendor{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", typeLength=" + typeSize +
-                ", lengthLength=" + lengthSize +
+                ", typeSize=" + typeSize +
+                ", lengthSize=" + lengthSize +
                 '}';
     }
 }

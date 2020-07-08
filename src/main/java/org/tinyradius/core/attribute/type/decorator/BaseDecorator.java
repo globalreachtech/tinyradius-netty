@@ -54,14 +54,4 @@ abstract class BaseDecorator implements RadiusAttribute {
     public Dictionary getDictionary() {
         return delegate.getDictionary();
     }
-
-    @Override
-    public byte[] toByteArray() {
-        return delegate.toByteArray();
-    }
-
-    @Override
-    public String toString() {
-        return getAttributeName() + ": " + getValueString();
-    }
 }
