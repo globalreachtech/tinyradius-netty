@@ -35,14 +35,14 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
         try {
-            logger.debug("Sending request to {} - {}", msg.getEndpoint().getAddress(), msg.getRequest());
+            logger.debug("Sending packet to {} - {}", msg.getEndpoint().getAddress(), msg.getRequest());
             final DatagramPacket datagramPacket = msg
                     .getRequest()
                     .toDatagram(msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
 
             out.add(datagramPacket);
         } catch (RadiusPacketException e) {
-            logger.warn("Could not serialize Radius packet: {}", e.getMessage());
+            logger.warn("Could not serialize packet: {}", e.getMessage());
             msg.getResponse().tryFailure(e);
         }
     }
@@ -58,11 +58,11 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
 
         try {
             RadiusResponse response = fromDatagram(dictionary, msg);
-            logger.debug("Received response from {} - {}", remoteAddress, response);
+            logger.debug("Received packet from {} - {}", remoteAddress, response);
 
             out.add(response);
         } catch (RadiusPacketException e) {
-            logger.warn("Could not deserialize Radius packet: {}", e.getMessage());
+            logger.warn("Could not deserialize packet: {}", e.getMessage());
         }
     }
 }
