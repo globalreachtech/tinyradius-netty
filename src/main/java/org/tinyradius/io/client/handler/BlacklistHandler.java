@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -47,7 +48,12 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
                 return;
             }
 
-            request.getResponse().addListener(f -> logResult(address, f.isSuccess()));
+            request.getResponse().addListener(f -> {
+                if (f.isSuccess())
+                    reset(address);
+                else
+                    logFailure(address, f.cause());
+            });
         }
 
         ctx.write(msg, promise);
@@ -72,17 +78,15 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
         return false;
     }
 
-    private void logResult(SocketAddress socketAddress, boolean success) {
-        if (success) {
-            reset(socketAddress);
-        } else {
-            final int i = failCounts.computeIfAbsent(socketAddress, d -> new AtomicInteger()).incrementAndGet();
+    private void logFailure(SocketAddress address, Throwable cause) {
+        if (cause instanceof TimeoutException) {
+            final int i = failCounts.computeIfAbsent(address, d -> new AtomicInteger()).incrementAndGet();
 
-            if (i >= failCountThreshold && blacklist.get(socketAddress) == null) {
+            if (i >= failCountThreshold && blacklist.get(address) == null) {
 
                 // only set if isn't already blacklisted, to avoid delayed responses extending ttl
-                blacklist.put(socketAddress, System.currentTimeMillis() + blacklistTtlMs);
-                logger.debug("Endpoint {} added to blacklist", socketAddress);
+                blacklist.put(address, System.currentTimeMillis() + blacklistTtlMs);
+                logger.debug("Endpoint {} added to blacklist", address);
             }
         }
     }

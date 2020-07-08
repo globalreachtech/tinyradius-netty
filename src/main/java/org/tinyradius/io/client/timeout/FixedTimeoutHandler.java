@@ -4,7 +4,7 @@ import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 import org.tinyradius.core.packet.response.RadiusResponse;
 
-import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -40,7 +40,7 @@ public class FixedTimeoutHandler implements TimeoutHandler {
                 return;
 
             if (totalAttempts >= maxAttempts)
-                promise.tryFailure(new IOException("Client send timeout - max attempts reached: " + maxAttempts));
+                promise.tryFailure(new TimeoutException("Client send timeout - max attempts reached: " + maxAttempts));
             else
                 callback.run();
         }, timeoutMs, MILLISECONDS);
