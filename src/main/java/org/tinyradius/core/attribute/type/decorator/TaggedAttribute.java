@@ -5,6 +5,10 @@ import org.tinyradius.core.attribute.type.OctetsAttribute;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
+/**
+ * Augments attribute with RFC2868 Tag. If using multiple wrapping decorators,
+ * this should be innermost.
+ */
 public class TaggedAttribute extends BaseDecorator {
 
     private final byte tag;

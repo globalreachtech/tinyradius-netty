@@ -1,14 +1,22 @@
 package org.tinyradius.core.attribute.type.decorator;
 
-import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
+/**
+ * Specifically override and use delegate instead of using default impls for properties that decorators may want to
+ * change or impact.
+ * <p>
+ * Specifically exclude properties that need to be aware of outer decorators. Want to use the implementation provided
+ * by the outermost decorator.
+ * <p>
+ * Rule of thumb is top level methods that aren't called by other methods can live in RadiusAttribute.
+ * <p>
+ * The problem is that any method must only call other methods that are in the same level or more inner decorator,
+ * but how to enforce?
+ */
 abstract class BaseDecorator implements RadiusAttribute {
 
     protected final RadiusAttribute delegate;
@@ -53,32 +61,7 @@ abstract class BaseDecorator implements RadiusAttribute {
     }
 
     @Override
-    public String getAttributeName() {
-        return delegate.getAttributeName();
-    }
-
-    @Override
-    public List<RadiusAttribute> flatten() {
-        return delegate.flatten();
-    }
-
-    @Override
-    public Optional<AttributeTemplate> getAttributeTemplate() {
-        return delegate.getAttributeTemplate();
-    }
-
-    @Override
-    public RadiusAttribute encode(byte[] requestAuth, String secret) {
-        return this;
-    }
-
-    @Override
-    public RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
-        return this;
-    }
-
-    @Override
     public String toString() {
-        return delegate.toString();
+        return getAttributeName() + ": " + getValueString();
     }
 }

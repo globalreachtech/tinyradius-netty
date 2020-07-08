@@ -93,35 +93,11 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     @Override
-    public String getAttributeName() {
-        return getAttributeTemplate()
-                .map(AttributeTemplate::getName)
-                .orElse(getVendorId() != -1 ?
-                        "Unknown-Sub-Attribute-" + getType() :
-                        "Unknown-Attribute-" + getType());
-    }
-
-    @Override
-    public List<RadiusAttribute> flatten() {
-        return Collections.singletonList(this);
-    }
-
-    @Override
-    public Optional<AttributeTemplate> getAttributeTemplate() {
-        return dictionary.getAttributeTemplate(getVendorId(), getType());
-    }
-
-    @Override
     public RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().encode(this, requestAuth, secret) :
                 this;
-    }
-
-    @Override
-    public RadiusAttribute decode(byte[] requestAuth, String secret) {
-        return this;
     }
 
     // do not remove - for removing from list of attributes

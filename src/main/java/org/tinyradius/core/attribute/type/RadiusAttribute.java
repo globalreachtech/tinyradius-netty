@@ -1,9 +1,10 @@
 package org.tinyradius.core.attribute.type;
 
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +45,13 @@ public interface RadiusAttribute {
      */
     byte[] toByteArray();
 
-    String getAttributeName();
+    default String getAttributeName() {
+        return getAttributeTemplate()
+                .map(AttributeTemplate::getName)
+                .orElse(getVendorId() != -1 ?
+                        "Unknown-Sub-Attribute-" + getType() :
+                        "Unknown-Attribute-" + getType());
+    }
 
     /**
      * Returns set of all nested attributes if contains sub-attributes,
@@ -52,12 +59,16 @@ public interface RadiusAttribute {
      *
      * @return List of RadiusAttributes
      */
-    List<RadiusAttribute> flatten();
+    default List<RadiusAttribute> flatten() {
+        return Collections.singletonList(this);
+    }
 
     /**
      * @return AttributeTemplate used to define this attribute
      */
-    Optional<AttributeTemplate> getAttributeTemplate();
+    default Optional<AttributeTemplate> getAttributeTemplate() {
+        return getDictionary().getAttributeTemplate(getVendorId(), getType());
+    }
 
     /**
      * Encodes attribute. Must be idempotent.
@@ -67,7 +78,9 @@ public interface RadiusAttribute {
      * @return attribute with encoded data
      * @throws RadiusPacketException errors encoding attribute
      */
-    RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException;
+    default RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException{
+        return this;
+    }
 
     /**
      * Decodes attribute. Must be idempotent.
@@ -77,7 +90,9 @@ public interface RadiusAttribute {
      * @return attribute with encoded data
      * @throws RadiusPacketException errors decoding attribute
      */
-    RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException;
+    default RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException{
+        return this;
+    }
 
     default boolean isEncoded() {
         return false;
