@@ -1,9 +1,13 @@
 package org.tinyradius.core.attribute.type.decorator;
 
+import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.type.OctetsAttribute;
+import org.tinyradius.core.attribute.type.RadiusAttribute;
 
 import java.nio.ByteBuffer;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Augments attribute with RFC2868 Tag. If using multiple wrapping decorators,
@@ -32,6 +36,14 @@ public class TaggedAttribute extends BaseDecorator {
                 .put(getTag())
                 .put(getValue())
                 .array();
+    }
+
+    @Override
+    public RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
+        final Optional<AttributeTemplate> template = getAttributeTemplate();
+        return template.isPresent() ?
+                template.get().encode(this, requestAuth, secret) :
+                this;
     }
 
     @Override

@@ -12,6 +12,7 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.packet.request.AccessRequestNoAuth;
 import org.tinyradius.core.packet.request.AccessRequestPap;
 import org.tinyradius.core.packet.request.AccountingRequest;
 import org.tinyradius.core.packet.request.RadiusRequest;
@@ -180,9 +181,10 @@ class PromiseAdapterTest {
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
-        final RadiusRequest request = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
-                .addAttribute("User-Password", pw);
+        final RadiusRequest request = new AccessRequestNoAuth(dictionary, (byte) 1, null, Collections.emptyList())
+                .addAttribute("Tunnel-Password", pw);
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
+        assertEquals(pw, new String(request.getAttribute("Tunnel-Password").get().getValue(), UTF_8));
 
         // process packet out
         final List<Object> out = new ArrayList<>();
@@ -191,6 +193,7 @@ class PromiseAdapterTest {
         assertEquals(1, out.size());
 
         final RadiusRequest encodedRequest = ((RequestCtx) out.get(0)).getRequest();
+        assertNotEquals(pw, new String(encodedRequest.getAttribute("Tunnel-Password").get().getValue(), UTF_8));
 
         // capture request details
         final byte[] requestProxyState = encodedRequest.getAttribute(PROXY_STATE).get().getValue();
@@ -205,6 +208,7 @@ class PromiseAdapterTest {
                 .encodeResponse(secret, requestAuthenticator);
 
         assertFalse(promise.isDone());
+        assertNotEquals(pw, new String(encodedResponse.getAttribute("Tunnel-Password").get().getValue(), UTF_8));
 
         // decode response
         final List<Object> in1 = new ArrayList<>();
@@ -218,8 +222,6 @@ class PromiseAdapterTest {
         assertEquals(encodedResponse.getType(), decodedResponse.getType());
         assertArrayEquals(encodedResponse.getAuthenticator(), decodedResponse.getAuthenticator());
         assertEquals(pw, new String(decodedResponse.getAttribute("Tunnel-Password").get().getValue(), UTF_8));
-        System.out.println(encodedResponse);
-        System.out.println(decodedResponse);
 
         // check proxyState is removed after reading
         assertEquals(2, decodedResponse.getAttributes().size());
