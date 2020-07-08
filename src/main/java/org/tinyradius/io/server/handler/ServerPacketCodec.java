@@ -47,7 +47,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
             logger.debug("Sending response to {}", msg.getEndpoint().getAddress());
             out.add(datagramPacket);
         } catch (RadiusPacketException e) {
-            logger.warn("Could not encode Radius packet: {}", e.getMessage());
+            logger.warn("Could not serialize Radius packet: {}", e.getMessage());
         }
     }
 
@@ -68,7 +68,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
 
             out.add(new RequestCtx(request.decodeRequest(secret), new RadiusEndpoint(remoteAddress, secret)));
         } catch (RadiusPacketException e) {
-            logger.warn("Could not decode Radius packet: {}", e.getMessage());
+            logger.warn("Could not deserialize Radius packet: {}", e.getMessage());
         }
     }
 }

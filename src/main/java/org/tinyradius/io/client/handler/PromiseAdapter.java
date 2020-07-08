@@ -43,11 +43,6 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
         final String requestId = nextProxyStateId();
 
         try {
-            /*
-             * ideally encode as late as possible, just before convert to datagram
-             * however we need to generate a copy of the authenticator now for later lookups
-             * encodeRequest() should be idempotent anyway
-             */
             final RadiusRequest encodedRequest = packet
                     .addAttribute(packet.getDictionary().createAttribute(-1, PROXY_STATE, requestId.getBytes(UTF_8)))
                     .encodeRequest(msg.getEndpoint().getSecret());

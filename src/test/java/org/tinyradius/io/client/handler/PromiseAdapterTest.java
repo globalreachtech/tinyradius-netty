@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.io.client.PendingRequestCtx;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.AccessRequestPap;
@@ -17,9 +17,9 @@ import org.tinyradius.core.packet.request.AccountingRequest;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.AccessResponse;
 import org.tinyradius.core.packet.response.RadiusResponse;
-import org.tinyradius.io.server.RequestCtx;
 import org.tinyradius.io.RadiusEndpoint;
-import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.io.client.PendingRequestCtx;
+import org.tinyradius.io.server.RequestCtx;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
@@ -30,7 +30,6 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
-import static org.tinyradius.core.packet.PacketType.ACCOUNTING_RESPONSE;
 
 @ExtendWith(MockitoExtension.class)
 class PromiseAdapterTest {
@@ -176,11 +175,13 @@ class PromiseAdapterTest {
     @Test
     void encodeDecodeSuccess() throws RadiusPacketException {
         final String secret = "mySecret";
+        final String pw = "myPw";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
-        final RadiusRequest request = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
+        final RadiusRequest request = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
+                .addAttribute("User-Password", pw);
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
         // process packet out
@@ -189,32 +190,38 @@ class PromiseAdapterTest {
 
         assertEquals(1, out.size());
 
-        final RadiusRequest preparedRequest = ((RequestCtx) out.get(0)).getRequest();
+        final RadiusRequest encodedRequest = ((RequestCtx) out.get(0)).getRequest();
 
         // capture request details
-        final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).get().getValue();
-        final byte[] requestAuthenticator = preparedRequest.getAuthenticator();
+        final byte[] requestProxyState = encodedRequest.getAttribute(PROXY_STATE).get().getValue();
+        final byte[] requestAuthenticator = encodedRequest.getAuthenticator();
 
         assertFalse(promise.isDone());
 
         // channel read correct proxyState returns packet
-        final RadiusResponse goodResponse = RadiusResponse.create(dictionary, ACCOUNTING_RESPONSE, (byte) 1, null,
-                Collections.singletonList(dictionary.createAttribute(-1, PROXY_STATE, requestProxyState)))
+        final RadiusResponse encodedResponse = RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 1, null, Collections.emptyList())
+                .addAttribute(dictionary.createAttribute(-1, PROXY_STATE, requestProxyState))
+                .addAttribute(dictionary.createAttribute(-1, (byte) 69, pw.getBytes(UTF_8)))
                 .encodeResponse(secret, requestAuthenticator);
+
+        assertFalse(promise.isDone());
 
         // decode response
         final List<Object> in1 = new ArrayList<>();
-        handler.decode(ctx, goodResponse, in1);
+        handler.decode(ctx, encodedResponse, in1);
         assertTrue(in1.isEmpty());
 
         // check promise is done
         final RadiusResponse decodedResponse = promise.getNow();
         assertTrue(promise.isDone());
-        assertEquals(goodResponse.getId(), decodedResponse.getId());
-        assertEquals(goodResponse.getType(), decodedResponse.getType());
-        assertArrayEquals(goodResponse.getAuthenticator(), decodedResponse.getAuthenticator());
+        assertEquals(encodedResponse.getId(), decodedResponse.getId());
+        assertEquals(encodedResponse.getType(), decodedResponse.getType());
+        assertArrayEquals(encodedResponse.getAuthenticator(), decodedResponse.getAuthenticator());
+        assertEquals(pw, new String(decodedResponse.getAttribute("Tunnel-Password").get().getValue(), UTF_8));
+        System.out.println(encodedResponse);
+        System.out.println(decodedResponse);
 
         // check proxyState is removed after reading
-        assertEquals(0, decodedResponse.getAttributes().size());
+        assertEquals(2, decodedResponse.getAttributes().size());
     }
 }

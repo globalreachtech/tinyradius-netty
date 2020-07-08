@@ -6,10 +6,10 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageCodec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tinyradius.io.client.PendingRequestCtx;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.response.RadiusResponse;
-import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.io.client.PendingRequestCtx;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -35,13 +35,14 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
         try {
+            logger.debug("Sending request to {} - {}", msg.getEndpoint().getAddress(), msg.getRequest());
             final DatagramPacket datagramPacket = msg
                     .getRequest()
                     .toDatagram(msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
-            logger.debug("Sending request to {}", msg.getEndpoint().getAddress());
+
             out.add(datagramPacket);
         } catch (RadiusPacketException e) {
-            logger.warn("Could not encode Radius packet: {}", e.getMessage());
+            logger.warn("Could not serialize Radius packet: {}", e.getMessage());
             msg.getResponse().tryFailure(e);
         }
     }
@@ -59,10 +60,9 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
             RadiusResponse response = fromDatagram(dictionary, msg);
             logger.debug("Received response from {} - {}", remoteAddress, response);
 
-            // can't decode/verify until we know corresponding request auth
             out.add(response);
         } catch (RadiusPacketException e) {
-            logger.warn("Could not decode Radius packet: {}", e.getMessage());
+            logger.warn("Could not deserialize Radius packet: {}", e.getMessage());
         }
     }
 }
