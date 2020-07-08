@@ -9,12 +9,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.io.client.PendingRequestCtx;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
+import org.tinyradius.io.client.PendingRequestCtx;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -60,8 +62,8 @@ class BlacklistHandlerTest {
         verify(handlerContext).write(request2, channelPromise);
 
         // two failures to trigger blacklist
-        request1.getResponse().tryFailure(new Exception());
-        request2.getResponse().tryFailure(new Exception());
+        request1.getResponse().tryFailure(new TimeoutException());
+        request2.getResponse().tryFailure(new TimeoutException());
 
         final PendingRequestCtx request3 = genRequest(0);
         handler.write(handlerContext, request3, channelPromise);
@@ -86,8 +88,8 @@ class BlacklistHandlerTest {
         handler.write(handlerContext, request2, channelPromise);
 
         // two failures to trigger blacklist
-        request1.getResponse().tryFailure(new Exception());
-        request2.getResponse().tryFailure(new Exception());
+        request1.getResponse().tryFailure(new TimeoutException());
+        request2.getResponse().tryFailure(new TimeoutException());
 
         // next request blacklisted
         final PendingRequestCtx blacklisted1 = genRequest(0);
@@ -117,8 +119,8 @@ class BlacklistHandlerTest {
         handler.write(handlerContext, request3, channelPromise);
 
         // two failures to trigger blacklist
-        request1.getResponse().tryFailure(new Exception());
-        request2.getResponse().tryFailure(new Exception());
+        request1.getResponse().tryFailure(new TimeoutException());
+        request2.getResponse().tryFailure(new TimeoutException());
         // request3 no response yet
 
         // next request blacklisted
@@ -150,8 +152,8 @@ class BlacklistHandlerTest {
         handler.write(handlerContext, request3, channelPromise);
 
         // two failures to trigger blacklist
-        request1.getResponse().tryFailure(new Exception());
-        request2.getResponse().tryFailure(new Exception());
+        request1.getResponse().tryFailure(new TimeoutException());
+        request2.getResponse().tryFailure(new TimeoutException());
 
         // next request blacklisted
         final PendingRequestCtx blacklisted1 = genRequest(0);
@@ -172,5 +174,31 @@ class BlacklistHandlerTest {
             handler.write(handlerContext, laterRequest, channelPromise);
             verify(handlerContext).write(laterRequest, channelPromise);
         });
+    }
+
+    @Test
+    void onlyTimeoutsTriggerBlacklist() {
+        final PendingRequestCtx request1 = genRequest(0);
+        handler.write(handlerContext, request1, channelPromise);
+        verify(handlerContext).write(request1, channelPromise);
+
+        final PendingRequestCtx request2 = genRequest(0);
+        handler.write(handlerContext, request2, channelPromise);
+        verify(handlerContext).write(request2, channelPromise);
+
+        // only one TimeoutException should not trigger blacklist
+        request1.getResponse().tryFailure(new TimeoutException());
+        request2.getResponse().tryFailure(new IOException());
+
+        final PendingRequestCtx request3 = genRequest(0);
+        handler.write(handlerContext, request3, channelPromise);
+        verify(handlerContext).write(request3, channelPromise);
+
+        // second TimeoutException should trigger blacklist
+        request3.getResponse().tryFailure(new TimeoutException());
+
+        final PendingRequestCtx request4 = genRequest(0);
+        handler.write(handlerContext, request4, channelPromise);
+        verify(handlerContext, never()).write(request4, channelPromise);
     }
 }

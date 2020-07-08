@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import static org.awaitility.Awaitility.await;
@@ -55,7 +56,7 @@ class RadiusClientTest {
         }));
 
         final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
-        final IOException e = assertThrows(IOException.class,
+        final TimeoutException e = assertThrows(TimeoutException.class,
                 () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
 
         assertTrue(e.getMessage().toLowerCase().contains("max attempts reached"));
