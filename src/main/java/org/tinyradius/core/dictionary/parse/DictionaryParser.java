@@ -238,7 +238,7 @@ public class DictionaryParser {
 
     private static byte convertType(int type) {
         if (type < 0 || type > 255)
-            throw new IllegalArgumentException("Attribute type code out of bounds");
+            throw new IllegalArgumentException("Attribute type code out of bounds: " + type);
         return (byte) type;
     }
 
