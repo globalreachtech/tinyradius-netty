@@ -74,15 +74,23 @@ public class MemoryDictionary implements WritableDictionary {
     @Override
     public void addAttributeTemplate(AttributeTemplate attributeTemplate) {
         if (attributeTemplate == null)
-            throw new IllegalArgumentException("Attribute type must not be null");
+            throw new IllegalArgumentException("Attribute definition must not be null");
 
-        int vendorId = attributeTemplate.getVendorId();
-        byte typeCode = attributeTemplate.getType();
-        String attributeName = attributeTemplate.getName();
+        final int vendorId = attributeTemplate.getVendorId();
+        final byte typeCode = attributeTemplate.getType();
+        final String attributeName = attributeTemplate.getName();
 
-        if (attributesByName.containsKey(attributeName))
-            throw new IllegalArgumentException("Duplicate attribute name: " + attributeName);
-
+        // todo allow overwrite or if exact match already exists
+        // what about enums?
+        if (attributesByName.containsKey(attributeName)) {
+            final AttributeTemplate existing = attributesByName.get(attributeName);
+            if (existing.equals(attributeTemplate))
+                logger.info("Ignoring attribute definition - duplicate: {} [{},{}] {}, hasTag {}, encrypt {} ",
+                        existing.getName(), existing.getVendorId(), existing.getType(), existing.getDataType(),
+                        existing.hasTag(), existing.getCodecType());
+            else
+                throw new IllegalArgumentException("Duplicate attribute name: " + attributeName);
+        }
         attributesByName.put(attributeName, attributeTemplate);
 
         final Map<Byte, AttributeTemplate> vendorAttributes = attributesByCode

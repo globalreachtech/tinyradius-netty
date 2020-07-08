@@ -12,6 +12,7 @@ import org.tinyradius.core.RadiusPacketException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.lang.Byte.toUnsignedInt;
 import static java.util.Objects.requireNonNull;
@@ -30,7 +31,7 @@ public class AttributeTemplate {
 
     private final boolean hasTag;
     private final AttributeCodecType codecType;
-
+    // todo derived fields dynamic lookup?
     private final AttributeType decodedType;
     private final AttributeType encodedType;
 
@@ -221,6 +222,7 @@ public class AttributeTemplate {
     public Integer getEnumeration(String value) {
         return str2int.get(value);
     }
+    // todo store enum in attribute or in dictionary?
 
     /**
      * Adds a name for an integer value of this attribute.
@@ -297,5 +299,23 @@ public class AttributeTemplate {
             return ASCENT_SEND_SECRET;
 
         return fromId(encryptFlag);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AttributeTemplate)) return false;
+        final AttributeTemplate that = (AttributeTemplate) o;
+        return vendorId == that.vendorId &&
+                type == that.type &&
+                hasTag == that.hasTag &&
+                name.equals(that.name) &&
+                dataType.equals(that.dataType) &&
+                codecType == that.codecType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(vendorId, type, name, dataType, hasTag, codecType);
     }
 }
