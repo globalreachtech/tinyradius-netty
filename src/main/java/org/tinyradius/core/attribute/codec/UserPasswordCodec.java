@@ -45,10 +45,11 @@ class UserPasswordCodec extends BaseCodec {
             c = Arrays.copyOfRange(encodedData, i, 16);
         }
 
-        final int nullIndex = buf.indexOf(0, encodedData.length - 1, (byte) 0);
+        for (int nullIndex = encodedData.length - 1; nullIndex > 0; nullIndex--) {
+            if (buf.getByte(nullIndex) != 0)
+                return buf.writerIndex(nullIndex + 1).copy().array();
+        }
 
-        return nullIndex == -1 ?
-                buf.copy().array() :
-                buf.writerIndex(nullIndex).copy().array();
+        return buf.copy().array();
     }
 }

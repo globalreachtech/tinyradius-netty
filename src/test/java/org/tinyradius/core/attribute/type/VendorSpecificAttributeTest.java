@@ -257,6 +257,7 @@ class VendorSpecificAttributeTest {
         assertEquals(12345, ByteBuffer.wrap(decodeMinUp.getValue()).getInt());
         assertEquals(tag, decodeMaxUp.getTag());
 
+        // decode again
         final RadiusAttribute decode1 = decode.decode(requestAuth, secret);
         assertEquals(decode1, decode);
     }
