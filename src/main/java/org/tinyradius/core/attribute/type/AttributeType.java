@@ -19,11 +19,11 @@ public enum AttributeType {
         this.stringConstructor = stringConstructor;
     }
 
-    public OctetsAttribute create(Dictionary dictionary, int vendorId, byte type, byte[] value) {
+    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte[] value) {
         return byteArrayConstructor.newInstance(dictionary, vendorId, type, value);
     }
 
-    public OctetsAttribute create(Dictionary dictionary, int vendorId, byte type, String value) {
+    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, String value) {
         return stringConstructor.newInstance(dictionary, vendorId, type, value);
     }
 
@@ -49,10 +49,10 @@ public enum AttributeType {
     }
 
     private interface ByteArrayConstructor {
-        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, byte type, byte[] data);
+        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, int type, byte[] data);
     }
 
     private interface StringConstructor {
-        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, byte type, String data);
+        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, int type, String data);
     }
 }

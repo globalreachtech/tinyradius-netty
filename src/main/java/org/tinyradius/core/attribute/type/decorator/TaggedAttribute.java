@@ -31,7 +31,7 @@ public class TaggedAttribute extends BaseDecorator {
     public byte[] toByteArray() {
         final int len = getValue().length + 3;
         return ByteBuffer.allocate(len)
-                .put(getType())
+                .put((byte) getType())
                 .put((byte) len)
                 .put(getTag())
                 .put(getValue())

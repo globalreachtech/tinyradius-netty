@@ -24,7 +24,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @param type     attribute type code
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> filterAttributes(int vendorId, byte type) {
+    default List<RadiusAttribute> filterAttributes(int vendorId, int type) {
         if (vendorId == getChildVendorId())
             return filterAttributes(type);
 
@@ -49,7 +49,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @param type     attribute type
      * @return RadiusAttribute object or null if there is no such attribute
      */
-    default Optional<RadiusAttribute> getAttribute(int vendorId, byte type) {
+    default Optional<RadiusAttribute> getAttribute(int vendorId, int type) {
         return filterAttributes(vendorId, type).stream().findFirst();
     }
 

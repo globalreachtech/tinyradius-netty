@@ -31,7 +31,7 @@ abstract class BaseDecorator implements RadiusAttribute {
     }
 
     @Override
-    public byte getType() {
+    public int getType() {
         return delegate.getType();
     }
 

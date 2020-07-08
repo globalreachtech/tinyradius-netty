@@ -24,11 +24,12 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
     protected static final Logger logger = LogManager.getLogger();
     protected static final SecureRandom RANDOM = new SecureRandom();
 
-    protected static final byte USER_PASSWORD = 2;
-    protected static final byte CHAP_PASSWORD = 3;
-    protected static final byte EAP_MESSAGE = 79;
-    protected static final byte ARAP_PASSWORD = 70;
-    private static final Set<Byte> AUTH_ATTRS = new HashSet<>(Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE));
+    protected static final int USER_PASSWORD = 2;
+    protected static final int CHAP_PASSWORD = 3;
+    protected static final int EAP_MESSAGE = 79;
+    protected static final int ARAP_PASSWORD = 70;
+    private static final Set<Integer> AUTH_ATTRS = new HashSet<>(
+            Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE));
 
     protected AccessRequest(Dictionary dictionary, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
         super(dictionary, PacketType.ACCESS_REQUEST, id, authenticator, attributes);
@@ -55,7 +56,7 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
          * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
          * MUST NOT contain more than one type of those four attributes.
          */
-        final Set<Byte> detectedAuth = attributes.stream()
+        final Set<Integer> detectedAuth = attributes.stream()
                 .map(RadiusAttribute::getType)
                 .filter(AUTH_ATTRS::contains)
                 .collect(toSet());

@@ -11,17 +11,17 @@ import static java.lang.Integer.*;
  */
 public class IntegerAttribute extends OctetsAttribute {
 
-    public IntegerAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
+    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         super(dictionary, vendorId, type, data);
         if (data.length != 4)
             throw new IllegalArgumentException("Integer / Date attribute value should be 4 octets, actual: " + data.length);
     }
 
-    public IntegerAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
+    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, String value) {
         this(dictionary, vendorId, type, convertValue(value, dictionary, type, vendorId));
     }
 
-    public IntegerAttribute(Dictionary dictionary, int vendorId, byte type, int value) {
+    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, int value) {
         this(dictionary, vendorId, type, convertValue(value));
     }
 
@@ -34,8 +34,8 @@ public class IntegerAttribute extends OctetsAttribute {
         return ByteBuffer.allocate(4).putInt(value).array();
     }
 
-    private static int convertValue(String value, Dictionary dictionary, byte attributeId, int vendorId) {
-        return dictionary.getAttributeTemplate(vendorId, attributeId)
+    private static int convertValue(String value, Dictionary dictionary, int type, int vendorId) {
+        return dictionary.getAttributeTemplate(vendorId, type)
                 .map(at -> at.getEnumeration(value))
                 .orElseGet(() -> parseUnsignedInt(value));
     }

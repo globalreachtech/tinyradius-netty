@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.lang.Byte.toUnsignedInt;
-
 /**
  * A dictionary that keeps the values and names in hash maps
  * in the memory. The dictionary has to be filled using the
@@ -21,12 +19,12 @@ public class MemoryDictionary implements WritableDictionary {
     private static final Logger logger = LogManager.getLogger();
 
     private final Map<Integer, Vendor> vendorsByCode = new HashMap<>();
-    private final Map<Integer, Map<Byte, AttributeTemplate>> attributesByCode = new HashMap<>();
+    private final Map<Integer, Map<Integer, AttributeTemplate>> attributesByCode = new HashMap<>();
     private final Map<String, AttributeTemplate> attributesByName = new HashMap<>();
 
     @Override
-    public Optional<AttributeTemplate> getAttributeTemplate(int vendorCode, byte attributeId) {
-        Map<Byte, AttributeTemplate> vendorAttributes = attributesByCode.get(vendorCode);
+    public Optional<AttributeTemplate> getAttributeTemplate(int vendorCode, int attributeId) {
+        Map<Integer, AttributeTemplate> vendorAttributes = attributesByCode.get(vendorCode);
         return Optional.ofNullable(vendorAttributes)
                 .map(va -> va.get(attributeId));
     }
@@ -77,7 +75,7 @@ public class MemoryDictionary implements WritableDictionary {
             throw new IllegalArgumentException("Attribute definition must not be null");
 
         final int vendorId = attributeTemplate.getVendorId();
-        final byte typeCode = attributeTemplate.getType();
+        final int typeCode = attributeTemplate.getType();
         final String attributeName = attributeTemplate.getName();
 
         if (attributesByName.containsKey(attributeName)) {
@@ -94,13 +92,13 @@ public class MemoryDictionary implements WritableDictionary {
         }
         attributesByName.put(attributeName, attributeTemplate);
 
-        final Map<Byte, AttributeTemplate> vendorAttributes = attributesByCode
+        final Map<Integer, AttributeTemplate> vendorAttributes = attributesByCode
                 .computeIfAbsent(vendorId, k -> new HashMap<>());
 
         // support multiple names with same code for compatibility
         if (vendorAttributes.containsKey(typeCode))
             logger.warn("Duplicate type code [{},{}], overwriting {} with {}",
-                    vendorId, toUnsignedInt(typeCode), vendorAttributes.get(typeCode).getName(), attributeTemplate.getName());
+                    vendorId, Integer.toUnsignedLong(typeCode), vendorAttributes.get(typeCode).getName(), attributeTemplate.getName());
 
         vendorAttributes.put(typeCode, attributeTemplate);
     }

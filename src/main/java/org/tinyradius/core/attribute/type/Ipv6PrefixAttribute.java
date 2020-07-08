@@ -15,7 +15,7 @@ import static java.lang.Byte.toUnsignedInt;
  */
 public class Ipv6PrefixAttribute extends OctetsAttribute {
 
-    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, byte[] data) {
+    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
         this(dictionary, vendorId, type, convertValue(data), toUnsignedInt(data[1]));
     }
 
@@ -27,11 +27,11 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
      * @param type       attribute type code
      * @param value      value, format: "ipv6 address"/prefix
      */
-    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
+    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, String value) {
         this(dictionary, vendorId, type, convertValue(value), Integer.parseInt(value.split("/")[1]));
     }
 
-    private Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, byte type, InetAddress address, int prefixLength) {
+    private Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, InetAddress address, int prefixLength) {
         super(dictionary, vendorId, type, convertAndCheck(address, prefixLength));
     }
 

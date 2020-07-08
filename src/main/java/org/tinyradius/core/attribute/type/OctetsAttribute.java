@@ -1,12 +1,14 @@
 package org.tinyradius.core.attribute.type;
 
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import javax.xml.bind.DatatypeConverter;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
@@ -17,7 +19,7 @@ import static java.util.Objects.requireNonNull;
 public class OctetsAttribute implements RadiusAttribute {
 
     private final Dictionary dictionary;
-    private final byte type;
+    private final int type;
     private final byte[] value;
 
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
@@ -28,7 +30,7 @@ public class OctetsAttribute implements RadiusAttribute {
      * @param type       attribute type code
      * @param value      value of attribute as byte array, excluding type and length bytes
      */
-    public OctetsAttribute(Dictionary dictionary, int vendorId, byte type, byte[] value) {
+    public OctetsAttribute(Dictionary dictionary, int vendorId, int type, byte[] value) {
         this.dictionary = requireNonNull(dictionary, "Dictionary not set");
         this.vendorId = vendorId;
         this.type = type;
@@ -43,7 +45,7 @@ public class OctetsAttribute implements RadiusAttribute {
      * @param type       attribute type code
      * @param value      value of attribute as hex string
      */
-    public OctetsAttribute(Dictionary dictionary, int vendorId, byte type, String value) {
+    public OctetsAttribute(Dictionary dictionary, int vendorId, int type, String value) {
         this(dictionary, vendorId, type, DatatypeConverter.parseHexBinary(value));
     }
 
@@ -53,7 +55,7 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     @Override
-    public byte getType() {
+    public int getType() {
         return type;
     }
 
@@ -81,7 +83,7 @@ public class OctetsAttribute implements RadiusAttribute {
     public byte[] toByteArray() {
         final int len = getValue().length + 2;
         return ByteBuffer.allocate(len)
-                .put(getType())
+                .put((byte) getType())
                 .put((byte) len)
                 .put(getValue())
                 .array();

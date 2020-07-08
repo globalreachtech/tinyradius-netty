@@ -18,7 +18,7 @@ public interface RadiusAttribute {
     /**
      * @return attribute type code, 0-255
      */
-    byte getType();
+    int getType();
 
     /**
      * @return Tag if available and specified for attribute type (RFC2868)
@@ -78,7 +78,7 @@ public interface RadiusAttribute {
      * @return attribute with encoded data
      * @throws RadiusPacketException errors encoding attribute
      */
-    default RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException{
+    default RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
         return this;
     }
 
@@ -90,7 +90,7 @@ public interface RadiusAttribute {
      * @return attribute with encoded data
      * @throws RadiusPacketException errors decoding attribute
      */
-    default RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException{
+    default RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
         return this;
     }
 

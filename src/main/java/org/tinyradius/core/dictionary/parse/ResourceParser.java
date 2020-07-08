@@ -106,6 +106,8 @@ public class ResourceParser {
             case "VENDOR":
                 parseVendor(tokens, lineNum);
                 break;
+            case "BEGIN-TLV":
+            case "END-TLV":
             default:
                 throw new IOException("Could not decode tokens on line " + lineNum + ": " + Arrays.toString(tokens));
         }
@@ -150,7 +152,7 @@ public class ResourceParser {
 
         final int vendorId = offset == 1 ? Integer.parseInt(tok[1]) : currentVendor;
         final String name = tok[1 + offset];
-        final byte type = convertType(Integer.parseInt(tok[2 + offset]), vendorId);
+        final int type = validateType(Integer.parseInt(tok[2 + offset]), vendorId);
         final String typeStr = tok[3 + offset];
 
         // no flags
@@ -171,9 +173,8 @@ public class ResourceParser {
      * @return deferred Dictionary write, so it can be processed before ATTRIBUTE
      */
     private Consumer<WritableDictionary> parseValue(String[] tok, int lineNum) throws IOException {
-        if (tok.length != 4) {
+        if (tok.length != 4)
             throw new IOException("VALUE parse error on line " + lineNum + ": " + Arrays.toString(tok));
-        }
 
         final String attributeName = tok[1];
         final String enumName = tok[2];
@@ -188,9 +189,8 @@ public class ResourceParser {
      * Parses a line containing a vendor declaration.
      */
     private void parseVendor(String[] tok, int lineNum) throws IOException {
-        if (tok.length < 3 || tok.length > 4) {
+        if (tok.length < 3 || tok.length > 4)
             throw new IOException("VENDOR parse error on line " + lineNum + ": " + Arrays.toString(tok));
-        }
 
         final int[] format = tok.length == 4 ?
                 formatFlag(tok[3]) : new int[]{1, 1};
@@ -230,16 +230,15 @@ public class ResourceParser {
             throw new IOException("Included file '" + includeFile + "' was not found, line " + lineNum + ", " + currentResource);
     }
 
-    private byte convertType(int type, int vendorId) {
+    private int validateType(int type, int vendorId) {
         final int max = dictionary.getVendor(vendorId)
                 .map(Vendor::getTypeSize)
                 .map(t -> 2 ^ (8 * t) - 1)
                 .orElse(255);
-        // todo
 
-        if (type < 0 || type > 255)
+        if (type < 0 || type > max)
             throw new IllegalArgumentException("Attribute type code out of bounds: " + type);
-        return (byte) type;
+        return type;
     }
 
     private int[] formatFlag(String flag) {

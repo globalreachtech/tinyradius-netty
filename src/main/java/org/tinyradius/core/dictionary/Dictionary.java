@@ -16,7 +16,7 @@ public interface Dictionary extends CoreDictionary {
      * @param value    attribute data as byte array
      * @return RadiusAttribute object
      */
-    default RadiusAttribute createAttribute(int vendorId, byte type, byte[] value) {
+    default RadiusAttribute createAttribute(int vendorId, int type, byte[] value) {
         return createAttribute(vendorId, type, (byte) 0, value);
     }
 
@@ -29,7 +29,7 @@ public interface Dictionary extends CoreDictionary {
      * @param value    attribute data as byte array
      * @return RadiusAttribute object
      */
-    default RadiusAttribute createAttribute(int vendorId, byte type, byte tag, byte[] value) {
+    default RadiusAttribute createAttribute(int vendorId, int type, byte tag, byte[] value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
                 .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));
@@ -43,7 +43,7 @@ public interface Dictionary extends CoreDictionary {
      * @param value    attribute data as String
      * @return RadiusAttribute object
      */
-    default RadiusAttribute createAttribute(int vendorId, byte type, String value) {
+    default RadiusAttribute createAttribute(int vendorId, int type, String value) {
         return createAttribute(vendorId, type, (byte) 0, value);
     }
 
@@ -56,7 +56,7 @@ public interface Dictionary extends CoreDictionary {
      * @param value    attribute data as String
      * @return RadiusAttribute object
      */
-    default RadiusAttribute createAttribute(int vendorId, byte type, byte tag, String value) {
+    default RadiusAttribute createAttribute(int vendorId, int type, byte tag, String value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
                 .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));

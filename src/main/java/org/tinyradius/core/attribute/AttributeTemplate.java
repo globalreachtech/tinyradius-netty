@@ -1,5 +1,6 @@
 package org.tinyradius.core.attribute;
 
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.attribute.type.AttributeType;
 import org.tinyradius.core.attribute.type.OctetsAttribute;
@@ -7,14 +8,12 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.decorator.EncodedAttribute;
 import org.tinyradius.core.attribute.type.decorator.TaggedAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static java.lang.Byte.toUnsignedInt;
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
 import static org.tinyradius.core.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
@@ -25,7 +24,7 @@ import static org.tinyradius.core.attribute.type.VendorSpecificAttribute.VENDOR_
 public class AttributeTemplate {
 
     private final int vendorId;
-    private final byte type;
+    private final int type;
     private final String name;
     private final String dataType;
 
@@ -45,9 +44,9 @@ public class AttributeTemplate {
      * @param type        sub-attribute type code, as unsigned byte
      * @param name        sub-attribute name
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
-     * @see AttributeTemplate#AttributeTemplate(int, byte, String, String, byte, boolean)
+     * @see AttributeTemplate#AttributeTemplate(int, int, String, String, byte, boolean)
      */
-    public AttributeTemplate(int vendorId, byte type, String name, String rawDataType) {
+    public AttributeTemplate(int vendorId, int type, String name, String rawDataType) {
         this(vendorId, type, name, rawDataType, (byte) 0, false);
     }
 
@@ -61,7 +60,7 @@ public class AttributeTemplate {
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or default 0 for none
      * @param hasTag      whether attribute supports tags, as defined in RFC2868, default false
      */
-    public AttributeTemplate(int vendorId, byte type, String name, String rawDataType, byte encryptFlag, boolean hasTag) {
+    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encryptFlag, boolean hasTag) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
         requireNonNull(rawDataType, "Data type is null");
@@ -161,7 +160,7 @@ public class AttributeTemplate {
     /**
      * @return Radius type code for this attribute e.g. '1' (for User-Name)
      */
-    public byte getType() {
+    public int getType() {
         return type;
     }
 
@@ -276,18 +275,18 @@ public class AttributeTemplate {
     }
 
     public String toString() {
-        String s = toUnsignedInt(getType()) + "/" + getName() + ": " + getDataType();
+        String s = Integer.toUnsignedString(getType()) + "/" + getName() + ": " + getDataType();
         if (getVendorId() != -1)
             s += " (Vendor " + getVendorId() + ")";
         return s;
     }
 
-    private static boolean detectHasTag(int vendorId, byte type, boolean hasTag) {
+    private static boolean detectHasTag(int vendorId, int type, boolean hasTag) {
         // Tunnel-Password
         return (vendorId == -1 && type == 69) || hasTag;
     }
 
-    private static AttributeCodecType detectAttributeCodec(int vendorId, byte type, byte encryptFlag) {
+    private static AttributeCodecType detectAttributeCodec(int vendorId, int type, byte encryptFlag) {
         if (vendorId == -1 && type == 2) // User-Password
             return RFC2865_USER_PASSWORD;
 

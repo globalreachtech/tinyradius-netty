@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
  */
 public abstract class IpAttribute extends OctetsAttribute {
 
-    private IpAttribute(Dictionary dictionary, int vendorId, byte type, InetAddress data, Class<? extends InetAddress> clazz) {
+    private IpAttribute(Dictionary dictionary, int vendorId, int type, InetAddress data, Class<? extends InetAddress> clazz) {
         super(dictionary, vendorId, type, data.getAddress());
 
         if (!clazz.isInstance(data))
@@ -48,15 +48,15 @@ public abstract class IpAttribute extends OctetsAttribute {
      * IPv4 Address
      */
     public static class V4 extends IpAttribute {
-        public V4(Dictionary dictionary, int vendorId, byte type, byte[] data) {
+        public V4(Dictionary dictionary, int vendorId, int type, byte[] data) {
             this(dictionary, vendorId, type, IpAttribute.convert(data));
         }
 
-        public V4(Dictionary dictionary, int vendorId, byte type, String data) {
+        public V4(Dictionary dictionary, int vendorId, int type, String data) {
             this(dictionary, vendorId, type, IpAttribute.convert(data));
         }
 
-        public V4(Dictionary dictionary, int vendorId, byte type, InetAddress address) {
+        public V4(Dictionary dictionary, int vendorId, int type, InetAddress address) {
             super(dictionary, vendorId, type, address, Inet4Address.class);
         }
 
@@ -69,15 +69,15 @@ public abstract class IpAttribute extends OctetsAttribute {
      * IPv6 Address
      */
     public static class V6 extends IpAttribute {
-        public V6(Dictionary dictionary, int vendorId, byte type, byte[] data) {
+        public V6(Dictionary dictionary, int vendorId, int type, byte[] data) {
             this(dictionary, vendorId, type, IpAttribute.convert(data));
         }
 
-        public V6(Dictionary dictionary, int vendorId, byte type, String data) {
+        public V6(Dictionary dictionary, int vendorId, int type, String data) {
             this(dictionary, vendorId, type, IpAttribute.convert(data));
         }
 
-        public V6(Dictionary dictionary, int vendorId, byte type, InetAddress address) {
+        public V6(Dictionary dictionary, int vendorId, int type, InetAddress address) {
             super(dictionary, vendorId, type, address, Inet6Address.class);
         }
     }

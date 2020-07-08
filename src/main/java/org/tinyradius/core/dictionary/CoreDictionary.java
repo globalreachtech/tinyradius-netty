@@ -34,7 +34,7 @@ public interface CoreDictionary {
      * @param attributeId attributeId 1-255
      * @return AttributeTemplate
      */
-    Optional<AttributeTemplate> getAttributeTemplate(int vendorId, byte attributeId);
+    Optional<AttributeTemplate> getAttributeTemplate(int vendorId, int attributeId);
 
     /**
      * Retrieves the vendor with the given vendor code.

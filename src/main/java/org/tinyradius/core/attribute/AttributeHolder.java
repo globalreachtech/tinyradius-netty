@@ -86,7 +86,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type attribute type
      * @return RadiusAttribute object or null if there is no such attribute
      */
-    default Optional<RadiusAttribute> getAttribute(byte type) {
+    default Optional<RadiusAttribute> getAttribute(int type) {
         return filterAttributes(type).stream().findFirst();
     }
 
@@ -96,7 +96,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type type of attributes to get
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> filterAttributes(byte type) {
+    default List<RadiusAttribute> filterAttributes(int type) {
         return filterAttributes(a -> a.getType() == type);
     }
 
