@@ -57,10 +57,16 @@ public class MemoryDictionary implements WritableDictionary {
         if (vendorName == null || vendorName.isEmpty())
             throw new IllegalArgumentException("Vendor name empty: " + vendorName + " (vendorId" + vendorId + ")");
 
+        // todo check equality, not just name match
         final Optional<String> existing = getVendorName(vendorId);
-        if (existing.isPresent() && !existing.get().equals(vendorName))
-            throw new IllegalArgumentException("Duplicate vendor code: " + vendorId +
-                    " (adding " + vendorName + ", but already set to " + existing.get() + ")");
+        if (existing.isPresent())
+            if (existing.get().equals(vendorName)) {
+                logger.info("Ignoring duplicate vendor definition: {} {}", vendorName, vendorId);
+                return;
+            } else {
+                throw new IllegalArgumentException("Duplicate vendor code: " + vendorId +
+                        " (adding " + vendorName + ", but already set to " + existing.get() + ")");
+            }
 
         vendorsByCode.put(vendorId, vendorName);
     }
@@ -84,12 +90,15 @@ public class MemoryDictionary implements WritableDictionary {
         // what about enums?
         if (attributesByName.containsKey(attributeName)) {
             final AttributeTemplate existing = attributesByName.get(attributeName);
-            if (existing.equals(attributeTemplate))
-                logger.info("Ignoring attribute definition - duplicate: {} [{},{}] {}, hasTag {}, encrypt {} ",
+            if (existing.equals(attributeTemplate)) {
+                logger.info("Ignoring duplicate attribute definition: {} [{},{}] {}, hasTag={}, encrypt={} ",
                         existing.getName(), existing.getVendorId(), existing.getType(), existing.getDataType(),
                         existing.hasTag(), existing.getCodecType());
-            else
-                throw new IllegalArgumentException("Duplicate attribute name: " + attributeName);
+                return;
+            } else {
+                throw new IllegalArgumentException("Duplicate attribute definition name, " +
+                        "existing attribute not equal to new attribute: " + attributeName);
+            }
         }
         attributesByName.put(attributeName, attributeTemplate);
 

@@ -22,3 +22,9 @@ END-VENDOR      CableLabs
 # test handle VENDOR flags gracefully
 # dictionary.lucent
 VENDOR		Lucent				4846	format=2,1
+
+# test duplicate VENDOR exact match should be ignored
+VENDOR		Lucent				4846	format=2,1
+
+# test duplicate ATTRIBUTE exact match
+VENDORATTR  4491    CableLabs-Reserved  0   octets
