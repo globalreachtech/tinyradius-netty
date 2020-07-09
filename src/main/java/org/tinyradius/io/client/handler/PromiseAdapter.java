@@ -57,7 +57,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
             out.add(new PendingRequestCtx(encodedRequest, msg.getEndpoint(), msg.getResponse()));
         } catch (RadiusPacketException e) {
-            logger.warn("Could not encode Radius packet: {}", e.getMessage());
+            logger.warn("Could not encode packet", e);
             msg.getResponse().tryFailure(e);
         }
     }
@@ -95,7 +95,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
             // intentionally nothing to pass through - listeners should hook onto promise
         } catch (RadiusPacketException e) {
-            logger.warn(e.getMessage());
+            logger.warn("Could not decode packet", e);
         }
     }
 

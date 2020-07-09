@@ -243,7 +243,7 @@ public class AttributeTemplate {
      * @throws RadiusPacketException errors encoding attribute
      */
     public RadiusAttribute encode(RadiusAttribute attribute, byte[] requestAuth, String secret) throws RadiusPacketException {
-        // avoid wrapping in EncodedDecorator if doesn't support
+        // don't wrap in EncodedDecorator if not supported
         if (!encryptEnabled() || attribute.isEncoded())
             return attribute;
 
