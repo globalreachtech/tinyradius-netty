@@ -63,7 +63,7 @@ class TunnelPasswordCodec extends BaseCodec {
 
         for (int i = 0; i < strLen; i += 16) {
             plaintext.writeBytes(xor16(encodedStr, i, md5(secret, c)));
-            c = Arrays.copyOfRange(encodedStr, i, 16);
+            c = Arrays.copyOfRange(encodedStr, i, i + 16);
         }
 
         final byte len = plaintext.readByte(); // first

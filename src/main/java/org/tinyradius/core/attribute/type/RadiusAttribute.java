@@ -27,17 +27,6 @@ public interface RadiusAttribute {
     byte getTag();
 
     /**
-     * @return byte array of length 1 containing {@link #getTag()},
-     * or empty byte array of length 0 if attribute does not support tags
-     */
-    default byte[] getTagBytes() {
-        final boolean tagged = getAttributeTemplate()
-                .map(AttributeTemplate::isTagged)
-                .orElse(false);
-        return tagged ? new byte[]{getTag()} : new byte[0];
-    }
-
-    /**
      * @return attribute data as raw bytes
      */
     byte[] getValue();
@@ -58,11 +47,26 @@ public interface RadiusAttribute {
     default byte[] toByteArray() {
         final int len = getValue().length + 2 + getTagBytes().length;
         return ByteBuffer.allocate(len)
-                .put((byte) getType())
+                .put(getTypeBytes())
                 .put((byte) len)
                 .put(getTagBytes())
                 .put(getValue())
                 .array();
+    }
+
+    default byte[] getTypeBytes() {
+        return new byte[]{(byte) getType()};
+    }
+
+    /**
+     * @return byte array of length 1 containing {@link #getTag()},
+     * or empty byte array of length 0 if attribute does not support tags
+     */
+    default byte[] getTagBytes() {
+        final boolean tagged = getAttributeTemplate()
+                .map(AttributeTemplate::isTagged)
+                .orElse(false);
+        return tagged ? new byte[]{getTag()} : new byte[0];
     }
 
     default String getAttributeName() {

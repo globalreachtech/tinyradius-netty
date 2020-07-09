@@ -24,7 +24,7 @@ class UserPasswordCodecTest {
 
     private final UserPasswordCodec codec = new UserPasswordCodec();
 
-    @ValueSource(strings = {"shortPw", "my16charPassword", "myMuchLongerPassword"})
+    @ValueSource(strings = {"shortPw", "my16charPassword", "myMuchLongerPassword", "myMuchLongerPasswordMyMuchLongerPassword"})
     @ParameterizedTest
     void encodeDecode(String password) throws RadiusPacketException {
         final byte[] requestAuth = random.generateSeed(16);

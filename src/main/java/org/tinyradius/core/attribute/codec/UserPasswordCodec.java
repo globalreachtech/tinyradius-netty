@@ -42,7 +42,7 @@ class UserPasswordCodec extends BaseCodec {
 
         for (int i = 0; i < encodedData.length; i += 16) {
             buf.writeBytes(xor16(encodedData, i, md5(secret, c)));
-            c = Arrays.copyOfRange(encodedData, i, 16);
+            c = Arrays.copyOfRange(encodedData, i, i + 16);
         }
 
         for (int nullIndex = encodedData.length - 1; nullIndex > 0; nullIndex--) {

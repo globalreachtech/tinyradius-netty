@@ -8,6 +8,7 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.decorator.EncodedAttribute;
 import org.tinyradius.core.attribute.type.decorator.TaggedAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.dictionary.Vendor;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -114,6 +115,10 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute parse(Dictionary dictionary, byte[] rawData) {
+        final int lengthSize = dictionary.getVendor(vendorId)
+                .map(Vendor::getLengthSize)
+                .orElse(1);
+
         if (isTagged()) {
             if (rawData.length == 0)
                 throw new IllegalArgumentException("Attribute data (excl. type, length fields) cannot be empty if attribute requires tag.");

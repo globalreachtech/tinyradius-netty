@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.dictionary.Vendor;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -37,6 +38,10 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return list of RadiusAttributes
      */
     static List<RadiusAttribute> extractAttributes(Dictionary dictionary, int vendorId, byte[] data, int pos) {
+        final int typeSize = dictionary.getVendor(vendorId)
+                .map(Vendor::getTypeSize)
+                .orElse(1);
+
         final ArrayList<RadiusAttribute> attributes = new ArrayList<>();
 
         // at least 2 octets left

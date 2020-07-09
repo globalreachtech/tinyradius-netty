@@ -26,7 +26,7 @@ TinyRadius-Netty is a fork of the TinyRadius Radius library, rebuilt with Java 8
 - Proxy no longer a separate implementation, but a promise-based adapter between the client and server classes
 
 ## Usage
-See the [example implementations](src/test/java/org/tinyradius) on usage as Client/Server/Proxy.
+See the [example implementations](src/test/java/org/tinyradius/io) on usage as Client/Server/Proxy.
 
 ## License
 Copyright Matthias Wuttke and contributors:

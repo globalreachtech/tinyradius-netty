@@ -1,4 +1,4 @@
-package org.tinyradius;
+package org.tinyradius.io;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
