@@ -4,6 +4,7 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +17,7 @@ public interface RadiusAttribute {
     int getVendorId();
 
     /**
-     * @return attribute type code, 0-255
+     * @return attribute type code, typically 0-255
      */
     int getType();
 
@@ -24,6 +25,17 @@ public interface RadiusAttribute {
      * @return Tag if available and specified for attribute type (RFC2868)
      */
     byte getTag();
+
+    /**
+     * @return byte array of length 1 containing {@link #getTag()},
+     * or empty byte array of length 0 if attribute does not support tags
+     */
+    default byte[] getTagBytes() {
+        final boolean tagged = getAttributeTemplate()
+                .map(AttributeTemplate::isTagged)
+                .orElse(false);
+        return tagged ? new byte[]{getTag()} : new byte[0];
+    }
 
     /**
      * @return attribute data as raw bytes
@@ -43,7 +55,15 @@ public interface RadiusAttribute {
     /**
      * @return entire attribute (including headers) as byte array
      */
-    byte[] toByteArray();
+    default byte[] toByteArray() {
+        final int len = getValue().length + 2 + getTagBytes().length;
+        return ByteBuffer.allocate(len)
+                .put((byte) getType())
+                .put((byte) len)
+                .put(getTagBytes())
+                .put(getValue())
+                .array();
+    }
 
     default String getAttributeName() {
         return getAttributeTemplate()

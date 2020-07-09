@@ -29,11 +29,6 @@ public class EncodedAttribute extends AbstractDecorator {
     }
 
     @Override
-    public byte[] toByteArray() {
-        return delegate.toByteArray();
-    }
-
-    @Override
     public String toString() {
         final AttributeCodecType codecType = getAttributeTemplate()
                 .map(AttributeTemplate::getCodecType)

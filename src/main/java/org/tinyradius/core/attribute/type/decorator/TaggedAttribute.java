@@ -28,17 +28,6 @@ public class TaggedAttribute extends AbstractDecorator {
     }
 
     @Override
-    public byte[] toByteArray() {
-        final int len = getValue().length + 3;
-        return ByteBuffer.allocate(len)
-                .put((byte) getType())
-                .put((byte) len)
-                .put(getTag())
-                .put(getValue())
-                .array();
-    }
-
-    @Override
     public RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?

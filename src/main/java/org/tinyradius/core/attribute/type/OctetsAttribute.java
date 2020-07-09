@@ -5,7 +5,6 @@ import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import javax.xml.bind.DatatypeConverter;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -77,16 +76,6 @@ public class OctetsAttribute implements RadiusAttribute {
     @Override
     public Dictionary getDictionary() {
         return dictionary;
-    }
-
-    @Override
-    public byte[] toByteArray() {
-        final int len = getValue().length + 2;
-        return ByteBuffer.allocate(len)
-                .put((byte) getType())
-                .put((byte) len)
-                .put(getValue())
-                .array();
     }
 
     @Override
