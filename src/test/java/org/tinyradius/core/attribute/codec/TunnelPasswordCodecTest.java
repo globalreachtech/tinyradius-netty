@@ -3,10 +3,10 @@ package org.tinyradius.core.attribute.codec;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
@@ -47,7 +47,8 @@ class TunnelPasswordCodecTest {
         final byte[] requestAuth = random.generateSeed(16);
         final String sharedSecret = "sharedSecret1";
 
-        final RadiusAttribute attribute = dictionary.createAttribute(-1, (byte) 141, pwByte);
+        // 529/1 is integer type
+        final RadiusAttribute attribute = dictionary.createAttribute(529, 1, pwByte);
         assertArrayEquals(pwByte, attribute.getValue());
 
         final byte[] encode = codec.encode(attribute.getValue(), requestAuth, sharedSecret);

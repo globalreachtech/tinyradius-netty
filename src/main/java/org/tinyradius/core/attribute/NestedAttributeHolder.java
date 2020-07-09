@@ -128,7 +128,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @param type     attribute type code
      * @return object of same type with removed attributes
      */
-    default T removeAttributes(int vendorId, byte type) {
+    default T removeAttributes(int vendorId, int type) {
         if (vendorId == getChildVendorId())
             return removeAttributes(type);
 

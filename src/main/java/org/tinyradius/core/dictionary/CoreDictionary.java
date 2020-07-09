@@ -22,7 +22,7 @@ public interface CoreDictionary {
      * @param attributeId attributeId 1-255
      * @return AttributeTemplate
      */
-    default Optional<AttributeTemplate> getAttributeTemplate(byte attributeId) {
+    default Optional<AttributeTemplate> getAttributeTemplate(int attributeId) {
         return getAttributeTemplate(-1, attributeId);
     }
 

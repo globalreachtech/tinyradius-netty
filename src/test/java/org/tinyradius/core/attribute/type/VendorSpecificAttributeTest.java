@@ -72,10 +72,10 @@ class VendorSpecificAttributeTest {
         final String data = "myLocationId";
         final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
                 dictionary.createAttribute("WISPr-Location-ID", "myLocationId")
-        )).addAttribute(dictionary.createAttribute(14122, (byte) 2, data));
+        )).addAttribute(dictionary.createAttribute(14122, 2, data));
 
         assertEquals(2, vsa.getAttributes().size());
-        assertEquals(data, vsa.getAttribute((byte) 2).get().getValueString());
+        assertEquals(data, vsa.getAttribute(2).get().getValueString());
     }
 
     @Test
@@ -101,7 +101,7 @@ class VendorSpecificAttributeTest {
     @Test
     void vsaToFromByteArray() {
         final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Arrays.asList(
-                dictionary.createAttribute(14122, (byte) 2, "hiii"),
+                dictionary.createAttribute(14122, 2, "hiii"),
                 dictionary.createAttribute("WISPr-Location-ID", "myLocationId")
         ));
         assertEquals(2, vsa.getAttributes().size());
@@ -129,7 +129,7 @@ class VendorSpecificAttributeTest {
 
     @Test
     void vsaToByteArrayLargestUnsignedVendorId() {
-        final RadiusAttribute radiusAttribute = dictionary.createAttribute(Integer.parseUnsignedInt("4294967295"), (byte) 1, new byte[4]);
+        final RadiusAttribute radiusAttribute = dictionary.createAttribute(Integer.parseUnsignedInt("4294967295"), 1, new byte[4]);
         final VendorSpecificAttribute vsa = new VendorSpecificAttribute(
                 dictionary, Integer.parseUnsignedInt("4294967295"), Collections.singletonList(radiusAttribute));
         assertEquals(1, vsa.getAttributes().size());
@@ -143,7 +143,7 @@ class VendorSpecificAttributeTest {
     @Test
     void vsaToByteArrayTooLong() {
         final List<RadiusAttribute> attributes = Collections.singletonList(
-                new OctetsAttribute(dictionary, 14122, (byte) 26, new byte[253]));
+                new OctetsAttribute(dictionary, 14122, 26, new byte[253]));
         final Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> new VendorSpecificAttribute(dictionary, 14122, attributes));
         assertTrue(exception.getMessage().toLowerCase().contains("attribute data too long, max 253 octets"));
@@ -188,9 +188,9 @@ class VendorSpecificAttributeTest {
         final byte[] requestAuth = random.generateSeed(16);
 
         final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, vendorId, Arrays.asList(
-                dictionary.createAttribute(vendorId, (byte) 5, tag, "12345"),
-                dictionary.createAttribute(vendorId, (byte) 6, tag, "12345"),
-                dictionary.createAttribute(vendorId, (byte) 7, tag, "12345")
+                dictionary.createAttribute(vendorId, 5, tag, "12345"),
+                dictionary.createAttribute(vendorId, 6, tag, "12345"),
+                dictionary.createAttribute(vendorId, 7, tag, "12345")
         ));
         assertEquals(-1, vsa.getVendorId());
         assertEquals(vendorId, vsa.getChildVendorId());

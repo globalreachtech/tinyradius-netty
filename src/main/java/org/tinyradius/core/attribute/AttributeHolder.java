@@ -48,7 +48,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
                 throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >=2");
             if (expectedLen > data.length - pos)
                 throw new IllegalArgumentException("Invalid attribute length " + length + ", remaining bytes " + (data.length - pos));
-            attributes.add(dictionary.parseAttribute(vendorId, type, Arrays.copyOfRange(data, pos + 2, pos + length)));
+            attributes.add(dictionary.parseAttribute(vendorId, Byte.toUnsignedInt(type), Arrays.copyOfRange(data, pos + 2, pos + length)));
             pos += length;
         }
 
@@ -180,7 +180,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param value string value to set
      * @return object of same type with appended attribute
      */
-    default T addAttribute(byte type, String value) {
+    default T addAttribute(int type, String value) {
         return addAttribute(
                 getDictionary().createAttribute(getChildVendorId(), type, value));
     }

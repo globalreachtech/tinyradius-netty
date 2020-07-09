@@ -4,9 +4,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
@@ -28,9 +28,9 @@ class RadiusRequestTest {
         int dataSize = targetSize - HEADER_LENGTH;
         for (int i = 0; i < Math.floor((double) dataSize / 200); i++) {
             // add 200 octets per iteration (198 + 2-byte header)
-            packet = packet.addAttribute(dictionary.createAttribute(-1, (byte) 33, random.generateSeed(198)));
+            packet = packet.addAttribute(dictionary.createAttribute(-1, 33, random.generateSeed(198)));
         }
-        packet = packet.addAttribute(dictionary.createAttribute(-1, (byte) 33, random.generateSeed((dataSize % 200) - 2)));
+        packet = packet.addAttribute(dictionary.createAttribute(-1, 33, random.generateSeed((dataSize % 200) - 2)));
 
         return packet;
     }
@@ -137,7 +137,7 @@ class RadiusRequestTest {
         assertArrayEquals(maxSizeRequest.getAuthenticator(), result.getAuthenticator());
         assertArrayEquals(maxSizeRequest.getAttributeBytes(), result.getAttributeBytes());
 
-        assertEquals(maxSizeRequest.filterAttributes((byte) 33).size(), result.filterAttributes((byte) 33).size());
+        assertEquals(maxSizeRequest.filterAttributes(33).size(), result.filterAttributes(33).size());
 
         // reconvert to check if bytes match
         assertArrayEquals(datagram.content().array(), result.toDatagram(new InetSocketAddress(0)).content().array());
@@ -156,7 +156,7 @@ class RadiusRequestTest {
         assertEquals(4090, validBytes.length);
 
         // create 7 octet attribute
-        final byte[] attribute = dictionary.createAttribute(-1, (byte) 33, random.generateSeed(5)).toByteArray();
+        final byte[] attribute = dictionary.createAttribute(-1, 33, random.generateSeed(5)).toByteArray();
         assertEquals(7, attribute.length);
 
         // append attribute

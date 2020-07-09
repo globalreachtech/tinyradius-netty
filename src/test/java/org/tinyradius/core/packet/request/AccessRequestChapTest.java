@@ -2,9 +2,9 @@ package org.tinyradius.core.packet.request;
 
 import net.jradius.util.CHAP;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -105,20 +105,20 @@ class AccessRequestChapTest {
         final byte[] password = CHAP.chapResponse((byte) chapId, plaintextPw.getBytes(UTF_8), challenge);
 
         AccessRequestChap goodRequest = (AccessRequestChap) AccessRequest.create(dictionary, (byte) 1, null, Arrays.asList(
-                dictionary.createAttribute(-1, (byte) 60, challenge),
-                dictionary.createAttribute(-1, (byte) 3, password)));
+                dictionary.createAttribute(-1, 60, challenge),
+                dictionary.createAttribute(-1, 3, password)));
         assertTrue(goodRequest.checkPassword(plaintextPw));
         assertFalse(goodRequest.checkPassword("badPw"));
 
         AccessRequestChap badChallenge = (AccessRequestChap) AccessRequest.create(dictionary, (byte) 1, null, Arrays.asList(
-                dictionary.createAttribute(-1, (byte) 60, random.generateSeed(16)),
-                dictionary.createAttribute(-1, (byte) 3, password)));
+                dictionary.createAttribute(-1, 60, random.generateSeed(16)),
+                dictionary.createAttribute(-1, 3, password)));
         assertFalse(badChallenge.checkPassword(plaintextPw));
 
         password[0] = (byte) ((chapId + 1) % 256);
         AccessRequestChap badPassword = (AccessRequestChap) AccessRequest.create(dictionary, (byte) 1, null, Arrays.asList(
-                dictionary.createAttribute(-1, (byte) 60, challenge),
-                dictionary.createAttribute(-1, (byte) 3, password)));
+                dictionary.createAttribute(-1, 60, challenge),
+                dictionary.createAttribute(-1, 3, password)));
         assertFalse(badPassword.checkPassword(plaintextPw));
     }
 }

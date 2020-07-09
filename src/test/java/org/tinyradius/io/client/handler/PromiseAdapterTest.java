@@ -52,7 +52,7 @@ class PromiseAdapterTest {
     @Test
     void encodeAppendProxyState() {
         final String secret = "test";
-        byte id = (byte) random.nextInt(256);
+        final byte id = (byte) random.nextInt(256);
 
         final RadiusRequest originalRequest = new AccountingRequest(dictionary, id, null, Collections.emptyList()).encodeRequest(secret);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
@@ -63,7 +63,7 @@ class PromiseAdapterTest {
 
         assertEquals(1, out1.size());
         final RadiusRequest processedPacket1 = ((PendingRequestCtx) out1.get(0)).getRequest();
-        List<RadiusAttribute> attributes1 = processedPacket1.getAttributes();
+        final List<RadiusAttribute> attributes1 = processedPacket1.getAttributes();
 
         // check proxy-state added
         assertEquals(1, attributes1.size());
@@ -204,7 +204,7 @@ class PromiseAdapterTest {
         // channel read correct proxyState returns packet
         final RadiusResponse encodedResponse = RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, PROXY_STATE, requestProxyState))
-                .addAttribute(dictionary.createAttribute(-1, (byte) 69, pw.getBytes(UTF_8)))
+                .addAttribute(dictionary.createAttribute(-1, 69, pw.getBytes(UTF_8)))
                 .encodeResponse(secret, requestAuthenticator);
 
         assertFalse(promise.isDone());

@@ -23,7 +23,7 @@ public class TaggedAttributeTest {
         final byte tag = 123;
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusAttribute attribute = dictionary.createAttribute(-1, (byte) 69, tag, pw);
+        final RadiusAttribute attribute = dictionary.createAttribute(-1, 69, tag, pw);
         assertTrue(attribute instanceof TaggedAttribute);
         assertFalse(attribute.isEncoded());
         assertEquals(pw, new String(attribute.getValue(), UTF_8));

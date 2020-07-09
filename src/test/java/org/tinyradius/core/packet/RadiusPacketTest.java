@@ -4,10 +4,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -29,9 +29,9 @@ class RadiusPacketTest {
         int dataSize = targetSize - HEADER_LENGTH;
         for (int i = 0; i < Math.floor((double) dataSize / 200); i++) {
             // add 200 octets per iteration (198 + 2-byte header)
-            packet = packet.addAttribute(dictionary.createAttribute(-1, (byte) 33, random.generateSeed(198)));
+            packet = packet.addAttribute(dictionary.createAttribute(-1, 33, random.generateSeed(198)));
         }
-        packet = packet.addAttribute(dictionary.createAttribute(-1, (byte) 33, random.generateSeed((dataSize % 200) - 2)));
+        packet = packet.addAttribute(dictionary.createAttribute(-1, 33, random.generateSeed((dataSize % 200) - 2)));
 
         return packet;
     }
@@ -68,8 +68,8 @@ class RadiusPacketTest {
         final byte[] proxyState = random.generateSeed(198);
 
         RadiusRequest request = RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList())
-                .addAttribute(dictionary.createAttribute(-1, (byte) 33, proxyState))
-                .addAttribute(dictionary.createAttribute(-1, (byte) 33, random.generateSeed(198)));
+                .addAttribute(dictionary.createAttribute(-1, 33, proxyState))
+                .addAttribute(dictionary.createAttribute(-1, 33, random.generateSeed(198)));
 
         final RadiusRequest encoded = request.encodeRequest("mySecret");
 

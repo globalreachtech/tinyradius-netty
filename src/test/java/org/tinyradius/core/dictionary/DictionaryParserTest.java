@@ -26,7 +26,7 @@ class DictionaryParserTest {
         final DictionaryParser parser = DictionaryParser.newClasspathParser();
         final Dictionary dictionary = parser.parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
 
-        final Optional<AttributeTemplate> serviceTypeAttr = dictionary.getAttributeTemplate((byte) 6);
+        final Optional<AttributeTemplate> serviceTypeAttr = dictionary.getAttributeTemplate(6);
         assertTrue(serviceTypeAttr.isPresent());
         assertEquals("Service-Type", serviceTypeAttr.get().getName());
         assertEquals("Login-User", serviceTypeAttr.get().getEnumeration(1));
@@ -180,11 +180,11 @@ class DictionaryParserTest {
         final DictionaryParser parser = DictionaryParser.newFileParser();
         final Dictionary dictionary = parser.parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
 
-        final Optional<AttributeTemplate> serviceTypeAttr = dictionary.getAttributeTemplate((byte) 6);
+        final Optional<AttributeTemplate> serviceTypeAttr = dictionary.getAttributeTemplate(6);
         assertTrue(serviceTypeAttr.isPresent());
         assertEquals("Service-Type", serviceTypeAttr.get().getName());
         assertEquals("Login-User", serviceTypeAttr.get().getEnumeration(1));
-        assertEquals("Digest-Attributes", dictionary.getAttributeTemplate(-1, (byte) 207).get().getName());
+        assertEquals("Digest-Attributes", dictionary.getAttributeTemplate(-1, 207).get().getName());
 
         Files.walk(tmpPath)
                 .sorted(Comparator.reverseOrder())

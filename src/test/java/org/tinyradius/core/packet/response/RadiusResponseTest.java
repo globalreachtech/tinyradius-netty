@@ -2,12 +2,12 @@ package org.tinyradius.core.packet.response;
 
 import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.PacketType;
 import org.tinyradius.core.packet.request.AccessRequestPap;
 import org.tinyradius.core.packet.request.RadiusRequest;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
@@ -49,7 +49,7 @@ class RadiusResponseTest {
         final RadiusRequest encodedRequest = request.encodeRequest(sharedSecret);
 
         final RadiusResponse response = new AccessResponse.Accept(dictionary, id, null, Collections.emptyList())
-                .addAttribute(dictionary.createAttribute(-1, (byte) 33, "state3333".getBytes(UTF_8)));
+                .addAttribute(dictionary.createAttribute(-1, 33, "state3333".getBytes(UTF_8)));
         final RadiusResponse encodedResponse = response.encodeResponse(sharedSecret, encodedRequest.getAuthenticator());
 
         DatagramPacket datagramPacket = encodedResponse.toDatagram(remoteAddress);
@@ -57,7 +57,7 @@ class RadiusResponseTest {
         packet.decodeResponse(sharedSecret, encodedRequest.getAuthenticator());
 
         assertEquals(encodedResponse.getId(), packet.getId());
-        assertEquals("state3333", new String(packet.getAttribute((byte) 33).get().getValue()));
+        assertEquals("state3333", new String(packet.getAttribute(33).get().getValue()));
         assertArrayEquals(encodedResponse.getAuthenticator(), packet.getAuthenticator());
     }
 }

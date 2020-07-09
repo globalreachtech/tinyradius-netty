@@ -88,7 +88,7 @@ public interface Dictionary extends CoreDictionary {
      * @param rawData  attribute data to parse excl. type/length
      * @return RadiusAttribute object
      */
-    default RadiusAttribute parseAttribute(int vendorId, byte type, byte[] rawData) {
+    default RadiusAttribute parseAttribute(int vendorId, int type, byte[] rawData) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.parse(this, rawData))
                 .orElseGet(() -> new OctetsAttribute(this, vendorId, type, rawData));

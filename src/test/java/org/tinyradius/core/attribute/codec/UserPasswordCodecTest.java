@@ -47,7 +47,8 @@ class UserPasswordCodecTest {
         final byte[] requestAuth = random.generateSeed(16);
         final String sharedSecret = "sharedSecret1";
 
-        final RadiusAttribute attribute = dictionary.createAttribute(-1, (byte) 141, pwByte);
+        // 529/1 is integer type
+        final RadiusAttribute attribute = dictionary.createAttribute(529, 1, pwByte);
         assertArrayEquals(pwByte, attribute.getValue());
 
         final byte[] encode = codec.encode(attribute.getValue(), requestAuth, sharedSecret);

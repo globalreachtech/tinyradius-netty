@@ -2,10 +2,10 @@ package org.tinyradius.core.packet.request;
 
 import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.IntegerAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.Collections;
 
@@ -55,7 +55,7 @@ class GenericRequestTest {
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
         RadiusRequest request = new GenericRequest(dictionary, (byte) 7, (byte) 1, null, Collections.emptyList())
-                .addAttribute(dictionary.createAttribute(-1, (byte) 1, user.getBytes(UTF_8)))
+                .addAttribute(dictionary.createAttribute(-1, 1, user.getBytes(UTF_8)))
                 .addAttribute("Acct-Status-Type", "7");
 
         final byte[] attributeBytes = request.getAttributeBytes();
