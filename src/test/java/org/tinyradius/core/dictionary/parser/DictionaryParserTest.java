@@ -1,8 +1,9 @@
-package org.tinyradius.core.dictionary;
+package org.tinyradius.core.dictionary.parser;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.attribute.AttributeTemplate;
-import org.tinyradius.core.dictionary.parse.DictionaryParser;
+import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.dictionary.Vendor;
 
 import java.io.File;
 import java.io.IOException;
@@ -168,14 +169,26 @@ class DictionaryParserTest {
     }
 
     @Test
+    void attributeCustomTypeSize() throws IOException {
+        final Dictionary dictionary = DictionaryParser.newClasspathParser()
+                .parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
+
+        final AttributeTemplate basic = dictionary.getAttributeTemplate("Lucent-Max-Shared-Users").get();
+        assertEquals(2, basic.getType());
+
+        final AttributeTemplate custom = dictionary.getAttributeTemplate("Lucent-Retrain-Reason").get();
+        assertEquals(20119, custom.getType());
+    }
+
+    @Test
     void fileSystemIncludeDict() throws IOException {
         final Path tmpPath = Files.createTempDirectory("tinyradius_test_");
-        copyDict(tmpPath, TEST_DICTIONARY);
-        copyDict(tmpPath, "default_dictionary");
-        copyDict(tmpPath, "dictionary.rfc5904");
-        copyDict(tmpPath, "dictionary.wispr");
-        copyDict(tmpPath, "dictionary.ascend");
-        copyDict(tmpPath, "dictionary.alcatel.sr");
+        copyDict(tmpPath, TEST_DICTIONARY,
+                "default_dictionary",
+                "dictionary.rfc5904",
+                "dictionary.wispr",
+                "dictionary.ascend",
+                "dictionary.alcatel.sr");
 
         final DictionaryParser parser = DictionaryParser.newFileParser();
         final Dictionary dictionary = parser.parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
@@ -192,9 +205,11 @@ class DictionaryParserTest {
                 .forEach(File::delete);
     }
 
-    private static void copyDict(Path tempDir, String fileName) throws IOException {
-        ClassLoader classLoader = DictionaryParserTest.class.getClassLoader();
-        Files.copy(requireNonNull(classLoader.getResourceAsStream(PACKAGE_PREFIX + fileName)),
-                tempDir.resolve(fileName), REPLACE_EXISTING);
+    private void copyDict(Path tempDir, String... files) throws IOException {
+        for (final String file : files) {
+            Files.copy(
+                    requireNonNull(this.getClass().getClassLoader().getResourceAsStream(PACKAGE_PREFIX + file)),
+                    tempDir.resolve(file), REPLACE_EXISTING);
+        }
     }
 }

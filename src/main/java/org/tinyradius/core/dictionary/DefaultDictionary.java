@@ -1,6 +1,6 @@
 package org.tinyradius.core.dictionary;
 
-import org.tinyradius.core.dictionary.parse.DictionaryParser;
+import org.tinyradius.core.dictionary.parser.DictionaryParser;
 
 import java.io.IOException;
 

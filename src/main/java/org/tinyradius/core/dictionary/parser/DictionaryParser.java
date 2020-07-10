@@ -1,6 +1,9 @@
-package org.tinyradius.core.dictionary.parse;
+package org.tinyradius.core.dictionary.parser;
 
 import org.tinyradius.core.dictionary.WritableDictionary;
+import org.tinyradius.core.dictionary.parser.resolver.ClasspathResourceResolver;
+import org.tinyradius.core.dictionary.parser.resolver.FileResourceResolver;
+import org.tinyradius.core.dictionary.parser.resolver.ResourceResolver;
 
 import java.io.IOException;
 
@@ -16,11 +19,11 @@ public class DictionaryParser {
     }
 
     public static DictionaryParser newClasspathParser() {
-        return new DictionaryParser(new ClasspathResourceResolver());
+        return new DictionaryParser(ClasspathResourceResolver.INSTANCE);
     }
 
     public static DictionaryParser newFileParser() {
-        return new DictionaryParser(new FileResourceResolver());
+        return new DictionaryParser(FileResourceResolver.INSTANCE);
     }
 
     /**

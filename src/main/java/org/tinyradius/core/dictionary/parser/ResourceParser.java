@@ -1,4 +1,4 @@
-package org.tinyradius.core.dictionary.parse;
+package org.tinyradius.core.dictionary.parser;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -6,6 +6,7 @@ import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.MemoryDictionary;
 import org.tinyradius.core.dictionary.Vendor;
 import org.tinyradius.core.dictionary.WritableDictionary;
+import org.tinyradius.core.dictionary.parser.resolver.ResourceResolver;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -85,7 +86,6 @@ public class ResourceParser {
     }
 
     private void parseTokens(String[] tokens, int lineNum, String resource) throws IOException {
-        // todo BEGIN-TLV
         switch (tokens[0].toUpperCase()) {
             case "END-VENDOR":
                 parseEndVendor(tokens, lineNum);
@@ -106,7 +106,7 @@ public class ResourceParser {
             case "VENDOR":
                 parseVendor(tokens, lineNum);
                 break;
-            case "BEGIN-TLV":
+            case "BEGIN-TLV": // todo
             case "END-TLV":
             default:
                 throw new IOException("Could not decode tokens on line " + lineNum + ": " + Arrays.toString(tokens));

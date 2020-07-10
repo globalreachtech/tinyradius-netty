@@ -1,10 +1,15 @@
-package org.tinyradius.core.dictionary.parse;
+package org.tinyradius.core.dictionary.parser.resolver;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 
-class ClasspathResourceResolver implements ResourceResolver {
+public class ClasspathResourceResolver implements ResourceResolver {
+
+    public static ResourceResolver INSTANCE = new ClasspathResourceResolver();
+
+    private ClasspathResourceResolver() {
+    }
 
     @Override
     public String resolve(String currentResource, String nextResource) {

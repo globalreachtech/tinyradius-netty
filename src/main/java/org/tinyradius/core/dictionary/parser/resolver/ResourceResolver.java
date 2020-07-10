@@ -1,4 +1,4 @@
-package org.tinyradius.core.dictionary.parse;
+package org.tinyradius.core.dictionary.parser.resolver;
 
 import java.io.IOException;
 import java.io.InputStream;

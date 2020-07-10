@@ -7,7 +7,7 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.decorator.EncodedAttribute;
 import org.tinyradius.core.attribute.type.decorator.TaggedAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.dictionary.parse.DictionaryParser;
+import org.tinyradius.core.dictionary.parser.DictionaryParser;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

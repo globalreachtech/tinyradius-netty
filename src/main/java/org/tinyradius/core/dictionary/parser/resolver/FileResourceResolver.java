@@ -1,4 +1,4 @@
-package org.tinyradius.core.dictionary.parse;
+package org.tinyradius.core.dictionary.parser.resolver;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,7 +6,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-class FileResourceResolver implements ResourceResolver {
+public class FileResourceResolver implements ResourceResolver {
+
+    public static ResourceResolver INSTANCE = new FileResourceResolver();
+
+    private FileResourceResolver() {
+    }
 
     @Override
     public String resolve(String currentResource, String nextResource) {
