@@ -9,7 +9,7 @@ plugins {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-def versionName = '1.4.11'
+def versionName = '1.4.12'
 
 repositories {
     mavenCentral()
@@ -85,8 +85,8 @@ artifactory {
     publish {
         repository {
             repoKey = 'oss-snapshot-local'
-            username = System.getProperty('BINTRAY_USER')
-            password = System.getProperty('BINTRAY_KEY')
+            username = System.getenv('BINTRAY_USER')
+            password = System.getenv('BINTRAY_KEY')
         }
         defaults {
             publications('mavenJava')
