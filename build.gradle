@@ -9,7 +9,7 @@ plugins {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-def versionName = '1.4.11-SNAPSHOT'
+def versionName = '1.4.11'
 
 repositories {
     mavenCentral()
@@ -100,7 +100,7 @@ def pomConfig = {
     url 'https://github.com/globalreachtech/tinyradius-netty'
     licenses {
         license {
-            name 'GNU Lesser General Public License, version 2.1'
+            name 'GNU Lesser General Public License, version 2.1.0'
             url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html'
             distribution "repo"
         }
