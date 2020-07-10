@@ -94,28 +94,6 @@ artifactory {
     }
 }
 
-def pomConfig = {
-    name 'tinyradius-netty'
-    description 'TinyRadius is a simple, small and fast Java Radius library capable of sending and receiving Radius packets of all types.'
-    url 'https://github.com/globalreachtech/tinyradius-netty'
-    licenses {
-        license {
-            name 'GNU Lesser General Public License, version 2.1.0'
-            url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html'
-            distribution "repo"
-        }
-    }
-    developers {
-        developer {
-            id 'globalreachtech'
-            organizationUrl 'https://www.globalreachtech.com/'
-        }
-    }
-    scm {
-        url 'https://github.com/globalreachtech/tinyradius-netty'
-    }
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -127,8 +105,29 @@ publishing {
             groupId 'com.globalreachtech'
             artifactId 'tinyradius-netty'
             version versionName
-            pom.withXml {
-                asNode().children().last() + pomConfig
+            pom {
+                name = 'tinyradius-netty'
+                description = 'TinyRadius-Netty is a small Java Radius library'
+                url = 'https://github.com/globalreachtech/tinyradius-netty'
+                licenses {
+                    license {
+                        name = 'GNU Lesser General Public License, version 2.1'
+                        url = 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = "horaceli"
+                        url = "https://github.com/horaceli"
+                    }
+                    developer {
+                        id = 'globalreachtech'
+                        organizationUrl = 'https://www.globalreachtech.com/'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/globalreachtech/tinyradius-netty'
+                }
             }
         }
     }
