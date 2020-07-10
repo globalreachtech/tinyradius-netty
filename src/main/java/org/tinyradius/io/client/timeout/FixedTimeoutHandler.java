@@ -34,7 +34,7 @@ public class FixedTimeoutHandler implements TimeoutHandler {
     }
 
     @Override
-    public void onTimeout(Runnable callback, int totalAttempts, Promise<RadiusResponse> promise) {
+    public void onTimeout(Runnable retry, int totalAttempts, Promise<RadiusResponse> promise) {
         timer.newTimeout(t -> {
             if (promise.isDone())
                 return;
@@ -42,7 +42,7 @@ public class FixedTimeoutHandler implements TimeoutHandler {
             if (totalAttempts >= maxAttempts)
                 promise.tryFailure(new TimeoutException("Client send timeout - max attempts reached: " + maxAttempts));
             else
-                callback.run();
+                retry.run();
         }, timeoutMs, MILLISECONDS);
     }
 }

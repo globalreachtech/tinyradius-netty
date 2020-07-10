@@ -19,12 +19,19 @@ BEGIN-VENDOR    CableLabs
 ATTRIBUTE       CableLabs-Reserved  0   octets
 END-VENDOR      CableLabs
 
-# test handle VENDOR flags gracefully
+# test duplicate ATTRIBUTE exact match
+VENDORATTR  4491    CableLabs-Reserved  0   octets
+VENDORATTR  4491    CableLabs-Reserved  0   octets
+
+# test handle VENDOR flags
 # dictionary.lucent
 VENDOR		Lucent				4846	format=2,1
 
 # test duplicate VENDOR exact match should be ignored
 VENDOR		Lucent				4846	format=2,1
 
-# test duplicate ATTRIBUTE exact match
-VENDORATTR  4491    CableLabs-Reserved  0   octets
+# test attributes with custom type sizes
+BEGIN-VENDOR    Lucent
+ATTRIBUTE       Lucent-Max-Shared-Users			2	integer
+ATTRIBUTE       Lucent-Retrain-Reason			20119	integer
+END-VENDOR      Lucent

@@ -114,7 +114,7 @@ public class ResourceParser {
     }
 
     private void parseBeginVendor(String[] tok, int lineNum) throws IOException {
-        if (tok.length != 2)
+        if (tok.length < 2 || tok.length > 3)
             throw new IOException("BEGIN-VENDOR parse error on line " + lineNum + ", " + Arrays.toString(tok));
 
         currentVendor = dictionary.getVendor(tok[1])
