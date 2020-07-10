@@ -99,7 +99,7 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void vsaToFromByteArray() {
+    void toFromByteArray() {
         final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Arrays.asList(
                 dictionary.createAttribute(14122, 2, "hiii"),
                 dictionary.createAttribute("WISPr-Location-ID", "myLocationId")
@@ -128,7 +128,19 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void vsaToByteArrayLargestUnsignedVendorId() {
+    void customTypeSizeToFromByteArray() {
+        // 4846 Lucent has format=2,1 - 'type' field uses 2 octets
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 4846, Arrays.asList(
+                dictionary.createAttribute(4846, 2, ByteBuffer.allocate(4).putInt(456).array()),
+                dictionary.createAttribute(4846, 20119, ByteBuffer.allocate(4).putInt(123).array()),
+                dictionary.createAttribute(4846, 20110, ByteBuffer.allocate(4).putInt(255).array())
+        ));
+        System.out.println(vsa);
+        // todo
+    }
+
+    @Test
+    void toByteArrayLargestUnsignedVendorId() {
         final RadiusAttribute radiusAttribute = dictionary.createAttribute(Integer.parseUnsignedInt("4294967295"), 1, new byte[4]);
         final VendorSpecificAttribute vsa = new VendorSpecificAttribute(
                 dictionary, Integer.parseUnsignedInt("4294967295"), Collections.singletonList(radiusAttribute));
@@ -141,7 +153,7 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void vsaToByteArrayTooLong() {
+    void createTooLong() {
         final List<RadiusAttribute> attributes = Collections.singletonList(
                 new OctetsAttribute(dictionary, 14122, 26, new byte[253]));
         final Exception exception = assertThrows(IllegalArgumentException.class,
@@ -150,7 +162,7 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void vsaToByteArrayWithNoSubAttributes() {
+    void createWithNoSubAttributes() {
         final List<RadiusAttribute> list = Collections.emptyList();
         final Exception exception = assertThrows(RuntimeException.class,
                 () -> new VendorSpecificAttribute(dictionary, 14122, list));
