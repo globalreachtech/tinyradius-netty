@@ -4,7 +4,9 @@
 [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/globalreachtech/tinyradius-netty.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/globalreachtech/tinyradius-netty/context:java)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a6b90f85717d753228eb/maintainability)](https://codeclimate.com/github/globalreachtech/tinyradius-netty/maintainability)
 [![codecov](https://codecov.io/gh/globalreachtech/tinyradius-netty/branch/master/graph/badge.svg)](https://codecov.io/gh/globalreachtech/tinyradius-netty)
-[![Download](https://api.bintray.com/packages/globalreachtech/grt-maven/tinyradius-netty/images/download.svg)](https://bintray.com/globalreachtech/grt-maven/tinyradius-netty)
+
+[![Download](https://img.shields.io/bintray/v/globalreachtech/grt-maven/tinyradius-netty)](https://bintray.com/globalreachtech/grt-maven/tinyradius-netty/_latestVersion)
+[![Maven Central](https://img.shields.io/maven-central/v/com.globalreachtech/tinyradius-netty)](https://search.maven.org/artifact/com.globalreachtech/tinyradius-netty)
 [![javadoc](https://javadoc.io/badge2/com.globalreachtech/tinyradius-netty/javadoc.svg)](https://javadoc.io/doc/com.globalreachtech/tinyradius-netty)
 
 TinyRadius-Netty is a fork of the TinyRadius Radius library, rebuilt with Java 8 and Netty patterns/features.
