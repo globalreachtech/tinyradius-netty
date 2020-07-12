@@ -31,7 +31,7 @@ public class IntegerAttribute extends OctetsAttribute {
      * @throws NumberFormatException if value is not a number and constant cannot be resolved
      */
     private static byte[] convertValue(int value) {
-        return ByteBuffer.allocate(4).putInt(value).array();
+        return ByteBuffer.allocate(BYTES).putInt(value).array();
     }
 
     private static int convertValue(String value, Dictionary dictionary, int type, int vendorId) {

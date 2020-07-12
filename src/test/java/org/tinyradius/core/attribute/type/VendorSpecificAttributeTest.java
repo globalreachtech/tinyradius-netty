@@ -131,9 +131,9 @@ class VendorSpecificAttributeTest {
     void customTypeSizeToFromByteArray() {
         // 4846 Lucent has format=2,1 - 'type' field uses 2 octets
         final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 4846, Arrays.asList(
-                dictionary.createAttribute(4846, 2, ByteBuffer.allocate(4).putInt(456).array()),
-                dictionary.createAttribute(4846, 20119, ByteBuffer.allocate(4).putInt(123).array()),
-                dictionary.createAttribute(4846, 20110, ByteBuffer.allocate(4).putInt(255).array())
+                dictionary.createAttribute(4846, 2, ByteBuffer.allocate(Integer.BYTES).putInt(456).array()),
+                dictionary.createAttribute(4846, 20119, ByteBuffer.allocate(Integer.BYTES).putInt(123).array()),
+                dictionary.createAttribute(4846, 20110, ByteBuffer.allocate(Integer.BYTES).putInt(255).array())
         ));
         System.out.println(vsa);
         // todo

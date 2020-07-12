@@ -3,11 +3,14 @@ package org.tinyradius.core.attribute.type;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.dictionary.Vendor;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static java.lang.Integer.BYTES;
 
 public interface RadiusAttribute {
 
@@ -55,6 +58,14 @@ public interface RadiusAttribute {
     }
 
     default byte[] getTypeBytes() {
+        final int typeSize = getDictionary()
+                .getVendor(getVendorId())
+                .map(Vendor::getTypeSize)
+                .orElse(1);
+
+
+        final byte[] array = ByteBuffer.allocate(BYTES).putInt(getType()).array();
+
         return new byte[]{(byte) getType()};
     }
 

@@ -43,7 +43,7 @@ class UserPasswordCodecTest {
     @Test
     void encodeDecodeNumber() throws RadiusPacketException {
         final int pw = 12345;
-        final byte[] pwByte = ByteBuffer.allocate(4).putInt(pw).array();
+        final byte[] pwByte = ByteBuffer.allocate(Integer.BYTES).putInt(pw).array();
         final byte[] requestAuth = random.generateSeed(16);
         final String sharedSecret = "sharedSecret1";
 
