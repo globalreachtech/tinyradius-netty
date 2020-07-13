@@ -7,7 +7,11 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
-import java.util.*;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -34,10 +38,9 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param dictionary dictionary to parse attribute
      * @param vendorId   vendor Id to set attributes
      * @param data       byte array to parse
-     * @param pos        position in byte array at which to parse
      * @return list of RadiusAttributes
      */
-    static List<RadiusAttribute> extractAttributes(Dictionary dictionary, int vendorId, byte[] data, int pos) {
+    static List<RadiusAttribute> extractAttributes(Dictionary dictionary, int vendorId, ByteBuffer data) {
         final int typeSize = dictionary.getVendor(vendorId)
                 .map(Vendor::getTypeSize)
                 .orElse(1);
@@ -45,21 +48,23 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         final ArrayList<RadiusAttribute> attributes = new ArrayList<>();
 
         // at least 2 octets left
-        while (data.length - pos >= 2) {
-            final byte type = data[pos];
-            final int length = toUnsignedInt(data[pos + 1]); // max 255
+        while (data.remaining() >= 2) {
+            final byte type = data.get();
+            final int length = toUnsignedInt(data.get()); // max 255
             final int expectedLen = length - 2;
             if (expectedLen < 0)
                 throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >=2");
-            if (expectedLen > data.length - pos)
-                throw new IllegalArgumentException("Invalid attribute length " + length + ", remaining bytes " + (data.length - pos));
-            attributes.add(dictionary.parseAttribute(vendorId, Byte.toUnsignedInt(type), Arrays.copyOfRange(data, pos + 2, pos + length)));
-            pos += length;
+            if (expectedLen > data.remaining())
+                throw new IllegalArgumentException("Invalid attribute length " + length + ", remaining bytes " + data.remaining());
+
+            final byte[] bytes = new byte[expectedLen];
+            data.get(bytes);
+            attributes.add(dictionary.parseAttribute(vendorId, Byte.toUnsignedInt(type), bytes));
         }
 
-        if (pos != data.length)
+        if (data.hasRemaining())
             throw new IllegalArgumentException("Attribute malformed, lengths do not match, " +
-                    "parse position " + pos + ", bytes length " + data.length);
+                    "bytebuffer position " + data.position() + ", bytebuffer limit " + data.limit());
         return attributes;
     }
 

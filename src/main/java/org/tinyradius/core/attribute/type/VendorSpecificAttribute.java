@@ -40,7 +40,9 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * @param data        data to parse for childVendorId and sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeId, byte[] data) {
-        this(dictionary, childVendorId(data), AttributeHolder.extractAttributes(dictionary, childVendorId(data), data, 4), data);
+        this(dictionary, childVendorId(data),
+                AttributeHolder.extractAttributes(dictionary, childVendorId(data), ByteBuffer.wrap(data, 4, data.length - 4)),
+                data);
         if (vendorId != -1)
             throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
         if (attributeId != 26)

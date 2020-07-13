@@ -5,13 +5,13 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.NestedAttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -74,9 +74,9 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
             throw new RadiusPacketException("Readable bytes is less than header length");
         }
 
-        byte type = content.get();
-        byte packetId = content.get();
-        int length = content.getShort();
+        final byte type = content.get();
+        final byte packetId = content.get();
+        final int length = content.getShort();
 
         if (length < HEADER_LENGTH)
             throw new RadiusPacketException("Bad packet: packet too short (" + length + " bytes)");
@@ -89,11 +89,8 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         if (content.remaining() != length - HEADER_LENGTH)
             throw new RadiusPacketException("Bad packet: packet length mismatch");
 
-        byte[] attributes = new byte[content.remaining()];
-        content.get(attributes);
-
         return RadiusRequest.create(dictionary, type, packetId, authenticator,
-                AttributeHolder.extractAttributes(dictionary, -1, attributes, 0));
+                AttributeHolder.extractAttributes(dictionary, -1, content));
     }
 
     /**
