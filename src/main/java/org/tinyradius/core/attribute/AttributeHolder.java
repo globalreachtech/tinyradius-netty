@@ -15,8 +15,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static java.lang.Byte.toUnsignedInt;
-
 /**
  * Basic attribute holder, for VendorSpecificAttribute (to hold sub-attributes) or RadiusPackets
  * <p>
@@ -47,19 +45,53 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
         final ArrayList<RadiusAttribute> attributes = new ArrayList<>();
 
-        // at least 2 octets left
+        // at least 2 octets left (minimum size header)
         while (data.remaining() >= 2) {
-            final byte type = data.get();
-            final int length = toUnsignedInt(data.get()); // max 255
-            final int expectedLen = length - 2;
+            int type;
+            switch (typeSize) {
+                case 1:
+                    type = Byte.toUnsignedInt(data.get());
+                    break;
+                case 2:
+                    type = data.getShort();
+                    break;
+                case 4:
+                    type = data.getInt();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Vendor " + vendorId + " typeSize " + typeSize + " octets, only 1/2/4 allowed");
+            }
+
+            final int lengthSize = dictionary
+                    .getVendor(vendorId)
+                    .map(Vendor::getLengthSize)
+                    .orElse(1);
+
+            int length;
+            switch (lengthSize) {
+                case 0:
+                    length = data.remaining() + typeSize; // position already moved by typeSize amount
+                    break;
+                case 1:
+                    length = Byte.toUnsignedInt(data.get()); // max 255
+                    break;
+                case 2:
+                    length = data.getShort();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Vendor " + vendorId + " lengthSize " + lengthSize + " octets, only 0/1/2 allowed");
+            }
+
+            final int expectedLen = length - typeSize - lengthSize;
             if (expectedLen < 0)
-                throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >=2");
+                throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >= (typeSize + lengthSize), " +
+                        "but typeSize=" + typeSize + ", lengthSize=" + lengthSize);
             if (expectedLen > data.remaining())
                 throw new IllegalArgumentException("Invalid attribute length " + length + ", remaining bytes " + data.remaining());
 
             final byte[] bytes = new byte[expectedLen];
             data.get(bytes);
-            attributes.add(dictionary.parseAttribute(vendorId, Byte.toUnsignedInt(type), bytes));
+            attributes.add(dictionary.parseAttribute(vendorId, type, bytes));
         }
 
         if (data.hasRemaining())

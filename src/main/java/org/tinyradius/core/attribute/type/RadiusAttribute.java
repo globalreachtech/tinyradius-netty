@@ -10,8 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.Integer.BYTES;
-
 public interface RadiusAttribute {
 
     /**
@@ -48,25 +46,61 @@ public interface RadiusAttribute {
      * @return entire attribute (including headers) as byte array
      */
     default byte[] toByteArray() {
-        final int len = getValue().length + 2 + getTagBytes().length;
+        final int typeSize = getTypeSize();
+        final int lengthSize = getLengthSize();
+        final int len = typeSize + lengthSize + getTagBytes().length + getValue().length;
+
+        byte[] typeBytes;
+        switch (typeSize) {
+            case 1:
+                typeBytes = new byte[]{(byte) getType()};
+                break;
+            case 2:
+                typeBytes = ByteBuffer.allocate(Short.BYTES).putShort((short) getType()).array();
+                break;
+            case 4:
+                typeBytes = ByteBuffer.allocate(Integer.BYTES).putInt(getType()).array();
+                break;
+            default:
+                throw new IllegalArgumentException("Vendor " + getVendorId() + " typeSize " + typeSize + " octets, only 1/2/4 allowed");
+        }
+
+        byte[] lengthBytes;
+        switch (lengthSize) {
+            case 0:
+                lengthBytes = new byte[0];
+                break;
+            case 1:
+                lengthBytes = new byte[]{(byte) len};
+                break;
+            case 2:
+                lengthBytes = ByteBuffer.allocate(Short.BYTES).putShort((short) len).array();
+                break;
+            default:
+                throw new IllegalArgumentException("Vendor " + getVendorId() + " lengthSize " + lengthSize + " octets, only 0/1/2 allowed");
+        }
+
+        // todo check not oversize
         return ByteBuffer.allocate(len)
-                .put(getTypeBytes())
-                .put((byte) len)
+                .put(typeBytes)
+                .put(lengthBytes)
                 .put(getTagBytes())
                 .put(getValue())
                 .array();
     }
 
-    default byte[] getTypeBytes() {
-        final int typeSize = getDictionary()
+    default int getTypeSize() {
+        return getDictionary()
                 .getVendor(getVendorId())
                 .map(Vendor::getTypeSize)
                 .orElse(1);
+    }
 
-
-        final byte[] array = ByteBuffer.allocate(BYTES).putInt(getType()).array();
-
-        return new byte[]{(byte) getType()};
+    default int getLengthSize() {
+        return getDictionary()
+                .getVendor(getVendorId())
+                .map(Vendor::getLengthSize)
+                .orElse(1);
     }
 
     /**

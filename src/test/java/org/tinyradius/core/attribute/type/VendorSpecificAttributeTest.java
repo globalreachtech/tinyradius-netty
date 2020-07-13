@@ -137,6 +137,8 @@ class VendorSpecificAttributeTest {
         ));
         System.out.println(vsa);
         // todo
+
+        // todo test customLengthSize
     }
 
     @Test

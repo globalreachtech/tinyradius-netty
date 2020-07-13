@@ -70,9 +70,8 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
     static RadiusRequest fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
 
         final ByteBuffer content = byteBuf.nioBuffer();
-        if (content.remaining() < HEADER_LENGTH) {
+        if (content.remaining() < HEADER_LENGTH)
             throw new RadiusPacketException("Readable bytes is less than header length");
-        }
 
         final byte type = content.get();
         final byte packetId = content.get();
