@@ -1,10 +1,14 @@
 package org.tinyradius.core.attribute.type;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.dictionary.Vendor;
 
 import javax.xml.bind.DatatypeConverter;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -17,9 +21,11 @@ import static java.util.Objects.requireNonNull;
  */
 public class OctetsAttribute implements RadiusAttribute {
 
+    private static final Logger logger = LogManager.getLogger();
+
     private final Dictionary dictionary;
-    private final int type;
-    private final byte[] value;
+
+    private final ByteBuffer backing;
 
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
@@ -30,12 +36,60 @@ public class OctetsAttribute implements RadiusAttribute {
      * @param value      value of attribute as byte array, excluding type and length bytes
      */
     public OctetsAttribute(Dictionary dictionary, int vendorId, int type, byte[] value) {
-        this.dictionary = requireNonNull(dictionary, "Dictionary not set");
-        this.vendorId = vendorId;
-        this.type = type;
-        this.value = requireNonNull(value, "Attribute data not set");
-        if (value.length > 253)
+        if (requireNonNull(value, "Attribute data not set").length > 253)
             throw new IllegalArgumentException("Attribute data too long, max 253 octets, actual: " + value.length);
+
+        final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
+        final int typeSize = vendor.map(Vendor::getTypeSize)
+                .orElse(1);
+        final int lengthSize = vendor.map(Vendor::getLengthSize)
+                .orElse(1);
+        final int tagSize = dictionary.getAttributeTemplate(vendorId, type)
+                .map(AttributeTemplate::isTagged)
+                .orElse(false) ? 1 : 0;
+
+        if (typeSize != 1 && typeSize != 2 && typeSize != 4)
+            throw new IllegalArgumentException("Vendor " + vendorId + " typeSize " + typeSize + " octets, only 1/2/4 allowed");
+        if (lengthSize < 0 || lengthSize > 2)
+            throw new IllegalArgumentException("Vendor " + vendorId + " lengthSize " + lengthSize + " octets, only 0/1/2 allowed");
+
+        final int length = typeSize + lengthSize + tagSize + value.length;
+        final byte[] typeBytes = getTypeBytes(typeSize, type);
+        final byte[] lengthBytes = getLengthBytes(lengthSize, length);
+
+        this.dictionary = requireNonNull(dictionary, "Dictionary not set");
+
+        backing = ByteBuffer.allocate(length)
+                .put(typeBytes)
+                .put(lengthBytes)
+                .put(new byte[tagSize]) // todo implement
+                .put(value);
+
+        this.vendorId = vendorId;
+    }
+
+    private static byte[] getTypeBytes(int typeSize, int type) {
+        switch (typeSize) {
+            case 2:
+                return ByteBuffer.allocate(Short.BYTES).putShort((short) type).array();
+            case 4:
+                return ByteBuffer.allocate(Integer.BYTES).putInt(type).array();
+            case 1:
+            default:
+                return new byte[]{(byte) type};
+        }
+    }
+
+    private static byte[] getLengthBytes(int lengthSize, int len) {
+        switch (lengthSize) {
+            case 0:
+                return new byte[0];
+            case 2:
+                return ByteBuffer.allocate(Short.BYTES).putShort((short) len).array();
+            case 1:
+            default:
+                return new byte[]{(byte) len};
+        }
     }
 
     /**
@@ -55,7 +109,28 @@ public class OctetsAttribute implements RadiusAttribute {
 
     @Override
     public int getType() {
-        return type;
+        switch (getTypeSize()) {
+            case 2:
+                return backing.getShort(0);
+            case 4:
+                return backing.getInt(0);
+            case 1:
+            default:
+                return Byte.toUnsignedInt(backing.get(0));
+        }
+    }
+
+    public int getLength() {
+        switch (getLengthSize()) {
+            case 0:
+                return backing.remaining() + typeSize; // position already moved by typeSize amount
+            case 1:
+                return Byte.toUnsignedInt(data.get()); // max 255
+            case 2:
+                return data.getShort();
+            default:
+                throw new IllegalArgumentException("Vendor " + vendorId + " lengthSize " + lengthSize + " octets, only 0/1/2 allowed");
+        }
     }
 
     @Override
