@@ -9,7 +9,6 @@ import org.tinyradius.core.dictionary.Vendor;
 
 import javax.xml.bind.DatatypeConverter;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -26,7 +25,6 @@ public class OctetsAttribute implements RadiusAttribute {
     private final Dictionary dictionary;
 
     private final ByteBuffer backing;
-
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
     /**
@@ -136,8 +134,10 @@ public class OctetsAttribute implements RadiusAttribute {
 //        }
 //    }
 
-    public int getTagSize(){
-
+    public int getTagSize() {
+        return getDictionary().getAttributeTemplate(getVendorId(), getType())
+                .map(AttributeTemplate::isTagged)
+                .orElse(false) ? 1 : 0;
     }
 
     @Override
@@ -147,12 +147,16 @@ public class OctetsAttribute implements RadiusAttribute {
 
     @Override
     public byte[] getValue() {
-        return backing.get.get(getTypeSize() + getLengthSize() + getTagBytes().length);
+        final int offset = getTypeSize() + getLengthSize() + getTagSize();
+        final int length = backing.capacity() - offset;
+        final byte[] bytes = new byte[length];
+        backing.get(bytes, offset, length);
+        return bytes;
     }
 
     @Override
     public String getValueString() {
-        return DatatypeConverter.printHexBinary(value);
+        return DatatypeConverter.printHexBinary(getValue());
     }
 
     @Override
@@ -174,20 +178,18 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     // do not remove - for removing from list of attributes
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof OctetsAttribute)) return false;
         OctetsAttribute that = (OctetsAttribute) o;
-        return type == that.type &&
-                vendorId == that.vendorId &&
-                Arrays.equals(value, that.value);
+        return getVendorId() == that.getVendorId() &&
+                backing.equals(that.backing);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(type, vendorId);
-        result = 31 * result + Arrays.hashCode(value);
-        return result;
+        return Objects.hash(backing, getVendorId());
     }
 }
