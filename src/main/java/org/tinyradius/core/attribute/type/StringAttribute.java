@@ -9,14 +9,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class StringAttribute extends OctetsAttribute {
 
-    public StringAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
-        super(dictionary, vendorId, type, data);
-        if (data.length == 0)
-            throw new IllegalArgumentException("String attribute value should be min 1 octet, actual: " + data.length);
+    public StringAttribute(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
+        super(dictionary, vendorId, type, tag,value);
+        if (value.length == 0)
+            throw new IllegalArgumentException("String attribute value should be min 1 octet, actual: " + value.length);
     }
 
-    public StringAttribute(Dictionary dictionary, int vendorId, int type, String value) {
-        this(dictionary, vendorId, type, value.getBytes(UTF_8));
+    public StringAttribute(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
+        this(dictionary, vendorId, type,tag, value.getBytes(UTF_8));
     }
 
     @Override

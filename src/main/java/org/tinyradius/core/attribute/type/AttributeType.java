@@ -3,7 +3,11 @@ package org.tinyradius.core.attribute.type;
 import org.tinyradius.core.dictionary.Dictionary;
 
 public enum AttributeType {
-    VSA(VendorSpecificAttribute::new, VendorSpecificAttribute::new),
+    VSA((dictionary, vendorId, attributeId, tag, data) -> {
+        return new VendorSpecificAttribute(dictionary, vendorId, attributeId, data);
+    }, (dictionary, vendorId, attributeId, tag, data) -> {
+        return new VendorSpecificAttribute(dictionary, vendorId, attributeId, data);
+    }),
     OCTETS(OctetsAttribute::new, OctetsAttribute::new),
     STRING(StringAttribute::new, StringAttribute::new),
     INTEGER(IntegerAttribute::new, IntegerAttribute::new),
@@ -19,12 +23,12 @@ public enum AttributeType {
         this.stringConstructor = stringConstructor;
     }
 
-    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte[] value) {
-        return byteArrayConstructor.newInstance(dictionary, vendorId, type, value);
+    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
+        return byteArrayConstructor.newInstance(dictionary, vendorId, type, tag, value);
     }
 
-    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, String value) {
-        return stringConstructor.newInstance(dictionary, vendorId, type, value);
+    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
+        return stringConstructor.newInstance(dictionary, vendorId, type, tag, value);
     }
 
     public static AttributeType fromDataType(String dataType) {
@@ -58,10 +62,10 @@ public enum AttributeType {
     }
 
     private interface ByteArrayConstructor {
-        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, int type, byte[] data);
+        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, int type, byte tag, byte[] data);
     }
 
     private interface StringConstructor {
-        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, int type, String data);
+        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, int type, byte tag, String data);
     }
 }

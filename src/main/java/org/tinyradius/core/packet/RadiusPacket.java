@@ -67,7 +67,11 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    static RadiusRequest fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
+    static RadiusRequest fromByteBuf(Dictionary dictionary, ByteBuf original) throws RadiusPacketException {
+
+        // use unpooled heap so we can use ByteBuf freely later without worrying about GC
+        // todo use original directBuffer with zero copy
+        final ByteBuf byteBuf = Unpooled.copiedBuffer(original);
 
         final ByteBuffer content = byteBuf.nioBuffer();
         if (content.remaining() < HEADER_LENGTH)
@@ -77,10 +81,6 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         final byte packetId = content.get();
         final int length = content.getShort();
 
-        if (length < HEADER_LENGTH)
-            throw new RadiusPacketException("Bad packet: packet too short (" + length + " bytes)");
-        if (length > MAX_PACKET_LENGTH)
-            throw new RadiusPacketException("Bad packet: packet too long (" + length + " bytes)");
 
         byte[] authenticator = new byte[16];
         content.get(authenticator);

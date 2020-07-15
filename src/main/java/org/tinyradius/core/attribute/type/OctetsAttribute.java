@@ -1,7 +1,5 @@
 package org.tinyradius.core.attribute.type;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -20,20 +18,21 @@ import static java.util.Objects.requireNonNull;
  */
 public class OctetsAttribute implements RadiusAttribute {
 
-    private static final Logger logger = LogManager.getLogger();
-
     private final Dictionary dictionary;
 
-    private final ByteBuffer backing;
+    private final ByteBuffer data;
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
     /**
      * @param dictionary dictionary to use
      * @param vendorId   vendor ID or -1
      * @param type       attribute type code
+     * @param tag
      * @param value      value of attribute as byte array, excluding type and length bytes
      */
-    public OctetsAttribute(Dictionary dictionary, int vendorId, int type, byte[] value) {
+    public OctetsAttribute(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
+        requireNonNull(dictionary, "Dictionary not set");
+
         if (requireNonNull(value, "Attribute data not set").length > 253)
             throw new IllegalArgumentException("Attribute data too long, max 253 octets, actual: " + value.length);
 
@@ -55,21 +54,30 @@ public class OctetsAttribute implements RadiusAttribute {
         // todo verify length matches length field?
         // only do when we have a proper parse method and raw 'length' field
         // current we dont have 'length' field
-        final byte[] typeBytes = getTypeBytes(typeSize, type);
-        final byte[] lengthBytes = getLengthBytes(lengthSize, length);
+        final byte[] typeBytes = toTypeBytes(typeSize, type);
+        final byte[] lengthBytes = toLengthBytes(lengthSize, length);
+        final byte[] tagBytes = toTagBytes(dictionary, vendorId, type, tag);
 
         this.dictionary = requireNonNull(dictionary, "Dictionary not set");
-
-        backing = ByteBuffer.allocate(length)
+        this.vendorId = vendorId;
+        this.data = ByteBuffer.allocate(length)
                 .put(typeBytes)
                 .put(lengthBytes)
-                .put(new byte[tagSize]) // todo implement
+                .put(tagBytes)
                 .put(value);
-
-        this.vendorId = vendorId;
     }
 
-    private static byte[] getTypeBytes(int typeSize, int type) {
+    public OctetsAttribute(Dictionary dictionary, int vendorId, byte[] data) {
+        this(dictionary, vendorId, ByteBuffer.wrap(data));
+    }
+
+    private OctetsAttribute(Dictionary dictionary, int vendorId, ByteBuffer data) {
+        this.dictionary = dictionary;
+        this.vendorId = vendorId;
+        this.data = data;
+    }
+
+    private static byte[] toTypeBytes(int typeSize, int type) {
         switch (typeSize) {
             case 2:
                 return ByteBuffer.allocate(Short.BYTES).putShort((short) type).array();
@@ -81,7 +89,7 @@ public class OctetsAttribute implements RadiusAttribute {
         }
     }
 
-    private static byte[] getLengthBytes(int lengthSize, int len) {
+    private static byte[] toLengthBytes(int lengthSize, int len) {
         switch (lengthSize) {
             case 0:
                 return new byte[0];
@@ -93,14 +101,21 @@ public class OctetsAttribute implements RadiusAttribute {
         }
     }
 
+    private static byte[] toTagBytes(Dictionary dictionary, int vendorId, int type, byte tag) {
+        return dictionary.getAttributeTemplate(vendorId, type)
+                .filter(AttributeTemplate::isTagged)
+                .map(x -> new byte[]{tag})
+                .orElse(new byte[0]);
+    }
+
     /**
      * @param dictionary dictionary to use
      * @param vendorId   vendor ID or -1
      * @param type       attribute type code
      * @param value      value of attribute as hex string
      */
-    public OctetsAttribute(Dictionary dictionary, int vendorId, int type, String value) {
-        this(dictionary, vendorId, type, DatatypeConverter.parseHexBinary(value));
+    public OctetsAttribute(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
+        this(dictionary, vendorId, type, tag, DatatypeConverter.parseHexBinary(value));
     }
 
     @Override
@@ -112,12 +127,12 @@ public class OctetsAttribute implements RadiusAttribute {
     public int getType() {
         switch (getTypeSize()) {
             case 2:
-                return backing.getShort(0);
+                return data.getShort(0);
             case 4:
-                return backing.getInt(0);
+                return data.getInt(0);
             case 1:
             default:
-                return Byte.toUnsignedInt(backing.get(0));
+                return Byte.toUnsignedInt(data.get(0));
         }
     }
 
@@ -134,23 +149,26 @@ public class OctetsAttribute implements RadiusAttribute {
 //        }
 //    }
 
-    public int getTagSize() {
-        return getDictionary().getAttributeTemplate(getVendorId(), getType())
-                .map(AttributeTemplate::isTagged)
-                .orElse(false) ? 1 : 0;
+    /**
+     * @return RFC2868 Tag
+     */
+    @Override
+    public Optional<Byte> getTag() {
+        return isTagged() ?
+                Optional.of(data.get(getHeaderSize())) :
+                Optional.empty();
     }
 
-    @Override
-    public byte getTag() {
-        return 0;
+    private int getHeaderSize() {
+        return getTypeSize() + getLengthSize();
     }
 
     @Override
     public byte[] getValue() {
-        final int offset = getTypeSize() + getLengthSize() + getTagSize();
-        final int length = backing.capacity() - offset;
+        final int offset = getHeaderSize() + getTagSize();
+        final int length = data.capacity() - offset;
         final byte[] bytes = new byte[length];
-        backing.get(bytes, offset, length);
+        data.get(bytes, offset, length);
         return bytes;
     }
 
@@ -166,7 +184,9 @@ public class OctetsAttribute implements RadiusAttribute {
 
     @Override
     public String toString() {
-        return getAttributeName() + ": " + getValueString();
+        return isTagged() ?
+                "[Tagged: " + getTag() + "] " + getAttributeName() + ": " + getValueString() :
+                getAttributeName() + ": " + getValueString();
     }
 
     @Override
@@ -178,18 +198,17 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     // do not remove - for removing from list of attributes
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof OctetsAttribute)) return false;
         OctetsAttribute that = (OctetsAttribute) o;
         return getVendorId() == that.getVendorId() &&
-                backing.equals(that.backing);
+                data.equals(that.data);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(backing, getVendorId());
+        return Objects.hash(data, getVendorId());
     }
 }

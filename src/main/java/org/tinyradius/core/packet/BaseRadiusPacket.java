@@ -1,5 +1,7 @@
 package org.tinyradius.core.packet;
 
+import io.netty.buffer.ByteBuf;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
@@ -16,12 +18,21 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     private static final int CHILD_VENDOR_ID = -1;
 
-    private final byte type;
-    private final byte id;
+    private final ByteBuf data;
     private final List<RadiusAttribute> attributes;
-    private final byte[] authenticator;
 
     private final Dictionary dictionary;
+
+    public BaseRadiusPacket(Dictionary dictionary, ByteBuf data) throws RadiusPacketException {
+        this.dictionary = dictionary;
+        this.data = data;
+
+        final short length = data.getShort(2);
+        if (length < HEADER_LENGTH)
+            throw new RadiusPacketException("Bad packet: packet too short (" + length + " bytes)");
+        if (length > MAX_PACKET_LENGTH)
+            throw new RadiusPacketException("Bad packet: packet too long (" + length + " bytes)");
+    }
 
     /**
      * Builds a Radius packet with the given type, identifier and attributes.
@@ -55,12 +66,12 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     @Override
     public byte getId() {
-        return id;
+        return data.getByte(0);
     }
 
     @Override
     public byte getType() {
-        return type;
+        return data.getByte(1);
     }
 
     @Override

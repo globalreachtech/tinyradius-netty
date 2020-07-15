@@ -10,6 +10,7 @@ import org.tinyradius.core.attribute.type.decorator.TaggedAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,7 +102,7 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute create(Dictionary dictionary, byte tag, String value) {
-        return autoWrapTag(tag, decodedType.create(dictionary, vendorId, type, value));
+        return autoWrapTag(tag, decodedType.create(dictionary, vendorId, type, , value));
     }
 
     /**
@@ -114,21 +115,21 @@ public class AttributeTemplate {
      * @param rawData    attribute data to parse excl. type/length
      * @return new RadiusAttribute
      */
-    public RadiusAttribute parse(Dictionary dictionary, byte[] rawData) {
+    public RadiusAttribute parse(Dictionary dictionary, ByteBuffer rawData) {
         final int lengthSize = dictionary.getVendor(vendorId)
                 .map(Vendor::getLengthSize)
                 .orElse(1);
 
         if (isTagged()) {
-            if (rawData.length == 0)
+            if (rawData.reset().hasRemaining())
                 throw new IllegalArgumentException("Attribute data (excl. type, length fields) cannot be empty if attribute requires tag.");
 
             return autoWrapEncode(
                     autoWrapTag(rawData[0],
-                            encodedType.create(dictionary, vendorId, type, Arrays.copyOfRange(rawData, 1, rawData.length))));
+                            encodedType.create(dictionary, vendorId, type, , Arrays.copyOfRange(rawData, 1, rawData.length))));
         }
 
-        final OctetsAttribute attribute = encodedType.create(dictionary, vendorId, type, rawData);
+        final OctetsAttribute attribute = encodedType.create(dictionary, vendorId, type, , rawData);
         return autoWrapEncode(attribute);
     }
 
@@ -149,7 +150,7 @@ public class AttributeTemplate {
     }
 
     private RadiusAttribute create(AttributeType attributeType, Dictionary dictionary, byte tag, byte[] value) {
-        return autoWrapTag(tag, attributeType.create(dictionary, vendorId, type, value));
+        return autoWrapTag(tag, attributeType.create(dictionary, vendorId, type, tag, value));
     }
 
     private RadiusAttribute autoWrapTag(byte tag, OctetsAttribute attribute) {
@@ -253,7 +254,7 @@ public class AttributeTemplate {
             return attribute;
 
         try {
-            return createEncoded(attribute.getDictionary(), attribute.getTag(),
+            return createEncoded(attribute.getDictionary(), attribute.getTag().orElse((byte) 0),
                     codecType.getCodec().encode(attribute.getValue(), requestAuth, secret));
         } catch (Exception e) {
             throw new RadiusPacketException("Error encoding attribute " + attribute.toString(), e);
@@ -272,7 +273,7 @@ public class AttributeTemplate {
             return attribute;
 
         try {
-            return create(attribute.getDictionary(), attribute.getTag(),
+            return create(attribute.getDictionary(), attribute.getTag().orElse((byte) 0),
                     codecType.getCodec().decode(attribute.getValue(), requestAuth, secret));
         } catch (Exception e) {
             throw new RadiusPacketException("Error decoding attribute " + attribute.toString(), e);

@@ -13,8 +13,8 @@ import java.nio.ByteBuffer;
  */
 public abstract class IpAttribute extends OctetsAttribute {
 
-    private IpAttribute(Dictionary dictionary, int vendorId, int type, InetAddress data, Class<? extends InetAddress> clazz) {
-        super(dictionary, vendorId, type, data.getAddress());
+    private IpAttribute(Dictionary dictionary, int vendorId, int type, byte tag, InetAddress data, Class<? extends InetAddress> clazz) {
+        super(dictionary, vendorId, type, tag, data.getAddress());
 
         if (!clazz.isInstance(data))
             throw new IllegalArgumentException("Expected " + clazz.getSimpleName() + ", actual " + data.getClass().getSimpleName());
@@ -48,16 +48,16 @@ public abstract class IpAttribute extends OctetsAttribute {
      * IPv4 Address
      */
     public static class V4 extends IpAttribute {
-        public V4(Dictionary dictionary, int vendorId, int type, byte[] data) {
-            this(dictionary, vendorId, type, IpAttribute.convert(data));
+        public V4(Dictionary dictionary, int vendorId, int type, byte tag, byte[] data) {
+            this(dictionary, vendorId, type, tag, IpAttribute.convert(data));
         }
 
-        public V4(Dictionary dictionary, int vendorId, int type, String data) {
-            this(dictionary, vendorId, type, IpAttribute.convert(data));
+        public V4(Dictionary dictionary, int vendorId, int type, byte tag, String data) {
+            this(dictionary, vendorId, type, tag, IpAttribute.convert(data));
         }
 
-        public V4(Dictionary dictionary, int vendorId, int type, InetAddress address) {
-            super(dictionary, vendorId, type, address, Inet4Address.class);
+        public V4(Dictionary dictionary, int vendorId, int type, byte tag, InetAddress address) {
+            super(dictionary, vendorId, type, tag, address, Inet4Address.class);
         }
 
         public int getValueInt() {
@@ -69,16 +69,16 @@ public abstract class IpAttribute extends OctetsAttribute {
      * IPv6 Address
      */
     public static class V6 extends IpAttribute {
-        public V6(Dictionary dictionary, int vendorId, int type, byte[] data) {
-            this(dictionary, vendorId, type, IpAttribute.convert(data));
+        public V6(Dictionary dictionary, int vendorId, int type, byte tag, byte[] data) {
+            this(dictionary, vendorId, type, tag, IpAttribute.convert(data));
         }
 
-        public V6(Dictionary dictionary, int vendorId, int type, String data) {
-            this(dictionary, vendorId, type, IpAttribute.convert(data));
+        public V6(Dictionary dictionary, int vendorId, int type, byte tag, String data) {
+            this(dictionary, vendorId, type, tag, IpAttribute.convert(data));
         }
 
-        public V6(Dictionary dictionary, int vendorId, int type, InetAddress address) {
-            super(dictionary, vendorId, type, address, Inet6Address.class);
+        public V6(Dictionary dictionary, int vendorId, int type, byte tag, InetAddress address) {
+            super(dictionary, vendorId, type, tag, address, Inet6Address.class);
         }
     }
 }

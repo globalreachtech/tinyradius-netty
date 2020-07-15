@@ -11,18 +11,18 @@ import static java.lang.Integer.*;
  */
 public class IntegerAttribute extends OctetsAttribute {
 
-    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
-        super(dictionary, vendorId, type, data);
-        if (data.length != 4)
-            throw new IllegalArgumentException("Integer / Date attribute value should be 4 octets, actual: " + data.length);
+    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
+        super(dictionary, vendorId, type, tag, value);
+        if (value.length != 4)
+            throw new IllegalArgumentException("Integer / Date attribute value should be 4 octets, actual: " + value.length);
     }
 
-    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, String value) {
-        this(dictionary, vendorId, type, convertValue(value, dictionary, type, vendorId));
+    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
+        this(dictionary, vendorId, type, tag, convertValue(value, dictionary, type, vendorId));
     }
 
-    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, int value) {
-        this(dictionary, vendorId, type, convertValue(value));
+    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, byte tag, int value) {
+        this(dictionary, vendorId, type, tag, convertValue(value));
     }
 
     /**

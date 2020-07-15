@@ -25,7 +25,7 @@ public interface RadiusAttribute {
     /**
      * @return Tag if available and specified for attribute type (RFC2868)
      */
-    byte getTag();
+    Optional<Byte> getTag();
 
     /**
      * @return attribute data as raw bytes
@@ -90,17 +90,25 @@ public interface RadiusAttribute {
     }
 
     default int getTypeSize() {
-        return getDictionary()
-                .getVendor(getVendorId())
+        return getVendor()
                 .map(Vendor::getTypeSize)
                 .orElse(1);
     }
 
     default int getLengthSize() {
-        return getDictionary()
-                .getVendor(getVendorId())
+        return getVendor()
                 .map(Vendor::getLengthSize)
                 .orElse(1);
+    }
+
+    default int getTagSize() {
+        return getDictionary().getAttributeTemplate(getVendorId(), getType())
+                .map(AttributeTemplate::isTagged)
+                .orElse(false) ? 1 : 0;
+    }
+
+    default Optional<Vendor> getVendor() {
+        return getDictionary().getVendor(getVendorId());
     }
 
     /**
@@ -108,10 +116,15 @@ public interface RadiusAttribute {
      * or empty byte array of length 0 if attribute does not support tags
      */
     default byte[] getTagBytes() {
-        final boolean tagged = getAttributeTemplate()
+        return getTag()
+                .map(b -> new byte[]{b})
+                .orElse(new byte[0]);
+    }
+
+    default boolean isTagged() {
+        return getAttributeTemplate()
                 .map(AttributeTemplate::isTagged)
                 .orElse(false);
-        return tagged ? new byte[]{getTag()} : new byte[0];
     }
 
     default String getAttributeName() {

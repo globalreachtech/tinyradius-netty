@@ -1,7 +1,10 @@
 package org.tinyradius.core.dictionary;
 
+import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.attribute.type.OctetsAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
+
+import java.nio.ByteBuffer;
 
 /**
  * A dictionary retrieves AttributeTemplate objects by name or attribute ID.
@@ -32,7 +35,7 @@ public interface Dictionary extends CoreDictionary {
     default RadiusAttribute createAttribute(int vendorId, int type, byte tag, byte[] value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
-                .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));
+                .orElseGet(() -> new OctetsAttribute(this, vendorId, type,tag , value));
     }
 
     /**
@@ -59,7 +62,7 @@ public interface Dictionary extends CoreDictionary {
     default RadiusAttribute createAttribute(int vendorId, int type, byte tag, String value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
-                .orElseGet(() -> new OctetsAttribute(this, vendorId, type, value));
+                .orElseGet(() -> new OctetsAttribute(this, vendorId, type,tag , value));
     }
 
     /**
@@ -88,9 +91,9 @@ public interface Dictionary extends CoreDictionary {
      * @param rawData  attribute data to parse excl. type/length
      * @return RadiusAttribute object
      */
-    default RadiusAttribute parseAttribute(int vendorId, int type, byte[] rawData) {
+    default RadiusAttribute parseAttribute(int vendorId, int type, ByteBuffer rawData) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.parse(this, rawData))
-                .orElseGet(() -> new OctetsAttribute(this, vendorId, type, rawData));
+                .orElseGet(() -> new OctetsAttribute(this, vendorId, type, (byte)0, rawData));
     }
 }

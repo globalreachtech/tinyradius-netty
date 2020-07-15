@@ -157,7 +157,7 @@ class VendorSpecificAttributeTest {
     @Test
     void createTooLong() {
         final List<RadiusAttribute> attributes = Collections.singletonList(
-                new OctetsAttribute(dictionary, 14122, 26, new byte[253]));
+                new OctetsAttribute(dictionary, 14122, 26, , new byte[253]));
         final Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> new VendorSpecificAttribute(dictionary, 14122, attributes));
         assertTrue(exception.getMessage().toLowerCase().contains("attribute data too long, max 253 octets"));

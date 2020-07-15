@@ -58,8 +58,6 @@ class RadiusPacketTest {
                 () -> encodedRequest.toDatagram(new InetSocketAddress(0)));
 
         assertTrue(exception.getMessage().toLowerCase().contains("packet too long"));
-
-        byteBuf.release();
     }
 
     @Test
@@ -92,8 +90,6 @@ class RadiusPacketTest {
 
         assertEquals(33, attributes[0]);
         assertArrayEquals(proxyState, Arrays.copyOfRange(attributes, 2, toUnsignedInt(attributes[1])));
-
-        datagram.release();
     }
 
 }

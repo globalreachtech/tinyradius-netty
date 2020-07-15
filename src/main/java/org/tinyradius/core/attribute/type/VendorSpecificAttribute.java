@@ -75,7 +75,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * @param data          equivalent of childVendorId + subattribute data in byte array form
      */
     private VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes, byte[] data) {
-        super(dictionary, -1, VENDOR_SPECIFIC, data);
+        super(dictionary, -1, VENDOR_SPECIFIC, (byte) 0, data);
         this.childVendorId = childVendorId;
         this.attributes = Collections.unmodifiableList(new ArrayList<>(attributes));
 
