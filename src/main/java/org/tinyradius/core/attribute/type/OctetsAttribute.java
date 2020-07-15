@@ -54,6 +54,9 @@ public class OctetsAttribute implements RadiusAttribute {
             throw new IllegalArgumentException("Vendor " + vendorId + " lengthSize " + lengthSize + " octets, only 0/1/2 allowed");
 
         final int length = typeSize + lengthSize + tagSize + value.length;
+        // todo verify length matches length field?
+        // only do when we have a proper parse method and raw 'length' field
+        // current we dont have 'length' field
         final byte[] typeBytes = getTypeBytes(typeSize, type);
         final byte[] lengthBytes = getLengthBytes(lengthSize, length);
 
@@ -120,17 +123,21 @@ public class OctetsAttribute implements RadiusAttribute {
         }
     }
 
-    public int getLength() {
-        switch (getLengthSize()) {
-            case 0:
-                return backing.remaining() + typeSize; // position already moved by typeSize amount
-            case 1:
-                return Byte.toUnsignedInt(data.get()); // max 255
-            case 2:
-                return data.getShort();
-            default:
-                throw new IllegalArgumentException("Vendor " + vendorId + " lengthSize " + lengthSize + " octets, only 0/1/2 allowed");
-        }
+//    public int getLength() {
+//        switch (getLengthSize()) {
+//            case 0:
+//                return backing.remaining() + typeSize; // position already moved by typeSize amount
+//            case 1:
+//                return Byte.toUnsignedInt(data.get()); // max 255
+//            case 2:
+//                return data.getShort();
+//            default:
+//                throw new IllegalArgumentException("Vendor " + vendorId + " lengthSize " + lengthSize + " octets, only 0/1/2 allowed");
+//        }
+//    }
+
+    public int getTagSize(){
+
     }
 
     @Override
@@ -140,7 +147,7 @@ public class OctetsAttribute implements RadiusAttribute {
 
     @Override
     public byte[] getValue() {
-        return value;
+        return backing.get.get(getTypeSize() + getLengthSize() + getTagBytes().length);
     }
 
     @Override
