@@ -105,4 +105,8 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
         final byte[] data = getValue();
         return extractAddress(data).getHostAddress() + "/" + toUnsignedInt(data[1]);
     }
+
+    public static byte[] stringParser(Dictionary dictionary, int i, int i1, byte b, String value) {
+        return convertAndCheck(convertValue(value), Integer.parseInt(value.split("/")[1]));
+    }
 }

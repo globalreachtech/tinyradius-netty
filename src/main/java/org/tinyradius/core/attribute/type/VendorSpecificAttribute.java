@@ -1,5 +1,6 @@
 package org.tinyradius.core.attribute.type;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
@@ -26,22 +27,11 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     /**
      * @param dictionary  dictionary to use for (sub)attributes
      * @param vendorId    ignored, VSAs should always be -1 (top level attribute)
-     * @param attributeId ignored, should always be Vendor-Specific (26)
-     * @param data        data as hex to parse for childVendorId and sub-attributes
-     */
-    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeId, String data) {
-        this(dictionary, vendorId, attributeId, DatatypeConverter.parseHexBinary(data));
-    }
-
-    /**
-     * @param dictionary  dictionary to use for (sub)attributes
-     * @param vendorId    ignored, VSAs should always be -1 (top level attribute)
-     * @param attributeId ignored, should always be Vendor-Specific (26)
      * @param data        data to parse for childVendorId and sub-attributes
      */
-    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, int attributeId, byte[] data) {
+    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         this(dictionary, childVendorId(data),
-                AttributeHolder.extractAttributes(dictionary, childVendorId(data), ByteBuffer.wrap(data, 4, data.length - 4)),
+                AttributeHolder.readAttributes(dictionary, childVendorId(data), ByteBuffer.wrap(data, 4, data.length - 4)),
                 data);
         if (vendorId != -1)
             throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
@@ -135,4 +125,5 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
         }
         return sb.toString();
     }
+
 }

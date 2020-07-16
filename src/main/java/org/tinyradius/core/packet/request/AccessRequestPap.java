@@ -1,8 +1,9 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.ByteBuf;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +16,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class AccessRequestPap extends AccessRequest<AccessRequestPap> {
 
-    public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, identifier, authenticator, attributes);
+    public AccessRequestPap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        super(dictionary, header, attributes);
     }
 
     @Override
@@ -24,7 +25,7 @@ public class AccessRequestPap extends AccessRequest<AccessRequestPap> {
         return AccessRequestPap::new;
     }
 
-    public AccessRequestPap withPassword(String password) {
+    public AccessRequestPap withPassword(String password) throws RadiusPacketException {
         final List<RadiusAttribute> attributes = getAttributes().stream()
                 .filter(a -> a.getVendorId() != -1 || a.getType() != USER_PASSWORD)
                 .collect(Collectors.toList());

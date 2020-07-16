@@ -1,11 +1,11 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.PacketType;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
 
 import java.security.SecureRandom;
@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
 /**
  * This class represents an Access-Request Radius packet.
@@ -31,23 +32,24 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
     private static final Set<Integer> AUTH_ATTRS = new HashSet<>(
             Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE));
 
-    protected AccessRequest(Dictionary dictionary, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, PacketType.ACCESS_REQUEST, id, authenticator, attributes);
+    protected AccessRequest(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        super(dictionary, header, attributes);
+        final byte type = header.getByte(0);
+        if (type != ACCESS_REQUEST)
+            throw new IllegalArgumentException("First octet must be " + ACCESS_REQUEST + ", actual: " + type);
     }
-
 
     /**
      * Create new AccessRequest, tries to identify auth protocol from attributes.
      *
-     * @param dictionary    custom dictionary to use
-     * @param identifier    packet identifier
-     * @param authenticator authenticator for packet, nullable
-     * @param attributes    list of attributes for packet, should not be empty
-     *                      or a stub AccessRequest will be returned
+     * @param dictionary custom dictionary to use
+     * @param header     packet header (20 octets)
+     * @param attributes list of attributes for packet, should not be empty
+     *                   or a stub AccessRequest will be returned
      * @return AccessRequest auth mechanism-specific implementation
      */
-    static RadiusRequest create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        return lookupAuthType(attributes).newInstance(dictionary, identifier, authenticator, attributes);
+    static RadiusRequest create(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        return lookupAuthType(attributes).newInstance(dictionary, header, attributes);
     }
 
     private static AccessRequestFactory<?> lookupAuthType(List<RadiusAttribute> attributes) {
@@ -120,7 +122,7 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
         final byte[] auth = genAuth(sharedSecret);
 
         return factory()
-                .newInstance(getDictionary(), getId(), auth, encodeAttributes(auth, sharedSecret))
+                .newInstance(getDictionary(), headerWithAuth(auth), encodeAttributes(auth, sharedSecret))
                 .encodeMessageAuth(sharedSecret, auth);
     }
 
@@ -139,11 +141,11 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
     }
 
     @Override
-    public T withAttributes(List<RadiusAttribute> attributes) {
-        return factory().newInstance(getDictionary(), getId(), getAuthenticator(), attributes);
+    public T withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
+        return factory().newInstance(getDictionary(), getHeader(), attributes);
     }
 
     public interface AccessRequestFactory<U extends AccessRequest<?>> {
-        U newInstance(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes);
+        U newInstance(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException;
     }
 }

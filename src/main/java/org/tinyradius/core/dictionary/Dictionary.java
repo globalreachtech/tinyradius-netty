@@ -1,10 +1,9 @@
 package org.tinyradius.core.dictionary;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.tinyradius.core.attribute.type.OctetsAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
-
-import java.nio.ByteBuffer;
 
 /**
  * A dictionary retrieves AttributeTemplate objects by name or attribute ID.
@@ -35,7 +34,10 @@ public interface Dictionary extends CoreDictionary {
     default RadiusAttribute createAttribute(int vendorId, int type, byte tag, byte[] value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
-                .orElseGet(() -> new OctetsAttribute(this, vendorId, type,tag , value));
+                .orElseGet(() -> new OctetsAttribute(this, vendorId, Unpooled.buffer()
+                        .writeByte(type)
+                        .writeByte(value.length + 2)
+                        .writeBytes(value)));
     }
 
     /**
@@ -62,7 +64,13 @@ public interface Dictionary extends CoreDictionary {
     default RadiusAttribute createAttribute(int vendorId, int type, byte tag, String value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
-                .orElseGet(() -> new OctetsAttribute(this, vendorId, type,tag , value));
+                .orElseGet(() -> {
+                    final byte[] bytes = OctetsAttribute.stringHexParser(this, vendorId, type, tag, value);
+                    return new OctetsAttribute(this, vendorId, Unpooled.buffer()
+                            .writeByte(type)
+                            .writeByte(bytes.length + 2)
+                            .writeBytes(bytes));
+                });
     }
 
     /**
@@ -86,14 +94,14 @@ public interface Dictionary extends CoreDictionary {
     /**
      * Creates a RadiusAttribute object of the appropriate type by looking up type and vendorId.
      *
-     * @param vendorId vendor ID or -1
+     * @param vendorId vendorId or -1
      * @param type     attribute type
-     * @param rawData  attribute data to parse excl. type/length
+     * @param data     attribute data to parse incl. type/length
      * @return RadiusAttribute object
      */
-    default RadiusAttribute parseAttribute(int vendorId, int type, ByteBuffer rawData) {
+    default RadiusAttribute parseAttribute(int vendorId, int type, ByteBuf data) {
         return getAttributeTemplate(vendorId, type)
-                .map(at -> at.parse(this, rawData))
-                .orElseGet(() -> new OctetsAttribute(this, vendorId, type, (byte)0, rawData));
+                .map(at -> at.parse(this, data))
+                .orElseGet(() -> new OctetsAttribute(this, vendorId, data));
     }
 }

@@ -7,7 +7,9 @@ import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
@@ -16,47 +18,34 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements RadiusPacket<T> {
 
+    private static final int HEADER_LENGTH = 20;
     private static final int CHILD_VENDOR_ID = -1;
 
-    private final ByteBuf data;
+    private final ByteBuf header;
     private final List<RadiusAttribute> attributes;
 
     private final Dictionary dictionary;
 
-    public BaseRadiusPacket(Dictionary dictionary, ByteBuf data) throws RadiusPacketException {
-        this.dictionary = dictionary;
-        this.data = data;
+    public BaseRadiusPacket(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        this.dictionary = requireNonNull(dictionary, "Dictionary is null");
+        this.header = header;
+        this.attributes = Collections.unmodifiableList(new ArrayList<>(attributes));
 
-        final short length = data.getShort(2);
-        if (length < HEADER_LENGTH)
-            throw new RadiusPacketException("Bad packet: packet too short (" + length + " bytes)");
+        if (header.readableBytes() != HEADER_LENGTH)
+            throw new IllegalArgumentException("Packet header must be length " + HEADER_LENGTH + ", actual: " + header.readableBytes());
+
+        final int length = getHeader().readableBytes() + getAttributeBytes().readableBytes();
         if (length > MAX_PACKET_LENGTH)
-            throw new RadiusPacketException("Bad packet: packet too long (" + length + " bytes)");
+            throw new RadiusPacketException("Packet length max " + MAX_PACKET_LENGTH + ", actual: " + length);
+
+        final short declaredLength = header.getShort(2);
+        if (length != declaredLength)
+            throw new RadiusPacketException("Packet length mismatch, " +
+                    "actual length (" + length + ")  does not match declared length (" + declaredLength + ")");
     }
 
-    /**
-     * Builds a Radius packet with the given type, identifier and attributes.
-     * <p>
-     * Use {@link RadiusRequest#create(Dictionary, byte, byte, byte[], List)}
-     * or {@link RadiusResponse#create(Dictionary, byte, byte, byte[], List)}
-     * where possible as that automatically creates Request/Response
-     * variants as required.
-     *
-     * @param dictionary    custom dictionary to use
-     * @param type          packet type
-     * @param id            packet identifier
-     * @param authenticator can be null if creating manually
-     * @param attributes    list of RadiusAttributes
-     */
-    public BaseRadiusPacket(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
-        if (authenticator != null && authenticator.length != 16)
-            throw new IllegalArgumentException("Authenticator must be 16 octets, actual: " + authenticator.length);
-
-        this.type = type;
-        this.id = id;
-        this.authenticator = authenticator;
-        this.attributes = Collections.unmodifiableList(new ArrayList<>(attributes));
-        this.dictionary = requireNonNull(dictionary, "Dictionary is null");
+    protected ByteBuf headerWithAuth(byte[] auth) {
+        return getHeader().copy().setBytes(4, auth);
     }
 
     @Override
@@ -65,13 +54,18 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     }
 
     @Override
+    public ByteBuf getHeader() {
+        return header;
+    }
+
+    @Override
     public byte getId() {
-        return data.getByte(0);
+        return header.getByte(1);
     }
 
     @Override
     public byte getType() {
-        return data.getByte(1);
+        return header.getByte(0);
     }
 
     @Override
@@ -81,7 +75,9 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     @Override
     public byte[] getAuthenticator() {
-        return authenticator;
+        final byte[] auth = new byte[16];
+        header.getBytes(4, auth);
+        return auth;
     }
 
     @Override
@@ -103,22 +99,5 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         return s.toString();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BaseRadiusPacket)) return false;
-        BaseRadiusPacket<?> that = (BaseRadiusPacket<?>) o;
-        return type == that.type &&
-                id == that.id &&
-                Objects.equals(attributes, that.attributes) &&
-                Arrays.equals(authenticator, that.authenticator) &&
-                Objects.equals(dictionary, that.dictionary);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(type, id, attributes, dictionary);
-        result = 31 * result + Arrays.hashCode(authenticator);
-        return result;
-    }
+    // todo hashcode equals
 }

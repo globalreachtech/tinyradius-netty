@@ -1,11 +1,11 @@
 package org.tinyradius.core.attribute.type;
 
+import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
-import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +20,33 @@ public interface RadiusAttribute {
     /**
      * @return attribute type code, typically 0-255
      */
-    int getType();
+    default int getType() {
+        switch (getTypeSize()) {
+            case 2:
+                return getData().getShort(0);
+            case 4:
+                return getData().getInt(0);
+            case 1:
+            default:
+                return Byte.toUnsignedInt(getData().getByte(0));
+        }
+    }
+
+    default int getLength() {
+        switch (getLengthSize()) {
+            case 0:
+                return getData().readableBytes();
+            case 2:
+                return getData().getShort(getTypeSize());
+            case 1:
+            default:
+                return Byte.toUnsignedInt(getData().getByte(getTypeSize())); // max 255
+        }
+    }
+
+    default int getHeaderSize() {
+        return getTypeSize() + getLengthSize();
+    }
 
     /**
      * @return Tag if available and specified for attribute type (RFC2868)
@@ -42,51 +68,13 @@ public interface RadiusAttribute {
      */
     Dictionary getDictionary();
 
+    ByteBuf getData();
+
     /**
      * @return entire attribute (including headers) as byte array
      */
     default byte[] toByteArray() {
-        final int typeSize = getTypeSize();
-        final int lengthSize = getLengthSize();
-        final int len = typeSize + lengthSize + getTagBytes().length + getValue().length;
-
-        byte[] typeBytes;
-        switch (typeSize) {
-            case 1:
-                typeBytes = new byte[]{(byte) getType()};
-                break;
-            case 2:
-                typeBytes = ByteBuffer.allocate(Short.BYTES).putShort((short) getType()).array();
-                break;
-            case 4:
-                typeBytes = ByteBuffer.allocate(Integer.BYTES).putInt(getType()).array();
-                break;
-            default:
-                throw new IllegalArgumentException("Vendor " + getVendorId() + " typeSize " + typeSize + " octets, only 1/2/4 allowed");
-        }
-
-        byte[] lengthBytes;
-        switch (lengthSize) {
-            case 0:
-                lengthBytes = new byte[0];
-                break;
-            case 1:
-                lengthBytes = new byte[]{(byte) len};
-                break;
-            case 2:
-                lengthBytes = ByteBuffer.allocate(Short.BYTES).putShort((short) len).array();
-                break;
-            default:
-                throw new IllegalArgumentException("Vendor " + getVendorId() + " lengthSize " + lengthSize + " octets, only 0/1/2 allowed");
-        }
-
-        // todo check not oversize
-        return ByteBuffer.allocate(len)
-                .put(typeBytes)
-                .put(lengthBytes)
-                .put(getTagBytes())
-                .put(getValue())
-                .array();
+        return getData().copy().array();
     }
 
     default int getTypeSize() {
@@ -109,16 +97,6 @@ public interface RadiusAttribute {
 
     default Optional<Vendor> getVendor() {
         return getDictionary().getVendor(getVendorId());
-    }
-
-    /**
-     * @return byte array of length 1 containing {@link #getTag()},
-     * or empty byte array of length 0 if attribute does not support tags
-     */
-    default byte[] getTagBytes() {
-        return getTag()
-                .map(b -> new byte[]{b})
-                .orElse(new byte[0]);
     }
 
     default boolean isTagged() {

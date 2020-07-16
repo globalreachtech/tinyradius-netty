@@ -1,5 +1,6 @@
 package org.tinyradius.core.attribute.type.decorator;
 
+import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
@@ -35,6 +36,11 @@ public class EncodedAttribute implements RadiusAttribute {
     @Override
     public Optional<Byte> getTag() {
         return delegate.getTag();
+    }
+
+    @Override
+    public ByteBuf getData(){
+        return delegate.getData();
     }
 
     @Override

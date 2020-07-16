@@ -1,9 +1,10 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.ByteBuf;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.RadiusPacket;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -20,8 +21,8 @@ public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
 
     private static final byte CHAP_CHALLENGE = 60;
 
-    public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, identifier, authenticator, attributes);
+    public AccessRequestChap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        super(dictionary, header, attributes);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
      * @throws IllegalArgumentException invalid password
      */
-    public AccessRequestChap withPassword(String password) {
+    public AccessRequestChap withPassword(String password) throws RadiusPacketException {
         if (password == null || password.isEmpty())
             throw new IllegalArgumentException("Could not encode CHAP attributes, password not set");
 

@@ -23,10 +23,10 @@ public class MemoryDictionary implements WritableDictionary {
     private final Map<String, AttributeTemplate> attributesByName = new HashMap<>();
 
     @Override
-    public Optional<AttributeTemplate> getAttributeTemplate(int vendorCode, int attributeId) {
+    public Optional<AttributeTemplate> getAttributeTemplate(int vendorCode, int type) {
         Map<Integer, AttributeTemplate> vendorAttributes = attributesByCode.get(vendorCode);
         return Optional.ofNullable(vendorAttributes)
-                .map(va -> va.get(attributeId));
+                .map(va -> va.get(type));
     }
 
     @Override

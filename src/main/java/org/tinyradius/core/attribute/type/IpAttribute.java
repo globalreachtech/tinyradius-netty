@@ -20,6 +20,10 @@ public abstract class IpAttribute extends OctetsAttribute {
             throw new IllegalArgumentException("Expected " + clazz.getSimpleName() + ", actual " + data.getClass().getSimpleName());
     }
 
+    public static byte[] stringParser(Dictionary dictionary, int i, int i1, byte b, String s) {
+        return convert(s).getAddress();
+    }
+
     private static InetAddress convert(String value) {
         if (value.isEmpty())
             throw new IllegalArgumentException("Address can't be empty");

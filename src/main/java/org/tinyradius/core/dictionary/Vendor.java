@@ -1,5 +1,6 @@
 package org.tinyradius.core.dictionary;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 
 /**
@@ -48,6 +49,34 @@ public class Vendor {
 
     public int getLengthSize() {
         return lengthSize;
+    }
+
+    public int getHeaderSize() {
+        return typeSize + lengthSize;
+    }
+
+    public byte[] toTypeBytes(int type) {
+        switch (typeSize) {
+            case 2:
+                return ByteBuffer.allocate(Short.BYTES).putShort((short) type).array();
+            case 4:
+                return ByteBuffer.allocate(Integer.BYTES).putInt(type).array();
+            case 1:
+            default:
+                return new byte[]{(byte) type};
+        }
+    }
+
+    public byte[] toLengthBytes(int len) {
+        switch (lengthSize) {
+            case 0:
+                return new byte[0];
+            case 2:
+                return ByteBuffer.allocate(Short.BYTES).putShort((short) len).array();
+            case 1:
+            default:
+                return new byte[]{(byte) len};
+        }
     }
 
     @Override

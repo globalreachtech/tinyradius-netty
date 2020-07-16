@@ -1,15 +1,31 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
+import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.PacketType;
 import org.tinyradius.core.packet.RadiusPacket;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.List;
 
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
+import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
+
 public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
+
+    static RadiusRequest create(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        switch (header.getByte(0)) {
+            case ACCESS_REQUEST:
+                return AccessRequest.create(dictionary, header, attributes);
+            case ACCOUNTING_REQUEST:
+                return new AccountingRequest(dictionary, header, attributes);
+            default:
+                return new GenericRequest(dictionary, header, attributes);
+        }
+    }
 
     /**
      * Creates a RadiusPacket object. Depending on the passed type, an
@@ -23,15 +39,9 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    static RadiusRequest create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        switch (type) {
-            case PacketType.ACCESS_REQUEST:
-                return AccessRequest.create(dictionary, identifier, authenticator, attributes);
-            case PacketType.ACCOUNTING_REQUEST:
-                return new AccountingRequest(dictionary, identifier, authenticator, attributes);
-            default:
-                return new GenericRequest(dictionary, type, identifier, authenticator, attributes);
-        }
+    static RadiusRequest create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        final ByteBuf header = RadiusPacket.buildHeader(type, identifier, authenticator, attributes);
+       return create(dictionary, header, attributes);
     }
 
     /**
@@ -47,7 +57,13 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
      * @throws RadiusPacketException malformed packet
      */
     static RadiusRequest fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
-        return RadiusPacket.fromByteBuf(dictionary, datagram.content());
+        // use unpooled heap so we can use ByteBuf freely later without worrying about GC
+        // todo use original directBuffer with zero copy
+
+        final ByteBuf byteBuf = Unpooled.copiedBuffer(datagram.content());
+
+        return RadiusRequest.create(dictionary, RadiusPacket.readHeader(byteBuf),
+                AttributeHolder.readAttributes(dictionary, -1, byteBuf));
     }
 
     /**
