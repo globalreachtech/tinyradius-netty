@@ -6,13 +6,13 @@ import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 
 public enum AttributeType {
-    VSA(VendorSpecificAttribute::new, OctetsAttribute::stringHexParser),
-    OCTETS(OctetsAttribute::new, OctetsAttribute::stringHexParser),
-    STRING(StringAttribute::new, StringAttribute::stringParser),
+    VSA(VendorSpecificAttribute::new, (dictionary, i, i1, s) -> OctetsAttribute.stringHexParser(s)),
+    OCTETS(OctetsAttribute::new, (dictionary, i, i1, s) -> OctetsAttribute.stringHexParser(s)),
+    STRING(StringAttribute::new, (dictionary, i, i1, s) -> StringAttribute.stringParser(s)),
     INTEGER(IntegerAttribute::new, IntegerAttribute::stringParser),
-    IPV4(IpAttribute.V4::new, IpAttribute::stringParser),
-    IPV6(IpAttribute.V6::new, IpAttribute::stringParser),
-    IPV6_PREFIX(Ipv6PrefixAttribute::new, Ipv6PrefixAttribute::stringParser);
+    IPV4(IpAttribute.V4::new, (dictionary, i, i1, s) -> IpAttribute.stringParser(s)),
+    IPV6(IpAttribute.V6::new, (dictionary, i, i1, s) -> IpAttribute.stringParser(s)),
+    IPV6_PREFIX(Ipv6PrefixAttribute::new, (dictionary, i, i1, s) -> Ipv6PrefixAttribute.stringParser(s));
 
     private final ByteBufConstructor byteBufConstructor;
     private final StringParser stringParser;

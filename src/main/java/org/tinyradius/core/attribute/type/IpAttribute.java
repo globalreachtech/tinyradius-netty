@@ -24,7 +24,7 @@ public abstract class IpAttribute extends OctetsAttribute {
 
     }
 
-    public static byte[] stringParser(Dictionary dictionary, int i, int i1, String value) {
+    public static byte[] stringParser(String value) {
         if (value.isEmpty())
             throw new IllegalArgumentException("Address can't be empty");
 

@@ -2,7 +2,6 @@ package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.socket.DatagramPacket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
@@ -11,7 +10,6 @@ import org.tinyradius.core.attribute.NestedAttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 
-import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -67,25 +65,6 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
                 .writeByte(identifier)
                 .writeShort(attributeLen + HEADER_LENGTH)
                 .writeBytes(authenticator);
-    }
-
-    /**
-     * @param recipient destination socket
-     * @param sender    source socket, nullable
-     * @return converted DatagramPacket
-     * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
-     */
-    default DatagramPacket toDatagram(InetSocketAddress recipient, InetSocketAddress sender) throws RadiusPacketException {
-        return new DatagramPacket(toByteBuf(), recipient, sender);
-    }
-
-    /**
-     * @param recipient destination socket
-     * @return converted DatagramPacket
-     * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
-     */
-    default DatagramPacket toDatagram(InetSocketAddress recipient) throws RadiusPacketException {
-        return new DatagramPacket(toByteBuf(), recipient);
     }
 
     ByteBuf getHeader();

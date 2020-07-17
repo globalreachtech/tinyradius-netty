@@ -21,7 +21,7 @@ public class StringAttribute extends OctetsAttribute {
         return new String(getValue(), UTF_8);
     }
 
-    public static byte[] stringParser(Dictionary dictionary, int i, int i1, String s) {
+    public static byte[] stringParser(String s) {
         return s.getBytes(UTF_8);
     }
 }

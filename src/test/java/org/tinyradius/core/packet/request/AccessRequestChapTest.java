@@ -97,26 +97,26 @@ class AccessRequestChapTest {
     }
 
     @Test
-    void verifyChapPassword() throws NoSuchAlgorithmException {
+    void verifyChapPassword() throws NoSuchAlgorithmException, RadiusPacketException {
         final String plaintextPw = "password123456789";
 
         final int chapId = random.nextInt(256);
         final byte[] challenge = random.generateSeed(16);
         final byte[] password = CHAP.chapResponse((byte) chapId, plaintextPw.getBytes(UTF_8), challenge);
 
-        AccessRequestChap goodRequest = (AccessRequestChap) AccessRequest.create(dictionary, (byte) 1, null, Arrays.asList(
+        AccessRequestChap goodRequest = (AccessRequestChap) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Arrays.asList(
                 dictionary.createAttribute(-1, 60, challenge),
                 dictionary.createAttribute(-1, 3, password)));
         assertTrue(goodRequest.checkPassword(plaintextPw));
         assertFalse(goodRequest.checkPassword("badPw"));
 
-        AccessRequestChap badChallenge = (AccessRequestChap) AccessRequest.create(dictionary, (byte) 1, null, Arrays.asList(
+        AccessRequestChap badChallenge = (AccessRequestChap) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Arrays.asList(
                 dictionary.createAttribute(-1, 60, random.generateSeed(16)),
                 dictionary.createAttribute(-1, 3, password)));
         assertFalse(badChallenge.checkPassword(plaintextPw));
 
         password[0] = (byte) ((chapId + 1) % 256);
-        AccessRequestChap badPassword = (AccessRequestChap) AccessRequest.create(dictionary, (byte) 1, null, Arrays.asList(
+        AccessRequestChap badPassword = (AccessRequestChap) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Arrays.asList(
                 dictionary.createAttribute(-1, 60, challenge),
                 dictionary.createAttribute(-1, 3, password)));
         assertFalse(badPassword.checkPassword(plaintextPw));

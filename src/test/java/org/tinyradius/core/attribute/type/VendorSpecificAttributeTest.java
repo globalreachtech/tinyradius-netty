@@ -136,9 +136,17 @@ class VendorSpecificAttributeTest {
                 dictionary.createAttribute(4846, 20110, ByteBuffer.allocate(Integer.BYTES).putInt(255).array())
         ));
         System.out.println(vsa);
-        // todo
+        // todo test customTypeSize
 
         // todo test customLengthSize
+    }
+
+    @Test
+    void undistinguishedOctets() {
+        // todo
+//        The String field is one or more octets.  The actual format of the
+//        information is site or application specific, and a robust
+//        implementation SHOULD support the field as undistinguished octets.
     }
 
     @Test
@@ -157,7 +165,8 @@ class VendorSpecificAttributeTest {
     @Test
     void createTooLong() {
         final List<RadiusAttribute> attributes = Collections.singletonList(
-                new OctetsAttribute(dictionary, 14122, 26, , new byte[253]));
+                dictionary.createAttribute(14122, 26, new byte[253]));
+        assertTrue(attributes.get(0) instanceof OctetsAttribute);
         final Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> new VendorSpecificAttribute(dictionary, 14122, attributes));
         assertTrue(exception.getMessage().toLowerCase().contains("attribute data too long, max 253 octets"));

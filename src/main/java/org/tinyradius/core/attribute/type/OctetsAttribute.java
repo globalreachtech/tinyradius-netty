@@ -1,7 +1,6 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -52,10 +51,6 @@ public class OctetsAttribute implements RadiusAttribute {
             default:
                 return Byte.toUnsignedInt(data.getByte(typeSize)); // max 255
         }
-    }
-
-    public OctetsAttribute(Dictionary dictionary, int vendorId, byte[] data) {
-        this(dictionary, vendorId, Unpooled.wrappedBuffer(data));
     }
 
     @Override
@@ -127,7 +122,7 @@ public class OctetsAttribute implements RadiusAttribute {
         return Objects.hash(data, getVendorId());
     }
 
-    public static byte[] stringHexParser(Dictionary dictionary, int vendorId, int type, String value) {
+    public static byte[] stringHexParser(String value) {
         return DatatypeConverter.parseHexBinary(value);
     }
 }

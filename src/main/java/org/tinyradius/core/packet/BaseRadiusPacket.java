@@ -4,14 +4,11 @@ import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.request.RadiusRequest;
-import org.tinyradius.core.packet.response.RadiusResponse;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
@@ -27,8 +24,8 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     private final Dictionary dictionary;
 
     public BaseRadiusPacket(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        this.dictionary = requireNonNull(dictionary, "Dictionary is null");
-        this.header = header;
+        this.dictionary = Objects.requireNonNull(dictionary, "Dictionary is null");
+        this.header = Objects.requireNonNull(header);
         this.attributes = Collections.unmodifiableList(new ArrayList<>(attributes));
 
         if (header.readableBytes() != HEADER_LENGTH)
@@ -99,5 +96,18 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         return s.toString();
     }
 
-    // todo hashcode equals
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BaseRadiusPacket)) return false;
+        final BaseRadiusPacket<?> that = (BaseRadiusPacket<?>) o;
+        return header.equals(that.header) &&
+                attributes.equals(that.attributes) &&
+                dictionary.equals(that.dictionary);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(header, attributes, dictionary);
+    }
 }

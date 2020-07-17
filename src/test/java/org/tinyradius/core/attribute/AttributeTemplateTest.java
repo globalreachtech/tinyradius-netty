@@ -6,7 +6,6 @@ import org.tinyradius.core.attribute.type.IntegerAttribute;
 import org.tinyradius.core.attribute.type.OctetsAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.decorator.EncodedAttribute;
-import org.tinyradius.core.attribute.type.decorator.TaggedAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 
@@ -27,30 +26,55 @@ class AttributeTemplateTest {
 
     @Test
     void testFlagDetection() {
-        final AttributeTemplate template = new AttributeTemplate(-1, 1, "TestAttr", "integer", (byte) 0, false);
+        final AttributeTemplate template = new AttributeTemplate(
+                -1, 1, "TestAttr", "integer", (byte) 0, false);
         assertEquals(NO_ENCRYPT, template.getCodecType());
-        assertEquals(IntegerAttribute.class, template.create(dictionary, (byte) 1, new byte[4]).getClass());
-        assertEquals(IntegerAttribute.class, template.createEncoded(dictionary, (byte) 1, new byte[4]).getClass());
+        final RadiusAttribute templateDecoded = template.create(dictionary, (byte) 1, new byte[4]);
+        assertEquals(IntegerAttribute.class, templateDecoded.getClass());
+        assertFalse(templateDecoded.getTag().isPresent());
+        final RadiusAttribute templateEncoded = template.createEncoded(dictionary, (byte) 1, new byte[4]);
+        assertEquals(IntegerAttribute.class, templateEncoded.getClass());
+        assertFalse(templateEncoded.getTag().isPresent());
 
-        final AttributeTemplate userPassword = new AttributeTemplate(-1, 2, "Test-User-Password", "integer", (byte) 0, false);
+        final AttributeTemplate userPassword = new AttributeTemplate(
+                -1, 2, "Test-User-Password", "integer", (byte) 0, false);
         assertEquals(RFC2865_USER_PASSWORD, userPassword.getCodecType());
-        assertEquals(IntegerAttribute.class, userPassword.create(dictionary, (byte) 1, new byte[4]).getClass());
-        assertEquals(EncodedAttribute.class, userPassword.createEncoded(dictionary, (byte) 1, new byte[4]).getClass());
+        final RadiusAttribute userPasswordDecoded = userPassword.create(dictionary, (byte) 1, new byte[4]);
+        assertEquals(IntegerAttribute.class, userPasswordDecoded.getClass());
+        assertFalse(userPasswordDecoded.getTag().isPresent());
+        final RadiusAttribute userPasswordEncoded = userPassword.createEncoded(dictionary, (byte) 1, new byte[4]);
+        assertEquals(EncodedAttribute.class, userPasswordEncoded.getClass());
+        assertFalse(userPasswordEncoded.getTag().isPresent());
 
-        final AttributeTemplate tunnelPassword = new AttributeTemplate(-1, 69, "Test-Tunnel-Password", "integer", (byte) 0, false);
+        final AttributeTemplate tunnelPassword = new AttributeTemplate(
+                -1, 69, "Test-Tunnel-Password", "integer", (byte) 0, false);
         assertEquals(RFC2868_TUNNEL_PASSWORD, tunnelPassword.getCodecType());
-        assertEquals(TaggedAttribute.class, tunnelPassword.create(dictionary, (byte) 1, new byte[4]).getClass());
-        assertEquals(EncodedAttribute.class, tunnelPassword.createEncoded(dictionary, (byte) 1, new byte[4]).getClass());
+        final RadiusAttribute tunnelPasswordDecoded = tunnelPassword.create(dictionary, (byte) 1, new byte[4]);
+        assertEquals(OctetsAttribute.class, tunnelPasswordDecoded.getClass());
+        assertTrue(tunnelPasswordDecoded.getTag().isPresent());
+        final RadiusAttribute tunnelPasswordEncoded = tunnelPassword.createEncoded(dictionary, (byte) 1, new byte[4]);
+        assertEquals(EncodedAttribute.class, tunnelPasswordEncoded.getClass());
+        assertTrue(tunnelPasswordEncoded.getTag().isPresent());
 
-        final AttributeTemplate ascendSend = new AttributeTemplate(529, 214, "Test-Ascend-Send-Secret", "integer", (byte) 0, false);
+        final AttributeTemplate ascendSend = new AttributeTemplate(
+                529, 214, "Test-Ascend-Send-Secret", "integer", (byte) 0, false);
         assertEquals(ASCENT_SEND_SECRET, ascendSend.getCodecType());
-        assertEquals(IntegerAttribute.class, ascendSend.create(dictionary, (byte) 1, new byte[4]).getClass());
-        assertEquals(EncodedAttribute.class, ascendSend.createEncoded(dictionary, (byte) 1, new byte[4]).getClass());
+        final RadiusAttribute ascendSendDecoded = ascendSend.create(dictionary, (byte) 1, new byte[4]);
+        assertEquals(IntegerAttribute.class, ascendSendDecoded.getClass());
+        assertTrue(ascendSendDecoded.getTag().isPresent());
+        final RadiusAttribute ascendSendEncoded = ascendSend.createEncoded(dictionary, (byte) 1, new byte[4]);
+        assertEquals(EncodedAttribute.class, ascendSendEncoded.getClass());
+        assertTrue(ascendSendEncoded.getTag().isPresent());
 
-        final AttributeTemplate custom = new AttributeTemplate(123, (byte) 123, "Test-Custom", "integer", (byte) 1, true);
+        final AttributeTemplate custom = new AttributeTemplate(
+                123, (byte) 123, "Test-Custom", "integer", (byte) 1, true);
         assertEquals(RFC2865_USER_PASSWORD, custom.getCodecType());
-        assertEquals(TaggedAttribute.class, custom.create(dictionary, (byte) 1, new byte[4]).getClass());
-        assertEquals(EncodedAttribute.class, custom.createEncoded(dictionary, (byte) 1, new byte[4]).getClass());
+        final RadiusAttribute customDecoded = custom.create(dictionary, (byte) 1, new byte[4]);
+        assertEquals(OctetsAttribute.class, customDecoded.getClass());
+        assertTrue(customDecoded.getTag().isPresent());
+        final RadiusAttribute customEncoded = custom.createEncoded(dictionary, (byte) 1, new byte[4]);
+        assertEquals(EncodedAttribute.class, customEncoded.getClass());
+        assertTrue(customEncoded.getTag().isPresent());
     }
 
     @Test

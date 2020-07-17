@@ -16,7 +16,7 @@ class StringAttributeTest {
     @Test
     void dataBadSizes() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> new StringAttribute(dictionary, -1, 1, ""));
+                () -> dictionary.createAttribute(-1, 1, "")); // User-Name
 
         assertTrue(exception.getMessage().toLowerCase().contains("min 1 octet"));
     }
@@ -24,8 +24,8 @@ class StringAttributeTest {
     @Test
     void getDataValue() {
         final String s = new Date().toString();
-        final StringAttribute stringAttribute = new StringAttribute(dictionary, -1, 1, s);
-
+        final RadiusAttribute stringAttribute = dictionary.createAttribute(-1, 1, s); // User-Name
+        assertTrue(stringAttribute instanceof StringAttribute);
         assertEquals(s, stringAttribute.getValueString());
         assertArrayEquals(s.getBytes(UTF_8), stringAttribute.getValue());
     }

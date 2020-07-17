@@ -65,7 +65,7 @@ public interface Dictionary extends CoreDictionary {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
                 .orElseGet(() -> {
-                    final byte[] bytes = OctetsAttribute.stringHexParser(this, vendorId, type, value);
+                    final byte[] bytes = OctetsAttribute.stringHexParser(value);
                     return new OctetsAttribute(this, vendorId, Unpooled.buffer()
                             .writeByte(type)
                             .writeByte(bytes.length + 2)
