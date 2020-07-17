@@ -9,7 +9,7 @@ import java.util.List;
 
 public class AccessRequestNoAuth extends AccessRequest<AccessRequestNoAuth> {
 
-    public AccessRequestNoAuth(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) {
+    public AccessRequestNoAuth(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
     }
 

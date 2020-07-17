@@ -8,7 +8,6 @@ import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
 import javax.xml.bind.DatatypeConverter;
-import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -27,22 +26,32 @@ public class OctetsAttribute implements RadiusAttribute {
 
     public OctetsAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         this.dictionary = requireNonNull(dictionary, "Dictionary not set");
+        this.vendorId = vendorId;
+        this.data = requireNonNull(data, "Attribute data not set");
 
-        if (requireNonNull(data, "Attribute data not set").readableBytes() > 253)
-            throw new IllegalArgumentException("Attribute data too long, max 253 octets, actual: " + data.readableBytes());
+        final int actualLength = data.readableBytes();
+        if (actualLength > 253)
+            throw new IllegalArgumentException("Attribute data too long, max 253 octets, actual: " + actualLength);
 
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
         final int typeSize = vendor.map(Vendor::getTypeSize).orElse(1);
         final int lengthSize = vendor.map(Vendor::getLengthSize).orElse(1);
 
+        final int length = extractLength(typeSize, lengthSize);
+        if (length != actualLength)
+            throw new IllegalArgumentException("Attribute declared length is " + length + ", actual length: " + actualLength);
+    }
 
-        // todo verify length matches length field?
-        final byte[] lengthBytes = toLengthBytes(lengthSize, length);
-
-        this.vendorId = vendorId;
-        this.data = data;
-
-        // todo check not oversize
+    private int extractLength(int typeSize, int lengthSize) {
+        switch (lengthSize) {
+            case 0:
+                return data.readableBytes();
+            case 2:
+                return data.getShort(typeSize);
+            case 1:
+            default:
+                return Byte.toUnsignedInt(data.getByte(typeSize)); // max 255
+        }
     }
 
     public OctetsAttribute(Dictionary dictionary, int vendorId, byte[] data) {
@@ -118,7 +127,7 @@ public class OctetsAttribute implements RadiusAttribute {
         return Objects.hash(data, getVendorId());
     }
 
-    public static byte[] stringHexParser(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
+    public static byte[] stringHexParser(Dictionary dictionary, int vendorId, int type, String value) {
         return DatatypeConverter.parseHexBinary(value);
     }
 }

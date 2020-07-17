@@ -7,8 +7,6 @@ import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
-import javax.xml.bind.DatatypeConverter;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,18 +23,16 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     private final List<RadiusAttribute> attributes;
 
     /**
-     * @param dictionary  dictionary to use for (sub)attributes
-     * @param vendorId    ignored, VSAs should always be -1 (top level attribute)
-     * @param data        data to parse for childVendorId and sub-attributes
+     * @param dictionary dictionary to use for (sub)attributes
+     * @param vendorId   ignored, VSAs should always be -1 (top level attribute)
+     * @param data       data to parse for childVendorId and sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
-        this(dictionary, childVendorId(data),
-                AttributeHolder.readAttributes(dictionary, childVendorId(data), ByteBuffer.wrap(data, 4, data.length - 4)),
+        this(dictionary, data.getInt(0),
+                AttributeHolder.readAttributes(dictionary, data.getInt(0), data.slice(4, data.readableBytes() - 4)),
                 data);
         if (vendorId != -1)
             throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
-        if (attributeId != 26)
-            throw new IllegalArgumentException("Vendor-Specific attribute attributeId should always be 26, actual: " + attributeId);
     }
 
     /**
@@ -47,10 +43,9 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * @param attributes    sub-attributes held
      */
     public VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes) {
-        this(dictionary, childVendorId, attributes, Unpooled.buffer()
-                .writeInt(childVendorId)
-                .writeBytes(AttributeHolder.attributesToBytes(attributes))
-                .copy().array());
+        this(dictionary, childVendorId, attributes, Unpooled.wrappedBuffer(
+                Unpooled.buffer(4, 4).writeInt(childVendorId),
+                AttributeHolder.attributesToBytes(attributes)));
         final boolean mismatchVendorId = attributes.stream()
                 .map(RadiusAttribute::getVendorId)
                 .anyMatch(id -> id != childVendorId);
@@ -64,22 +59,18 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * @param attributes    sub-attributes held
      * @param data          equivalent of childVendorId + subattribute data in byte array form
      */
-    private VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes, byte[] data) {
-        super(dictionary, -1, VENDOR_SPECIFIC, (byte) 0, data);
+    private VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes, ByteBuf data) {
+        super(dictionary, -1, data);
         this.childVendorId = childVendorId;
         this.attributes = Collections.unmodifiableList(new ArrayList<>(attributes));
 
-        final int len = data.length + 2;
+        if (data.getByte(0) != VENDOR_SPECIFIC)
+            throw new IllegalArgumentException("Vendor-Specific attribute attributeId should always be 26, " +
+                    "actual: " + data.getByte(0));
+
+        final int len = data.readableBytes();
         if (len < 7) // VSA headers are 6 bytes
             throw new IllegalArgumentException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
-    }
-
-    /**
-     * @param data byte array, length minimum 4
-     * @return vendorId
-     */
-    private static int childVendorId(byte[] data) {
-        return ByteBuffer.wrap(data).getInt();
     }
 
     @Override

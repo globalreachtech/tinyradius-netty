@@ -12,7 +12,7 @@ public class StringAttribute extends OctetsAttribute {
 
     public StringAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         super(dictionary, vendorId, data);
-        if (data.isReadable(3))
+        if (!data.isReadable(3))
             throw new IllegalArgumentException("String attribute value should be min 3 octet, actual: " + data.readableBytes());
     }
 
@@ -21,7 +21,7 @@ public class StringAttribute extends OctetsAttribute {
         return new String(getValue(), UTF_8);
     }
 
-    public static byte[] stringParser(Dictionary dictionary, int i, int i1, byte b, String s) {
+    public static byte[] stringParser(Dictionary dictionary, int i, int i1, String s) {
         return s.getBytes(UTF_8);
     }
 }

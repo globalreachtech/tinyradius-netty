@@ -1,5 +1,6 @@
 package org.tinyradius.core.attribute;
 
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.VendorSpecificAttribute;
 
@@ -86,7 +87,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @param attribute RadiusAttribute object
      */
     @Override
-    default T addAttribute(RadiusAttribute attribute) {
+    default T addAttribute(RadiusAttribute attribute) throws RadiusPacketException {
         final RadiusAttribute toAdd = attribute.getVendorId() == getChildVendorId() ?
                 attribute :
                 new VendorSpecificAttribute(getDictionary(), attribute.getVendorId(), Collections.singletonList(attribute));
@@ -100,7 +101,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @param attribute RadiusAttribute to remove
      */
     @Override
-    default T removeAttribute(RadiusAttribute attribute) {
+    default T removeAttribute(RadiusAttribute attribute) throws RadiusPacketException {
         if (attribute.getVendorId() == getChildVendorId())
             return AttributeHolder.super.removeAttribute(attribute);
 
@@ -128,7 +129,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @param type     attribute type code
      * @return object of same type with removed attributes
      */
-    default T removeAttributes(int vendorId, int type) {
+    default T removeAttributes(int vendorId, int type) throws RadiusPacketException {
         if (vendorId == getChildVendorId())
             return removeAttributes(type);
 

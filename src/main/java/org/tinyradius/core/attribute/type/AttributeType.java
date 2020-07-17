@@ -52,7 +52,7 @@ public enum AttributeType {
     }
 
     public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
-        final byte[] bytes = stringParser.parse(dictionary, vendorId, type, tag, value);
+        final byte[] bytes = stringParser.parse(dictionary, vendorId, type, value);
         return create(dictionary, vendorId, type, tag, bytes);
     }
 
@@ -91,6 +91,6 @@ public enum AttributeType {
     }
 
     private interface StringParser {
-        byte[] parse(Dictionary dictionary, int vendorId, int type, byte tag, String value);
+        byte[] parse(Dictionary dictionary, int vendorId, int type, String value);
     }
 }

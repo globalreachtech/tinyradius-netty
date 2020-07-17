@@ -20,7 +20,7 @@ class OctetsAttributeTest {
     @Test
     void createMaxSizeAttribute() {
         // 253 octets ok
-        final RadiusAttribute maxSizeAttribute = new OctetsAttribute(dictionary, -1, 2, , random.generateSeed(253));
+        final RadiusAttribute maxSizeAttribute = new OctetsAttribute(dictionary, -1, 2,  random.generateSeed(253));
         final byte[] bytes = maxSizeAttribute.toByteArray();
 
         assertEquals(0xFF, toUnsignedInt(bytes[1]));

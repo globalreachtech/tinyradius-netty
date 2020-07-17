@@ -1,5 +1,6 @@
 package org.tinyradius.core.attribute.type;
 
+import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.net.InetAddress;
@@ -15,24 +16,9 @@ import static java.lang.Byte.toUnsignedInt;
  */
 public class Ipv6PrefixAttribute extends OctetsAttribute {
 
-    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, byte tag, byte[] data) {
-        this(dictionary, vendorId, type, tag, convertValue(data), toUnsignedInt(data[1]));
-    }
-
-    /**
-     * Constructs an IPv6 prefix attribute.
-     *
-     * @param dictionary dictionary to use
-     * @param vendorId   vendor ID or -1
-     * @param type       attribute type code
-     * @param value      value, format: "ipv6 address"/prefix
-     */
-    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
-        this(dictionary, vendorId, type, tag, convertValue(value), Integer.parseInt(value.split("/")[1]));
-    }
-
-    private Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, int type, byte tag, InetAddress address, int prefixLength) {
-        super(dictionary, vendorId, type, tag, convertAndCheck(address, prefixLength));
+    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, ByteBuf data){
+        super(dictionary,vendorId,data);
+        convertAndCheck(convertBytes(getValue()), toUnsignedInt(getValue()[1]));
     }
 
     private static byte[] convertAndCheck(InetAddress address, int prefixLength) {
@@ -58,7 +44,7 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
                 .array();
     }
 
-    private static InetAddress convertValue(String value) {
+    private static InetAddress convertString(String value) {
         if (value == null || value.isEmpty())
             throw new IllegalArgumentException("Invalid IPv6 prefix, empty: " + value);
         try {
@@ -73,7 +59,7 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
         }
     }
 
-    private static InetAddress convertValue(byte[] data) {
+    private static InetAddress convertBytes(byte[] data) {
         if (data.length < 2 || data.length > 18)
             throw new IllegalArgumentException("IPv6 Prefix body should be 2-18 octets (2-octet header + max 16 octet address), actual: " + data.length);
 
@@ -106,7 +92,7 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
         return extractAddress(data).getHostAddress() + "/" + toUnsignedInt(data[1]);
     }
 
-    public static byte[] stringParser(Dictionary dictionary, int i, int i1, byte b, String value) {
-        return convertAndCheck(convertValue(value), Integer.parseInt(value.split("/")[1]));
+    public static byte[] stringParser(Dictionary dictionary, int i, int i1, String value) {
+        return convertAndCheck(convertString(value), Integer.parseInt(value.split("/")[1]));
     }
 }
