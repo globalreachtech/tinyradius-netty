@@ -54,7 +54,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         return header;
     }
 
-    static ByteBuf buildHeader(byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
+    static ByteBuf buildHeader(byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
         final int attributeLen = attributes.stream()
                 .map(RadiusAttribute::getData)
                 .mapToInt(ByteBuf::readableBytes)
@@ -62,9 +62,9 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
         return Unpooled.buffer(HEADER_LENGTH, HEADER_LENGTH)
                 .writeByte(type)
-                .writeByte(identifier)
+                .writeByte(id)
                 .writeShort(attributeLen + HEADER_LENGTH)
-                .writeBytes(authenticator);
+                .writeBytes(authenticator == null ? new byte[16] : authenticator);
     }
 
     ByteBuf getHeader();

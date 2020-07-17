@@ -43,14 +43,21 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * @param attributes    sub-attributes held
      */
     public VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes) {
-        this(dictionary, childVendorId, attributes, Unpooled.wrappedBuffer(
-                Unpooled.buffer(4, 4).writeInt(childVendorId),
-                AttributeHolder.attributesToBytes(attributes)));
+        this(dictionary, childVendorId, attributes, toByteBuf(childVendorId, attributes));
         final boolean mismatchVendorId = attributes.stream()
                 .map(RadiusAttribute::getVendorId)
                 .anyMatch(id -> id != childVendorId);
         if (mismatchVendorId)
             throw new IllegalArgumentException("Vendor-Specific attribute sub-attributes must have same vendorId as VSA childVendorId");
+    }
+
+    private static ByteBuf toByteBuf(int childVendorId, List<RadiusAttribute> attributes) {
+        final ByteBuf attributesBytes = AttributeHolder.attributesToBytes(attributes);
+        final ByteBuf header = Unpooled.buffer(6, 6)
+                .writeByte(VENDOR_SPECIFIC)
+                .writeByte(attributesBytes.readableBytes() + 2)
+                .writeInt(childVendorId);
+        return Unpooled.wrappedBuffer(header, attributesBytes);
     }
 
     /**

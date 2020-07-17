@@ -30,17 +30,17 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
     /**
      * Creates a RadiusPacket object. Depending on the passed type, an
      * appropriate packet is created. Also sets the type, and the
-     * the packet identifier.
+     * the packet id.
      *
      * @param dictionary    custom dictionary to use
      * @param type          packet type
-     * @param identifier    packet identifier
+     * @param id            packet id
      * @param authenticator authenticator for packet, nullable
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    static RadiusResponse create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        final ByteBuf header = RadiusPacket.buildHeader(type, identifier, authenticator, attributes);
+    static RadiusResponse create(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        final ByteBuf header = RadiusPacket.buildHeader(type, id, authenticator, attributes);
         return create(dictionary, header, attributes);
     }
 
