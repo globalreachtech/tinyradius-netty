@@ -14,25 +14,24 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * PAP AccessRequest RFC2865
  */
-public class AccessRequestPap extends AccessRequest<AccessRequestPap> {
+public class AccessRequestPap extends AccessRequest {
 
     public AccessRequestPap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
     }
 
-    @Override
-    protected AccessRequestFactory<AccessRequestPap> factory() {
-        return AccessRequestPap::new;
+    AccessRequestPap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes, String password) throws RadiusPacketException {
+        super(dictionary, header, appendPasswordAttributes(dictionary, attributes, password));
     }
 
-    public AccessRequestPap withPassword(String password) throws RadiusPacketException {
-        final List<RadiusAttribute> attributes = getAttributes().stream()
+    public static List<RadiusAttribute> appendPasswordAttributes(Dictionary dictionary, List<RadiusAttribute> attributes, String password) throws RadiusPacketException {
+        final List<RadiusAttribute> newAttributes = attributes.stream()
                 .filter(a -> a.getVendorId() != -1 || a.getType() != USER_PASSWORD)
                 .collect(Collectors.toList());
 
-        attributes.add(getDictionary().createAttribute(-1, USER_PASSWORD, password.getBytes(UTF_8)));
+        newAttributes.add(dictionary.createAttribute(-1, USER_PASSWORD, password.getBytes(UTF_8)));
 
-        return withAttributes(attributes);
+        return newAttributes;
     }
 
     /**

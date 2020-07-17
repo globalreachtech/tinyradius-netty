@@ -13,15 +13,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.io.client.timeout.FixedTimeoutHandler;
-import org.tinyradius.io.client.timeout.TimeoutHandler;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
+import org.tinyradius.io.client.timeout.FixedTimeoutHandler;
+import org.tinyradius.io.client.timeout.TimeoutHandler;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ class RadiusClientTest {
     private final TimeoutHandler timeoutHandler = new FixedTimeoutHandler(new HashedWheelTimer());
 
     @Test
-    void communicateWithTimeout() {
+    void communicateWithTimeout() throws RadiusPacketException {
         RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new CapturingOutboundHandler(a -> {
         }));
 
@@ -64,7 +64,7 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateSuccess() {
+    void communicateSuccess() throws RadiusPacketException {
         final byte id = (byte) random.nextInt(256);
         final RadiusResponse response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, Collections.emptyList());
         final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(a -> a.trySuccess(response));
@@ -79,7 +79,7 @@ class RadiusClientTest {
     }
 
     @Test
-    void outboundError() {
+    void outboundError() throws RadiusPacketException {
         final Exception expectedException = new Exception("test 123");
         final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(p -> p.tryFailure(expectedException));
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
@@ -93,7 +93,7 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateEndpointListFirstSuccess() {
+    void communicateEndpointListFirstSuccess() throws RadiusPacketException {
         final byte id = (byte) random.nextInt(256);
         final RadiusResponse response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, Collections.emptyList());
         final CapturingOutboundHandler capturingOutboundHandler = spy(new CapturingOutboundHandler(p -> p.trySuccess(response)));
@@ -119,7 +119,7 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateEndpointListEmpty() {
+    void communicateEndpointListEmpty() throws RadiusPacketException {
         final Exception expectedException = new Exception("test 123");
         final CapturingOutboundHandler capturingOutboundHandler = spy(new CapturingOutboundHandler(p -> p.tryFailure(expectedException)));
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
@@ -133,7 +133,7 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateEndpointListAllFail() {
+    void communicateEndpointListAllFail() throws RadiusPacketException {
         final Exception expectedException = new Exception("test 123");
         final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(p -> p.tryFailure(expectedException));
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);

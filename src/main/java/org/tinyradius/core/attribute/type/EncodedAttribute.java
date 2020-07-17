@@ -1,10 +1,9 @@
-package org.tinyradius.core.attribute.type.decorator;
+package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
-import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Objects;

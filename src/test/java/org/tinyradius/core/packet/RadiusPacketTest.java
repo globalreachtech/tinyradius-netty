@@ -25,7 +25,7 @@ class RadiusPacketTest {
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
 
-    private RadiusRequest addBytesToPacket(RadiusRequest packet, int targetSize) {
+    private RadiusRequest addBytesToPacket(RadiusRequest packet, int targetSize) throws RadiusPacketException {
         int dataSize = targetSize - HEADER_LENGTH;
         for (int i = 0; i < Math.floor((double) dataSize / 200); i++) {
             // add 200 octets per iteration (198 + 2-byte header)
@@ -42,7 +42,7 @@ class RadiusPacketTest {
         RadiusRequest maxSizeRequest = RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
         maxSizeRequest = addBytesToPacket(maxSizeRequest, 4096);
 
-        final ByteBuf byteBuf = maxSizeRequest.encodeRequest("mySecret").toDatagram(new InetSocketAddress(0))
+        final ByteBuf byteBuf = new DatagramPacket(maxSizeRequest.encodeRequest("mySecret").toByteBuf(), new InetSocketAddress(0))
                 .content();
 
         assertEquals(4096, byteBuf.readableBytes());
@@ -55,7 +55,7 @@ class RadiusPacketTest {
         // encode on separate line - encodeRequest() and toDatagram() both throw RadiusPacketException
         final RadiusRequest encodedRequest = oversizeRequest.encodeRequest("mySecret");
         final RadiusPacketException exception = assertThrows(RadiusPacketException.class,
-                () -> encodedRequest.toDatagram(new InetSocketAddress(0)));
+                () -> new DatagramPacket(encodedRequest.toByteBuf(), new InetSocketAddress(0)));
 
         assertTrue(exception.getMessage().toLowerCase().contains("packet too long"));
     }
@@ -71,7 +71,7 @@ class RadiusPacketTest {
 
         final RadiusRequest encoded = request.encodeRequest("mySecret");
 
-        DatagramPacket datagram = encoded.toDatagram(address);
+        final DatagramPacket datagram = new DatagramPacket(encoded.toByteBuf(), address);
 
         assertEquals(address, datagram.recipient());
 

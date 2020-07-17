@@ -10,15 +10,10 @@ import java.util.List;
 /**
  * EAP AccessRequest RFC3579
  */
-public class AccessRequestEap extends AccessRequest<AccessRequestEap> {
+public class AccessRequestEap extends AccessRequest {
 
     public AccessRequestEap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
-    }
-
-    @Override
-    protected AccessRequestFactory<AccessRequestEap> factory() {
-        return AccessRequestEap::new;
     }
 
     @Override

@@ -11,15 +11,10 @@ import java.util.List;
  * ARAP AccessRequest RFC2869
  * Stub TODO
  */
-public class AccessRequestArap extends AccessRequest<AccessRequestArap> {
+public class AccessRequestArap extends AccessRequest {
 
     public AccessRequestArap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
-    }
-
-    @Override
-    protected AccessRequestFactory<AccessRequestArap> factory() {
-        return AccessRequestArap::new;
     }
 
     @Override

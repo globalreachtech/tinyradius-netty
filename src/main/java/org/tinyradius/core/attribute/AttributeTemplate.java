@@ -5,7 +5,7 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.attribute.type.AttributeType;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.core.attribute.type.decorator.EncodedAttribute;
+import org.tinyradius.core.attribute.type.EncodedAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.HashMap;

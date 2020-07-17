@@ -4,8 +4,6 @@ import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.type.decorator.EncodedAttribute;
-import org.tinyradius.core.attribute.type.decorator.TaggedAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.parser.DictionaryParser;
 
@@ -35,8 +33,7 @@ class VendorSpecificAttributeTest {
         final byte[] bytes = new byte[6];
         bytes[5] = 2; // subattribute length
 
-        final VendorSpecificAttribute vsa =
-                new VendorSpecificAttribute(dictionary, -1, VENDOR_SPECIFIC, bytes);
+        final VendorSpecificAttribute vsa = (VendorSpecificAttribute) dictionary.createAttribute(-1, VENDOR_SPECIFIC, bytes);
 
         assertEquals(26, vsa.getType());
         assertEquals(-1, vsa.getVendorId());
@@ -49,8 +46,7 @@ class VendorSpecificAttributeTest {
                 (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, // childVendorId
                 (byte) 0x00, (byte) 0x02 // subattribute
         };
-        final VendorSpecificAttribute vsa =
-                new VendorSpecificAttribute(dictionary, -1, VENDOR_SPECIFIC, bytes);
+        final VendorSpecificAttribute vsa = (VendorSpecificAttribute) dictionary.createAttribute(-1, VENDOR_SPECIFIC, bytes);
 
         assertEquals(26, vsa.getType());
         assertEquals(-1, vsa.getVendorId());
@@ -68,11 +64,11 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void addSubAttributeOk() {
+    void addSubAttributeOk() throws RadiusPacketException {
         final String data = "myLocationId";
-        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
-                dictionary.createAttribute("WISPr-Location-ID", "myLocationId")
-        )).addAttribute(dictionary.createAttribute(14122, 2, data));
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(
+                dictionary, 14122, Collections.singletonList(dictionary.createAttribute("WISPr-Location-ID", "myLocationId")))
+                .addAttribute(dictionary.createAttribute(14122, 2, data));
 
         assertEquals(2, vsa.getAttributes().size());
         assertEquals(data, vsa.getAttribute(2).get().getValueString());
@@ -119,7 +115,7 @@ class VendorSpecificAttributeTest {
                 .skipBytes(2) // skip type and length
                 .copy().array();
 
-        final VendorSpecificAttribute newVsa = new VendorSpecificAttribute(dictionary, -1, VENDOR_SPECIFIC, vsaData);
+        final VendorSpecificAttribute newVsa = (VendorSpecificAttribute) dictionary.createAttribute(-1, VENDOR_SPECIFIC, vsaData);
         assertEquals(2, newVsa.getAttributes().size());
 
         // convert to bytes again
@@ -219,19 +215,17 @@ class VendorSpecificAttributeTest {
         assertEquals(vendorId, vsa.getChildVendorId());
 
         final RadiusAttribute minUp = vsa.getAttribute("WISPr-Bandwidth-Min-Up").get();
-        assertTrue(minUp instanceof TaggedAttribute);
         assertEquals(12345, ByteBuffer.wrap(minUp.getValue()).getInt());
-        assertEquals(tag, minUp.getTag());
+        assertEquals(tag, minUp.getTag().get());
 
         final RadiusAttribute minDown = vsa.getAttribute("WISPr-Bandwidth-Min-Down").get();
         assertTrue(minDown instanceof IntegerAttribute);
         assertEquals(12345, ByteBuffer.wrap(minDown.getValue()).getInt());
-        assertEquals(0, minDown.getTag());
+        assertFalse(minDown.getTag().isPresent());
 
         final RadiusAttribute maxUp = vsa.getAttribute("WISPr-Bandwidth-Max-Up").get();
-        assertTrue(maxUp instanceof TaggedAttribute);
         assertEquals(12345, ByteBuffer.wrap(maxUp.getValue()).getInt());
-        assertEquals(tag, maxUp.getTag());
+        assertEquals(tag, maxUp.getTag().get());
 
         // encode
         final VendorSpecificAttribute encode = (VendorSpecificAttribute) vsa.encode(requestAuth, secret);
@@ -239,19 +233,18 @@ class VendorSpecificAttributeTest {
         assertEquals(vendorId, encode.getChildVendorId());
 
         final RadiusAttribute encodeMinUp = encode.getAttribute("WISPr-Bandwidth-Min-Up").get();
-        assertTrue(encodeMinUp instanceof TaggedAttribute);
         assertEquals(12345, ByteBuffer.wrap(encodeMinUp.getValue()).getInt());
-        assertEquals(tag, encodeMinUp.getTag());
+        assertEquals(tag, encodeMinUp.getTag().get());
 
         final RadiusAttribute encodeMinDown = encode.getAttribute("WISPr-Bandwidth-Min-Down").get();
         assertTrue(encodeMinDown instanceof EncodedAttribute);
         assertNotEquals(12345, ByteBuffer.wrap(encodeMinDown.getValue()).getInt());
-        assertEquals(0, encodeMinDown.getTag());
+        assertFalse(encodeMinDown.getTag().isPresent());
 
         final RadiusAttribute encodeMaxUp = encode.getAttribute("WISPr-Bandwidth-Max-Up").get();
         assertTrue(encodeMaxUp instanceof EncodedAttribute);
         assertNotEquals(12345, ByteBuffer.wrap(encodeMaxUp.getValue()).getInt());
-        assertEquals(tag, encodeMaxUp.getTag());
+        assertEquals(tag, encodeMaxUp.getTag().get());
 
         // use different encoding
         assertNotEquals(ByteBuffer.wrap(encodeMinDown.getValue()).getInt(), ByteBuffer.wrap(encodeMaxUp.getValue()).getInt());
@@ -266,19 +259,17 @@ class VendorSpecificAttributeTest {
         assertEquals(vendorId, decode.getChildVendorId());
 
         final RadiusAttribute decodeMinUp = decode.getAttribute("WISPr-Bandwidth-Min-Up").get();
-        assertTrue(decodeMinUp instanceof TaggedAttribute);
         assertEquals(12345, ByteBuffer.wrap(decodeMinUp.getValue()).getInt());
-        assertEquals(tag, decodeMinUp.getTag());
+        assertEquals(tag, decodeMinUp.getTag().get());
 
         final RadiusAttribute decodeMinDown = decode.getAttribute("WISPr-Bandwidth-Min-Down").get();
         assertTrue(decodeMinDown instanceof IntegerAttribute);
         assertEquals(12345, ByteBuffer.wrap(decodeMinUp.getValue()).getInt());
-        assertEquals(0, decodeMinDown.getTag());
+        assertFalse(decodeMinDown.getTag().isPresent());
 
         final RadiusAttribute decodeMaxUp = decode.getAttribute("WISPr-Bandwidth-Max-Up").get();
-        assertTrue(decodeMaxUp instanceof TaggedAttribute);
         assertEquals(12345, ByteBuffer.wrap(decodeMinUp.getValue()).getInt());
-        assertEquals(tag, decodeMaxUp.getTag());
+        assertEquals(tag, decodeMaxUp.getTag().get());
 
         // decode again
         final RadiusAttribute decode1 = decode.decode(requestAuth, secret);

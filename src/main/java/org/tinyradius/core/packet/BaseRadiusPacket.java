@@ -31,7 +31,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         if (header.readableBytes() != HEADER_LENGTH)
             throw new IllegalArgumentException("Packet header must be length " + HEADER_LENGTH + ", actual: " + header.readableBytes());
 
-        final int length = getHeader().readableBytes() + getAttributeBytes().readableBytes();
+        final int length = getHeader().readableBytes() + getAttributeByteBuf().readableBytes();
         if (length > MAX_PACKET_LENGTH)
             throw new RadiusPacketException("Packet length max " + MAX_PACKET_LENGTH + ", actual: " + length);
 

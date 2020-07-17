@@ -11,6 +11,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.AccessRequest;
@@ -96,7 +97,7 @@ public class TestServer {
         }
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
+        protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) throws RadiusPacketException {
 
             final AccessRequestPap request = (AccessRequestPap) msg.getRequest();
 
@@ -120,10 +121,10 @@ public class TestServer {
         }
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
+        protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) throws RadiusPacketException {
             final RadiusRequest request = msg.getRequest();
-
-            RadiusResponse answer = RadiusResponse.create(request.getDictionary(), ACCOUNTING_RESPONSE, request.getId(), null, request.filterAttributes((byte) 33));
+            final RadiusResponse answer = RadiusResponse.create(
+                    request.getDictionary(), ACCOUNTING_RESPONSE, request.getId(), null, request.filterAttributes((byte) 33));
 
             ctx.writeAndFlush(msg.withResponse(answer));
         }

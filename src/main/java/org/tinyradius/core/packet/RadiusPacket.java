@@ -99,7 +99,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
     List<RadiusAttribute> getAttributes();
 
     default ByteBuf toByteBuf() {
-        return Unpooled.wrappedBuffer(getHeader(), getAttributeBytes());
+        return Unpooled.wrappedBuffer(getHeader(), getAttributeByteBuf());
     }
 
     /**
@@ -153,7 +153,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
-        final byte[] attributeBytes = getAttributeBytes().copy().array();
+        final byte[] attributeBytes = getAttributeByteBuf().copy().array();
         final int length = HEADER_LENGTH + attributeBytes.length;
 
         final MessageDigest md5 = getMd5Digest();

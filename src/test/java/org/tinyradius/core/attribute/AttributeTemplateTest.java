@@ -5,7 +5,7 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.IntegerAttribute;
 import org.tinyradius.core.attribute.type.OctetsAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.core.attribute.type.decorator.EncodedAttribute;
+import org.tinyradius.core.attribute.type.EncodedAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 

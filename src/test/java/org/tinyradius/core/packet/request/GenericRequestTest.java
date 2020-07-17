@@ -25,7 +25,7 @@ class GenericRequestTest {
         final String sharedSecret = "sharedSecret1";
         final String username = "myUsername";
 
-        final RadiusRequest request = new GenericRequest(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList())
+        final GenericRequest request = (GenericRequest) RadiusRequest.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute("User-Name", username));
 
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
@@ -54,7 +54,7 @@ class GenericRequestTest {
     void encodeGenericRequest() throws RadiusPacketException {
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
-        RadiusRequest request = new GenericRequest(dictionary, (byte) 7, (byte) 1, null, Collections.emptyList())
+        GenericRequest request = (GenericRequest) RadiusRequest.create(dictionary, (byte) 7, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, 1, user.getBytes(UTF_8)))
                 .addAttribute("Acct-Status-Type", "7");
 

@@ -7,15 +7,10 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.List;
 
-public class AccessRequestNoAuth extends AccessRequest<AccessRequestNoAuth> {
+public class AccessRequestNoAuth extends AccessRequest {
 
     public AccessRequestNoAuth(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
-    }
-
-    @Override
-    protected AccessRequestFactory<AccessRequestNoAuth> factory() {
-        return AccessRequestNoAuth::new;
     }
 
     @Override

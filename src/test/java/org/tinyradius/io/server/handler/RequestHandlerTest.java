@@ -33,8 +33,8 @@ class RequestHandlerTest {
             }
         };
 
-        final RadiusRequest acctRequest = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
-        final RadiusRequest authRequest = new AccessRequestNoAuth(dictionary, (byte) 1, null, Collections.emptyList());
+        final AccountingRequest acctRequest = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
+        final AccessRequestNoAuth authRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
 
         assertFalse(requestHandler.acceptInboundMessage(new RequestCtx(acctRequest, null)));
         assertTrue(requestHandler.acceptInboundMessage(new RequestCtx(authRequest, null)));

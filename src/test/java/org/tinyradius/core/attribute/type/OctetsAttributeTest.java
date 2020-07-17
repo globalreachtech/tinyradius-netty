@@ -2,7 +2,6 @@ package org.tinyradius.core.attribute.type;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.type.decorator.EncodedAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 

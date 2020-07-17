@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.tinyradius.core.packet.RadiusPacket.*;
 
 class MessageAuthSupportTest {
 
@@ -47,7 +48,7 @@ class MessageAuthSupportTest {
     @Test
     void testEncode() throws Exception {
         // impl under test
-        final RadiusRequest encodedRequest = new AccessRequestNoAuth(dictionary, (byte) 1, null, Collections.emptyList())
+        final AccessRequestNoAuth encodedRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList())
                 .encodeRequest(secret);
         final byte[] actualMsgAuth = encodedRequest.getAttributes().get(0).getValue();
 
@@ -66,8 +67,8 @@ class MessageAuthSupportTest {
      * Adapted from {@link MessageAuthenticator#generateRequestMessageAuthenticator}
      */
     private static void jRadius_generateRequestMessageAuthenticator(RadiusPacket request) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
-        byte[] hash = new byte[16];
-        ByteBuffer buffer = ByteBuffer.allocate(4096);
+      final   byte[] hash = new byte[16];
+final         ByteBuffer buffer = ByteBuffer.allocate(4096);
 
         final Attr_UnknownAttribute attribute = new Attr_UnknownAttribute(MessageAuthSupport.MESSAGE_AUTHENTICATOR);
         attribute.setValue(hash);
@@ -80,12 +81,12 @@ class MessageAuthSupportTest {
 
     private static class TestPacket extends BaseRadiusPacket<TestPacket> implements MessageAuthSupport<TestPacket> {
 
-        public TestPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-            super(dictionary, type, identifier, authenticator, attributes);
+        public TestPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
+            super(dictionary, buildHeader(type, identifier, authenticator, attributes), attributes);
         }
 
         @Override
-        public TestPacket withAttributes(List<RadiusAttribute> attributes) {
+        public TestPacket withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
             return new TestPacket(getDictionary(), getType(), getId(), getAuthenticator(), attributes);
         }
     }

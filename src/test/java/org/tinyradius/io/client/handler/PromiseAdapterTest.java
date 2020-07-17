@@ -12,10 +12,7 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.request.AccessRequestNoAuth;
-import org.tinyradius.core.packet.request.AccessRequestPap;
-import org.tinyradius.core.packet.request.AccountingRequest;
-import org.tinyradius.core.packet.request.RadiusRequest;
+import org.tinyradius.core.packet.request.*;
 import org.tinyradius.core.packet.response.AccessResponse;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
@@ -50,11 +47,12 @@ class PromiseAdapterTest {
     private final PromiseAdapter handler = new PromiseAdapter();
 
     @Test
-    void encodeAppendProxyState() {
+    void encodeAppendProxyState() throws RadiusPacketException {
         final String secret = "test";
         final byte id = (byte) random.nextInt(256);
 
-        final RadiusRequest originalRequest = new AccountingRequest(dictionary, id, null, Collections.emptyList()).encodeRequest(secret);
+        final AccountingRequest originalRequest = (AccountingRequest)
+                RadiusRequest.create(dictionary, (byte) 4, id, null, Collections.emptyList()).encodeRequest(secret);
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
         // process once
@@ -89,8 +87,9 @@ class PromiseAdapterTest {
 
 
     @Test
-    void decodeNoProxyState() {
-        final RadiusResponse response = new AccessResponse.Accept(dictionary, (byte) 1, null, Collections.emptyList());
+    void decodeNoProxyState() throws RadiusPacketException {
+        final AccessResponse.Accept response = (AccessResponse.Accept)
+                RadiusResponse.create(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList());
 
         final List<Object> in = new ArrayList<>();
         handler.decode(ctx, response, in);
@@ -99,9 +98,10 @@ class PromiseAdapterTest {
     }
 
     @Test
-    void decodeProxyStateNotFound() {
-        final RadiusResponse response = new AccessResponse.Accept(dictionary, (byte) 1, null,
-                Collections.singletonList(dictionary.createAttribute(-1, PROXY_STATE, "123abc")));
+    void decodeProxyStateNotFound() throws RadiusPacketException {
+        final AccessResponse.Accept response = (AccessResponse.Accept)
+                RadiusResponse.create(dictionary, (byte) 2, (byte) 1, null,
+                        Collections.singletonList(dictionary.createAttribute(-1, PROXY_STATE, "123abc")));
 
         final List<Object> in = new ArrayList<>();
         handler.decode(ctx, response, in);
@@ -116,8 +116,8 @@ class PromiseAdapterTest {
         final byte[] requestAuth = random.generateSeed(16);
 
         //using id 1
-        final RadiusRequest request = new AccessRequestPap(dictionary, (byte) 1, requestAuth, Collections.emptyList())
-                .withPassword("myPw");
+        final AccessRequestPap request = ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, requestAuth, Collections.emptyList()))
+                .withPapPassword("myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
@@ -147,8 +147,8 @@ class PromiseAdapterTest {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
-        final RadiusRequest request = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
-                .withPassword("myPw");
+        final AccessRequestPap request = ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
+                .withPapPassword("myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
@@ -181,7 +181,7 @@ class PromiseAdapterTest {
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
-        final RadiusRequest request = new AccessRequestNoAuth(dictionary, (byte) 1, null, Collections.emptyList())
+        final AccessRequestNoAuth request = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList())
                 .addAttribute("Tunnel-Password", pw);
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
         assertEquals(pw, new String(request.getAttribute("Tunnel-Password").get().getValue(), UTF_8));

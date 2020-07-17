@@ -27,8 +27,9 @@ class AccessRequestChapTest {
         final String sharedSecret = "sharedSecret1";
         final String username = "myUsername";
 
-        final RadiusRequest request = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList())
-                .withPassword("myPw")
+        final AccessRequest request = (AccessRequest)
+                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
+                .withChapPassword("myPw")
                 .addAttribute(dictionary.createAttribute("User-Name", username));
 
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
@@ -55,11 +56,11 @@ class AccessRequestChapTest {
     @Test
     void verifyAttributeCount() throws RadiusPacketException {
         final String sharedSecret = "sharedSecret1";
-        final AccessRequestChap request1 = new AccessRequestChap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
+        final AccessRequestChap request1 = (AccessRequestChap) RadiusRequest.create(dictionary, (byte) 1,(byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one pw attribute
-        final AccessRequestChap request2 = request1.withPassword("myPw");
+        final AccessRequestChap request2 = request1.withChapPassword("myPw");
         request2.decodeRequest(sharedSecret);
 
         // add one more pw attribute
@@ -74,14 +75,14 @@ class AccessRequestChapTest {
         final String plaintextPw = "password123456789";
         final String sharedSecret = "sharedSecret";
 
-        final AccessRequestChap emptyRequest = new AccessRequestChap(dictionary, (byte) 1, null, Collections.emptyList());
+        final AccessRequestChap emptyRequest = (AccessRequestChap) RadiusRequest.create(dictionary, (byte) 1,(byte) 1, null, Collections.emptyList());
 
         assertFalse(emptyRequest.getAttribute("User-Password").isPresent());
         assertFalse(emptyRequest.getAttribute("CHAP-Password").isPresent());
 
         final AccessRequestChap request = (AccessRequestChap) emptyRequest.addAttribute(USER_NAME, user);
 
-        final RadiusRequest encoded = request.withPassword(plaintextPw).encodeRequest(sharedSecret);
+        final RadiusRequest encoded = request.withChapPassword(plaintextPw).encodeRequest(sharedSecret);
         assertEquals(request.getType(), encoded.getType());
         assertEquals(request.getId(), encoded.getId());
         assertEquals(user, encoded.getAttribute(USER_NAME).get().getValueString());

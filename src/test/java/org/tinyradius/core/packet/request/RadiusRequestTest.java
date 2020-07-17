@@ -24,7 +24,7 @@ class RadiusRequestTest {
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final InetSocketAddress remoteAddress = new InetSocketAddress(0);
 
-    private RadiusRequest addBytesToPacket(RadiusRequest packet, int targetSize) {
+    private RadiusRequest addBytesToPacket(RadiusRequest packet, int targetSize) throws RadiusPacketException {
         int dataSize = targetSize - HEADER_LENGTH;
         for (int i = 0; i < Math.floor((double) dataSize / 200); i++) {
             // add 200 octets per iteration (198 + 2-byte header)
@@ -36,31 +36,30 @@ class RadiusRequestTest {
     }
 
     @Test
-    void createRequest() {
-        RadiusRequest accessRequest = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
+    void createRequest() throws RadiusPacketException {
+        final AccessRequest accessRequest = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
         assertEquals(ACCESS_REQUEST, accessRequest.getType());
-        assertTrue(accessRequest instanceof AccessRequest); // don't care about subclass
 
-        RadiusRequest coaRequest = RadiusRequest.create(dictionary, COA_REQUEST, (byte) 2, null, Collections.emptyList());
+        final RadiusRequest coaRequest = RadiusRequest.create(dictionary, COA_REQUEST, (byte) 2, null, Collections.emptyList());
         assertEquals(COA_REQUEST, coaRequest.getType());
         assertEquals(GenericRequest.class, coaRequest.getClass());
 
-        RadiusRequest accountingRequest = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 3, null, Collections.emptyList());
+        final RadiusRequest accountingRequest = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 3, null, Collections.emptyList());
         assertEquals(ACCOUNTING_REQUEST, accountingRequest.getType());
         assertEquals(AccountingRequest.class, accountingRequest.getClass());
     }
 
     @Test
     void accountingRequestFromDatagram() throws RadiusPacketException {
-        String user = "user1";
-        String sharedSecret = "sharedSecret1";
+        final String user = "user1";
+        final String sharedSecret = "sharedSecret1";
 
-        AccountingRequest rawRequest = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
-        rawRequest.addAttribute(USER_NAME, user);
+        final AccountingRequest rawRequest = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList())
+                .addAttribute(USER_NAME, user);
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
 
-        DatagramPacket datagramPacket = request.toDatagram(remoteAddress);
-        RadiusRequest packet = RadiusRequest.fromDatagram(dictionary, datagramPacket);
+        final DatagramPacket datagramPacket = new DatagramPacket(request.toByteBuf(), remoteAddress);
+        final RadiusRequest packet = RadiusRequest.fromDatagram(dictionary, datagramPacket);
         packet.decodeRequest(sharedSecret);
 
         assertEquals(ACCOUNTING_REQUEST, packet.getType());
@@ -71,14 +70,14 @@ class RadiusRequestTest {
 
     @Test
     void accountingRequestBadAuthFromDatagram() throws RadiusPacketException {
-        String user = "user1";
-        String sharedSecret = "sharedSecret1";
+        final String user = "user1";
+        final String sharedSecret = "sharedSecret1";
 
-        AccountingRequest rawRequest = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
-        rawRequest.addAttribute(USER_NAME, user);
+        final AccountingRequest rawRequest = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList())
+                .addAttribute(USER_NAME, user);
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
 
-        DatagramPacket originalDatagram = request.toDatagram(remoteAddress);
+        final DatagramPacket originalDatagram = new DatagramPacket(request.toByteBuf(), remoteAddress);
 
         final byte[] array = originalDatagram.content().array();
         array[4] = 0; // corrupt authenticator
@@ -94,16 +93,17 @@ class RadiusRequestTest {
 
     @Test
     void accessRequestFromDatagram() throws RadiusPacketException {
-        String user = "user1";
-        String password = "myPassword";
-        String sharedSecret = "sharedSecret1";
+        final String user = "user1";
+        final String password = "myPassword";
+        final String sharedSecret = "sharedSecret1";
 
-        AccessRequestPap rawRequest = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
-                .withPassword(password);
-        rawRequest.addAttribute(USER_NAME, user);
+        final AccessRequestPap rawRequest = (AccessRequestPap)
+                ((AccessRequestPap) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
+                        .withPapPassword(password)
+                        .addAttribute(USER_NAME, user);
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
 
-        DatagramPacket datagramPacket = request.toDatagram(remoteAddress);
+        DatagramPacket datagramPacket = new DatagramPacket(request.toByteBuf(), remoteAddress);
         RadiusRequest radiusPacket = RadiusRequest.fromDatagram(dictionary, datagramPacket)
                 .decodeRequest(sharedSecret);
 
@@ -122,15 +122,15 @@ class RadiusRequestTest {
         String sharedSecret = "sharedSecret1";
 
         // test max length 4096
-        RadiusRequest rawRequest = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
-        rawRequest = addBytesToPacket(rawRequest, 4096);
+        AccountingRequest rawRequest = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
+        rawRequest = (AccountingRequest) addBytesToPacket(rawRequest, 4096);
         final RadiusRequest maxSizeRequest = rawRequest.encodeRequest(sharedSecret);
 
-        final DatagramPacket datagram = maxSizeRequest.toDatagram(new InetSocketAddress(0));
+        final DatagramPacket datagram = new DatagramPacket(maxSizeRequest.toByteBuf(), new InetSocketAddress(0));
         assertEquals(4096, datagram.content().readableBytes());
 
-        RadiusRequest result = RadiusRequest.fromDatagram(dictionary, datagram);
-        result.decodeRequest(sharedSecret);
+        final RadiusRequest result = RadiusRequest.fromDatagram(dictionary, datagram)
+                .decodeRequest(sharedSecret);
 
         assertEquals(maxSizeRequest.getType(), result.getType());
         assertEquals(maxSizeRequest.getId(), result.getId());
@@ -140,7 +140,7 @@ class RadiusRequestTest {
         assertEquals(maxSizeRequest.filterAttributes(33).size(), result.filterAttributes(33).size());
 
         // reconvert to check if bytes match
-        assertArrayEquals(datagram.content().array(), result.toDatagram(new InetSocketAddress(0)).content().array());
+        assertArrayEquals(datagram.content().array(), new DatagramPacket(result.toByteBuf(), new InetSocketAddress(0)).content().array());
     }
 
     @Test
@@ -148,10 +148,10 @@ class RadiusRequestTest {
         String sharedSecret = "sharedSecret1";
 
         // make 4090 octet packet
-        RadiusRequest packet = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
-        packet = addBytesToPacket(packet, 4090);
+        AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
+        packet = (AccountingRequest) addBytesToPacket(packet, 4090);
 
-        final byte[] validBytes = packet.encodeRequest(sharedSecret).toDatagram(new InetSocketAddress(0))
+        final byte[] validBytes = new DatagramPacket(packet.encodeRequest(sharedSecret).toByteBuf(), new InetSocketAddress(0))
                 .content().copy().array();
         assertEquals(4090, validBytes.length);
 

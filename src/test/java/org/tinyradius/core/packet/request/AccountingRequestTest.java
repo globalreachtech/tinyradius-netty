@@ -25,7 +25,7 @@ class AccountingRequestTest {
     void encodeAccountingRequest() throws RadiusPacketException {
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
-        RadiusRequest request = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList())
+        AccountingRequest request = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, 1, user.getBytes(UTF_8)))
                 .addAttribute("Acct-Status-Type", "7");
 
