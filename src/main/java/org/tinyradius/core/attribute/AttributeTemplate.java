@@ -56,9 +56,9 @@ public class AttributeTemplate {
      * @param name        sub-attribute name
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or default 0 for none
-     * @param tagged      whether attribute supports tags, as defined in RFC2868, default false
+     * @param hasTag      whether attribute supports tags, as defined in RFC2868, default false
      */
-    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encryptFlag, boolean tagged) {
+    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encryptFlag, boolean hasTag) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
         requireNonNull(rawDataType, "Data type is null");
@@ -71,7 +71,7 @@ public class AttributeTemplate {
                 AttributeType.VSA :
                 AttributeType.fromDataType(this.dataType);
 
-        this.tagged = detectHasTag(vendorId, type, tagged);
+        this.tagged = detectHasTag(vendorId, type, hasTag);
         this.codecType = detectAttributeCodec(vendorId, type, encryptFlag);
         this.encodedType = this.codecType == NO_ENCRYPT ?
                 decodedType : AttributeType.OCTETS;

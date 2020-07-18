@@ -25,7 +25,7 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
     @Override
     public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
         final byte[] auth = genAuth(sharedSecret);
-        return with(getDictionary(), headerWithAuth(auth), encodeAttributes(auth, sharedSecret));
+        return withAuthAttributes(auth, encodeAttributes(auth, sharedSecret));
     }
 
     @Override
@@ -35,7 +35,7 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
     }
 
     @Override
-    public RadiusRequest with(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    protected RadiusRequest with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         return RadiusRequest.create(getDictionary(), header, attributes);
     }
 }

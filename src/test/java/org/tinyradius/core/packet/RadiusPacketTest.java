@@ -2,7 +2,6 @@ package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.socket.DatagramPacket;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
@@ -49,15 +48,11 @@ class RadiusPacketTest {
         assertEquals(4096, byteBuf.getShort(2));
 
         // test length 4097
-        RadiusRequest oversizeRequest = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
-        oversizeRequest = addBytesToPacket(oversizeRequest, 4097);
-
-        // encode on separate line - encodeRequest() and toDatagram() both throw RadiusPacketException
-        final RadiusRequest encodedRequest = oversizeRequest.encodeRequest("mySecret");
+        final RadiusRequest oversizeRequest = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
         final RadiusPacketException exception = assertThrows(RadiusPacketException.class,
-                () -> new DatagramPacket(encodedRequest.toByteBuf(), new InetSocketAddress(0)));
+                () -> addBytesToPacket(oversizeRequest, 4097));
 
-        assertTrue(exception.getMessage().toLowerCase().contains("packet too long"));
+        assertTrue(exception.getMessage().contains("too long"));
     }
 
     @Test
@@ -65,7 +60,7 @@ class RadiusPacketTest {
         final InetSocketAddress address = new InetSocketAddress(random.nextInt(65535));
         final byte[] proxyState = random.generateSeed(198);
 
-        RadiusRequest request = RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList())
+        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, 33, proxyState))
                 .addAttribute(dictionary.createAttribute(-1, 33, random.generateSeed(198)));
 
@@ -76,13 +71,13 @@ class RadiusPacketTest {
         assertEquals(address, datagram.recipient());
 
         // packet
-        final byte[] packet = datagram.content().array();
+        final byte[] packet = datagram.content().copy().array();
         assertEquals(420, packet.length);
 
-        Assertions.assertEquals(encoded.getType(), toUnsignedInt(packet[0]));
-        Assertions.assertEquals(encoded.getId(), toUnsignedInt(packet[1]));
+        assertEquals(encoded.getType(), toUnsignedInt(packet[0]));
+        assertEquals(encoded.getId(), toUnsignedInt(packet[1]));
         assertEquals(packet.length, ByteBuffer.wrap(packet).getShort(2));
-        Assertions.assertArrayEquals(encoded.getAuthenticator(), Arrays.copyOfRange(packet, 4, 20));
+        assertArrayEquals(encoded.getAuthenticator(), Arrays.copyOfRange(packet, 4, 20));
 
         // attribute
         final byte[] attributes = Arrays.copyOfRange(packet, 20, packet.length);

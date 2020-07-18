@@ -15,7 +15,8 @@ import java.security.SecureRandom;
 import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RadiusResponseTest {
 
@@ -27,20 +28,18 @@ class RadiusResponseTest {
 
     @Test
     void createResponse() throws RadiusPacketException {
-        RadiusResponse accessAccept = RadiusResponse.create(dictionary, PacketType.ACCESS_ACCEPT, (byte) 1, null, Collections.emptyList());
+        final AccessResponse accessAccept = (AccessResponse) RadiusResponse.create(dictionary, PacketType.ACCESS_ACCEPT, (byte) 1, null, Collections.emptyList());
         assertEquals(PacketType.ACCESS_ACCEPT, accessAccept.getType());
-        assertTrue(accessAccept instanceof AccessResponse); // don't care about subclass
 
-        RadiusResponse accountingResponse = RadiusResponse.create(dictionary, PacketType.ACCOUNTING_RESPONSE, (byte) 2, null, Collections.emptyList());
+        final GenericResponse accountingResponse = (GenericResponse) RadiusResponse.create(dictionary, PacketType.ACCOUNTING_RESPONSE, (byte) 2, null, Collections.emptyList());
         assertEquals(PacketType.ACCOUNTING_RESPONSE, accountingResponse.getType());
-        assertEquals(GenericResponse.class, accountingResponse.getClass());
     }
 
     @Test
     void fromResponseDatagram() throws RadiusPacketException {
-        String user = "user2";
-        String plaintextPw = "myPassword2";
-        String sharedSecret = "sharedSecret2";
+        final String user = "user2";
+        final String plaintextPw = "myPassword2";
+        final String sharedSecret = "sharedSecret2";
 
         final byte id = (byte) random.nextInt(256);
 

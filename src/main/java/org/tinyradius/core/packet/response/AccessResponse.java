@@ -25,7 +25,7 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
                 .encodeMessageAuth(sharedSecret, requestAuth);
 
         final byte[] auth = response.genHashedAuth(sharedSecret, requestAuth);
-        return new AccessResponse(getDictionary(), headerWithAuth(auth), response.getAttributes());
+        return withAuthAttributes(auth, response.getAttributes());
     }
 
     @Override

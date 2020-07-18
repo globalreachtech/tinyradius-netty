@@ -23,8 +23,7 @@ class OctetsAttributeTest {
     @Test
     void createMaxSizeAttribute() {
         // 255 octets ok
-        final RadiusAttribute attribute = dictionary.createAttribute(-1, 2, random.generateSeed(253));
-        assertTrue(attribute instanceof OctetsAttribute);
+        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, random.generateSeed(253));
         final byte[] bytes = attribute.toByteArray();
 
         assertEquals(0xFF, toUnsignedInt(bytes[1]));
@@ -41,15 +40,13 @@ class OctetsAttributeTest {
 
     @Test
     void testFlatten() {
-        final RadiusAttribute attribute = dictionary.createAttribute(-1, 2, "123456");
-        assertTrue(attribute instanceof OctetsAttribute);
+        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, "123456");
         assertEquals("[User-Password: 123456]", attribute.flatten().toString());
     }
 
     @Test
     void testToString() {
-        final RadiusAttribute attribute = dictionary.createAttribute(-1, 2, "123456");
-        assertTrue(attribute instanceof OctetsAttribute);
+        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, "123456");
         assertEquals("User-Password: 123456", attribute.toString());
     }
 
@@ -60,14 +57,12 @@ class OctetsAttributeTest {
 
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusAttribute attribute = dictionary.createAttribute(-1, 2, (byte) 0, pw);
-        assertTrue(attribute instanceof OctetsAttribute);
+        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, (byte) 0, pw);
         assertFalse(attribute.isEncoded());
         assertEquals(pw, new String(attribute.getValue(), UTF_8));
 
         // encode
-        final RadiusAttribute encode = attribute.encode(requestAuth, secret);
-        assertTrue(encode instanceof EncodedAttribute);
+        final EncodedAttribute encode = (EncodedAttribute) attribute.encode(requestAuth, secret);
         assertTrue(encode.isEncoded());
         assertNotEquals(pw, new String(encode.getValue(), UTF_8));
 
@@ -76,8 +71,7 @@ class OctetsAttributeTest {
         assertEquals(encode1, encode);
 
         // decode
-        final RadiusAttribute decode = encode.decode(requestAuth, secret);
-        assertTrue(decode instanceof OctetsAttribute);
+        final OctetsAttribute decode = (OctetsAttribute) encode.decode(requestAuth, secret);
         assertFalse(decode.isEncoded());
         assertEquals(pw, new String(decode.getValue(), UTF_8));
 
@@ -110,15 +104,13 @@ class OctetsAttributeTest {
         final byte tag = 123;
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusAttribute attribute = testDictionary.createAttribute(-1, 69, tag, value);
-        assertTrue(attribute instanceof OctetsAttribute);
+        final OctetsAttribute attribute = (OctetsAttribute) testDictionary.createAttribute(-1, 69, tag, value);
         assertFalse(attribute.isEncoded());
         assertEquals(tag, attribute.getTag().get());
         assertArrayEquals(value, attribute.getValue());
 
         // encode
-        final RadiusAttribute encode = attribute.encode(requestAuth, secret);
-        assertTrue(encode instanceof EncodedAttribute);
+        final EncodedAttribute encode = (EncodedAttribute) attribute.encode(requestAuth, secret);
         assertTrue(encode.isEncoded());
         assertEquals(tag, encode.getTag().get());
         assertFalse(Arrays.equals(value, encode.getValue()));
@@ -128,8 +120,7 @@ class OctetsAttributeTest {
         assertEquals(encode1, encode);
 
         // decode
-        final RadiusAttribute decode = encode.decode(requestAuth, secret);
-        assertTrue(decode instanceof OctetsAttribute);
+        final OctetsAttribute decode = (OctetsAttribute) encode.decode(requestAuth, secret);
         assertFalse(decode.isEncoded());
         assertEquals(tag, decode.getTag().get());
         assertArrayEquals(value, decode.getValue());

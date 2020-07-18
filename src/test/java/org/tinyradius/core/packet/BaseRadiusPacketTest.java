@@ -174,16 +174,16 @@ class BaseRadiusPacketTest {
 
     private static class StubPacket extends BaseRadiusPacket<StubPacket> {
 
-        public StubPacket() throws RadiusPacketException {
+        private StubPacket() throws RadiusPacketException {
             this(Collections.emptyList());
         }
 
-        public StubPacket(List<RadiusAttribute> attributes) throws RadiusPacketException {
+        private StubPacket(List<RadiusAttribute> attributes) throws RadiusPacketException {
             super(dictionary, RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[16], attributes), attributes);
         }
 
         @Override
-        public StubPacket with(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        protected StubPacket with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
             return new StubPacket(attributes);
         }
     }

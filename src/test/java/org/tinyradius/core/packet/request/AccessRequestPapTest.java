@@ -58,13 +58,13 @@ class AccessRequestPapTest {
     @Test
     void decodeChecksAttributeCount() throws RadiusPacketException {
         final String sharedSecret = "sharedSecret1";
-        final AccessRequestPap request1 = (AccessRequestPap) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, new byte[16], Collections.emptyList());
+        final AccessRequestNoAuth request1 = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one pw attribute
         final RadiusRequest request2 = request1.withPapPassword("myPassword")
-                .encodeRequest(sharedSecret);
-        request2.decodeRequest(sharedSecret);
+                .encodeRequest(sharedSecret)
+                .decodeRequest(sharedSecret);
 
         // add one pw attribute
         final RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute(-1, USER_PASSWORD, new byte[16]));

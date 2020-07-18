@@ -74,7 +74,7 @@ class ClientDatagramCodecTest {
         final DatagramPacket datagram = new DatagramPacket(
                 response.encodeResponse("mySecret", requestAuth).toByteBuf(), address, address);
 
-        datagram.content().array()[3] = 7; // corrupt bytes to trigger error
+        datagram.content().copy().array()[3] = 7; // corrupt bytes to trigger error
 
         final List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, datagram, out1);

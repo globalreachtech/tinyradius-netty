@@ -22,7 +22,7 @@ public class AccountingRequest extends GenericRequest {
     }
 
     @Override
-    public AccountingRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
-        return new AccountingRequest(getDictionary(), headerWithAuth(genAuth(sharedSecret)), getAttributes());
+    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+        return withAuthAttributes(genAuth(sharedSecret), getAttributes());
     }
 }

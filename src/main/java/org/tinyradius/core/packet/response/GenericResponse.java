@@ -19,7 +19,7 @@ public class GenericResponse extends BaseRadiusPacket<RadiusResponse> implements
         final RadiusResponse response = withAttributes(encodeAttributes(requestAuth, sharedSecret));
 
         final byte[] auth = response.genHashedAuth(sharedSecret, requestAuth);
-        return with(getDictionary(), headerWithAuth(auth), response.getAttributes());
+        return withAuthAttributes(auth, response.getAttributes());
     }
 
     @Override
@@ -29,7 +29,7 @@ public class GenericResponse extends BaseRadiusPacket<RadiusResponse> implements
     }
 
     @Override
-    public RadiusResponse with(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        return RadiusResponse.create(dictionary, header, attributes);
+    protected RadiusResponse with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        return RadiusResponse.create(getDictionary(), header, attributes);
     }
 }

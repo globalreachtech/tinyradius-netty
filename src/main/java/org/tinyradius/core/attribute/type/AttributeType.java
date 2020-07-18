@@ -42,11 +42,7 @@ public enum AttributeType {
                 .map(v -> v.toLengthBytes(length))
                 .orElse(new byte[]{(byte) length});
 
-        final ByteBuf byteBuf = Unpooled.buffer(length, length)
-                .writeBytes(typeBytes)
-                .writeBytes(lengthBytes)
-                .writeBytes(tagBytes)
-                .writeBytes(value);
+        final ByteBuf byteBuf = Unpooled.wrappedBuffer(typeBytes, lengthBytes, tagBytes, value);
 
         // todo test both vendor success / failure
 

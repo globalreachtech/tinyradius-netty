@@ -5,10 +5,7 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
@@ -33,16 +30,12 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
         final int length = getHeader().readableBytes() + getAttributeByteBuf().readableBytes();
         if (length > MAX_PACKET_LENGTH)
-            throw new RadiusPacketException("Packet length max " + MAX_PACKET_LENGTH + ", actual: " + length);
+            throw new RadiusPacketException("Packet too long - length max " + MAX_PACKET_LENGTH + ", actual: " + length);
 
         final short declaredLength = header.getShort(2);
         if (length != declaredLength)
             throw new RadiusPacketException("Packet length mismatch, " +
                     "actual length (" + length + ")  does not match declared length (" + declaredLength + ")");
-    }
-
-    protected ByteBuf headerWithAuth(byte[] auth) {
-        return getHeader().copy().setBytes(4, auth);
     }
 
     @Override
@@ -72,7 +65,9 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     @Override
     public byte[] getAuthenticator() {
-        return header.slice(4, 16).copy().array();
+        final byte[] array = header.slice(4, 16).copy().array();
+        return Arrays.equals(array, new byte[array.length]) ?
+                null : array;
     }
 
     @Override
@@ -83,10 +78,21 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     @Override
     public T withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
         final ByteBuf header = RadiusPacket.buildHeader(getType(), getId(), getAuthenticator(), attributes);
-        return with(getDictionary(), header, attributes);
+        return with(header, attributes);
     }
 
-    public abstract T with(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException;
+    public T withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        if (auth.length != 16)
+            throw new RadiusPacketException("Packet Authenticator must be 16 octets, actual: " + auth.length);
+
+        final ByteBuf header = RadiusPacket.buildHeader(getType(), getId(), auth, attributes);
+        return with(header, attributes);
+    }
+
+    /**
+     * Naive with(), does not recalculate packet lengths in header.
+     */
+    protected abstract T with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException;
 
     @Override
     public String toString() {

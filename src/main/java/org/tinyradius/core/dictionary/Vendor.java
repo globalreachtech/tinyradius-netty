@@ -67,6 +67,10 @@ public class Vendor {
         }
     }
 
+    // todo test toTypeBytes size matches getTypeSize
+    // todo test toLengthBytes size matches getLengthSize
+    // todo test getHeaderSize is correct
+
     public byte[] toLengthBytes(int len) {
         switch (lengthSize) {
             case 0:

@@ -82,12 +82,12 @@ class MessageAuthSupportTest {
 
     private static class TestPacket extends BaseRadiusPacket<TestPacket> implements MessageAuthSupport<TestPacket> {
 
-        public TestPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        private TestPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
             super(dictionary, buildHeader(type, identifier, authenticator, attributes), attributes);
         }
 
         @Override
-        public TestPacket with(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        protected TestPacket with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
             return new TestPacket(dictionary, header.getByte(0), header.getByte(1), header.slice(4, 16).copy().array(), attributes);
         }
     }
