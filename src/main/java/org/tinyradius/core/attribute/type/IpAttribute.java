@@ -21,7 +21,6 @@ public abstract class IpAttribute extends OctetsAttribute {
     protected void checkType(Class<? extends InetAddress> clazz, InetAddress address) {
         if (!clazz.isInstance(address))
             throw new IllegalArgumentException("Expected " + clazz.getSimpleName() + ", actual " + address.getClass().getSimpleName());
-
     }
 
     public static byte[] stringParser(String value) {
