@@ -82,9 +82,9 @@ class AccessRequestChapTest {
         assertFalse(emptyRequest.getAttribute("User-Password").isPresent());
         assertFalse(emptyRequest.getAttribute("CHAP-Password").isPresent());
 
-        final AccessRequestChap request = (AccessRequestChap) emptyRequest.addAttribute(USER_NAME, user);
+        final AccessRequestNoAuth request = (AccessRequestNoAuth) emptyRequest.addAttribute(USER_NAME, user);
 
-        final RadiusRequest encoded = request.withChapPassword(plaintextPw).encodeRequest(sharedSecret);
+        final AccessRequestChap encoded = (AccessRequestChap) request.withChapPassword(plaintextPw).encodeRequest(sharedSecret);
         assertEquals(request.getType(), encoded.getType());
         assertEquals(request.getId(), encoded.getId());
         assertEquals(user, encoded.getAttribute(USER_NAME).get().getValueString());

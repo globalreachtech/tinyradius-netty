@@ -78,7 +78,7 @@ class RadiusRequestTest {
 
         final DatagramPacket originalDatagram = new DatagramPacket(request.toByteBuf(), remoteAddress);
 
-        final byte[] array = originalDatagram.content().array();
+        final byte[] array = originalDatagram.content().copy().array();
         array[4] = 0; // corrupt authenticator
 
         final DatagramPacket datagramPacket = new DatagramPacket(Unpooled.wrappedBuffer(array), originalDatagram.recipient());
@@ -138,7 +138,7 @@ class RadiusRequestTest {
         assertEquals(maxSizeRequest.filterAttributes(33).size(), result.filterAttributes(33).size());
 
         // reconvert to check if bytes match
-        assertArrayEquals(datagram.content().array(), new DatagramPacket(result.toByteBuf(), new InetSocketAddress(0)).content().array());
+        assertArrayEquals(datagram.content().copy().array(), new DatagramPacket(result.toByteBuf(), new InetSocketAddress(0)).content().copy().array());
     }
 
     @Test

@@ -95,7 +95,7 @@ class ServerPacketCodecTest {
 
         // check encoded
         final DatagramPacket response = (DatagramPacket) out2.get(0);
-        assertArrayEquals(response.content().array(),
-                new DatagramPacket(responsePacket.encodeResponse(secret, request.getAuthenticator()).toByteBuf(), remoteAddress, address).content().array());
+        assertArrayEquals(response.content().copy().array(),
+                new DatagramPacket(responsePacket.encodeResponse(secret, request.getAuthenticator()).toByteBuf(), remoteAddress, address).content().copy().array());
     }
 }

@@ -40,7 +40,9 @@ class MessageAuthSupportTest {
 
     @Test
     void selfEncodeVerify() throws RadiusPacketException {
-        final TestPacket testPacket = new TestPacket(dictionary, (byte) 1, (byte) 1, new byte[16], Collections.emptyList());
+        final byte[] auth = new byte[16];
+        auth[0] = 1; // set auth to non-zeros
+        final TestPacket testPacket = new TestPacket(dictionary, (byte) 1, (byte) 1, auth, Collections.emptyList());
 
         final TestPacket encodedPacket = testPacket.encodeMessageAuth(secret, testPacket.getAuthenticator());
         encodedPacket.verifyMessageAuth(secret, testPacket.getAuthenticator());

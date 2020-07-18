@@ -24,6 +24,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,12 +38,12 @@ class PromiseAdapterTest {
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
     private final EventExecutor eventExecutor = ImmediateEventExecutor.INSTANCE;
+    private final Promise<RadiusResponse> promise = eventExecutor.newPromise();
+
+    private final InetSocketAddress address = new InetSocketAddress(0);
 
     @Mock
     private ChannelHandlerContext ctx;
-
-    @Mock
-    private Promise<RadiusResponse> mockPromise;
 
     private final PromiseAdapter handler = new PromiseAdapter();
 
@@ -53,11 +54,11 @@ class PromiseAdapterTest {
 
         final AccountingRequest originalRequest = (AccountingRequest)
                 RadiusRequest.create(dictionary, (byte) 4, id, null, Collections.emptyList()).encodeRequest(secret);
-        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
+        final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
 
         // process once
         final List<Object> out1 = new ArrayList<>();
-        handler.encode(ctx, new PendingRequestCtx(originalRequest, endpoint, mockPromise), out1);
+        handler.encode(ctx, new PendingRequestCtx(originalRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
         final RadiusRequest processedPacket1 = ((PendingRequestCtx) out1.get(0)).getRequest();
@@ -70,7 +71,7 @@ class PromiseAdapterTest {
 
         // process again
         final List<Object> out2 = new ArrayList<>();
-        handler.encode(ctx, new PendingRequestCtx(processedPacket1, endpoint, mockPromise), out2);
+        handler.encode(ctx, new PendingRequestCtx(processedPacket1, endpoint, promise), out2);
 
         assertEquals(1, out1.size());
         final RadiusRequest processedPacket2 = ((PendingRequestCtx) out2.get(0)).getRequest();
@@ -112,18 +113,17 @@ class PromiseAdapterTest {
     @Test
     void encodeDecodeIdMismatch() throws RadiusPacketException {
         final String secret = "mySecret";
-        final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final byte[] requestAuth = random.generateSeed(16);
 
         // using id 1
         final AccessRequestPap request = (AccessRequestPap)
                 ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, requestAuth, Collections.emptyList()))
                         .withPapPassword("myPw");
-        final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
+        final RadiusEndpoint requestEndpoint = new RadiusEndpoint(address, secret);
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
-        // add remoteAddress-secret and identifier mapping to handler
+        // add address-secret and identifier mapping to handler
         final List<Object> out = new ArrayList<>();
         handler.encode(ctx, new PendingRequestCtx(request, requestEndpoint, promise), out);
 
@@ -146,16 +146,15 @@ class PromiseAdapterTest {
     @Test
     void decodeAuthCheckFail() throws RadiusPacketException {
         final String secret = "mySecret";
-        final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
         final AccessRequestPap request = (AccessRequestPap)
                 ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
                         .withPapPassword("myPw");
-        final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
+        final RadiusEndpoint requestEndpoint = new RadiusEndpoint(address, secret);
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
-        // add remoteAddress-secret and identifier mapping to handler
+        // add address-secret and identifier mapping to handler
         final List<Object> out = new ArrayList<>();
         handler.encode(ctx, new PendingRequestCtx(request, requestEndpoint, promise), out);
 
@@ -179,13 +178,12 @@ class PromiseAdapterTest {
     void encodeDecodeSuccess() throws RadiusPacketException {
         final String secret = "mySecret";
         final String pw = "myPw";
-        final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
         final AccessRequestNoAuth request = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList())
                 .addAttribute("Tunnel-Password", pw);
-        final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
+        final RadiusEndpoint requestEndpoint = new RadiusEndpoint(address, secret);
         assertEquals(pw, new String(request.getAttribute("Tunnel-Password").get().getValue(), UTF_8));
 
         // process packet out
@@ -227,5 +225,36 @@ class PromiseAdapterTest {
 
         // check proxyState is removed after reading
         assertEquals(2, decodedResponse.getAttributes().size());
+    }
+
+
+    @Test
+    void encodeRadiusException() throws RadiusPacketException {
+        final String secret = UUID.randomUUID().toString();
+        final String username = "myUsername";
+        final String password = "myPassword";
+        int id = random.nextInt(256);
+
+        RadiusRequest packet = ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) id, null, Collections.emptyList()))
+                .withPapPassword(password)
+                .addAttribute(1, username);
+        assertTrue(packet instanceof AccessRequestPap);
+        final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
+
+        // make packet too long to force encoder error
+        for (int i = 0; i < 337; i++) {
+            packet = packet.addAttribute(dictionary.createAttribute(-1, 1, username));
+        }
+
+        // process
+        final List<Object> out1 = new ArrayList<>();
+        handler.encode(ctx, new PendingRequestCtx(packet, endpoint, promise), out1);
+
+        // check
+        assertTrue(promise.isDone());
+        assertFalse(promise.isSuccess());
+        assertEquals(RadiusPacketException.class, promise.cause().getClass());
+        assertTrue(promise.cause().getMessage().contains("Packet too long"));
+        assertEquals(0, out1.size());
     }
 }

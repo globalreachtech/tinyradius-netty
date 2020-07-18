@@ -27,7 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.tinyradius.core.packet.request.RadiusRequest.fromDatagram;
@@ -74,7 +75,7 @@ class ClientDatagramCodecTest {
         final DatagramPacket datagram = new DatagramPacket(
                 response.encodeResponse("mySecret", requestAuth).toByteBuf(), address, address);
 
-        datagram.content().copy().array()[3] = 7; // corrupt bytes to trigger error
+        datagram.content().setByte(3, 7); // corrupt bytes to trigger error
 
         final List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, datagram, out1);
@@ -122,36 +123,5 @@ class ClientDatagramCodecTest {
         assertEquals(id, sentAccessPacket.getId());
         assertEquals(username, sentAccessPacket.getAttribute(USER_NAME).get().getValueString());
         assertEquals(password, sentAccessPacket.getPassword().get());
-    }
-
-    @Test
-    void encodeRadiusException() throws RadiusPacketException {
-        final String secret = UUID.randomUUID().toString();
-        final String username = "myUsername";
-        final String password = "myPassword";
-        int id = random.nextInt(256);
-
-        RadiusRequest packet = ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) id, null, Collections.emptyList()))
-                .withPapPassword(password)
-                .addAttribute(USER_NAME, username);
-        assertTrue(packet instanceof AccessRequestPap);
-        final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
-
-        when(ctx.channel()).thenReturn(mock(Channel.class));
-
-        // make packet too long to force encoder error
-        for (int i = 0; i < 4000; i++) {
-            packet = packet.addAttribute(dictionary.createAttribute(-1, USER_NAME, username));
-        }
-
-        // process
-        final List<Object> out1 = new ArrayList<>();
-        codec.encode(ctx, new PendingRequestCtx(packet, endpoint, promise), out1);
-
-        // check
-        assertTrue(promise.isDone());
-        assertFalse(promise.isSuccess());
-        assertEquals(RadiusPacketException.class, promise.cause().getClass());
-        assertEquals(0, out1.size());
     }
 }
