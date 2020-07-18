@@ -1,8 +1,6 @@
 package org.tinyradius.core.attribute.type;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -90,22 +88,20 @@ class OctetsAttributeTest {
 
     // todo move to EncodedAttributeTest?
     @Test
-    void flattenTagPersists() {
+    void flattenTagPersists() throws IOException {
+        final Dictionary testDictionary = DictionaryParser.newClasspathParser()
+                .parseDictionary("org/tinyradius/core/dictionary/test_dictionary");
+
         final RadiusAttribute attribute = new EncodedAttribute(
-                dictionary.createAttribute(-1, 140, (byte) 0xFF, "FFFF"));
+                testDictionary.createAttribute(-1, 140, (byte) 0xFF, "FFFF"));
         final RadiusAttribute transformed = attribute.flatten().get(0);
         assertEquals((byte) 0xFF, attribute.getTag().get());
         assertEquals((byte) 0xFF, transformed.getTag().get());
         assertEquals(attribute, transformed);
     }
 
-    @CsvSource({ // should have both  has_tag and encrypt of any type
-            "-1,69", // Tunnel-Password
-            "14122,7", // WISPr-Bandwidth-Max-Up
-            "14122,8" // WISPr-Bandwidth-Max-Down
-    })
-    @ParameterizedTest
-    void encodeDecodeWithTag(int vendorId, int type) throws RadiusPacketException, IOException {
+    @Test
+    void encodeDecodeWithTag() throws RadiusPacketException, IOException {
         final Dictionary testDictionary = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/test_dictionary");
 
@@ -114,7 +110,7 @@ class OctetsAttributeTest {
         final byte tag = 123;
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusAttribute attribute = testDictionary.createAttribute(vendorId, type, tag, value);
+        final RadiusAttribute attribute = testDictionary.createAttribute(-1, 69, tag, value);
         assertTrue(attribute instanceof OctetsAttribute);
         assertFalse(attribute.isEncoded());
         assertEquals(tag, attribute.getTag().get());

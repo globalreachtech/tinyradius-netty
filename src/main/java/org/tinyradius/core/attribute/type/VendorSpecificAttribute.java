@@ -28,8 +28,8 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * @param data       data to parse for childVendorId and sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
-        this(dictionary, data.getInt(0),
-                AttributeHolder.readAttributes(dictionary, data.getInt(0), data.slice(4, data.readableBytes() - 4)),
+        this(dictionary, data.getInt(2),
+                AttributeHolder.readAttributes(dictionary, data.getInt(2), data.slice(6, data.readableBytes() - 6)),
                 data);
         if (vendorId != -1)
             throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
@@ -55,7 +55,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
         final ByteBuf attributesBytes = AttributeHolder.attributesToBytes(attributes);
         final ByteBuf header = Unpooled.buffer(6, 6)
                 .writeByte(VENDOR_SPECIFIC)
-                .writeByte(attributesBytes.readableBytes() + 2)
+                .writeByte(attributesBytes.readableBytes() + 6)
                 .writeInt(childVendorId);
         return Unpooled.wrappedBuffer(header, attributesBytes);
     }

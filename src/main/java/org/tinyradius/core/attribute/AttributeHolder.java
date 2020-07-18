@@ -54,14 +54,14 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
             int type;
             switch (typeSize) {
                 case 2:
-                    type = data.getShort(0);
+                    type = data.getShort(data.readerIndex());
                     break;
                 case 4:
-                    type = data.getInt(0);
+                    type = data.getInt(data.readerIndex());
                     break;
                 case 1:
                 default:
-                    type = Byte.toUnsignedInt(data.getByte(0));
+                    type = Byte.toUnsignedInt(data.getByte(data.readerIndex()));
             }
 
             final int lengthSize = vendor
@@ -74,15 +74,15 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
                     length = data.readableBytes();
                     break;
                 case 2:
-                    length = data.getShort(typeSize);
+                    length = data.getShort(data.readerIndex() + typeSize);
                     break;
                 case 1:
                 default:
-                    length = Byte.toUnsignedInt(data.getByte(typeSize)); // max 255
+                    length = Byte.toUnsignedInt(data.getByte(data.readerIndex() + typeSize)); // max 255
             }
 
             if (length < typeSize + lengthSize)
-                throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >= (typeSize + lengthSize), " +
+                throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >= typeSize + lengthSize, " +
                         "but typeSize=" + typeSize + ", lengthSize=" + lengthSize);
 
             if (length > data.readableBytes())
@@ -189,7 +189,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         return attributesToBytes(getAttributes());
     }
 
-    default byte[] getAttributeBytes(){
+    default byte[] getAttributeBytes() {
         return getAttributeByteBuf().copy().array();
     }
 

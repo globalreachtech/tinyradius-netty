@@ -4,6 +4,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.dictionary.Vendor;
+
+import java.util.Optional;
 
 public enum AttributeType {
     VSA(VendorSpecificAttribute::new, (dictionary, i, i1, s) -> OctetsAttribute.stringHexParser(s)),
@@ -27,20 +30,25 @@ public enum AttributeType {
     }
 
     public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
-        final byte[] tagBytes = toTagBytes(dictionary, vendorId, type, tag);
+        final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
+        final int headerSize = vendor.map(Vendor::getHeaderSize).orElse(2);
 
-        final ByteBuf byteBuf = dictionary.getVendor(vendorId)
-                .map(v -> Unpooled.buffer()
-                        .writeBytes(v.toTypeBytes(type))
-                        .writeBytes(v.toLengthBytes(v.getHeaderSize() + tagBytes.length + value.length))
-                        .writeBytes(tagBytes)
-                        .writeBytes(value))
-                .orElse(Unpooled.buffer()
-                        .writeByte(type)
-                        .writeByte(2 + tagBytes.length + value.length)
-                        .writeBytes(tagBytes)
-                        .writeBytes(value));
-// todo test both vendor success / failure
+        final byte[] tagBytes = toTagBytes(dictionary, vendorId, type, tag);
+        final int length = headerSize + tagBytes.length + value.length;
+        final byte[] typeBytes = vendor
+                .map(v -> v.toTypeBytes(type))
+                .orElse(new byte[]{(byte) type});
+        final byte[] lengthBytes = vendor
+                .map(v -> v.toLengthBytes(length))
+                .orElse(new byte[]{(byte) length});
+
+        final ByteBuf byteBuf = Unpooled.buffer(length, length)
+                .writeBytes(typeBytes)
+                .writeBytes(lengthBytes)
+                .writeBytes(tagBytes)
+                .writeBytes(value);
+
+        // todo test both vendor success / failure
 
         return byteBufConstructor.newInstance(dictionary, vendorId, byteBuf);
     }

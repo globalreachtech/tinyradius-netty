@@ -115,9 +115,10 @@ class PromiseAdapterTest {
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
         final byte[] requestAuth = random.generateSeed(16);
 
-        //using id 1
-        final AccessRequestPap request = ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, requestAuth, Collections.emptyList()))
-                .withPapPassword("myPw");
+        // using id 1
+        final AccessRequestPap request = (AccessRequestPap)
+                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, requestAuth, Collections.emptyList()))
+                        .withPapPassword("myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
@@ -147,8 +148,9 @@ class PromiseAdapterTest {
         final String secret = "mySecret";
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
 
-        final AccessRequestPap request = ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
-                .withPapPassword("myPw");
+        final AccessRequestPap request = (AccessRequestPap)
+                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
+                        .withPapPassword("myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(remoteAddress, secret);
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();

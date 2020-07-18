@@ -92,21 +92,9 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      */
     byte[] getAuthenticator();
 
-    /**
-     * @return list of RadiusAttributes in packet
-     */
-    @Override
-    List<RadiusAttribute> getAttributes();
-
     default ByteBuf toByteBuf() {
         return Unpooled.wrappedBuffer(getHeader(), getAttributeByteBuf());
     }
-
-    /**
-     * @return the dictionary this Radius packet uses.
-     */
-    @Override
-    Dictionary getDictionary();
 
     /**
      * @param sharedSecret shared secret

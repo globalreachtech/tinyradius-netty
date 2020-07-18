@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.PacketType;
 
 import java.util.List;
 
@@ -25,10 +24,5 @@ public class AccountingRequest extends GenericRequest {
     @Override
     public AccountingRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
         return new AccountingRequest(getDictionary(), headerWithAuth(genAuth(sharedSecret)), getAttributes());
-    }
-
-    @Override
-    public AccountingRequest withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
-        return new AccountingRequest(getDictionary(), getHeader(), attributes);
     }
 }

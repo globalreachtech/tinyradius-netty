@@ -56,11 +56,12 @@ class AccessRequestChapTest {
     @Test
     void verifyAttributeCount() throws RadiusPacketException {
         final String sharedSecret = "sharedSecret1";
-        final AccessRequestChap request1 = (AccessRequestChap) RadiusRequest.create(dictionary, (byte) 1,(byte) 1, new byte[16], Collections.emptyList());
+        final AccessRequestChap request1 = (AccessRequestChap)
+                RadiusRequest.create(dictionary, (byte) 1,(byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one pw attribute
-        final AccessRequestChap request2 = request1.withChapPassword("myPw");
+        final AccessRequestChap request2 = (AccessRequestChap) request1.withChapPassword("myPw");
         request2.decodeRequest(sharedSecret);
 
         // add one more pw attribute

@@ -5,7 +5,6 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.BaseRadiusPacket;
-import org.tinyradius.core.packet.RadiusPacket;
 
 import java.util.List;
 
@@ -26,7 +25,7 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
     @Override
     public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
         final byte[] auth = genAuth(sharedSecret);
-        return new GenericRequest(getDictionary(), headerWithAuth(auth), encodeAttributes(auth, sharedSecret));
+        return with(getDictionary(), headerWithAuth(auth), encodeAttributes(auth, sharedSecret));
     }
 
     @Override
@@ -36,7 +35,7 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
     }
 
     @Override
-    public RadiusRequest withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
-        return new GenericRequest(getDictionary(), getHeader(), attributes);
+    public RadiusRequest with(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        return RadiusRequest.create(getDictionary(), header, attributes);
     }
 }

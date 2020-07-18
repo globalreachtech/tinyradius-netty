@@ -113,12 +113,14 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
      * @throws IllegalArgumentException invalid password
      */
-    public AccessRequestChap withChapPassword(String password) throws RadiusPacketException {
-        return new AccessRequestChap(getDictionary(), getHeader(), getAttributes(), password);
+    public AccessRequest withChapPassword(String password) throws RadiusPacketException {
+        // todo remove other types of pw?
+        return AccessRequestChap.withPassword(this, password);
     }
 
-    public AccessRequestPap withPapPassword(String password) throws RadiusPacketException {
-        return new AccessRequestPap(getDictionary(), getHeader(), getAttributes(), password);
+    public AccessRequest withPapPassword(String password) throws RadiusPacketException {
+        // todo remove other types of pw?
+        return AccessRequestPap.withPassword(this, password);
     }
 
     /**
@@ -155,8 +157,8 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     }
 
     @Override
-    public AccessRequest withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
-        return create(getDictionary(), getHeader(), attributes);
+    public AccessRequest with(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        return create(dictionary, header, attributes);
     }
 
     public interface AccessRequestFactory {

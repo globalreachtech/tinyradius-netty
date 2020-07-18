@@ -4,8 +4,8 @@ import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.attribute.type.AttributeType;
-import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.EncodedAttribute;
+import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.HashMap;
@@ -86,7 +86,7 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute create(Dictionary dictionary, byte tag, byte[] value) {
-        return create(decodedType, dictionary, tag, value);
+        return decodedType.create(dictionary, vendorId, type, tag, value);
     }
 
     /**
@@ -128,16 +128,11 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute createEncoded(Dictionary dictionary, byte tag, byte[] encodedValue) {
-        return autoWrapEncode(create(encodedType, dictionary, tag, encodedValue));
-    }
-
-    private RadiusAttribute create(AttributeType attributeType, Dictionary dictionary, byte tag, byte[] value) {
-        return attributeType.create(dictionary, vendorId, type, tag, value);
+        return autoWrapEncode(encodedType.create(dictionary, vendorId, type, tag, encodedValue));
     }
 
     private RadiusAttribute autoWrapEncode(RadiusAttribute attribute) {
-        return encryptEnabled() ?
-                new EncodedAttribute(attribute) : attribute;
+        return encryptEnabled() ? new EncodedAttribute(attribute) : attribute;
     }
 
     /**

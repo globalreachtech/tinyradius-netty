@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.packet.RadiusPacket;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,17 +21,18 @@ public class AccessRequestPap extends AccessRequest {
         super(dictionary, header, attributes);
     }
 
-    AccessRequestPap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes, String password) throws RadiusPacketException {
-        super(dictionary, header, appendPasswordAttributes(dictionary, attributes, password));
+    static AccessRequest withPassword(AccessRequest request, String password) throws RadiusPacketException {
+        final List<RadiusAttribute> attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
+        final ByteBuf header = RadiusPacket.buildHeader(request.getType(), request.getId(), request.getAuthenticator(), attributes);
+        return create(request.getDictionary(), header, attributes);
     }
 
-    public static List<RadiusAttribute> appendPasswordAttributes(Dictionary dictionary, List<RadiusAttribute> attributes, String password) throws RadiusPacketException {
+    private static List<RadiusAttribute> withPasswordAttribute(Dictionary dictionary, List<RadiusAttribute> attributes, String password) {
         final List<RadiusAttribute> newAttributes = attributes.stream()
                 .filter(a -> a.getVendorId() != -1 || a.getType() != USER_PASSWORD)
                 .collect(Collectors.toList());
 
         newAttributes.add(dictionary.createAttribute(-1, USER_PASSWORD, password.getBytes(UTF_8)));
-
         return newAttributes;
     }
 

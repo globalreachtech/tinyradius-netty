@@ -25,8 +25,10 @@ public class AccessRequestChap extends AccessRequest {
         super(dictionary, header, attributes);
     }
 
-    AccessRequestChap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes, String password) throws RadiusPacketException {
-        super(dictionary, header, appendPasswordAttributes(dictionary, attributes, password));
+    static AccessRequest withPassword(AccessRequest request, String password) throws RadiusPacketException {
+        final List<RadiusAttribute> attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
+        final ByteBuf header = RadiusPacket.buildHeader(request.getType(), request.getId(), request.getAuthenticator(), attributes);
+        return create(request.getDictionary(), header, attributes);
     }
 
     /**
@@ -38,11 +40,11 @@ public class AccessRequestChap extends AccessRequest {
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
      * @throws IllegalArgumentException invalid password
      */
-    private static List<RadiusAttribute> appendPasswordAttributes(Dictionary dictionary, List<RadiusAttribute> attributes, String password) {
+    private static List<RadiusAttribute> withPasswordAttribute(Dictionary dictionary, List<RadiusAttribute> attributes, String password) {
         if (password == null || password.isEmpty())
             throw new IllegalArgumentException("Could not encode CHAP attributes, password not set");
 
-        byte[] challenge = random16bytes();
+        final byte[] challenge = random16bytes();
 
         final List<RadiusAttribute> newAttributes = attributes.stream()
                 .filter(a -> a.getType() != CHAP_PASSWORD && a.getType() != CHAP_CHALLENGE)

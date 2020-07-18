@@ -72,15 +72,21 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     @Override
     public byte[] getAuthenticator() {
-        final byte[] auth = new byte[16];
-        header.getBytes(4, auth);
-        return auth;
+        return header.slice(4, 16).copy().array();
     }
 
     @Override
     public Dictionary getDictionary() {
         return dictionary;
     }
+
+    @Override
+    public T withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
+        final ByteBuf header = RadiusPacket.buildHeader(getType(), getId(), getAuthenticator(), attributes);
+        return with(getDictionary(), header, attributes);
+    }
+
+    public abstract T with(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException;
 
     @Override
     public String toString() {

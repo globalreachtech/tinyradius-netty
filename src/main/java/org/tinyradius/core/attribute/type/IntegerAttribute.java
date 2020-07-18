@@ -14,8 +14,8 @@ public class IntegerAttribute extends OctetsAttribute {
         super(dictionary, vendorId, data);
         // todo make test dynamic, allow tags, dynamic header length
         // todo same for other attributes
-        if (data.readableBytes() != 6)
-            throw new IllegalArgumentException("Integer / Date attribute should be 6 octets, actual: " + data.readableBytes());
+        if (getValue().length != 4)
+            throw new IllegalArgumentException("Integer / Date value should be 4 octets, actual: " + getValue().length);
     }
 
     /**

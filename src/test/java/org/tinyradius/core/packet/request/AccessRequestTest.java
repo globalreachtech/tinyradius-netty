@@ -22,13 +22,14 @@ class AccessRequestTest {
         String sharedSecret = "sharedSecret1";
         String pw = "myPw";
 
-        AccessRequestPap nullAuthRequest = ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 2, null, Collections.emptyList()))
-                .withPapPassword(pw);
+        final AccessRequestPap nullAuthRequest = (AccessRequestPap)
+                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 2, null, Collections.emptyList()))
+                        .withPapPassword(pw);
         assertNull(nullAuthRequest.getAuthenticator());
 
         assertNotNull(nullAuthRequest.encodeRequest(sharedSecret).getAuthenticator());
 
-        RadiusRequest authRequest = ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 2, random.generateSeed(16), Collections.emptyList()))
+        final RadiusRequest authRequest = ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 2, random.generateSeed(16), Collections.emptyList()))
                 .withPapPassword(pw);
         assertNotNull(authRequest.getAuthenticator());
         assertArrayEquals(authRequest.getAuthenticator(), authRequest.encodeRequest(sharedSecret).getAuthenticator());

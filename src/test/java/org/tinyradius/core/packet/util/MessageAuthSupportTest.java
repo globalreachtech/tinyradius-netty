@@ -1,18 +1,19 @@
 package org.tinyradius.core.packet.util;
 
+import io.netty.buffer.ByteBuf;
 import net.jradius.packet.RadiusFormat;
 import net.jradius.packet.RadiusPacket;
 import net.jradius.packet.attribute.Attr_UnknownAttribute;
 import net.jradius.util.MD5;
 import net.jradius.util.MessageAuthenticator;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.BaseRadiusPacket;
 import org.tinyradius.core.packet.request.AccessRequestNoAuth;
 import org.tinyradius.core.packet.request.RadiusRequest;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -22,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.tinyradius.core.packet.RadiusPacket.*;
+import static org.tinyradius.core.packet.RadiusPacket.buildHeader;
 
 class MessageAuthSupportTest {
 
@@ -67,8 +68,8 @@ class MessageAuthSupportTest {
      * Adapted from {@link MessageAuthenticator#generateRequestMessageAuthenticator}
      */
     private static void jRadius_generateRequestMessageAuthenticator(RadiusPacket request) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
-      final   byte[] hash = new byte[16];
-final         ByteBuffer buffer = ByteBuffer.allocate(4096);
+        final byte[] hash = new byte[16];
+        final ByteBuffer buffer = ByteBuffer.allocate(4096);
 
         final Attr_UnknownAttribute attribute = new Attr_UnknownAttribute(MessageAuthSupport.MESSAGE_AUTHENTICATOR);
         attribute.setValue(hash);
@@ -86,8 +87,8 @@ final         ByteBuffer buffer = ByteBuffer.allocate(4096);
         }
 
         @Override
-        public TestPacket withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
-            return new TestPacket(getDictionary(), getType(), getId(), getAuthenticator(), attributes);
+        public TestPacket with(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+            return new TestPacket(dictionary, header.getByte(0), header.getByte(1), header.slice(4, 16).copy().array(), attributes);
         }
     }
 }

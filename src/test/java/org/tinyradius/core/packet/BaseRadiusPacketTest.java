@@ -1,5 +1,6 @@
 package org.tinyradius.core.packet;
 
+import io.netty.buffer.ByteBuf;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.RadiusPacketException;
@@ -182,7 +183,7 @@ class BaseRadiusPacketTest {
         }
 
         @Override
-        public StubPacket withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
+        public StubPacket with(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
             return new StubPacket(attributes);
         }
     }

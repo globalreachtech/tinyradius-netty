@@ -24,8 +24,7 @@ class StringAttributeTest {
     @Test
     void getDataValue() {
         final String s = new Date().toString();
-        final RadiusAttribute stringAttribute = dictionary.createAttribute(-1, 1, s); // User-Name
-        assertTrue(stringAttribute instanceof StringAttribute);
+        final StringAttribute stringAttribute = (StringAttribute) dictionary.createAttribute(-1, 1, s); // User-Name
         assertEquals(s, stringAttribute.getValueString());
         assertArrayEquals(s.getBytes(UTF_8), stringAttribute.getValue());
     }

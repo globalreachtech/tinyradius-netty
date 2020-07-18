@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.RadiusPacket;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
 
 import java.util.List;
@@ -15,11 +14,14 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
 
     private AccessResponse(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
+        final byte type = header.getByte(0);
+        if (type != ACCESS_ACCEPT && type != ACCESS_REJECT && type != ACCESS_CHALLENGE)
+            throw new IllegalArgumentException("First octet must be " + ACCESS_ACCEPT + "/" + ACCESS_REJECT + "/" + ACCESS_CHALLENGE + ", actual: " + type);
     }
 
     @Override
     public RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        final RadiusResponse response = withAttributes(encodeAttributes(requestAuth, sharedSecret))
+        final RadiusResponse response = ((AccessResponse) withAttributes(encodeAttributes(requestAuth, sharedSecret)))
                 .encodeMessageAuth(sharedSecret, requestAuth);
 
         final byte[] auth = response.genHashedAuth(sharedSecret, requestAuth);
@@ -30,11 +32,6 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
     public RadiusResponse decodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         verifyMessageAuth(sharedSecret, requestAuth);
         return super.decodeResponse(sharedSecret, requestAuth);
-    }
-
-    @Override
-    public AccessResponse withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
-        return new AccessResponse(getDictionary(), getHeader(), attributes);
     }
 
     public static class Accept extends AccessResponse {
