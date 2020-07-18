@@ -18,7 +18,7 @@ class StringAttributeTest {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> dictionary.createAttribute(-1, 1, "")); // User-Name
 
-        assertTrue(exception.getMessage().toLowerCase().contains("min 1 octet"));
+        assertEquals("String attribute value should be min 3 octets, actual: 2", exception.getMessage());
     }
 
     @Test

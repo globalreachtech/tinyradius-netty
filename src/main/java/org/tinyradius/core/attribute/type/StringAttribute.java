@@ -13,7 +13,7 @@ public class StringAttribute extends OctetsAttribute {
     public StringAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         super(dictionary, vendorId, data);
         if (!data.isReadable(3))
-            throw new IllegalArgumentException("String attribute value should be min 3 octet, actual: " + data.readableBytes());
+            throw new IllegalArgumentException("String attribute value should be min 3 octets, actual: " + data.readableBytes());
     }
 
     @Override

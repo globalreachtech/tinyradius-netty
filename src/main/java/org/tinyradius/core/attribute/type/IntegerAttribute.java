@@ -10,11 +10,12 @@ import java.nio.ByteBuffer;
  */
 public class IntegerAttribute extends OctetsAttribute {
 
-
     public IntegerAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         super(dictionary, vendorId, data);
+        // todo make test dynamic, allow tags, dynamic header length
+        // todo same for other attributes
         if (data.readableBytes() != 6)
-            throw new IllegalArgumentException("Integer / Date attribute should be 4 octets, actual: " + data.readableBytes());
+            throw new IllegalArgumentException("Integer / Date attribute should be 6 octets, actual: " + data.readableBytes());
     }
 
     /**

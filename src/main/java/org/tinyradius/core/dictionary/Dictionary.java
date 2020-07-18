@@ -37,7 +37,7 @@ public interface Dictionary extends CoreDictionary {
                 .orElseGet(() -> new OctetsAttribute(this, vendorId, Unpooled.buffer()
                         .writeByte(type)
                         .writeByte(value.length + 2)
-                        .writeBytes(value)));
+                        .writeBytes(value))); // todo test non-template creation
     }
 
     /**
@@ -70,7 +70,7 @@ public interface Dictionary extends CoreDictionary {
                             .writeByte(type)
                             .writeByte(bytes.length + 2)
                             .writeBytes(bytes));
-                });
+                }); // todo test non-template creation
     }
 
     /**

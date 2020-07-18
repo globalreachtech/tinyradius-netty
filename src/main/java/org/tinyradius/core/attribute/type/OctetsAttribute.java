@@ -29,8 +29,8 @@ public class OctetsAttribute implements RadiusAttribute {
         this.data = requireNonNull(data, "Attribute data not set");
 
         final int actualLength = data.readableBytes();
-        if (actualLength > 253)
-            throw new IllegalArgumentException("Attribute data too long, max 253 octets, actual: " + actualLength);
+        if (actualLength > 255)
+            throw new IllegalArgumentException("Attribute too long, max 255 octets, actual: " + actualLength);
         // todo add tests
 
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
@@ -72,10 +72,8 @@ public class OctetsAttribute implements RadiusAttribute {
     @Override
     public byte[] getValue() {
         final int offset = getHeaderSize() + getTagSize();
-        final int length = data.capacity() - offset;
-        final byte[] bytes = new byte[length];
-        data.getBytes(offset, bytes);
-        return bytes;
+        return data.slice(offset, data.readableBytes() - offset)
+                .copy().array();
     }
 
     @Override

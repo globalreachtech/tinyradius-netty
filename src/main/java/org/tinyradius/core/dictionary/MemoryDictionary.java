@@ -52,8 +52,7 @@ public class MemoryDictionary implements WritableDictionary {
         final Optional<Vendor> existing = getVendor(vendor.getId());
         if (existing.isPresent())
             if (existing.get().equals(vendor)) {
-                logger.info("Ignoring duplicate vendor definition - adding: {}, existing: {}",
-                        vendor, existing.get());
+                logger.info("Ignoring duplicate vendor definition: {}", vendor);
                 return;
             } else {
                 throw new IllegalArgumentException("Duplicate vendor code: " + vendor.getId() +

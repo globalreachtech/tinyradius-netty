@@ -12,7 +12,8 @@ class IntegerAttributeTest {
 
     @Test
     void intMaxUnsigned() {
-        final IntegerAttribute attribute = (IntegerAttribute) dictionary.createAttribute(-1, 27, "-1"); // Session-Timeout
+        final IntegerAttribute attribute = (IntegerAttribute)
+                dictionary.createAttribute(-1, 27, Long.toString(0xffffffffL)); // Session-Timeout
 
         assertEquals(-1, attribute.getValueInt());
         assertEquals(0xffffffffL, attribute.getValueLong());

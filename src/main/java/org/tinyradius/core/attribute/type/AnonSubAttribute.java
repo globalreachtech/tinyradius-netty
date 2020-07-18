@@ -5,6 +5,13 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Optional;
 
+/**
+ * Represents an unparsable VSA sub-attribute.
+ * <p>
+ * As per RFC 2865: The String field is one or more octets. The actual format of the
+ * information is site or application specific, and a robust
+ * implementation SHOULD support the field as undistinguished octets.
+ */
 public class AnonSubAttribute implements RadiusAttribute {
 
     private final Dictionary dictionary;

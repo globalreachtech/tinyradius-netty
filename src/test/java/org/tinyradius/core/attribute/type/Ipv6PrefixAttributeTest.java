@@ -25,7 +25,8 @@ class Ipv6PrefixAttributeTest {
     @Test
     void maxAttributeLength() {
         // max
-        final Ipv6PrefixAttribute prefixAttribute = (Ipv6PrefixAttribute) dictionary.createAttribute(-1, 97, new byte[18]); // Framed-IPv6-Prefix
+        final Ipv6PrefixAttribute prefixAttribute = (Ipv6PrefixAttribute)
+                dictionary.createAttribute(-1, 97, new byte[18]); // Framed-IPv6-Prefix
         assertEquals(2, prefixAttribute.getValue().length); // prefix-length set to 0, so everything else is trimmed
 
         // max+1

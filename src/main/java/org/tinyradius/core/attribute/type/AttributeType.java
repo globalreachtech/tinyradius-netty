@@ -37,9 +37,10 @@ public enum AttributeType {
                         .writeBytes(value))
                 .orElse(Unpooled.buffer()
                         .writeByte(type)
-                        .writeByte(value.length + 2)
+                        .writeByte(2 + tagBytes.length + value.length)
+                        .writeBytes(tagBytes)
                         .writeBytes(value));
-
+// todo test both vendor success / failure
 
         return byteBufConstructor.newInstance(dictionary, vendorId, byteBuf);
     }
