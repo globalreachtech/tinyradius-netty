@@ -15,6 +15,7 @@ class Ipv6PrefixAttributeTest {
         // min
         final Ipv6PrefixAttribute prefixAttribute = (Ipv6PrefixAttribute) dictionary.createAttribute(-1, 97, new byte[2]); // Framed-IPv6-Prefix
         assertEquals(2, prefixAttribute.getValue().length);
+        assertEquals("0:0:0:0:0:0:0:0/0", prefixAttribute.getValueString());
 
         // min-1
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -27,7 +28,8 @@ class Ipv6PrefixAttributeTest {
         // max
         final Ipv6PrefixAttribute prefixAttribute = (Ipv6PrefixAttribute)
                 dictionary.createAttribute(-1, 97, new byte[18]); // Framed-IPv6-Prefix
-        assertEquals(2, prefixAttribute.getValue().length); // prefix-length set to 0, so everything else is trimmed
+        assertEquals(18, prefixAttribute.getValue().length); // intentionally don't trim, avoid changing incoming data
+        assertEquals("0:0:0:0:0:0:0:0/0", prefixAttribute.getValueString());
 
         // max+1
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,

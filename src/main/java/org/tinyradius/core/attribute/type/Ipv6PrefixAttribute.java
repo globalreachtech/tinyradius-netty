@@ -16,12 +16,13 @@ import static java.lang.Byte.toUnsignedInt;
  */
 public class Ipv6PrefixAttribute extends OctetsAttribute {
 
-    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, ByteBuf data){
-        super(dictionary,vendorId,data);
-        convertAndCheck(convertBytes(getValue()), toUnsignedInt(getValue()[1]));
+    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
+        super(dictionary, vendorId, data);
+        final byte[] value = getValue();
+        validate(convertBytes(value), toUnsignedInt(value[1])); // check, but don't trim
     }
 
-    private static byte[] convertAndCheck(InetAddress address, int prefixLength) {
+    private static byte[] validate(InetAddress address, int prefixLength) {
         if (prefixLength > 128 || prefixLength < 0)
             throw new IllegalArgumentException("IPv6 Prefix Prefix-Length should be between 0 and 128, declared: " + prefixLength);
 
@@ -93,6 +94,6 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
     }
 
     public static byte[] stringParser(String value) {
-        return convertAndCheck(convertString(value), Integer.parseInt(value.split("/")[1]));
+        return validate(convertString(value), Integer.parseInt(value.split("/")[1]));
     }
 }
