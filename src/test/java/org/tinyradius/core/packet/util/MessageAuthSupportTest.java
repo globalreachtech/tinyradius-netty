@@ -1,18 +1,19 @@
 package org.tinyradius.core.packet.util;
 
+import io.netty.buffer.ByteBuf;
 import net.jradius.packet.RadiusFormat;
 import net.jradius.packet.RadiusPacket;
 import net.jradius.packet.attribute.Attr_UnknownAttribute;
 import net.jradius.util.MD5;
 import net.jradius.util.MessageAuthenticator;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.BaseRadiusPacket;
 import org.tinyradius.core.packet.request.AccessRequestNoAuth;
 import org.tinyradius.core.packet.request.RadiusRequest;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -22,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.tinyradius.core.packet.RadiusPacket.buildHeader;
 
 class MessageAuthSupportTest {
 
@@ -38,7 +40,9 @@ class MessageAuthSupportTest {
 
     @Test
     void selfEncodeVerify() throws RadiusPacketException {
-        final TestPacket testPacket = new TestPacket(dictionary, (byte) 1, (byte) 1, new byte[16], Collections.emptyList());
+        final byte[] auth = new byte[16];
+        auth[0] = 1; // set auth to non-zeros
+        final TestPacket testPacket = new TestPacket(dictionary, (byte) 1, (byte) 1, auth, Collections.emptyList());
 
         final TestPacket encodedPacket = testPacket.encodeMessageAuth(secret, testPacket.getAuthenticator());
         encodedPacket.verifyMessageAuth(secret, testPacket.getAuthenticator());
@@ -47,7 +51,7 @@ class MessageAuthSupportTest {
     @Test
     void testEncode() throws Exception {
         // impl under test
-        final RadiusRequest encodedRequest = new AccessRequestNoAuth(dictionary, (byte) 1, null, Collections.emptyList())
+        final AccessRequestNoAuth encodedRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList())
                 .encodeRequest(secret);
         final byte[] actualMsgAuth = encodedRequest.getAttributes().get(0).getValue();
 
@@ -66,8 +70,8 @@ class MessageAuthSupportTest {
      * Adapted from {@link MessageAuthenticator#generateRequestMessageAuthenticator}
      */
     private static void jRadius_generateRequestMessageAuthenticator(RadiusPacket request) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
-        byte[] hash = new byte[16];
-        ByteBuffer buffer = ByteBuffer.allocate(4096);
+        final byte[] hash = new byte[16];
+        final ByteBuffer buffer = ByteBuffer.allocate(4096);
 
         final Attr_UnknownAttribute attribute = new Attr_UnknownAttribute(MessageAuthSupport.MESSAGE_AUTHENTICATOR);
         attribute.setValue(hash);
@@ -80,13 +84,13 @@ class MessageAuthSupportTest {
 
     private static class TestPacket extends BaseRadiusPacket<TestPacket> implements MessageAuthSupport<TestPacket> {
 
-        public TestPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-            super(dictionary, type, identifier, authenticator, attributes);
+        private TestPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
+            super(dictionary, buildHeader(type, identifier, authenticator, attributes), attributes);
         }
 
         @Override
-        public TestPacket withAttributes(List<RadiusAttribute> attributes) {
-            return new TestPacket(getDictionary(), getType(), getId(), getAuthenticator(), attributes);
+        protected TestPacket with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+            return new TestPacket(dictionary, header.getByte(0), header.getByte(1), header.slice(4, 16).copy().array(), attributes);
         }
     }
 }

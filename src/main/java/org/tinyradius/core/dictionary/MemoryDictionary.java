@@ -23,10 +23,10 @@ public class MemoryDictionary implements WritableDictionary {
     private final Map<String, AttributeTemplate> attributesByName = new HashMap<>();
 
     @Override
-    public Optional<AttributeTemplate> getAttributeTemplate(int vendorCode, int attributeId) {
+    public Optional<AttributeTemplate> getAttributeTemplate(int vendorCode, int type) {
         Map<Integer, AttributeTemplate> vendorAttributes = attributesByCode.get(vendorCode);
         return Optional.ofNullable(vendorAttributes)
-                .map(va -> va.get(attributeId));
+                .map(va -> va.get(type));
     }
 
     @Override
@@ -52,8 +52,7 @@ public class MemoryDictionary implements WritableDictionary {
         final Optional<Vendor> existing = getVendor(vendor.getId());
         if (existing.isPresent())
             if (existing.get().equals(vendor)) {
-                logger.info("Ignoring duplicate vendor definition - adding: {}, existing: {}",
-                        vendor, existing.get());
+                logger.info("Ignoring duplicate vendor definition: {}", vendor);
                 return;
             } else {
                 throw new IllegalArgumentException("Duplicate vendor code: " + vendor.getId() +

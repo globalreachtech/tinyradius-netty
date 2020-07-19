@@ -1,8 +1,10 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.ByteBuf;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.packet.RadiusPacket;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,25 +15,25 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * PAP AccessRequest RFC2865
  */
-public class AccessRequestPap extends AccessRequest<AccessRequestPap> {
+public class AccessRequestPap extends AccessRequest {
 
-    public AccessRequestPap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, identifier, authenticator, attributes);
+    public AccessRequestPap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        super(dictionary, header, attributes);
     }
 
-    @Override
-    protected AccessRequestFactory<AccessRequestPap> factory() {
-        return AccessRequestPap::new;
+    static AccessRequest withPassword(AccessRequest request, String password) throws RadiusPacketException {
+        final List<RadiusAttribute> attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
+        final ByteBuf header = RadiusPacket.buildHeader(request.getType(), request.getId(), request.getAuthenticator(), attributes);
+        return create(request.getDictionary(), header, attributes);
     }
 
-    public AccessRequestPap withPassword(String password) {
-        final List<RadiusAttribute> attributes = getAttributes().stream()
+    private static List<RadiusAttribute> withPasswordAttribute(Dictionary dictionary, List<RadiusAttribute> attributes, String password) {
+        final List<RadiusAttribute> newAttributes = attributes.stream()
                 .filter(a -> a.getVendorId() != -1 || a.getType() != USER_PASSWORD)
                 .collect(Collectors.toList());
 
-        attributes.add(getDictionary().createAttribute(-1, USER_PASSWORD, password.getBytes(UTF_8)));
-
-        return withAttributes(attributes);
+        newAttributes.add(dictionary.createAttribute(-1, USER_PASSWORD, password.getBytes(UTF_8)));
+        return newAttributes;
     }
 
     /**

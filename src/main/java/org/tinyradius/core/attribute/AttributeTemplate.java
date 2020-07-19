@@ -1,16 +1,13 @@
 package org.tinyradius.core.attribute;
 
+import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.attribute.type.AttributeType;
-import org.tinyradius.core.attribute.type.OctetsAttribute;
+import org.tinyradius.core.attribute.type.EncodedAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.core.attribute.type.decorator.EncodedAttribute;
-import org.tinyradius.core.attribute.type.decorator.TaggedAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.dictionary.Vendor;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -59,9 +56,9 @@ public class AttributeTemplate {
      * @param name        sub-attribute name
      * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or default 0 for none
-     * @param tagged      whether attribute supports tags, as defined in RFC2868, default false
+     * @param hasTag      whether attribute supports tags, as defined in RFC2868, default false
      */
-    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encryptFlag, boolean tagged) {
+    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encryptFlag, boolean hasTag) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
         requireNonNull(rawDataType, "Data type is null");
@@ -74,7 +71,7 @@ public class AttributeTemplate {
                 AttributeType.VSA :
                 AttributeType.fromDataType(this.dataType);
 
-        this.tagged = detectHasTag(vendorId, type, tagged);
+        this.tagged = detectHasTag(vendorId, type, hasTag);
         this.codecType = detectAttributeCodec(vendorId, type, encryptFlag);
         this.encodedType = this.codecType == NO_ENCRYPT ?
                 decodedType : AttributeType.OCTETS;
@@ -89,7 +86,7 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute create(Dictionary dictionary, byte tag, byte[] value) {
-        return create(decodedType, dictionary, tag, value);
+        return decodedType.create(dictionary, vendorId, type, tag, value);
     }
 
     /**
@@ -101,7 +98,7 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute create(Dictionary dictionary, byte tag, String value) {
-        return autoWrapTag(tag, decodedType.create(dictionary, vendorId, type, value));
+        return decodedType.create(dictionary, vendorId, type, tag, value);
     }
 
     /**
@@ -111,25 +108,11 @@ public class AttributeTemplate {
      * otherwise uses the type specified in dictionary.
      *
      * @param dictionary dictionary to use
-     * @param rawData    attribute data to parse excl. type/length
+     * @param data       attribute data to parse incl. type/length
      * @return new RadiusAttribute
      */
-    public RadiusAttribute parse(Dictionary dictionary, byte[] rawData) {
-        final int lengthSize = dictionary.getVendor(vendorId)
-                .map(Vendor::getLengthSize)
-                .orElse(1);
-
-        if (isTagged()) {
-            if (rawData.length == 0)
-                throw new IllegalArgumentException("Attribute data (excl. type, length fields) cannot be empty if attribute requires tag.");
-
-            return autoWrapEncode(
-                    autoWrapTag(rawData[0],
-                            encodedType.create(dictionary, vendorId, type, Arrays.copyOfRange(rawData, 1, rawData.length))));
-        }
-
-        final OctetsAttribute attribute = encodedType.create(dictionary, vendorId, type, rawData);
-        return autoWrapEncode(attribute);
+    public RadiusAttribute parse(Dictionary dictionary, ByteBuf data) {
+        return autoWrapEncode(encodedType.create(dictionary, vendorId, data));
     }
 
     /**
@@ -145,21 +128,11 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute createEncoded(Dictionary dictionary, byte tag, byte[] encodedValue) {
-        return autoWrapEncode(create(encodedType, dictionary, tag, encodedValue));
-    }
-
-    private RadiusAttribute create(AttributeType attributeType, Dictionary dictionary, byte tag, byte[] value) {
-        return autoWrapTag(tag, attributeType.create(dictionary, vendorId, type, value));
-    }
-
-    private RadiusAttribute autoWrapTag(byte tag, OctetsAttribute attribute) {
-        return isTagged() ?
-                new TaggedAttribute(tag, attribute) : attribute;
+        return autoWrapEncode(encodedType.create(dictionary, vendorId, type, tag, encodedValue));
     }
 
     private RadiusAttribute autoWrapEncode(RadiusAttribute attribute) {
-        return encryptEnabled() ?
-                new EncodedAttribute(attribute) : attribute;
+        return encryptEnabled() ? new EncodedAttribute(attribute) : attribute;
     }
 
     /**
@@ -253,7 +226,7 @@ public class AttributeTemplate {
             return attribute;
 
         try {
-            return createEncoded(attribute.getDictionary(), attribute.getTag(),
+            return createEncoded(attribute.getDictionary(), attribute.getTag().orElse((byte) 0),
                     codecType.getCodec().encode(attribute.getValue(), requestAuth, secret));
         } catch (Exception e) {
             throw new RadiusPacketException("Error encoding attribute " + attribute.toString(), e);
@@ -272,7 +245,7 @@ public class AttributeTemplate {
             return attribute;
 
         try {
-            return create(attribute.getDictionary(), attribute.getTag(),
+            return create(attribute.getDictionary(), attribute.getTag().orElse((byte) 0),
                     codecType.getCodec().decode(attribute.getValue(), requestAuth, secret));
         } catch (Exception e) {
             throw new RadiusPacketException("Error decoding attribute " + attribute.toString(), e);

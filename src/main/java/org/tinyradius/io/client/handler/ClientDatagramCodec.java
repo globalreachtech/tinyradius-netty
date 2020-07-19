@@ -34,17 +34,14 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
-        try {
-            logger.debug("Sending packet to {} - {}", msg.getEndpoint().getAddress(), msg.getRequest());
-            final DatagramPacket datagramPacket = msg
-                    .getRequest()
-                    .toDatagram(msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
+        logger.debug("Sending packet to {} - {}", msg.getEndpoint().getAddress(), msg.getRequest());
 
-            out.add(datagramPacket);
-        } catch (RadiusPacketException e) {
-            logger.warn("Could not serialize packet: {}", e.getMessage());
-            msg.getResponse().tryFailure(e);
-        }
+        final DatagramPacket datagramPacket = new DatagramPacket(
+                msg.getRequest().toByteBuf(),
+                msg.getEndpoint().getAddress(),
+                (InetSocketAddress) ctx.channel().localAddress());
+
+        out.add(datagramPacket);
     }
 
     @Override

@@ -1,23 +1,19 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.ByteBuf;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.List;
 
 /**
  * EAP AccessRequest RFC3579
  */
-public class AccessRequestEap extends AccessRequest<AccessRequestEap> {
+public class AccessRequestEap extends AccessRequest {
 
-    public AccessRequestEap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, identifier, authenticator, attributes);
-    }
-
-    @Override
-    protected AccessRequestFactory<AccessRequestEap> factory() {
-        return AccessRequestEap::new;
+    public AccessRequestEap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        super(dictionary, header, attributes);
     }
 
     @Override

@@ -9,12 +9,14 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.packet.request.AccessRequest;
 import org.tinyradius.core.packet.request.AccessRequestPap;
 import org.tinyradius.core.packet.request.AccountingRequest;
+import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
-import org.tinyradius.io.RadiusEndpoint;
 import org.tinyradius.io.client.RadiusClient;
 import org.tinyradius.io.client.handler.BlacklistHandler;
 import org.tinyradius.io.client.handler.ClientDatagramCodec;
@@ -24,6 +26,9 @@ import org.tinyradius.io.client.timeout.FixedTimeoutHandler;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
+import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
 
 /**
@@ -38,7 +43,7 @@ public class TestClient {
      *
      * @param args [host, sharedSecret, username, password]
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RadiusPacketException {
         if (args.length != 4) {
             logger.info("Usage: TestClient hostName sharedSecret userName password");
             System.exit(1);
@@ -71,14 +76,14 @@ public class TestClient {
         final RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, 1813), shared);
 
         // 1. Send Access-Request
-        AccessRequestPap ar = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
-                .withPassword(pass);
-        ar.addAttribute("User-Name", user);
-        ar.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
-        ar.addAttribute("NAS-IP-Address", "192.168.0.100");
-        ar.addAttribute("Service-Type", "Login-User");
-        ar.addAttribute("WISPr-Redirection-URL", "http://www.sourceforge.net/");
-        ar.addAttribute("WISPr-Location-ID", "net.sourceforge.ap1");
+        final AccessRequestPap ar = (AccessRequestPap) ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
+                .withPapPassword(pass)
+                .addAttribute("User-Name", user)
+                .addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de")
+                .addAttribute("NAS-IP-Address", "192.168.0.100")
+                .addAttribute("Service-Type", "Login-User")
+                .addAttribute("WISPr-Redirection-URL", "http://www.sourceforge.net/")
+                .addAttribute("WISPr-Location-ID", "net.sourceforge.ap1");
 
         logger.info("Packet before it is sent\n" + ar + "\n");
         RadiusResponse response = rc.communicate(ar, authEndpoint).syncUninterruptibly().getNow();
@@ -86,12 +91,12 @@ public class TestClient {
         logger.info("Response\n" + response + "\n");
 
         // 2. Send Accounting-Request
-        AccountingRequest acc = new AccountingRequest(dictionary, (byte) 2, null, new ArrayList<>());
-        acc.addAttribute("User-Name", "username");
-        acc.addAttribute("Acct-Status-Type", "1");
-        acc.addAttribute("Acct-Session-Id", "1234567890");
-        acc.addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de");
-        acc.addAttribute("NAS-Port", "0");
+        final AccountingRequest acc = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 2, null, new ArrayList<>())
+                .addAttribute("User-Name", "username")
+                .addAttribute("Acct-Status-Type", "1")
+                .addAttribute("Acct-Session-Id", "1234567890")
+                .addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de")
+                .addAttribute("NAS-Port", "0");
 
         logger.info(acc + "\n");
         response = rc.communicate(acc, acctEndpoint).syncUninterruptibly().getNow();

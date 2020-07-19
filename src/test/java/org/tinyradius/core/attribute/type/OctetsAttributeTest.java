@@ -2,11 +2,14 @@ package org.tinyradius.core.attribute.type;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.type.decorator.EncodedAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.dictionary.parser.DictionaryParser;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import static java.lang.Byte.toUnsignedInt;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -19,31 +22,31 @@ class OctetsAttributeTest {
 
     @Test
     void createMaxSizeAttribute() {
-        // 253 octets ok
-        final RadiusAttribute maxSizeAttribute = new OctetsAttribute(dictionary, -1, 2, random.generateSeed(253));
-        final byte[] bytes = maxSizeAttribute.toByteArray();
+        // 255 octets ok
+        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, random.generateSeed(253));
+        final byte[] bytes = attribute.toByteArray();
 
         assertEquals(0xFF, toUnsignedInt(bytes[1]));
         assertEquals(255, toUnsignedInt(bytes[1]));
         assertEquals(255, bytes.length);
 
-        // 254 octets not ok
+        // 256 octets not ok
         final byte[] oversizedArray = random.generateSeed(254);
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                new OctetsAttribute(dictionary, -1, 2, oversizedArray));
+                dictionary.createAttribute(-1, 2, oversizedArray));
 
         assertTrue(exception.getMessage().contains("too long"));
     }
 
     @Test
     void testFlatten() {
-        final RadiusAttribute attribute = new OctetsAttribute(dictionary, -1, 2, "123456");
+        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, "123456");
         assertEquals("[User-Password: 123456]", attribute.flatten().toString());
     }
 
     @Test
     void testToString() {
-        final RadiusAttribute attribute = new OctetsAttribute(dictionary, -1, 2, "123456");
+        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, "123456");
         assertEquals("User-Password: 123456", attribute.toString());
     }
 
@@ -54,14 +57,12 @@ class OctetsAttributeTest {
 
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusAttribute attribute = dictionary.createAttribute(-1, 2, (byte) 0, pw);
-        assertTrue(attribute instanceof OctetsAttribute);
+        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, (byte) 0, pw);
         assertFalse(attribute.isEncoded());
         assertEquals(pw, new String(attribute.getValue(), UTF_8));
 
         // encode
-        final RadiusAttribute encode = attribute.encode(requestAuth, secret);
-        assertTrue(encode instanceof EncodedAttribute);
+        final EncodedAttribute encode = (EncodedAttribute) attribute.encode(requestAuth, secret);
         assertTrue(encode.isEncoded());
         assertNotEquals(pw, new String(encode.getValue(), UTF_8));
 
@@ -70,10 +71,59 @@ class OctetsAttributeTest {
         assertEquals(encode1, encode);
 
         // decode
-        final RadiusAttribute decode = encode.decode(requestAuth, secret);
-        assertTrue(decode instanceof OctetsAttribute);
+        final OctetsAttribute decode = (OctetsAttribute) encode.decode(requestAuth, secret);
         assertFalse(decode.isEncoded());
         assertEquals(pw, new String(decode.getValue(), UTF_8));
+
+        // decode again
+        final RadiusAttribute decode1 = decode.decode(requestAuth, secret);
+        assertEquals(decode1, decode);
+    }
+
+    // todo move to EncodedAttributeTest?
+    @Test
+    void flattenTagPersists() throws IOException {
+        final Dictionary testDictionary = DictionaryParser.newClasspathParser()
+                .parseDictionary("org/tinyradius/core/dictionary/test_dictionary");
+
+        final RadiusAttribute attribute = new EncodedAttribute(
+                testDictionary.createAttribute(-1, 140, (byte) 0xFF, "FFFF"));
+        final RadiusAttribute transformed = attribute.flatten().get(0);
+        assertEquals((byte) 0xFF, attribute.getTag().get());
+        assertEquals((byte) 0xFF, transformed.getTag().get());
+        assertEquals(attribute, transformed);
+    }
+
+    @Test
+    void encodeDecodeWithTag() throws RadiusPacketException, IOException {
+        final Dictionary testDictionary = DictionaryParser.newClasspathParser()
+                .parseDictionary("org/tinyradius/core/dictionary/test_dictionary");
+
+        final String secret = "mySecret";
+        final byte[] value = ByteBuffer.allocate(4).putInt(10000).array();
+        final byte tag = 123;
+        final byte[] requestAuth = random.generateSeed(16);
+
+        final OctetsAttribute attribute = (OctetsAttribute) testDictionary.createAttribute(-1, 69, tag, value);
+        assertFalse(attribute.isEncoded());
+        assertEquals(tag, attribute.getTag().get());
+        assertArrayEquals(value, attribute.getValue());
+
+        // encode
+        final EncodedAttribute encode = (EncodedAttribute) attribute.encode(requestAuth, secret);
+        assertTrue(encode.isEncoded());
+        assertEquals(tag, encode.getTag().get());
+        assertFalse(Arrays.equals(value, encode.getValue()));
+
+        // encode again
+        final RadiusAttribute encode1 = encode.encode(requestAuth, secret);
+        assertEquals(encode1, encode);
+
+        // decode
+        final OctetsAttribute decode = (OctetsAttribute) encode.decode(requestAuth, secret);
+        assertFalse(decode.isEncoded());
+        assertEquals(tag, decode.getTag().get());
+        assertArrayEquals(value, decode.getValue());
 
         // decode again
         final RadiusAttribute decode1 = decode.decode(requestAuth, secret);

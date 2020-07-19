@@ -1,43 +1,21 @@
 package org.tinyradius.core.attribute.type;
 
+import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.nio.ByteBuffer;
-
-import static java.lang.Integer.*;
 
 /**
  * This class represents a Radius attribute which only contains a 32 bit integer.
  */
 public class IntegerAttribute extends OctetsAttribute {
 
-    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, byte[] data) {
-        super(dictionary, vendorId, type, data);
-        if (data.length != 4)
-            throw new IllegalArgumentException("Integer / Date attribute value should be 4 octets, actual: " + data.length);
-    }
-
-    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, String value) {
-        this(dictionary, vendorId, type, convertValue(value, dictionary, type, vendorId));
-    }
-
-    public IntegerAttribute(Dictionary dictionary, int vendorId, int type, int value) {
-        this(dictionary, vendorId, type, convertValue(value));
-    }
-
-    /**
-     * Sets the value of this attribute.
-     *
-     * @throws NumberFormatException if value is not a number and constant cannot be resolved
-     */
-    private static byte[] convertValue(int value) {
-        return ByteBuffer.allocate(BYTES).putInt(value).array();
-    }
-
-    private static int convertValue(String value, Dictionary dictionary, int type, int vendorId) {
-        return dictionary.getAttributeTemplate(vendorId, type)
-                .map(at -> at.getEnumeration(value))
-                .orElseGet(() -> parseUnsignedInt(value));
+    public IntegerAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
+        super(dictionary, vendorId, data);
+        // todo make test dynamic, allow tags, dynamic header length
+        // todo same for other attributes
+        if (getValue().length != 4)
+            throw new IllegalArgumentException("Integer / Date should be 4 octets, actual: " + getValue().length);
     }
 
     /**
@@ -46,7 +24,7 @@ public class IntegerAttribute extends OctetsAttribute {
      * @return a long
      */
     public long getValueLong() {
-        return toUnsignedLong(getValueInt());
+        return Integer.toUnsignedLong(getValueInt());
     }
 
     /**
@@ -67,6 +45,14 @@ public class IntegerAttribute extends OctetsAttribute {
         final int value = getValueInt();
         return getAttributeTemplate()
                 .map(at -> at.getEnumeration(value))
-                .orElseGet(() -> toUnsignedString(value));
+                .orElseGet(() -> Integer.toUnsignedString(value));
+    }
+
+    public static byte[] stringParser(Dictionary dictionary, int vendorId, int type, String value) {
+        final int integer = dictionary.getAttributeTemplate(vendorId, type)
+                .map(at -> at.getEnumeration(value))
+                .orElseGet(() -> Integer.parseUnsignedInt(value));
+
+        return ByteBuffer.allocate(Integer.BYTES).putInt(integer).array();
     }
 }

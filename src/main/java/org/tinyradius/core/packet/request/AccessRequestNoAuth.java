@@ -1,20 +1,16 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.ByteBuf;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.List;
 
-public class AccessRequestNoAuth extends AccessRequest<AccessRequestNoAuth> {
+public class AccessRequestNoAuth extends AccessRequest {
 
-    public AccessRequestNoAuth(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, identifier, authenticator, attributes);
-    }
-
-    @Override
-    protected AccessRequestFactory<AccessRequestNoAuth> factory() {
-        return AccessRequestNoAuth::new;
+    public AccessRequestNoAuth(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        super(dictionary, header, attributes);
     }
 
     @Override

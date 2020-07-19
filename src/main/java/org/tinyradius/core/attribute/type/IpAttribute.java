@@ -1,9 +1,8 @@
 package org.tinyradius.core.attribute.type;
 
+import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.dictionary.Dictionary;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -13,19 +12,16 @@ import java.nio.ByteBuffer;
  */
 public abstract class IpAttribute extends OctetsAttribute {
 
-    private IpAttribute(Dictionary dictionary, int vendorId, int type, InetAddress data, Class<? extends InetAddress> clazz) {
-        super(dictionary, vendorId, type, data.getAddress());
-
-        if (!clazz.isInstance(data))
-            throw new IllegalArgumentException("Expected " + clazz.getSimpleName() + ", actual " + data.getClass().getSimpleName());
+    private IpAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
+        super(dictionary, vendorId, data);
     }
 
-    private static InetAddress convert(String value) {
+    public static byte[] stringParser(String value) {
         if (value.isEmpty())
             throw new IllegalArgumentException("Address can't be empty");
 
         try {
-            return InetAddress.getByName(value);
+            return InetAddress.getByName(value).getAddress();
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("Bad address: " + value, e);
         }
@@ -48,16 +44,10 @@ public abstract class IpAttribute extends OctetsAttribute {
      * IPv4 Address
      */
     public static class V4 extends IpAttribute {
-        public V4(Dictionary dictionary, int vendorId, int type, byte[] data) {
-            this(dictionary, vendorId, type, IpAttribute.convert(data));
-        }
-
-        public V4(Dictionary dictionary, int vendorId, int type, String data) {
-            this(dictionary, vendorId, type, IpAttribute.convert(data));
-        }
-
-        public V4(Dictionary dictionary, int vendorId, int type, InetAddress address) {
-            super(dictionary, vendorId, type, address, Inet4Address.class);
+        public V4(Dictionary dictionary, int vendorId, ByteBuf data) {
+            super(dictionary, vendorId, data);
+            if (getValue().length != 4)
+                throw new IllegalArgumentException("IPv4 address should be 4 octets, actual: " + getValue().length);
         }
 
         public int getValueInt() {
@@ -69,16 +59,10 @@ public abstract class IpAttribute extends OctetsAttribute {
      * IPv6 Address
      */
     public static class V6 extends IpAttribute {
-        public V6(Dictionary dictionary, int vendorId, int type, byte[] data) {
-            this(dictionary, vendorId, type, IpAttribute.convert(data));
-        }
-
-        public V6(Dictionary dictionary, int vendorId, int type, String data) {
-            this(dictionary, vendorId, type, IpAttribute.convert(data));
-        }
-
-        public V6(Dictionary dictionary, int vendorId, int type, InetAddress address) {
-            super(dictionary, vendorId, type, address, Inet6Address.class);
+        public V6(Dictionary dictionary, int vendorId, ByteBuf data) {
+            super(dictionary, vendorId, data);
+            if (getValue().length != 16)
+                throw new IllegalArgumentException("IPv6 address should be 16 octets, actual: " + getValue().length);
         }
     }
 }

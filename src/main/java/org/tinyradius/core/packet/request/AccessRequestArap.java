@@ -1,8 +1,9 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.ByteBuf;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.List;
 
@@ -10,15 +11,10 @@ import java.util.List;
  * ARAP AccessRequest RFC2869
  * Stub TODO
  */
-public class AccessRequestArap extends AccessRequest<AccessRequestArap> {
+public class AccessRequestArap extends AccessRequest {
 
-    public AccessRequestArap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, identifier, authenticator, attributes);
-    }
-
-    @Override
-    protected AccessRequestFactory<AccessRequestArap> factory() {
-        return AccessRequestArap::new;
+    public AccessRequestArap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        super(dictionary, header, attributes);
     }
 
     @Override

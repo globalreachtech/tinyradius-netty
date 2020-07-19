@@ -4,9 +4,9 @@ import net.jradius.util.RadiusUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.Collections;
 
@@ -26,9 +26,10 @@ class AccessRequestPapTest {
         final String sharedSecret = "sharedSecret1";
         final String username = "myUsername";
 
-        final RadiusRequest request = new AccessRequestPap(dictionary, (byte) 1, null, Collections.emptyList())
-                .withPassword(password)
-                .addAttribute(dictionary.createAttribute("User-Name", username));
+        final AccessRequestPap request = (AccessRequestPap)
+                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
+                        .withPapPassword(password)
+                        .addAttribute(dictionary.createAttribute("User-Name", username));
         assertEquals(password, ((AccessRequestPap) request).getPassword().get());
 
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
@@ -57,13 +58,13 @@ class AccessRequestPapTest {
     @Test
     void decodeChecksAttributeCount() throws RadiusPacketException {
         final String sharedSecret = "sharedSecret1";
-        final AccessRequestPap request1 = new AccessRequestPap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
+        final AccessRequestNoAuth request1 = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one pw attribute
-        final RadiusRequest request2 = request1.withPassword("myPassword")
-                .encodeRequest(sharedSecret);
-        request2.decodeRequest(sharedSecret);
+        final RadiusRequest request2 = request1.withPapPassword("myPassword")
+                .encodeRequest(sharedSecret)
+                .decodeRequest(sharedSecret);
 
         // add one pw attribute
         final RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute(-1, USER_PASSWORD, new byte[16]));
@@ -76,9 +77,10 @@ class AccessRequestPapTest {
         final String user = "myUser1";
         final String sharedSecret = "sharedSecret1";
 
-        RadiusRequest request = new AccessRequestPap(dictionary, (byte) 2, null, Collections.emptyList())
-                .withPassword(password)
-                .addAttribute(USER_NAME, user);
+        AccessRequestPap request = (AccessRequestPap)
+                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 2, null, Collections.emptyList()))
+                        .withPapPassword(password)
+                        .addAttribute(USER_NAME, user);
 
         // encode
         final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);

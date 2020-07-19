@@ -1,35 +1,28 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.ByteBuf;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.PacketType;
 
 import java.util.List;
+
+import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
 /**
  * This class represents a Radius packet of the type Accounting-Request.
  */
 public class AccountingRequest extends GenericRequest {
 
-    /**
-     * Constructs an Accounting-Request packet to be sent to a Radius server.
-     *
-     * @param dictionary    custom dictionary to use
-     * @param identifier    packet identifier
-     * @param authenticator authenticator for packet, nullable
-     * @param attributes    list of attributes
-     */
-    public AccountingRequest(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, PacketType.ACCOUNTING_REQUEST, identifier, authenticator, attributes);
+    public AccountingRequest(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        super(dictionary, header, attributes);
+        final byte type = header.getByte(0);
+        if (type != ACCOUNTING_REQUEST)
+            throw new IllegalArgumentException("First octet must be " + ACCOUNTING_REQUEST + ", actual: " + type);
     }
 
     @Override
-    public AccountingRequest encodeRequest(String sharedSecret) {
-        return new AccountingRequest(getDictionary(), getId(), genAuth(sharedSecret), getAttributes());
-    }
-
-    @Override
-    public AccountingRequest withAttributes(List<RadiusAttribute> attributes) {
-        return new AccountingRequest(getDictionary(), getId(), getAuthenticator(), attributes);
+    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+        return withAuthAttributes(genAuth(sharedSecret), getAttributes());
     }
 }

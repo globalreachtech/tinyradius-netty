@@ -2,19 +2,13 @@ package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.socket.DatagramPacket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.NestedAttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.request.RadiusRequest;
 
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -37,79 +31,42 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         }
     }
 
-    static ByteBuf toByteBuf(RadiusPacket<?> packet) throws RadiusPacketException {
-        byte[] attributes = packet.getAttributeBytes();
-        int length = HEADER_LENGTH + attributes.length;
-        if (length > MAX_PACKET_LENGTH)
-            throw new RadiusPacketException("Packet too long");
-        if (packet.getAuthenticator() == null)
-            throw new RadiusPacketException("Missing authenticator");
-        if (packet.getAuthenticator().length != 16)
-            throw new RadiusPacketException("Authenticator must be length 16");
-
-        return Unpooled.buffer(length, length)
-                .writeByte(packet.getType())
-                .writeByte(packet.getId())
-                .writeShort(length)
-                .writeBytes(packet.getAuthenticator())
-                .writeBytes(attributes);
-    }
-
     /**
-     * Reads a Radius packet from the given input stream and
-     * creates an appropriate RadiusPacket descendant object.
-     * <p>
-     * Decodes the encrypted fields and attributes of the packet, and checks
-     * authenticator if appropriate.
-     *
-     * @param dictionary dictionary to use for attributes
-     * @param byteBuf    DatagramPacket to read packet from
-     * @return new RadiusPacket object
-     * @throws RadiusPacketException malformed packet
+     * Returns header of this buffer's starting at the current
+     * {@code readerIndex} and increases the {@code readerIndex} by the size
+     * of the new slice (= {@link #HEADER_LENGTH}).
      */
-    static RadiusRequest fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
-
-        final ByteBuffer content = byteBuf.nioBuffer();
-        if (content.remaining() < HEADER_LENGTH)
-            throw new RadiusPacketException("Readable bytes is less than header length");
-
-        final byte type = content.get();
-        final byte packetId = content.get();
-        final int length = content.getShort();
-
+    static ByteBuf readHeader(ByteBuf data) throws RadiusPacketException {
+        final int length = data.readableBytes();
         if (length < HEADER_LENGTH)
-            throw new RadiusPacketException("Bad packet: packet too short (" + length + " bytes)");
+            throw new RadiusPacketException("Bad packet: parsable bytes too short (" + length + " bytes)");
         if (length > MAX_PACKET_LENGTH)
-            throw new RadiusPacketException("Bad packet: packet too long (" + length + " bytes)");
+            throw new RadiusPacketException("Bad packet: parsable bytes too long (" + length + " bytes)");
 
-        byte[] authenticator = new byte[16];
-        content.get(authenticator);
+        final ByteBuf header = data.readSlice(20);
+        final short declaredLength = header.getShort(2);
 
-        if (content.remaining() != length - HEADER_LENGTH)
-            throw new RadiusPacketException("Bad packet: packet length mismatch");
+        if (length != declaredLength)
+            throw new RadiusPacketException("Bad packet: packet length mismatch, " +
+                    "parsable bytes (" + length + ")  does not match declared length (" + declaredLength + ")");
 
-        return RadiusRequest.create(dictionary, type, packetId, authenticator,
-                AttributeHolder.extractAttributes(dictionary, -1, content));
+        return header;
     }
 
-    /**
-     * @param recipient destination socket
-     * @param sender    source socket, nullable
-     * @return converted DatagramPacket
-     * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
-     */
-    default DatagramPacket toDatagram(InetSocketAddress recipient, InetSocketAddress sender) throws RadiusPacketException {
-        return new DatagramPacket(toByteBuf(this), recipient, sender);
+    static ByteBuf buildHeader(byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
+        final int attributeLen = attributes.stream()
+                .map(RadiusAttribute::getData)
+                .mapToInt(ByteBuf::readableBytes)
+                .sum();
+
+        return Unpooled.buffer(HEADER_LENGTH, HEADER_LENGTH)
+                .writeByte(type)
+                .writeByte(id)
+                .writeShort(attributeLen + HEADER_LENGTH)
+                .writeBytes(authenticator == null ? new byte[16] : authenticator);
     }
 
-    /**
-     * @param recipient destination socket
-     * @return converted DatagramPacket
-     * @throws RadiusPacketException if packet could not be encoded/serialized to datagram
-     */
-    default DatagramPacket toDatagram(InetSocketAddress recipient) throws RadiusPacketException {
-        return new DatagramPacket(toByteBuf(this), recipient);
-    }
+    ByteBuf getHeader();
 
     /**
      * @return Radius packet type
@@ -134,17 +91,9 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      */
     byte[] getAuthenticator();
 
-    /**
-     * @return list of RadiusAttributes in packet
-     */
-    @Override
-    List<RadiusAttribute> getAttributes();
-
-    /**
-     * @return the dictionary this Radius packet uses.
-     */
-    @Override
-    Dictionary getDictionary();
+    default ByteBuf toByteBuf() {
+        return Unpooled.wrappedBuffer(getHeader(), getAttributeByteBuf());
+    }
 
     /**
      * @param sharedSecret shared secret
@@ -191,7 +140,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
-        final byte[] attributeBytes = getAttributeBytes();
+        final byte[] attributeBytes = getAttributeByteBuf().copy().array();
         final int length = HEADER_LENGTH + attributeBytes.length;
 
         final MessageDigest md5 = getMd5Digest();

@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.AccessRequestPap;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.server.RequestCtx;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ class ServerPacketCodecTest {
     @Test
     void decodeExceptionDropPacket() throws RadiusPacketException {
         final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList()).encodeRequest("mySecret");
-        final DatagramPacket datagram = request.toDatagram(address);
+        final DatagramPacket datagram = new DatagramPacket(request.toByteBuf(), address);
         final ServerPacketCodec codec = new ServerPacketCodec(dictionary, x -> "bad secret");
 
         final List<Object> out1 = new ArrayList<>();
@@ -71,7 +71,7 @@ class ServerPacketCodecTest {
                 .addAttribute("User-Password", password)
                 .encodeRequest(secret);
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);
-        final DatagramPacket datagram = request.toDatagram(address, remoteAddress);
+        final DatagramPacket datagram = new DatagramPacket(request.toByteBuf(), address, remoteAddress);
 
         // decode
         final ArrayList<Object> out1 = new ArrayList<>();
@@ -95,7 +95,7 @@ class ServerPacketCodecTest {
 
         // check encoded
         final DatagramPacket response = (DatagramPacket) out2.get(0);
-        assertArrayEquals(response.content().array(),
-                responsePacket.encodeResponse(secret, request.getAuthenticator()).toDatagram(remoteAddress, address).content().array());
+        assertArrayEquals(response.content().copy().array(),
+                new DatagramPacket(responsePacket.encodeResponse(secret, request.getAuthenticator()).toByteBuf(), remoteAddress, address).content().copy().array());
     }
 }

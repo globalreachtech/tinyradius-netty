@@ -1,11 +1,12 @@
 package org.tinyradius.core.attribute.type;
 
+import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.dictionary.Vendor;
 
 import javax.xml.bind.DatatypeConverter;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -18,34 +19,39 @@ import static java.util.Objects.requireNonNull;
 public class OctetsAttribute implements RadiusAttribute {
 
     private final Dictionary dictionary;
-    private final int type;
-    private final byte[] value;
 
+    private final ByteBuf data;
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
-    /**
-     * @param dictionary dictionary to use
-     * @param vendorId   vendor ID or -1
-     * @param type       attribute type code
-     * @param value      value of attribute as byte array, excluding type and length bytes
-     */
-    public OctetsAttribute(Dictionary dictionary, int vendorId, int type, byte[] value) {
+    public OctetsAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         this.dictionary = requireNonNull(dictionary, "Dictionary not set");
         this.vendorId = vendorId;
-        this.type = type;
-        this.value = requireNonNull(value, "Attribute data not set");
-        if (value.length > 253)
-            throw new IllegalArgumentException("Attribute data too long, max 253 octets, actual: " + value.length);
+        this.data = requireNonNull(data, "Attribute data not set");
+
+        final int actualLength = data.readableBytes();
+        if (actualLength > 255)
+            throw new IllegalArgumentException("Attribute too long, max 255 octets, actual: " + actualLength);
+        // todo add tests
+
+        final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
+        final int typeSize = vendor.map(Vendor::getTypeSize).orElse(1);
+        final int lengthSize = vendor.map(Vendor::getLengthSize).orElse(1);
+
+        final int length = extractLength(typeSize, lengthSize);
+        if (length != actualLength)
+            throw new IllegalArgumentException("Attribute declared length is " + length + ", actual length: " + actualLength);
     }
 
-    /**
-     * @param dictionary dictionary to use
-     * @param vendorId   vendor ID or -1
-     * @param type       attribute type code
-     * @param value      value of attribute as hex string
-     */
-    public OctetsAttribute(Dictionary dictionary, int vendorId, int type, String value) {
-        this(dictionary, vendorId, type, DatatypeConverter.parseHexBinary(value));
+    private int extractLength(int typeSize, int lengthSize) {
+        switch (lengthSize) {
+            case 0:
+                return data.readableBytes();
+            case 2:
+                return data.getShort(typeSize);
+            case 1:
+            default:
+                return Byte.toUnsignedInt(data.getByte(typeSize)); // max 255
+        }
     }
 
     @Override
@@ -53,24 +59,26 @@ public class OctetsAttribute implements RadiusAttribute {
         return vendorId;
     }
 
+    /**
+     * @return RFC2868 Tag
+     */
     @Override
-    public int getType() {
-        return type;
-    }
-
-    @Override
-    public byte getTag() {
-        return 0;
+    public Optional<Byte> getTag() {
+        return isTagged() ?
+                Optional.of(data.getByte(getHeaderSize())) :
+                Optional.empty();
     }
 
     @Override
     public byte[] getValue() {
-        return value;
+        final int offset = getHeaderSize() + getTagSize();
+        return data.slice(offset, data.readableBytes() - offset)
+                .copy().array();
     }
 
     @Override
     public String getValueString() {
-        return DatatypeConverter.printHexBinary(value);
+        return DatatypeConverter.printHexBinary(getValue());
     }
 
     @Override
@@ -79,8 +87,15 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     @Override
+    public ByteBuf getData() {
+        return data;
+    }
+
+    @Override
     public String toString() {
-        return getAttributeName() + ": " + getValueString();
+        return isTagged() ?
+                "[Tagged: " + getTag() + "] " + getAttributeName() + ": " + getValueString() :
+                getAttributeName() + ": " + getValueString();
     }
 
     @Override
@@ -95,17 +110,18 @@ public class OctetsAttribute implements RadiusAttribute {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof OctetsAttribute)) return false;
         OctetsAttribute that = (OctetsAttribute) o;
-        return type == that.type &&
-                vendorId == that.vendorId &&
-                Arrays.equals(value, that.value);
+        return getVendorId() == that.getVendorId() &&
+                data.equals(that.data);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(type, vendorId);
-        result = 31 * result + Arrays.hashCode(value);
-        return result;
+        return Objects.hash(data, getVendorId());
+    }
+
+    public static byte[] stringHexParser(String value) {
+        return DatatypeConverter.parseHexBinary(value);
     }
 }

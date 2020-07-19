@@ -1,19 +1,55 @@
-package org.tinyradius.core.attribute.type.decorator;
+package org.tinyradius.core.attribute.type;
 
+import io.netty.buffer.ByteBuf;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
-import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public class EncodedAttribute extends AbstractDecorator {
+/**
+ * Wrapper around attributes encoded with one of {@link AttributeCodecType}
+ */
+public class EncodedAttribute implements RadiusAttribute {
+
+    private final RadiusAttribute delegate;
 
     public EncodedAttribute(RadiusAttribute attribute) {
-        super(attribute);
+        delegate = Objects.requireNonNull(attribute);
         if (attribute instanceof EncodedAttribute)
             throw new IllegalArgumentException("Cannot wrap EncodedDecorator twice");
+    }
+
+    @Override
+    public int getVendorId() {
+        return delegate.getVendorId();
+    }
+
+    @Override
+    public int getType() {
+        return delegate.getType();
+    }
+
+    @Override
+    public Optional<Byte> getTag() {
+        return delegate.getTag();
+    }
+
+    @Override
+    public ByteBuf getData(){
+        return delegate.getData();
+    }
+
+    @Override
+    public byte[] getValue() {
+        return delegate.getValue();
+    }
+
+    @Override
+    public String getValueString() {
+        return delegate.getValueString();
     }
 
     @Override
@@ -26,6 +62,11 @@ public class EncodedAttribute extends AbstractDecorator {
     @Override
     public boolean isEncoded() {
         return true;
+    }
+
+    @Override
+    public Dictionary getDictionary() {
+        return delegate.getDictionary();
     }
 
     @Override

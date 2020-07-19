@@ -1,26 +1,28 @@
 package org.tinyradius.core.packet.response;
 
+import io.netty.buffer.ByteBuf;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.PacketType;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.List;
 
+import static org.tinyradius.core.packet.PacketType.*;
+
 public class AccessResponse extends GenericResponse implements MessageAuthSupport<RadiusResponse> {
 
-    private AccessResponse(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, type, identifier, authenticator, attributes);
+    private AccessResponse(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        super(dictionary, header, attributes);
     }
 
     @Override
     public RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        final RadiusResponse response = withAttributes(encodeAttributes(requestAuth, sharedSecret))
+        final RadiusResponse response = ((AccessResponse) withAttributes(encodeAttributes(requestAuth, sharedSecret)))
                 .encodeMessageAuth(sharedSecret, requestAuth);
 
         final byte[] auth = response.genHashedAuth(sharedSecret, requestAuth);
-        return new AccessResponse(getDictionary(), getType(), getId(), auth, response.getAttributes());
+        return withAuthAttributes(auth, response.getAttributes());
     }
 
     @Override
@@ -29,26 +31,30 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
         return super.decodeResponse(sharedSecret, requestAuth);
     }
 
-    @Override
-    public AccessResponse withAttributes(List<RadiusAttribute> attributes) {
-        return new AccessResponse(getDictionary(), getType(), getId(), getAuthenticator(), attributes);
+    private static void checkType(byte allowed, ByteBuf header) {
+        final byte type = header.getByte(0);
+        if (type != allowed)
+            throw new IllegalArgumentException("First octet must be " + allowed + ", actual: " + type);
     }
 
     public static class Accept extends AccessResponse {
-        public Accept(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-            super(dictionary, PacketType.ACCESS_ACCEPT, identifier, authenticator, attributes);
+        public Accept(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+            super(dictionary, header, attributes);
+            checkType(ACCESS_ACCEPT, header);
         }
     }
 
     public static class Reject extends AccessResponse {
-        public Reject(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-            super(dictionary, PacketType.ACCESS_REJECT, identifier, authenticator, attributes);
+        public Reject(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+            super(dictionary, header, attributes);
+            checkType(ACCESS_REJECT, header);
         }
     }
 
     public static class Challenge extends AccessResponse {
-        public Challenge(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-            super(dictionary, PacketType.ACCESS_CHALLENGE, identifier, authenticator, attributes);
+        public Challenge(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+            super(dictionary, header, attributes);
+            checkType(ACCESS_CHALLENGE, header);
         }
     }
 }

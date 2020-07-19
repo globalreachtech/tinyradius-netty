@@ -1,30 +1,62 @@
 package org.tinyradius.core.attribute.type;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.dictionary.Vendor;
+
+import java.util.Optional;
 
 public enum AttributeType {
-    VSA(VendorSpecificAttribute::new, VendorSpecificAttribute::new),
-    OCTETS(OctetsAttribute::new, OctetsAttribute::new),
-    STRING(StringAttribute::new, StringAttribute::new),
-    INTEGER(IntegerAttribute::new, IntegerAttribute::new),
-    IPV4(IpAttribute.V4::new, IpAttribute.V4::new),
-    IPV6(IpAttribute.V6::new, IpAttribute.V6::new),
-    IPV6_PREFIX(Ipv6PrefixAttribute::new, Ipv6PrefixAttribute::new);
+    VSA(VendorSpecificAttribute::new, (dictionary, i, i1, s) -> OctetsAttribute.stringHexParser(s)),
+    OCTETS(OctetsAttribute::new, (dictionary, i, i1, s) -> OctetsAttribute.stringHexParser(s)),
+    STRING(StringAttribute::new, (dictionary, i, i1, s) -> StringAttribute.stringParser(s)),
+    INTEGER(IntegerAttribute::new, IntegerAttribute::stringParser),
+    IPV4(IpAttribute.V4::new, (dictionary, i, i1, s) -> IpAttribute.stringParser(s)),
+    IPV6(IpAttribute.V6::new, (dictionary, i, i1, s) -> IpAttribute.stringParser(s)),
+    IPV6_PREFIX(Ipv6PrefixAttribute::new, (dictionary, i, i1, s) -> Ipv6PrefixAttribute.stringParser(s));
 
-    private final ByteArrayConstructor byteArrayConstructor;
-    private final StringConstructor stringConstructor;
+    private final ByteBufConstructor byteBufConstructor;
+    private final StringParser stringParser;
 
-    AttributeType(ByteArrayConstructor byteArrayConstructor, StringConstructor stringConstructor) {
-        this.byteArrayConstructor = byteArrayConstructor;
-        this.stringConstructor = stringConstructor;
+    AttributeType(ByteBufConstructor byteBufConstructor, StringParser stringParser) {
+        this.byteBufConstructor = byteBufConstructor;
+        this.stringParser = stringParser;
     }
 
-    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte[] value) {
-        return byteArrayConstructor.newInstance(dictionary, vendorId, type, value);
+    public OctetsAttribute create(Dictionary dictionary, int vendorId, ByteBuf data) {
+        return byteBufConstructor.newInstance(dictionary, vendorId, data);
     }
 
-    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, String value) {
-        return stringConstructor.newInstance(dictionary, vendorId, type, value);
+    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
+        final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
+        final int headerSize = vendor.map(Vendor::getHeaderSize).orElse(2);
+
+        final byte[] tagBytes = toTagBytes(dictionary, vendorId, type, tag);
+        final int length = headerSize + tagBytes.length + value.length;
+        final byte[] typeBytes = vendor
+                .map(v -> v.toTypeBytes(type))
+                .orElse(new byte[]{(byte) type});
+        final byte[] lengthBytes = vendor
+                .map(v -> v.toLengthBytes(length))
+                .orElse(new byte[]{(byte) length});
+
+        final ByteBuf byteBuf = Unpooled.wrappedBuffer(typeBytes, lengthBytes, tagBytes, value);
+
+        return byteBufConstructor.newInstance(dictionary, vendorId, byteBuf);
+    }
+
+    private static byte[] toTagBytes(Dictionary dictionary, int vendorId, int type, byte tag) {
+        return dictionary.getAttributeTemplate(vendorId, type)
+                .filter(AttributeTemplate::isTagged)
+                .map(x -> new byte[]{tag})
+                .orElse(new byte[0]);
+    }
+
+    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
+        final byte[] bytes = stringParser.parse(dictionary, vendorId, type, value);
+        return create(dictionary, vendorId, type, tag, bytes);
     }
 
     public static AttributeType fromDataType(String dataType) {
@@ -57,11 +89,11 @@ public enum AttributeType {
         }
     }
 
-    private interface ByteArrayConstructor {
-        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, int type, byte[] data);
+    private interface ByteBufConstructor {
+        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value);
     }
 
-    private interface StringConstructor {
-        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, int type, String data);
+    private interface StringParser {
+        byte[] parse(Dictionary dictionary, int vendorId, int type, String value);
     }
 }

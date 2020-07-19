@@ -1,9 +1,9 @@
 package org.tinyradius.core.packet.request;
 
 import org.junit.jupiter.api.Test;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.Collections;
 
@@ -21,7 +21,7 @@ class AccessRequestEapTest {
         final String sharedSecret = "sharedSecret1";
         final byte[] message = random16bytes();
 
-        final RadiusRequest request = new AccessRequestEap(dictionary, (byte) 1, null, Collections.emptyList())
+        final AccessRequestEap request = (AccessRequestEap) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, message));
 
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
@@ -48,17 +48,17 @@ class AccessRequestEapTest {
     @Test
     void verifyAttributeCount() throws RadiusPacketException {
         final String sharedSecret = "sharedSecret1";
-        final AccessRequestEap request = new AccessRequestEap(dictionary, (byte) 1, new byte[16], Collections.emptyList());
+        final AccessRequestNoAuth request = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
 
-        final RadiusRequest request1 = request.addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, new byte[16]));
+        final AccessRequestEap request1 = (AccessRequestEap) request.addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, new byte[16]));
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one messageAuth
-        final RadiusRequest request2 = request1.encodeRequest(sharedSecret);
+        final AccessRequestEap request2 = (AccessRequestEap) request1.encodeRequest(sharedSecret);
         request2.decodeRequest(sharedSecret);
 
-        final RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute(-1, MESSAGE_AUTHENTICATOR, new byte[16]));
+        final AccessRequestEap request3 = (AccessRequestEap) request2.addAttribute(dictionary.createAttribute(-1, MESSAGE_AUTHENTICATOR, new byte[16]));
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
         assertEquals("AccessRequest (EAP) should have exactly one Message-Authenticator attribute, has 2", e.getMessage());
     }

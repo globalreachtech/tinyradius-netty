@@ -6,14 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.request.AccountingRequest;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
+import org.tinyradius.io.RadiusEndpoint;
 import org.tinyradius.io.server.RequestCtx;
 import org.tinyradius.io.server.ResponseCtx;
-import org.tinyradius.io.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -35,11 +35,11 @@ class BasicCachingHandlerTest {
     private ChannelHandlerContext ctx;
 
     @Test
-    void cacheHitAndTimeout() {
+    void cacheHitAndTimeout() throws RadiusPacketException {
         final BasicCachingHandler basicCachingHandler =
                 new BasicCachingHandler(new HashedWheelTimer(), 500);
 
-        final RadiusRequest request = new AccountingRequest(dictionary, (byte) 100, null, Collections.emptyList()).encodeRequest("test");
+        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 4, (byte) 100, null, Collections.emptyList()).encodeRequest("test");
         final RequestCtx requestCtx = new RequestCtx(request, new RadiusEndpoint(new InetSocketAddress(0), "foo"));
         final ResponseCtx responseContext = requestCtx.withResponse(RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 100, null, Collections.emptyList()));
 

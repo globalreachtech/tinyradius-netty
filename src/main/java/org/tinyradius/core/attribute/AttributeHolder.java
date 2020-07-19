@@ -3,11 +3,11 @@ package org.tinyradius.core.attribute;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.type.AnonSubAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,81 +22,79 @@ import java.util.stream.Collectors;
  */
 public interface AttributeHolder<T extends AttributeHolder<T>> {
 
-    static byte[] attributesToBytes(List<RadiusAttribute> attributes) {
-        final ByteBuf buffer = Unpooled.buffer();
-
-        for (RadiusAttribute attribute : attributes) {
-            buffer.writeBytes(attribute.toByteArray());
-        }
-
-        return buffer.copy().array();
+    static ByteBuf attributesToBytes(List<RadiusAttribute> attributes) {
+        return Unpooled.wrappedBuffer(attributes.stream()
+                .map(RadiusAttribute::getData)
+                .toArray(ByteBuf[]::new));
     }
 
     /**
+     * Reads attributes and increments readerINdex.
+     *
      * @param dictionary dictionary to parse attribute
      * @param vendorId   vendor Id to set attributes
      * @param data       byte array to parse
      * @return list of RadiusAttributes
      */
-    static List<RadiusAttribute> extractAttributes(Dictionary dictionary, int vendorId, ByteBuffer data) {
-        final int typeSize = dictionary.getVendor(vendorId)
+    static List<RadiusAttribute> readAttributes(Dictionary dictionary, int vendorId, ByteBuf data) {
+        final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
+
+        // if reading sub-attribute for undefined VSA
+        if (vendorId != -1 && !vendor.isPresent())
+            return Collections.singletonList(new AnonSubAttribute(dictionary, vendorId, data));
+
+        final int typeSize = vendor
                 .map(Vendor::getTypeSize)
                 .orElse(1);
 
         final ArrayList<RadiusAttribute> attributes = new ArrayList<>();
 
         // at least 2 octets left (minimum size header)
-        while (data.remaining() >= 2) {
+        while (data.isReadable(2)) {
             int type;
             switch (typeSize) {
-                case 1:
-                    type = Byte.toUnsignedInt(data.get());
-                    break;
                 case 2:
-                    type = data.getShort();
+                    type = data.getShort(data.readerIndex());
                     break;
                 case 4:
-                    type = data.getInt();
+                    type = data.getInt(data.readerIndex());
                     break;
+                case 1:
                 default:
-                    throw new IllegalArgumentException("Vendor " + vendorId + " typeSize " + typeSize + " octets, only 1/2/4 allowed");
+                    type = Byte.toUnsignedInt(data.getByte(data.readerIndex()));
             }
 
-            final int lengthSize = dictionary
-                    .getVendor(vendorId)
+            final int lengthSize = vendor
                     .map(Vendor::getLengthSize)
                     .orElse(1);
 
             int length;
             switch (lengthSize) {
                 case 0:
-                    length = data.remaining() + typeSize; // position already moved by typeSize amount
-                    break;
-                case 1:
-                    length = Byte.toUnsignedInt(data.get()); // max 255
+                    length = data.readableBytes();
                     break;
                 case 2:
-                    length = data.getShort();
+                    length = data.getShort(data.readerIndex() + typeSize);
                     break;
+                case 1:
                 default:
-                    throw new IllegalArgumentException("Vendor " + vendorId + " lengthSize " + lengthSize + " octets, only 0/1/2 allowed");
+                    length = Byte.toUnsignedInt(data.getByte(data.readerIndex() + typeSize)); // max 255
             }
 
-            final int expectedLen = length - typeSize - lengthSize;
-            if (expectedLen < 0)
-                throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >= (typeSize + lengthSize), " +
+            if (length < typeSize + lengthSize)
+                throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >= typeSize + lengthSize, " +
                         "but typeSize=" + typeSize + ", lengthSize=" + lengthSize);
-            if (expectedLen > data.remaining())
-                throw new IllegalArgumentException("Invalid attribute length " + length + ", remaining bytes " + data.remaining());
 
-            final byte[] bytes = new byte[expectedLen];
-            data.get(bytes);
-            attributes.add(dictionary.parseAttribute(vendorId, type, bytes));
+            if (length > data.readableBytes())
+                throw new IllegalArgumentException("Invalid attribute length " + length + ", parsable bytes " + data.readableBytes());
+
+            // todo move above extracts into dictionary.parseAttribute ?
+            attributes.add(dictionary.parseAttribute(vendorId, type, data.readSlice(length)));
         }
 
-        if (data.hasRemaining())
-            throw new IllegalArgumentException("Attribute malformed, lengths do not match, " +
-                    "bytebuffer position " + data.position() + ", bytebuffer limit " + data.limit());
+        if (data.isReadable())
+            throw new IllegalArgumentException("Attribute malformed, " + data.readableBytes() + " bytes remaining to parse");
+
         return attributes;
     }
 
@@ -188,11 +186,15 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      *
      * @return byte array with encoded attributes
      */
-    default byte[] getAttributeBytes() {
+    default ByteBuf getAttributeByteBuf() {
         return attributesToBytes(getAttributes());
     }
 
-    T withAttributes(List<RadiusAttribute> attributes);
+    default byte[] getAttributeBytes() {
+        return getAttributeByteBuf().copy().array();
+    }
+
+    T withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException;
 
     /**
      * Adds a attribute to this attribute container.
@@ -200,7 +202,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param attribute attribute to add
      * @return object of same type with appended attribute
      */
-    default T addAttribute(RadiusAttribute attribute) {
+    default T addAttribute(RadiusAttribute attribute) throws RadiusPacketException {
         if (attribute.getVendorId() != getChildVendorId())
             throw new IllegalArgumentException("Attribute vendor ID doesn't match: " +
                     "required " + getChildVendorId() + ", actual " + attribute.getVendorId());
@@ -210,7 +212,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         return withAttributes(attributes);
     }
 
-    default T addAttribute(String name, String value) {
+    default T addAttribute(String name, String value) throws RadiusPacketException {
         return addAttribute(
                 getDictionary().createAttribute(name, value));
     }
@@ -222,7 +224,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param value string value to set
      * @return object of same type with appended attribute
      */
-    default T addAttribute(int type, String value) {
+    default T addAttribute(int type, String value) throws RadiusPacketException {
         return addAttribute(
                 getDictionary().createAttribute(getChildVendorId(), type, value));
     }
@@ -233,7 +235,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param attribute attributes to remove
      * @return object of same type with removed attribute
      */
-    default T removeAttribute(RadiusAttribute attribute) {
+    default T removeAttribute(RadiusAttribute attribute) throws RadiusPacketException {
         return withAttributes(
                 filterAttributes(a -> !a.equals(attribute)));
     }
@@ -244,7 +246,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type attribute type to remove
      * @return object of same type with removed attributes
      */
-    default T removeAttributes(int type) {
+    default T removeAttributes(int type) throws RadiusPacketException {
         return withAttributes(
                 filterAttributes(a -> a.getType() != type));
     }
@@ -256,7 +258,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type attribute type code
      * @return object of same type with removed attribute
      */
-    default T removeLastAttribute(int type) {
+    default T removeLastAttribute(int type) throws RadiusPacketException {
         List<RadiusAttribute> attributes = filterAttributes(type);
         if (attributes.isEmpty())
             return withAttributes(getAttributes());

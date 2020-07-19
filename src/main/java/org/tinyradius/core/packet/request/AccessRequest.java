@@ -1,11 +1,12 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.PacketType;
+import org.tinyradius.core.packet.RadiusPacket;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
 
 import java.security.SecureRandom;
@@ -15,11 +16,12 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
 /**
  * This class represents an Access-Request Radius packet.
  */
-public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericRequest implements MessageAuthSupport<RadiusRequest> {
+public abstract class AccessRequest extends GenericRequest implements MessageAuthSupport<RadiusRequest> {
 
     protected static final Logger logger = LogManager.getLogger();
     protected static final SecureRandom RANDOM = new SecureRandom();
@@ -31,26 +33,27 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
     private static final Set<Integer> AUTH_ATTRS = new HashSet<>(
             Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE));
 
-    protected AccessRequest(Dictionary dictionary, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, PacketType.ACCESS_REQUEST, id, authenticator, attributes);
+    protected AccessRequest(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        super(dictionary, header, attributes);
+        final byte type = header.getByte(0);
+        if (type != ACCESS_REQUEST)
+            throw new IllegalArgumentException("First octet must be " + ACCESS_REQUEST + ", actual: " + type);
     }
-
 
     /**
      * Create new AccessRequest, tries to identify auth protocol from attributes.
      *
-     * @param dictionary    custom dictionary to use
-     * @param identifier    packet identifier
-     * @param authenticator authenticator for packet, nullable
-     * @param attributes    list of attributes for packet, should not be empty
-     *                      or a stub AccessRequest will be returned
+     * @param dictionary custom dictionary to use
+     * @param header     packet header (20 octets)
+     * @param attributes list of attributes for packet, should not be empty
+     *                   or a stub AccessRequest will be returned
      * @return AccessRequest auth mechanism-specific implementation
      */
-    static RadiusRequest create(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        return lookupAuthType(attributes).newInstance(dictionary, identifier, authenticator, attributes);
+    static AccessRequest create(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        return lookupAuthType(attributes).newInstance(dictionary, header, attributes);
     }
 
-    private static AccessRequestFactory<?> lookupAuthType(List<RadiusAttribute> attributes) {
+    private static AccessRequestFactory lookupAuthType(List<RadiusAttribute> attributes) {
         /*
          * An Access-Request that contains either a User-Password or
          * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
@@ -62,35 +65,33 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
                 .collect(toSet());
 
         if (detectedAuth.isEmpty()) {
-            logger.warn("AccessRequest no auth mechanism found, parsing as NoAuth");
+            logger.warn("AccessRequest no auth mechanism found, inferring NoAuth");
             return AccessRequestNoAuth::new;
         }
 
         if (detectedAuth.size() > 1) {
-            logger.warn("AccessRequest identified multiple auth mechanisms, parsing as NoAuth");
+            logger.warn("AccessRequest identified multiple auth mechanisms, inferring NoAuth");
             return AccessRequestNoAuth::new;
         }
 
         switch (detectedAuth.iterator().next()) {
             case EAP_MESSAGE:
-                logger.debug("Parsing AccessRequest as EAP");
+                logger.debug("Inferring AccessRequest as EAP");
                 return AccessRequestEap::new;
             case CHAP_PASSWORD:
-                logger.debug("Parsing AccessRequest as CHAP");
+                logger.debug("Inferring AccessRequest as CHAP");
                 return AccessRequestChap::new;
             case USER_PASSWORD:
-                logger.debug("Parsing AccessRequest as PAP");
+                logger.debug("Inferring AccessRequest as PAP");
                 return AccessRequestPap::new;
             case ARAP_PASSWORD:
-                logger.debug("Parsing AccessRequest as ARAP");
+                logger.debug("Inferring AccessRequest as ARAP");
                 return AccessRequestArap::new;
             default:
-                logger.debug("Parsing AccessRequest as NoAuth");
+                logger.debug("Inferring AccessRequest as NoAuth");
                 return AccessRequestNoAuth::new;
         }
     }
-
-    protected abstract AccessRequestFactory<T> factory();
 
     protected static byte[] random16bytes() {
         final byte[] randomBytes = new byte[16];
@@ -102,6 +103,25 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
     protected byte[] genAuth(String sharedSecret) {
         // create authenticator only if needed - maintain idempotence
         return getAuthenticator() == null ? random16bytes() : getAuthenticator();
+    }
+
+    /**
+     * Set CHAP-Password / CHAP-Challenge attributes with provided password.
+     * <p>
+     * Will remove existing attributes if exists already
+     *
+     * @param password plaintext password to encode into CHAP-Password
+     * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
+     * @throws IllegalArgumentException invalid password
+     */
+    public AccessRequest withChapPassword(String password) throws RadiusPacketException {
+        // todo remove other types of pw?
+        return AccessRequestChap.withPassword(this, password);
+    }
+
+    public AccessRequest withPapPassword(String password) throws RadiusPacketException {
+        // todo remove other types of pw?
+        return AccessRequestPap.withPassword(this, password);
     }
 
     /**
@@ -119,8 +139,7 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
 
         final byte[] auth = genAuth(sharedSecret);
 
-        return factory()
-                .newInstance(getDictionary(), getId(), auth, encodeAttributes(auth, sharedSecret))
+        return withAuthAttributes(auth, encodeAttributes(auth, sharedSecret))
                 .encodeMessageAuth(sharedSecret, auth);
     }
 
@@ -139,11 +158,12 @@ public abstract class AccessRequest<T extends AccessRequest<T>> extends GenericR
     }
 
     @Override
-    public T withAttributes(List<RadiusAttribute> attributes) {
-        return factory().newInstance(getDictionary(), getId(), getAuthenticator(), attributes);
+    public AccessRequest withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        final ByteBuf header = RadiusPacket.buildHeader(getType(), getId(), auth, attributes);
+        return create(getDictionary(), header, attributes);
     }
 
-    public interface AccessRequestFactory<U extends AccessRequest<?>> {
-        U newInstance(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes);
+    public interface AccessRequestFactory {
+        AccessRequest newInstance(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException;
     }
 }

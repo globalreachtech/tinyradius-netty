@@ -6,13 +6,13 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageCodec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
+import org.tinyradius.io.RadiusEndpoint;
 import org.tinyradius.io.server.RequestCtx;
 import org.tinyradius.io.server.ResponseCtx;
 import org.tinyradius.io.server.SecretProvider;
-import org.tinyradius.io.RadiusEndpoint;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -40,10 +40,12 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
     @Override
     protected void encode(ChannelHandlerContext ctx, ResponseCtx msg, List<Object> out) {
         try {
-            final DatagramPacket datagramPacket = msg
-                    .getResponse()
-                    .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator())
-                    .toDatagram(msg.getEndpoint().getAddress(), (InetSocketAddress) ctx.channel().localAddress());
+            final DatagramPacket datagramPacket = new DatagramPacket(
+                    msg.getResponse()
+                            .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator())
+                            .toByteBuf(),
+                    msg.getEndpoint().getAddress(),
+                    (InetSocketAddress) ctx.channel().localAddress());
             logger.debug("Sending packet to {}", msg.getEndpoint().getAddress());
             out.add(datagramPacket);
         } catch (RadiusPacketException e) {

@@ -1,41 +1,49 @@
 package org.tinyradius.core.packet.response;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
+import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.PacketType;
 import org.tinyradius.core.packet.RadiusPacket;
-import org.tinyradius.core.packet.request.RadiusRequest;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.util.List;
 
 public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
 
+    static RadiusResponse create(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        switch (header.getByte(0)) {
+            case PacketType.ACCESS_ACCEPT:
+                return new AccessResponse.Accept(dictionary, header, attributes);
+            case PacketType.ACCESS_REJECT:
+                return new AccessResponse.Reject(dictionary, header, attributes);
+            case PacketType.ACCESS_CHALLENGE:
+                return new AccessResponse.Challenge(dictionary, header, attributes);
+            default:
+                return new GenericResponse(dictionary, header, attributes);
+        }
+    }
+
     /**
      * Creates a RadiusPacket object. Depending on the passed type, an
      * appropriate packet is created. Also sets the type, and the
-     * the packet identifier.
+     * the packet id.
      *
      * @param dictionary    custom dictionary to use
      * @param type          packet type
-     * @param identifier    packet identifier
+     * @param id            packet id
      * @param authenticator authenticator for packet, nullable
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
      */
-    static RadiusResponse create(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        switch (type) {
-            case PacketType.ACCESS_ACCEPT:
-                return new AccessResponse.Accept(dictionary, identifier, authenticator, attributes);
-            case PacketType.ACCESS_REJECT:
-                return new AccessResponse.Reject(dictionary, identifier, authenticator, attributes);
-            case PacketType.ACCESS_CHALLENGE:
-                return new AccessResponse.Challenge(dictionary, identifier, authenticator, attributes);
-            default:
-                return new GenericResponse(dictionary, type, identifier, authenticator, attributes);
-        }
+    static RadiusResponse create(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        final ByteBuf header = RadiusPacket.buildHeader(type, id, authenticator, attributes);
+        return create(dictionary, header, attributes);
     }
+
 
     /**
      * Reads a response from the given input stream and
@@ -50,8 +58,13 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @throws RadiusPacketException malformed packet
      */
     static RadiusResponse fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
-        final RadiusRequest rr = RadiusPacket.fromByteBuf(dictionary, datagram.content());
-        return create(rr.getDictionary(), rr.getType(), rr.getId(), rr.getAuthenticator(), rr.getAttributes());
+        // use unpooled heap so we can use ByteBuf freely later without worrying about GC
+        // todo use original directBuffer with zero copy
+
+        final ByteBuf byteBuf = Unpooled.copiedBuffer(datagram.content());
+
+        return RadiusResponse.create(dictionary, RadiusPacket.readHeader(byteBuf),
+                AttributeHolder.readAttributes(dictionary, -1, byteBuf));
     }
 
     /**

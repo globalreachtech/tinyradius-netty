@@ -19,11 +19,11 @@ public interface CoreDictionary {
     /**
      * Returns the AttributeTemplate for the vendor -1 from the cache.
      *
-     * @param attributeId attributeId 1-255
+     * @param type type 1-255
      * @return AttributeTemplate
      */
-    default Optional<AttributeTemplate> getAttributeTemplate(int attributeId) {
-        return getAttributeTemplate(-1, attributeId);
+    default Optional<AttributeTemplate> getAttributeTemplate(int type) {
+        return getAttributeTemplate(-1, type);
     }
 
     /**
@@ -31,10 +31,10 @@ public interface CoreDictionary {
      * attribute.
      *
      * @param vendorId    vendorId if appropriate or -1
-     * @param attributeId attributeId 1-255
+     * @param type type 1-255
      * @return AttributeTemplate
      */
-    Optional<AttributeTemplate> getAttributeTemplate(int vendorId, int attributeId);
+    Optional<AttributeTemplate> getAttributeTemplate(int vendorId, int type);
 
     /**
      * Retrieves the vendor with the given vendor code.

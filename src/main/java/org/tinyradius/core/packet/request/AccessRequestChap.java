@@ -1,9 +1,10 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.ByteBuf;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.RadiusPacket;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -16,17 +17,18 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * CHAP AccessRequest RFC2865
  */
-public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
+public class AccessRequestChap extends AccessRequest {
 
     private static final byte CHAP_CHALLENGE = 60;
 
-    public AccessRequestChap(Dictionary dictionary, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) {
-        super(dictionary, identifier, authenticator, attributes);
+    public AccessRequestChap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        super(dictionary, header, attributes);
     }
 
-    @Override
-    protected AccessRequestFactory<AccessRequestChap> factory() {
-        return AccessRequestChap::new;
+    static AccessRequest withPassword(AccessRequest request, String password) throws RadiusPacketException {
+        final List<RadiusAttribute> attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
+        final ByteBuf header = RadiusPacket.buildHeader(request.getType(), request.getId(), request.getAuthenticator(), attributes);
+        return create(request.getDictionary(), header, attributes);
     }
 
     /**
@@ -38,21 +40,21 @@ public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
      * @throws IllegalArgumentException invalid password
      */
-    public AccessRequestChap withPassword(String password) {
+    private static List<RadiusAttribute> withPasswordAttribute(Dictionary dictionary, List<RadiusAttribute> attributes, String password) {
         if (password == null || password.isEmpty())
             throw new IllegalArgumentException("Could not encode CHAP attributes, password not set");
 
-        byte[] challenge = random16bytes();
+        final byte[] challenge = random16bytes();
 
-        final List<RadiusAttribute> attributes = getAttributes().stream()
+        final List<RadiusAttribute> newAttributes = attributes.stream()
                 .filter(a -> a.getType() != CHAP_PASSWORD && a.getType() != CHAP_CHALLENGE)
                 .collect(Collectors.toList());
 
-        attributes.add(getDictionary().createAttribute(-1, CHAP_CHALLENGE, challenge));
-        attributes.add(getDictionary().createAttribute(-1, CHAP_PASSWORD,
+        newAttributes.add(dictionary.createAttribute(-1, CHAP_CHALLENGE, challenge));
+        newAttributes.add(dictionary.createAttribute(-1, CHAP_PASSWORD,
                 computeChapPassword((byte) RANDOM.nextInt(256), password, challenge)));
 
-        return withAttributes(attributes);
+        return newAttributes;
     }
 
     @Override
@@ -76,7 +78,7 @@ public class AccessRequestChap extends AccessRequest<AccessRequestChap> {
      * @param chapChallenge random 16 octet CHAP challenge
      * @return 17 octet CHAP-encoded password (1 octet for CHAP ID, 16 octets CHAP response)
      */
-    private byte[] computeChapPassword(byte chapId, String plaintextPw, byte[] chapChallenge) {
+    private static byte[] computeChapPassword(byte chapId, String plaintextPw, byte[] chapChallenge) {
         MessageDigest md5 = RadiusPacket.getMd5Digest();
         md5.update(chapId);
         md5.update(plaintextPw.getBytes(UTF_8));

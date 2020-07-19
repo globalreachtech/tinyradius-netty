@@ -8,15 +8,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.tinyradius.io.client.RadiusClient;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.AccountingRequest;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
+import org.tinyradius.io.RadiusEndpoint;
+import org.tinyradius.io.client.RadiusClient;
 import org.tinyradius.io.server.RequestCtx;
 import org.tinyradius.io.server.ResponseCtx;
-import org.tinyradius.io.RadiusEndpoint;
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -46,7 +47,7 @@ class ProxyHandlerTest {
     private ArgumentCaptor<ResponseCtx> responseCaptor;
 
     @Test
-    void handleSuccess() {
+    void handleSuccess() throws RadiusPacketException {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusRequest request, RadiusEndpoint client) {
@@ -54,9 +55,9 @@ class ProxyHandlerTest {
             }
         };
 
-        final AccountingRequest request = new AccountingRequest(dictionary, (byte) 1, null, Collections.emptyList());
+        final AccountingRequest request = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
         final RadiusResponse mockResponse = RadiusResponse.create(dictionary, ACCOUNTING_RESPONSE, (byte) 123, null,
-                Collections.singletonList(dictionary.createAttribute( -1, (byte) 33, "state1".getBytes(UTF_8))));
+                Collections.singletonList(dictionary.createAttribute(-1, (byte) 33, "state1".getBytes(UTF_8))));
 
         when(client.communicate(any(RadiusRequest.class), any(RadiusEndpoint.class))).thenReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(mockResponse));
 
@@ -67,7 +68,7 @@ class ProxyHandlerTest {
     }
 
     @Test
-    void handleRadiusClientError() {
+    void handleRadiusClientError() throws RadiusPacketException {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusRequest request, RadiusEndpoint client) {
@@ -77,7 +78,7 @@ class ProxyHandlerTest {
 
         when(client.communicate(any(RadiusRequest.class), any(RadiusEndpoint.class))).thenReturn(GlobalEventExecutor.INSTANCE.newFailedFuture(new Exception("test")));
 
-        final AccountingRequest packet = new AccountingRequest(dictionary, (byte) 123, null, Collections.emptyList());
+        final AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 123, null, Collections.emptyList());
 
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
 
@@ -86,17 +87,16 @@ class ProxyHandlerTest {
     }
 
     @Test
-    void handleNullServerEndPoint() {
+    void handleNullServerEndPoint() throws RadiusPacketException {
 
-        ProxyHandler proxyHandler = new ProxyHandler(client) {
+        final ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getProxyServer(RadiusRequest request, RadiusEndpoint client) {
                 return Optional.empty();
             }
         };
 
-        final AccountingRequest packet = new AccountingRequest(dictionary, (byte) 123, null, Collections.emptyList());
-
+        final AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 123, null, Collections.emptyList());
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
 
         verifyNoInteractions(ctx);

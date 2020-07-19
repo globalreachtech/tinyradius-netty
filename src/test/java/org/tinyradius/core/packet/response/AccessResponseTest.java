@@ -26,7 +26,7 @@ class AccessResponseTest {
 
         final byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusResponse response = new AccessResponse.Accept(dictionary, (byte) 1, null, Collections.emptyList())
+        final AccessResponse.Accept response = (AccessResponse.Accept) RadiusResponse.create(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute("User-Name", username))
                 .addAttribute(dictionary.createAttribute(-1, USER_PASSWORD, password.getBytes(UTF_8)));
 

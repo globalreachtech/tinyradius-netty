@@ -104,7 +104,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
      *                     otherwise corresponding request auth
      * @return encoded copy of packet
      */
-    default T encodeMessageAuth(String sharedSecret, byte[] requestAuth) {
+    default T encodeMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         // When the message integrity check is calculated the signature
         // string should be considered to be sixteen octets of zero.
         final ByteBuffer buffer = ByteBuffer.allocate(16);
