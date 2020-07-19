@@ -111,7 +111,7 @@ class VendorSpecificAttributeTest {
         assertEquals(14122, byteBuffer.getInt());
 
         // parse
-        final VendorSpecificAttribute parsedAttribute = (VendorSpecificAttribute) dictionary.parseAttribute(-1, VENDOR_SPECIFIC, Unpooled.wrappedBuffer(bytes));
+        final VendorSpecificAttribute parsedAttribute = (VendorSpecificAttribute) dictionary.createAttribute(-1, VENDOR_SPECIFIC, Unpooled.wrappedBuffer(bytes));
         assertArrayEquals(bytes, parsedAttribute.toByteArray());
         assertEquals(2, parsedAttribute.getAttributes().size());
 

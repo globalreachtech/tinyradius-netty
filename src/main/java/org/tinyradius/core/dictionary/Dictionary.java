@@ -35,7 +35,6 @@ public interface Dictionary extends CoreDictionary {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
                 .orElseGet(() -> OCTETS.create(this, vendorId, type, tag, value));
-        // todo test non-template creation
     }
 
     /**
@@ -46,11 +45,10 @@ public interface Dictionary extends CoreDictionary {
      * @param data     attribute data to parse incl. type/length
      * @return RadiusAttribute object
      */
-    default RadiusAttribute parseAttribute(int vendorId, int type, ByteBuf data) {
+    default RadiusAttribute createAttribute(int vendorId, int type, ByteBuf data) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.parse(this, data))
                 .orElseGet(() -> OCTETS.create(this, vendorId, data));
-        // todo test non-template creation
     }
 
     /**
@@ -78,7 +76,6 @@ public interface Dictionary extends CoreDictionary {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
                 .orElseGet(() -> OCTETS.create(this, vendorId, type, tag, value));
-        // todo test non-template creation
     }
 
     /**

@@ -29,7 +29,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     }
 
     /**
-     * Reads attributes and increments readerINdex.
+     * Reads attributes and increments readerIndex.
      *
      * @param dictionary dictionary to parse attribute
      * @param vendorId   vendor Id to set attributes
@@ -39,63 +39,71 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     static List<RadiusAttribute> readAttributes(Dictionary dictionary, int vendorId, ByteBuf data) {
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
 
-        // if reading sub-attribute for undefined VSA
+        // if reading sub-attribute for undefined VSA, treat entire body of vsa (ex vendorId) as undistinguished bytes
         if (vendorId != -1 && !vendor.isPresent())
             return Collections.singletonList(new AnonSubAttribute(dictionary, vendorId, data));
-
-        final int typeSize = vendor
-                .map(Vendor::getTypeSize)
-                .orElse(1);
 
         final ArrayList<RadiusAttribute> attributes = new ArrayList<>();
 
         // at least 2 octets left (minimum size header)
         while (data.isReadable(2)) {
-            int type;
-            switch (typeSize) {
-                case 2:
-                    type = data.getShort(data.readerIndex());
-                    break;
-                case 4:
-                    type = data.getInt(data.readerIndex());
-                    break;
-                case 1:
-                default:
-                    type = Byte.toUnsignedInt(data.getByte(data.readerIndex()));
-            }
-
-            final int lengthSize = vendor
-                    .map(Vendor::getLengthSize)
-                    .orElse(1);
-
-            int length;
-            switch (lengthSize) {
-                case 0:
-                    length = data.readableBytes();
-                    break;
-                case 2:
-                    length = data.getShort(data.readerIndex() + typeSize);
-                    break;
-                case 1:
-                default:
-                    length = Byte.toUnsignedInt(data.getByte(data.readerIndex() + typeSize)); // max 255
-            }
-
-            if (length < typeSize + lengthSize)
-                throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >= typeSize + lengthSize, " +
-                        "but typeSize=" + typeSize + ", lengthSize=" + lengthSize);
-
-            if (length > data.readableBytes())
-                throw new IllegalArgumentException("Invalid attribute length " + length + ", parsable bytes " + data.readableBytes());
-
-            // todo move above extracts into dictionary.parseAttribute ?
-            attributes.add(dictionary.parseAttribute(vendorId, type, data.readSlice(length)));
+            attributes.add(readAttribute(dictionary, vendorId, data));
         }
 
         if (data.isReadable())
             throw new IllegalArgumentException("Attribute malformed, " + data.readableBytes() + " bytes remaining to parse");
 
         return attributes;
+    }
+
+    /**
+     * Parses attribute and increases readerIndex by size of attribute.
+     */
+    static RadiusAttribute readAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
+        final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
+
+        final int typeSize = vendor
+                .map(Vendor::getTypeSize)
+                .orElse(1);
+
+        int type;
+        switch (typeSize) {
+            case 2:
+                type = data.getShort(data.readerIndex());
+                break;
+            case 4:
+                type = data.getInt(data.readerIndex());
+                break;
+            case 1:
+            default:
+                type = Byte.toUnsignedInt(data.getByte(data.readerIndex()));
+        }
+
+        final int lengthSize = vendor
+                .map(Vendor::getLengthSize)
+                .orElse(1);
+
+        int length;
+        switch (lengthSize) {
+            case 0:
+                length = data.readableBytes();
+                break;
+            case 2:
+                length = data.getShort(data.readerIndex() + typeSize);
+                break;
+            case 1:
+            default:
+                length = Byte.toUnsignedInt(data.getByte(data.readerIndex() + typeSize)); // max 255
+        }
+
+        if (length < typeSize + lengthSize)
+            throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >= typeSize + lengthSize, " +
+                    "but typeSize=" + typeSize + ", lengthSize=" + lengthSize);
+
+        if (length > data.readableBytes())
+            throw new IllegalArgumentException("Invalid attribute length " + length + ", parsable bytes " + data.readableBytes());
+
+        return dictionary.createAttribute(vendorId, type, data.readSlice(length));
     }
 
     /**
@@ -226,7 +234,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      */
     default T addAttribute(int type, String value) throws RadiusPacketException {
         return addAttribute(
-                getDictionary().createAttribute(getChildVendorId(), type, value));
+                getDictionary().createAttribute(getChildVendorId(), type, (byte) 0, value));
     }
 
     /**
