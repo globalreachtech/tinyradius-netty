@@ -84,7 +84,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     public T withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
         if (auth.length != 16)
             throw new RadiusPacketException("Packet Authenticator must be 16 octets, actual: " + auth.length);
-
+        // todo test header encodes with new length correctly
         final ByteBuf newHeader = RadiusPacket.buildHeader(getType(), getId(), auth, attributes);
         return with(newHeader, attributes);
     }
