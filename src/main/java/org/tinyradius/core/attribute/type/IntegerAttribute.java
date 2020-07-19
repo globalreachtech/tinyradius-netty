@@ -15,7 +15,7 @@ public class IntegerAttribute extends OctetsAttribute {
         // todo make test dynamic, allow tags, dynamic header length
         // todo same for other attributes
         if (getValue().length != 4)
-            throw new IllegalArgumentException("Integer / Date value should be 4 octets, actual: " + getValue().length);
+            throw new IllegalArgumentException("Integer / Date should be 4 octets, actual: " + getValue().length);
     }
 
     /**
