@@ -30,6 +30,14 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     protected static final int CHAP_PASSWORD = 3;
     protected static final int EAP_MESSAGE = 79;
     protected static final int ARAP_PASSWORD = 70;
+
+    /**
+     * https://tools.ietf.org/html/rfc2869
+     * <p>
+     * An Access-Request that contains either a User-Password or
+     * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
+     * MUST NOT contain more than one type of those four attributes.
+     */
     private static final Set<Integer> AUTH_ATTRS = new HashSet<>(
             Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE));
 
@@ -115,13 +123,16 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * @throws IllegalArgumentException invalid password
      */
     public AccessRequest withChapPassword(String password) throws RadiusPacketException {
-        // todo remove other types of pw?
-        return AccessRequestChap.withPassword(this, password);
+        return AccessRequestChap.withPassword(withoutAuths(), password);
     }
 
     public AccessRequest withPapPassword(String password) throws RadiusPacketException {
-        // todo remove other types of pw?
-        return AccessRequestPap.withPassword(this, password);
+        return AccessRequestPap.withPassword(withoutAuths(), password);
+    }
+
+    // todo test
+    private AccessRequest withoutAuths() throws RadiusPacketException {
+        return withAttributes(filterAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
     }
 
     /**
@@ -155,6 +166,12 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
 
         verifyMessageAuth(sharedSecret, getAuthenticator());
         return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
+    }
+
+    @Override
+    public AccessRequest withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
+        final ByteBuf newHeader = RadiusPacket.buildHeader(getType(), getId(), getAuthenticator(), attributes);
+        return create(getDictionary(), newHeader, attributes);
     }
 
     @Override

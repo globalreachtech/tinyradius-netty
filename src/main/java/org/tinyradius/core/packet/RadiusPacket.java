@@ -53,7 +53,10 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         return header;
     }
 
-    static ByteBuf buildHeader(byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) {
+    static ByteBuf buildHeader(byte type, byte id, byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        if (auth != null && auth.length != 16)
+            throw new RadiusPacketException("Packet Authenticator must be 16 octets, actual: " + auth.length);
+
         final int attributeLen = attributes.stream()
                 .map(RadiusAttribute::getData)
                 .mapToInt(ByteBuf::readableBytes)
@@ -63,7 +66,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
                 .writeByte(type)
                 .writeByte(id)
                 .writeShort(attributeLen + HEADER_LENGTH)
-                .writeBytes(authenticator == null ? new byte[16] : authenticator);
+                .writeBytes(auth == null ? new byte[16] : auth);
     }
 
     ByteBuf getHeader();
@@ -74,7 +77,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
     byte getType();
 
     /**
-     * @return Radius packet identifier
+     * @return Radius packet id
      */
     byte getId();
 
@@ -93,6 +96,10 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     default ByteBuf toByteBuf() {
         return Unpooled.wrappedBuffer(getHeader(), getAttributeByteBuf());
+    }
+
+    default byte[] toBytes() {
+        return toByteBuf().copy().array();
     }
 
     /**

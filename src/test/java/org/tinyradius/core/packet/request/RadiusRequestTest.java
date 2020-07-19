@@ -132,8 +132,7 @@ class RadiusRequestTest {
 
         assertEquals(maxSizeRequest.getType(), result.getType());
         assertEquals(maxSizeRequest.getId(), result.getId());
-        assertArrayEquals(maxSizeRequest.getAuthenticator(), result.getAuthenticator());
-        assertArrayEquals(maxSizeRequest.getAttributeBytes(), result.getAttributeBytes());
+        assertArrayEquals(maxSizeRequest.toBytes(), result.toBytes());
 
         assertEquals(maxSizeRequest.filterAttributes(33).size(), result.filterAttributes(33).size());
 

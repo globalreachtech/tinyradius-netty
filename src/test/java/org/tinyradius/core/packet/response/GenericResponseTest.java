@@ -40,8 +40,7 @@ class GenericResponseTest {
 
         // idempotence check
         final RadiusResponse encoded2 = encoded.encodeResponse(sharedSecret, requestAuth);
-        assertArrayEquals(encoded.getAuthenticator(), encoded2.getAuthenticator());
-        assertArrayEquals(encoded.getAttributeBytes(), encoded2.getAttributeBytes());
+        assertArrayEquals(encoded.toBytes(), encoded2.toBytes());
 
         final RadiusResponse decoded = encoded2.decodeResponse(sharedSecret, requestAuth);
         assertEquals(username, decoded.getAttribute("User-Name").get().getValueString());
@@ -49,7 +48,7 @@ class GenericResponseTest {
 
         // idempotence check
         final RadiusResponse decoded2 = decoded.decodeResponse(sharedSecret, requestAuth);
-        assertArrayEquals(decoded.getAttributeBytes(), decoded2.getAttributeBytes());
+        assertArrayEquals(decoded.toBytes(), decoded2.toBytes());
         assertEquals(username, decoded2.getAttribute("User-Name").get().getValueString());
         assertEquals(password, new String(decoded2.getAttribute("User-Password").get().getValue(), UTF_8));
     }

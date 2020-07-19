@@ -198,10 +198,6 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         return attributesToBytes(getAttributes());
     }
 
-    default byte[] getAttributeBytes() {
-        return getAttributeByteBuf().copy().array();
-    }
-
     T withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException;
 
     /**

@@ -37,15 +37,14 @@ class GenericRequestTest {
 
         // idempotence check
         final RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
-        assertArrayEquals(encoded.getAuthenticator(), encoded2.getAuthenticator());
-        assertArrayEquals(encoded.getAttributeBytes(), encoded2.getAttributeBytes());
+        assertArrayEquals(encoded.toBytes(), encoded2.toBytes());
 
         final RadiusRequest decoded = encoded2.decodeRequest(sharedSecret);
         assertEquals(username, decoded.getAttribute("User-Name").get().getValueString());
 
         // idempotence check
         final RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
-        assertArrayEquals(decoded.getAttributeBytes(), decoded2.getAttributeBytes());
+        assertArrayEquals(decoded.toBytes(), decoded2.toBytes());
         assertEquals(username, decoded2.getAttribute("User-Name").get().getValueString());
     }
 
@@ -58,7 +57,7 @@ class GenericRequestTest {
                 .addAttribute(dictionary.createAttribute(-1, 1, user.getBytes(UTF_8)))
                 .addAttribute("Acct-Status-Type", "7");
 
-        final byte[] attributeBytes = request.getAttributeBytes();
+        final byte[] attributeBytes = request.getAttributeByteBuf().copy().array();
         final int length = attributeBytes.length + HEADER_LENGTH;
         final byte[] expectedAuthenticator = RadiusUtils.makeRFC2866RequestAuthenticator(
                 sharedSecret, (byte) 7, (byte) 1, length, attributeBytes, 0, attributeBytes.length);

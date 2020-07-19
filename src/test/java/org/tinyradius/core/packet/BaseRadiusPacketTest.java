@@ -10,6 +10,7 @@ import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.parser.DictionaryParser;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BaseRadiusPacketTest {
 
+    private final SecureRandom random = new SecureRandom();
     private static Dictionary dictionary;
 
     @BeforeAll
@@ -170,6 +172,30 @@ class BaseRadiusPacketTest {
         // getAttributes only gets the last subAttribute of VendorSpecificAttribute
 
         assertEquals(5, attributes.size());
+    }
+
+    @Test
+    void withAttributesUpdatesHeaderLength() throws RadiusPacketException {
+        final StubPacket stubPacket = new StubPacket();
+        assertEquals(20, stubPacket.toByteBuf().readableBytes());
+        assertEquals(20, stubPacket.toByteBuf().getShort(2));
+
+        final StubPacket packet2 = stubPacket.withAttributes(Collections.singletonList(dictionary.createAttribute("User-Name", "a")));
+        assertEquals(23, packet2.toByteBuf().readableBytes());
+        assertEquals(23, packet2.toByteBuf().getShort(2));
+    }
+
+    @Test
+    void withAuthAttributesUpdatesHeaderLength() throws RadiusPacketException {
+        final StubPacket stubPacket = new StubPacket();
+        assertEquals(20, stubPacket.toByteBuf().readableBytes());
+        assertEquals(20, stubPacket.toByteBuf().getShort(2));
+
+        final StubPacket packet2 = stubPacket.withAuthAttributes(
+                random.generateSeed(16),
+                Collections.singletonList(dictionary.createAttribute("User-Name", "a")));
+        assertEquals(23, packet2.toByteBuf().readableBytes());
+        assertEquals(23, packet2.toByteBuf().getShort(2));
     }
 
     private static class StubPacket extends BaseRadiusPacket<StubPacket> {

@@ -41,8 +41,7 @@ class AccessRequestPapTest {
 
         // idempotence check
         final RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
-        assertArrayEquals(encoded.getAuthenticator(), encoded2.getAuthenticator());
-        assertArrayEquals(encoded.getAttributeBytes(), encoded2.getAttributeBytes());
+        assertArrayEquals(encoded.toBytes(), encoded2.toBytes());
 
         final RadiusRequest decoded = encoded2.decodeRequest(sharedSecret);
         assertEquals(password, ((AccessRequestPap) decoded).getPassword().get());
@@ -50,7 +49,7 @@ class AccessRequestPapTest {
 
         // idempotence check
         final RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
-        assertArrayEquals(decoded.getAttributeBytes(), decoded2.getAttributeBytes());
+        assertArrayEquals(decoded.toBytes(), decoded2.toBytes());
         assertEquals(password, ((AccessRequestPap) decoded2).getPassword().get());
         assertEquals(username, decoded2.getAttribute("User-Name").get().getValueString());
     }

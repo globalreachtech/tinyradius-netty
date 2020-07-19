@@ -79,7 +79,7 @@ public class AccessRequestChap extends AccessRequest {
      * @return 17 octet CHAP-encoded password (1 octet for CHAP ID, 16 octets CHAP response)
      */
     private static byte[] computeChapPassword(byte chapId, String plaintextPw, byte[] chapChallenge) {
-        MessageDigest md5 = RadiusPacket.getMd5Digest();
+        final MessageDigest md5 = RadiusPacket.getMd5Digest();
         md5.update(chapId);
         md5.update(plaintextPw.getBytes(UTF_8));
         md5.update(chapChallenge);

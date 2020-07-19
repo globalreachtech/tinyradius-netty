@@ -29,7 +29,7 @@ class AccountingRequestTest {
                 .addAttribute(dictionary.createAttribute(-1, 1, user.getBytes(UTF_8)))
                 .addAttribute("Acct-Status-Type", "7");
 
-        final byte[] attributeBytes = request.getAttributeBytes();
+        final byte[] attributeBytes = request.getAttributeByteBuf().copy().array();
         final int length = attributeBytes.length + HEADER_LENGTH;
         final byte[] expectedAuthenticator = RadiusUtils.makeRFC2866RequestAuthenticator(
                 sharedSecret, ACCOUNTING_REQUEST, (byte) 1, length, attributeBytes, 0, attributeBytes.length);

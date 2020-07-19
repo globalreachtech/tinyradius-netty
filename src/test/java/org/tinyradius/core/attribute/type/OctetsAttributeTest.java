@@ -80,20 +80,6 @@ class OctetsAttributeTest {
         assertEquals(decode1, decode);
     }
 
-    // todo move to EncodedAttributeTest?
-    @Test
-    void flattenTagPersists() throws IOException {
-        final Dictionary testDictionary = DictionaryParser.newClasspathParser()
-                .parseDictionary("org/tinyradius/core/dictionary/test_dictionary");
-
-        final RadiusAttribute attribute = new EncodedAttribute(
-                testDictionary.createAttribute(-1, 140, (byte) 0xFF, "FFFF"));
-        final RadiusAttribute transformed = attribute.flatten().get(0);
-        assertEquals((byte) 0xFF, attribute.getTag().get());
-        assertEquals((byte) 0xFF, transformed.getTag().get());
-        assertEquals(attribute, transformed);
-    }
-
     @Test
     void encodeDecodeWithTag() throws RadiusPacketException, IOException {
         final Dictionary testDictionary = DictionaryParser.newClasspathParser()
