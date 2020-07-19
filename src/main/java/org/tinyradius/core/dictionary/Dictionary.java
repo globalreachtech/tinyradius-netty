@@ -50,6 +50,7 @@ public interface Dictionary extends CoreDictionary {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.parse(this, data))
                 .orElseGet(() -> OCTETS.create(this, vendorId, data));
+        // todo test non-template creation
     }
 
     /**

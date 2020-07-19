@@ -44,8 +44,6 @@ public enum AttributeType {
 
         final ByteBuf byteBuf = Unpooled.wrappedBuffer(typeBytes, lengthBytes, tagBytes, value);
 
-        // todo test both vendor success / failure
-
         return byteBufConstructor.newInstance(dictionary, vendorId, byteBuf);
     }
 

@@ -88,6 +88,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
             if (length > data.readableBytes())
                 throw new IllegalArgumentException("Invalid attribute length " + length + ", parsable bytes " + data.readableBytes());
 
+            // todo move above extracts into dictionary.parseAttribute ?
             attributes.add(dictionary.parseAttribute(vendorId, type, data.readSlice(length)));
         }
 

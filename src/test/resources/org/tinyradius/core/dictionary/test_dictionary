@@ -30,7 +30,7 @@ VENDOR		Lucent				4846	format=2,1
 # test duplicate VENDOR exact match should be ignored
 VENDOR		Lucent				4846	format=2,1
 
-# test attributes with custom type sizes
+# test attributes with custom type sizes (typeSize=2)
 BEGIN-VENDOR    Lucent
 ATTRIBUTE       Lucent-Max-Shared-Users			2	integer
 ATTRIBUTE       Lucent-Retrain-Reason			20119	integer
