@@ -14,9 +14,6 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
 
     private AccessResponse(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
-        final byte type = header.getByte(0);
-        if (type != ACCESS_ACCEPT && type != ACCESS_REJECT && type != ACCESS_CHALLENGE)
-            throw new IllegalArgumentException("First octet must be " + ACCESS_ACCEPT + "/" + ACCESS_REJECT + "/" + ACCESS_CHALLENGE + ", actual: " + type);
     }
 
     @Override
@@ -34,30 +31,30 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
         return super.decodeResponse(sharedSecret, requestAuth);
     }
 
+    private static void checkType(byte allowed, ByteBuf header) {
+        final byte type = header.getByte(0);
+        if (type != allowed)
+            throw new IllegalArgumentException("First octet must be " + allowed + ", actual: " + type);
+    }
+
     public static class Accept extends AccessResponse {
         public Accept(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
             super(dictionary, header, attributes);
-            final byte type = header.getByte(0);
-            if (type != ACCESS_ACCEPT)
-                throw new IllegalArgumentException("First octet must be " + ACCESS_ACCEPT + ", actual: " + type);
+            checkType(ACCESS_ACCEPT, header);
         }
     }
 
     public static class Reject extends AccessResponse {
         public Reject(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
             super(dictionary, header, attributes);
-            final byte type = header.getByte(0);
-            if (type != ACCESS_REJECT)
-                throw new IllegalArgumentException("First octet must be " + ACCESS_REJECT + ", actual: " + type);
+            checkType(ACCESS_REJECT, header);
         }
     }
 
     public static class Challenge extends AccessResponse {
         public Challenge(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
             super(dictionary, header, attributes);
-            final byte type = header.getByte(0);
-            if (type != ACCESS_CHALLENGE)
-                throw new IllegalArgumentException("First octet must be " + ACCESS_CHALLENGE + ", actual: " + type);
+            checkType(ACCESS_CHALLENGE, header);
         }
     }
 }

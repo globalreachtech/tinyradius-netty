@@ -8,7 +8,6 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.NestedAttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.core.dictionary.Dictionary;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

@@ -77,16 +77,16 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     @Override
     public T withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
-        final ByteBuf header = RadiusPacket.buildHeader(getType(), getId(), getAuthenticator(), attributes);
-        return with(header, attributes);
+        final ByteBuf newHeader = RadiusPacket.buildHeader(getType(), getId(), getAuthenticator(), attributes);
+        return with(newHeader, attributes);
     }
 
     public T withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
         if (auth.length != 16)
             throw new RadiusPacketException("Packet Authenticator must be 16 octets, actual: " + auth.length);
 
-        final ByteBuf header = RadiusPacket.buildHeader(getType(), getId(), auth, attributes);
-        return with(header, attributes);
+        final ByteBuf newHeader = RadiusPacket.buildHeader(getType(), getId(), auth, attributes);
+        return with(newHeader, attributes);
     }
 
     /**
