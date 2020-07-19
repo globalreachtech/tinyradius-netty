@@ -70,6 +70,10 @@ public interface RadiusAttribute {
 
     ByteBuf getData();
 
+    default ByteBuf toByteBuf() {
+        return getData();
+    }
+
     /**
      * @return entire attribute (including headers) as byte array
      */
