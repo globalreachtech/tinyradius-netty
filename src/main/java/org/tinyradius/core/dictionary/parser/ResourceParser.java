@@ -248,6 +248,7 @@ public class ResourceParser {
                 try {
                     return new int[]{Integer.parseInt(values[0]), Integer.parseInt(values[1])};
                 } catch (Exception ignored) {
+                    // use default [1,1]
                 }
         }
         logger.warn("Ignoring vendor flag - invalid format: {}", flag);

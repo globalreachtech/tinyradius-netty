@@ -63,12 +63,26 @@ class IpAttributeTest {
 
     @Test
     void ipV6AsBytes() throws UnknownHostException {
-        InetAddress address = InetAddress.getByName("2001:0DB8:AC10:FE01:0000:0000:0000:0000");
+        final InetAddress address = InetAddress.getByName("2001:0DB8:AC10:FE01:0000:0000:0000:0000");
         final IpAttribute.V6 attribute = (IpAttribute.V6) dictionary.createAttribute(-1, 95, address.getAddress()); // NAS-IPv6-Address
         assertEquals("2001:db8:ac10:fe01:0:0:0:0", attribute.getValueString());
     }
 
-    //todo test v6 bytes too long/short
+    @Test
+    void ipV6BytesTooShort() {
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> dictionary.createAttribute(-1, 95, new byte[2])); // NAS-IPv6-Address
+
+        assertTrue(exception.getMessage().toLowerCase().contains("should be 16 octets"));
+    }
+
+    @Test
+    void ipV6BytesTooLong() {
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> dictionary.createAttribute(-1, 95, new byte[17])); // NAS-IPv6-Address
+
+        assertTrue(exception.getMessage().toLowerCase().contains("should be 16 octets"));
+    }
 
     @Test
     void ipV6AsString() {

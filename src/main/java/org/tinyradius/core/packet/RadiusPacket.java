@@ -2,16 +2,12 @@ package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.NestedAttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -19,7 +15,6 @@ import static java.util.Objects.requireNonNull;
 
 public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttributeHolder<T> {
 
-    Logger packetLogger = LogManager.getLogger();
     int HEADER_LENGTH = 20;
     int MAX_PACKET_LENGTH = 4096;
 
@@ -100,36 +95,6 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     default byte[] toBytes() {
         return toByteBuf().copy().array();
-    }
-
-    /**
-     * @param sharedSecret shared secret
-     * @param requestAuth  request authenticator if verifying response,
-     *                     otherwise set to 16 zero octets
-     * @throws RadiusPacketException if authenticator check fails
-     */
-    default void verifyPacketAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        final byte[] expectedAuth = genHashedAuth(sharedSecret, requestAuth);
-        final byte[] auth = getAuthenticator();
-        if (auth == null)
-            throw new RadiusPacketException("Packet Authenticator check failed - authenticator missing");
-
-        if (auth.length != 16)
-            throw new RadiusPacketException("Packet Authenticator check failed - must be 16 octets, actual " + auth.length);
-
-        if (!Arrays.equals(expectedAuth, auth)) {
-            // find attributes that should be encoded but aren't
-            final boolean decodedAlready = getAttributes().stream()
-                    .filter(a -> a.getAttributeTemplate()
-                            .map(AttributeTemplate::encryptEnabled)
-                            .orElse(false))
-                    .anyMatch(a -> !a.isEncoded());
-
-            if (decodedAlready)
-                packetLogger.info("Skipping Packet Authenticator check - attributes have been decrypted already");
-            else
-                throw new RadiusPacketException("Packet Authenticator check failed - bad authenticator or shared secret");
-        }
     }
 
     /**
