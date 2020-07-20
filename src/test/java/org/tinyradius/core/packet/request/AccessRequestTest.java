@@ -62,4 +62,38 @@ class AccessRequestTest {
                 ));
         assertTrue(invalid instanceof AccessRequestNoAuth);
     }
+
+    /**
+     * https://tools.ietf.org/html/rfc2869#section-5.19
+     * <p>
+     * An Access-Request that contains either a User-Password or
+     * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
+     * MUST NOT contain more than one type of those four attributes.  If it
+     * does not contain any of those four attributes, it SHOULD contain a
+     * Message-Authenticator.
+     */
+    @Test
+    void withPasswordRemovesOtherTypes() throws RadiusPacketException {
+        final AccessRequestNoAuth accessRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+
+        // encode CHAP
+        final AccessRequestChap chap = (AccessRequestChap) accessRequest.withChapPassword("abc");
+        assertEquals(2, chap.getAttributes().size());
+        assertTrue(chap.getAttribute("CHAP-Password").isPresent());
+        assertTrue(chap.getAttribute("CHAP-Challenge").isPresent());
+
+        // encode PAP
+        final AccessRequestPap pap = (AccessRequestPap) chap.withPapPassword("abc");
+        assertEquals(2, pap.getAttributes().size());
+        assertTrue(pap.getAttribute("User-Password").isPresent()); // CHAP-Password removed
+        assertTrue(pap.getAttribute("CHAP-Challenge").isPresent()); // not removed
+        assertEquals(chap.getAttribute("CHAP-Challenge").get(), pap.getAttribute("CHAP-Challenge").get()); // unchanged
+
+        // encode CHAP again
+        final AccessRequestChap chap2 = (AccessRequestChap) pap.withChapPassword("abc");
+        assertEquals(2, chap2.getAttributes().size());
+        assertTrue(chap2.getAttribute("CHAP-Password").isPresent()); // User-Password removed
+        assertNotEquals(pap.getAttribute("CHAP-Challenge").get(), chap.getAttribute("CHAP-Challenge").get()); // newly encoded
+
+    }
 }

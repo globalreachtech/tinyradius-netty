@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
@@ -87,4 +88,25 @@ class RadiusPacketTest {
         assertArrayEquals(proxyState, Arrays.copyOfRange(attributes, 2, toUnsignedInt(attributes[1])));
     }
 
+    @Test
+    void buildHeader() throws RadiusPacketException {
+        final RadiusAttribute attribute1 = dictionary.createAttribute("User-Name", "abc");
+        final RadiusAttribute attribute2 = dictionary.createAttribute("Service-Type", "1");
+
+        final ByteBuf noAttributes = RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[16], Collections.emptyList());
+        assertEquals(20, noAttributes.readableBytes());
+        assertEquals(20, noAttributes.getShort(2));
+
+        final ByteBuf someAttributes = RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[16], Arrays.asList(attribute1, attribute2));
+        assertEquals(20, someAttributes.readableBytes());
+        assertEquals(20 + attribute1.toByteArray().length + attribute2.toByteArray().length, someAttributes.getShort(2));
+
+        final ByteBuf nullAuth = RadiusPacket.buildHeader((byte) 1, (byte) 1, null, Collections.singletonList(attribute1));
+        assertEquals(20, nullAuth.readableBytes());
+        assertEquals(20 + attribute1.toByteArray().length, nullAuth.getShort(2));
+
+        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () ->
+                RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[15], Collections.emptyList()));
+        assertTrue(e.getMessage().contains("must be 16 octets"));
+    }
 }

@@ -27,7 +27,7 @@ class AccessRequestChapTest {
         final String sharedSecret = "sharedSecret1";
         final String username = "myUsername";
 
-        final AccessRequest request = (AccessRequest)
+        final AccessRequestChap request = (AccessRequestChap)
                 ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
                         .withChapPassword("myPw")
                         .addAttribute(dictionary.createAttribute("User-Name", username));

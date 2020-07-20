@@ -48,9 +48,16 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         return header;
     }
 
-    // todo test
+    /**
+     * @param type       packet type
+     * @param id         packet id
+     * @param auth       nullable 16-byte array
+     * @param attributes packet attributes, used to calculate packet length for header
+     * @return ByteBuf with 20 readable bytes
+     * @throws RadiusPacketException packet validation exceptions
+     */
     static ByteBuf buildHeader(byte type, byte id, byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        if (auth != null && auth.length != 16)
+        if (auth != null && auth.length != 16) // length check only if not null
             throw new RadiusPacketException("Packet Authenticator must be 16 octets, actual: " + auth.length);
 
         final int attributeLen = attributes.stream()

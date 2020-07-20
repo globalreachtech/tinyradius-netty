@@ -31,13 +31,6 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     protected static final int EAP_MESSAGE = 79;
     protected static final int ARAP_PASSWORD = 70;
 
-    /**
-     * https://tools.ietf.org/html/rfc2869
-     * <p>
-     * An Access-Request that contains either a User-Password or
-     * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
-     * MUST NOT contain more than one type of those four attributes.
-     */
     private static final Set<Integer> AUTH_ATTRS = new HashSet<>(
             Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE));
 
@@ -130,7 +123,13 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         return AccessRequestPap.withPassword(withoutAuths(), password);
     }
 
-    // todo test
+    /**
+     * https://tools.ietf.org/html/rfc2869
+     * <p>
+     * An Access-Request that contains either a User-Password or
+     * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
+     * MUST NOT contain more than one type of those four attributes.
+     */
     private AccessRequest withoutAuths() throws RadiusPacketException {
         return withAttributes(filterAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
     }
