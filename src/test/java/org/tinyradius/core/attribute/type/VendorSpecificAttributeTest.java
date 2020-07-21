@@ -146,13 +146,18 @@ class VendorSpecificAttributeTest {
         // todo test customLengthSize
     }
 
+    /**
+     * The String field is one or more octets.  The actual format of the
+     * information is site or application specific, and a robust
+     * implementation SHOULD support the field as undistinguished octets.
+     */
     @Test
     void undistinguishedOctets() {
+
+
         // for when vendor not found
         // todo
-//        The String field is one or more octets.  The actual format of the
-//        information is site or application specific, and a robust
-//        implementation SHOULD support the field as undistinguished octets.
+
     }
 
     @Test

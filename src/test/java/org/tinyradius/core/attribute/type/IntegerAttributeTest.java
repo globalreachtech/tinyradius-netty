@@ -13,7 +13,7 @@ class IntegerAttributeTest {
     @Test
     void intMaxUnsigned() {
         final IntegerAttribute attribute = (IntegerAttribute)
-                dictionary.createAttribute(-1, 27, Long.toString(0xffffffffL)); // Session-Timeout
+                dictionary.createAttribute(-1, 10, Long.toString(0xffffffffL)); // Framed-Routing
 
         assertEquals(-1, attribute.getValueInt());
         assertEquals(0xffffffffL, attribute.getValueLong());
@@ -23,7 +23,7 @@ class IntegerAttributeTest {
     @Test
     void intMaxSigned() {
         final int value = Integer.MAX_VALUE;
-        final IntegerAttribute attribute = (IntegerAttribute) dictionary.createAttribute(-1, 27, String.valueOf(value)); // Session-Timeout
+        final IntegerAttribute attribute = (IntegerAttribute) dictionary.createAttribute(-1, 10, String.valueOf(value)); // Framed-Routing
 
         assertEquals(value, attribute.getValueInt());
         assertEquals(value, attribute.getValueLong());
@@ -67,7 +67,7 @@ class IntegerAttributeTest {
     void stringTooBig() {
         final String strLong = Long.toString(0xffffffffffL);
         final NumberFormatException exception = assertThrows(NumberFormatException.class,
-                () -> dictionary.createAttribute(-1, 27, strLong)); // Session-Timeout
+                () -> dictionary.createAttribute(-1, 10, strLong)); // Framed-Routing
 
         assertTrue(exception.getMessage().toLowerCase().contains("exceeds range"));
     }
@@ -75,7 +75,7 @@ class IntegerAttributeTest {
     @Test
     void stringEmpty() {
         final NumberFormatException exception = assertThrows(NumberFormatException.class,
-                () -> dictionary.createAttribute(-1, 27, "")); // Session-Timeout
+                () -> dictionary.createAttribute(-1, 10, "")); // Framed-Routing
 
         assertTrue(exception.getMessage().toLowerCase().contains("for input string: \"\""));
     }

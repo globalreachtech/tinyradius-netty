@@ -17,16 +17,16 @@ public enum AttributeType {
     IPV6(IpAttribute.V6::new, (dictionary, i, i1, s) -> IpAttribute.stringParser(s)),
     IPV6_PREFIX(Ipv6PrefixAttribute::new, (dictionary, i, i1, s) -> Ipv6PrefixAttribute.stringParser(s));
 
-    private final ByteBufConstructor byteBufConstructor;
+    private final Constructor constructor;
     private final StringParser stringParser;
 
-    AttributeType(ByteBufConstructor byteBufConstructor, StringParser stringParser) {
-        this.byteBufConstructor = byteBufConstructor;
+    AttributeType(Constructor constructor, StringParser stringParser) {
+        this.constructor = constructor;
         this.stringParser = stringParser;
     }
 
     public OctetsAttribute create(Dictionary dictionary, int vendorId, ByteBuf data) {
-        return byteBufConstructor.newInstance(dictionary, vendorId, data);
+        return constructor.newInstance(dictionary, vendorId, data);
     }
 
     public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
@@ -44,7 +44,7 @@ public enum AttributeType {
 
         final ByteBuf byteBuf = Unpooled.wrappedBuffer(typeBytes, lengthBytes, tagBytes, value);
 
-        return byteBufConstructor.newInstance(dictionary, vendorId, byteBuf);
+        return constructor.newInstance(dictionary, vendorId, byteBuf);
     }
 
     private static byte[] toTagBytes(Dictionary dictionary, int vendorId, int type, byte tag) {
@@ -89,7 +89,7 @@ public enum AttributeType {
         }
     }
 
-    private interface ByteBufConstructor {
+    private interface Constructor {
         OctetsAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value);
     }
 

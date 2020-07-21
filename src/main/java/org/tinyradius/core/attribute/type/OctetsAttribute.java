@@ -31,7 +31,6 @@ public class OctetsAttribute implements RadiusAttribute {
         final int actualLength = data.readableBytes();
         if (actualLength > 255)
             throw new IllegalArgumentException("Attribute too long, max 255 octets, actual: " + actualLength);
-        // todo add tests
 
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
         final int typeSize = vendor.map(Vendor::getTypeSize).orElse(1);

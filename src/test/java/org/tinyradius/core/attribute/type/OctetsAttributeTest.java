@@ -24,7 +24,7 @@ class OctetsAttributeTest {
     @Test
     void createMaxSizeAttribute() {
         // 255 octets ok
-        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, random.generateSeed(253));
+        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 3, random.generateSeed(253)); // CHAP-Password
         final byte[] bytes = attribute.toByteArray();
 
         assertEquals(0xFF, toUnsignedInt(bytes[1]));
@@ -34,32 +34,33 @@ class OctetsAttributeTest {
         // 256 octets not ok
         final byte[] oversizedArray = random.generateSeed(254);
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                dictionary.createAttribute(-1, 2, oversizedArray));
+                dictionary.createAttribute(-1, 3, oversizedArray)); // CHAP-Password
 
         assertTrue(exception.getMessage().contains("too long"));
     }
 
     @Test
     void headerBadDeclaredSize() {
-        final ByteBuf byteBuf = dictionary.createAttribute(-1, 2, random.generateSeed(253)).toByteBuf()
+        final ByteBuf byteBuf = dictionary.createAttribute(-1, 3, random.generateSeed(253)) // CHAP-Password
+                .toByteBuf()
                 .setByte(1, 123);
 
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                new OctetsAttribute(dictionary, -1, byteBuf));
+                dictionary.createAttribute(-1, 3, byteBuf)); // CHAP-Password
 
         assertEquals("Attribute declared length is 123, actual length: 255", exception.getMessage());
     }
 
     @Test
     void testFlatten() {
-        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, "123456");
-        assertEquals("[User-Password: 123456]", attribute.flatten().toString());
+        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 3, "FFFF0000"); // CHAP-Password
+        assertEquals("[CHAP-Password: FFFF0000]", attribute.flatten().toString());
     }
 
     @Test
     void testToString() {
-        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, "123456");
-        assertEquals("User-Password: 123456", attribute.toString());
+        final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 3, "FFFF0000"); // CHAP-Password
+        assertEquals("CHAP-Password: FFFF0000", attribute.toString());
     }
 
     @Test
@@ -69,6 +70,7 @@ class OctetsAttributeTest {
 
         final byte[] requestAuth = random.generateSeed(16);
 
+        // User-Password (we need something with encrypt)
         final OctetsAttribute attribute = (OctetsAttribute) dictionary.createAttribute(-1, 2, (byte) 0, pw);
         assertFalse(attribute.isEncoded());
         assertEquals(pw, new String(attribute.getValue(), UTF_8));
@@ -102,6 +104,7 @@ class OctetsAttributeTest {
         final byte tag = 123;
         final byte[] requestAuth = random.generateSeed(16);
 
+        // Tunnel-Password (actually a StringAttribute, we need something with encrypt and tag )
         final OctetsAttribute attribute = (OctetsAttribute) testDictionary.createAttribute(-1, 69, tag, value);
         assertFalse(attribute.isEncoded());
         assertEquals(tag, attribute.getTag().get());

@@ -17,7 +17,7 @@ import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
 
-class DictionaryByteBufConstructorTest {
+class DictionaryParserTest {
 
     private static final String PACKAGE_PREFIX = "org/tinyradius/core/dictionary/";
     private static final String TEST_DICTIONARY = "test_dictionary";
