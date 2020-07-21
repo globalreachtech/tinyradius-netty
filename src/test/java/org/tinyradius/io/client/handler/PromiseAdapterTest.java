@@ -123,7 +123,7 @@ class PromiseAdapterTest {
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
-        // add address-secret and identifier mapping to handler
+        // add address-secret and id mapping to handler
         final List<Object> out = new ArrayList<>();
         handler.encode(ctx, new PendingRequestCtx(request, requestEndpoint, promise), out);
 
@@ -154,7 +154,7 @@ class PromiseAdapterTest {
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
-        // add address-secret and identifier mapping to handler
+        // add address-secret and id mapping to handler
         final List<Object> out = new ArrayList<>();
         handler.encode(ctx, new PendingRequestCtx(request, requestEndpoint, promise), out);
 

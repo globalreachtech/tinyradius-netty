@@ -84,8 +84,8 @@ class MessageAuthSupportTest {
 
     private static class TestPacket extends BaseRadiusPacket<TestPacket> implements MessageAuthSupport<TestPacket> {
 
-        private TestPacket(Dictionary dictionary, byte type, byte identifier, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
-            super(dictionary, buildHeader(type, identifier, authenticator, attributes), attributes);
+        private TestPacket(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
+            super(dictionary, buildHeader(type, id, authenticator, attributes), attributes);
         }
 
         @Override

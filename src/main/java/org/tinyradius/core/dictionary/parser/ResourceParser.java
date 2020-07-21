@@ -152,7 +152,7 @@ public class ResourceParser {
 
         final int vendorId = offset == 1 ? Integer.parseInt(tok[1]) : currentVendor;
         final String name = tok[1 + offset];
-        final int type = validateType(Integer.parseInt(tok[2 + offset]), vendorId);
+        final int type = validateType(Integer.decode(tok[2 + offset]), vendorId);
         final String typeStr = tok[3 + offset];
 
         // no flags

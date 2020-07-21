@@ -5,6 +5,7 @@ import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.attribute.type.AttributeType.IPV6_PREFIX;
 
 class Ipv6PrefixAttributeTest {
 
@@ -13,13 +14,14 @@ class Ipv6PrefixAttributeTest {
     @Test
     void minAttributeLength() {
         // min
-        final Ipv6PrefixAttribute prefixAttribute = (Ipv6PrefixAttribute) dictionary.createAttribute(-1, 97, new byte[2]); // Framed-IPv6-Prefix
+        final Ipv6PrefixAttribute prefixAttribute = (Ipv6PrefixAttribute)
+                IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, new byte[2]); // Framed-IPv6-Prefix
         assertEquals(2, prefixAttribute.getValue().length);
         assertEquals("0:0:0:0:0:0:0:0/0", prefixAttribute.getValueString());
 
         // min-1
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> dictionary.createAttribute(-1, 97, new byte[1])); // Framed-IPv6-Prefix
+                () -> IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, new byte[1])); // Framed-IPv6-Prefix
         assertTrue(exception.getMessage().toLowerCase().contains("should be 2-18 octets"));
     }
 
@@ -27,26 +29,27 @@ class Ipv6PrefixAttributeTest {
     void maxAttributeLength() {
         // max
         final Ipv6PrefixAttribute prefixAttribute = (Ipv6PrefixAttribute)
-                dictionary.createAttribute(-1, 97, new byte[18]); // Framed-IPv6-Prefix
+                IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, new byte[18]); // Framed-IPv6-Prefix
         assertEquals(18, prefixAttribute.getValue().length); // intentionally don't trim, avoid changing incoming data
         assertEquals("0:0:0:0:0:0:0:0/0", prefixAttribute.getValueString());
 
         // max+1
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> dictionary.createAttribute(-1, 97, new byte[20])); // Framed-IPv6-Prefix
+                () -> IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, new byte[20])); // Framed-IPv6-Prefix
         assertTrue(exception.getMessage().toLowerCase().contains("should be 2-18 octets"));
     }
 
     @Test
     void stringOk() {
-        final Ipv6PrefixAttribute attribute = (Ipv6PrefixAttribute) dictionary.createAttribute(-1, 97, "2001:db8:ac10:fe01:0:0:0:0/64"); // Framed-IPv6-Prefix
+        final Ipv6PrefixAttribute attribute = (Ipv6PrefixAttribute)
+                IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, "2001:db8:ac10:fe01:0:0:0:0/64"); // Framed-IPv6-Prefix
         assertEquals("2001:db8:ac10:fe01:0:0:0:0/64", attribute.getValueString());
     }
 
     @Test
     void stringEmpty() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> dictionary.createAttribute(-1, 97, "")); // Framed-IPv6-Prefix
+                () -> IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, "")); // Framed-IPv6-Prefix
         assertTrue(exception.getMessage().toLowerCase().contains("invalid ipv6 prefix"));
     }
 
@@ -54,7 +57,7 @@ class Ipv6PrefixAttributeTest {
     void bitsOutsidePrefixLengthIsZero() {
         // string constructor
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
-                () -> dictionary.createAttribute(-1, 97, "fe80:fe80:fe80:fe80:fe80:fe80:fe80:fe80/64")); // Framed-IPv6-Prefix
+                () -> IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, "fe80:fe80:fe80:fe80:fe80:fe80:fe80:fe80/64")); // Framed-IPv6-Prefix
 
         assertTrue(e1.getMessage().toLowerCase().contains("bits outside of the prefix-length must be zero"));
 
@@ -65,7 +68,7 @@ class Ipv6PrefixAttributeTest {
         bytes[3] = (byte) 0xff; // violates rfc requirement that "Bits outside of the Prefix-Length, if included, must be zero."
 
         final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
-                () -> dictionary.createAttribute(-1, 97, bytes)); // Framed-IPv6-Prefix
+                () -> IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, bytes)); // Framed-IPv6-Prefix
 
         assertTrue(e2.getMessage().toLowerCase().contains("bits outside of the prefix-length must be zero"));
     }
@@ -78,7 +81,7 @@ class Ipv6PrefixAttributeTest {
         bytes[3] = 0; // set 8 bits to 0, but also part of prefix
         bytes[4] = 0; // empty octet as padding
 
-        final RadiusAttribute attribute = dictionary.createAttribute(-1, 97, bytes); // Framed-IPv6-Prefix
+        final RadiusAttribute attribute = IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, bytes); // Framed-IPv6-Prefix
         assertEquals("fe00:0:0:0:0:0:0:0/16", attribute.getValueString());
     }
 
@@ -88,12 +91,12 @@ class Ipv6PrefixAttributeTest {
         final byte[] bytes = new byte[4]; // prefix capacity 2
         bytes[1] = 16; // 16 bits require 2 bytes
 
-        final RadiusAttribute attribute = dictionary.createAttribute(-1, 97, bytes); // Framed-IPv6-Prefix
+        final RadiusAttribute attribute = IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, bytes); // Framed-IPv6-Prefix
         assertEquals("0:0:0:0:0:0:0:0/16", attribute.getValueString());
 
         bytes[1] = 17; // 17 bits require 3 bytes;
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> dictionary.createAttribute(-1, 97, bytes));
+                () -> IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, bytes));
         assertTrue(exception.getMessage().toLowerCase().contains("actual byte array only has space for 16 bits"));
         assertTrue(exception.getMessage().toLowerCase().contains("prefix-length declared 17 bits"));
     }

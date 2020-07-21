@@ -23,15 +23,25 @@ END-VENDOR      CableLabs
 VENDORATTR  4491    CableLabs-Reserved  0   octets
 VENDORATTR  4491    CableLabs-Reserved  0   octets
 
-# test handle VENDOR flags
-# dictionary.lucent
-VENDOR		Lucent				4846	format=2,1
-
 # test duplicate VENDOR exact match should be ignored
 VENDOR		Lucent				4846	format=2,1
 
-# test attributes with custom type sizes (typeSize=2)
+# test attributes with VENDOR flags
+VENDOR		Lucent				4846	format=2,1
 BEGIN-VENDOR    Lucent
 ATTRIBUTE       Lucent-Max-Shared-Users			2	integer
 ATTRIBUTE       Lucent-Retrain-Reason			20119	integer
 END-VENDOR      Lucent
+
+VENDOR		Starent				8164	format=2,2
+BEGIN-VENDOR	Starent
+ATTRIBUTE	SN-VPN-Name				2	string
+ATTRIBUTE	SN-Role-Of-Node				256	integer
+END-VENDOR	Starent
+
+VENDOR		USR				429	format=4,0
+BEGIN-VENDOR	USR
+# also testing non-decimal ATTRIBUTE codes
+ATTRIBUTE	USR-Last-Number-Dialed-Out		0x0066	string
+ATTRIBUTE	USR-Last-Number-Dialed-In-DNIS		0x00E8	string
+END-VENDOR	USR

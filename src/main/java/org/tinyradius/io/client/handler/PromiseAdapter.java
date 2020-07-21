@@ -21,7 +21,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * ClientHandler that matches requests/response by appending Proxy-State attribute to
  * outbound packets. This avoids problem with mismatched requests/responses when using
- * packetIdentifier, which is limited to 256 unique IDs.
+ * packet id, which is limited to 256 unique IDs.
  */
 public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, PendingRequestCtx> {
 

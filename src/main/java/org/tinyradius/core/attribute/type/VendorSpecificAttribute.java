@@ -48,7 +48,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
                 .map(RadiusAttribute::getVendorId)
                 .anyMatch(id -> id != childVendorId);
         if (mismatchVendorId)
-            throw new IllegalArgumentException("Vendor-Specific attribute sub-attributes must have same vendorId as VSA childVendorId");
+            throw new IllegalArgumentException("Vendor-Specific attribute sub-attributes must have same vendorId as VSA childVendorId: " + childVendorId);
     }
 
     private static ByteBuf toByteBuf(int childVendorId, List<RadiusAttribute> attributes) {

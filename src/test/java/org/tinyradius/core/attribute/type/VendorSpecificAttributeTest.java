@@ -1,8 +1,11 @@
 package org.tinyradius.core.attribute.type;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.parser.DictionaryParser;
@@ -10,11 +13,13 @@ import org.tinyradius.core.dictionary.parser.DictionaryParser;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.attribute.type.AttributeType.VSA;
 import static org.tinyradius.core.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 class VendorSpecificAttributeTest {
@@ -29,11 +34,11 @@ class VendorSpecificAttributeTest {
 
     @Test
     void parseChildVendorIdZero() {
-        // childVendorId 4 bytes, smallest subattribute 2 bytes (type + length)
+        // childVendorId 4 bytes + smallest subattribute 2 bytes (type + length)
         final byte[] value = new byte[6];
         value[5] = 2; // subattribute length
 
-        final VendorSpecificAttribute vsa = (VendorSpecificAttribute) dictionary.createAttribute(-1, VENDOR_SPECIFIC, value);
+        final VendorSpecificAttribute vsa = (VendorSpecificAttribute) VSA.create(dictionary, -1, VENDOR_SPECIFIC, (byte) 0, value);
 
         assertEquals(26, vsa.getType());
         assertEquals(-1, vsa.getVendorId());
@@ -46,7 +51,7 @@ class VendorSpecificAttributeTest {
                 (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, // childVendorId
                 (byte) 0x00, (byte) 0x02 // subattribute
         };
-        final VendorSpecificAttribute vsa = (VendorSpecificAttribute) dictionary.createAttribute(-1, VENDOR_SPECIFIC, value);
+        final VendorSpecificAttribute vsa = (VendorSpecificAttribute) VSA.create(dictionary, -1, VENDOR_SPECIFIC, (byte) 0, value);
 
         assertEquals(26, vsa.getType());
         assertEquals(-1, vsa.getVendorId());
@@ -75,13 +80,25 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void addNonVsaSubAttribute() {
+    void addDiffVendorSubAttribute() {
         final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
                 dictionary.createAttribute("WISPr-Location-ID", "myLocationId")
         ));
 
-        final Exception exception = assertThrows(RuntimeException.class, () -> vsa.addAttribute("User-Name", "test1"));
-        assertTrue(exception.getMessage().toLowerCase().contains("vendor id doesn't match"));
+        final Exception e1 = assertThrows(RuntimeException.class, () -> vsa.addAttribute("User-Name", "test1"));
+        assertTrue(e1.getMessage().toLowerCase().contains("vendor id doesn't match"));
+
+        final Exception e2 = assertThrows(RuntimeException.class, () -> vsa.addAttribute("WISPr-Location-ID", "test1"));
+        assertTrue(e2.getMessage().toLowerCase().contains("vendor id doesn't match"));
+    }
+
+    @Test
+    void createWithDiffVendorSubAttribute() {
+        final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
+                new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
+                        dictionary.createAttribute("User-Name", "myName"))));
+
+        assertTrue(e.getMessage().contains("Vendor-Specific attribute sub-attributes must have same vendorId as VSA childVendorId"));
     }
 
     @Test
@@ -110,7 +127,7 @@ class VendorSpecificAttributeTest {
         assertEquals(bytes.length, byteBuffer.get());
         assertEquals(14122, byteBuffer.getInt());
 
-        // parse
+        // create from bytebuf
         final VendorSpecificAttribute parsedAttribute = (VendorSpecificAttribute) dictionary.createAttribute(-1, VENDOR_SPECIFIC, Unpooled.wrappedBuffer(bytes));
         assertArrayEquals(bytes, parsedAttribute.toByteArray());
         assertEquals(2, parsedAttribute.getAttributes().size());
@@ -123,6 +140,7 @@ class VendorSpecificAttributeTest {
                 .skipBytes(2) // skip type and length
                 .copy().array();
 
+        // create from byte array
         final VendorSpecificAttribute createdAttribute = (VendorSpecificAttribute) dictionary.createAttribute(-1, VENDOR_SPECIFIC, vsaData);
         assertArrayEquals(bytes, createdAttribute.toByteArray());
         assertEquals(2, createdAttribute.getAttributes().size());
@@ -131,19 +149,25 @@ class VendorSpecificAttributeTest {
         assertArrayEquals(bytes, createdAttribute.toByteArray());
     }
 
-    @Test
-    void customTypeSizeToFromByteArray() {
-        // 4846 Lucent has format=2,1 - 'type' field uses 2 octets
-        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, 4846, Arrays.asList(
-                dictionary.createAttribute(4846, 2, ByteBuffer.allocate(Integer.BYTES).putInt(456).array()),
-                dictionary.createAttribute(4846, 20119, ByteBuffer.allocate(Integer.BYTES).putInt(123).array()),
+    @CsvSource({ // vendorId, 2x known attributes
+            "4846,2,20119", // Lucent
+            "8164,2,256", // Starent
+            "429,102,232" // USR
+    })
+    @ParameterizedTest
+    void customTypeSizeToFromByteArray(int vendorId, int attribute1, int attribute2) {
+        final byte[] bytes1 = random.generateSeed(4);
+        final byte[] bytes2 = random.generateSeed(4);
+        final byte[] bytes3 = random.generateSeed(4);
+
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, vendorId, Arrays.asList(
+                dictionary.createAttribute(vendorId, attribute1, bytes1),
+                dictionary.createAttribute(vendorId, attribute2, bytes2),
                 // vendor defined, but attribute undefined
-                dictionary.createAttribute(4846, 99999, ByteBuffer.allocate(Integer.BYTES).putInt(255).array())
+                dictionary.createAttribute(vendorId, 99999, bytes3)
         ));
         System.out.println(vsa);
-        // todo test customTypeSize
-
-        // todo test customLengthSize
+        // todo test customTypeSize / customLengthSize
     }
 
     /**
@@ -153,11 +177,64 @@ class VendorSpecificAttributeTest {
      */
     @Test
     void undistinguishedOctets() {
+        final byte[] bytes = random.generateSeed(10);
+        final ByteBuf vsaByteBuf = Unpooled.buffer().writeByte(26).writeByte(16).writeInt(123456).writeBytes(bytes);
 
+        // create from bytebuf
+        final VendorSpecificAttribute attribute1 = (VendorSpecificAttribute) VSA.create(dictionary, -1, vsaByteBuf);
 
-        // for when vendor not found
-        // todo
+        assertEquals(1, attribute1.getAttributes().size());
+        final AnonSubAttribute sub1 = (AnonSubAttribute) attribute1.getAttributes().get(0);
+        assertArrayEquals(bytes, sub1.toByteArray());
+        assertEquals("[Unparsable sub-attribute (vendorId 123456, length 10)]", sub1.getValueString());
+        assertArrayEquals(vsaByteBuf.copy().array(), attribute1.toByteArray());
 
+        // create from byte[]
+        final VendorSpecificAttribute attribute2 = (VendorSpecificAttribute) VSA.create(dictionary, -1, 26, (byte) 0,
+                vsaByteBuf.slice(2, vsaByteBuf.readableBytes() - 2).copy().array());
+
+        assertEquals(1, attribute2.getAttributes().size());
+        final AnonSubAttribute sub2 = (AnonSubAttribute) attribute1.getAttributes().get(0);
+        assertArrayEquals(bytes, sub2.toByteArray());
+        assertEquals("[Unparsable sub-attribute (vendorId 123456, length 10)]", sub2.getValueString());
+        assertArrayEquals(vsaByteBuf.copy().array(), attribute2.toByteArray());
+    }
+
+    @Test
+    void badVendorId() {
+        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
+                VSA.create(dictionary, 4567, Unpooled.buffer().writeByte(26).writeByte(8).writeInt(123456).writeShort(2)));
+        assertEquals("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: 4567", e1.getMessage());
+
+        final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
+                VSA.create(dictionary, 4567, 26, (byte) 0, new byte[6]));
+        assertEquals("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: 4567", e2.getMessage());
+    }
+
+    @Test
+    void badAttributeType() {
+        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
+                VSA.create(dictionary, -1, Unpooled.buffer().writeByte(10).writeByte(8).writeInt(123456).writeShort(2)));
+        assertEquals("Vendor-Specific attribute attributeId should always be 26, actual: 10", e1.getMessage());
+
+        final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
+                VSA.create(dictionary, -1, 10, (byte) 0, new byte[6]));
+        assertEquals("Vendor-Specific attribute attributeId should always be 26, actual: 10", e2.getMessage());
+    }
+
+    @Test
+    void noSubAttribute() {
+        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
+                VSA.create(dictionary, 14122, Unpooled.buffer().writeByte(26).writeByte(6).writeInt(123456)));
+        assertTrue(e1.getMessage().contains("should be greater than 6 octets, actual: 6"));
+
+        final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
+                VSA.create(dictionary, 14122, 26, (byte) 0, new byte[4]));
+        assertTrue(e2.getMessage().contains("should be greater than 6 octets, actual: 6"));
+
+        final IllegalArgumentException e3 = assertThrows(IllegalArgumentException.class,
+                () -> new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>()));
+        assertTrue(e3.getMessage().contains("should be greater than 6 octets, actual: 6"));
     }
 
     @Test
@@ -181,14 +258,6 @@ class VendorSpecificAttributeTest {
         final Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> new VendorSpecificAttribute(dictionary, 14122, attributes));
         assertTrue(exception.getMessage().contains("Attribute too long"));
-    }
-
-    @Test
-    void createWithNoSubAttributes() {
-        final List<RadiusAttribute> list = Collections.emptyList();
-        final Exception exception = assertThrows(RuntimeException.class,
-                () -> new VendorSpecificAttribute(dictionary, 14122, list));
-        assertTrue(exception.getMessage().toLowerCase().contains("should be greater than 6 octets"));
     }
 
     @Test

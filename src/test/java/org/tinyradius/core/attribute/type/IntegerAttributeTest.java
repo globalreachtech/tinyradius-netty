@@ -5,6 +5,7 @@ import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.attribute.type.AttributeType.INTEGER;
 
 class IntegerAttributeTest {
 
@@ -13,7 +14,7 @@ class IntegerAttributeTest {
     @Test
     void intMaxUnsigned() {
         final IntegerAttribute attribute = (IntegerAttribute)
-                dictionary.createAttribute(-1, 10, Long.toString(0xffffffffL)); // Framed-Routing
+                INTEGER.create(dictionary, -1, 10, (byte) 0, Long.toString(0xffffffffL)); // Framed-Routing
 
         assertEquals(-1, attribute.getValueInt());
         assertEquals(0xffffffffL, attribute.getValueLong());
@@ -23,7 +24,8 @@ class IntegerAttributeTest {
     @Test
     void intMaxSigned() {
         final int value = Integer.MAX_VALUE;
-        final IntegerAttribute attribute = (IntegerAttribute) dictionary.createAttribute(-1, 10, String.valueOf(value)); // Framed-Routing
+        final IntegerAttribute attribute = (IntegerAttribute)
+                INTEGER.create(dictionary, -1, 10, (byte) 0, String.valueOf(value)); // Framed-Routing
 
         assertEquals(value, attribute.getValueInt());
         assertEquals(value, attribute.getValueLong());
@@ -33,7 +35,8 @@ class IntegerAttributeTest {
     @Test
     void bytesOk() {
         final byte[] bytes = new byte[]{0, 0, (byte) 0xff, (byte) 0xff};
-        final IntegerAttribute attribute = (IntegerAttribute) dictionary.createAttribute(-1, 10, bytes); // Framed-Routing
+        final IntegerAttribute attribute = (IntegerAttribute)
+                INTEGER.create(dictionary, -1, 10, (byte) 0, bytes); // Framed-Routing
 
         assertEquals(65535, attribute.getValueInt());
         assertEquals(65535, attribute.getValueLong());
@@ -43,20 +46,21 @@ class IntegerAttributeTest {
     @Test
     void bytesTooShort() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> dictionary.createAttribute(-1, 10, new byte[2])); // Framed-Routing
+                () -> INTEGER.create(dictionary, -1, 10, (byte) 0, new byte[2])); // Framed-Routing
         assertTrue(exception.getMessage().toLowerCase().contains("should be 4 octets"));
     }
 
     @Test
     void bytesTooLong() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> dictionary.createAttribute(-1, 10, new byte[5])); // Framed-Routing
+                () -> INTEGER.create(dictionary, -1, 10, (byte) 0, new byte[5])); // Framed-Routing
         assertTrue(exception.getMessage().toLowerCase().contains("should be 4 octets"));
     }
 
     @Test
     void stringOk() {
-        final IntegerAttribute attribute = (IntegerAttribute) dictionary.createAttribute(-1, 10, "12345"); // Framed-Routing
+        final IntegerAttribute attribute = (IntegerAttribute)
+                INTEGER.create(dictionary, -1, 10, (byte) 0, "12345"); // Framed-Routing
 
         assertEquals(12345, attribute.getValueInt());
         assertEquals(12345, attribute.getValueLong());
@@ -67,7 +71,7 @@ class IntegerAttributeTest {
     void stringTooBig() {
         final String strLong = Long.toString(0xffffffffffL);
         final NumberFormatException exception = assertThrows(NumberFormatException.class,
-                () -> dictionary.createAttribute(-1, 10, strLong)); // Framed-Routing
+                () -> INTEGER.create(dictionary, -1, 10, (byte) 0, strLong)); // Framed-Routing
 
         assertTrue(exception.getMessage().toLowerCase().contains("exceeds range"));
     }
@@ -75,14 +79,15 @@ class IntegerAttributeTest {
     @Test
     void stringEmpty() {
         final NumberFormatException exception = assertThrows(NumberFormatException.class,
-                () -> dictionary.createAttribute(-1, 10, "")); // Framed-Routing
+                () -> INTEGER.create(dictionary, -1, 10, (byte) 0, "")); // Framed-Routing
 
         assertTrue(exception.getMessage().toLowerCase().contains("for input string: \"\""));
     }
 
     @Test
     void stringEnum() {
-        final IntegerAttribute attribute = (IntegerAttribute) dictionary.createAttribute(-1, 6, "Login-User"); // Service-Type
+        final IntegerAttribute attribute = (IntegerAttribute)
+                INTEGER.create(dictionary, -1, 6, (byte) 0, "Login-User"); // Service-Type
 
         assertEquals(1, attribute.getValueInt());
         assertEquals(1, attribute.getValueLong());
@@ -92,7 +97,7 @@ class IntegerAttributeTest {
     @Test
     void stringInvalid() {
         final NumberFormatException exception = assertThrows(NumberFormatException.class,
-                () -> dictionary.createAttribute(-1, 6, "badString")); // Service-Type
+                () -> INTEGER.create(dictionary, -1, 6, (byte) 0, "badString")); // Service-Type
 
         assertTrue(exception.getMessage().toLowerCase().contains("for input string: \"badstring\""));
     }

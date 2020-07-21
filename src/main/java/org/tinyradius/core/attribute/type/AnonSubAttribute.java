@@ -17,7 +17,7 @@ public class AnonSubAttribute implements RadiusAttribute {
     private final Dictionary dictionary;
 
     private final ByteBuf data;
-    private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
+    private final int vendorId; // should not be -1 (should not be top level attribute)
 
     public AnonSubAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         this.dictionary = dictionary;
@@ -47,7 +47,7 @@ public class AnonSubAttribute implements RadiusAttribute {
 
     @Override
     public String getValueString() {
-        return "Unparsable";
+        return "[Unparsable sub-attribute (vendorId " + vendorId + ", length " + data.readableBytes() + ")]";
     }
 
     @Override
@@ -62,6 +62,6 @@ public class AnonSubAttribute implements RadiusAttribute {
 
     @Override
     public String toString() {
-        return "Unparsable";
+        return getValueString();
     }
 }

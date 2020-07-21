@@ -1,5 +1,6 @@
 package org.tinyradius.core.dictionary.parser;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -22,11 +23,16 @@ class DictionaryParserTest {
     private static final String PACKAGE_PREFIX = "org/tinyradius/core/dictionary/";
     private static final String TEST_DICTIONARY = "test_dictionary";
 
-    @Test
-    void classpathIncludeDict() throws IOException {
-        final DictionaryParser parser = DictionaryParser.newClasspathParser();
-        final Dictionary dictionary = parser.parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
+    private static Dictionary dictionary;
 
+    @BeforeAll
+    static void setup() throws IOException {
+        dictionary = DictionaryParser.newClasspathParser()
+                .parseDictionary("org/tinyradius/core/dictionary/test_dictionary");
+    }
+
+    @Test
+    void classpathIncludeDict() {
         final Optional<AttributeTemplate> serviceTypeAttr = dictionary.getAttributeTemplate(6);
         assertTrue(serviceTypeAttr.isPresent());
         assertEquals("Service-Type", serviceTypeAttr.get().getName());
@@ -35,11 +41,8 @@ class DictionaryParserTest {
     }
 
     @Test
-    void testVendorAttrFlags() throws IOException {
+    void testVendorAttrFlags() {
         // VENDORATTR      14122   WISPr-Bandwidth-Min-Up         5       integer has_tag
-
-        final Dictionary dictionary = DictionaryParser.newClasspathParser()
-                .parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
 
         final AttributeTemplate attribute = dictionary.getAttributeTemplate("WISPr-Redirection-URL").get();
         assertFalse(attribute.isTagged());
@@ -63,12 +66,9 @@ class DictionaryParserTest {
     }
 
     @Test
-    void testStatefulVendorAttributeFlags() throws IOException {
+    void testStatefulVendorAttributeFlags() {
         // BEGIN-VENDOR	Ascend
         // ATTRIBUTE	Ascend-Max-Shared-Users			2	integer  has_tag
-
-        final Dictionary dictionary = DictionaryParser.newClasspathParser()
-                .parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
 
         final AttributeTemplate attribute = dictionary.getAttributeTemplate("Ascend-Test").get();
         assertFalse(attribute.isTagged());
@@ -92,11 +92,8 @@ class DictionaryParserTest {
     }
 
     @Test
-    void testAttributeFlags() throws IOException {
+    void testAttributeFlags() {
         // ATTRIBUTE PKM-SAID    141      short encrypt=1
-
-        final Dictionary dictionary = DictionaryParser.newClasspathParser()
-                .parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
 
         final AttributeTemplate attribute = dictionary.getAttributeTemplate("PKM-Config-Settings").get();
         assertFalse(attribute.isTagged());
@@ -120,14 +117,10 @@ class DictionaryParserTest {
     }
 
     @Test
-    void valueEnumDeferred() throws IOException {
+    void valueEnumDeferred() {
         // parse VALUE before corresponding ATTRIBUTE
 
-        final Dictionary dictionary = DictionaryParser.newClasspathParser()
-                .parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
-
         final AttributeTemplate template = dictionary.getAttributeTemplate("Timetra-Restrict-To-Home").get();
-
         assertEquals("true", template.getEnumeration(1));
         assertEquals(1, template.getEnumeration("true"));
         assertEquals("false", template.getEnumeration(2));
@@ -135,10 +128,20 @@ class DictionaryParserTest {
     }
 
     @Test
-    void valueAttributeNonDecimal() throws IOException {
-        final Dictionary dictionary = DictionaryParser.newClasspathParser()
-                .parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
+    void attributeNonDecimal() {
+        final AttributeTemplate template1 = dictionary.getAttributeTemplate("USR-Last-Number-Dialed-Out").get();
+        assertEquals(102, template1.getType());
+        assertEquals("string", template1.getDataType());
+        assertEquals(429, template1.getVendorId());
 
+        final AttributeTemplate template2 = dictionary.getAttributeTemplate(429, 232).get();
+        assertEquals("USR-Last-Number-Dialed-In-DNIS", template2.getName());
+        assertEquals("string", template2.getDataType());
+        assertEquals(429, template2.getVendorId());
+    }
+
+    @Test
+    void valueAttributeNonDecimal() {
         final AttributeTemplate serviceType = dictionary.getAttributeTemplate("Service-Type").get();
         assertEquals(0x06300001, serviceType.getEnumeration("Annex-Authorize-Only"));
         assertEquals("Annex-Authorize-Only", serviceType.getEnumeration(0x06300001));
@@ -149,10 +152,7 @@ class DictionaryParserTest {
     }
 
     @Test
-    void vendorFormatFlag() throws IOException {
-        final Dictionary dictionary = DictionaryParser.newClasspathParser()
-                .parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
-
+    void vendorFormatFlag() {
         final Vendor wispr = dictionary.getVendor("WISPr").get();
         assertSame(dictionary.getVendor(14122).get(), wispr);
         assertEquals(14122, wispr.getId());
@@ -169,10 +169,7 @@ class DictionaryParserTest {
     }
 
     @Test
-    void attributeCustomTypeSize() throws IOException {
-        final Dictionary dictionary = DictionaryParser.newClasspathParser()
-                .parseDictionary(PACKAGE_PREFIX + TEST_DICTIONARY);
-
+    void attributeCustomTypeSize() {
         final AttributeTemplate basic = dictionary.getAttributeTemplate("Lucent-Max-Shared-Users").get();
         assertEquals(2, basic.getType());
 
@@ -190,8 +187,7 @@ class DictionaryParserTest {
                 "dictionary.ascend",
                 "dictionary.alcatel.sr");
 
-        final DictionaryParser parser = DictionaryParser.newFileParser();
-        final Dictionary dictionary = parser.parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
+        final Dictionary dictionary = DictionaryParser.newFileParser().parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
 
         final Optional<AttributeTemplate> serviceTypeAttr = dictionary.getAttributeTemplate(6);
         assertTrue(serviceTypeAttr.isPresent());
