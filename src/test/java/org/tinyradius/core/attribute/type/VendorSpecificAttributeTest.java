@@ -190,6 +190,10 @@ class VendorSpecificAttributeTest {
         // does USR still parse properly?
 
         System.out.println(vsa);
+
+        final VendorSpecificAttribute parsed = new VendorSpecificAttribute(dictionary, -1, Unpooled.wrappedBuffer(vsaByteBuf));
+
+        System.out.println(parsed);
         // todo test customTypeSize / customLengthSize
     }
 
