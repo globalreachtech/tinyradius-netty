@@ -123,5 +123,4 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
         }
         return sb.toString();
     }
-
 }

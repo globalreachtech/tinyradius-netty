@@ -93,7 +93,6 @@ class AccessRequestTest {
         final AccessRequestChap chap2 = (AccessRequestChap) pap.withChapPassword("abc");
         assertEquals(2, chap2.getAttributes().size());
         assertTrue(chap2.getAttribute("CHAP-Password").isPresent()); // User-Password removed
-        assertNotEquals(pap.getAttribute("CHAP-Challenge").get(), chap.getAttribute("CHAP-Challenge").get()); // newly encoded
-
+        assertNotEquals(pap.getAttribute("CHAP-Challenge").get(), chap2.getAttribute("CHAP-Challenge").get()); // newly encoded
     }
 }

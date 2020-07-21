@@ -88,7 +88,7 @@ class VendorSpecificAttributeTest {
         final Exception e1 = assertThrows(RuntimeException.class, () -> vsa.addAttribute("User-Name", "test1"));
         assertTrue(e1.getMessage().toLowerCase().contains("vendor id doesn't match"));
 
-        final Exception e2 = assertThrows(RuntimeException.class, () -> vsa.addAttribute("WISPr-Location-ID", "test1"));
+        final Exception e2 = assertThrows(RuntimeException.class, () -> vsa.addAttribute("Ascend-UU-Info", "test1"));
         assertTrue(e2.getMessage().toLowerCase().contains("vendor id doesn't match"));
     }
 
@@ -149,13 +149,14 @@ class VendorSpecificAttributeTest {
         assertArrayEquals(bytes, createdAttribute.toByteArray());
     }
 
-    @CsvSource({ // vendorId, 2x known attributes
-            "4846,2,20119", // Lucent
-            "8164,2,256", // Starent
-            "429,102,232" // USR
+    @CsvSource({ // vendorId, 2x known attributes, subAttrHeaderSize
+            "4846,2,20119,3", // Lucent format=2,1
+            "8164,2,256,4", // Starent format=2,2
+            "429,102,232,4" // USR format=4,0
     })
     @ParameterizedTest
-    void customTypeSizeToFromByteArray(int vendorId, int attribute1, int attribute2) {
+    void customTypeSizeToFromByteArray(int vendorId, int attribute1, int attribute2, int subAttrHeaderSize) {
+        final int attribute3 = 999;
         final byte[] bytes1 = random.generateSeed(4);
         final byte[] bytes2 = random.generateSeed(4);
         final byte[] bytes3 = random.generateSeed(4);
@@ -164,8 +165,30 @@ class VendorSpecificAttributeTest {
                 dictionary.createAttribute(vendorId, attribute1, bytes1),
                 dictionary.createAttribute(vendorId, attribute2, bytes2),
                 // vendor defined, but attribute undefined
-                dictionary.createAttribute(vendorId, 99999, bytes3)
+                dictionary.createAttribute(vendorId, attribute3, bytes3)
         ));
+
+        int length = 6 + 3 * (4 + subAttrHeaderSize);
+
+        final byte[] vsaByteBuf = vsa.toByteArray();
+        assertEquals(length, vsaByteBuf.length);
+        assertEquals(3, vsa.getAttributes().size());
+
+
+        final RadiusAttribute sub1 = vsa.getAttributes().get(0);
+        assertFalse(sub1.getAttributeName().contains("Unknown"));
+        assertEquals(attribute1, sub1.getType());
+
+        final RadiusAttribute sub2 = vsa.getAttributes().get(1);
+        assertFalse(sub2.getAttributeName().contains("Unknown"));
+        assertEquals(attribute2, sub2.getType());
+
+        final RadiusAttribute sub3 = vsa.getAttributes().get(2);
+        assertTrue(sub3.getAttributeName().contains("Unknown"));
+        assertEquals(attribute3, sub3.getType());
+
+        // does USR still parse properly?
+
         System.out.println(vsa);
         // todo test customTypeSize / customLengthSize
     }

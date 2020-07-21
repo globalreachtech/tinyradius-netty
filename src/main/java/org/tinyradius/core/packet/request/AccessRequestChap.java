@@ -47,7 +47,8 @@ public class AccessRequestChap extends AccessRequest {
         final byte[] challenge = random16bytes();
 
         final List<RadiusAttribute> newAttributes = attributes.stream()
-                .filter(a -> a.getType() != CHAP_PASSWORD && a.getType() != CHAP_CHALLENGE)
+                .filter(a -> !(a.getVendorId() == -1 && a.getType() == CHAP_PASSWORD)
+                        && !(a.getVendorId() == -1 && a.getType() == CHAP_CHALLENGE))
                 .collect(Collectors.toList());
 
         newAttributes.add(dictionary.createAttribute(-1, CHAP_CHALLENGE, challenge));
