@@ -151,11 +151,58 @@ class VendorSpecificAttributeTest {
 
     @CsvSource({ // vendorId, 2x known attributes, subAttrHeaderSize
             "4846,2,20119,3", // Lucent format=2,1
-            "8164,2,256,4", // Starent format=2,2
-            "429,102,232,4" // USR format=4,0
+            "8164,2,256,4" // Starent format=2,2
     })
     @ParameterizedTest
-    void customTypeSizeToFromByteArray(int vendorId, int attribute1, int attribute2, int subAttrHeaderSize) {
+    void customTypeLengthToFromByteArray(int vendorId, int attribute1, int attribute2, int subAttrHeaderSize) {
+        final int attribute3 = 999;
+        final byte[] bytes1 = random.generateSeed(4);
+        final byte[] bytes2 = random.generateSeed(4);
+        final byte[] bytes3 = random.generateSeed(4);
+
+        final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, vendorId, Arrays.asList(
+                dictionary.createAttribute(vendorId, attribute1, bytes1),
+                dictionary.createAttribute(vendorId, attribute2, bytes2),
+                // vendor defined, but attribute undefined
+                dictionary.createAttribute(vendorId, attribute3, bytes3)
+        ));
+
+        int length = 6 + 3 * (4 + subAttrHeaderSize);
+
+        final byte[] vsaByteBuf = vsa.toByteArray();
+        assertEquals(length, vsaByteBuf.length);
+        assertEquals(3, vsa.getAttributes().size());
+
+
+        final RadiusAttribute sub1 = vsa.getAttributes().get(0);
+        assertFalse(sub1.getAttributeName().contains("Unknown"));
+        assertEquals(attribute1, sub1.getType());
+
+        final RadiusAttribute sub2 = vsa.getAttributes().get(1);
+        assertFalse(sub2.getAttributeName().contains("Unknown"));
+        assertEquals(attribute2, sub2.getType());
+
+        final RadiusAttribute sub3 = vsa.getAttributes().get(2);
+        assertTrue(sub3.getAttributeName().contains("Unknown"));
+        assertEquals(attribute3, sub3.getType());
+
+        System.out.println(vsa);
+
+        final VendorSpecificAttribute parsed = new VendorSpecificAttribute(dictionary, -1, Unpooled.wrappedBuffer(vsaByteBuf));
+
+        System.out.println(parsed);
+        // todo test customTypeSize / customLengthSize
+    }
+
+    /**
+     * USR format=4,0
+     */
+    @Test
+    void customTypeNilLengthToFromByteArray() {
+        final int vendorId = 429;
+        final int attribute1 = 102;
+        final int attribute2 = 232;
+        final int subAttrHeaderSize = 4;
         final int attribute3 = 999;
         final byte[] bytes1 = random.generateSeed(4);
         final byte[] bytes2 = random.generateSeed(4);
