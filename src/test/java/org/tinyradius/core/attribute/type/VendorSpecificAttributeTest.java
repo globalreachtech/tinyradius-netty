@@ -69,7 +69,7 @@ class VendorSpecificAttributeTest {
     }
 
     @Test
-    void addSubAttributeOk() throws RadiusPacketException {
+    void addSubAttribute() throws RadiusPacketException {
         final String data = "myLocationId";
         final VendorSpecificAttribute vsa = new VendorSpecificAttribute(
                 dictionary, 14122, Collections.singletonList(dictionary.createAttribute("WISPr-Location-ID", "myLocationId")))
@@ -149,7 +149,7 @@ class VendorSpecificAttributeTest {
         assertArrayEquals(bytes, createdAttribute.toByteArray());
     }
 
-    @CsvSource({ // vendorId, 2x known attributes, subAttrHeaderSize
+    @CsvSource({
             "4846,2,20119,3", // Lucent format=2,1
             "8164,2,256,4" // Starent format=2,2
     })
@@ -173,7 +173,6 @@ class VendorSpecificAttributeTest {
         assertEquals(length, vsaByteBuf.length);
         assertEquals(3, vsa.getAttributes().size());
 
-
         final RadiusAttribute sub1 = vsa.getAttributes().get(0);
         assertFalse(sub1.getAttributeName().contains("Unknown"));
         assertEquals(attribute1, sub1.getType());
@@ -189,9 +188,22 @@ class VendorSpecificAttributeTest {
         System.out.println(vsa);
 
         final VendorSpecificAttribute parsed = new VendorSpecificAttribute(dictionary, -1, Unpooled.wrappedBuffer(vsaByteBuf));
+        assertArrayEquals(vsa.toByteArray(), parsed.toByteArray());
 
-        System.out.println(parsed);
-        // todo test customTypeSize / customLengthSize
+        final RadiusAttribute parsedSub1 = parsed.getAttributes().get(0);
+        assertFalse(parsedSub1.getAttributeName().contains("Unknown"));
+        assertEquals(attribute1, parsedSub1.getType());
+        assertArrayEquals(sub1.toByteArray(), parsedSub1.toByteArray());
+
+        final RadiusAttribute parsedSub2 = parsed.getAttributes().get(1);
+        assertFalse(parsedSub2.getAttributeName().contains("Unknown"));
+        assertEquals(attribute2, parsedSub2.getType());
+        assertArrayEquals(sub2.toByteArray(), parsedSub2.toByteArray());
+
+        final RadiusAttribute parsedSub3 = parsed.getAttributes().get(2);
+        assertTrue(parsedSub3.getAttributeName().contains("Unknown"));
+        assertEquals(attribute3, parsedSub3.getType());
+        assertArrayEquals(sub3.toByteArray(), parsedSub3.toByteArray());
     }
 
     /**
@@ -202,7 +214,7 @@ class VendorSpecificAttributeTest {
         final int vendorId = 429;
         final int attribute1 = 102;
         final int attribute2 = 232;
-        final int subAttrHeaderSize = 4;
+        final int subAttrHeaderSize = 4; // USR
         final int attribute3 = 999;
         final byte[] bytes1 = random.generateSeed(4);
         final byte[] bytes2 = random.generateSeed(4);
@@ -221,33 +233,42 @@ class VendorSpecificAttributeTest {
         assertEquals(length, vsaByteBuf.length);
         assertEquals(3, vsa.getAttributes().size());
 
-
         final RadiusAttribute sub1 = vsa.getAttributes().get(0);
-        assertFalse(sub1.getAttributeName().contains("Unknown"));
+        assertEquals("USR-Last-Number-Dialed-Out", sub1.getAttributeName());
         assertEquals(attribute1, sub1.getType());
 
         final RadiusAttribute sub2 = vsa.getAttributes().get(1);
-        assertFalse(sub2.getAttributeName().contains("Unknown"));
+        assertEquals("USR-Last-Number-Dialed-In-DNIS", sub2.getAttributeName());
         assertEquals(attribute2, sub2.getType());
 
         final RadiusAttribute sub3 = vsa.getAttributes().get(2);
-        assertTrue(sub3.getAttributeName().contains("Unknown"));
+        assertEquals("Unknown-Sub-Attribute-999", sub3.getAttributeName());
         assertEquals(attribute3, sub3.getType());
-
-        // does USR still parse properly?
-
-        System.out.println(vsa);
 
         final VendorSpecificAttribute parsed = new VendorSpecificAttribute(dictionary, -1, Unpooled.wrappedBuffer(vsaByteBuf));
 
-        System.out.println(parsed);
-        // todo test customTypeSize / customLengthSize
+        assertEquals(1, parsed.getAttributes().size());
+
+        final RadiusAttribute parsedSub1 = parsed.getAttributes().get(0);
+        assertEquals("USR-Last-Number-Dialed-Out", parsedSub1.getAttributeName());
+        assertEquals(attribute1, parsedSub1.getType());
+
+        final int offset = 6 + subAttrHeaderSize;
+        assertArrayEquals(vsa.toByteBuf().slice(offset, vsaByteBuf.length - offset).copy().array(), parsedSub1.getValue());
+        // VSA doesn't have length field, so everything inside VSA is treated as single sub-attribute
+        // (we parse sub-attribute to the end of the outer VSA)
     }
 
     /**
-     * The String field is one or more octets.  The actual format of the
+     * https://tools.ietf.org/html/rfc2865#page-47
+     * <p>
+     * "The String field is one or more octets.  The actual format of the
      * information is site or application specific, and a robust
-     * implementation SHOULD support the field as undistinguished octets.
+     * implementation SHOULD support the field as undistinguished octets."
+     * <p>
+     * Testing when Vendor cannot be found.
+     * <p>
+     * See also {@link AnonSubAttribute}
      */
     @Test
     void undistinguishedOctets() {
@@ -332,6 +353,17 @@ class VendorSpecificAttributeTest {
         final Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> new VendorSpecificAttribute(dictionary, 14122, attributes));
         assertTrue(exception.getMessage().contains("Attribute too long"));
+    }
+
+    @Test
+    void createTooShort() {
+        // todo test less tha 6 octets
+//        final ByteBuf vsaByteBuf = Unpooled.buffer().writeByte(26).writeByte(16).writeInt(123456);
+//        final VendorSpecificAttribute attribute1 = (VendorSpecificAttribute) VSA.create(dictionary, -1, vsaByteBuf);
+//
+//        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
+//                VSA.create(dictionary, 14122, Unpooled.buffer().writeByte(26).writeByte(6).writeInt(123456)));
+//        assertTrue(e1.getMessage().contains("should be greater than 6 octets, actual: 6"));
     }
 
     @Test

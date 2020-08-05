@@ -9,7 +9,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.globalreachtech/tinyradius-netty)](https://search.maven.org/artifact/com.globalreachtech/tinyradius-netty)
 [![javadoc](https://javadoc.io/badge2/com.globalreachtech/tinyradius-netty/javadoc.svg)](https://javadoc.io/doc/com.globalreachtech/tinyradius-netty)
 
-TinyRadius-Netty is a fork of the TinyRadius Radius library, rebuilt with Java 8 and Netty patterns/features.
+TinyRadius-Netty is a Java Radius library, loosely based off the TinyRadius Radius library, rebuilt with Java 8 and Netty patterns/features.
 
 ## Features
 - Sends/receives Radius packets

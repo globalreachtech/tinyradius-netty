@@ -11,6 +11,12 @@ import java.util.Optional;
  * As per RFC 2865: The String field is one or more octets. The actual format of the
  * information is site or application specific, and a robust
  * implementation SHOULD support the field as undistinguished octets.
+ * <p>
+ * Typically used when Vendor can't be looked up, so we can't determine
+ * size of sub-attribute 'type' and 'length' fields.
+ * <p>
+ * If Vendor is found, but attribute isn't, we typically use OctetsAttribute instead as
+ * we can still read the sub-attribute metadata.
  */
 public class AnonSubAttribute implements RadiusAttribute {
 

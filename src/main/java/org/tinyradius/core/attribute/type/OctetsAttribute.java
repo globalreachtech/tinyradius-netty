@@ -113,6 +113,12 @@ public class OctetsAttribute implements RadiusAttribute {
         OctetsAttribute that = (OctetsAttribute) o;
         return getVendorId() == that.getVendorId() &&
                 data.equals(that.data);
+        /*
+         * https://netty.io/4.1/api/io/netty/buffer/ByteBuf.html#equals-java.lang.Object-
+         * Determines if the content of the specified buffer is identical to the content of this array. 'Identical' here means:
+         * the size of the contents of the two buffers are same and
+         * every single byte of the content of the two buffers are same.
+         */
     }
 
     @Override
