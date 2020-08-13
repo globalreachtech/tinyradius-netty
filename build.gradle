@@ -47,10 +47,9 @@ sonarqube {
 }
 
 test {
+    testLogging.showStandardStreams = true
+    testLogging.exceptionFormat = 'full'
     useJUnitPlatform()
-    testLogging {
-        events "passed", "skipped", "failed", "standardOut", "standardError"
-    }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
