@@ -25,10 +25,24 @@ public enum AttributeType {
         this.stringParser = stringParser;
     }
 
+    /**
+     * @param dictionary dictionary to set attribute to use
+     * @param vendorId   -1 for top level attributes, otherwise vendorId if sub-attribute
+     * @param data       ByteBuf for entire attribute
+     * @return new attribute
+     */
     public OctetsAttribute create(Dictionary dictionary, int vendorId, ByteBuf data) {
         return constructor.newInstance(dictionary, vendorId, data);
     }
 
+    /**
+     * @param dictionary dictionary to set attribute to use
+     * @param vendorId   -1 for top level attributes, otherwise vendorId if sub-attribute
+     * @param type       attribute type code
+     * @param tag        RFC2868 tag byte, ignored if vendorId/type does not support tags
+     * @param value      attribute value as byte array
+     * @return new attribute
+     */
     public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
         final int headerSize = vendor.map(Vendor::getHeaderSize).orElse(2);
@@ -54,6 +68,14 @@ public enum AttributeType {
                 .orElse(new byte[0]);
     }
 
+    /**
+     * @param dictionary dictionary to set attribute to use
+     * @param vendorId   -1 for top level attributes, otherwise vendorId if sub-attribute
+     * @param type       attribute type code
+     * @param tag        RFC2868 tag byte, ignored if vendorId/type does not support tags
+     * @param value      attribute value as string, converted to byte array based on type defined by vendorId/type code
+     * @return new attribute
+     */
     public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
         final byte[] bytes = stringParser.parse(dictionary, vendorId, type, value);
         return create(dictionary, vendorId, type, tag, bytes);

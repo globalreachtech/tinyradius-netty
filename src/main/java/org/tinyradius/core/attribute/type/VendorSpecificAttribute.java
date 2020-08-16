@@ -28,11 +28,20 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * @param data       data to parse for childVendorId and sub-attributes
      */
     public VendorSpecificAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
-        this(dictionary, data.getInt(2),
+        this(dictionary, validate(data).getInt(2),
                 AttributeHolder.readAttributes(dictionary, data.getInt(2), data.slice(6, data.readableBytes() - 6)),
                 data);
         if (vendorId != -1)
             throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
+    }
+
+    // get around `Call to 'this()' must be first statement in constructor body`
+    private static ByteBuf validate(ByteBuf data) {
+        final int len = data.readableBytes();
+        if (len < 7) // VSA headers are 6 bytes
+            throw new IllegalArgumentException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
+
+        return data;
     }
 
     /**
@@ -75,9 +84,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
             throw new IllegalArgumentException("Vendor-Specific attribute attributeId should always be 26, " +
                     "actual: " + data.getByte(0));
 
-        final int len = data.readableBytes();
-        if (len < 7) // VSA headers are 6 bytes
-            throw new IllegalArgumentException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
+        validate(data);
     }
 
     @Override
