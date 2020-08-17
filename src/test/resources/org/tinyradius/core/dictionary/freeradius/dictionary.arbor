@@ -1,0 +1,21 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 650f9d1b040a17068cdb47280966d482c134b595 $
+##############################################################################
+#
+#	Arbor networks.
+#
+#	$Id: 650f9d1b040a17068cdb47280966d482c134b595 $
+#
+##############################################################################
+
+VENDOR		Arbor				9694
+
+BEGIN-VENDOR	Arbor
+
+# Arbor-Privilege-Level = "system_admin or system_analyst or system_user"
+
+ATTRIBUTE	Arbor-Privilege-Level			1	string
+
+END-VENDOR Arbor

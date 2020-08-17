@@ -1,0 +1,20 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: d398b1cd20183f4b5b6684ebac99a9805cdb876d $
+#
+#	Found on the net.
+#
+#	$Id: d398b1cd20183f4b5b6684ebac99a9805cdb876d $
+#
+
+VENDOR		Propel				14895
+
+BEGIN-VENDOR	Propel
+ATTRIBUTE	Propel-Accelerate			1	integer
+ATTRIBUTE	Propel-Dialed-Digits			2	string
+ATTRIBUTE	Propel-Client-IP-Address		3	ipaddr
+ATTRIBUTE	Propel-Client-NAS-IP-Address		4	ipaddr
+ATTRIBUTE	Propel-Client-Source-ID			5	integer
+ATTRIBUTE	Propel-Content-Filter-ID		6	integer
+END-VENDOR	Propel

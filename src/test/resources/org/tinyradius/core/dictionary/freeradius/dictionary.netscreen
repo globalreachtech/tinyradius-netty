@@ -1,0 +1,37 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 341cb0433f34cdc07caa1575e335fd30c1452046 $
+#
+#	Netscreen VSAs
+#	Netscreen purchased by Juniper in 2004
+#	From:
+#	https://kb.juniper.net/InfoCenter/index?page=content&id=kb6392&actp=METADATA
+#
+
+VENDOR		Netscreen			3224
+
+BEGIN-VENDOR	Netscreen
+
+ATTRIBUTE	NS-Admin-Privilege			1	integer
+ATTRIBUTE	NS-VSYS-Name				2	string
+ATTRIBUTE	NS-User-Group				3	string
+ATTRIBUTE	NS-Primary-DNS				4	ipaddr
+ATTRIBUTE	NS-Secondary-DNS			5	ipaddr
+ATTRIBUTE	NS-Primary-WINS				6	ipaddr
+ATTRIBUTE	NS-Secondary-WINS			7	ipaddr
+
+ATTRIBUTE	NS-NSM-User-Domain-Name			220	string
+ATTRIBUTE	NS-NSM-User-Role-Mapping		221	string
+
+#
+#  Values VSYS-Admin and Read-Only-VSYS-Admin require a NS-VSYS-Name
+#  attribute in the response packet.
+#
+VALUE	NS-Admin-Privilege		Root-Admin		1
+VALUE	NS-Admin-Privilege		All-VSYS-Root-Admin	2
+VALUE	NS-Admin-Privilege		VSYS-Admin		3
+VALUE	NS-Admin-Privilege		Read-Only-Admin		4
+VALUE	NS-Admin-Privilege		Read-Only-VSYS-Admin	5
+
+END-VENDOR	Netscreen

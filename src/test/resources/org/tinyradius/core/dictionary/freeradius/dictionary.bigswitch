@@ -1,0 +1,18 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 7a4b02dce7a75a5944a63b332121525f7052fa64 $
+#
+######################################################################
+#            Big Switch Networks (BSN) Dictionary
+#            Author: Nitin Madhok <nmadhok@g.clemson.edu>
+#            Version: $Id: 7a4b02dce7a75a5944a63b332121525f7052fa64 $
+######################################################################
+
+VENDOR		Big-Switch-Networks		37538
+BEGIN-VENDOR	Big-Switch-Networks
+
+ATTRIBUTE	BSN-User-Role				1	string
+ATTRIBUTE	BSN-AVPair				2	string
+
+END-VENDOR	Big-Switch-Networks

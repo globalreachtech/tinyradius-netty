@@ -1,0 +1,59 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: aff435e52ddbd3ad260a478af78f89c4ed78f3bb $
+#
+#	Attributes and values defined in RFC 5580.
+#	http://www.ietf.org/rfc/rfc5580.txt
+#
+#	$Id: aff435e52ddbd3ad260a478af78f89c4ed78f3bb $
+#
+
+# One ASCII character of Namespace ID
+#	0 = TADIG	(GSM)
+#	1 = Realm
+#	2 = E212
+#
+#
+# Followed by the actual string
+ATTRIBUTE	Operator-Name				126	string
+
+#
+#  Large blobs of stuff
+#
+ATTRIBUTE	Location-Information			127	struct
+MEMBER		Location-Information-Index		uint16
+MEMBER		Location-Information-Code		uint8
+MEMBER		Location-Information-Entity		uint8
+MEMBER		Location-Information-Sighting-Time	uint64
+MEMBER		Location-Information-TTL		uint64
+MEMBER		Location-Information-Method		string
+
+ATTRIBUTE	Location-Data				128	struct
+MEMBER		Location-Data-Index			uint16
+MEMBER		Location-Data-Location			octets
+
+ATTRIBUTE	Basic-Location-Policy-Rules		129	struct
+MEMBER		Basic-Location-Policy-Flags		uint16
+MEMBER		Basic-Location-Policy-Retention-Expires	uint64
+MEMBER		Basic-Location-Policy-Note-Well		string
+
+ATTRIBUTE	Extended-Location-Policy-Rules		130	string
+
+#
+#  Really a bit-packed field
+#
+ATTRIBUTE	Location-Capable			131	struct
+MEMBER		Civic-Location-Capable				bit[1]
+MEMBER		Geo-Location-Capable				bit[1]
+MEMBER		Users-Location-Capable				bit[1]
+MEMBER		NAS-Location-Capable				bit[1]
+MEMBER		Location-Capable-Reserved			bit[4]
+
+ATTRIBUTE	Requested-Location-Info			132	integer
+VALUE	Requested-Location-Info		Civic-Location		1
+VALUE	Requested-Location-Info		Geo-Location		2
+VALUE	Requested-Location-Info		Users-Location		4
+VALUE	Requested-Location-Info		NAS-Location		8
+VALUE	Requested-Location-Info		Future-Requests		16
+VALUE	Requested-Location-Info		None			32

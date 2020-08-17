@@ -24,6 +24,7 @@ public class ResourceParser {
     private final WritableDictionary dictionary;
     private final ResourceResolver resourceResolver;
 
+    // primitive support for VALUE declared before ATTRIBUTE
     private final List<Consumer<WritableDictionary>> deferred = new LinkedList<>();
     private int currentVendor = -1;
 
@@ -107,7 +108,20 @@ public class ResourceParser {
                 parseVendor(tokens, lineNum);
                 break;
             case "BEGIN-TLV": // todo
+                logger.warn("'BEGIN-TLV' not yet supported - ignoring");
+                break;
             case "END-TLV":
+                logger.warn("'END-TLV' not yet supported - ignoring");
+                break;
+            case "PROTOCOL":
+                logger.warn("'PROTOCOL' not yet supported - ignoring");
+                break;
+            case "BEGIN-PROTOCOL":
+                logger.warn("'BEGIN-PROTOCOL' not yet supported - ignoring");
+                break;
+            case "END-PROTOCOL":
+                logger.warn("'END-PROTOCOL' not yet supported - ignoring");
+                break;
             default:
                 throw new IOException("Could not decode tokens on line " + lineNum + ": " + Arrays.toString(tokens));
         }

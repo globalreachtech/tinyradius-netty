@@ -1,0 +1,20 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 571f01d98e24e32712a551a6bf7f19ec708ec06f $
+#
+#	Attributes and values defined in RFC 5447.
+#	http://www.ietf.org/rfc/rfc5447.txt
+#
+#	$Id: 571f01d98e24e32712a551a6bf7f19ec708ec06f $
+#
+
+# 64-bit bit field
+ATTRIBUTE	MIP6-Feature-Vector			124	integer64
+
+#
+#  Encoded as one octet prefix, followed by 16 octets of address information.
+#
+ATTRIBUTE	MIP6-Home-Link-Prefix			125	struct
+MEMBER		MIP6-Home-Link-Prefix-Prefix		uint8
+MEMBER		MIP6-Home-Link-Prefix-Address		ipv6addr

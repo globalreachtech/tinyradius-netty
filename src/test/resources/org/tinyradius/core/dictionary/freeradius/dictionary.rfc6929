@@ -1,0 +1,27 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: b7507eb8aa5fc5f882c0d32578a26235228f6b64 $
+#
+#	Attributes and values defined in RFC 6929
+#	http://www.ietf.org/rfc/rfc6929.txt
+
+#
+#  These attributes in this dictionary are "place-holder".  They
+#  should NEVER be used by name.  The "extended" data type should
+#  NEVER be used in any other dictionary.
+#
+#
+ATTRIBUTE	Extended-Attribute-1			241	extended
+ATTRIBUTE	Extended-Attribute-2			242	extended
+ATTRIBUTE	Extended-Attribute-3			243	extended
+ATTRIBUTE	Extended-Attribute-4			244	extended
+ATTRIBUTE	Extended-Attribute-5			245	extended long
+ATTRIBUTE	Extended-Attribute-6			246	extended long
+
+ATTRIBUTE	Extended-Vendor-Specific-1		241.26	vsa
+ATTRIBUTE	Extended-Vendor-Specific-2		242.26	vsa
+ATTRIBUTE	Extended-Vendor-Specific-3		243.26	vsa
+ATTRIBUTE	Extended-Vendor-Specific-4		244.26	vsa
+ATTRIBUTE	Extended-Vendor-Specific-5		245.26	vsa
+ATTRIBUTE	Extended-Vendor-Specific-6		246.26	vsa

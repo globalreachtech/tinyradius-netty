@@ -33,10 +33,10 @@ class DictionaryParserTest {
 
     @Test
     void classpathIncludeDict() {
-        final Optional<AttributeTemplate> serviceTypeAttr = dictionary.getAttributeTemplate(6);
-        assertTrue(serviceTypeAttr.isPresent());
-        assertEquals("Service-Type", serviceTypeAttr.get().getName());
-        assertEquals("Login-User", serviceTypeAttr.get().getEnumeration(1));
+        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
+        assertTrue(attributeTemplate.isPresent());
+        assertEquals("Service-Type", attributeTemplate.get().getName());
+        assertEquals("Login-User", attributeTemplate.get().getEnumeration(1));
         assertEquals("Digest-Attributes", dictionary.getAttributeTemplate(-1, 207).get().getName());
     }
 
@@ -189,10 +189,10 @@ class DictionaryParserTest {
 
         final Dictionary dictionary = DictionaryParser.newFileParser().parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
 
-        final Optional<AttributeTemplate> serviceTypeAttr = dictionary.getAttributeTemplate(6);
-        assertTrue(serviceTypeAttr.isPresent());
-        assertEquals("Service-Type", serviceTypeAttr.get().getName());
-        assertEquals("Login-User", serviceTypeAttr.get().getEnumeration(1));
+        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
+        assertTrue(attributeTemplate.isPresent());
+        assertEquals("Service-Type", attributeTemplate.get().getName());
+        assertEquals("Login-User", attributeTemplate.get().getEnumeration(1));
         assertEquals("Digest-Attributes", dictionary.getAttributeTemplate(-1, 207).get().getName());
 
         Files.walk(tmpPath)

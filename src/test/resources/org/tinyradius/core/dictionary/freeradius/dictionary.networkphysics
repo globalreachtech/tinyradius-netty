@@ -1,0 +1,20 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: d70d5310c818afb7bc7bedb8a6d456d5fbace6cd $
+#
+#	NetworkPhysics dictionary
+#	$Id: d70d5310c818afb7bc7bedb8a6d456d5fbace6cd $
+#
+VENDOR		NetworkPhysics			7119
+
+BEGIN-VENDOR	NetworkPhysics
+
+ATTRIBUTE	NetSensory-Privilege			33	string
+
+#VALUE		NetSensory-Privilege		InsightsOnly	'insight'
+#VALUE		NetSensory-Privilege		Restricted	'npread'
+#VALUE		NetSensory-Privilege		Standard	'npuser'
+#VALUE		NetSensory-Privilege		Administrative	'npadmin'
+
+END-VENDOR	NetworkPhysics

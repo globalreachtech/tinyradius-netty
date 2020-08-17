@@ -1,0 +1,20 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 787b9ac32eaa7fbb9bbb77e14ae84e7a46b4cc77 $
+##############################################################################
+#
+#   DANTE Vendor Specific Attributes Dictionary
+#
+#   Created by Alan Buxey <a.l.m.buxey@lboro.ac.uk>
+#
+##############################################################################
+
+VENDOR		DANTE				27262
+
+BEGIN-VENDOR	DANTE
+
+ATTRIBUTE	Default-TTL				1	integer
+
+END-VENDOR DANTE
+

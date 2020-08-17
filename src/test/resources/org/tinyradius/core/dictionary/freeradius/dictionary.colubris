@@ -1,0 +1,16 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 89c137c5f4118472ea42a3be5ee321da9299db4e $
+# Colubris dictionary - dictionary.colubris
+#
+VENDOR		Colubris			8744
+#
+#       Vendor-specific attributes
+#
+BEGIN-VENDOR	Colubris
+
+ATTRIBUTE	Colubris-AVPair				0	string
+ATTRIBUTE	Colubris-Intercept			1	integer
+
+END-VENDOR	Colubris

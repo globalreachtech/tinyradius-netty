@@ -1,0 +1,26 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: c054969a5215596f02e95c0a96c555fdb2b6e02f $
+#
+# dictionary.bristol
+#
+#  RoamNode VSA's
+#
+# Version:      $Id: c054969a5215596f02e95c0a96c555fdb2b6e02f $
+#
+
+VENDOR		Bristol				4363
+
+#
+#       Standard attribute
+#
+BEGIN-VENDOR	Bristol
+
+ATTRIBUTE	NN-Data-Rate				1	integer
+ATTRIBUTE	NN-Data-Rate-Ceiling			2	integer
+ATTRIBUTE	NN-Homenode				3	ipaddr
+ATTRIBUTE	NN-Homeservice				4	ipaddr
+ATTRIBUTE	NN-Homeservice-Name			5	string
+
+END-VENDOR	Bristol

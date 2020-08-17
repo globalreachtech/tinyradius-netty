@@ -1,0 +1,20 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 04149fb8109ac84cfbc7970858c31799e275ff08 $
+#
+#       For TERENA VSA's
+#
+#	The reference for these values is:
+#       http://www.terena.org/activities/tf-emc2/oid.html
+#
+#       $Id: 04149fb8109ac84cfbc7970858c31799e275ff08 $
+#
+VENDOR		TERENA				25178
+
+BEGIN-VENDOR	TERENA
+
+ATTRIBUTE	Eduroam-SP-Country			10	string
+ATTRIBUTE	Eduroam-Monitoring-Inflate		11	string
+
+END-VENDOR      TERENA

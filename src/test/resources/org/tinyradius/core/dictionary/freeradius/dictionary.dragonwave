@@ -1,0 +1,34 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: ca302cad7a1f84082ab533b01a2dc1183d7facb2 $
+##############################################################################
+#
+#	Dragonwave
+#	http://www.dragonwaveinc.com
+#
+#	User-Manual / VSA reference:
+#	https://apps.fcc.gov/eas/GetApplicationAttachment.html?id=1894187
+#	(section 6.1)
+#	$Id: ca302cad7a1f84082ab533b01a2dc1183d7facb2 $
+#
+##############################################################################
+
+VENDOR		DragonWave			7262
+
+BEGIN-VENDOR	DragonWave
+
+# Used to determine the user login privilege level.
+ATTRIBUTE	DragonWave-Privilege-Level		1	integer
+
+#        Read-only access.
+
+VALUE	DragonWave-Privilege-Level	DragonWave-Admin-User	1
+
+#         Limited read-write access.
+VALUE	DragonWave-Privilege-Level	DragonWave-NOC-User	2
+
+#         Unlimited read-write access.
+VALUE	DragonWave-Privilege-Level	DragonWave-Super-User	3
+
+END-VENDOR    DragonWave

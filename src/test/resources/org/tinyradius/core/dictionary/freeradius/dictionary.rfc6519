@@ -1,0 +1,12 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 8d32744a7338788fa10c529663c53497523d47cb $
+#
+#	Attributes and values defined in RFC 6519.
+#	http://www.ietf.org/rfc/rfc6519.txt
+#
+#	$Id: 8d32744a7338788fa10c529663c53497523d47cb $
+#
+
+ATTRIBUTE	DS-Lite-Tunnel-Name			144	string

@@ -1,0 +1,11 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 54b6ccf88e23b0504d4adc06c5eb3233bb9b37df $
+#
+#	Attributes and values defined in RFC 4372.
+#	http://www.ietf.org/rfc/rfc4372.txt
+#
+#	$Id: 54b6ccf88e23b0504d4adc06c5eb3233bb9b37df $
+#
+ATTRIBUTE	Chargeable-User-Identity		89	octets

@@ -1,0 +1,10 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 81d7488474c04912e6c8d717137a1767ce088a96 $
+#
+#        Attributes and values defined in RFC 8859
+#        http://www.ietf.org/rfc/rfc8859
+#
+
+ATTRIBUTE	Operator-NAS-Identifier			241.8	octets

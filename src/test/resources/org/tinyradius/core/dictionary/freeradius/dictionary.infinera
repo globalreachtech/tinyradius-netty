@@ -1,0 +1,13 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: e1ac24f229dfba72135b557beb9e7a48d14750e7 $
+#
+VENDOR		Infinera			8708
+
+BEGIN-VENDOR	Infinera
+
+ATTRIBUTE	Infinera-User-Category			1	string
+ATTRIBUTE	Infinera-ENM-User-Category		2	string
+
+END-VENDOR      Infinera

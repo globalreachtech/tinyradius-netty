@@ -1,0 +1,14 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 7b809b8505682c10de2397f44f1955950249a194 $
+##############################################################################
+#
+#	Attributes and values defined in RFC 4818.
+#	http://www.ietf.org/rfc/rfc4818.txt
+#
+#	$Id: 7b809b8505682c10de2397f44f1955950249a194 $
+#
+##############################################################################
+
+ATTRIBUTE	Delegated-IPv6-Prefix			123	ipv6prefix

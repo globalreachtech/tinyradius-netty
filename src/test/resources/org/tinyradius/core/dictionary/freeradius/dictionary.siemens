@@ -1,0 +1,28 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 02b0c4dac613513be271c866ac4b7e528f19047b $
+##############################################################################
+#
+#	Siemens
+#
+#	$Id: 02b0c4dac613513be271c866ac4b7e528f19047b $
+#
+##############################################################################
+
+VENDOR		Siemens				4329
+
+BEGIN-VENDOR	Siemens
+
+ATTRIBUTE	Siemens-URL-Redirection			1	string
+ATTRIBUTE	Siemens-AP-Name				2	string
+ATTRIBUTE	Siemens-AP-Serial			3	string
+ATTRIBUTE	Siemens-VNS-Name			4	string
+ATTRIBUTE	Siemens-SSID				5	string
+ATTRIBUTE	Siemens-BSS-MAC				6	string
+ATTRIBUTE	Siemens-Policy-Name			7	string
+ATTRIBUTE	Siemens-Topology-Name			8	string
+ATTRIBUTE	Siemens-Ingress-RC-Name			9	string
+ATTRIBUTE	Siemens-Egress-RC-Name			10	string
+
+END-VENDOR	Siemens

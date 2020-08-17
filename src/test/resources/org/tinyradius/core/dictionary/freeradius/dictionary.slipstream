@@ -1,0 +1,21 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: f9b69625b573d195d265c1c3d740a3c1bdf23059 $
+##############################################################################
+#
+#	For Slipstream dialup accelerator servers
+#	Created based on
+# 	slipstream_sp_6.0_installation_and_configuration_guide.pdf
+#
+#	$Id: f9b69625b573d195d265c1c3d740a3c1bdf23059 $
+#
+##############################################################################
+
+VENDOR		Slipstream			7000
+
+BEGIN-VENDOR	Slipstream
+
+ATTRIBUTE	Slipstream-Auth				1	string
+
+END-VENDOR	Slipstream

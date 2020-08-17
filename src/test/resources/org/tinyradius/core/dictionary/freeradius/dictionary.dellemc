@@ -1,0 +1,20 @@
+# -*- text -*-
+# Copyright (C) 2020 The FreeRADIUS Server project and contributors
+# This work is licensed under CC-BY version 4.0 https://creativecommons.org/licenses/by/4.0
+# Version $Id: 30a488bbe99a93a8c4cc67bcc539b8eecc69247a $
+#
+#   Dell Inc.
+#
+#   DellEMC-AVpair      Attribute-Value Pair.
+#   DellEMC-Group-Name  The Linux primary group name associated with the user.
+#                       This must be an existing group in /etc/groups.
+
+VENDOR		DellEMC				674
+
+BEGIN-VENDOR	DellEMC
+
+ATTRIBUTE	DellEMC-AVpair				1	string
+ATTRIBUTE	DellEMC-Group-Name			2	string
+
+END-VENDOR DellEMC
+
