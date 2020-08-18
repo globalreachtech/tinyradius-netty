@@ -107,20 +107,23 @@ public class ResourceParser {
             case "VENDOR":
                 parseVendor(tokens, lineNum);
                 break;
-            case "BEGIN-TLV": // todo
-                logger.warn("'BEGIN-TLV' not yet supported - ignoring");
+            case "BEGIN-TLV":
+                logger.warn("'BEGIN-TLV' not supported - ignoring");
                 break;
             case "END-TLV":
-                logger.warn("'END-TLV' not yet supported - ignoring");
+                logger.warn("'END-TLV' not supported - ignoring");
                 break;
             case "PROTOCOL":
-                logger.warn("'PROTOCOL' not yet supported - ignoring");
+                logger.warn("'PROTOCOL' not supported - ignoring");
                 break;
             case "BEGIN-PROTOCOL":
-                logger.warn("'BEGIN-PROTOCOL' not yet supported - ignoring");
+                logger.warn("'BEGIN-PROTOCOL' not supported - ignoring");
                 break;
             case "END-PROTOCOL":
-                logger.warn("'END-PROTOCOL' not yet supported - ignoring");
+                logger.warn("'END-PROTOCOL' not supported - ignoring");
+                break;
+            case "MEMBER": // for 'struct' compound type
+                logger.warn("'MEMBER' not supported - ignoring");
                 break;
             default:
                 throw new IOException("Could not decode tokens on line " + lineNum + ": " + Arrays.toString(tokens));
@@ -195,7 +198,8 @@ public class ResourceParser {
         final String valStr = tok[3];
 
         return d -> d.getAttributeTemplate(attributeName)
-                .orElseThrow(() -> new RuntimeException(new IOException("Unknown attribute type: " + attributeName + ", line: " + lineNum)))
+                .orElseThrow(() -> new RuntimeException(new IOException(
+                        "Unknown attribute type while parsing VALUE: " + attributeName + ", line: " + lineNum)))
                 .addEnumerationValue(Integer.decode(valStr), enumName);
     }
 

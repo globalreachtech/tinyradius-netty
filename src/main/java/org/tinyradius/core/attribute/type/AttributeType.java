@@ -97,14 +97,15 @@ public enum AttributeType {
             case "ipv6prefix":
                 return AttributeType.IPV6_PREFIX;
             case "octets":
-            case "ifid":
+            case "ifid": //TODO
             case "integer64":
             case "ether":
             case "abinary":
             case "byte":
             case "short":
             case "signed":
-            case "tlv":
+            case "tlv": // nested attributes
+            case "struct": // compound types
             case "ipv4prefix":
             default:
                 return AttributeType.OCTETS;

@@ -20,9 +20,4 @@ public class AccountingRequest extends GenericRequest {
         if (type != ACCOUNTING_REQUEST)
             throw new IllegalArgumentException("First octet must be " + ACCOUNTING_REQUEST + ", actual: " + type);
     }
-
-    @Override
-    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
-        return withAuthAttributes(genAuth(sharedSecret), getAttributes());
-    }
 }
