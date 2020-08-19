@@ -6,6 +6,7 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.NestedAttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -99,6 +100,10 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     default ByteBuf toByteBuf() {
         return Unpooled.wrappedBuffer(getHeader(), getAttributeByteBuf());
+    }
+
+    default ByteBuffer toByteBuffer() {
+        return toByteBuf().nioBuffer();
     }
 
     default byte[] toBytes() {

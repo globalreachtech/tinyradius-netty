@@ -60,8 +60,22 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
         // use unpooled heap so we can use ByteBuf freely later without worrying about GC
         // todo use original directBuffer with zero copy
 
-        final ByteBuf byteBuf = Unpooled.copiedBuffer(datagram.content());
+        return fromByteBuf(dictionary, Unpooled.copiedBuffer(datagram.content()));
+    }
 
+    /**
+     * Reads a request from the given input stream and
+     * creates an appropriate RadiusPacket/subclass.
+     * <p>
+     * Decodes the encrypted fields and attributes of the packet, and checks
+     * authenticator if appropriate.
+     *
+     * @param dictionary dictionary to use for attributes
+     * @param byteBuf    byteBuf to read packet from
+     * @return new RadiusPacket object
+     * @throws RadiusPacketException malformed packet
+     */
+    static RadiusRequest fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
         return RadiusRequest.create(dictionary, RadiusPacket.readHeader(byteBuf),
                 AttributeHolder.readAttributes(dictionary, -1, byteBuf));
     }
