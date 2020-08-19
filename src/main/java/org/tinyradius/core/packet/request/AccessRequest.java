@@ -114,11 +114,18 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * @param password plaintext password to encode into CHAP-Password
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
      * @throws IllegalArgumentException invalid password
+     * @throws RadiusPacketException
      */
     public AccessRequest withChapPassword(String password) throws RadiusPacketException {
         return AccessRequestChap.withPassword(withoutAuths(), password);
     }
 
+    /**
+     *
+     * @param password
+     * @return
+     * @throws RadiusPacketException
+     */
     public AccessRequest withPapPassword(String password) throws RadiusPacketException {
         return AccessRequestPap.withPassword(withoutAuths(), password);
     }
