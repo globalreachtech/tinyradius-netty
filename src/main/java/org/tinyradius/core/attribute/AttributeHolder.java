@@ -43,15 +43,19 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         if (vendorId != -1 && !vendor.isPresent())
             return Collections.singletonList(new AnonSubAttribute(dictionary, vendorId, data));
 
-        final ArrayList<RadiusAttribute> attributes = new ArrayList<>();
+        final List<RadiusAttribute> attributes = new ArrayList<>();
 
-        // at least 2 octets left (minimum size header)
-        while (data.isReadable(2)) {
-            attributes.add(readAttribute(dictionary, vendorId, data));
+        try {
+            // at least 2 octets left (minimum size header)
+            while (data.isReadable(2)) {
+                attributes.add(readAttribute(dictionary, vendorId, data));
+            }
+
+            if (data.isReadable())
+                throw new IllegalArgumentException("Attribute malformed, " + data.readableBytes() + " bytes remaining to parse (minimum 2 octets)");
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error reading attributes, already extracted attributes: " + attributes, e);
         }
-
-        if (data.isReadable())
-            throw new IllegalArgumentException("Attribute malformed, " + data.readableBytes() + " bytes remaining to parse");
 
         return attributes;
     }
