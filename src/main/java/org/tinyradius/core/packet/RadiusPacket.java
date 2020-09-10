@@ -98,6 +98,10 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      */
     byte[] getAuthenticator();
 
+    default int getLength() {
+        return getHeader().readableBytes() + getAttributeByteBuf().readableBytes();
+    }
+
     default ByteBuf toByteBuf() {
         return Unpooled.wrappedBuffer(getHeader(), getAttributeByteBuf());
     }

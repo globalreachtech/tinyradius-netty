@@ -176,8 +176,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
 
     @Override
     public AccessRequest withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
-        final ByteBuf newHeader = RadiusPacket.buildHeader(getType(), getId(), getAuthenticator(), attributes);
-        return create(getDictionary(), newHeader, attributes);
+        return withAuthAttributes(getAuthenticator(), attributes);
     }
 
     @Override
