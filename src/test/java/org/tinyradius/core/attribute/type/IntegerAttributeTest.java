@@ -1,6 +1,7 @@
 package org.tinyradius.core.attribute.type;
 
 import org.junit.jupiter.api.Test;
+import org.tinyradius.TestUtils;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 
@@ -47,14 +48,14 @@ class IntegerAttributeTest {
     void bytesTooShort() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> INTEGER.create(dictionary, -1, 10, (byte) 0, new byte[2])); // Framed-Routing
-        assertTrue(exception.getMessage().toLowerCase().contains("should be 4 octets"));
+        assertTrue(TestUtils.getStackTrace(exception).contains("should be 4 octets"));
     }
 
     @Test
     void bytesTooLong() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> INTEGER.create(dictionary, -1, 10, (byte) 0, new byte[5])); // Framed-Routing
-        assertTrue(exception.getMessage().toLowerCase().contains("should be 4 octets"));
+        assertTrue(TestUtils.getStackTrace(exception).contains("should be 4 octets"));
     }
 
     @Test

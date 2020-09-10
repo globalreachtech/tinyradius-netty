@@ -2,6 +2,7 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import org.junit.jupiter.api.Test;
+import org.tinyradius.TestUtils;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -36,7 +37,7 @@ class OctetsAttributeTest {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 OCTETS.create(dictionary, -1, 3, (byte) 0, oversizedArray)); // CHAP-Password
 
-        assertTrue(exception.getMessage().contains("too long"));
+        assertTrue(TestUtils.getStackTrace(exception).contains("too long"));
     }
 
     @Test
@@ -48,7 +49,7 @@ class OctetsAttributeTest {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 OCTETS.create(dictionary, -1, byteBuf)); // CHAP-Password
 
-        assertEquals("Attribute declared length is 123, actual length: 255", exception.getMessage());
+        assertEquals("Attribute declared length is 123, actual length: 255", exception.getCause().getMessage());
     }
 
     @Test
