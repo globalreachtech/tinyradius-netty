@@ -3,6 +3,9 @@ package org.tinyradius.core.attribute.type;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.dictionary.parser.DictionaryParser;
+
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.type.AttributeType.INTEGER;
@@ -100,5 +103,45 @@ class IntegerAttributeTest {
                 () -> INTEGER.create(dictionary, -1, 6, (byte) 0, "badString")); // Service-Type
 
         assertTrue(exception.getMessage().toLowerCase().contains("for input string: \"badstring\""));
+    }
+
+    /**
+     * https://tools.ietf.org/html/bcp158
+     * <p>
+     * "Other limitations of the tagging mechanism are that when integer
+     * values are tagged, the value portion is reduced to three bytes,
+     * meaning only 24-bit numbers can be represented."
+     */
+    @Test
+    void taggedEnum() throws IOException {
+        // testing without tag
+        // ATTRIBUTE	Service-Type		6	integer
+        // VALUE		Service-Type		Callback-Login-User	3
+        final IntegerAttribute serviceType = (IntegerAttribute) dictionary.getAttributeTemplate("Service-Type").get()
+                .create(dictionary, (byte) 1, "Callback-Login-User");
+
+        assertEquals(6, serviceType.getLength());
+        assertEquals(IntegerAttribute.class, serviceType.getClass());
+        assertEquals("Service-Type = Callback-Login-User", serviceType.toString());
+        assertEquals(3, serviceType.getValueInt());
+        assertEquals("Callback-Login-User", serviceType.getValueString());
+
+
+        // todo test creating from bytebuf
+
+        // testing has_tag
+        // ATTRIBUTE	Tunnel-Type				64	integer	has_tag
+        // VALUE	Tunnel-Type			L2F			2
+        final Dictionary dict = DictionaryParser.newClasspathParser()
+                .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary.rfc2868");
+
+        final IntegerAttribute vlan = (IntegerAttribute) dict.getAttributeTemplate("Tunnel-Type").get()
+                .create(dict, (byte) 1, "L2F");
+
+        assertEquals(6, vlan.getLength());
+        assertEquals(IntegerAttribute.class, vlan.getClass());
+        assertEquals("Tunnel-Type:1 = L2F", vlan.toString());
+        assertEquals(2, serviceType.getValueInt());
+        assertEquals("L2F", serviceType.getValueString());
     }
 }

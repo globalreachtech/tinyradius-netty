@@ -93,8 +93,8 @@ public class OctetsAttribute implements RadiusAttribute {
     @Override
     public String toString() {
         return isTagged() ?
-                "[Tagged: " + getTag() + "] " + getAttributeName() + ": " + getValueString() :
-                getAttributeName() + ": " + getValueString();
+                getAttributeName() + ":" + getTag() + " = " + getValueString() :
+                getAttributeName() + " = " + getValueString();
     }
 
     @Override
