@@ -2,12 +2,15 @@ package org.tinyradius.core.attribute;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.AnonSubAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
+import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +24,8 @@ import java.util.stream.Collectors;
  * Should only hold single layer of attributes
  */
 public interface AttributeHolder<T extends AttributeHolder<T>> {
+
+    Logger attrHolderLogger = LogManager.getLogger();
 
     static ByteBuf attributesToBytes(List<RadiusAttribute> attributes) {
         return Unpooled.wrappedBuffer(attributes.stream()
@@ -54,6 +59,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
             if (data.isReadable())
                 throw new IllegalArgumentException("Attribute malformed, " + data.readableBytes() + " bytes remaining to parse (minimum 2 octets)");
         } catch (Exception e) {
+            attrHolderLogger.trace("Could not extract all attributes: {}",
+                    DatatypeConverter.printHexBinary(data.copy().array()));
             throw new IllegalArgumentException("Error reading attributes, already extracted attributes: " + attributes, e);
         }
 

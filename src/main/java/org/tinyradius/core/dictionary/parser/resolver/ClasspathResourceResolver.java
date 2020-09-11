@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 
 public class ClasspathResourceResolver implements ResourceResolver {
 
-    public static ResourceResolver INSTANCE = new ClasspathResourceResolver();
+    public static final ResourceResolver INSTANCE = new ClasspathResourceResolver();
 
     private ClasspathResourceResolver() {
     }
