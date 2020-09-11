@@ -50,7 +50,7 @@ public class MemoryDictionary implements WritableDictionary {
     @Override
     public void addVendor(Vendor vendor) {
         final Optional<Vendor> existing = getVendor(vendor.getId());
-        if (existing.isPresent())
+        if (existing.isPresent()) {
             if (existing.get().equals(vendor)) {
                 logger.info("Ignoring duplicate vendor definition: {}", vendor);
                 return;
@@ -58,6 +58,7 @@ public class MemoryDictionary implements WritableDictionary {
                 throw new IllegalArgumentException("Duplicate vendor code: " + vendor.getId() +
                         " (adding " + vendor + ", but already set to " + existing.get() + ")");
             }
+        }
 
         vendorsByCode.put(vendor.getId(), vendor);
     }

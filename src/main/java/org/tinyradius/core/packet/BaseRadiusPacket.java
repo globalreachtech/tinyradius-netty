@@ -32,7 +32,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         if (header.readableBytes() != HEADER_LENGTH)
             throw new IllegalArgumentException("Packet header must be length " + HEADER_LENGTH + ", actual: " + header.readableBytes());
 
-        final int length = getHeader().readableBytes() + getAttributeByteBuf().readableBytes();
+        final int length = getLength();
         if (length > MAX_PACKET_LENGTH)
             throw new RadiusPacketException("Packet too long - length max " + MAX_PACKET_LENGTH + ", actual: " + length);
 
@@ -127,14 +127,13 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder();
+        final StringBuilder s = new StringBuilder()
+                .append(PacketType.getPacketTypeName(getType()))
+                .append(", ID ").append(getId())
+                .append(", len ").append(getLength());
 
-        s.append(PacketType.getPacketTypeName(getType()));
-        s.append(", ID ");
-        s.append(getId());
         for (RadiusAttribute attr : getAttributes()) {
-            s.append("\n");
-            s.append(attr.toString());
+            s.append("\n").append(attr.toString());
         }
         return s.toString();
     }

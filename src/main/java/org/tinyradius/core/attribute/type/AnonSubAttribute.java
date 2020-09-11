@@ -29,6 +29,8 @@ public class AnonSubAttribute implements RadiusAttribute {
         this.dictionary = dictionary;
         this.vendorId = vendorId;
         this.data = data;
+        if (vendorId == -1)
+            throw new IllegalArgumentException("Undistinguished sub-attribute vendorId should not be -1, actual: " + vendorId);
     }
 
     @Override

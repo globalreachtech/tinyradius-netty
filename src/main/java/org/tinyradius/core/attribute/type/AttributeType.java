@@ -2,10 +2,13 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
+import javax.xml.bind.DatatypeConverter;
 import java.util.Optional;
 
 public enum AttributeType {
@@ -16,6 +19,8 @@ public enum AttributeType {
     IPV4(IpAttribute.V4::new, (dictionary, i, i1, s) -> IpAttribute.stringParser(s)),
     IPV6(IpAttribute.V6::new, (dictionary, i, i1, s) -> IpAttribute.stringParser(s)),
     IPV6_PREFIX(Ipv6PrefixAttribute::new, (dictionary, i, i1, s) -> Ipv6PrefixAttribute.stringParser(s));
+
+    private static final Logger logger = LogManager.getLogger();
 
     private final Constructor constructor;
     private final StringParser stringParser;
@@ -32,7 +37,15 @@ public enum AttributeType {
      * @return new attribute
      */
     public OctetsAttribute create(Dictionary dictionary, int vendorId, ByteBuf data) {
-        return constructor.newInstance(dictionary, vendorId, data);
+        try {
+            final OctetsAttribute attribute = constructor.newInstance(dictionary, vendorId, data);
+            logger.trace("Created RadiusAttribute: vendorId: {}, type: {}",
+                    attribute.getVendorId(), attribute.getType());
+            return attribute;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not create attribute - vendorId: " + vendorId +
+                    ", bytes: " + DatatypeConverter.printHexBinary(data.copy().array()), e);
+        }
     }
 
     /**
@@ -57,8 +70,7 @@ public enum AttributeType {
                 .orElse(new byte[]{(byte) length});
 
         final ByteBuf byteBuf = Unpooled.wrappedBuffer(typeBytes, lengthBytes, tagBytes, value);
-
-        return constructor.newInstance(dictionary, vendorId, byteBuf);
+        return create(dictionary, vendorId, byteBuf);
     }
 
     private static byte[] toTagBytes(Dictionary dictionary, int vendorId, int type, byte tag) {

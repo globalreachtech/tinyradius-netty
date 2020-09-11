@@ -5,6 +5,7 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.attribute.type.AttributeType;
 import org.tinyradius.core.attribute.type.EncodedAttribute;
+import org.tinyradius.core.attribute.type.OctetsAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 
@@ -119,8 +120,8 @@ public class AttributeTemplate {
      * Create RadiusAttribute with encoded data.
      * <p>
      * If attribute type supports encryption, this will
-     * return an use OctetsAttribute as
-     * underlying implementation so contents aren't validated at construction.
+     * return an OctetsAttribute as underlying implementation
+     * so contents aren't validated at construction.
      *
      * @param dictionary   dictionary to use
      * @param tag          tag as per RFC2868
@@ -131,7 +132,7 @@ public class AttributeTemplate {
         return autoWrapEncode(encodedType.create(dictionary, vendorId, type, tag, encodedValue));
     }
 
-    private RadiusAttribute autoWrapEncode(RadiusAttribute attribute) {
+    private RadiusAttribute autoWrapEncode(OctetsAttribute attribute) {
         return encryptEnabled() ? new EncodedAttribute(attribute) : attribute;
     }
 

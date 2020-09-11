@@ -2,9 +2,9 @@ package org.tinyradius.io.e2e;
 
 import org.junit.jupiter.api.Test;
 
-public class EndToEndTest {
+class EndToEndTest {
     @Test
     void testAll() {
-
+        // todo
     }
 }

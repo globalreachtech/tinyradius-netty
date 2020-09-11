@@ -297,22 +297,26 @@ class VendorSpecificAttributeTest {
     void badVendorId() {
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
                 VSA.create(dictionary, 4567, Unpooled.buffer().writeByte(26).writeByte(8).writeInt(123456).writeShort(2)));
-        assertEquals("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: 4567", e1.getMessage());
+        assertEquals("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: 4567",
+                e1.getCause().getMessage());
 
         final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
                 VSA.create(dictionary, 4567, 26, (byte) 0, new byte[6]));
-        assertEquals("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: 4567", e2.getMessage());
+        assertEquals("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: 4567",
+                e2.getCause().getMessage());
     }
 
     @Test
     void badAttributeType() {
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
                 VSA.create(dictionary, -1, Unpooled.buffer().writeByte(10).writeByte(8).writeInt(123456).writeShort(2)));
-        assertEquals("Vendor-Specific attribute attributeId should always be 26, actual: 10", e1.getMessage());
+        assertEquals("Vendor-Specific attribute attributeId should always be 26, actual: 10",
+                e1.getCause().getMessage());
 
         final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
                 VSA.create(dictionary, -1, 10, (byte) 0, new byte[6]));
-        assertEquals("Vendor-Specific attribute attributeId should always be 26, actual: 10", e2.getMessage());
+        assertEquals("Vendor-Specific attribute attributeId should always be 26, actual: 10",
+                e2.getCause().getMessage());
     }
 
     @Test
@@ -342,30 +346,30 @@ class VendorSpecificAttributeTest {
     void createTooShort() {
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
                 VSA.create(dictionary, 14122, Unpooled.buffer().writeByte(26).writeByte(6)));
-        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 2", e1.getMessage());
+        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 2", e1.getCause().getMessage());
 
         final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
                 VSA.create(dictionary, 14122, 26, (byte) 0, new byte[0]));
-        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 2", e2.getMessage());
+        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 2", e2.getCause().getMessage());
 
         final IllegalArgumentException e3 = assertThrows(IllegalArgumentException.class, () ->
                 VSA.create(dictionary, 14122, 26, (byte) 0, ""));
-        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 2", e3.getMessage());
+        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 2", e3.getCause().getMessage());
     }
 
     @Test
     void noSubAttribute() {
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
                 VSA.create(dictionary, 14122, Unpooled.buffer().writeByte(26).writeByte(6).writeInt(123456)));
-        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 6", e1.getMessage());
+        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 6", e1.getCause().getMessage());
 
         final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
                 VSA.create(dictionary, 14122, 26, (byte) 0, new byte[4]));
-        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 6", e2.getMessage());
+        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 6", e2.getCause().getMessage());
 
         final IllegalArgumentException e3 = assertThrows(IllegalArgumentException.class, () ->
                 VSA.create(dictionary, 14122, 26, (byte) 0, "11111111"));
-        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 6", e3.getMessage());
+        assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 6", e3.getCause().getMessage());
 
         final IllegalArgumentException e4 = assertThrows(IllegalArgumentException.class,
                 () -> new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>()));
