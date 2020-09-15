@@ -26,6 +26,9 @@ class AttributeTemplateTest {
     private static final int TUNNEL_PASSWORD = 69;
     private static final int USER_PASSWORD = 2;
 
+    /**
+     * User-Password / Tunnel-Password / Ascent-Send-Secret should ignore encrypt/tag flags
+     */
     @Test
     void testFlagDetection() {
         final AttributeTemplate template = new AttributeTemplate(
@@ -39,12 +42,12 @@ class AttributeTemplateTest {
         final AttributeTemplate custom = new AttributeTemplate(
                 123, (byte) 123, "Test-Custom", "integer", (byte) 1, true);
 
-        final WritableDictionary customDict = new MemoryDictionary();
-        customDict.addAttributeTemplate(template);
-        customDict.addAttributeTemplate(userPassword);
-        customDict.addAttributeTemplate(tunnelPassword);
-        customDict.addAttributeTemplate(ascendSend);
-        customDict.addAttributeTemplate(custom);
+        final WritableDictionary customDict = new MemoryDictionary()
+                .addAttributeTemplate(template)
+                .addAttributeTemplate(userPassword)
+                .addAttributeTemplate(tunnelPassword)
+                .addAttributeTemplate(ascendSend)
+                .addAttributeTemplate(custom);
 
         assertEquals(NO_ENCRYPT, template.getCodecType());
         final IntegerAttribute templateDecoded = (IntegerAttribute) template.create(customDict, (byte) 1, new byte[4]);
@@ -59,7 +62,7 @@ class AttributeTemplateTest {
         assertFalse(userPasswordEncoded.getTag().isPresent());
 
         assertEquals(RFC2868_TUNNEL_PASSWORD, tunnelPassword.getCodecType());
-        final IntegerAttribute tunnelPasswordDecoded = (IntegerAttribute) tunnelPassword.create(customDict, (byte) 1, new byte[4]);
+        final IntegerAttribute tunnelPasswordDecoded = (IntegerAttribute) tunnelPassword.create(customDict, (byte) 1, new byte[3]);  // int length 3 if has_tag
         assertTrue(tunnelPasswordDecoded.getTag().isPresent());
         final EncodedAttribute tunnelPasswordEncoded = (EncodedAttribute) tunnelPassword.createEncoded(customDict, (byte) 1, new byte[4]);
         assertTrue(tunnelPasswordEncoded.getTag().isPresent());
@@ -71,7 +74,7 @@ class AttributeTemplateTest {
         assertFalse(ascendSendEncoded.getTag().isPresent());
 
         assertEquals(RFC2865_USER_PASSWORD, custom.getCodecType());
-        final IntegerAttribute customDecoded = (IntegerAttribute) custom.create(customDict, (byte) 1, new byte[4]);
+        final IntegerAttribute customDecoded = (IntegerAttribute) custom.create(customDict, (byte) 1, new byte[3]); // int length 3 if has_tag
         assertTrue(customDecoded.getTag().isPresent());
         final EncodedAttribute customEncoded = (EncodedAttribute) custom.createEncoded(customDict, (byte) 1, new byte[4]);
         assertTrue(customEncoded.getTag().isPresent());

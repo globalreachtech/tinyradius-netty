@@ -1,6 +1,8 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.nio.ByteBuffer;
@@ -12,26 +14,30 @@ public class IntegerAttribute extends OctetsAttribute {
 
     public IntegerAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         super(dictionary, vendorId, data);
-        if (getValue().length != 4)
+        if (!isTagged() && getValue().length != 4)
             throw new IllegalArgumentException("Integer / Date should be 4 octets, actual: " + getValue().length);
+        if (isTagged() && getValue().length != 3)
+            throw new IllegalArgumentException("Integer / Date should be 3 octets if has_tag, actual: " + getValue().length);
     }
 
     /**
-     * Returns the long value of this attribute.
-     *
-     * @return a long
+     * @return long value of this attribute (unsigned int)
      */
     public long getValueLong() {
         return Integer.toUnsignedLong(getValueInt());
     }
 
     /**
-     * Returns the int value of this attribute. May be negative as Java ints are signed.
-     *
-     * @return an int
+     * @return int value of this attribute. May be negative as Java ints are signed.
      */
     public int getValueInt() {
-        return ByteBuffer.wrap(getValue()).getInt();
+        final byte[] value = getValue();
+        return value.length == 4 ?
+                ByteBuffer.wrap(value).getInt() :
+                ByteBuffer.allocate(Integer.BYTES) // length == 3
+                        .put((byte) 0)
+                        .put(value)
+                        .getInt(0);
     }
 
     /**
@@ -51,6 +57,12 @@ public class IntegerAttribute extends OctetsAttribute {
                 .map(at -> at.getEnumeration(value))
                 .orElseGet(() -> Integer.parseUnsignedInt(value));
 
-        return ByteBuffer.allocate(Integer.BYTES).putInt(integer).array();
+        final ByteBuf byteBuf = Unpooled.buffer(Integer.BYTES, Integer.BYTES).writeInt(integer);
+
+        return dictionary.getAttributeTemplate(vendorId, type)
+                .filter(AttributeTemplate::isTagged)
+                .map(x -> byteBuf.copy(1, 3)) // skip first octet if has_tag
+                .orElse(byteBuf)
+                .array();
     }
 }

@@ -12,13 +12,13 @@ import javax.xml.bind.DatatypeConverter;
 import java.util.Optional;
 
 public enum AttributeType {
-    VSA(VendorSpecificAttribute::new, (dictionary, i, i1, s) -> OctetsAttribute.stringHexParser(s)),
-    OCTETS(OctetsAttribute::new, (dictionary, i, i1, s) -> OctetsAttribute.stringHexParser(s)),
-    STRING(StringAttribute::new, (dictionary, i, i1, s) -> StringAttribute.stringParser(s)),
+    VSA(VendorSpecificAttribute::new, (d, v, t, s) -> OctetsAttribute.stringHexParser(s)),
+    OCTETS(OctetsAttribute::new, (d, v, t, s) -> OctetsAttribute.stringHexParser(s)),
+    STRING(StringAttribute::new, (d, v, t, s) -> StringAttribute.stringParser(s)),
     INTEGER(IntegerAttribute::new, IntegerAttribute::stringParser),
-    IPV4(IpAttribute.V4::new, (dictionary, i, i1, s) -> IpAttribute.stringParser(s)),
-    IPV6(IpAttribute.V6::new, (dictionary, i, i1, s) -> IpAttribute.stringParser(s)),
-    IPV6_PREFIX(Ipv6PrefixAttribute::new, (dictionary, i, i1, s) -> Ipv6PrefixAttribute.stringParser(s));
+    IPV4(IpAttribute.V4::new, (d, v, t, s) -> IpAttribute.stringParser(s)),
+    IPV6(IpAttribute.V6::new, (d, v, t, s) -> IpAttribute.stringParser(s)),
+    IPV6_PREFIX(Ipv6PrefixAttribute::new, (d, v, t, s) -> Ipv6PrefixAttribute.stringParser(s));
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -44,7 +44,7 @@ public enum AttributeType {
             return attribute;
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not create attribute - vendorId: " + vendorId +
-                    ", bytes: " + DatatypeConverter.printHexBinary(data.copy().array()), e);
+                    ", bytes: 0x" + DatatypeConverter.printHexBinary(data.copy().array()), e);
         }
     }
 

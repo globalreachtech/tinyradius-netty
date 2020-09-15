@@ -77,7 +77,7 @@ public class OctetsAttribute implements RadiusAttribute {
 
     @Override
     public String getValueString() {
-        return DatatypeConverter.printHexBinary(getValue());
+        return "0x" + DatatypeConverter.printHexBinary(getValue());
     }
 
     @Override
@@ -92,9 +92,10 @@ public class OctetsAttribute implements RadiusAttribute {
 
     @Override
     public String toString() {
-        return isTagged() ?
-                getAttributeName() + ":" + getTag() + " = " + getValueString() :
-                getAttributeName() + " = " + getValueString();
+        final String tag = getTag()
+                .map(t -> ":" + t)
+                .orElse("");
+        return getAttributeName() + tag + " = " + getValueString();
     }
 
     @Override
@@ -105,7 +106,6 @@ public class OctetsAttribute implements RadiusAttribute {
                 this;
     }
 
-    // do not remove - for removing from list of attributes
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

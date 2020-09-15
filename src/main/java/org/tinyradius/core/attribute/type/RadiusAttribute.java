@@ -32,6 +32,9 @@ public interface RadiusAttribute {
         }
     }
 
+    /**
+     * @return number of octets used by attribute - uses declared length where possible, otherwise uses readableBytes
+     */
     default int getLength() {
         switch (getLengthSize()) {
             case 0:
@@ -44,6 +47,9 @@ public interface RadiusAttribute {
         }
     }
 
+    /**
+     * @return number of octets used for header, typically 2 except for VSAs with custom type/length sizes
+     */
     default int getHeaderSize() {
         return getTypeSize() + getLengthSize();
     }
@@ -68,6 +74,9 @@ public interface RadiusAttribute {
      */
     Dictionary getDictionary();
 
+    /**
+     * @return underlying ByteBuf for attribute, includes attribute header, (optional) tag, and value
+     */
     ByteBuf getData();
 
     default ByteBuf toByteBuf() {
@@ -81,18 +90,27 @@ public interface RadiusAttribute {
         return getData().copy().array();
     }
 
+    /**
+     * @return number of octets used for type, typically 1 except certain VSAs
+     */
     default int getTypeSize() {
         return getVendor()
                 .map(Vendor::getTypeSize)
                 .orElse(1);
     }
 
+    /**
+     * @return number of octets used for length, typically 1 except certain VSAs
+     */
     default int getLengthSize() {
         return getVendor()
                 .map(Vendor::getLengthSize)
                 .orElse(1);
     }
 
+    /**
+     * @return 1 if attribute supports a tag, otherwise 0
+     */
     default int getTagSize() {
         return getDictionary().getAttributeTemplate(getVendorId(), getType())
                 .map(AttributeTemplate::isTagged)

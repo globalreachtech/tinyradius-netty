@@ -2,6 +2,7 @@ package org.tinyradius.core.attribute.type;
 
 import org.junit.jupiter.api.Test;
 import org.tinyradius.TestUtils;
+import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.parser.DictionaryParser;
@@ -48,17 +49,33 @@ class IntegerAttributeTest {
     }
 
     @Test
-    void bytesTooShort() {
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> INTEGER.create(dictionary, -1, 10, (byte) 0, new byte[2])); // Framed-Routing
-        assertTrue(TestUtils.getStackTrace(exception).contains("should be 4 octets"));
+    void bytesTooShort() throws IOException {
+        // no tag
+        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
+                () -> INTEGER.create(dictionary, -1, 10, (byte) 0, new byte[3])); // Framed-Routing
+        assertTrue(TestUtils.getStackTrace(e1).contains("should be 4 octets, actual: 3"));
+
+        // has tag
+        final Dictionary dict = DictionaryParser.newClasspathParser()
+                .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary.rfc2868");
+        final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
+                () -> INTEGER.create(dict, -1, 64, (byte) 0, new byte[2])); // Tunnel-Type
+        assertTrue(TestUtils.getStackTrace(e2).contains("should be 3 octets if has_tag, actual: 2"));
     }
 
     @Test
-    void bytesTooLong() {
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+    void bytesTooLong() throws IOException {
+        // no tag
+        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
                 () -> INTEGER.create(dictionary, -1, 10, (byte) 0, new byte[5])); // Framed-Routing
-        assertTrue(TestUtils.getStackTrace(exception).contains("should be 4 octets"));
+        assertTrue(TestUtils.getStackTrace(e1).contains("should be 4 octets, actual: 5"));
+
+        // has tag
+        final Dictionary dict = DictionaryParser.newClasspathParser()
+                .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary.rfc2868");
+        final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
+                () -> INTEGER.create(dict, -1, 64, (byte) 0, new byte[4])); // Tunnel-Type
+        assertTrue(TestUtils.getStackTrace(e2).contains("should be 3 octets if has_tag, actual: 4"));
     }
 
     @Test
@@ -118,17 +135,33 @@ class IntegerAttributeTest {
         // testing without tag
         // ATTRIBUTE	Service-Type		6	integer
         // VALUE		Service-Type		Callback-Login-User	3
+
+        // from enum
         final IntegerAttribute serviceType = (IntegerAttribute) dictionary.getAttributeTemplate("Service-Type").get()
                 .create(dictionary, (byte) 1, "Callback-Login-User");
-
         assertEquals(6, serviceType.getLength());
+        assertEquals(6, serviceType.getData().readableBytes());
+        assertEquals(6, serviceType.toByteArray().length);
+        assertArrayEquals(new byte[]{0, 0, 0, 3}, serviceType.getValue());
         assertEquals(IntegerAttribute.class, serviceType.getClass());
         assertEquals("Service-Type = Callback-Login-User", serviceType.toString());
         assertEquals(3, serviceType.getValueInt());
         assertEquals("Callback-Login-User", serviceType.getValueString());
+        assertFalse(serviceType.getTag().isPresent());
 
+        // from int string
+        final IntegerAttribute serviceType2 = (IntegerAttribute) dictionary.getAttributeTemplate("Service-Type").get()
+                .create(dictionary, (byte) 1, "3");
+        assertArrayEquals(serviceType.toByteArray(), serviceType2.toByteArray());
 
-        // todo test creating from bytebuf
+        // from byte[]
+        final IntegerAttribute serviceType3 = (IntegerAttribute) dictionary.getAttributeTemplate("Service-Type").get()
+                .create(dictionary, (byte) 1, new byte[]{0, 0, 0, 3});
+        assertArrayEquals(serviceType.toByteArray(), serviceType3.toByteArray());
+
+        // from parse
+        final IntegerAttribute parsedServiceType = (IntegerAttribute) AttributeHolder.readAttribute(dictionary, -1, serviceType.toByteBuf().copy());
+        assertArrayEquals(serviceType.toByteArray(), parsedServiceType.toByteArray());
 
         // testing has_tag
         // ATTRIBUTE	Tunnel-Type				64	integer	has_tag
@@ -136,13 +169,31 @@ class IntegerAttributeTest {
         final Dictionary dict = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary.rfc2868");
 
+        // from enum
         final IntegerAttribute vlan = (IntegerAttribute) dict.getAttributeTemplate("Tunnel-Type").get()
-                .create(dict, (byte) 1, "L2F");
-
+                .create(dict, (byte) 123, "L2F");
         assertEquals(6, vlan.getLength());
+        assertEquals(6, vlan.getData().readableBytes());
+        assertEquals(6, vlan.toByteArray().length);
+        assertArrayEquals(new byte[]{0, 0, 2}, vlan.getValue());
         assertEquals(IntegerAttribute.class, vlan.getClass());
-        assertEquals("Tunnel-Type:1 = L2F", vlan.toString());
-        assertEquals(2, serviceType.getValueInt());
-        assertEquals("L2F", serviceType.getValueString());
+        assertEquals("Tunnel-Type:123 = L2F", vlan.toString());
+        assertEquals(2, vlan.getValueInt());
+        assertEquals("L2F", vlan.getValueString());
+        assertEquals((byte) 123, vlan.getTag().get());
+
+        // from int string
+        final IntegerAttribute vlan2 = (IntegerAttribute) dict.getAttributeTemplate("Tunnel-Type").get()
+                .create(dict, (byte) 123, "2");
+        assertArrayEquals(vlan.toByteArray(), vlan2.toByteArray());
+
+        // from byte[]
+        final IntegerAttribute vlan3 = (IntegerAttribute) dict.getAttributeTemplate("Tunnel-Type").get()
+                .create(dict, (byte) 123, new byte[]{0, 0, 2});
+        assertArrayEquals(vlan.toByteArray(), vlan3.toByteArray());
+
+        // from parse
+        final IntegerAttribute parsedVlan = (IntegerAttribute) AttributeHolder.readAttribute(dict, -1, vlan.toByteBuf().copy());
+        assertArrayEquals(vlan.toByteArray(), parsedVlan.toByteArray());
     }
 }

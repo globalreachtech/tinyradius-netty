@@ -11,16 +11,17 @@ public interface WritableDictionary extends Dictionary {
     /**
      * Adds the given vendor to the dictionary.
      *
-     * @param vendor vendor
+     * @param vendor vendor to add
+     * @return this WritableDictionary
      * @throws IllegalArgumentException empty vendor name, invalid vendor ID
      */
-    void addVendor(Vendor vendor);
+    WritableDictionary addVendor(Vendor vendor);
 
     /**
      * Adds an AttributeTemplate object to the dictionary.
      *
-     * @param attributeTemplate AttributeTemplate object
+     * @param attributeTemplate AttributeTemplate to add
+     * @return this WritableDictionary
      */
-    void addAttributeTemplate(AttributeTemplate attributeTemplate);
-
+    WritableDictionary addAttributeTemplate(AttributeTemplate attributeTemplate);
 }

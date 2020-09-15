@@ -383,7 +383,7 @@ class VendorSpecificAttributeTest {
                 dictionary.createAttribute("WISPr-Location-Name", "myLocationName")
         ));
 
-        assertEquals("[WISPr-Location-ID: myLocationId, WISPr-Location-Name: myLocationName]",
+        assertEquals("[WISPr-Location-ID = myLocationId, WISPr-Location-Name = myLocationName]",
                 vsa.flatten().toString());
     }
 
@@ -395,8 +395,8 @@ class VendorSpecificAttributeTest {
         ));
 
         assertEquals("Vendor-Specific: Vendor ID 14122 (WISPr)\n" +
-                "  WISPr-Location-ID: myLocationId\n" +
-                "  WISPr-Location-Name: myLocationName", vsa.toString());
+                "  WISPr-Location-ID = myLocationId\n" +
+                "  WISPr-Location-Name = myLocationName", vsa.toString());
     }
 
     @Test
@@ -407,23 +407,23 @@ class VendorSpecificAttributeTest {
         final byte[] requestAuth = random.generateSeed(16);
 
         final VendorSpecificAttribute vsa = new VendorSpecificAttribute(dictionary, vendorId, Arrays.asList(
-                dictionary.createAttribute(vendorId, 5, tag, "12345"),
-                dictionary.createAttribute(vendorId, 6, tag, "12345"),
-                dictionary.createAttribute(vendorId, 7, tag, "12345")
+                dictionary.createAttribute(vendorId, 5, tag, "12345"), // has_tag
+                dictionary.createAttribute(vendorId, 6, tag, "12345"), // encrypt=1
+                dictionary.createAttribute(vendorId, 7, tag, "12345")  // has_tag,encrypt=2
         ));
         assertEquals(-1, vsa.getVendorId());
         assertEquals(vendorId, vsa.getChildVendorId());
 
         final IntegerAttribute minUp = (IntegerAttribute) vsa.getAttribute("WISPr-Bandwidth-Min-Up").get();
-        assertEquals(12345, ByteBuffer.wrap(minUp.getValue()).getInt());
+        assertEquals(12345, minUp.getValueInt());
         assertEquals(tag, minUp.getTag().get());
 
         final IntegerAttribute minDown = (IntegerAttribute) vsa.getAttribute("WISPr-Bandwidth-Min-Down").get();
-        assertEquals(12345, ByteBuffer.wrap(minDown.getValue()).getInt());
+        assertEquals(12345, minDown.getValueInt());
         assertFalse(minDown.getTag().isPresent());
 
         final IntegerAttribute maxUp = (IntegerAttribute) vsa.getAttribute("WISPr-Bandwidth-Max-Up").get();
-        assertEquals(12345, ByteBuffer.wrap(maxUp.getValue()).getInt());
+        assertEquals(12345, maxUp.getValueInt());
         assertEquals(tag, maxUp.getTag().get());
 
         // encode
@@ -431,8 +431,8 @@ class VendorSpecificAttributeTest {
         assertEquals(-1, encode.getVendorId());
         assertEquals(vendorId, encode.getChildVendorId());
 
-        final OctetsAttribute encodeMinUp = (OctetsAttribute) encode.getAttribute("WISPr-Bandwidth-Min-Up").get();
-        assertEquals(12345, ByteBuffer.wrap(encodeMinUp.getValue()).getInt());
+        final IntegerAttribute encodeMinUp = (IntegerAttribute) encode.getAttribute("WISPr-Bandwidth-Min-Up").get();
+        assertEquals(12345, encodeMinUp.getValueInt());
         assertEquals(tag, encodeMinUp.getTag().get());
 
         final EncodedAttribute encodeMinDown = (EncodedAttribute) encode.getAttribute("WISPr-Bandwidth-Min-Down").get();
@@ -456,15 +456,15 @@ class VendorSpecificAttributeTest {
         assertEquals(vendorId, decode.getChildVendorId());
 
         final IntegerAttribute decodeMinUp = (IntegerAttribute) decode.getAttribute("WISPr-Bandwidth-Min-Up").get();
-        assertEquals(12345, ByteBuffer.wrap(decodeMinUp.getValue()).getInt());
+        assertEquals(12345, decodeMinUp.getValueInt());
         assertEquals(tag, decodeMinUp.getTag().get());
 
         final IntegerAttribute decodeMinDown = (IntegerAttribute) decode.getAttribute("WISPr-Bandwidth-Min-Down").get();
-        assertEquals(12345, ByteBuffer.wrap(decodeMinUp.getValue()).getInt());
+        assertEquals(12345, decodeMinDown.getValueInt());
         assertFalse(decodeMinDown.getTag().isPresent());
 
         final IntegerAttribute decodeMaxUp = (IntegerAttribute) decode.getAttribute("WISPr-Bandwidth-Max-Up").get();
-        assertEquals(12345, ByteBuffer.wrap(decodeMinUp.getValue()).getInt());
+        assertEquals(12345, decodeMaxUp.getValueInt());
         assertEquals(tag, decodeMaxUp.getTag().get());
 
         // decode again

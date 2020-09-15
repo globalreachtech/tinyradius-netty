@@ -48,12 +48,12 @@ public class MemoryDictionary implements WritableDictionary {
     }
 
     @Override
-    public void addVendor(Vendor vendor) {
+    public MemoryDictionary addVendor(Vendor vendor) {
         final Optional<Vendor> existing = getVendor(vendor.getId());
         if (existing.isPresent()) {
             if (existing.get().equals(vendor)) {
                 logger.info("Ignoring duplicate vendor definition: {}", vendor);
-                return;
+                return this;
             } else {
                 throw new IllegalArgumentException("Duplicate vendor code: " + vendor.getId() +
                         " (adding " + vendor + ", but already set to " + existing.get() + ")");
@@ -61,6 +61,7 @@ public class MemoryDictionary implements WritableDictionary {
         }
 
         vendorsByCode.put(vendor.getId(), vendor);
+        return this;
     }
 
     /**
@@ -70,7 +71,7 @@ public class MemoryDictionary implements WritableDictionary {
      * @throws IllegalArgumentException duplicate attribute name/type code
      */
     @Override
-    public void addAttributeTemplate(AttributeTemplate attributeTemplate) {
+    public MemoryDictionary addAttributeTemplate(AttributeTemplate attributeTemplate) {
         if (attributeTemplate == null)
             throw new IllegalArgumentException("Attribute definition must not be null");
 
@@ -84,7 +85,7 @@ public class MemoryDictionary implements WritableDictionary {
                 logger.info("Ignoring duplicate attribute definition: {} [{},{}] {}, hasTag={}, encrypt={} ",
                         existing.getName(), existing.getVendorId(), existing.getType(), existing.getDataType(),
                         existing.isTagged(), existing.getCodecType());
-                return;
+                return this;
             } else {
                 throw new IllegalArgumentException("Duplicate attribute definition name, " +
                         "existing attribute not equal to new attribute: " + attributeName);
@@ -101,5 +102,6 @@ public class MemoryDictionary implements WritableDictionary {
                     vendorId, Integer.toUnsignedLong(typeCode), vendorAttributes.get(typeCode).getName(), attributeTemplate.getName());
 
         vendorAttributes.put(typeCode, attributeTemplate);
+        return this;
     }
 }

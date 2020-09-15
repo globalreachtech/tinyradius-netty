@@ -59,7 +59,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
             if (data.isReadable())
                 throw new IllegalArgumentException("Attribute malformed, " + data.readableBytes() + " bytes remaining to parse (minimum 2 octets)");
         } catch (Exception e) {
-            attrHolderLogger.trace("Could not extract all attributes: {}",
+            attrHolderLogger.trace("Could not extract all attributes: 0x{}",
                     DatatypeConverter.printHexBinary(data.copy().array()));
             throw new IllegalArgumentException("Error reading attributes, already extracted attributes: " + attributes, e);
         }
