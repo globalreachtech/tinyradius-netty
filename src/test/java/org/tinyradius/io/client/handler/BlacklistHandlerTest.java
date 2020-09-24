@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.dictionary.DefaultDictionary;
+import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
@@ -16,16 +19,21 @@ import org.tinyradius.io.client.PendingRequestCtx;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
 @ExtendWith(MockitoExtension.class)
 class BlacklistHandlerTest {
+
+    private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     private final EventExecutor eventExecutor = ImmediateEventExecutor.INSTANCE;
 
@@ -37,14 +45,15 @@ class BlacklistHandlerTest {
     @Mock
     private ChannelPromise channelPromise;
 
-    private PendingRequestCtx genRequest(int port) {
+    private PendingRequestCtx genRequest(int port) throws RadiusPacketException {
         final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(port), "mySecret");
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
-        return new PendingRequestCtx(mock(RadiusRequest.class), endpoint, promise);
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
+        return new PendingRequestCtx(request, endpoint, promise);
     }
 
     @Test
-    void noBlacklist() {
+    void noBlacklist() throws RadiusPacketException {
         final PendingRequestCtx request = genRequest(0);
         handler.write(handlerContext, request, channelPromise);
 
@@ -52,7 +61,7 @@ class BlacklistHandlerTest {
     }
 
     @Test
-    void testBlacklist() {
+    void testBlacklist() throws RadiusPacketException {
         final PendingRequestCtx request1 = genRequest(0);
         handler.write(handlerContext, request1, channelPromise);
         verify(handlerContext).write(request1, channelPromise);
@@ -80,7 +89,7 @@ class BlacklistHandlerTest {
     }
 
     @Test
-    void blacklistEndByExpire() {
+    void blacklistEndByExpire() throws RadiusPacketException {
         final PendingRequestCtx request1 = genRequest(0);
         handler.write(handlerContext, request1, channelPromise);
 
@@ -108,7 +117,7 @@ class BlacklistHandlerTest {
     }
 
     @Test
-    void blacklistEndBySuccessfulResponse() {
+    void blacklistEndBySuccessfulResponse() throws RadiusPacketException {
         final PendingRequestCtx request1 = genRequest(0);
         handler.write(handlerContext, request1, channelPromise);
 
@@ -141,7 +150,7 @@ class BlacklistHandlerTest {
     }
 
     @Test
-    void repeatFailsDontExtendBlacklist() throws InterruptedException {
+    void repeatFailsDontExtendBlacklist() throws InterruptedException, RadiusPacketException {
         final PendingRequestCtx request1 = genRequest(0);
         handler.write(handlerContext, request1, channelPromise);
 
@@ -177,7 +186,7 @@ class BlacklistHandlerTest {
     }
 
     @Test
-    void onlyTimeoutsTriggerBlacklist() {
+    void onlyTimeoutsTriggerBlacklist() throws RadiusPacketException {
         final PendingRequestCtx request1 = genRequest(0);
         handler.write(handlerContext, request1, channelPromise);
         verify(handlerContext).write(request1, channelPromise);

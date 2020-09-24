@@ -4,10 +4,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.packet.RadiusPacket;
-import org.tinyradius.core.RadiusPacketException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -108,11 +108,13 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
         // When the message integrity check is calculated the signature
         // string should be considered to be sixteen octets of zero.
         final ByteBuffer buffer = ByteBuffer.allocate(16);
+        final RadiusAttribute attribute = getDictionary().createAttribute(-1, MESSAGE_AUTHENTICATOR, (byte) 0, buffer.array());
 
-        final T newPacket = this
-                .removeAttributes(MESSAGE_AUTHENTICATOR)
-                .addAttribute(getDictionary().createAttribute(-1, MESSAGE_AUTHENTICATOR, (byte) 0, buffer.array()));
+        final List<RadiusAttribute> attributes = filterAttributes(a -> a.getType() != MESSAGE_AUTHENTICATOR);
+        attributes.add(attribute);
 
+        // manually build attribute list instead of using convenience methods to avoid new packet creation
+        final T newPacket = withAttributes(attributes);
         buffer.put(computeMessageAuth(newPacket, sharedSecret, requestAuth));
 
         return newPacket;
