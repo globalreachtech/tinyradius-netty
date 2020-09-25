@@ -103,7 +103,8 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
     }
 
     default ByteBuf toByteBuf() {
-        return Unpooled.wrappedBuffer(getHeader(), getAttributeByteBuf());
+        return Unpooled.unreleasableBuffer(
+                Unpooled.wrappedBuffer(getHeader(), getAttributeByteBuf()));
     }
 
     default ByteBuffer toByteBuffer() {

@@ -1,6 +1,7 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -75,12 +76,17 @@ public interface RadiusAttribute {
     Dictionary getDictionary();
 
     /**
+     * {@link #toByteBuf()} is preferred if caller exposes a reference to the ByteBuf elsewhere to avoid mutating netty ref counts
+     *
      * @return underlying ByteBuf for attribute, includes attribute header, (optional) tag, and value
      */
     ByteBuf getData();
 
+    /**
+     * @return underlying ByteBuf for attribute, includes attribute header, (optional) tag, and value
+     */
     default ByteBuf toByteBuf() {
-        return getData();
+        return Unpooled.unreleasableBuffer(getData());
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
@@ -49,7 +50,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     @Override
     public ByteBuf getHeader() {
-        return header;
+        return Unpooled.unreleasableBuffer(header);
     }
 
     @Override

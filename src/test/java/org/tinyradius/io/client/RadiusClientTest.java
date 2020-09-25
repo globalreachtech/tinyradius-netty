@@ -7,6 +7,7 @@ import io.netty.channel.ChannelPromise;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.Test;
@@ -38,8 +39,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RadiusClientTest {
 
-    private final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
+
+    private final SecureRandom random = new SecureRandom();
 
     private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
     private final InetSocketAddress address = new InetSocketAddress(0);
@@ -47,8 +49,10 @@ class RadiusClientTest {
 
     private final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
+    private final Timer timer = new HashedWheelTimer();
+
     @Spy
-    private final TimeoutHandler timeoutHandler = new FixedTimeoutHandler(new HashedWheelTimer());
+    private final TimeoutHandler timeoutHandler = new FixedTimeoutHandler(timer); // no retries
 
     @Test
     void communicateWithTimeout() throws RadiusPacketException {
@@ -138,11 +142,8 @@ class RadiusClientTest {
         final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(p -> p.tryFailure(expectedException));
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
 
-        final InetSocketAddress address2 = new InetSocketAddress(1);
-        final RadiusEndpoint stubEndpoint2 = new RadiusEndpoint(address2, "secret2");
-
-        final InetSocketAddress address3 = new InetSocketAddress(2);
-        final RadiusEndpoint stubEndpoint3 = new RadiusEndpoint(address3, "secret3");
+        final RadiusEndpoint stubEndpoint2 = new RadiusEndpoint(new InetSocketAddress(1), "secret2");
+        final RadiusEndpoint stubEndpoint3 = new RadiusEndpoint(new InetSocketAddress(2), "secret3");
 
         final List<RadiusEndpoint> endpoints = Arrays.asList(stubEndpoint, stubEndpoint2, stubEndpoint3);
 
@@ -158,7 +159,28 @@ class RadiusClientTest {
         assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().getSecret());
         assertEquals("secret2", capturingOutboundHandler.requests.get(1).getEndpoint().getSecret());
         assertEquals("secret3", capturingOutboundHandler.requests.get(2).getEndpoint().getSecret());
+
+        assertEquals(1, request.toByteBuf().refCnt()); // unpooled, let GC handle it
     }
+
+    @Test
+    void retainPacketsWithRetries() throws RadiusPacketException {
+        final byte id = (byte) random.nextInt(256);
+        final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(a -> {
+        });
+        final RadiusClient radiusClient = new RadiusClient(bootstrap, address,
+                new FixedTimeoutHandler(timer, 2, 0), capturingOutboundHandler);
+
+        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
+
+        await().until(future::isDone);
+        assertFalse(future.isSuccess());
+        assertEquals("Client send timeout - max attempts reached: 2", future.cause().getMessage());
+
+        assertEquals(1, request.toByteBuf().refCnt()); // unpooled, let GC handle it
+    }
+
 
     private static class CapturingOutboundHandler extends ChannelOutboundHandlerAdapter {
 
@@ -170,8 +192,18 @@ class RadiusClientTest {
         }
 
         public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-            requests.add((PendingRequestCtx) msg);
-            failFast.accept(((PendingRequestCtx) msg).getResponse());
+            final PendingRequestCtx reqCtx = (PendingRequestCtx) msg;
+            requests.add(reqCtx);
+            failFast.accept((reqCtx).getResponse());
+
+            /*
+              https://netty.io/wiki/reference-counted-objects.html
+              Unlike inbound messages, outbound messages are created by your application, and it is
+              the responsibility of Netty to release these after writing them out to the wire. However,
+              the handlers that intercept your write requests should make sure to release any
+              intermediary objects properly. (e.g. encoders)
+             */
+            reqCtx.getRequest().toByteBuf().release();
         }
     }
 }

@@ -69,8 +69,7 @@ public enum AttributeType {
                 .map(v -> v.toLengthBytes(length))
                 .orElse(new byte[]{(byte) length});
 
-        final ByteBuf byteBuf = Unpooled.wrappedBuffer(typeBytes, lengthBytes, tagBytes, value);
-        return create(dictionary, vendorId, byteBuf);
+        return create(dictionary, vendorId, Unpooled.wrappedBuffer(typeBytes, lengthBytes, tagBytes, value));
     }
 
     private static byte[] toTagBytes(Dictionary dictionary, int vendorId, int type, byte tag) {

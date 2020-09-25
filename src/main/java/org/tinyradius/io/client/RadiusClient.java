@@ -8,10 +8,10 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tinyradius.io.client.timeout.TimeoutHandler;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
+import org.tinyradius.io.client.timeout.TimeoutHandler;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -55,13 +55,13 @@ public class RadiusClient implements Closeable {
             return eventLoopGroup.next().newFailedFuture(new IOException("Client send failed - no valid endpoints"));
 
         final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
-        communicate(packet, endpoints, 0, promise, null);
+        communicateRecursive(packet, endpoints, 0, promise, null);
 
         return promise;
     }
 
-    private void communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, int endpointIndex,
-                             Promise<RadiusResponse> promise, Throwable lastException) {
+    private void communicateRecursive(RadiusRequest packet, List<RadiusEndpoint> endpoints, int endpointIndex,
+                                      Promise<RadiusResponse> promise, Throwable lastException) {
         if (endpointIndex >= endpoints.size()) {
             promise.tryFailure(new IOException("Client send failed - all endpoints failed", lastException));
             return;
@@ -71,7 +71,7 @@ public class RadiusClient implements Closeable {
             if (f.isSuccess())
                 promise.trySuccess(f.getNow());
             else
-                communicate(packet, endpoints, endpointIndex + 1, promise, f.cause());
+                communicateRecursive(packet, endpoints, endpointIndex + 1, promise, f.cause());
         });
     }
 

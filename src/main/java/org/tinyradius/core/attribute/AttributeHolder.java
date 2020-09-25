@@ -29,7 +29,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
     static ByteBuf attributesToBytes(List<RadiusAttribute> attributes) {
         return Unpooled.wrappedBuffer(attributes.stream()
-                .map(RadiusAttribute::getData)
+                .map(RadiusAttribute::toByteBuf)
                 .toArray(ByteBuf[]::new));
     }
 

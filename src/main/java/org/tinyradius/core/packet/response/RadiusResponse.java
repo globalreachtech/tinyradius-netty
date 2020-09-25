@@ -57,10 +57,9 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @throws RadiusPacketException malformed packet
      */
     static RadiusResponse fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
-        // use unpooled heap so we can use ByteBuf freely later without worrying about GC
-        // todo use original directBuffer with zero copy
-
-        return fromByteBuf(dictionary, Unpooled.copiedBuffer(datagram.content()));
+        // copy into Unpooled heap buffer so let JVM manage GC
+        return fromByteBuf(dictionary, Unpooled.unreleasableBuffer(
+                Unpooled.copiedBuffer(datagram.content())));
     }
 
     /**
