@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.apache.logging.log4j:log4j-api:2.13.3'
+    implementation 'org.apache.logging.log4j:log4j-api:2.14.0'
     implementation 'io.netty:netty-all:4.1.54.Final'
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
