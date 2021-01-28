@@ -31,6 +31,10 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * Returns header of this buffer's starting at the current
      * {@code readerIndex} and increases the {@code readerIndex} by the size
      * of the new slice (= {@link #HEADER_LENGTH}).
+     * @param data byte array to parse
+     * @return ByteBuf with 20 readable bytes
+     * @throws RadiusPacketException if data is incorrect size or the length
+     * field does not match the packet size.
      */
     static ByteBuf readHeader(ByteBuf data) throws RadiusPacketException {
         final int length = data.readableBytes();

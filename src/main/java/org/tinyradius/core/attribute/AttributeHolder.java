@@ -69,6 +69,10 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
     /**
      * Parses attribute and increases readerIndex by size of attribute.
+     * @param dictionary dictionary to parse attribute
+     * @param vendorId   vendor Id to set attributes
+     * @param data       byte array to parse
+     * @return list of RadiusAttributes
      */
     static RadiusAttribute readAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
@@ -216,6 +220,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      *
      * @param attribute attribute to add
      * @return object of same type with appended attribute
+     * @throws IllegalArgumentException if the attribute's vendorId does not match AttributeHolder's childVendorId
+     * @throws RadiusPacketException packet validation exceptions
      */
     default T addAttribute(RadiusAttribute attribute) throws RadiusPacketException {
         if (attribute.getVendorId() != getChildVendorId())
@@ -238,6 +244,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type  attribute type code
      * @param value string value to set
      * @return object of same type with appended attribute
+     * @throws RadiusPacketException packet validation exceptions
      */
     default T addAttribute(int type, String value) throws RadiusPacketException {
         return addAttribute(
@@ -249,6 +256,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      *
      * @param attribute attributes to remove
      * @return object of same type with removed attribute
+     * @throws RadiusPacketException packet validation exceptions
      */
     default T removeAttribute(RadiusAttribute attribute) throws RadiusPacketException {
         return withAttributes(
@@ -260,6 +268,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      *
      * @param type attribute type to remove
      * @return object of same type with removed attributes
+     * @throws RadiusPacketException packet validation exceptions
      */
     default T removeAttributes(int type) throws RadiusPacketException {
         return withAttributes(
@@ -272,6 +281,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      *
      * @param type attribute type code
      * @return object of same type with removed attribute
+     * @throws RadiusPacketException packet validation exceptions
      */
     default T removeLastAttribute(int type) throws RadiusPacketException {
         List<RadiusAttribute> attributes = filterAttributes(type);

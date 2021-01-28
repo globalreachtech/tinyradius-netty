@@ -128,6 +128,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @param vendorId vendor ID, or -1
      * @param type     attribute type code
      * @return object of same type with removed attributes
+     * @throws RadiusPacketException packet validation exceptions
      */
     default T removeAttributes(int vendorId, int type) throws RadiusPacketException {
         if (vendorId == getChildVendorId())

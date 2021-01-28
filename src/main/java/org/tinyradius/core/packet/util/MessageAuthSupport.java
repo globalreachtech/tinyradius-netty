@@ -103,6 +103,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
      * @param requestAuth  current packet auth if encoding request,
      *                     otherwise corresponding request auth
      * @return encoded copy of packet
+     * @throws RadiusPacketException packet validation exceptions
      */
     default T encodeMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
         // When the message integrity check is calculated the signature
