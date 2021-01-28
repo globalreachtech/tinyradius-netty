@@ -108,8 +108,8 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
 
     /**
      * Set CHAP-Password / CHAP-Challenge attributes with provided password.
-     * <p>
-     * Will remove existing attributes if exists already
+     * Removes existing auth-related attributes if present (User-Password,
+     * CHAP-Password etc).
      *
      * @param password plaintext password to encode into CHAP-Password
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
@@ -122,7 +122,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
 
     /**
      * Set User-Password attribute with provided password. Removes existing
-     * auth-related attributes if present (User-Password, CHAP-Password etc)
+     * auth-related attributes if present (User-Password, CHAP-Password etc).
      *
      * @param password plaintext password to encode into User-Password
      * @return AccessRequestPap with encoded User-Password attribute
