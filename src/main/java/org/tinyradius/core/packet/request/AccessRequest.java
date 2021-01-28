@@ -122,7 +122,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
 
     /**
      * Set User-Password attribute with provided password. Removes existing
-     * attributes if present.
+     * auth-related attributes if present (User-Password, CHAP-Password etc)
      *
      * @param password plaintext password to encode into User-Password
      * @return AccessRequestPap with encoded User-Password attribute
