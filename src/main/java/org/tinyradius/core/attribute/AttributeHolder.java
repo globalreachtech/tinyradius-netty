@@ -220,7 +220,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      *
      * @param attribute attribute to add
      * @return object of same type with appended attribute
-     * @throws IllegalArgumentException if the attribute's vendor Id does not match AttributeHolder's vendor Id
+     * @throws IllegalArgumentException if the attribute's vendorId does not match AttributeHolder's childVendorId
      * @throws RadiusPacketException packet validation exceptions
      */
     default T addAttribute(RadiusAttribute attribute) throws RadiusPacketException {
