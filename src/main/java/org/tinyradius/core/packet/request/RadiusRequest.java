@@ -38,6 +38,7 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
      * @param authenticator authenticator for packet, nullable
      * @param attributes    list of attributes for packet
      * @return RadiusPacket object
+     * @throws RadiusPacketException packet validation exceptions
      */
     static RadiusRequest create(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
         final ByteBuf header = RadiusPacket.buildHeader(type, id, authenticator, attributes);
