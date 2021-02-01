@@ -89,7 +89,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
                 logger.debug("Inferring AccessRequest as ARAP");
                 return AccessRequestArap::new;
             default:
-                logger.debug("Inferring AccessRequest as NoAuth");
+                logger.debug("Creating base (no auth) AccessRequest");
                 return AccessRequestNoAuth::new;
         }
     }
@@ -107,22 +107,24 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     }
 
     /**
-     * Set CHAP-Password / CHAP-Challenge attributes with provided password.
-     * Removes existing auth-related attributes if present (User-Password,
-     * CHAP-Password etc).
+     * Set CHAP-Password attribute with provided password and initializes
+     * CHAP-Challenge with random bytes.
+     * <p>
+     * Removes existing auth-related attributes if present (User-Password, CHAP-Password etc).
      *
      * @param password plaintext password to encode into CHAP-Password
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
      * @throws IllegalArgumentException invalid password
-     * @throws RadiusPacketException packet validation exceptions
+     * @throws RadiusPacketException    packet validation exceptions
      */
     public AccessRequest withChapPassword(String password) throws RadiusPacketException {
         return AccessRequestChap.withPassword(withoutAuths(), password);
     }
 
     /**
-     * Set User-Password attribute with provided password. Removes existing
-     * auth-related attributes if present (User-Password, CHAP-Password etc).
+     * Set User-Password attribute with provided password.
+     * <p>
+     * Removes existing auth-related attributes if present (User-Password, CHAP-Password etc).
      *
      * @param password plaintext password to encode into User-Password
      * @return AccessRequestPap with encoded User-Password attribute
