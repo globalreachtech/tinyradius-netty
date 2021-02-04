@@ -37,3 +37,7 @@ workflows:
     jobs:
       - build:
           context: SonarCloud
+
+notify:
+  webhooks:
+    - url: https://webhooks.gitter.im/e/bcb35296d1e73ce45e8f
