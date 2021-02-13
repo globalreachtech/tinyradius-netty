@@ -13,7 +13,11 @@ public class ClasspathResourceResolver implements ResourceResolver {
 
     @Override
     public String resolve(String currentResource, String nextResource) {
-        final String path = Paths.get(currentResource).getParent().resolve(nextResource).toString();
+
+        final String path = Paths.get(currentResource).getParent() != null
+          ? Paths.get(currentResource).getParent().resolve(nextResource).toString()
+          : Paths.get(nextResource).toString();
+
         return this.getClass().getClassLoader().getResource(path) != null ?
                 path : "";
     }
