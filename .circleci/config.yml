@@ -22,7 +22,7 @@ jobs:
 
       - run:
           no_output_timeout: 20m
-          command: ./gradlew clean build sonarqube jacocoTestReport
+          command: ./gradlew clean build jacocoTestReport
 
       - store_test_results:
           path: build/test-results/test/
@@ -35,8 +35,7 @@ jobs:
 workflows:
   main:
     jobs:
-      - build:
-          context: SonarCloud
+      - build
 
 notify:
   webhooks:
