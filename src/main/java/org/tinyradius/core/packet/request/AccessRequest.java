@@ -66,16 +66,19 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
                 .collect(toSet());
 
         if (detectedAuth.isEmpty()) {
-            logger.warn("AccessRequest no auth mechanism found, inferring NoAuth");
+            // will occur a lot as PAP/CHAP are generally created by RadiusRequest.create().withPapPassword()
+            logger.debug("No auth attributes found, inferring NoAuth");
             return AccessRequestNoAuth::new;
         }
 
         if (detectedAuth.size() > 1) {
-            logger.warn("AccessRequest identified multiple auth mechanisms, inferring NoAuth");
+            // bad packet
+            logger.warn("Identified multiple auth mechanisms, inferring NoAuth");
             return AccessRequestNoAuth::new;
         }
 
-        switch (detectedAuth.iterator().next()) {
+        final int authType = detectedAuth.iterator().next();
+        switch (authType) {
             case EAP_MESSAGE:
                 logger.debug("Inferring AccessRequest as EAP");
                 return AccessRequestEap::new;
@@ -89,7 +92,8 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
                 logger.debug("Inferring AccessRequest as ARAP");
                 return AccessRequestArap::new;
             default:
-                logger.debug("Creating base (no auth) AccessRequest");
+                // shouldn't happen - if AUTH_ATTRS contains authType, it should be handled
+                logger.warn("Cannot process authType {}, defaulting to NoAuth", authType);
                 return AccessRequestNoAuth::new;
         }
     }
@@ -140,6 +144,8 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * An Access-Request that contains either a User-Password or
      * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
      * MUST NOT contain more than one type of those four attributes.
+     *
+     * @return instance without USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE attributes
      */
     private AccessRequest withoutAuths() throws RadiusPacketException {
         return withAttributes(filterAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
