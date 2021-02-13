@@ -2,6 +2,8 @@ package org.tinyradius.io.server;
 
 import java.net.InetSocketAddress;
 
+import org.tinyradius.core.packet.request.RadiusRequest;
+
 public interface SecretProvider {
 
     /**
@@ -12,5 +14,17 @@ public interface SecretProvider {
      * @return shared secret or null
      */
     String getSharedSecret(InetSocketAddress address);
+    
+    /**
+     * An alternative method of returning shared secret but this time with the current
+     * radius request so that alternative secrets can be returned based on some sort of 
+     * context. 
+     * 
+     * By default this method calls the original getSharedSecret.
+     * @param address
+     * @param request
+     * @return
+     */
+    default String getSharedSecret(InetSocketAddress address, RadiusRequest request) { return getSharedSecret(address); }
 
 }

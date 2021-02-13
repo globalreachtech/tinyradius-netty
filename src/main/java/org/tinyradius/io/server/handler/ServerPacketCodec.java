@@ -57,14 +57,15 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
         final InetSocketAddress remoteAddress = msg.sender();
 
-        String secret = secretProvider.getSharedSecret(remoteAddress);
-        if (secret == null) {
-            logger.warn("Ignoring packet from {}, shared secret lookup failed", remoteAddress);
-            return;
-        }
-
         try {
             final RadiusRequest request = fromDatagram(dictionary, msg);
+            
+            String secret = secretProvider.getSharedSecret(remoteAddress, request);
+            if (secret == null) {
+                logger.warn("Ignoring packet from {}, shared secret lookup failed", remoteAddress);
+                return;
+            }
+            
             logger.debug("Received request from {} - {}", remoteAddress, request);
             // log first before errors may be thrown
 
