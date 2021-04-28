@@ -90,8 +90,8 @@ publishing {
     repositories {
         maven {
             credentials{
-                username ossrhUsername
-                password ossrhPassword
+                username ""
+                password ""
             }
             url = version.endsWith('SNAPSHOT') ? "https://oss.sonatype.org/content/repositories/snapshots" : "https://oss.sonatype.org/service/local/staging/deploy/maven2"
         }
