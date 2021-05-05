@@ -5,7 +5,3 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: org.mockito:mockito-junit-jupiter
-    versions:
-    - 3.9.0
