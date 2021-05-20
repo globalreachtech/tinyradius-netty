@@ -5,7 +5,6 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/a6b90f85717d753228eb/maintainability)](https://codeclimate.com/github/globalreachtech/tinyradius-netty/maintainability)
 [![codecov](https://codecov.io/gh/globalreachtech/tinyradius-netty/branch/master/graph/badge.svg)](https://codecov.io/gh/globalreachtech/tinyradius-netty)
 
-[![Download](https://img.shields.io/bintray/v/globalreachtech/grt-maven/tinyradius-netty)](https://bintray.com/globalreachtech/grt-maven/tinyradius-netty/_latestVersion)
 [![Maven Central](https://img.shields.io/maven-central/v/com.globalreachtech/tinyradius-netty)](https://search.maven.org/artifact/com.globalreachtech/tinyradius-netty)
 [![javadoc](https://javadoc.io/badge2/com.globalreachtech/tinyradius-netty/javadoc.svg)](https://javadoc.io/doc/com.globalreachtech/tinyradius-netty) [![Join the chat at https://gitter.im/tinyradius-netty/community](https://badges.gitter.im/tinyradius-netty/community.svg)](https://gitter.im/tinyradius-netty/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
