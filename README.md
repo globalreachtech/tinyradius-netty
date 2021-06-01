@@ -6,7 +6,7 @@
 [![codecov](https://codecov.io/gh/globalreachtech/tinyradius-netty/branch/master/graph/badge.svg)](https://codecov.io/gh/globalreachtech/tinyradius-netty)
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.globalreachtech/tinyradius-netty)](https://search.maven.org/artifact/com.globalreachtech/tinyradius-netty)
-[![javadoc](https://javadoc.io/badge2/com.globalreachtech/tinyradius-netty/javadoc.svg)](https://javadoc.io/doc/com.globalreachtech/tinyradius-netty) [![Join the chat at https://gitter.im/tinyradius-netty/community](https://badges.gitter.im/tinyradius-netty/community.svg)](https://gitter.im/tinyradius-netty/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![javadoc](https://javadoc.io/badge2/com.globalreachtech/tinyradius-netty/javadoc.svg)](https://javadoc.io/doc/com.globalreachtech/tinyradius-netty)
 
 TinyRadius-Netty is a Java Radius library, loosely based off the TinyRadius Radius library, rebuilt with Java 8 and Netty patterns/features.
 
