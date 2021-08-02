@@ -29,9 +29,6 @@ jobs:
 
       - run: bash <(curl -s https://codecov.io/bash)
 
-#      - run: ./gradlew artifactoryPublish -x test
-#      - run: ./gradlew bintrayUpload -x test
-
 workflows:
   main:
     jobs:
