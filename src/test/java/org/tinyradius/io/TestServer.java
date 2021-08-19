@@ -15,6 +15,7 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.AccessRequest;
+import org.tinyradius.core.packet.request.AccountingRequest;
 import org.tinyradius.core.packet.request.AccessRequestPap;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
@@ -117,7 +118,7 @@ public class TestServer {
 
         @Override
         protected Class<? extends RadiusRequest> acceptedPacketType() {
-            return AccessRequest.class;
+            return AccountingRequest.class;
         }
 
         @Override
