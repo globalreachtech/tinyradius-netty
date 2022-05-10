@@ -230,7 +230,7 @@ public class AttributeTemplate {
             return createEncoded(attribute.getDictionary(), attribute.getTag().orElse((byte) 0),
                     codecType.getCodec().encode(attribute.getValue(), requestAuth, secret));
         } catch (Exception e) {
-            throw new RadiusPacketException("Error encoding attribute " + attribute.toString(), e);
+            throw new RadiusPacketException("Error encoding attribute " + attribute, e);
         }
     }
 
@@ -249,7 +249,7 @@ public class AttributeTemplate {
             return create(attribute.getDictionary(), attribute.getTag().orElse((byte) 0),
                     codecType.getCodec().decode(attribute.getValue(), requestAuth, secret));
         } catch (Exception e) {
-            throw new RadiusPacketException("Error decoding attribute " + attribute.toString(), e);
+            throw new RadiusPacketException("Error decoding attribute " + attribute, e);
         }
     }
 

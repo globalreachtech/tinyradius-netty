@@ -1,13 +1,16 @@
 plugins {
     id 'java-library'
-    id 'maven-publish'
     id 'jacoco'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
+    id 'maven-publish'
     id 'signing'
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-def versionName = '1.5.11-SNAPSHOT'
+
+group = 'com.globalreachtech'
+version = '1.5.11'
 
 repositories {
     mavenCentral()
@@ -29,8 +32,8 @@ dependencies {
 
 jacocoTestReport {
     reports {
-        xml.enabled = true
-        html.enabled = true
+        xml.required = true
+        html.required = true
     }
 }
 
@@ -40,14 +43,20 @@ test {
     useJUnitPlatform()
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+task javadocJar(type: Jar) {
+    archiveClassifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
     archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier = 'javadoc'
-    from javadoc.destinationDir
+nexusPublishing {
+    repositories {
+        sonatype()
+    }
 }
 
 publishing {
@@ -58,11 +67,8 @@ publishing {
                 artifact sourcesJar
                 artifact javadocJar
             }
-            groupId 'com.globalreachtech'
-            artifactId 'tinyradius-netty'
-            version versionName
             pom {
-                name = 'tinyradius-netty'
+                name = rootProject.name
                 description = 'TinyRadius-Netty is a small Java Radius library'
                 url = 'https://github.com/globalreachtech/tinyradius-netty'
                 licenses {
@@ -87,18 +93,8 @@ publishing {
             }
         }
     }
-    repositories {
-        maven {
-            credentials{
-                username System.getenv('SONATYPE_USER')
-                password System.getenv('SONATYPE_PASSWORD')
-            }
-            url = version.endsWith('SNAPSHOT') ? "https://oss.sonatype.org/content/repositories/snapshots" : "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-        }
-    }
 }
 
 signing {
     sign publishing.publications.mavenJava
 }
-

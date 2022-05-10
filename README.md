@@ -29,6 +29,28 @@ TinyRadius-Netty is a Java Radius library, loosely based off the TinyRadius Radi
 ## Usage
 See the [example implementations](src/test/java/org/tinyradius/io) on usage as Client/Server/Proxy.
 
+## Maintainers
+
+Set credentials for signing and Nexus:
+```properties
+signing.keyId=3D6EA292
+signing.password=******
+signing.secretKeyRingFile=C:\\Users\\user1\\secring.gpg
+
+sonatypeUsername=myUser
+sonatypePassword=***************
+```
+
+Push to staging repository (manually verify/release via Nexus UI):
+```shell
+./gradlew publishToSonatype closeSonatypeStagingRepository
+```
+
+Publish directly to Maven Central:
+```shell
+./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
+```
+
 ## License
 Copyright Matthias Wuttke and contributors:
 - http://tinyradius.sourceforge.net/
