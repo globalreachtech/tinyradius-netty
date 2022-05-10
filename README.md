@@ -31,8 +31,8 @@ See the [example implementations](src/test/java/org/tinyradius/io) on usage as C
 
 ## Maintainers
 
-Set credentials for signing and Nexus:
-```properties
+Set credentials for signing and Nexus in `~/.gradle/gradle.properties`:
+```
 signing.keyId=3D6EA292
 signing.password=******
 signing.secretKeyRingFile=C:\\Users\\user1\\secring.gpg

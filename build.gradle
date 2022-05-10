@@ -1,9 +1,10 @@
 plugins {
     id 'java-library'
     id 'jacoco'
-    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
-    id 'maven-publish'
     id 'signing'
+    id 'maven-publish'
+    id "org.sonarqube" version "3.3"
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
 }
 
 sourceCompatibility = 1.8
@@ -34,6 +35,14 @@ jacocoTestReport {
     reports {
         xml.required = true
         html.required = true
+    }
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "globalreachtech_tinyradius-netty"
+        property "sonar.organization", "globalreachtech"
+        property "sonar.host.url", "https://sonarcloud.io"
     }
 }
 
@@ -68,7 +77,7 @@ publishing {
                 artifact javadocJar
             }
             pom {
-                name = rootProject.name
+                name = project.name
                 description = 'TinyRadius-Netty is a small Java Radius library'
                 url = 'https://github.com/globalreachtech/tinyradius-netty'
                 licenses {
