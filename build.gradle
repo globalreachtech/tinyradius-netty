@@ -10,7 +10,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 group = 'com.globalreachtech'
-version = '1.5.11'
+version = '1.5.12-SNAPSHOT'
 
 repositories {
     mavenCentral()
