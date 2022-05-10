@@ -27,7 +27,7 @@ jobs:
       - store_test_results:
           path: build/test-results/test/
 
-      - run: bash <(curl -s https://codecov.io/bash)
+#      - run: bash <(curl -s https://codecov.io/bash)
 
 workflows:
   main:

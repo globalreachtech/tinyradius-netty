@@ -40,4 +40,10 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       uses: gradle/gradle-build-action@fec4a42eb0c83154e5c9590748ba8337949c5701
       with:
-        arguments: build sonarqube --info
+        arguments: clean build jacocoTestReport sonarqube --info
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        files: build/test-results/test/
+        fail_ci_if_error: true
+        verbose: true
