@@ -10,6 +10,7 @@ import org.tinyradius.io.client.PendingRequestCtx;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.time.Clock;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
@@ -28,13 +29,19 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
 
     private final long blacklistTtlMs;
     private final int failCountThreshold;
+    private final Clock clock;
 
     private final Map<SocketAddress, AtomicInteger> failCounts = new ConcurrentHashMap<>();
     private final Map<SocketAddress, Long> blacklist = new ConcurrentHashMap<>();
 
-    public BlacklistHandler(long blacklistTtlMs, int failCountThreshold) {
+    public BlacklistHandler(long blacklistTtlMs, int failCountThreshold, Clock clock) {
         this.blacklistTtlMs = blacklistTtlMs;
         this.failCountThreshold = failCountThreshold;
+        this.clock = clock;
+    }
+
+    public BlacklistHandler(long blacklistTtlMs, int failCountThreshold) {
+        this(blacklistTtlMs, failCountThreshold, Clock.systemUTC());
     }
 
     @Override
@@ -44,7 +51,7 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
             final InetSocketAddress address = request.getEndpoint().getAddress();
 
             if (isBlacklisted(address)) {
-                request.getRequest().toByteBuf().release(); // todo test
+                request.getRequest().toByteBuf().release();
                 request.getResponse().tryFailure(new IOException("Client send failed - endpoint blacklisted: " + address));
                 return;
             }
@@ -68,7 +75,7 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
             return false;
 
         // blacklist active
-        if (System.currentTimeMillis() < blacklistExpiry) {
+        if (clock.millis() < blacklistExpiry) {
             logger.debug("Endpoint blacklisted while proxying packet to {}", socketAddress);
             return true;
         }
@@ -86,7 +93,7 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
             if (i >= failCountThreshold && blacklist.get(address) == null) {
 
                 // only set if isn't already blacklisted, to avoid delayed responses extending ttl
-                blacklist.put(address, System.currentTimeMillis() + blacklistTtlMs);
+                blacklist.put(address, clock.millis() + blacklistTtlMs);
                 logger.debug("Endpoint {} added to blacklist", address);
             }
         }

@@ -45,14 +45,14 @@ public class TestClient {
      */
     public static void main(String[] args) throws RadiusPacketException {
         if (args.length != 4) {
-            logger.info("Usage: TestClient hostName sharedSecret userName password");
-            System.exit(1);
+            logger.info("Usage: TestClient [hostName] [sharedSecret] [userName] [password]");
+            return;
         }
 
-        String host = args[0];
-        String shared = args[1];
-        String user = args[2];
-        String pass = args[3];
+        final String host = args[0];
+        final String shared = args[1];
+        final String user = args[2];
+        final String pass = args[3];
 
         final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
@@ -61,7 +61,7 @@ public class TestClient {
 
         final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
-        RadiusClient rc = new RadiusClient(
+        final RadiusClient rc = new RadiusClient(
                 bootstrap, new InetSocketAddress(0), new FixedTimeoutHandler(timer), new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {

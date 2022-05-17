@@ -108,12 +108,12 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     }
 
     @Override
-    public RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
+    public VendorSpecificAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
         return new VendorSpecificAttribute(getDictionary(), getChildVendorId(), encodeAttributes(requestAuth, secret));
     }
 
     @Override
-    public RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
+    public VendorSpecificAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
         return new VendorSpecificAttribute(getDictionary(), getChildVendorId(), decodeAttributes(requestAuth, secret));
     }
 
@@ -129,5 +129,16 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
             sb.append("\n  ").append(sa.toString());
         }
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        // fields in subclass (attributes/childVendorId) are derived from byteBuf
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

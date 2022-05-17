@@ -25,7 +25,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     private final ByteBuf header;
     private final List<RadiusAttribute> attributes;
 
-    public BaseRadiusPacket(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    protected BaseRadiusPacket(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         this.dictionary = Objects.requireNonNull(dictionary, "Dictionary is null");
         this.header = Objects.requireNonNull(header);
         this.attributes = Collections.unmodifiableList(new ArrayList<>(attributes));

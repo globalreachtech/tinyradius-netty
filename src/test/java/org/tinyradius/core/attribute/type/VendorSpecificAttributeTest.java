@@ -13,7 +13,6 @@ import org.tinyradius.core.dictionary.parser.DictionaryParser;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -94,9 +93,9 @@ class VendorSpecificAttributeTest {
 
     @Test
     void createWithDiffVendorSubAttribute() {
+        final List<RadiusAttribute> attributes = Collections.singletonList(dictionary.createAttribute("User-Name", "myName"));
         final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
-                new VendorSpecificAttribute(dictionary, 14122, Collections.singletonList(
-                        dictionary.createAttribute("User-Name", "myName"))));
+                new VendorSpecificAttribute(dictionary, 14122, attributes));
 
         assertTrue(e.getMessage().contains("Vendor-Specific attribute sub-attributes must have same vendorId as VSA childVendorId"));
     }
@@ -258,7 +257,7 @@ class VendorSpecificAttributeTest {
     }
 
     /**
-     * https://tools.ietf.org/html/rfc2865#page-47
+     * See <a href="https://tools.ietf.org/html/rfc2865#page-47">...</a>
      * <p>
      * "The String field is one or more octets.  The actual format of the
      * information is site or application specific, and a robust
@@ -295,8 +294,8 @@ class VendorSpecificAttributeTest {
 
     @Test
     void badVendorId() {
-        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
-                VSA.create(dictionary, 4567, Unpooled.buffer().writeByte(26).writeByte(8).writeInt(123456).writeShort(2)));
+        final ByteBuf byteBuf = Unpooled.buffer().writeByte(26).writeByte(8).writeInt(123456).writeShort(2);
+        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () -> VSA.create(dictionary, 4567, byteBuf));
         assertEquals("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: 4567",
                 e1.getCause().getMessage());
 
@@ -308,8 +307,9 @@ class VendorSpecificAttributeTest {
 
     @Test
     void badAttributeType() {
+        final ByteBuf byteBuf = Unpooled.buffer().writeByte(10).writeByte(8).writeInt(123456).writeShort(2);
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
-                VSA.create(dictionary, -1, Unpooled.buffer().writeByte(10).writeByte(8).writeInt(123456).writeShort(2)));
+                VSA.create(dictionary, -1, byteBuf));
         assertEquals("Vendor-Specific attribute attributeId should always be 26, actual: 10",
                 e1.getCause().getMessage());
 
@@ -344,8 +344,8 @@ class VendorSpecificAttributeTest {
 
     @Test
     void createTooShort() {
-        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
-                VSA.create(dictionary, 14122, Unpooled.buffer().writeByte(26).writeByte(6)));
+        final ByteBuf byteBuf = Unpooled.buffer().writeByte(26).writeByte(6);
+        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () -> VSA.create(dictionary, 14122, byteBuf));
         assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 2", e1.getCause().getMessage());
 
         final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
@@ -359,8 +359,9 @@ class VendorSpecificAttributeTest {
 
     @Test
     void noSubAttribute() {
+        final ByteBuf byteBuf = Unpooled.buffer().writeByte(26).writeByte(6).writeInt(123456);
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, () ->
-                VSA.create(dictionary, 14122, Unpooled.buffer().writeByte(26).writeByte(6).writeInt(123456)));
+                VSA.create(dictionary, 14122, byteBuf));
         assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 6", e1.getCause().getMessage());
 
         final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
@@ -371,8 +372,9 @@ class VendorSpecificAttributeTest {
                 VSA.create(dictionary, 14122, 26, (byte) 0, "11111111"));
         assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 6", e3.getCause().getMessage());
 
+        final List<RadiusAttribute> emptyList = Collections.emptyList();
         final IllegalArgumentException e4 = assertThrows(IllegalArgumentException.class,
-                () -> new VendorSpecificAttribute(dictionary, 14122, new ArrayList<>()));
+                () -> new VendorSpecificAttribute(dictionary, 14122, emptyList));
         assertEquals("Vendor-Specific attribute should be greater than 6 octets, actual: 6", e4.getMessage());
     }
 
@@ -395,8 +397,8 @@ class VendorSpecificAttributeTest {
         ));
 
         assertEquals("Vendor-Specific: Vendor ID 14122 (WISPr)\n" +
-                "  WISPr-Location-ID = myLocationId\n" +
-                "  WISPr-Location-Name = myLocationName", vsa.toString());
+                     "  WISPr-Location-ID = myLocationId\n" +
+                     "  WISPr-Location-Name = myLocationName", vsa.toString());
     }
 
     @Test
@@ -427,19 +429,19 @@ class VendorSpecificAttributeTest {
         assertEquals(tag, maxUp.getTag().get());
 
         // encode
-        final VendorSpecificAttribute encode = (VendorSpecificAttribute) vsa.encode(requestAuth, secret);
-        assertEquals(-1, encode.getVendorId());
-        assertEquals(vendorId, encode.getChildVendorId());
+        final VendorSpecificAttribute encoded = vsa.encode(requestAuth, secret);
+        assertEquals(-1, encoded.getVendorId());
+        assertEquals(vendorId, encoded.getChildVendorId());
 
-        final IntegerAttribute encodeMinUp = (IntegerAttribute) encode.getAttribute("WISPr-Bandwidth-Min-Up").get();
+        final IntegerAttribute encodeMinUp = (IntegerAttribute) encoded.getAttribute("WISPr-Bandwidth-Min-Up").get();
         assertEquals(12345, encodeMinUp.getValueInt());
         assertEquals(tag, encodeMinUp.getTag().get());
 
-        final EncodedAttribute encodeMinDown = (EncodedAttribute) encode.getAttribute("WISPr-Bandwidth-Min-Down").get();
+        final EncodedAttribute encodeMinDown = (EncodedAttribute) encoded.getAttribute("WISPr-Bandwidth-Min-Down").get();
         assertNotEquals(12345, ByteBuffer.wrap(encodeMinDown.getValue()).getInt());
         assertFalse(encodeMinDown.getTag().isPresent());
 
-        final EncodedAttribute encodeMaxUp = (EncodedAttribute) encode.getAttribute("WISPr-Bandwidth-Max-Up").get();
+        final EncodedAttribute encodeMaxUp = (EncodedAttribute) encoded.getAttribute("WISPr-Bandwidth-Max-Up").get();
         assertNotEquals(12345, ByteBuffer.wrap(encodeMaxUp.getValue()).getInt());
         assertEquals(tag, encodeMaxUp.getTag().get());
 
@@ -447,28 +449,28 @@ class VendorSpecificAttributeTest {
         assertNotEquals(ByteBuffer.wrap(encodeMinDown.getValue()).getInt(), ByteBuffer.wrap(encodeMaxUp.getValue()).getInt());
 
         // encode again
-        final VendorSpecificAttribute encode1 = (VendorSpecificAttribute) encode.encode(requestAuth, secret);
-        assertEquals(encode, encode1);
+        final VendorSpecificAttribute encode1 = encoded.encode(requestAuth, secret);
+        assertEquals(encoded, encode1);
 
         // decode
-        final VendorSpecificAttribute decode = (VendorSpecificAttribute) encode.decode(requestAuth, secret);
-        assertEquals(-1, decode.getVendorId());
-        assertEquals(vendorId, decode.getChildVendorId());
+        final VendorSpecificAttribute decoded = encoded.decode(requestAuth, secret);
+        assertEquals(-1, decoded.getVendorId());
+        assertEquals(vendorId, decoded.getChildVendorId());
 
-        final IntegerAttribute decodeMinUp = (IntegerAttribute) decode.getAttribute("WISPr-Bandwidth-Min-Up").get();
+        final IntegerAttribute decodeMinUp = (IntegerAttribute) decoded.getAttribute("WISPr-Bandwidth-Min-Up").get();
         assertEquals(12345, decodeMinUp.getValueInt());
         assertEquals(tag, decodeMinUp.getTag().get());
 
-        final IntegerAttribute decodeMinDown = (IntegerAttribute) decode.getAttribute("WISPr-Bandwidth-Min-Down").get();
+        final IntegerAttribute decodeMinDown = (IntegerAttribute) decoded.getAttribute("WISPr-Bandwidth-Min-Down").get();
         assertEquals(12345, decodeMinDown.getValueInt());
         assertFalse(decodeMinDown.getTag().isPresent());
 
-        final IntegerAttribute decodeMaxUp = (IntegerAttribute) decode.getAttribute("WISPr-Bandwidth-Max-Up").get();
+        final IntegerAttribute decodeMaxUp = (IntegerAttribute) decoded.getAttribute("WISPr-Bandwidth-Max-Up").get();
         assertEquals(12345, decodeMaxUp.getValueInt());
         assertEquals(tag, decodeMaxUp.getTag().get());
 
         // decode again
-        final VendorSpecificAttribute decode1 = (VendorSpecificAttribute) decode.decode(requestAuth, secret);
-        assertEquals(decode1, decode);
+        final VendorSpecificAttribute decode1 = decoded.decode(requestAuth, secret);
+        assertEquals(decode1, decoded);
     }
 }

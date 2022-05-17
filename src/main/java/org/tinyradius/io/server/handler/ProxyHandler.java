@@ -27,7 +27,7 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
 
     private final RadiusClient radiusClient;
 
-    public ProxyHandler(RadiusClient radiusClient) {
+    protected ProxyHandler(RadiusClient radiusClient) {
         this.radiusClient = radiusClient;
     }
 
