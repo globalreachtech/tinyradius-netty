@@ -1,4 +1,4 @@
-name: Java CI with Gradle
+name: Gradle Build
 
 on:
   push:
@@ -28,7 +28,6 @@ jobs:
       with:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
     - name: Build with Gradle
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
