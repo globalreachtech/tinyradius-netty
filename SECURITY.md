@@ -5,7 +5,7 @@
 Only latest version is supported. Note that the project does not yet follow semver.
 
 | Version | Supported          |
-| ------- | ------------------ |
+|---------|--------------------|
 | 1.x.x   | :white_check_mark: |
 | < 1.0   | :x:                |
 

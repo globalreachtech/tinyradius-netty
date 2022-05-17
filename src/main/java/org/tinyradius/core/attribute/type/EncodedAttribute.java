@@ -74,7 +74,7 @@ public class EncodedAttribute implements RadiusAttribute {
         final AttributeCodecType codecType = getAttributeTemplate()
                 .map(AttributeTemplate::getCodecType)
                 .orElse(AttributeCodecType.NO_ENCRYPT);
-        return "[Encoded: " + codecType.name() + "] " + delegate.toString();
+        return "[Encoded: " + codecType.name() + "] " + delegate;
     }
 
     @Override

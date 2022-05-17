@@ -83,7 +83,7 @@ public class TestClient {
                 .addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de")
                 .addAttribute("NAS-IP-Address", "192.168.0.100")
                 .addAttribute("Service-Type", "Login-User")
-                .addAttribute("WISPr-Redirection-URL", "http://www.sourceforge.net/")
+                .addAttribute("WISPr-Redirection-URL", "https://www.sourceforge.net/")
                 .addAttribute("WISPr-Location-ID", "net.sourceforge.ap1");
 
         logger.info("Packet before it is sent\n" + ar + "\n");

@@ -2,6 +2,7 @@ package org.tinyradius.core.dictionary.parser.resolver;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ClasspathResourceResolver implements ResourceResolver {
@@ -14,9 +15,10 @@ public class ClasspathResourceResolver implements ResourceResolver {
     @Override
     public String resolve(String currentResource, String nextResource) {
 
-        final String path = Paths.get(currentResource).getParent() != null
-          ? Paths.get(currentResource).getParent().resolve(nextResource).toString()
-          : Paths.get(nextResource).toString();
+        final Path parent = Paths.get(currentResource).getParent();
+        final String path = parent != null
+                ? parent.resolve(nextResource).toString()
+                : Paths.get(nextResource).toString();
 
         return this.getClass().getClassLoader().getResource(path) != null ?
                 path : "";
