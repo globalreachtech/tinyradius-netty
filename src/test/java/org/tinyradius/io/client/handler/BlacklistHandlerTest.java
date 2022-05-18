@@ -19,11 +19,12 @@ import org.tinyradius.io.client.PendingRequestCtx;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.concurrent.TimeoutException;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.never;
@@ -37,7 +38,8 @@ class BlacklistHandlerTest {
 
     private final EventExecutor eventExecutor = ImmediateEventExecutor.INSTANCE;
 
-    private final BlacklistHandler handler = new BlacklistHandler(5000, 2);
+    private final TestClock clock = new TestClock();
+    private final BlacklistHandler handler = new BlacklistHandler(5000, 2, clock);
 
     @Mock
     private ChannelHandlerContext handlerContext;
@@ -108,12 +110,17 @@ class BlacklistHandlerTest {
         assertTrue(blacklisted1.getResponse().isDone());
         assertFalse(blacklisted1.getResponse().isSuccess());
 
-        // expires after at least 4sec (actual 5)
-        await().atLeast(4, SECONDS).untilAsserted(() -> {
+        for (int i = 0; i <= 4; i++) {
             final PendingRequestCtx laterRequest = genRequest(0);
             handler.write(handlerContext, laterRequest, channelPromise);
-            verify(handlerContext).write(laterRequest, channelPromise);
-        });
+            verify(handlerContext, never()).write(laterRequest, channelPromise);
+            clock.tickSeconds(1);
+        }
+
+        // blacklist expires after 5s
+        final PendingRequestCtx laterRequest = genRequest(0);
+        handler.write(handlerContext, laterRequest, channelPromise);
+        verify(handlerContext).write(laterRequest, channelPromise);
     }
 
     @Test
@@ -150,7 +157,7 @@ class BlacklistHandlerTest {
     }
 
     @Test
-    void repeatFailsDontExtendBlacklist() throws InterruptedException, RadiusPacketException {
+    void repeatFailsDontExtendBlacklist() throws RadiusPacketException {
         final PendingRequestCtx request1 = genRequest(0);
         handler.write(handlerContext, request1, channelPromise);
 
@@ -167,22 +174,25 @@ class BlacklistHandlerTest {
         // next request blacklisted
         final PendingRequestCtx blacklisted1 = genRequest(0);
         handler.write(handlerContext, blacklisted1, channelPromise);
-
         verify(handlerContext, never()).write(blacklisted1, channelPromise);
         assertTrue(blacklisted1.getResponse().isDone());
         assertFalse(blacklisted1.getResponse().isSuccess());
 
-        Thread.sleep(4000);
+        clock.tickSeconds(4);
 
         // fail again
         request3.getResponse().tryFailure(new Exception());
 
-        // still expires at most 6sec (actual 5) after first failure
-        await().atMost(2, SECONDS).untilAsserted(() -> {
-            final PendingRequestCtx laterRequest = genRequest(0);
-            handler.write(handlerContext, laterRequest, channelPromise);
-            verify(handlerContext).write(laterRequest, channelPromise);
-        });
+        final PendingRequestCtx later1 = genRequest(0);
+        handler.write(handlerContext, later1, channelPromise);
+        verify(handlerContext, never()).write(later1, channelPromise);
+
+        clock.tickSeconds(1);
+
+        // blacklist expires 5s after first failure
+        final PendingRequestCtx later2 = genRequest(0);
+        handler.write(handlerContext, later2, channelPromise);
+        verify(handlerContext).write(later2, channelPromise);
     }
 
     @Test
@@ -209,5 +219,29 @@ class BlacklistHandlerTest {
         final PendingRequestCtx request4 = genRequest(0);
         handler.write(handlerContext, request4, channelPromise);
         verify(handlerContext, never()).write(request4, channelPromise);
+    }
+
+    private static class TestClock extends Clock {
+
+        private long epochSec = System.currentTimeMillis() / 1000;
+
+        private void tickSeconds(int sec) {
+            epochSec += sec;
+        }
+
+        @Override
+        public ZoneId getZone() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Clock withZone(ZoneId zone) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Instant instant() {
+            return Instant.ofEpochSecond(epochSec);
+        }
     }
 }
