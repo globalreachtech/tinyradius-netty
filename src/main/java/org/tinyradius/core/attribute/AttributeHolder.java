@@ -2,6 +2,7 @@ package org.tinyradius.core.attribute;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import jakarta.xml.bind.DatatypeConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
@@ -10,7 +11,6 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
-import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -69,6 +69,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
     /**
      * Parses attribute and increases readerIndex by size of attribute.
+     *
      * @param dictionary dictionary to parse attribute
      * @param vendorId   vendor Id to set attributes
      * @param data       byte array to parse
@@ -113,7 +114,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
         if (length < typeSize + lengthSize)
             throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >= typeSize + lengthSize, " +
-                    "but typeSize=" + typeSize + ", lengthSize=" + lengthSize);
+                                               "but typeSize=" + typeSize + ", lengthSize=" + lengthSize);
 
         if (length > data.readableBytes())
             throw new IllegalArgumentException("Invalid attribute length " + length + ", parsable bytes " + data.readableBytes());
@@ -221,12 +222,12 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param attribute attribute to add
      * @return object of same type with appended attribute
      * @throws IllegalArgumentException if the attribute's vendorId does not match AttributeHolder's childVendorId
-     * @throws RadiusPacketException packet validation exceptions
+     * @throws RadiusPacketException    packet validation exceptions
      */
     default T addAttribute(RadiusAttribute attribute) throws RadiusPacketException {
         if (attribute.getVendorId() != getChildVendorId())
             throw new IllegalArgumentException("Attribute vendor ID doesn't match: " +
-                    "required " + getChildVendorId() + ", actual " + attribute.getVendorId());
+                                               "required " + getChildVendorId() + ", actual " + attribute.getVendorId());
 
         final ArrayList<RadiusAttribute> attributes = new ArrayList<>(getAttributes());
         attributes.add(attribute);

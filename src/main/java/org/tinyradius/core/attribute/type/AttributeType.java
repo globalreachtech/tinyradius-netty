@@ -2,13 +2,13 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import jakarta.xml.bind.DatatypeConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
-import javax.xml.bind.DatatypeConverter;
 import java.util.Optional;
 
 public enum AttributeType {
@@ -44,7 +44,7 @@ public enum AttributeType {
             return attribute;
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not create attribute - vendorId: " + vendorId +
-                    ", bytes: 0x" + DatatypeConverter.printHexBinary(data.copy().array()), e);
+                                               ", bytes: 0x" + DatatypeConverter.printHexBinary(data.copy().array()), e);
         }
     }
 

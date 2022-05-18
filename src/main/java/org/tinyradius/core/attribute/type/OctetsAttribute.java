@@ -1,12 +1,12 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
+import jakarta.xml.bind.DatatypeConverter;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
-import javax.xml.bind.DatatypeConverter;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -112,7 +112,7 @@ public class OctetsAttribute implements RadiusAttribute {
         if (!(o instanceof OctetsAttribute)) return false;
         OctetsAttribute that = (OctetsAttribute) o;
         return getVendorId() == that.getVendorId() &&
-                data.equals(that.data);
+               data.equals(that.data);
         /*
          * https://netty.io/4.1/api/io/netty/buffer/ByteBuf.html#equals-java.lang.Object-
          * Determines if the content of the specified buffer is identical to the content of this array. 'Identical' here means:

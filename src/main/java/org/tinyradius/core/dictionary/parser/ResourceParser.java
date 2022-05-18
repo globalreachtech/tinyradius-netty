@@ -24,7 +24,7 @@ public class ResourceParser {
     private final WritableDictionary dictionary;
     private final ResourceResolver resourceResolver;
 
-    // primitive support for VALUE declared before ATTRIBUTE
+    // support for VALUE declared before ATTRIBUTE
     private final List<Consumer<WritableDictionary>> deferred = new LinkedList<>();
     private int currentVendor = -1;
 

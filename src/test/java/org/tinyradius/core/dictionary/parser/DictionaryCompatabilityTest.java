@@ -11,10 +11,11 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+// TODO
 class DictionaryCompatabilityTest {
 
     @Test
-    @Disabled // todo
+    @Disabled("throws NumberFormatException: For input string: \"241.26\"")
     void latestFreeRadiusDict() throws IOException {
         final Dictionary dictionary = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary");
@@ -28,7 +29,7 @@ class DictionaryCompatabilityTest {
     }
 
     @Test
-    @Disabled // todo
+    @Disabled("throws IOException: Unknown attribute type while parsing VALUE: Framed-Compression, line: 20")
     void jradiusDict() throws IOException {
         final Dictionary dictionary = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/jradius/dictionary");
