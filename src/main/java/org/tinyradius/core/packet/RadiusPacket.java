@@ -19,7 +19,6 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
     int HEADER_LENGTH = 20;
     int MAX_PACKET_LENGTH = 4096;
 
-    @SuppressWarnings("lgtm[java/weak-cryptographic-algorithm]")
     static MessageDigest getMd5Digest() {
         try {
             return MessageDigest.getInstance("MD5");

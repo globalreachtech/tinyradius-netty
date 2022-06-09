@@ -47,7 +47,6 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
         return buf.setShort(2, buf.readableBytes()).copy().array();
     }
 
-    @SuppressWarnings("lgtm[java/weak-cryptographic-algorithm]")
     static Mac getHmacMd5(String key) {
         try {
             final String HMAC_MD5 = "HmacMD5";
