@@ -32,7 +32,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      uses: gradle/gradle-build-action@cd3cedc781988c804f626f4cd2dc51d0bdf02a12
+      uses: gradle/gradle-build-action@cd579d970f8aec1cf0cae5f62a8e418768970015
       with:
         arguments: clean build jacocoTestReport sonarqube --info --warning-mode=all
     - name: Upload coverage to Codecov
