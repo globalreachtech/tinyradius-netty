@@ -24,7 +24,7 @@ dependencies {
 
     testImplementation 'org.apache.logging.log4j:log4j-core:2.19.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
-    testImplementation 'org.mockito:mockito-junit-jupiter:4.10.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0'
     testImplementation 'org.awaitility:awaitility:4.2.0'
     testImplementation('net.jradius:jradius-core:1.1.5') {
         transitive = false // for reference implementation of hashing utilities
