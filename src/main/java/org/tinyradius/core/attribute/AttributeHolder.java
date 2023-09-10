@@ -45,7 +45,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
 
         // if reading sub-attribute for undefined VSA, treat entire body of vsa (ex vendorId) as undistinguished bytes
-        if (vendorId != -1 && !vendor.isPresent())
+        if (vendorId != -1 && vendor.isEmpty())
             return Collections.singletonList(new AnonSubAttribute(dictionary, vendorId, data));
 
         final List<RadiusAttribute> attributes = new ArrayList<>();

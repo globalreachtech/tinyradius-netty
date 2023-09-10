@@ -8,7 +8,6 @@ import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -19,8 +18,9 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
 
     public static final byte VENDOR_SPECIFIC = 26;
 
-    private final int childVendorId;
-    private final List<RadiusAttribute> attributes;
+    // derived from byteBuf
+    private transient final int childVendorId;
+    private transient final List<RadiusAttribute> attributes;
 
     /**
      * @param dictionary dictionary to use for (sub)attributes
@@ -78,7 +78,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     private VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes, ByteBuf data) {
         super(dictionary, -1, data);
         this.childVendorId = childVendorId;
-        this.attributes = Collections.unmodifiableList(new ArrayList<>(attributes));
+        this.attributes = List.copyOf(attributes);
 
         if (data.getByte(0) != VENDOR_SPECIFIC)
             throw new IllegalArgumentException("Vendor-Specific attribute attributeId should always be 26, " +
@@ -129,16 +129,5 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
             sb.append("\n  ").append(sa.toString());
         }
         return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        // fields in subclass (attributes/childVendorId) are derived from byteBuf
-        return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
     }
 }

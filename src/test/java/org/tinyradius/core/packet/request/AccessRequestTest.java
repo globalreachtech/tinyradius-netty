@@ -64,7 +64,7 @@ class AccessRequestTest {
     }
 
     /**
-     * https://tools.ietf.org/html/rfc2869#section-5.19
+     * <a href="https://tools.ietf.org/html/rfc2869#section-5.19">RFC 2869 Section 5.19</a>
      * <p>
      * An Access-Request that contains either a User-Password or
      * CHAP-Password or ARAP-Password or one or more EAP-Message attributes

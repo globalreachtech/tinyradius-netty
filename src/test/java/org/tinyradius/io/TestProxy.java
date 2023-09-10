@@ -68,7 +68,7 @@ public class TestProxy {
                 ch.pipeline().addLast(new ClientDatagramCodec(dictionary), new PromiseAdapter());
             }
         })) {
-            final ChannelInitializer<DatagramChannel> channelInitializer = new ChannelInitializer<DatagramChannel>() {
+            final ChannelInitializer<DatagramChannel> channelInitializer = new ChannelInitializer<>() {
                 @Override
                 protected void initChannel(DatagramChannel ch) {
                     ch.pipeline().addLast(new ServerPacketCodec(dictionary, secretProvider), new ProxyHandler(radiusClient) {

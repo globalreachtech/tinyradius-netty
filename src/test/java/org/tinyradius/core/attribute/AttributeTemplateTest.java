@@ -32,13 +32,13 @@ class AttributeTemplateTest {
     @Test
     void testFlagDetection() {
         final AttributeTemplate template = new AttributeTemplate(
-                -1, 1, "TestAttr", "integer", (byte) 0, false);
+                -1, 1, "TestAttr", "integer");
         final AttributeTemplate userPassword = new AttributeTemplate(
-                -1, 2, "Test-User-Password", "integer", (byte) 0, false);
+                -1, 2, "Test-User-Password", "integer");
         final AttributeTemplate tunnelPassword = new AttributeTemplate(
-                -1, 69, "Test-Tunnel-Password", "integer", (byte) 0, false);
+                -1, 69, "Test-Tunnel-Password", "integer");
         final AttributeTemplate ascendSend = new AttributeTemplate(
-                529, 214, "Test-Ascend-Send-Secret", "integer", (byte) 0, false);
+                529, 214, "Test-Ascend-Send-Secret", "integer");
         final AttributeTemplate custom = new AttributeTemplate(
                 123, (byte) 123, "Test-Custom", "integer", (byte) 1, true);
 

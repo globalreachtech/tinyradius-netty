@@ -28,7 +28,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     protected BaseRadiusPacket(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         this.dictionary = Objects.requireNonNull(dictionary, "Dictionary is null");
         this.header = Objects.requireNonNull(header);
-        this.attributes = Collections.unmodifiableList(new ArrayList<>(attributes));
+        this.attributes = List.copyOf(attributes);
 
         if (header.readableBytes() != HEADER_LENGTH)
             throw new IllegalArgumentException("Packet header must be length " + HEADER_LENGTH + ", actual: " + header.readableBytes());

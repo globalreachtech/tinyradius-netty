@@ -38,7 +38,7 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
         RadiusEndpoint clientEndpoint = msg.getEndpoint();
         Optional<RadiusEndpoint> serverEndpoint = getProxyServer(request, clientEndpoint);
 
-        if (!serverEndpoint.isPresent()) {
+        if (serverEndpoint.isEmpty()) {
             logger.info("Server not found for client proxy request, ignoring");
             return;
         }
