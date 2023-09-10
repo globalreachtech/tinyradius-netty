@@ -33,8 +33,6 @@ jobs:
       uses: gradle/gradle-build-action@ef76a971e2fa3f867b617efd72f2fbd72cf6f8bc
       with:
         arguments: clean build jacocoTestReport sonarqube --info --warning-mode=all
-    - name: CodeQL Bundle
-      uses: advanced-security/codeql-bundle-action@v1.1.0
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:

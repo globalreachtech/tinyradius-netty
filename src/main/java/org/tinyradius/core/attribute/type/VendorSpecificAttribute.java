@@ -18,9 +18,8 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
 
     public static final byte VENDOR_SPECIFIC = 26;
 
-    // derived from byteBuf
-    private transient final int childVendorId;
-    private transient final List<RadiusAttribute> attributes;
+    private final int childVendorId;
+    private final List<RadiusAttribute> attributes;
 
     /**
      * @param dictionary dictionary to use for (sub)attributes
@@ -129,5 +128,16 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
             sb.append("\n  ").append(sa.toString());
         }
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        // fields in subclass (attributes/childVendorId) are derived from byteBuf
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }
