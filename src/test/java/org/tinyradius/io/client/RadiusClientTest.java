@@ -165,7 +165,6 @@ class RadiusClientTest {
 
     @Test
     void retainPacketsWithRetries() throws RadiusPacketException {
-        final byte id = (byte) random.nextInt(256);
         final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(a -> {
         });
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address,
