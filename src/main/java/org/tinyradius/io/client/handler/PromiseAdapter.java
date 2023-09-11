@@ -27,7 +27,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
     private static final Logger logger = LogManager.getLogger();
 
-    private static final byte PROXY_STATE = 33;
+    public static final byte PROXY_STATE = 33;
 
     private final AtomicInteger proxyIndex = new AtomicInteger(1);
 

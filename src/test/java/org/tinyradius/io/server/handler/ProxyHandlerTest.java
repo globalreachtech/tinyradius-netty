@@ -50,7 +50,7 @@ class ProxyHandlerTest {
     void handleSuccess() throws RadiusPacketException {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getProxyServer(RadiusRequest request, RadiusEndpoint client) {
+            public Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint client) {
                 return Optional.of(stubEndpoint);
             }
         };
@@ -71,7 +71,7 @@ class ProxyHandlerTest {
     void handleRadiusClientError() throws RadiusPacketException {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getProxyServer(RadiusRequest request, RadiusEndpoint client) {
+            public Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint client) {
                 return Optional.of(stubEndpoint);
             }
         };
@@ -91,7 +91,7 @@ class ProxyHandlerTest {
 
         final ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getProxyServer(RadiusRequest request, RadiusEndpoint client) {
+            public Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint client) {
                 return Optional.empty();
             }
         };

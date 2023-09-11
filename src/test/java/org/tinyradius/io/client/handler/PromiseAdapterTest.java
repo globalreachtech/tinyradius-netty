@@ -29,11 +29,10 @@ import java.util.UUID;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
+import static org.tinyradius.io.client.handler.PromiseAdapter.PROXY_STATE;
 
 @ExtendWith(MockitoExtension.class)
 class PromiseAdapterTest {
-
-    private static final byte PROXY_STATE = 33;
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();

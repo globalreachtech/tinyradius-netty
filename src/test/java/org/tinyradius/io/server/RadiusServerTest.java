@@ -1,6 +1,7 @@
 package org.tinyradius.io.server;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -24,45 +25,47 @@ class RadiusServerTest {
     private final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
     @Mock
-    private ChannelHandler authHandler;
+    private ChannelHandler accessHandler;
 
     @Mock
     private ChannelHandler acctHandler;
 
     @Test
     void serverStartStop() {
-        final RadiusServer server = new RadiusServer(bootstrap, authHandler, acctHandler, new InetSocketAddress(0), new InetSocketAddress(0));
+        final RadiusServer server = new RadiusServer(bootstrap, accessHandler, acctHandler, new InetSocketAddress(0), new InetSocketAddress(0));
 
         // registering event loop and adding handlers is almost instant
         // socket binding is variable, possible race condition, so we sync
         server.isReady().syncUninterruptibly();
 
+        final Channel accessChannel = server.getChannels().get(0);
+        final Channel acctChannel = server.getChannels().get(1);
+
         // registered with eventLoop
-        assertTrue(server.getAcctChannel().isRegistered());
-        assertTrue(server.getAuthChannel().isRegistered());
+        assertTrue(accessChannel.isRegistered());
+        assertTrue(acctChannel.isRegistered());
 
         // bound to socket
-        assertNotNull(server.getAcctChannel().localAddress());
-        assertNotNull(server.getAuthChannel().localAddress());
+        assertNotNull(accessChannel.localAddress());
+        assertNotNull(acctChannel.localAddress());
 
         // handlers registered
         String TAIL_CONTEXT = "DefaultChannelPipeline$TailContext#0";
-        final List<String> accountingPipeline = server.getAcctChannel().pipeline().names();
-        assertEquals(TAIL_CONTEXT, accountingPipeline.get(1));
-        assertTrue(accountingPipeline.get(0).contains("ChannelHandler$MockitoMock$"));
-
-        final List<String> accessPipeline = server.getAuthChannel().pipeline().names();
+        final List<String> accessPipeline = accessChannel.pipeline().names();
         assertEquals(TAIL_CONTEXT, accessPipeline.get(1));
         assertTrue(accessPipeline.get(0).contains("ChannelHandler$MockitoMock$"));
+        final List<String> accountingPipeline = acctChannel.pipeline().names();
+        assertEquals(TAIL_CONTEXT, accountingPipeline.get(1));
+        assertTrue(accountingPipeline.get(0).contains("ChannelHandler$MockitoMock$"));
 
         server.close();
 
         // not registered with eventLoop
-        await().until(() -> !server.getAcctChannel().isRegistered());
-        await().until(() -> !server.getAuthChannel().isRegistered());
+        await().until(() -> !accessChannel.isRegistered());
+        await().until(() -> !acctChannel.isRegistered());
 
         // no handlers registered
-        assertEquals(Collections.singletonList(TAIL_CONTEXT), server.getAcctChannel().pipeline().names());
-        assertEquals(Collections.singletonList(TAIL_CONTEXT), server.getAuthChannel().pipeline().names());
+        assertEquals(Collections.singletonList(TAIL_CONTEXT), accessChannel.pipeline().names());
+        assertEquals(Collections.singletonList(TAIL_CONTEXT), acctChannel.pipeline().names());
     }
 }

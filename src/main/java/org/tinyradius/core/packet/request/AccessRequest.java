@@ -80,16 +80,12 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         final int authType = detectedAuth.iterator().next();
         switch (authType) {
             case EAP_MESSAGE:
-                logger.debug("Inferring AccessRequest as EAP");
                 return AccessRequestEap::new;
             case CHAP_PASSWORD:
-                logger.debug("Inferring AccessRequest as CHAP");
                 return AccessRequestChap::new;
             case USER_PASSWORD:
-                logger.debug("Inferring AccessRequest as PAP");
                 return AccessRequestPap::new;
             case ARAP_PASSWORD:
-                logger.debug("Inferring AccessRequest as ARAP");
                 return AccessRequestArap::new;
             default:
                 // shouldn't happen - if AUTH_ATTRS contains authType, it should be handled
