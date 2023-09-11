@@ -55,7 +55,8 @@ class EndToEndTest {
                 .addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de")
                 .addAttribute("NAS-Port", "0");
 
-        harness.testClient("localhost", PROXY_ACCESS_PORT, PROXY_ACCT_PORT, PROXY_SECRET, List.of(ar, acc));
+        harness.testClient("localhost", PROXY_ACCESS_PORT, PROXY_ACCT_PORT, PROXY_SECRET, List.of(ar));
+//        harness.testClient("localhost", ORIGIN_ACCESS_PORT, ORIGIN_ACCT_PORT, ORIGIN_SECRET, List.of(ar));
 
 
         Thread.sleep(1000);

@@ -17,6 +17,7 @@ import java.util.Collections;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
 class RadiusResponseTest {
 
@@ -44,7 +45,7 @@ class RadiusResponseTest {
         final byte id = (byte) random.nextInt(256);
 
         final AccessRequestPap request = (AccessRequestPap)
-                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, id, null, Collections.emptyList()))
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, id, null, Collections.emptyList()))
                         .withPapPassword(plaintextPw)
                         .addAttribute(USER_NAME, user);
         final RadiusRequest encodedRequest = request.encodeRequest(sharedSecret);

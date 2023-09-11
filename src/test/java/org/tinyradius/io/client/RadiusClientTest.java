@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
 @ExtendWith(MockitoExtension.class)
 class RadiusClientTest {
@@ -59,7 +60,7 @@ class RadiusClientTest {
         RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new CapturingOutboundHandler(a -> {
         }));
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
         final TimeoutException e = assertThrows(TimeoutException.class,
                 () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
 
@@ -74,7 +75,7 @@ class RadiusClientTest {
         final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(a -> a.trySuccess(response));
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
         final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
 
         await().until(future::isDone);
@@ -88,7 +89,7 @@ class RadiusClientTest {
         final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(p -> p.tryFailure(expectedException));
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
         final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
 
         await().until(future::isDone);
@@ -111,7 +112,7 @@ class RadiusClientTest {
 
         final List<RadiusEndpoint> endpoints = Arrays.asList(stubEndpoint, stubEndpoint2, stubEndpoint3);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
         final Future<RadiusResponse> future = radiusClient.communicate(request, endpoints);
 
         await().until(future::isDone);
@@ -128,7 +129,7 @@ class RadiusClientTest {
         final CapturingOutboundHandler capturingOutboundHandler = spy(new CapturingOutboundHandler(p -> p.tryFailure(expectedException)));
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
         final Future<RadiusResponse> future = radiusClient.communicate(request, Collections.emptyList());
 
         await().until(future::isDone);
@@ -147,7 +148,7 @@ class RadiusClientTest {
 
         final List<RadiusEndpoint> endpoints = Arrays.asList(stubEndpoint, stubEndpoint2, stubEndpoint3);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
         final Future<RadiusResponse> future = radiusClient.communicate(request, endpoints);
 
         await().until(future::isDone);
@@ -170,7 +171,7 @@ class RadiusClientTest {
         final RadiusClient radiusClient = new RadiusClient(bootstrap, address,
                 new FixedTimeoutHandler(timer, 2, 0), capturingOutboundHandler);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
         final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
 
         await().until(future::isDone);

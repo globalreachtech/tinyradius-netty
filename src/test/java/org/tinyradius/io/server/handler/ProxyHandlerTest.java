@@ -28,6 +28,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
+import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 import static org.tinyradius.core.packet.PacketType.ACCOUNTING_RESPONSE;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,7 +56,7 @@ class ProxyHandlerTest {
             }
         };
 
-        final AccountingRequest request = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
+        final AccountingRequest request = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
         final RadiusResponse mockResponse = RadiusResponse.create(dictionary, ACCOUNTING_RESPONSE, (byte) 123, null,
                 Collections.singletonList(dictionary.createAttribute(-1, (byte) 33, "state1".getBytes(UTF_8))));
 
@@ -78,7 +79,7 @@ class ProxyHandlerTest {
 
         when(client.communicate(any(RadiusRequest.class), any(RadiusEndpoint.class))).thenReturn(GlobalEventExecutor.INSTANCE.newFailedFuture(new Exception("test")));
 
-        final AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 123, null, Collections.emptyList());
+        final AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 123, null, Collections.emptyList());
 
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
 
@@ -96,7 +97,7 @@ class ProxyHandlerTest {
             }
         };
 
-        final AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 123, null, Collections.emptyList());
+        final AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 123, null, Collections.emptyList());
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
 
         verifyNoInteractions(ctx);

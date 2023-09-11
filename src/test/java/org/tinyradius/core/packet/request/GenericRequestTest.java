@@ -11,6 +11,7 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.packet.PacketType.ACCOUNTING_RESPONSE;
 
 class GenericRequestTest {
 
@@ -25,7 +26,7 @@ class GenericRequestTest {
         final String sharedSecret = "sharedSecret1";
         final String username = "myUsername";
 
-        final GenericRequest request = (GenericRequest) RadiusRequest.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList())
+        final GenericRequest request = (GenericRequest) RadiusRequest.create(dictionary, ACCOUNTING_RESPONSE, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute("User-Name", username));
 
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
@@ -53,14 +54,14 @@ class GenericRequestTest {
     void encodeGenericRequest() throws RadiusPacketException {
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
-        GenericRequest request = (GenericRequest) RadiusRequest.create(dictionary, (byte) 7, (byte) 1, null, Collections.emptyList())
+        GenericRequest request = (GenericRequest) RadiusRequest.create(dictionary, ACCOUNTING_RESPONSE, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, 1, user.getBytes(UTF_8)))
                 .addAttribute("Acct-Status-Type", "7");
 
         final byte[] attributeBytes = request.getAttributeByteBuf().copy().array();
         final int length = attributeBytes.length + HEADER_LENGTH;
         final byte[] expectedAuthenticator = RadiusUtils.makeRFC2866RequestAuthenticator(
-                sharedSecret, (byte) 7, (byte) 1, length, attributeBytes, 0, attributeBytes.length);
+                sharedSecret, ACCOUNTING_RESPONSE, (byte) 1, length, attributeBytes, 0, attributeBytes.length);
 
         final RadiusRequest encoded = request.encodeRequest(sharedSecret);
 

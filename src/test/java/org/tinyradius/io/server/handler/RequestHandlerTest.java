@@ -14,6 +14,8 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
+import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
 class RequestHandlerTest {
 
@@ -33,8 +35,8 @@ class RequestHandlerTest {
             }
         };
 
-        final AccountingRequest acctRequest = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
-        final AccessRequestNoAuth authRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final AccountingRequest acctRequest = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
+        final AccessRequestNoAuth authRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
 
         assertFalse(requestHandler.acceptInboundMessage(new RequestCtx(acctRequest, null)));
         assertTrue(requestHandler.acceptInboundMessage(new RequestCtx(authRequest, null)));

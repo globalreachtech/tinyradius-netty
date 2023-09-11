@@ -90,7 +90,8 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
             final RadiusResponse response = msg.decodeResponse(request.secret, request.auth)
                     .removeLastAttribute(PROXY_STATE);
 
-            logger.info("Found request for response identifier => {}", response.getId());
+            logger.info("Found request for response identifier {}, proxyState requestId '{}'",
+                    response.getId(), requestId);
             request.promise.trySuccess(response);
 
             // intentionally nothing to pass through - listeners should hook onto promise

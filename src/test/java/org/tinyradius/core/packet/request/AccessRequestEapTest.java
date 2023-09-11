@@ -8,6 +8,7 @@ import org.tinyradius.core.dictionary.Dictionary;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.request.AccessRequest.EAP_MESSAGE;
 import static org.tinyradius.core.packet.request.AccessRequest.random16bytes;
 import static org.tinyradius.core.packet.util.MessageAuthSupport.MESSAGE_AUTHENTICATOR;
@@ -21,7 +22,7 @@ class AccessRequestEapTest {
         final String sharedSecret = "sharedSecret1";
         final byte[] message = random16bytes();
 
-        final AccessRequestEap request = (AccessRequestEap) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList())
+        final AccessRequestEap request = (AccessRequestEap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, message));
 
         final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
@@ -47,7 +48,7 @@ class AccessRequestEapTest {
     @Test
     void verifyAttributeCount() throws RadiusPacketException {
         final String sharedSecret = "sharedSecret1";
-        final AccessRequestNoAuth request = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, new byte[16], Collections.emptyList());
+        final AccessRequestNoAuth request = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
 
         final AccessRequestEap request1 = (AccessRequestEap) request.addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, new byte[16]));

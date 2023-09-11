@@ -17,6 +17,8 @@ import java.util.Collections;
 
 import static java.lang.Byte.toUnsignedInt;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
+import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
 class RadiusPacketTest {
 
@@ -39,7 +41,7 @@ class RadiusPacketTest {
     @Test
     void toDatagramMaxPacketSize() throws RadiusPacketException {
         // test max length 4096
-        RadiusRequest maxSizeRequest = RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
+        RadiusRequest maxSizeRequest = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
         maxSizeRequest = addBytesToPacket(maxSizeRequest, 4096);
 
         final ByteBuf byteBuf = new DatagramPacket(maxSizeRequest.encodeRequest("mySecret").toByteBuf(), new InetSocketAddress(0))
@@ -49,7 +51,7 @@ class RadiusPacketTest {
         assertEquals(4096, byteBuf.getShort(2));
 
         // test length 4097
-        final RadiusRequest oversizeRequest = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final RadiusRequest oversizeRequest = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
         final RadiusPacketException exception = assertThrows(RadiusPacketException.class,
                 () -> addBytesToPacket(oversizeRequest, 4097));
 
@@ -61,7 +63,7 @@ class RadiusPacketTest {
         final InetSocketAddress address = new InetSocketAddress(random.nextInt(65535));
         final byte[] proxyState = random.generateSeed(198);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList())
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, 33, proxyState))
                 .addAttribute(dictionary.createAttribute(-1, 33, random.generateSeed(198)));
 
