@@ -15,9 +15,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -56,11 +54,6 @@ public class RadiusServer implements Closeable {
         if (channelHandlers.size() != socketAddresses.size())
             throw new IllegalArgumentException(String.format("ChannelHandlers size (%s) and SocketAddresses size (%s) don't match",
                     channelHandlers.size(), socketAddresses.size()));
-
-        final Set<InetSocketAddress> uniqueAddresses = new HashSet<>(socketAddresses);
-        if (uniqueAddresses.size() != socketAddresses.size())
-            throw new IllegalArgumentException(String.format("SocketAddresses must be unique - only %s unique addresses out of %s",
-                    uniqueAddresses.size(), socketAddresses.size()));
 
         isReady = bootstrap.config().group().next().newPromise();
         final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);

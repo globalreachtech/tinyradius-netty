@@ -65,8 +65,8 @@ class PromiseAdapterTest {
 
         // check proxy-state added
         assertEquals(1, attributes1.size());
-        final byte[] proxyState1 = processedPacket1.getAttribute("Proxy-State").get().getValue();
-        assertEquals("1", new String(proxyState1, UTF_8));
+        final byte[] proxyState1 = processedPacket1.getAttribute(PROXY_STATE).get().getValue();
+        UUID requestId1 = UUID.fromString(new String(proxyState1, UTF_8));
 
         // process again
         final List<Object> out2 = new ArrayList<>();
@@ -81,8 +81,8 @@ class PromiseAdapterTest {
         assertEquals(2, attributes2.size());
 
         final List<RadiusAttribute> attributes = processedPacket2.filterAttributes(PROXY_STATE);
-        assertEquals("1", new String(attributes.get(0).getValue(), UTF_8));
-        assertEquals("2", new String(attributes.get(1).getValue(), UTF_8));
+        assertEquals(requestId1, UUID.fromString(new String(attributes.get(0).getValue(), UTF_8)));
+        assertNotEquals(requestId1, UUID.fromString(new String(attributes.get(1).getValue(), UTF_8)));
     }
 
 
