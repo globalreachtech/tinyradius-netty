@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
+import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
 @ExtendWith(MockitoExtension.class)
 class BasicCachingHandlerTest {
@@ -39,7 +40,7 @@ class BasicCachingHandlerTest {
         final BasicCachingHandler basicCachingHandler =
                 new BasicCachingHandler(new HashedWheelTimer(), 500);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 4, (byte) 100, null, Collections.emptyList()).encodeRequest("test");
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 100, null, Collections.emptyList()).encodeRequest("test");
         final RequestCtx requestCtx = new RequestCtx(request, new RadiusEndpoint(new InetSocketAddress(0), "foo"));
         final ResponseCtx responseContext = requestCtx.withResponse(RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 100, null, Collections.emptyList()));
 

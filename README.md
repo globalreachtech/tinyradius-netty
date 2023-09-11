@@ -28,7 +28,8 @@ TinyRadius-Netty is a Java Radius library, loosely based off the TinyRadius Radi
 - Proxy no longer a separate implementation, but a promise-based adapter between the client and server classes
 
 ## Usage
-See the [example implementations](src/test/java/org/tinyradius/io) on usage as Client/Server/Proxy.
+
+See the [e2e tests](src/test/java/org/tinyradius/io/e2e) on usage as Client/Server/Proxy.
 
 ## Maintainers
 

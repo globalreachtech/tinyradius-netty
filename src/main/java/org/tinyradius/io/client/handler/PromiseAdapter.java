@@ -13,8 +13,8 @@ import org.tinyradius.io.client.PendingRequestCtx;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -27,20 +27,19 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
     private static final Logger logger = LogManager.getLogger();
 
-    private static final byte PROXY_STATE = 33;
+    public static final byte PROXY_STATE = 33;
 
-    private final AtomicInteger proxyIndex = new AtomicInteger(1);
+    private final Map<String, Request> requests;
 
-    private final Map<String, Request> requests = new ConcurrentHashMap<>();
-
-    private String nextProxyState() {
-        return Integer.toString(proxyIndex.getAndIncrement());
+    public PromiseAdapter() {
+        // todo inject map impl
+        requests = new ConcurrentHashMap<>();
     }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
         final RadiusRequest packet = msg.getRequest();
-        final String requestId = nextProxyState();
+        final String requestId = UUID.randomUUID().toString();
 
         try {
             final RadiusRequest encodedRequest = packet
@@ -90,7 +89,8 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
             final RadiusResponse response = msg.decodeResponse(request.secret, request.auth)
                     .removeLastAttribute(PROXY_STATE);
 
-            logger.info("Found request for response identifier => {}", response.getId());
+            logger.info("Found request for response identifier {}, proxyState requestId '{}'",
+                    response.getId(), requestId);
             request.promise.trySuccess(response);
 
             // intentionally nothing to pass through - listeners should hook onto promise

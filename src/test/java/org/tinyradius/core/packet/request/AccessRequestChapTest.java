@@ -13,6 +13,7 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.request.AccessRequest.CHAP_PASSWORD;
 
 class AccessRequestChapTest {
@@ -28,7 +29,7 @@ class AccessRequestChapTest {
         final String username = "myUsername";
 
         final AccessRequestChap request = (AccessRequestChap)
-                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withChapPassword("myPw")
                         .addAttribute(dictionary.createAttribute("User-Name", username));
 
@@ -57,7 +58,7 @@ class AccessRequestChapTest {
         final byte[] auth = new byte[16];
         auth[1] = 1; // set to non-zero/null
         final String sharedSecret = "sharedSecret1";
-        final AccessRequestNoAuth request1 = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, auth, Collections.emptyList());
+        final AccessRequestNoAuth request1 = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, auth, Collections.emptyList());
         request1.decodeRequest(sharedSecret); // nothing thrown, NoAuth doesn't check anything
 
         // add one pw attribute
@@ -76,7 +77,7 @@ class AccessRequestChapTest {
         final String plaintextPw = "password123456789";
         final String sharedSecret = "sharedSecret";
 
-        final AccessRequestNoAuth emptyRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final AccessRequestNoAuth emptyRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
 
         assertFalse(emptyRequest.getAttribute("User-Password").isPresent());
         assertFalse(emptyRequest.getAttribute("CHAP-Password").isPresent());
@@ -106,19 +107,19 @@ class AccessRequestChapTest {
         final byte[] challenge = random.generateSeed(16);
         final byte[] password = CHAP.chapResponse((byte) chapId, plaintextPw.getBytes(UTF_8), challenge);
 
-        AccessRequestChap goodRequest = (AccessRequestChap) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Arrays.asList(
+        AccessRequestChap goodRequest = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Arrays.asList(
                 dictionary.createAttribute(-1, 60, challenge),
                 dictionary.createAttribute(-1, 3, password)));
         assertTrue(goodRequest.checkPassword(plaintextPw));
         assertFalse(goodRequest.checkPassword("badPw"));
 
-        AccessRequestChap badChallenge = (AccessRequestChap) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Arrays.asList(
+        AccessRequestChap badChallenge = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Arrays.asList(
                 dictionary.createAttribute(-1, 60, random.generateSeed(16)),
                 dictionary.createAttribute(-1, 3, password)));
         assertFalse(badChallenge.checkPassword(plaintextPw));
 
         password[0] = (byte) ((chapId + 1) % 256);
-        AccessRequestChap badPassword = (AccessRequestChap) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Arrays.asList(
+        AccessRequestChap badPassword = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Arrays.asList(
                 dictionary.createAttribute(-1, 60, challenge),
                 dictionary.createAttribute(-1, 3, password)));
         assertFalse(badPassword.checkPassword(plaintextPw));

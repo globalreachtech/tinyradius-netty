@@ -8,7 +8,6 @@ import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -78,7 +77,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     private VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes, ByteBuf data) {
         super(dictionary, -1, data);
         this.childVendorId = childVendorId;
-        this.attributes = Collections.unmodifiableList(new ArrayList<>(attributes));
+        this.attributes = List.copyOf(attributes);
 
         if (data.getByte(0) != VENDOR_SPECIFIC)
             throw new IllegalArgumentException("Vendor-Specific attribute attributeId should always be 26, " +

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.RadiusPacket.buildHeader;
 
 class MessageAuthSupportTest {
@@ -32,7 +33,7 @@ class MessageAuthSupportTest {
 
     @Test
     void decodeNoMessageAuth() throws RadiusPacketException {
-        final TestPacket testPacket = new TestPacket(dictionary, (byte) 1, (byte) 1, new byte[16], Collections.emptyList());
+        final TestPacket testPacket = new TestPacket((byte) 1, (byte) 1, new byte[16], Collections.emptyList());
 
         // should always pass if nothing to verify
         testPacket.verifyMessageAuth(secret, null);
@@ -42,7 +43,7 @@ class MessageAuthSupportTest {
     void selfEncodeVerify() throws RadiusPacketException {
         final byte[] auth = new byte[16];
         auth[0] = 1; // set auth to non-zeros
-        final TestPacket testPacket = new TestPacket(dictionary, (byte) 1, (byte) 1, auth, Collections.emptyList());
+        final TestPacket testPacket = new TestPacket((byte) 1, (byte) 1, auth, Collections.emptyList());
 
         final TestPacket encodedPacket = testPacket.encodeMessageAuth(secret, testPacket.getAuthenticator());
         encodedPacket.verifyMessageAuth(secret, testPacket.getAuthenticator());
@@ -51,7 +52,7 @@ class MessageAuthSupportTest {
     @Test
     void testEncode() throws Exception {
         // impl under test
-        final AccessRequestNoAuth encodedRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList())
+        final AccessRequestNoAuth encodedRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList())
                 .encodeRequest(secret);
         final byte[] actualMsgAuth = encodedRequest.getAttributes().get(0).getValue();
 
@@ -84,13 +85,13 @@ class MessageAuthSupportTest {
 
     private static class TestPacket extends BaseRadiusPacket<TestPacket> implements MessageAuthSupport<TestPacket> {
 
-        private TestPacket(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
-            super(dictionary, buildHeader(type, id, authenticator, attributes), attributes);
+        private TestPacket(byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
+            super(MessageAuthSupportTest.dictionary, buildHeader(type, id, authenticator, attributes), attributes);
         }
 
         @Override
         protected TestPacket with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
-            return new TestPacket(dictionary, header.getByte(0), header.getByte(1), header.slice(4, 16).copy().array(), attributes);
+            return new TestPacket(header.getByte(0), header.getByte(1), header.slice(4, 16).copy().array(), attributes);
         }
     }
 }

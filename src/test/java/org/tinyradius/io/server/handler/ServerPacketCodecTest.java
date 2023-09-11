@@ -25,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
+import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
 @ExtendWith(MockitoExtension.class)
 class ServerPacketCodecTest {
@@ -49,7 +51,7 @@ class ServerPacketCodecTest {
 
     @Test
     void decodeExceptionDropPacket() throws RadiusPacketException {
-        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList()).encodeRequest("mySecret");
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList()).encodeRequest("mySecret");
         final DatagramPacket datagram = new DatagramPacket(request.toByteBuf(), address);
         final ServerPacketCodec codec = new ServerPacketCodec(dictionary, x -> "bad secret");
 
@@ -67,7 +69,7 @@ class ServerPacketCodecTest {
         when(ctx.channel()).thenReturn(mock(Channel.class));
 
         // create datagram
-        final RadiusRequest request = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList())
+        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList())
                 .addAttribute("User-Password", password)
                 .encodeRequest(secret);
         final InetSocketAddress remoteAddress = new InetSocketAddress(123);

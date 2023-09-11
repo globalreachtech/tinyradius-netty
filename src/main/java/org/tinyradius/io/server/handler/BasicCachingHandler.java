@@ -66,7 +66,7 @@ public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, Respo
             logger.debug("Cache hit, resending response, id: {}, remote address: {}", packet.id, packet.remoteAddress);
             onHit(ctx, requestCtx, responseContext, out);
         } else {
-            logger.debug("Cache miss, proxying request, id: {}, remote address: {}", packet.id, packet.remoteAddress);
+            logger.debug("Cache miss, handling request, id: {}, remote address: {}", packet.id, packet.remoteAddress);
             onMiss(ctx, requestCtx, out);
         }
     }

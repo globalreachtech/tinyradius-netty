@@ -19,8 +19,8 @@ public interface SecretProvider {
 	 * An alternative method of returning shared secret but this time with the
 	 * current radius request so that alternative secrets can be returned based on
 	 * some sort of context.
-	 * 
-	 * By default this method calls the original getSharedSecret.
+	 * <p>
+	 * By default, this method calls the original getSharedSecret.
 	 * 
 	 * @param address IP address and port number of remote host/client
 	 * @param request the RadiusRequest relating to this request

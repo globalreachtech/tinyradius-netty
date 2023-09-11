@@ -54,7 +54,7 @@ class RadiusRequestTest {
         final String user = "user1";
         final String sharedSecret = "sharedSecret1";
 
-        final AccountingRequest rawRequest = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList())
+        final AccountingRequest rawRequest = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList())
                 .addAttribute(USER_NAME, user);
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
 
@@ -72,7 +72,7 @@ class RadiusRequestTest {
         final String user = "user1";
         final String sharedSecret = "sharedSecret1";
 
-        final AccountingRequest rawRequest = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList())
+        final AccountingRequest rawRequest = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList())
                 .addAttribute(USER_NAME, user);
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
 
@@ -97,7 +97,7 @@ class RadiusRequestTest {
         final String sharedSecret = "sharedSecret1";
 
         final AccessRequestPap rawRequest = (AccessRequestPap)
-                ((AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
+                ((AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withPapPassword(password)
                         .addAttribute(USER_NAME, user);
         final RadiusRequest request = rawRequest.encodeRequest(sharedSecret);
@@ -120,7 +120,7 @@ class RadiusRequestTest {
         String sharedSecret = "sharedSecret1";
 
         // test max length 4096
-        AccountingRequest rawRequest = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
+        AccountingRequest rawRequest = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
         rawRequest = (AccountingRequest) addBytesToPacket(rawRequest, 4096);
         final RadiusRequest maxSizeRequest = rawRequest.encodeRequest(sharedSecret);
 
@@ -145,7 +145,7 @@ class RadiusRequestTest {
         final String sharedSecret = "sharedSecret1";
 
         // make 4090 octet packet
-        AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, (byte) 4, (byte) 1, null, Collections.emptyList());
+        AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
         packet = (AccountingRequest) addBytesToPacket(packet, 4090);
 
         final byte[] validBytes = new DatagramPacket(packet.encodeRequest(sharedSecret).toByteBuf(), new InetSocketAddress(0))

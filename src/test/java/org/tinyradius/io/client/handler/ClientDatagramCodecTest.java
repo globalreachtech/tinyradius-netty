@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.request.RadiusRequest.fromDatagram;
 
 @ExtendWith(MockitoExtension.class)
@@ -103,7 +104,7 @@ class ClientDatagramCodecTest {
         final byte id = (byte) random.nextInt(256);
 
         final AccessRequestPap accessRequest = (AccessRequestPap)
-                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, id, null, Collections.emptyList()))
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, id, null, Collections.emptyList()))
                         .withPapPassword(password)
                         .addAttribute(USER_NAME, username)
                         .encodeRequest(secret);

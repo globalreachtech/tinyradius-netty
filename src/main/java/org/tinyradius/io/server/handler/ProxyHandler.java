@@ -36,9 +36,9 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
         final RadiusRequest request = msg.getRequest();
 
         RadiusEndpoint clientEndpoint = msg.getEndpoint();
-        Optional<RadiusEndpoint> serverEndpoint = getProxyServer(request, clientEndpoint);
+        Optional<RadiusEndpoint> serverEndpoint = getOriginServer(request, clientEndpoint);
 
-        if (!serverEndpoint.isPresent()) {
+        if (serverEndpoint.isEmpty()) {
             logger.info("Server not found for client proxy request, ignoring");
             return;
         }
@@ -61,5 +61,5 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
      *               (containing the address, port number and shared secret)
      * @return RadiusEndpoint to proxy request to
      */
-    protected abstract Optional<RadiusEndpoint> getProxyServer(RadiusRequest request, RadiusEndpoint client);
+    protected abstract Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint client);
 }

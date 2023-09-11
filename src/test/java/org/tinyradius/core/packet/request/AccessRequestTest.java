@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.request.AccessRequest.*;
 
 class AccessRequestTest {
@@ -23,13 +24,13 @@ class AccessRequestTest {
         String pw = "myPw";
 
         final AccessRequestPap nullAuthRequest = (AccessRequestPap)
-                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 2, null, Collections.emptyList()))
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 2, null, Collections.emptyList()))
                         .withPapPassword(pw);
         assertNull(nullAuthRequest.getAuthenticator());
 
         assertNotNull(nullAuthRequest.encodeRequest(sharedSecret).getAuthenticator());
 
-        final RadiusRequest authRequest = ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 2, random.generateSeed(16), Collections.emptyList()))
+        final RadiusRequest authRequest = ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 2, random.generateSeed(16), Collections.emptyList()))
                 .withPapPassword(pw);
         assertNotNull(authRequest.getAuthenticator());
         assertArrayEquals(authRequest.getAuthenticator(), authRequest.encodeRequest(sharedSecret).getAuthenticator());
@@ -40,22 +41,22 @@ class AccessRequestTest {
         final SecureRandom random = new SecureRandom();
         final byte[] encodedPw = random.generateSeed(16);
 
-        final AccessRequest papRequest = (AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null,
+        final AccessRequest papRequest = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null,
                 Collections.singletonList(dictionary.createAttribute(-1, USER_PASSWORD, encodedPw)));
         assertTrue(papRequest instanceof AccessRequestPap);
 
-        final AccessRequest chapRequest = (AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null,
+        final AccessRequest chapRequest = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null,
                 Collections.singletonList(dictionary.createAttribute(-1, CHAP_PASSWORD, encodedPw)));
         assertTrue(chapRequest instanceof AccessRequestChap);
 
-        final AccessRequest eapRequest = (AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null,
+        final AccessRequest eapRequest = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null,
                 Collections.singletonList(dictionary.createAttribute(-1, EAP_MESSAGE, encodedPw)));
         assertTrue(eapRequest instanceof AccessRequestEap);
 
-        final AccessRequest unknown = (AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final AccessRequest unknown = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
         assertTrue(unknown instanceof AccessRequestNoAuth);
 
-        final AccessRequest invalid = (AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null,
+        final AccessRequest invalid = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null,
                 Arrays.asList(
                         dictionary.createAttribute(-1, CHAP_PASSWORD, encodedPw),
                         dictionary.createAttribute(-1, EAP_MESSAGE, encodedPw)
@@ -64,7 +65,7 @@ class AccessRequestTest {
     }
 
     /**
-     * https://tools.ietf.org/html/rfc2869#section-5.19
+     * <a href="https://tools.ietf.org/html/rfc2869#section-5.19">RFC 2869 Section 5.19</a>
      * <p>
      * An Access-Request that contains either a User-Password or
      * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
@@ -74,7 +75,7 @@ class AccessRequestTest {
      */
     @Test
     void withPasswordRemovesOtherTypes() throws RadiusPacketException {
-        final AccessRequestNoAuth accessRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList());
+        final AccessRequestNoAuth accessRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
 
         // encode CHAP
         final AccessRequestChap chap = (AccessRequestChap) accessRequest.withChapPassword("abc");

@@ -12,6 +12,7 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.request.AccessRequest.USER_PASSWORD;
 
 class AccessRequestPapTest {
@@ -27,7 +28,7 @@ class AccessRequestPapTest {
         final String username = "myUsername";
 
         final AccessRequestPap request = (AccessRequestPap)
-                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withPapPassword(password)
                         .addAttribute(dictionary.createAttribute("User-Name", username));
         assertEquals(password, request.getPassword().get());
@@ -57,7 +58,7 @@ class AccessRequestPapTest {
     @Test
     void decodeChecksAttributeCount() throws RadiusPacketException {
         final String sharedSecret = "sharedSecret1";
-        final AccessRequestNoAuth request1 = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, new byte[16], Collections.emptyList());
+        final AccessRequestNoAuth request1 = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one pw attribute
@@ -77,7 +78,7 @@ class AccessRequestPapTest {
         final String sharedSecret = "sharedSecret1";
 
         final AccessRequestPap request = (AccessRequestPap)
-                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 2, null, Collections.emptyList()))
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 2, null, Collections.emptyList()))
                         .withPapPassword(password)
                         .addAttribute(USER_NAME, user);
 

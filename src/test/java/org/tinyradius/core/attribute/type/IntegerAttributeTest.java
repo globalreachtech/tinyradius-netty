@@ -124,7 +124,7 @@ class IntegerAttributeTest {
     }
 
     /**
-     * https://tools.ietf.org/html/bcp158
+     * <a href="https://tools.ietf.org/html/bcp158">BCP 158</a>
      * <p>
      * "Other limitations of the tagging mechanism are that when integer
      * values are tagged, the value portion is reduced to three bytes,

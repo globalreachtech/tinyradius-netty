@@ -29,11 +29,10 @@ class BaseRadiusPacketTest {
 
     @Test
     void doesNotMutateOriginalAttributeList() throws RadiusPacketException {
-        final List<RadiusAttribute> attributes = Collections.emptyList();
+        final List<RadiusAttribute> attributes = Collections.emptyList(); // immutable
         final StubPacket rp = new StubPacket(attributes)
                 .addAttribute("WISPr-Location-ID", "myLocationId");
 
-        assertEquals(0, attributes.size());
         assertEquals(1, rp.getAttributes().size());
     }
 

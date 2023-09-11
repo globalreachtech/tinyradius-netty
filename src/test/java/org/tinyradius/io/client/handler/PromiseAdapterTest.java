@@ -28,12 +28,11 @@ import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
+import static org.tinyradius.core.packet.PacketType.*;
+import static org.tinyradius.io.client.handler.PromiseAdapter.PROXY_STATE;
 
 @ExtendWith(MockitoExtension.class)
 class PromiseAdapterTest {
-
-    private static final byte PROXY_STATE = 33;
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final SecureRandom random = new SecureRandom();
@@ -53,7 +52,7 @@ class PromiseAdapterTest {
         final byte id = (byte) random.nextInt(256);
 
         final AccountingRequest originalRequest = (AccountingRequest)
-                RadiusRequest.create(dictionary, (byte) 4, id, null, Collections.emptyList()).encodeRequest(secret);
+                RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, id, null, Collections.emptyList()).encodeRequest(secret);
         final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
 
         // process once
@@ -66,8 +65,8 @@ class PromiseAdapterTest {
 
         // check proxy-state added
         assertEquals(1, attributes1.size());
-        final byte[] proxyState1 = processedPacket1.getAttribute("Proxy-State").get().getValue();
-        assertEquals("1", new String(proxyState1, UTF_8));
+        final byte[] proxyState1 = processedPacket1.getAttribute(PROXY_STATE).get().getValue();
+        UUID requestId1 = UUID.fromString(new String(proxyState1, UTF_8));
 
         // process again
         final List<Object> out2 = new ArrayList<>();
@@ -82,8 +81,8 @@ class PromiseAdapterTest {
         assertEquals(2, attributes2.size());
 
         final List<RadiusAttribute> attributes = processedPacket2.filterAttributes(PROXY_STATE);
-        assertEquals("1", new String(attributes.get(0).getValue(), UTF_8));
-        assertEquals("2", new String(attributes.get(1).getValue(), UTF_8));
+        assertEquals(requestId1, UUID.fromString(new String(attributes.get(0).getValue(), UTF_8)));
+        assertNotEquals(requestId1, UUID.fromString(new String(attributes.get(1).getValue(), UTF_8)));
     }
 
 
@@ -117,7 +116,7 @@ class PromiseAdapterTest {
 
         // using id 1
         final AccessRequestPap request = (AccessRequestPap)
-                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, requestAuth, Collections.emptyList()))
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, requestAuth, Collections.emptyList()))
                         .withPapPassword("myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(address, secret);
 
@@ -148,7 +147,7 @@ class PromiseAdapterTest {
         final String secret = "mySecret";
 
         final AccessRequestPap request = (AccessRequestPap)
-                ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList()))
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withPapPassword("myPw");
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(address, secret);
 
@@ -181,7 +180,7 @@ class PromiseAdapterTest {
 
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
-        final AccessRequestNoAuth request = (AccessRequestNoAuth) RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, Collections.emptyList())
+        final AccessRequestNoAuth request = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList())
                 .addAttribute("Tunnel-Password", pw);
         final RadiusEndpoint requestEndpoint = new RadiusEndpoint(address, secret);
         assertEquals(pw, new String(request.getAttribute("Tunnel-Password").get().getValue(), UTF_8));
@@ -235,7 +234,7 @@ class PromiseAdapterTest {
         final String password = "myPassword";
         int id = random.nextInt(256);
 
-        RadiusRequest packet = ((AccessRequest) RadiusRequest.create(dictionary, (byte) 1, (byte) id, null, Collections.emptyList()))
+        RadiusRequest packet = ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) id, null, Collections.emptyList()))
                 .withPapPassword(password)
                 .addAttribute(1, username);
         assertTrue(packet instanceof AccessRequestPap);
