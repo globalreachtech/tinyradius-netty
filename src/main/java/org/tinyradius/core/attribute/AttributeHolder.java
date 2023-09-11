@@ -253,7 +253,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     }
 
     /**
-     * Removes all instances of the specified attribute from this attribute container.
+     * Removes <i>all</i> instances of the specified attribute from this attribute container.
      *
      * @param attribute attributes to remove
      * @return object of same type with removed attribute

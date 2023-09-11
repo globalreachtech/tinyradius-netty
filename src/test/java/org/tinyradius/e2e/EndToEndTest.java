@@ -37,7 +37,6 @@ class EndToEndTest {
         final Closeable origin = startOrigin();
         final Closeable proxy = startProxy();
 
-        // Access-Request
         final AccessRequestPap ar = (AccessRequestPap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withPapPassword("myPassword")
@@ -47,7 +46,6 @@ class EndToEndTest {
                         .addAttribute("Service-Type", "Login-User");
 
 
-        // Accounting-Request
         final AccountingRequest acc = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 2, null, new ArrayList<>())
                 .addAttribute("User-Name", "username")
                 .addAttribute("Acct-Status-Type", "1")
@@ -55,9 +53,9 @@ class EndToEndTest {
                 .addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de")
                 .addAttribute("NAS-Port", "0");
 
-        harness.testClient("localhost", PROXY_ACCESS_PORT, PROXY_ACCT_PORT, PROXY_SECRET, List.of(ar));
-//        harness.testClient("localhost", ORIGIN_ACCESS_PORT, ORIGIN_ACCT_PORT, ORIGIN_SECRET, List.of(ar));
+        harness.testClient("localhost", PROXY_ACCESS_PORT, PROXY_ACCT_PORT, PROXY_SECRET, List.of(ar, acc));
 
+        // TODO assert responses
 
         Thread.sleep(1000);
         origin.close();
