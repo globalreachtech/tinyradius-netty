@@ -95,7 +95,7 @@ public class OctetsAttribute implements RadiusAttribute {
         final String tag = getTag()
                 .map(t -> ":" + t)
                 .orElse("");
-        return getAttributeName() + tag + " = " + getValueString();
+        return getAttributeName() + tag + "=" + getValueString();
     }
 
     @Override

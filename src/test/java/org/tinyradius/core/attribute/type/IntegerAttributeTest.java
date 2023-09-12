@@ -144,7 +144,7 @@ class IntegerAttributeTest {
         assertEquals(6, serviceType.toByteArray().length);
         assertArrayEquals(new byte[]{0, 0, 0, 3}, serviceType.getValue());
         assertEquals(IntegerAttribute.class, serviceType.getClass());
-        assertEquals("Service-Type = Callback-Login-User", serviceType.toString());
+        assertEquals("Service-Type=Callback-Login-User", serviceType.toString());
         assertEquals(3, serviceType.getValueInt());
         assertEquals("Callback-Login-User", serviceType.getValueString());
         assertFalse(serviceType.getTag().isPresent());
@@ -177,7 +177,7 @@ class IntegerAttributeTest {
         assertEquals(6, vlan.toByteArray().length);
         assertArrayEquals(new byte[]{0, 0, 2}, vlan.getValue());
         assertEquals(IntegerAttribute.class, vlan.getClass());
-        assertEquals("Tunnel-Type:123 = L2F", vlan.toString());
+        assertEquals("Tunnel-Type:123=L2F", vlan.toString());
         assertEquals(2, vlan.getValueInt());
         assertEquals("L2F", vlan.getValueString());
         assertEquals((byte) 123, vlan.getTag().get());

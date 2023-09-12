@@ -15,6 +15,8 @@ import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
+import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_PASSWORD;
+import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_PASSWORD;
 import static org.tinyradius.core.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
@@ -261,21 +263,20 @@ public class AttributeTemplate {
     }
 
     private static boolean detectHasTag(int vendorId, int type, boolean hasTag) {
-        // Tunnel-Password
-        return (vendorId == -1 && type == 69) || hasTag;
+        return (vendorId == -1 && type == TUNNEL_PASSWORD) || hasTag;
     }
 
     private static AttributeCodecType detectAttributeCodec(int vendorId, int type, byte encryptFlag) {
-        if (vendorId == -1 && type == 2) // User-Password
+        if (vendorId == -1 && type == USER_PASSWORD)
             return RFC2865_USER_PASSWORD;
 
-        if (vendorId == -1 && type == 69) // Tunnel-Password
+        if (vendorId == -1 && type == TUNNEL_PASSWORD)
             return RFC2868_TUNNEL_PASSWORD;
 
         if (vendorId == 529 && type == 214) // Ascend-Send-Secret
-            return ASCENT_SEND_SECRET;
+            return ASCEND_SEND_SECRET;
 
-        return fromId(encryptFlag);
+        return fromEncryptFlagId(encryptFlag);
     }
 
     @Override

@@ -31,6 +31,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
@@ -42,7 +44,7 @@ public class Harness {
     private final Timer timer = new HashedWheelTimer();
     private final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer);
 
-    public void testClient(String host, int accessPort, int acctPort, String secret, List<RadiusRequest> requests) {
+    public List<RadiusResponse> testClient(String host, int accessPort, int acctPort, String secret, List<RadiusRequest> requests) {
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
@@ -58,13 +60,14 @@ public class Harness {
         })) {
             RadiusEndpoint accessEndpoint = new RadiusEndpoint(new InetSocketAddress(host, accessPort), secret);
             RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, acctPort), secret);
-            requests.forEach(r -> {
+            return requests.stream().map(r -> {
                 RadiusEndpoint endpoint = (r.getType() == ACCESS_REQUEST) ? accessEndpoint : acctEndpoint;
                 logger.info("Packet before it is sent\n" + r + "\n");
                 RadiusResponse response = rc.communicate(r, endpoint).syncUninterruptibly().getNow();
                 logger.info("Packet after it was sent\n" + r + "\n");
                 logger.info("Response\n" + response + "\n");
-            });
+                return response;
+            }).collect(Collectors.toList());
         }
     }
 
@@ -75,7 +78,7 @@ public class Harness {
      * @param originSecret shared secret used by origin server
      * @return Closeable handler to trigger origin server shutdown
      */
-    public Closeable startOrigin(int originAccessPort, int originAcctPort, String originSecret) {
+    public Closeable startOrigin(int originAccessPort, int originAcctPort, String originSecret, Map<String, String> credentials) {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         Bootstrap bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
@@ -84,7 +87,7 @@ public class Harness {
         BasicCachingHandler cachingHandlerAuth = new BasicCachingHandler(timer, 5000);
         BasicCachingHandler cachingHandlerAcct = new BasicCachingHandler(timer, 5000);
 
-        SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler();
+        SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler(credentials);
         SimpleAccountingHandler simpleAccountingHandler = new SimpleAccountingHandler();
 
         RadiusServer server = new RadiusServer(bootstrap,

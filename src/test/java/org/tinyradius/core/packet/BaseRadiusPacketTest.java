@@ -53,7 +53,7 @@ class BaseRadiusPacketTest {
         assertEquals("myLocationId", wisprLocations.get(0).getValueString());
 
         assertEquals("myLocationId", packet.getAttribute(14122, 1).get().getValueString());
-        final List<RadiusAttribute> wisprLocations2 = packet.filterAttributes(14122, 1);
+        final List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, 1);
         assertEquals(1, wisprLocations2.size());
         assertEquals("myLocationId", wisprLocations2.get(0).getValueString());
 
@@ -62,17 +62,17 @@ class BaseRadiusPacketTest {
         assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute(168).get().getValueString());
         assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute("Framed-IPv6-Address").get().getValueString());
 
-        final List<RadiusAttribute> ipV6Attributes = packet.filterAttributes(97);
+        final List<RadiusAttribute> ipV6Attributes = packet.getAttributes(97);
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
                 ipV6Attributes.stream().map(RadiusAttribute::getValueString).toArray());
 
-        assertEquals("Access-Request, ID 1, len 96\n" +
+        assertEquals("Access-Request, ID 1, len 96, attributes={\n" +
                 "Vendor-Specific: Vendor ID 14122 (WISPr)\n" +
-                "  WISPr-Location-ID = myLocationId\n" +
-                "Framed-IP-Address = 0.18.214.135\n" +
-                "Framed-IPv6-Address = fe80:0:0:0:0:0:0:0\n" +
-                "Framed-IPv6-Prefix = fe80:0:0:0:0:0:0:0/64\n" +
-                "Framed-IPv6-Prefix = fe80:0:0:0:0:0:0:0/128", packet.toString());
+                "  WISPr-Location-ID=myLocationId\n" +
+                "Framed-IP-Address=0.18.214.135\n" +
+                "Framed-IPv6-Address=fe80:0:0:0:0:0:0:0\n" +
+                "Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/64\n" +
+                "Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/128\n}", packet.toString());
     }
 
     @Test
@@ -126,20 +126,20 @@ class BaseRadiusPacketTest {
         // remove once
         final StubPacket rp2 = rp.removeLastAttribute(6);
 
-        List<RadiusAttribute> rp2Attributes = rp2.filterAttributes(6);
+        List<RadiusAttribute> rp2Attributes = rp2.getAttributes(6);
         assertEquals(1, rp2Attributes.size());
         assertEquals("Login-User", rp2Attributes.get(0).getValueString());
 
         // remove again
         final StubPacket rp3 = rp2.removeLastAttribute(6);
 
-        List<RadiusAttribute> rp3Attributes = rp3.filterAttributes(6);
+        List<RadiusAttribute> rp3Attributes = rp3.getAttributes(6);
         assertEquals(0, rp3Attributes.size());
 
         // last remove should do nothing
         final StubPacket rp4 = rp3.removeLastAttribute(6);
 
-        List<RadiusAttribute> rp4Attributes = rp4.filterAttributes(6);
+        List<RadiusAttribute> rp4Attributes = rp4.getAttributes(6);
         assertEquals(0, rp4Attributes.size());
 
         assertEquals(3, rp.getAttributes().size());
@@ -163,11 +163,11 @@ class BaseRadiusPacketTest {
 
         final List<RadiusAttribute> attributes = radiusPacket.getFlattenedAttributes();
 
-        assertEquals("Service-Type = 999", attributes.get(0).toString());
-        assertEquals("Filter-Id = abc", attributes.get(1).toString());
-        assertEquals("Reply-Message = foobar", attributes.get(2).toString());
-        assertEquals("WISPr-Logoff-URL = 111", attributes.get(3).toString());
-        assertEquals("WISPr-Logoff-URL = 222", attributes.get(4).toString());
+        assertEquals("Service-Type=999", attributes.get(0).toString());
+        assertEquals("Filter-Id=abc", attributes.get(1).toString());
+        assertEquals("Reply-Message=foobar", attributes.get(2).toString());
+        assertEquals("WISPr-Logoff-URL=111", attributes.get(3).toString());
+        assertEquals("WISPr-Logoff-URL=222", attributes.get(4).toString());
         // getAttributes only gets the last subAttribute of VendorSpecificAttribute
 
         assertEquals(5, attributes.size());

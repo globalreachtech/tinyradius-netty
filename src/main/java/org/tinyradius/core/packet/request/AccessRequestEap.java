@@ -27,7 +27,7 @@ public class AccessRequestEap extends AccessRequest {
     public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
         validateEapAttributes();
 
-        final List<RadiusAttribute> messageAuthAttr = filterAttributes(MESSAGE_AUTHENTICATOR);
+        final List<RadiusAttribute> messageAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
         if (messageAuthAttr.size() != 1)
             throw new RadiusPacketException("AccessRequest (EAP) should have exactly one Message-Authenticator attribute, has " + messageAuthAttr.size());
 
@@ -35,7 +35,7 @@ public class AccessRequestEap extends AccessRequest {
     }
 
     private void validateEapAttributes() throws RadiusPacketException {
-        final List<RadiusAttribute> eapMessageAttr = filterAttributes(EAP_MESSAGE);
+        final List<RadiusAttribute> eapMessageAttr = getAttributes(EAP_MESSAGE);
         if (eapMessageAttr.isEmpty())
             throw new RadiusPacketException("AccessRequest (EAP) must have at least one EAP-Message attribute");
     }

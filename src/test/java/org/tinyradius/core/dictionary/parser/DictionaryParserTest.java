@@ -62,7 +62,7 @@ class DictionaryParserTest {
 
         final AttributeTemplate encryptTagAttribute = dictionary.getAttributeTemplate("WISPr-Bandwidth-Max-Down").get();
         assertTrue(encryptTagAttribute.isTagged());
-        assertEquals(ASCENT_SEND_SECRET, encryptTagAttribute.getCodecType());
+        assertEquals(ASCEND_SEND_SECRET, encryptTagAttribute.getCodecType());
     }
 
     @Test
@@ -88,7 +88,7 @@ class DictionaryParserTest {
 
         final AttributeTemplate encryptTagAttribute = dictionary.getAttributeTemplate("Ascend-FR-08-Mode").get();
         assertTrue(encryptTagAttribute.isTagged());
-        assertEquals(ASCENT_SEND_SECRET, encryptTagAttribute.getCodecType());
+        assertEquals(ASCEND_SEND_SECRET, encryptTagAttribute.getCodecType());
     }
 
     @Test
@@ -113,7 +113,7 @@ class DictionaryParserTest {
 
         final AttributeTemplate encryptTagAttribute = dictionary.getAttributeTemplate("PKM-Auth-Key").get();
         assertTrue(encryptTagAttribute.isTagged());
-        assertEquals(ASCENT_SEND_SECRET, encryptTagAttribute.getCodecType());
+        assertEquals(ASCEND_SEND_SECRET, encryptTagAttribute.getCodecType());
     }
 
     @Test

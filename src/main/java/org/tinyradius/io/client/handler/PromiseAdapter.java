@@ -6,6 +6,7 @@ import io.netty.util.concurrent.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.rfc.Rfc2865;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
@@ -27,13 +28,16 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
     private static final Logger logger = LogManager.getLogger();
 
-    public static final byte PROXY_STATE = 33;
+    private static final byte PROXY_STATE = Rfc2865.PROXY_STATE;
 
     private final Map<String, Request> requests;
 
     public PromiseAdapter() {
-        // todo inject map impl
-        requests = new ConcurrentHashMap<>();
+        this(new ConcurrentHashMap<>());
+    }
+
+    public PromiseAdapter(Map<String, Request> requestMap) {
+        this.requests = requestMap;
     }
 
     @Override
@@ -65,7 +69,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
     protected void decode(ChannelHandlerContext ctx, RadiusResponse msg, List<Object> out) {
 
         // retrieve my Proxy-State attribute (the last)
-        final List<RadiusAttribute> proxyStates = msg.filterAttributes(PROXY_STATE);
+        final List<RadiusAttribute> proxyStates = msg.getAttributes(PROXY_STATE);
         if (proxyStates.isEmpty()) {
             logger.warn("Ignoring response - no Proxy-State attribute");
             return;
@@ -99,7 +103,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
         }
     }
 
-    private static class Request {
+    public static class Request {
 
         private final String secret;
         private final byte[] auth;

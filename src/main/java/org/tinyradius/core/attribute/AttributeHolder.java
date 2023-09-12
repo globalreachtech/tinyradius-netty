@@ -141,7 +141,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return RadiusAttribute object or null if there is no such attribute
      */
     default Optional<RadiusAttribute> getAttribute(String type) {
-        return filterAttributes(type).stream().findFirst();
+        return getAttributes(type).stream().findFirst();
     }
 
     /**
@@ -151,7 +151,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return RadiusAttribute object or null if there is no such attribute
      */
     default Optional<RadiusAttribute> getAttribute(int type) {
-        return filterAttributes(type).stream().findFirst();
+        return getAttributes(type).stream().findFirst();
     }
 
     /**
@@ -160,8 +160,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type type of attributes to get
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> filterAttributes(int type) {
-        return filterAttributes(a -> a.getType() == type);
+    default List<RadiusAttribute> getAttributes(int type) {
+        return getAttributes(a -> a.getType() == type);
     }
 
     /**
@@ -171,10 +171,10 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param name attribute type name
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> filterAttributes(String name) {
+    default List<RadiusAttribute> getAttributes(String name) {
         final Optional<AttributeTemplate> type = getDictionary().getAttributeTemplate(name);
         if (type.isPresent())
-            return filterAttributes(type.get());
+            return getAttributes(type.get());
 
         throw new IllegalArgumentException("Unknown attribute type name'" + name + "'");
     }
@@ -185,7 +185,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param filter RadiusAttribute filter predicate
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> filterAttributes(Predicate<RadiusAttribute> filter) {
+    default List<RadiusAttribute> getAttributes(Predicate<RadiusAttribute> filter) {
         return getAttributes().stream()
                 .filter(filter)
                 .collect(Collectors.toList());
@@ -198,9 +198,9 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type attribute type name
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> filterAttributes(AttributeTemplate type) {
+    default List<RadiusAttribute> getAttributes(AttributeTemplate type) {
         if (type.getVendorId() == getChildVendorId())
-            return filterAttributes(type.getType());
+            return getAttributes(type.getType());
 
         return Collections.emptyList();
     }
@@ -261,7 +261,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      */
     default T removeAttribute(RadiusAttribute attribute) throws RadiusPacketException {
         return withAttributes(
-                filterAttributes(a -> !a.equals(attribute)));
+                getAttributes(a -> !a.equals(attribute)));
     }
 
     /**
@@ -273,7 +273,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      */
     default T removeAttributes(int type) throws RadiusPacketException {
         return withAttributes(
-                filterAttributes(a -> a.getType() != type));
+                getAttributes(a -> a.getType() != type));
     }
 
     /**
@@ -285,7 +285,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @throws RadiusPacketException packet validation exceptions
      */
     default T removeLastAttribute(int type) throws RadiusPacketException {
-        List<RadiusAttribute> attributes = filterAttributes(type);
+        List<RadiusAttribute> attributes = getAttributes(type);
         if (attributes.isEmpty())
             return withAttributes(getAttributes());
 

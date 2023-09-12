@@ -55,13 +55,13 @@ class OctetsAttributeTest {
     @Test
     void testFlatten() {
         final OctetsAttribute attribute = OCTETS.create(dictionary, -1, 3, (byte) 0, "FFFF0000"); // CHAP-Password
-        assertEquals("[CHAP-Password = 0xFFFF0000]", attribute.flatten().toString());
+        assertEquals("[CHAP-Password=0xFFFF0000]", attribute.flatten().toString());
     }
 
     @Test
     void testToString() {
         final OctetsAttribute attribute = OCTETS.create(dictionary, -1, 3, (byte) 0, "FFFF0000"); // CHAP-Password
-        assertEquals("CHAP-Password = 0xFFFF0000", attribute.toString());
+        assertEquals("CHAP-Password=0xFFFF0000", attribute.toString());
     }
 
     @Test
@@ -110,7 +110,7 @@ class OctetsAttributeTest {
         assertFalse(attribute.isEncoded());
         assertEquals(tag, attribute.getTag().get());
         assertArrayEquals(value, attribute.getValue());
-        assertEquals("Tunnel-Password:123 = 0x00002710", attribute.toString());
+        assertEquals("Tunnel-Password:123=0x00002710", attribute.toString());
 
         // encode
         final EncodedAttribute encode = (EncodedAttribute) attribute.encode(requestAuth, secret);

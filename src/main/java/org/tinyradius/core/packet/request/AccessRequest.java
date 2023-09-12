@@ -4,16 +4,15 @@ import io.netty.buffer.ByteBuf;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.rfc.Rfc2865;
+import org.tinyradius.core.attribute.rfc.Rfc2869;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.RadiusPacket;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
 
 import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
@@ -26,10 +25,11 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     protected static final Logger logger = LogManager.getLogger();
     protected static final SecureRandom RANDOM = new SecureRandom();
 
-    protected static final int USER_PASSWORD = 2;
-    protected static final int CHAP_PASSWORD = 3;
-    protected static final int EAP_MESSAGE = 79;
-    protected static final int ARAP_PASSWORD = 70;
+    protected static final int USER_NAME = Rfc2865.USER_NAME;
+    protected static final int USER_PASSWORD = Rfc2865.USER_PASSWORD;
+    protected static final int CHAP_PASSWORD = Rfc2865.CHAP_PASSWORD;
+    protected static final int EAP_MESSAGE = Rfc2869.EAP_MESSAGE;
+    protected static final int ARAP_PASSWORD = Rfc2869.ARAP_PASSWORD;
 
     private static final Set<Integer> AUTH_ATTRS = new HashSet<>(
             Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE));
@@ -65,15 +65,12 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
                 .filter(AUTH_ATTRS::contains)
                 .collect(toSet());
 
-        if (detectedAuth.isEmpty()) {
-            // will occur a lot as PAP/CHAP are generally created by RadiusRequest.create().withPapPassword()
-            logger.debug("No auth attributes found, inferring NoAuth");
+        // will occur a lot as PAP/CHAP are generally created by RadiusRequest.create().withPapPassword()
+        if (detectedAuth.isEmpty())
             return AccessRequestNoAuth::new;
-        }
 
         if (detectedAuth.size() > 1) {
-            // bad packet
-            logger.warn("Identified multiple auth mechanisms, inferring NoAuth");
+            logger.warn("Identified multiple auth mechanisms, inferring NoAuth"); // bad packet
             return AccessRequestNoAuth::new;
         }
 
@@ -104,6 +101,16 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     protected byte[] genAuth(String sharedSecret) {
         // create authenticator only if needed - maintain idempotence
         return getAuthenticator() == null ? random16bytes() : getAuthenticator();
+    }
+
+    /**
+     * Retrieves the username
+     *
+     * @return username as String
+     */
+    public Optional<String> getUsername() {
+        return getAttribute(-1, USER_NAME)
+                .map(RadiusAttribute::getValueString);
     }
 
     /**
@@ -144,7 +151,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * @return instance without USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE attributes
      */
     private AccessRequest withoutAuths() throws RadiusPacketException {
-        return withAttributes(filterAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
+        return withAttributes(getAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
     }
 
     /**

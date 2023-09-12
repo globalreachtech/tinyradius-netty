@@ -17,14 +17,13 @@ import java.util.Arrays;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
+import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_PASSWORD;
+import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_PASSWORD;
 
 class AttributeTemplateTest {
 
     private static final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
-
-    private static final int TUNNEL_PASSWORD = 69;
-    private static final int USER_PASSWORD = 2;
 
     /**
      * User-Password / Tunnel-Password / Ascent-Send-Secret should ignore encrypt/tag flags
@@ -67,7 +66,7 @@ class AttributeTemplateTest {
         final EncodedAttribute tunnelPasswordEncoded = (EncodedAttribute) tunnelPassword.createEncoded(customDict, (byte) 1, new byte[4]);
         assertTrue(tunnelPasswordEncoded.getTag().isPresent());
 
-        assertEquals(ASCENT_SEND_SECRET, ascendSend.getCodecType());
+        assertEquals(ASCEND_SEND_SECRET, ascendSend.getCodecType());
         final IntegerAttribute ascendSendDecoded = (IntegerAttribute) ascendSend.create(customDict, (byte) 1, new byte[4]);
         assertFalse(ascendSendDecoded.getTag().isPresent());
         final EncodedAttribute ascendSendEncoded = (EncodedAttribute) ascendSend.createEncoded(customDict, (byte) 1, new byte[4]);

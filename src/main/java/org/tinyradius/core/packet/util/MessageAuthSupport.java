@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
+import org.tinyradius.core.attribute.rfc.Rfc2869;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.packet.RadiusPacket;
 
@@ -26,7 +27,7 @@ import java.util.Objects;
 public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPacket<T> {
 
     Logger msgAuthLogger = LogManager.getLogger();
-    int MESSAGE_AUTHENTICATOR = 80;
+    int MESSAGE_AUTHENTICATOR = Rfc2869.MESSAGE_AUTHENTICATOR;
 
     static byte[] calcMessageAuthInput(RadiusPacket<?> packet, byte[] requestAuth) {
         final ByteBuf buf = Unpooled.buffer()
@@ -60,7 +61,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
     }
 
     default void verifyMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        final List<RadiusAttribute> msgAuthAttr = filterAttributes(MESSAGE_AUTHENTICATOR);
+        final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
 
         if (msgAuthAttr.isEmpty())
             return;
@@ -111,7 +112,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
         final ByteBuffer buffer = ByteBuffer.allocate(16);
         final RadiusAttribute attribute = getDictionary().createAttribute(-1, MESSAGE_AUTHENTICATOR, (byte) 0, buffer.array());
 
-        final List<RadiusAttribute> attributes = filterAttributes(a -> a.getType() != MESSAGE_AUTHENTICATOR);
+        final List<RadiusAttribute> attributes = getAttributes(a -> a.getType() != MESSAGE_AUTHENTICATOR);
         attributes.add(attribute);
 
         // manually build attribute list instead of using convenience methods to avoid new packet creation

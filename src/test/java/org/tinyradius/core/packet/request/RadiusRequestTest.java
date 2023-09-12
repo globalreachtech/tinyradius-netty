@@ -13,12 +13,12 @@ import java.security.SecureRandom;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_NAME;
 import static org.tinyradius.core.packet.PacketType.*;
 
 class RadiusRequestTest {
 
     private static final int HEADER_LENGTH = 20;
-    private static final byte USER_NAME = 1;
 
     private final SecureRandom random = new SecureRandom();
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
@@ -134,7 +134,7 @@ class RadiusRequestTest {
         assertEquals(maxSizeRequest.getId(), result.getId());
         assertArrayEquals(maxSizeRequest.toBytes(), result.toBytes());
 
-        assertEquals(maxSizeRequest.filterAttributes(33).size(), result.filterAttributes(33).size());
+        assertEquals(maxSizeRequest.getAttributes(33).size(), result.getAttributes(33).size());
 
         // reconvert to check if bytes match
         assertArrayEquals(datagram.content().copy().array(), new DatagramPacket(result.toByteBuf(), new InetSocketAddress(0)).content().copy().array());
