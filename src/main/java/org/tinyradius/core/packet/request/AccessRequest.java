@@ -10,10 +10,7 @@ import org.tinyradius.core.packet.RadiusPacket;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
 
 import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
@@ -26,6 +23,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     protected static final Logger logger = LogManager.getLogger();
     protected static final SecureRandom RANDOM = new SecureRandom();
 
+    protected static final int USER_NAME = 1;
     protected static final int USER_PASSWORD = 2;
     protected static final int CHAP_PASSWORD = 3;
     protected static final int EAP_MESSAGE = 79;
@@ -107,6 +105,16 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     }
 
     /**
+     * Retrieves the username
+     *
+     * @return username as String
+     */
+    public Optional<String> getUsername() {
+        return getAttribute(-1, USER_NAME)
+                .map(RadiusAttribute::getValueString);
+    }
+
+    /**
      * Set CHAP-Password attribute with provided password and initializes
      * CHAP-Challenge with random bytes.
      * <p>
@@ -144,7 +152,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * @return instance without USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE attributes
      */
     private AccessRequest withoutAuths() throws RadiusPacketException {
-        return withAttributes(filterAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
+        return withAttributes(getAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
     }
 
     /**

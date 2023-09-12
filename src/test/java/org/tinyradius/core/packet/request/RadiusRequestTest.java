@@ -134,7 +134,7 @@ class RadiusRequestTest {
         assertEquals(maxSizeRequest.getId(), result.getId());
         assertArrayEquals(maxSizeRequest.toBytes(), result.toBytes());
 
-        assertEquals(maxSizeRequest.filterAttributes(33).size(), result.filterAttributes(33).size());
+        assertEquals(maxSizeRequest.getAttributes(33).size(), result.getAttributes(33).size());
 
         // reconvert to check if bytes match
         assertArrayEquals(datagram.content().copy().array(), new DatagramPacket(result.toByteBuf(), new InetSocketAddress(0)).content().copy().array());

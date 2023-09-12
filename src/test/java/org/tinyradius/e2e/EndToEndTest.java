@@ -5,15 +5,12 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.AccessRequest;
-import org.tinyradius.core.packet.request.AccessRequestPap;
-import org.tinyradius.core.packet.request.AccountingRequest;
 import org.tinyradius.core.packet.request.RadiusRequest;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
@@ -34,19 +31,20 @@ class EndToEndTest {
 
     @Test
     void testAll() throws RadiusPacketException, IOException, InterruptedException {
-        final Closeable origin = startOrigin();
-        final Closeable proxy = startProxy();
+        String username = "user1";
+        String pw = "pw1";
+        Closeable origin = startOrigin(Map.of(username, pw));
+        Closeable proxy = startProxy();
 
-        final AccessRequestPap ar = (AccessRequestPap)
-                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
-                        .withPapPassword("myPassword")
-                        .addAttribute("User-Name", "myUser")
-                        .addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de")
-                        .addAttribute("NAS-IP-Address", "192.168.0.100")
-                        .addAttribute("Service-Type", "Login-User");
+        RadiusRequest ar = ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of()))
+                .withPapPassword(pw)
+                .addAttribute("User-Name", username)
+                .addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de")
+                .addAttribute("NAS-IP-Address", "192.168.0.100")
+                .addAttribute("Service-Type", "Login-User");
 
 
-        final AccountingRequest acc = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 2, null, new ArrayList<>())
+        RadiusRequest acc = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 2, null, List.of())
                 .addAttribute("User-Name", "username")
                 .addAttribute("Acct-Status-Type", "1")
                 .addAttribute("Acct-Session-Id", "1234567890")
@@ -71,7 +69,7 @@ class EndToEndTest {
 
     @Test
     void testOriginStartup() throws IOException, InterruptedException {
-        final Closeable origin = startOrigin();
+        final Closeable origin = startOrigin(Map.of());
         Thread.sleep(1000);
         origin.close();
     }
@@ -80,7 +78,7 @@ class EndToEndTest {
         return harness.startProxy(PROXY_ACCESS_PORT, PROXY_ACCT_PORT, PROXY_SECRET, ORIGIN_ACCESS_PORT, ORIGIN_ACCT_PORT, ORIGIN_SECRET);
     }
 
-    private Closeable startOrigin() {
-        return harness.startOrigin(ORIGIN_ACCESS_PORT, ORIGIN_ACCT_PORT, ORIGIN_SECRET);
+    private Closeable startOrigin(Map<String, String> credentials) {
+        return harness.startOrigin(ORIGIN_ACCESS_PORT, ORIGIN_ACCT_PORT, ORIGIN_SECRET, credentials);
     }
 }

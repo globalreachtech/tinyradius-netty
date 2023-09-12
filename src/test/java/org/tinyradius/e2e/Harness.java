@@ -31,6 +31,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Map;
 
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
@@ -75,7 +76,7 @@ public class Harness {
      * @param originSecret shared secret used by origin server
      * @return Closeable handler to trigger origin server shutdown
      */
-    public Closeable startOrigin(int originAccessPort, int originAcctPort, String originSecret) {
+    public Closeable startOrigin(int originAccessPort, int originAcctPort, String originSecret, Map<String, String> credentials) {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         Bootstrap bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
@@ -84,7 +85,7 @@ public class Harness {
         BasicCachingHandler cachingHandlerAuth = new BasicCachingHandler(timer, 5000);
         BasicCachingHandler cachingHandlerAcct = new BasicCachingHandler(timer, 5000);
 
-        SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler();
+        SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler(credentials);
         SimpleAccountingHandler simpleAccountingHandler = new SimpleAccountingHandler();
 
         RadiusServer server = new RadiusServer(bootstrap,

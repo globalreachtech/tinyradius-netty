@@ -65,7 +65,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
     protected void decode(ChannelHandlerContext ctx, RadiusResponse msg, List<Object> out) {
 
         // retrieve my Proxy-State attribute (the last)
-        final List<RadiusAttribute> proxyStates = msg.filterAttributes(PROXY_STATE);
+        final List<RadiusAttribute> proxyStates = msg.getAttributes(PROXY_STATE);
         if (proxyStates.isEmpty()) {
             logger.warn("Ignoring response - no Proxy-State attribute");
             return;

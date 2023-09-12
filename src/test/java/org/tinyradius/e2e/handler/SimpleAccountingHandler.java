@@ -22,7 +22,7 @@ public class SimpleAccountingHandler extends RequestHandler {
     protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) throws RadiusPacketException {
         final RadiusRequest request = msg.getRequest();
         final RadiusResponse answer = RadiusResponse.create(
-                request.getDictionary(), ACCOUNTING_RESPONSE, request.getId(), null, request.filterAttributes(PROXY_STATE));
+                request.getDictionary(), ACCOUNTING_RESPONSE, request.getId(), null, request.getAttributes(PROXY_STATE));
 
         ctx.writeAndFlush(msg.withResponse(answer));
     }

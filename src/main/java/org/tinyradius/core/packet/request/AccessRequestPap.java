@@ -43,8 +43,7 @@ public class AccessRequestPap extends AccessRequest {
      */
     public Optional<String> getPassword() {
         return getAttribute(-1, USER_PASSWORD)
-                .map(RadiusAttribute::getValue)
-                .map(v -> new String(v, UTF_8));
+                .map(RadiusAttribute::getValueString);
     }
 
     @Override
@@ -60,7 +59,7 @@ public class AccessRequestPap extends AccessRequest {
     }
 
     private void checkUserPassword() throws RadiusPacketException {
-        final int count = filterAttributes(USER_PASSWORD).size();
+        final int count = getAttributes(USER_PASSWORD).size();
         if (count != 1)
             throw new RadiusPacketException("AccessRequest (PAP) should have exactly one User-Password attribute, has " + count);
     }

@@ -9,13 +9,19 @@ import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.server.RequestCtx;
 import org.tinyradius.io.server.handler.RequestHandler;
 
+import java.util.Map;
+
 import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REJECT;
 import static org.tinyradius.io.client.handler.PromiseAdapter.PROXY_STATE;
 
 public class SimpleAccessHandler extends RequestHandler {
 
-    private static final byte USER_NAME = 1;
+    private final Map<String, String> credentials;
+
+    public SimpleAccessHandler(Map<String, String> credentials) {
+        this.credentials = credentials;
+    }
 
     @Override
     protected Class<? extends RadiusRequest> acceptedPacketType() {
@@ -24,16 +30,14 @@ public class SimpleAccessHandler extends RequestHandler {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) throws RadiusPacketException {
+        AccessRequestPap request = (AccessRequestPap) msg.getRequest();
 
-        final AccessRequestPap request = (AccessRequestPap) msg.getRequest();
+        String user = request.getUsername().orElse(null);
+        String pass = request.getPassword().orElse(null);
+        byte type = user != null && pass != null &&
+                credentials.get(user).equals(pass) ? ACCESS_ACCEPT : ACCESS_REJECT;
 
-        final String password = request.getAttribute(USER_NAME).get().getValueString().equals("myUser") ? "myPassword" : null;
-        final byte type = request.getPassword()
-                .filter(p -> p.equals(password))
-                .map(x -> ACCESS_ACCEPT)
-                .orElse(ACCESS_REJECT);
-
-        RadiusResponse answer = RadiusResponse.create(request.getDictionary(), type, request.getId(), null, request.filterAttributes(PROXY_STATE));
+        RadiusResponse answer = RadiusResponse.create(request.getDictionary(), type, request.getId(), null, request.getAttributes(PROXY_STATE));
 
         ctx.writeAndFlush(msg.withResponse(answer));
     }
