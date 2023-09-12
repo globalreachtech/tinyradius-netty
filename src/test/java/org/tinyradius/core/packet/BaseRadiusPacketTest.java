@@ -66,13 +66,13 @@ class BaseRadiusPacketTest {
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
                 ipV6Attributes.stream().map(RadiusAttribute::getValueString).toArray());
 
-        assertEquals("Access-Request, ID 1, len 96\n" +
+        assertEquals("Access-Request, ID 1, len 96, attributes={\n" +
                 "Vendor-Specific: Vendor ID 14122 (WISPr)\n" +
-                "  WISPr-Location-ID = myLocationId\n" +
-                "Framed-IP-Address = 0.18.214.135\n" +
-                "Framed-IPv6-Address = fe80:0:0:0:0:0:0:0\n" +
-                "Framed-IPv6-Prefix = fe80:0:0:0:0:0:0:0/64\n" +
-                "Framed-IPv6-Prefix = fe80:0:0:0:0:0:0:0/128", packet.toString());
+                "  WISPr-Location-ID=myLocationId\n" +
+                "Framed-IP-Address=0.18.214.135\n" +
+                "Framed-IPv6-Address=fe80:0:0:0:0:0:0:0\n" +
+                "Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/64\n" +
+                "Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/128\n}", packet.toString());
     }
 
     @Test
@@ -163,11 +163,11 @@ class BaseRadiusPacketTest {
 
         final List<RadiusAttribute> attributes = radiusPacket.getFlattenedAttributes();
 
-        assertEquals("Service-Type = 999", attributes.get(0).toString());
-        assertEquals("Filter-Id = abc", attributes.get(1).toString());
-        assertEquals("Reply-Message = foobar", attributes.get(2).toString());
-        assertEquals("WISPr-Logoff-URL = 111", attributes.get(3).toString());
-        assertEquals("WISPr-Logoff-URL = 222", attributes.get(4).toString());
+        assertEquals("Service-Type=999", attributes.get(0).toString());
+        assertEquals("Filter-Id=abc", attributes.get(1).toString());
+        assertEquals("Reply-Message=foobar", attributes.get(2).toString());
+        assertEquals("WISPr-Logoff-URL=111", attributes.get(3).toString());
+        assertEquals("WISPr-Logoff-URL=222", attributes.get(4).toString());
         // getAttributes only gets the last subAttribute of VendorSpecificAttribute
 
         assertEquals(5, attributes.size());
