@@ -16,7 +16,7 @@ public class Rfc2869 {
     public static final byte CONFIGURATION_TOKEN = 78;
     public static final byte EAP_MESSAGE = 79;
     public static final byte MESSAGE_AUTHENTICATOR = 80;
-    public static final byte ARAP_CHALLENGE_RESPONse = 84;
+    public static final byte ARAP_CHALLENGE_RESPONSE = 84;
     public static final byte ACCT_INTERIM_INTERVAL = 85;
     public static final byte NAS_PORT_ID = 87;
     public static final byte FRAMED_POOL = 88;
