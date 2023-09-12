@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
-import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.tinyradius.core.packet.PacketType.*;
 
 class EndToEndTest {
 
@@ -37,24 +37,24 @@ class EndToEndTest {
         Closeable origin = startOrigin(Map.of(username, pw));
         Closeable proxy = startProxy();
 
-        RadiusRequest ar = ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of()))
+        RadiusRequest r1 = ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of()))
                 .withPapPassword(pw)
-                .addAttribute("User-Name", username)
-                .addAttribute("Service-Type", "Login-User");
+                .addAttribute("User-Name", username);
+
+        RadiusRequest r2 = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 2, null, List.of())
+                .addAttribute("Acct-Status-Type", "1");
+
+        RadiusRequest r3 = ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of()))
+                .withPapPassword("badPw")
+                .addAttribute("User-Name", username);
 
 
-        RadiusRequest acc = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 2, null, List.of())
-                .addAttribute("User-Name", "username")
-                .addAttribute("Acct-Status-Type", "1")
-                .addAttribute("Acct-Session-Id", "1234567890")
-                .addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de")
-                .addAttribute("NAS-Port", "0");
+        List<RadiusResponse> responses = harness.testClient("localhost", PROXY_ACCESS_PORT, PROXY_ACCT_PORT, PROXY_SECRET,
+                List.of(r1, r2, r3));
 
-        final List<RadiusResponse> responses = harness.testClient("localhost", PROXY_ACCESS_PORT, PROXY_ACCT_PORT, PROXY_SECRET, List.of(ar, acc));
-        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-        System.out.println(responses);
-
-        // TODO assert responses
+        assertEquals(responses.get(0).getType(), ACCESS_ACCEPT);
+        assertEquals(responses.get(1).getType(), ACCOUNTING_RESPONSE);
+        assertEquals(responses.get(2).getType(), ACCESS_REJECT);
 
         Thread.sleep(1000);
         origin.close();
