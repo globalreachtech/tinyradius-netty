@@ -65,14 +65,12 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
                 .filter(AUTH_ATTRS::contains)
                 .collect(toSet());
 
-        if (detectedAuth.isEmpty()) {
-            // will occur a lot as PAP/CHAP are generally created by RadiusRequest.create().withPapPassword()
+        // will occur a lot as PAP/CHAP are generally created by RadiusRequest.create().withPapPassword()
+        if (detectedAuth.isEmpty())
             return AccessRequestNoAuth::new;
-        }
 
         if (detectedAuth.size() > 1) {
-            // bad packet
-            logger.warn("Identified multiple auth mechanisms, inferring NoAuth");
+            logger.warn("Identified multiple auth mechanisms, inferring NoAuth"); // bad packet
             return AccessRequestNoAuth::new;
         }
 
