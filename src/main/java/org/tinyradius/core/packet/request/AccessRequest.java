@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.rfc.Rfc2865;
+import org.tinyradius.core.attribute.rfc.Rfc2869;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.RadiusPacket;
@@ -23,11 +25,11 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     protected static final Logger logger = LogManager.getLogger();
     protected static final SecureRandom RANDOM = new SecureRandom();
 
-    protected static final int USER_NAME = 1;
-    protected static final int USER_PASSWORD = 2;
-    protected static final int CHAP_PASSWORD = 3;
-    protected static final int EAP_MESSAGE = 79;
-    protected static final int ARAP_PASSWORD = 70;
+    protected static final int USER_NAME = Rfc2865.USER_NAME;
+    protected static final int USER_PASSWORD = Rfc2865.USER_PASSWORD;
+    protected static final int CHAP_PASSWORD = Rfc2865.CHAP_PASSWORD;
+    protected static final int EAP_MESSAGE = Rfc2869.EAP_MESSAGE;
+    protected static final int ARAP_PASSWORD = Rfc2869.ARAP_PASSWORD;
 
     private static final Set<Integer> AUTH_ATTRS = new HashSet<>(
             Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE));

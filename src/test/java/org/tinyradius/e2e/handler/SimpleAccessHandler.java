@@ -11,9 +11,9 @@ import org.tinyradius.io.server.handler.RequestHandler;
 
 import java.util.Map;
 
+import static org.tinyradius.core.attribute.rfc.Rfc2865.PROXY_STATE;
 import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REJECT;
-import static org.tinyradius.io.client.handler.PromiseAdapter.PROXY_STATE;
 
 public class SimpleAccessHandler extends RequestHandler {
 

@@ -13,6 +13,7 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_NAME;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.request.AccessRequest.CHAP_PASSWORD;
 
@@ -20,8 +21,6 @@ class AccessRequestChapTest {
 
     private static final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
-
-    private static final byte USER_NAME = 1;
 
     @Test
     void encodeDecode() throws RadiusPacketException {

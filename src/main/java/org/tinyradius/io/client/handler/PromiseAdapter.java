@@ -17,6 +17,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.tinyradius.core.attribute.rfc.Rfc2865.PROXY_STATE;
 
 /**
  * ClientHandler that matches requests/response by appending Proxy-State attribute to
@@ -26,8 +27,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, PendingRequestCtx> {
 
     private static final Logger logger = LogManager.getLogger();
-
-    public static final byte PROXY_STATE = 33;
 
     private final Map<String, Request> requests;
 

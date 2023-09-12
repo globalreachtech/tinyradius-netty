@@ -13,12 +13,12 @@ import java.security.SecureRandom;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_NAME;
 import static org.tinyradius.core.packet.PacketType.*;
 
 class RadiusRequestTest {
 
     private static final int HEADER_LENGTH = 20;
-    private static final byte USER_NAME = 1;
 
     private final SecureRandom random = new SecureRandom();
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
