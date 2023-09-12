@@ -6,6 +6,7 @@ import io.netty.util.concurrent.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.rfc.Rfc2865;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
@@ -17,7 +18,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.tinyradius.core.attribute.rfc.Rfc2865.PROXY_STATE;
 
 /**
  * ClientHandler that matches requests/response by appending Proxy-State attribute to
@@ -28,11 +28,16 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
     private static final Logger logger = LogManager.getLogger();
 
+    private static final byte PROXY_STATE = Rfc2865.PROXY_STATE;
+
     private final Map<String, Request> requests;
 
     public PromiseAdapter() {
-        // todo inject map impl
-        requests = new ConcurrentHashMap<>();
+        this(new ConcurrentHashMap<>());
+    }
+
+    public PromiseAdapter(Map<String, Request> requestMap) {
+        this.requests = requestMap;
     }
 
     @Override
@@ -98,7 +103,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
         }
     }
 
-    private static class Request {
+    public static class Request {
 
         private final String secret;
         private final byte[] auth;

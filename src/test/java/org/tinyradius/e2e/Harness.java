@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
@@ -43,7 +44,7 @@ public class Harness {
     private final Timer timer = new HashedWheelTimer();
     private final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer);
 
-    public void testClient(String host, int accessPort, int acctPort, String secret, List<RadiusRequest> requests) {
+    public List<RadiusResponse> testClient(String host, int accessPort, int acctPort, String secret, List<RadiusRequest> requests) {
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
@@ -59,13 +60,14 @@ public class Harness {
         })) {
             RadiusEndpoint accessEndpoint = new RadiusEndpoint(new InetSocketAddress(host, accessPort), secret);
             RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, acctPort), secret);
-            requests.forEach(r -> {
+            return requests.stream().map(r -> {
                 RadiusEndpoint endpoint = (r.getType() == ACCESS_REQUEST) ? accessEndpoint : acctEndpoint;
                 logger.info("Packet before it is sent\n" + r + "\n");
                 RadiusResponse response = rc.communicate(r, endpoint).syncUninterruptibly().getNow();
                 logger.info("Packet after it was sent\n" + r + "\n");
                 logger.info("Response\n" + response + "\n");
-            });
+                return response;
+            }).collect(Collectors.toList());
         }
     }
 

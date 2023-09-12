@@ -67,7 +67,6 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
 
         if (detectedAuth.isEmpty()) {
             // will occur a lot as PAP/CHAP are generally created by RadiusRequest.create().withPapPassword()
-            logger.debug("No auth attributes found, inferring NoAuth");
             return AccessRequestNoAuth::new;
         }
 

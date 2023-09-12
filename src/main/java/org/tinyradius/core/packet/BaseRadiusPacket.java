@@ -9,7 +9,9 @@ import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
@@ -93,7 +95,8 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     /**
      * Naive with(), does not recalculate packet lengths in header.
-     * @param header Radius packet header
+     *
+     * @param header     Radius packet header
      * @param attributes Radius packet attributes
      * @return RadiusPacket with the specified headers and attributes
      * @throws RadiusPacketException packet validation exceptions
@@ -137,9 +140,14 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
                 .append(", ID ").append(getId())
                 .append(", len ").append(getLength());
 
-        for (RadiusAttribute attr : getAttributes()) {
-            s.append("\n").append(attr.toString());
+        if (!getAttributes().isEmpty()) {
+            s.append(", attributes={");
+            for (RadiusAttribute attr : getAttributes()) {
+                s.append("\n").append(attr.toString());
+            }
+            s.append("\n}");
         }
+
         return s.toString();
     }
 

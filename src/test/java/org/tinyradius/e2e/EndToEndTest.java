@@ -6,6 +6,7 @@ import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.AccessRequest;
 import org.tinyradius.core.packet.request.RadiusRequest;
+import org.tinyradius.core.packet.response.RadiusResponse;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -39,8 +40,6 @@ class EndToEndTest {
         RadiusRequest ar = ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of()))
                 .withPapPassword(pw)
                 .addAttribute("User-Name", username)
-                .addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de")
-                .addAttribute("NAS-IP-Address", "192.168.0.100")
                 .addAttribute("Service-Type", "Login-User");
 
 
@@ -51,7 +50,9 @@ class EndToEndTest {
                 .addAttribute("NAS-Identifier", "this.is.my.nas-identifier.de")
                 .addAttribute("NAS-Port", "0");
 
-        harness.testClient("localhost", PROXY_ACCESS_PORT, PROXY_ACCT_PORT, PROXY_SECRET, List.of(ar, acc));
+        final List<RadiusResponse> responses = harness.testClient("localhost", PROXY_ACCESS_PORT, PROXY_ACCT_PORT, PROXY_SECRET, List.of(ar, acc));
+        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        System.out.println(responses);
 
         // TODO assert responses
 
