@@ -2,7 +2,7 @@
 
 [![Gradle Build](https://github.com/globalreachtech/tinyradius-netty/actions/workflows/gradle.yml/badge.svg)](https://github.com/globalreachtech/tinyradius-netty/actions/workflows/gradle.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a6b90f85717d753228eb/maintainability)](https://codeclimate.com/github/globalreachtech/tinyradius-netty/maintainability)
-[![codecov](https://codecov.io/gh/globalreachtech/tinyradius-netty/branch/master/graph/badge.svg)](https://codecov.io/gh/globalreachtech/tinyradius-netty)
+[![Coveralls](https://coveralls.io/repos/github/globalreachtech/tinyradius-netty/badge.svg?branch=master)](https://coveralls.io/github/globalreachtech/tinyradius-netty?branch=master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=globalreachtech_tinyradius-netty&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=globalreachtech_tinyradius-netty)
 [![Known Vulnerabilities](https://snyk.io/test/github/globalreachtech/tinyradius-netty/badge.svg)](https://snyk.io/test/github/globalreachtech/tinyradius-netty)
 
