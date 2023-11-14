@@ -29,7 +29,7 @@ TinyRadius-Netty is a Java Radius library, loosely based off the TinyRadius Radi
 
 ## Usage
 
-See the [e2e tests](src/test/java/org/tinyradius/io/e2e) on usage as Client/Server/Proxy.
+See the [e2e tests](src/test/java/org/tinyradius/e2e/EndToEndTest.java) on usage as Client/Server/Proxy.
 
 ## Maintainers
 
