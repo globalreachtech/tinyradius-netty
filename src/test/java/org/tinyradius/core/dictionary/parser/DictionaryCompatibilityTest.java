@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // TODO
-class DictionaryCompatabilityTest {
+class DictionaryCompatibilityTest {
 
     @Test
     @Disabled("throws NumberFormatException: For input string: \"241.26\"")

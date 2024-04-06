@@ -22,7 +22,7 @@ TinyRadius-Netty is a Java Radius library, loosely based off the TinyRadius Radi
 - Netty for async IO, timeouts, thread management
 - Handlers follow Netty's interceptor filter pattern, blocking calls use promises
 - log4j2 instead of commons-logging
-- Java 6-8 features (generics, NIO, lambdas, streams)
+- Java 6-11 features (generics, NIO, lambdas, streams)
 - Packets and Attributes are fully immutable
 - 80%+ test coverage
 - Proxy no longer a separate implementation, but a promise-based adapter between the client and server classes
