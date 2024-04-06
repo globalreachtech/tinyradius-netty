@@ -13,7 +13,7 @@ java {
 }
 
 group = 'com.globalreachtech'
-version = '2.0.1'
+version = '2.0.2-SNAPSHOT'
 
 repositories {
     mavenCentral()
