@@ -30,7 +30,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        uses: gradle/gradle-build-action@8baac4c8ef753599f92eeb509c246d09d6250fa6
+        uses: gradle/gradle-build-action@e2097ccd7e8ed48671dc068ac4efa86d25745b39
         with:
           arguments: clean build jacocoTestReport sonarqube --info --warning-mode=all
       - name: Coveralls GitHub Action
