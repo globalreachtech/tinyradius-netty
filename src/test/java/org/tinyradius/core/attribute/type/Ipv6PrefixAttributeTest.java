@@ -48,6 +48,13 @@ class Ipv6PrefixAttributeTest {
     }
 
     @Test
+    void string60bitsOk() {
+        final Ipv6PrefixAttribute attribute = (Ipv6PrefixAttribute)
+                IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, "2001:0:0:1650:0:0:0:0/60"); // Framed-IPv6-Prefix
+        assertEquals("2001:0:0:1650:0:0:0:0/60", attribute.getValueString());
+    }
+
+    @Test
     void stringEmpty() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> IPV6_PREFIX.create(dictionary, -1, 97, (byte) 0, "")); // Framed-IPv6-Prefix
