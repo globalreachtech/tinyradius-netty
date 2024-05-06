@@ -172,7 +172,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return list of RadiusAttribute objects, or empty list
      */
     default List<RadiusAttribute> getAttributes(String name) {
-        final Optional<AttributeTemplate> type = getDictionary().getAttributeTemplate(name);
+        final Optional<AttributeTemplate<?>> type = getDictionary().getAttributeTemplate(name);
         if (type.isPresent())
             return getAttributes(type.get());
 
@@ -198,7 +198,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type attribute type name
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> getAttributes(AttributeTemplate type) {
+    default List<RadiusAttribute> getAttributes(AttributeTemplate<?> type) {
         if (type.getVendorId() == getChildVendorId())
             return getAttributes(type.getType());
 
