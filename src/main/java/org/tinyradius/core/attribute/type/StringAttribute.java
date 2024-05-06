@@ -10,6 +10,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class StringAttribute extends OctetsAttribute {
 
+    public static final RadiusAttributeFactory<StringAttribute> FACTORY = new Factory();
+
     public StringAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         super(dictionary, vendorId, data);
         if (!data.isReadable(3))
@@ -24,4 +26,18 @@ public class StringAttribute extends OctetsAttribute {
     public static byte[] stringParser(String s) {
         return s.getBytes(UTF_8);
     }
+
+    private static class Factory implements RadiusAttributeFactory<StringAttribute> {
+
+        @Override
+        public StringAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value) {
+            return new StringAttribute(dictionary, vendorId, value);
+        }
+
+        @Override
+        public byte[] parse(Dictionary dictionary, int vendorId, int type, String value) {
+            return stringParser(value);
+        }
+    }
+
 }

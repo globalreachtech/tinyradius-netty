@@ -8,9 +8,11 @@ import org.tinyradius.core.dictionary.Dictionary;
 import java.nio.ByteBuffer;
 
 /**
- * This class represents a Radius attribute which only contains a 32 bit integer.
+ * This class represents a Radius attribute which only contains a 32-bit integer.
  */
 public class IntegerAttribute extends OctetsAttribute {
+
+    public static final RadiusAttributeFactory<IntegerAttribute> FACTORY = new Factory();
 
     public IntegerAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         super(dictionary, vendorId, data);
@@ -64,5 +66,18 @@ public class IntegerAttribute extends OctetsAttribute {
                 .map(x -> byteBuf.copy(1, 3)) // skip first octet if has_tag
                 .orElse(byteBuf)
                 .array();
+    }
+
+    private static class Factory implements RadiusAttributeFactory<IntegerAttribute> {
+
+        @Override
+        public IntegerAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value) {
+            return new IntegerAttribute(dictionary, vendorId, value);
+        }
+
+        @Override
+        public byte[] parse(Dictionary dictionary, int vendorId, int type, String value) {
+            return IntegerAttribute.stringParser(dictionary, vendorId, type, value);
+        }
     }
 }

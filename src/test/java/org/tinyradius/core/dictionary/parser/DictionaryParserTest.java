@@ -33,7 +33,7 @@ class DictionaryParserTest {
 
     @Test
     void classpathIncludeDict() {
-        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
+        final Optional<AttributeTemplate<?>> attributeTemplate = dictionary.getAttributeTemplate(6);
         assertTrue(attributeTemplate.isPresent());
         assertEquals("Service-Type", attributeTemplate.get().getName());
         assertEquals("Login-User", attributeTemplate.get().getEnumeration(1));
@@ -170,10 +170,10 @@ class DictionaryParserTest {
 
     @Test
     void attributeCustomTypeSize() {
-        final AttributeTemplate basic = dictionary.getAttributeTemplate("Lucent-Max-Shared-Users").get();
+        final AttributeTemplate<?> basic = dictionary.getAttributeTemplate("Lucent-Max-Shared-Users").get();
         assertEquals(2, basic.getType());
 
-        final AttributeTemplate custom = dictionary.getAttributeTemplate("Lucent-Retrain-Reason").get();
+        final AttributeTemplate<?> custom = dictionary.getAttributeTemplate("Lucent-Retrain-Reason").get();
         assertEquals(20119, custom.getType());
     }
 
@@ -189,7 +189,7 @@ class DictionaryParserTest {
 
         final Dictionary dictionary = DictionaryParser.newFileParser().parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
 
-        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
+        final Optional<AttributeTemplate<?>> attributeTemplate = dictionary.getAttributeTemplate(6);
         assertTrue(attributeTemplate.isPresent());
         assertEquals("Service-Type", attributeTemplate.get().getName());
         assertEquals("Login-User", attributeTemplate.get().getEnumeration(1));

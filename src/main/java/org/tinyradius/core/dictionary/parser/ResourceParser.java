@@ -3,6 +3,7 @@ package org.tinyradius.core.dictionary.parser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.attribute.AttributeTemplate;
+import org.tinyradius.core.attribute.type.RadiusAttributeFactory;
 import org.tinyradius.core.dictionary.MemoryDictionary;
 import org.tinyradius.core.dictionary.Vendor;
 import org.tinyradius.core.dictionary.WritableDictionary;
@@ -17,24 +18,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.tinyradius.core.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
+
 public class ResourceParser {
 
     private static final Logger logger = LogManager.getLogger();
 
     private final WritableDictionary dictionary;
     private final ResourceResolver resourceResolver;
+    private final FactoryProvider factoryProvider;
 
     // support for VALUE declared before ATTRIBUTE
     private final List<Consumer<WritableDictionary>> deferred = new LinkedList<>();
     private int currentVendor = -1;
 
     public ResourceParser(ResourceResolver resourceResolver) {
-        this(new MemoryDictionary(), resourceResolver);
+        this(new MemoryDictionary(), resourceResolver, RadiusAttributeFactory::fromDataType);
     }
 
-    public ResourceParser(WritableDictionary dictionary, ResourceResolver resourceResolver) {
+    public ResourceParser(WritableDictionary dictionary, ResourceResolver resourceResolver, FactoryProvider factoryProvider) {
         this.dictionary = dictionary;
         this.resourceResolver = resourceResolver;
+        this.factoryProvider = factoryProvider;
     }
 
     /**
@@ -170,18 +175,15 @@ public class ResourceParser {
         final int vendorId = offset == 1 ? Integer.parseInt(tok[1]) : currentVendor;
         final String name = tok[1 + offset];
         final int type = validateType(Integer.decode(tok[2 + offset]), vendorId);
-        final String typeStr = tok[3 + offset];
+        final String dataType = tok[3 + offset];
+        final RadiusAttributeFactory<?> factory =
+                factoryProvider.fromDataType(vendorId == -1 && type == VENDOR_SPECIFIC ? "vsa" : dataType);
+        final String[] flags = tok.length == 4 + offset ?
+                new String[0] :
+                tok[4 + offset].split(",");
 
-        // no flags
-        if (tok.length == 4 + offset) {
-            dictionary.addAttributeTemplate(
-                    new AttributeTemplate(vendorId, type, name, typeStr, (byte) 0, false));
-            return;
-        }
-
-        final String[] flags = tok[4 + offset].split(",");
         dictionary.addAttributeTemplate(
-                new AttributeTemplate(vendorId, type, name, typeStr, encryptFlag(flags), tagFlag(flags)));
+                new AttributeTemplate<>(vendorId, type, name, dataType, factory, encryptFlag(flags), tagFlag(flags)));
     }
 
     /**
@@ -243,7 +245,7 @@ public class ResourceParser {
         final String nextResource = resourceResolver.resolve(currentResource, includeFile);
 
         if (!nextResource.isEmpty())
-            new ResourceParser(dictionary, resourceResolver).parseDictionary(nextResource);
+            parseDictionary(nextResource);
         else
             throw new IOException("Included file '" + includeFile + "' was not found, line " + lineNum + ", " + currentResource);
     }
@@ -287,6 +289,10 @@ public class ResourceParser {
                 return true;
         }
         return false;
+    }
+
+    public interface FactoryProvider {
+        RadiusAttributeFactory<?> fromDataType(String dataType);
     }
 
 }

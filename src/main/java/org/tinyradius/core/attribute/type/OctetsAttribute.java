@@ -18,6 +18,8 @@ import static java.util.Objects.requireNonNull;
  */
 public class OctetsAttribute implements RadiusAttribute {
 
+    public static final RadiusAttributeFactory<OctetsAttribute> FACTORY = new Factory();
+
     private final Dictionary dictionary;
 
     private final ByteBuf data;
@@ -100,7 +102,7 @@ public class OctetsAttribute implements RadiusAttribute {
 
     @Override
     public RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
-        final Optional<AttributeTemplate> template = getAttributeTemplate();
+        final Optional<AttributeTemplate<?>> template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().encode(this, requestAuth, secret) :
                 this;
@@ -129,4 +131,18 @@ public class OctetsAttribute implements RadiusAttribute {
     public static byte[] stringHexParser(String value) {
         return DatatypeConverter.parseHexBinary(value);
     }
+
+    private static class Factory implements RadiusAttributeFactory<OctetsAttribute> {
+
+        @Override
+        public OctetsAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value) {
+            return new OctetsAttribute(dictionary, vendorId, value);
+        }
+
+        @Override
+        public byte[] parse(Dictionary dictionary, int vendorId, int type, String value) {
+            return stringHexParser(value);
+        }
+    }
+
 }

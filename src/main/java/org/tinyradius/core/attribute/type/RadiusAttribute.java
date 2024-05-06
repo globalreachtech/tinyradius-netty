@@ -154,7 +154,7 @@ public interface RadiusAttribute {
     /**
      * @return AttributeTemplate used to define this attribute
      */
-    default Optional<AttributeTemplate> getAttributeTemplate() {
+    default Optional<AttributeTemplate<?>> getAttributeTemplate() {
         return getDictionary().getAttributeTemplate(getVendorId(), getType());
     }
 
