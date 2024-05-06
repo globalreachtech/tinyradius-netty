@@ -26,22 +26,29 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
         if (prefixLength > 128 || prefixLength < 0)
             throw new IllegalArgumentException("IPv6 Prefix Prefix-Length should be between 0 and 128, declared: " + prefixLength);
 
-        final BitSet bitSet = BitSet.valueOf(address.getAddress());
-        final int bitSetLength = bitSet.length();
+        byte[] addressBytes = address.getAddress();
+            
+        if(prefixLength < 128){
+            // Ensure bits beyond Prefix-Length are zero
+            // Check that the first byte that must have some zeroed bits is conformant. This first one is special because the
+            // comparison requires masking some bits, not the full byte should be zero
+            boolean passed = (addressBytes[prefixLength/8] &0xff & (0xff >> prefixLength - 8*(prefixLength/8))) == 0;
+            // Check the rest of the bytes
+            for(int i = prefixLength/8 + 1; i < 16; i++){
+                passed = passed && (addressBytes[i] == 0);
+            }
 
-        // ensure bits beyond Prefix-Length are zero
-        if (bitSetLength > prefixLength)
-            throw new IllegalArgumentException("Prefix-Length is " + prefixLength + ", actual address has prefix length " + bitSetLength +
-                    ", bits outside of the Prefix-Length must be zero");
+            // Throw exception if validation is not passed
+            if(!passed) throw new IllegalArgumentException("Prefix-Length is " + prefixLength + ", bits outside of the Prefix-Length must be zero");
 
+        }
+        
         final int prefixBytes = (int) Math.ceil((double) prefixLength / 8); // bytes needed to hold bits
-
-        byte[] addressBytes = bitSet.toByteArray();
 
         return ByteBuffer.allocate(2 + prefixBytes)
                 .put((byte) 0)
                 .put((byte) prefixLength)
-                .put(addressBytes)
+                .put(Arrays.copyOfRange(addressBytes, 0, prefixBytes))
                 .array();
     }
 
