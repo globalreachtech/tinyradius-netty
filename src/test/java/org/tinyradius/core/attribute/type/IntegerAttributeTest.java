@@ -10,6 +10,9 @@ import org.tinyradius.core.dictionary.parser.DictionaryParser;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.attribute.rfc.Rfc2865.FRAMED_ROUTING;
+import static org.tinyradius.core.attribute.rfc.Rfc2865.SERVICE_TYPE;
+import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_TYPE;
 import static org.tinyradius.core.attribute.type.AttributeType.INTEGER;
 
 class IntegerAttributeTest {
@@ -19,7 +22,7 @@ class IntegerAttributeTest {
     @Test
     void intMaxUnsigned() {
         final IntegerAttribute attribute = (IntegerAttribute)
-                INTEGER.create(dictionary, -1, 10, (byte) 0, Long.toString(0xffffffffL)); // Framed-Routing
+                INTEGER.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, Long.toString(0xffffffffL));
 
         assertEquals(-1, attribute.getValueInt());
         assertEquals(0xffffffffL, attribute.getValueLong());
@@ -30,7 +33,7 @@ class IntegerAttributeTest {
     void intMaxSigned() {
         final int value = Integer.MAX_VALUE;
         final IntegerAttribute attribute = (IntegerAttribute)
-                INTEGER.create(dictionary, -1, 10, (byte) 0, String.valueOf(value)); // Framed-Routing
+                INTEGER.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, String.valueOf(value));
 
         assertEquals(value, attribute.getValueInt());
         assertEquals(value, attribute.getValueLong());
@@ -41,7 +44,7 @@ class IntegerAttributeTest {
     void bytesOk() {
         final byte[] bytes = new byte[]{0, 0, (byte) 0xff, (byte) 0xff};
         final IntegerAttribute attribute = (IntegerAttribute)
-                INTEGER.create(dictionary, -1, 10, (byte) 0, bytes); // Framed-Routing
+                INTEGER.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, bytes);
 
         assertEquals(65535, attribute.getValueInt());
         assertEquals(65535, attribute.getValueLong());
@@ -52,14 +55,14 @@ class IntegerAttributeTest {
     void bytesTooShort() throws IOException {
         // no tag
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
-                () -> INTEGER.create(dictionary, -1, 10, (byte) 0, new byte[3])); // Framed-Routing
+                () -> INTEGER.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, new byte[3]));
         assertTrue(TestUtils.getStackTrace(e1).contains("should be 4 octets, actual: 3"));
 
         // has tag
         final Dictionary dict = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary.rfc2868");
         final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
-                () -> INTEGER.create(dict, -1, 64, (byte) 0, new byte[2])); // Tunnel-Type
+                () -> INTEGER.create(dict, -1, TUNNEL_TYPE, (byte) 0, new byte[2]));
         assertTrue(TestUtils.getStackTrace(e2).contains("should be 3 octets if has_tag, actual: 2"));
     }
 
@@ -67,7 +70,7 @@ class IntegerAttributeTest {
     void bytesTooLong() throws IOException {
         // no tag
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
-                () -> INTEGER.create(dictionary, -1, 10, (byte) 0, new byte[5])); // Framed-Routing
+                () -> INTEGER.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, new byte[5]));
         assertTrue(TestUtils.getStackTrace(e1).contains("should be 4 octets, actual: 5"));
 
         // has tag
@@ -81,7 +84,7 @@ class IntegerAttributeTest {
     @Test
     void stringOk() {
         final IntegerAttribute attribute = (IntegerAttribute)
-                INTEGER.create(dictionary, -1, 10, (byte) 0, "12345"); // Framed-Routing
+                INTEGER.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, "12345");
 
         assertEquals(12345, attribute.getValueInt());
         assertEquals(12345, attribute.getValueLong());
@@ -92,7 +95,7 @@ class IntegerAttributeTest {
     void stringTooBig() {
         final String strLong = Long.toString(0xffffffffffL);
         final NumberFormatException exception = assertThrows(NumberFormatException.class,
-                () -> INTEGER.create(dictionary, -1, 10, (byte) 0, strLong)); // Framed-Routing
+                () -> INTEGER.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, strLong));
 
         assertTrue(exception.getMessage().toLowerCase().contains("exceeds range"));
     }
@@ -100,7 +103,7 @@ class IntegerAttributeTest {
     @Test
     void stringEmpty() {
         final NumberFormatException exception = assertThrows(NumberFormatException.class,
-                () -> INTEGER.create(dictionary, -1, 10, (byte) 0, "")); // Framed-Routing
+                () -> INTEGER.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, ""));
 
         assertTrue(exception.getMessage().toLowerCase().contains("for input string: \"\""));
     }
@@ -108,7 +111,7 @@ class IntegerAttributeTest {
     @Test
     void stringEnum() {
         final IntegerAttribute attribute = (IntegerAttribute)
-                INTEGER.create(dictionary, -1, 6, (byte) 0, "Login-User"); // Service-Type
+                INTEGER.create(dictionary, -1, SERVICE_TYPE, (byte) 0, "Login-User");
 
         assertEquals(1, attribute.getValueInt());
         assertEquals(1, attribute.getValueLong());
@@ -118,27 +121,19 @@ class IntegerAttributeTest {
     @Test
     void stringInvalid() {
         final NumberFormatException exception = assertThrows(NumberFormatException.class,
-                () -> INTEGER.create(dictionary, -1, 6, (byte) 0, "badString")); // Service-Type
+                () -> INTEGER.create(dictionary, -1, SERVICE_TYPE, (byte) 0, "badString"));
 
         assertTrue(exception.getMessage().toLowerCase().contains("for input string: \"badstring\""));
     }
 
-    /**
-     * <a href="https://tools.ietf.org/html/bcp158">BCP 158</a>
-     * <p>
-     * "Other limitations of the tagging mechanism are that when integer
-     * values are tagged, the value portion is reduced to three bytes,
-     * meaning only 24-bit numbers can be represented."
-     */
     @Test
-    void taggedEnum() throws IOException {
+    void enumUntagged() {
         // testing without tag
         // ATTRIBUTE	Service-Type		6	integer
         // VALUE		Service-Type		Callback-Login-User	3
 
         // from enum
-        final IntegerAttribute serviceType = (IntegerAttribute) dictionary.getAttributeTemplate("Service-Type").get()
-                .create(dictionary, (byte) 1, "Callback-Login-User");
+        final IntegerAttribute serviceType = (IntegerAttribute) INTEGER.create(dictionary, -1, SERVICE_TYPE, (byte) 1, "Callback-Login-User");
         assertEquals(6, serviceType.getLength());
         assertEquals(6, serviceType.getData().readableBytes());
         assertEquals(6, serviceType.toByteArray().length);
@@ -150,20 +145,27 @@ class IntegerAttributeTest {
         assertFalse(serviceType.getTag().isPresent());
 
         // from int string
-        final IntegerAttribute serviceType2 = (IntegerAttribute) dictionary.getAttributeTemplate("Service-Type").get()
-                .create(dictionary, (byte) 1, "3");
+        final IntegerAttribute serviceType2 = (IntegerAttribute) INTEGER.create(dictionary, -1, SERVICE_TYPE, (byte) 1, "3");
         assertArrayEquals(serviceType.toByteArray(), serviceType2.toByteArray());
 
         // from byte[]
-        final IntegerAttribute serviceType3 = (IntegerAttribute) dictionary.getAttributeTemplate("Service-Type").get()
-                .create(dictionary, (byte) 1, new byte[]{0, 0, 0, 3});
+        final IntegerAttribute serviceType3 = (IntegerAttribute) INTEGER.create(dictionary, -1, SERVICE_TYPE, (byte) 1, new byte[]{0, 0, 0, 3});
         assertArrayEquals(serviceType.toByteArray(), serviceType3.toByteArray());
 
         // from parse
         final IntegerAttribute parsedServiceType = (IntegerAttribute) AttributeHolder.readAttribute(dictionary, -1, serviceType.toByteBuf().copy());
         assertArrayEquals(serviceType.toByteArray(), parsedServiceType.toByteArray());
+    }
 
-        // testing has_tag
+    /**
+     * <a href="https://tools.ietf.org/html/bcp158">BCP 158</a>
+     * <p>
+     * "Other limitations of the tagging mechanism are that when integer
+     * values are tagged, the value portion is reduced to three bytes,
+     * meaning only 24-bit numbers can be represented."
+     */
+    @Test
+    void enumTagged() throws IOException {
         // ATTRIBUTE	Tunnel-Type				64	integer	has_tag
         // VALUE	Tunnel-Type			L2F			2
         final Dictionary dict = DictionaryParser.newClasspathParser()

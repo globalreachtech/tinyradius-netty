@@ -38,7 +38,7 @@ public class EncodedAttribute implements RadiusAttribute {
     }
 
     @Override
-    public ByteBuf getData(){
+    public ByteBuf getData() {
         return delegate.getData();
     }
 

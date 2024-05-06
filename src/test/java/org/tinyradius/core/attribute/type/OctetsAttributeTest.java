@@ -15,6 +15,9 @@ import java.util.Arrays;
 
 import static java.lang.Byte.toUnsignedInt;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.attribute.rfc.Rfc2865.CHAP_PASSWORD;
+import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_PASSWORD;
+import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_PASSWORD;
 import static org.tinyradius.core.attribute.type.AttributeType.OCTETS;
 
 class OctetsAttributeTest {
@@ -25,7 +28,7 @@ class OctetsAttributeTest {
     @Test
     void createMaxSizeAttribute() {
         // 255 octets ok
-        final OctetsAttribute attribute = OCTETS.create(dictionary, -1, 3, (byte) 0, random.generateSeed(253)); // CHAP-Password
+        final OctetsAttribute attribute = OCTETS.create(dictionary, -1, CHAP_PASSWORD, (byte) 0, random.generateSeed(253));
         final byte[] bytes = attribute.toByteArray();
 
         assertEquals(0xFF, toUnsignedInt(bytes[1]));
@@ -42,7 +45,7 @@ class OctetsAttributeTest {
 
     @Test
     void headerBadDeclaredSize() {
-        final ByteBuf byteBuf = OCTETS.create(dictionary, -1, 3, (byte) 0, random.generateSeed(253)) // CHAP-Password
+        final ByteBuf byteBuf = OCTETS.create(dictionary, -1, CHAP_PASSWORD, (byte) 0, random.generateSeed(253))
                 .toByteBuf()
                 .setByte(1, 123);
 
@@ -54,13 +57,13 @@ class OctetsAttributeTest {
 
     @Test
     void testFlatten() {
-        final OctetsAttribute attribute = OCTETS.create(dictionary, -1, 3, (byte) 0, "FFFF0000"); // CHAP-Password
+        final OctetsAttribute attribute = OCTETS.create(dictionary, -1, CHAP_PASSWORD, (byte) 0, "FFFF0000");
         assertEquals("[CHAP-Password=0xFFFF0000]", attribute.flatten().toString());
     }
 
     @Test
     void testToString() {
-        final OctetsAttribute attribute = OCTETS.create(dictionary, -1, 3, (byte) 0, "FFFF0000"); // CHAP-Password
+        final OctetsAttribute attribute = OCTETS.create(dictionary, -1, CHAP_PASSWORD, (byte) 0, "FFFF0000");
         assertEquals("CHAP-Password=0xFFFF0000", attribute.toString());
     }
 
@@ -72,7 +75,7 @@ class OctetsAttributeTest {
         final byte[] requestAuth = random.generateSeed(16);
 
         // User-Password (we need something with encrypt)
-        final OctetsAttribute attribute = OCTETS.create(dictionary, -1, 2, (byte) 0, value);
+        final OctetsAttribute attribute = OCTETS.create(dictionary, -1, USER_PASSWORD, (byte) 0, value);
         assertFalse(attribute.isEncoded());
         assertArrayEquals(value, attribute.getValue());
 
@@ -106,7 +109,7 @@ class OctetsAttributeTest {
         final byte[] requestAuth = random.generateSeed(16);
 
         // Tunnel-Password (actually a StringAttribute, we need something with encrypt and tag )
-        final OctetsAttribute attribute = OCTETS.create(testDictionary, -1, 69, tag, value);
+        final OctetsAttribute attribute = OCTETS.create(testDictionary, -1, TUNNEL_PASSWORD, tag, value);
         assertFalse(attribute.isEncoded());
         assertEquals(tag, attribute.getTag().get());
         assertArrayEquals(value, attribute.getValue());

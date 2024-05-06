@@ -62,10 +62,10 @@ public class Harness {
             RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, acctPort), secret);
             return requests.stream().map(r -> {
                 RadiusEndpoint endpoint = (r.getType() == ACCESS_REQUEST) ? accessEndpoint : acctEndpoint;
-                logger.info("Packet before it is sent\n" + r + "\n");
+                logger.info("Packet before it is sent\n{}\n", r);
                 RadiusResponse response = rc.communicate(r, endpoint).syncUninterruptibly().getNow();
-                logger.info("Packet after it was sent\n" + r + "\n");
-                logger.info("Response\n" + response + "\n");
+                logger.info("Packet after it was sent\n{}\n", r);
+                logger.info("Response\n{}\n", response);
                 return response;
             }).collect(Collectors.toList());
         }

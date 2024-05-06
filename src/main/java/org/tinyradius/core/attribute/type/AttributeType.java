@@ -44,7 +44,7 @@ public enum AttributeType {
             return attribute;
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not create attribute - vendorId: " + vendorId +
-                                               ", bytes: 0x" + DatatypeConverter.printHexBinary(data.copy().array()), e);
+                    ", bytes: 0x" + DatatypeConverter.printHexBinary(data.copy().array()), e);
         }
     }
 

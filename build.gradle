@@ -31,6 +31,7 @@ dependencies {
     testImplementation('net.jradius:jradius-core:1.1.5') {
         transitive = false // for reference implementation of hashing utilities
     }
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 jacocoTestReport {

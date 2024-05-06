@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.BitSet;
 
 import static java.lang.Byte.toUnsignedInt;
 
@@ -23,26 +22,26 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
     }
 
     private static byte[] validate(InetAddress address, int prefixLength) {
-        if (prefixLength > 128 || prefixLength < 0)
+        if (prefixLength < 0 || prefixLength > 128)
             throw new IllegalArgumentException("IPv6 Prefix Prefix-Length should be between 0 and 128, declared: " + prefixLength);
 
         byte[] addressBytes = address.getAddress();
-            
-        if(prefixLength < 128){
+
+        if (prefixLength < 128) {
             // Ensure bits beyond Prefix-Length are zero
             // Check that the first byte that must have some zeroed bits is conformant. This first one is special because the
             // comparison requires masking some bits, not the full byte should be zero
-            boolean passed = (addressBytes[prefixLength/8] &0xff & (0xff >> prefixLength - 8*(prefixLength/8))) == 0;
+            boolean passed = (addressBytes[prefixLength / 8] & 0xff & (0xff >> prefixLength - 8 * (prefixLength / 8))) == 0;
             // Check the rest of the bytes
-            for(int i = prefixLength/8 + 1; i < 16; i++){
+            for (int i = prefixLength / 8 + 1; i < 16; i++) {
                 passed = passed && (addressBytes[i] == 0);
             }
 
             // Throw exception if validation is not passed
-            if(!passed) throw new IllegalArgumentException("Prefix-Length is " + prefixLength + ", bits outside of the Prefix-Length must be zero");
-
+            if (!passed)
+                throw new IllegalArgumentException("Prefix-Length is " + prefixLength + ", bits outside of the Prefix-Length must be zero");
         }
-        
+
         final int prefixBytes = (int) Math.ceil((double) prefixLength / 8); // bytes needed to hold bits
 
         return ByteBuffer.allocate(2 + prefixBytes)
