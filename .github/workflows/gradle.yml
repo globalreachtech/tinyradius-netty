@@ -34,4 +34,4 @@ jobs:
         with:
           arguments: clean build jacocoTestReport sonarqube --info --warning-mode=all
       - name: Coveralls GitHub Action
-        uses: coverallsapp/github-action@v2.2.3
+        uses: coverallsapp/github-action@v2.3.0
