@@ -78,7 +78,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
             // find attributes that should be encoded but aren't
             final boolean decodedAlready = getAttributes().stream()
                     .filter(a -> a.getAttributeTemplate()
-                            .map(AttributeTemplate::encryptEnabled)
+                            .map(AttributeTemplate::isEncrypt)
                             .orElse(false))
                     .anyMatch(a -> !a.isEncoded());
 

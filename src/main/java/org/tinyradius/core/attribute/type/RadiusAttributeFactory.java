@@ -11,24 +11,14 @@ import org.tinyradius.core.dictionary.Vendor;
 
 import java.util.Optional;
 
-public enum AttributeType {
-    VSA(VendorSpecificAttribute::new, (d, v, t, s) -> OctetsAttribute.stringHexParser(s)),
-    OCTETS(OctetsAttribute::new, (d, v, t, s) -> OctetsAttribute.stringHexParser(s)),
-    STRING(StringAttribute::new, (d, v, t, s) -> StringAttribute.stringParser(s)),
-    INTEGER(IntegerAttribute::new, IntegerAttribute::stringParser),
-    IPV4(IpAttribute.V4::new, (d, v, t, s) -> IpAttribute.stringParser(s)),
-    IPV6(IpAttribute.V6::new, (d, v, t, s) -> IpAttribute.stringParser(s)),
-    IPV6_PREFIX(Ipv6PrefixAttribute::new, (d, v, t, s) -> Ipv6PrefixAttribute.stringParser(s));
+public interface RadiusAttributeFactory<U extends RadiusAttribute> {
 
-    private static final Logger logger = LogManager.getLogger();
+    Logger logger = LogManager.getLogger();
 
-    private final Constructor constructor;
-    private final StringParser stringParser;
+    U newInstance(Dictionary dictionary, int vendorId, ByteBuf value);
 
-    AttributeType(Constructor constructor, StringParser stringParser) {
-        this.constructor = constructor;
-        this.stringParser = stringParser;
-    }
+    byte[] parse(Dictionary dictionary, int vendorId, int type, String value);
+
 
     /**
      * @param dictionary dictionary to set attribute to use
@@ -36,9 +26,9 @@ public enum AttributeType {
      * @param data       ByteBuf for entire attribute
      * @return new attribute
      */
-    public OctetsAttribute create(Dictionary dictionary, int vendorId, ByteBuf data) {
+    default U create(Dictionary dictionary, int vendorId, ByteBuf data) {
         try {
-            final OctetsAttribute attribute = constructor.newInstance(dictionary, vendorId, data);
+            final U attribute = newInstance(dictionary, vendorId, data);
             logger.trace("Created RadiusAttribute: vendorId: {}, type: {}",
                     attribute.getVendorId(), attribute.getType());
             return attribute;
@@ -56,7 +46,7 @@ public enum AttributeType {
      * @param value      attribute value as byte array
      * @return new attribute
      */
-    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
+    default U create(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
         final int headerSize = vendor.map(Vendor::getHeaderSize).orElse(2);
 
@@ -87,28 +77,32 @@ public enum AttributeType {
      * @param value      attribute value as string, converted to byte array based on type defined by vendorId/type code
      * @return new attribute
      */
-    public OctetsAttribute create(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
-        final byte[] bytes = stringParser.parse(dictionary, vendorId, type, value);
+    default U create(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
+        final byte[] bytes = parse(dictionary, vendorId, type, value);
         return create(dictionary, vendorId, type, tag, bytes);
     }
 
-    public static AttributeType fromDataType(String dataType) {
+    // TODO https://datatracker.ietf.org/doc/html/rfc8044
+    static RadiusAttributeFactory<? extends RadiusAttribute> fromDataType(String dataType) {
         switch (dataType) {
             case "vsa":
-                return AttributeType.VSA;
+                return VendorSpecificAttribute.FACTORY;
             case "string":
-                return AttributeType.STRING;
+            case "text":
+                return StringAttribute.FACTORY;
             case "integer":
             case "date":
-                return AttributeType.INTEGER;
+            case "enum":
+                return IntegerAttribute.FACTORY;
             case "ipaddr":
-                return AttributeType.IPV4;
+            case "ipv4addr":
+                return IpAttribute.V4.FACTORY;
             case "ipv6addr":
-                return AttributeType.IPV6;
+                return IpAttribute.V6.FACTORY;
             case "ipv6prefix":
-                return AttributeType.IPV6_PREFIX;
+                return Ipv6PrefixAttribute.FACTORY;
             case "octets":
-            case "ifid": //TODO
+            case "ifid":
             case "integer64":
             case "ether":
             case "abinary":
@@ -119,15 +113,7 @@ public enum AttributeType {
             case "struct": // compound types
             case "ipv4prefix":
             default:
-                return AttributeType.OCTETS;
+                return OctetsAttribute.FACTORY;
         }
-    }
-
-    private interface Constructor {
-        OctetsAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value);
-    }
-
-    private interface StringParser {
-        byte[] parse(Dictionary dictionary, int vendorId, int type, String value);
     }
 }

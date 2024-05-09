@@ -3,10 +3,10 @@ package org.tinyradius.core.attribute;
 import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
-import org.tinyradius.core.attribute.type.AttributeType;
 import org.tinyradius.core.attribute.type.EncodedAttribute;
 import org.tinyradius.core.attribute.type.OctetsAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
+import org.tinyradius.core.attribute.type.RadiusAttributeFactory;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.HashMap;
@@ -17,7 +17,6 @@ import static java.util.Objects.requireNonNull;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
 import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_PASSWORD;
 import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_PASSWORD;
-import static org.tinyradius.core.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
 /**
  * Represents a Radius attribute type.
@@ -32,24 +31,10 @@ public class AttributeTemplate {
     private final boolean tagged;
     private final AttributeCodecType codecType;
 
-    private final AttributeType decodedType;
-    private final AttributeType encodedType;
+    private final RadiusAttributeFactory<? extends RadiusAttribute> factory;
 
     private final Map<Integer, String> int2str = new HashMap<>();
     private final Map<String, Integer> str2int = new HashMap<>();
-
-    /**
-     * Create a new attribute type. Convenience method that assumes no encrypt and no Tag support.
-     *
-     * @param vendorId    vendor ID or -1 if N/A
-     * @param type        sub-attribute type code, as unsigned byte
-     * @param name        sub-attribute name
-     * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
-     * @see AttributeTemplate#AttributeTemplate(int, int, String, String, byte, boolean)
-     */
-    public AttributeTemplate(int vendorId, int type, String name, String rawDataType) {
-        this(vendorId, type, name, rawDataType, (byte) 0, false);
-    }
 
     /**
      * Create a new attribute type.
@@ -57,27 +42,21 @@ public class AttributeTemplate {
      * @param vendorId    vendor ID or -1 if N/A
      * @param type        sub-attribute type code, as unsigned byte
      * @param name        sub-attribute name
-     * @param rawDataType string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
+     * @param dataType    string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or default 0 for none
      * @param hasTag      whether attribute supports tags, as defined in RFC2868, default false
      */
-    public AttributeTemplate(int vendorId, int type, String name, String rawDataType, byte encryptFlag, boolean hasTag) {
+    public AttributeTemplate(int vendorId, int type, String name, String dataType, RadiusAttributeFactory<? extends RadiusAttribute> factory, byte encryptFlag, boolean hasTag) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
-        requireNonNull(rawDataType, "Data type is null");
+        requireNonNull(dataType, "Data type is null");
         this.vendorId = vendorId;
         this.type = type;
         this.name = name;
-        this.dataType = rawDataType.toLowerCase();
-
-        decodedType = vendorId == -1 && type == VENDOR_SPECIFIC ?
-                AttributeType.VSA :
-                AttributeType.fromDataType(this.dataType);
-
+        this.dataType = dataType.toLowerCase();
+        this.factory = factory;
         this.tagged = detectHasTag(vendorId, type, hasTag);
         this.codecType = detectAttributeCodec(vendorId, type, encryptFlag);
-        this.encodedType = this.codecType == NO_ENCRYPT ?
-                decodedType : AttributeType.OCTETS;
     }
 
     /**
@@ -89,7 +68,7 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute create(Dictionary dictionary, byte tag, byte[] value) {
-        return decodedType.create(dictionary, vendorId, type, tag, value);
+        return factory.create(dictionary, vendorId, type, tag, value);
     }
 
     /**
@@ -101,7 +80,7 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute create(Dictionary dictionary, byte tag, String value) {
-        return decodedType.create(dictionary, vendorId, type, tag, value);
+        return factory.create(dictionary, vendorId, type, tag, value);
     }
 
     /**
@@ -115,7 +94,9 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute parse(Dictionary dictionary, ByteBuf data) {
-        return autoWrapEncode(encodedType.create(dictionary, vendorId, data));
+        return isEncrypt() ?
+                new EncodedAttribute(OctetsAttribute.FACTORY.create(dictionary, vendorId, data)) :
+                factory.create(dictionary, vendorId, data);
     }
 
     /**
@@ -131,11 +112,9 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     public RadiusAttribute createEncoded(Dictionary dictionary, byte tag, byte[] encodedValue) {
-        return autoWrapEncode(encodedType.create(dictionary, vendorId, type, tag, encodedValue));
-    }
-
-    private RadiusAttribute autoWrapEncode(OctetsAttribute attribute) {
-        return encryptEnabled() ? new EncodedAttribute(attribute) : attribute;
+        return isEncrypt() ?
+                new EncodedAttribute(OctetsAttribute.FACTORY.create(dictionary, vendorId, type, tag, encodedValue)) :
+                factory.create(dictionary, vendorId, type, tag, encodedValue);
     }
 
     /**
@@ -173,7 +152,7 @@ public class AttributeTemplate {
         return tagged;
     }
 
-    public boolean encryptEnabled() {
+    public boolean isEncrypt() {
         return codecType != NO_ENCRYPT;
     }
 
@@ -225,7 +204,7 @@ public class AttributeTemplate {
      */
     public RadiusAttribute encode(RadiusAttribute attribute, byte[] requestAuth, String secret) throws RadiusPacketException {
         // don't wrap in EncodedDecorator if not supported
-        if (!encryptEnabled() || attribute.isEncoded())
+        if (!isEncrypt() || attribute.isEncoded())
             return attribute;
 
         try {

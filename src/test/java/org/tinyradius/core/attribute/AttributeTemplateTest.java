@@ -31,15 +31,15 @@ class AttributeTemplateTest {
     @Test
     void testFlagDetection() {
         final AttributeTemplate template = new AttributeTemplate(
-                -1, 1, "TestAttr", "integer");
+                -1, 1, "TestAttr", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
         final AttributeTemplate userPassword = new AttributeTemplate(
-                -1, 2, "Test-User-Password", "integer");
+                -1, 2, "Test-User-Password", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
         final AttributeTemplate tunnelPassword = new AttributeTemplate(
-                -1, 69, "Test-Tunnel-Password", "integer");
+                -1, 69, "Test-Tunnel-Password", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
         final AttributeTemplate ascendSend = new AttributeTemplate(
-                529, 214, "Test-Ascend-Send-Secret", "integer");
+                529, 214, "Test-Ascend-Send-Secret", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
         final AttributeTemplate custom = new AttributeTemplate(
-                123, (byte) 123, "Test-Custom", "integer", (byte) 1, true);
+                123, (byte) 123, "Test-Custom", "integer", IntegerAttribute.FACTORY, (byte) 1, true);
 
         final WritableDictionary customDict = new MemoryDictionary()
                 .addAttributeTemplate(template)

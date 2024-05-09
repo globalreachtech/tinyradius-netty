@@ -44,6 +44,8 @@ public abstract class IpAttribute extends OctetsAttribute {
      * IPv4 Address
      */
     public static class V4 extends IpAttribute {
+        public static final RadiusAttributeFactory<V4> FACTORY = new Factory();
+
         public V4(Dictionary dictionary, int vendorId, ByteBuf data) {
             super(dictionary, vendorId, data);
             if (getValue().length != 4)
@@ -53,16 +55,44 @@ public abstract class IpAttribute extends OctetsAttribute {
         public int getValueInt() {
             return ByteBuffer.wrap(getValue()).getInt();
         }
+
+        private static class Factory implements RadiusAttributeFactory<V4> {
+
+            @Override
+            public V4 newInstance(Dictionary dictionary, int vendorId, ByteBuf value) {
+                return new V4(dictionary, vendorId, value);
+            }
+
+            @Override
+            public byte[] parse(Dictionary dictionary, int vendorId, int type, String value) {
+                return IpAttribute.stringParser(value);
+            }
+        }
     }
 
     /**
      * IPv6 Address
      */
     public static class V6 extends IpAttribute {
+        public static final RadiusAttributeFactory<V6> FACTORY = new Factory();
+
         public V6(Dictionary dictionary, int vendorId, ByteBuf data) {
             super(dictionary, vendorId, data);
             if (getValue().length != 16)
                 throw new IllegalArgumentException("IPv6 address should be 16 octets, actual: " + getValue().length);
+        }
+
+        private static class Factory implements RadiusAttributeFactory<V6> {
+
+            @Override
+            public V6 newInstance(Dictionary dictionary, int vendorId, ByteBuf value) {
+                return new V6(dictionary, vendorId, value);
+            }
+
+            @Override
+            public byte[] parse(Dictionary dictionary, int vendorId, int type, String value) {
+                return IpAttribute.stringParser(value);
+            }
         }
     }
 }

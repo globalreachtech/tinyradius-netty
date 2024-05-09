@@ -16,6 +16,8 @@ import java.util.List;
  */
 public class VendorSpecificAttribute extends OctetsAttribute implements AttributeHolder<VendorSpecificAttribute> {
 
+    public static final RadiusAttributeFactory<VendorSpecificAttribute> FACTORY = new Factory();
+
     public static final byte VENDOR_SPECIFIC = 26;
 
     private final int childVendorId;
@@ -139,5 +141,18 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     @Override
     public int hashCode() {
         return super.hashCode();
+    }
+
+    private static class Factory implements RadiusAttributeFactory<VendorSpecificAttribute> {
+
+        @Override
+        public VendorSpecificAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value) {
+            return new VendorSpecificAttribute(dictionary, vendorId, value);
+        }
+
+        @Override
+        public byte[] parse(Dictionary dictionary, int vendorId, int type, String value) {
+            return stringHexParser(value);
+        }
     }
 }

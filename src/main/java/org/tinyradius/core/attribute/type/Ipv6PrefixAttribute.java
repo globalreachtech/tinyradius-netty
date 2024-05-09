@@ -15,6 +15,8 @@ import static java.lang.Byte.toUnsignedInt;
  */
 public class Ipv6PrefixAttribute extends OctetsAttribute {
 
+    public static final RadiusAttributeFactory<Ipv6PrefixAttribute> FACTORY = new Factory();
+
     public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         super(dictionary, vendorId, data);
         final byte[] value = getValue();
@@ -101,5 +103,18 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
 
     public static byte[] stringParser(String value) {
         return validate(convertString(value), Integer.parseInt(value.split("/")[1]));
+    }
+
+    private static class Factory implements RadiusAttributeFactory<Ipv6PrefixAttribute> {
+
+        @Override
+        public Ipv6PrefixAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value) {
+            return new Ipv6PrefixAttribute(dictionary, vendorId, value);
+        }
+
+        @Override
+        public byte[] parse(Dictionary dictionary, int vendorId, int type, String value) {
+            return Ipv6PrefixAttribute.stringParser(value);
+        }
     }
 }

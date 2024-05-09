@@ -30,8 +30,8 @@ public interface CoreDictionary {
      * Retrieves an AttributeTemplate for a vendor-specific
      * attribute.
      *
-     * @param vendorId    vendorId if appropriate or -1
-     * @param type type 1-255
+     * @param vendorId vendorId if appropriate or -1
+     * @param type     type 1-255
      * @return AttributeTemplate
      */
     Optional<AttributeTemplate> getAttributeTemplate(int vendorId, int type);
