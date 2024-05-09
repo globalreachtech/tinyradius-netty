@@ -1,14 +1,13 @@
 package org.tinyradius.core.attribute.codec;
 
-import org.tinyradius.core.packet.RadiusPacket;
 import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.packet.RadiusPacket;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.requireNonNull;
 
 public abstract class BaseCodec {
 
@@ -22,10 +21,7 @@ public abstract class BaseCodec {
      * @throws RadiusPacketException errors encoding attribute data
      */
     public byte[] encode(byte[] data, byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
-        Objects.requireNonNull(data);
-        Objects.requireNonNull(requestAuth);
         Objects.requireNonNull(sharedSecret);
-
         if (requestAuth.length != 16)
             throw new RadiusPacketException("Request Authenticator must be 16 octets");
 
@@ -42,10 +38,7 @@ public abstract class BaseCodec {
      * @throws RadiusPacketException errors decoding attribute data
      */
     public byte[] decode(byte[] data, byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
-        Objects.requireNonNull(data);
-        Objects.requireNonNull(requestAuth);
         Objects.requireNonNull(sharedSecret);
-
         if (requestAuth.length != 16)
             throw new RadiusPacketException("Request Authenticator must be 16 octets");
 
@@ -70,9 +63,6 @@ public abstract class BaseCodec {
     protected abstract byte[] decodeData(byte[] encodedData, byte[] auth, byte[] secret) throws RadiusPacketException;
 
     protected static byte[] xor16(byte[] src1, int src1offset, byte[] src2) {
-        requireNonNull(src1);
-        requireNonNull(src2);
-
         final byte[] dst = new byte[16];
 
         if (src1offset < 0)
@@ -100,8 +90,6 @@ public abstract class BaseCodec {
      * @return byte array containing input, padded size multiple of 16
      */
     protected static byte[] pad16x(byte[] val) {
-        requireNonNull(val, "Byte array cannot be null");
-
         int length = Math.max(
                 (int) (Math.ceil((double) val.length / 16) * 16), 16);
 

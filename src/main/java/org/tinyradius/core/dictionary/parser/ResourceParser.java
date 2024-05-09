@@ -1,7 +1,7 @@
 package org.tinyradius.core.dictionary.parser;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttributeFactory;
@@ -21,9 +21,9 @@ import java.util.function.Consumer;
 
 import static org.tinyradius.core.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
+@Log4j2
+@RequiredArgsConstructor
 public class ResourceParser {
-
-    private static final Logger logger = LogManager.getLogger();
 
     private final WritableDictionary dictionary;
     private final ResourceResolver resourceResolver;
@@ -35,12 +35,6 @@ public class ResourceParser {
 
     public ResourceParser(ResourceResolver resourceResolver) {
         this(new MemoryDictionary(), resourceResolver, RadiusAttributeFactory::fromDataType);
-    }
-
-    public ResourceParser(WritableDictionary dictionary, ResourceResolver resourceResolver, FactoryProvider factoryProvider) {
-        this.dictionary = dictionary;
-        this.resourceResolver = resourceResolver;
-        this.factoryProvider = factoryProvider;
     }
 
     /**
@@ -114,22 +108,22 @@ public class ResourceParser {
                 parseVendor(tokens, lineNum);
                 break;
             case "BEGIN-TLV":
-                logger.warn("'BEGIN-TLV' not supported - ignoring");
+                log.warn("'BEGIN-TLV' not supported - ignoring");
                 break;
             case "END-TLV":
-                logger.warn("'END-TLV' not supported - ignoring");
+                log.warn("'END-TLV' not supported - ignoring");
                 break;
             case "PROTOCOL":
-                logger.warn("'PROTOCOL' not supported - ignoring");
+                log.warn("'PROTOCOL' not supported - ignoring");
                 break;
             case "BEGIN-PROTOCOL":
-                logger.warn("'BEGIN-PROTOCOL' not supported - ignoring");
+                log.warn("'BEGIN-PROTOCOL' not supported - ignoring");
                 break;
             case "END-PROTOCOL":
-                logger.warn("'END-PROTOCOL' not supported - ignoring");
+                log.warn("'END-PROTOCOL' not supported - ignoring");
                 break;
             case "MEMBER": // for 'struct' compound type
-                logger.warn("'MEMBER' not supported - ignoring");
+                log.warn("'MEMBER' not supported - ignoring");
                 break;
             default:
                 throw new IOException("Could not decode tokens on line " + lineNum + ": " + Arrays.toString(tokens));
@@ -272,7 +266,7 @@ public class ResourceParser {
                     // use default [1,1]
                 }
         }
-        logger.warn("Ignoring vendor flag - invalid format: {}", flag);
+        log.warn("Ignoring vendor flag - invalid format: {}", flag);
         return new int[]{1, 1};
     }
 

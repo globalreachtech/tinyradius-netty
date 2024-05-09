@@ -5,7 +5,8 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.VendorSpecificAttribute;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * AttributeHolder that supports sub-attributes (wrapped by Vendor-Specific Attributes)
@@ -33,7 +34,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
                 .map(VendorSpecificAttribute::getAttributes)
                 .flatMap(Collection::stream)
                 .filter(sa -> sa.getType() == type && sa.getVendorId() == vendorId)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @Override
@@ -65,7 +66,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
                 .filter(VendorSpecificAttribute.class::isInstance)
                 .map(VendorSpecificAttribute.class::cast)
                 .filter(a -> a.getChildVendorId() == vendorId)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     /**
@@ -75,7 +76,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
         return getAttributes().stream()
                 .map(RadiusAttribute::flatten)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     /**
@@ -115,7 +116,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
                     return subAttributes.isEmpty() ? null : vsa.withAttributes(subAttributes);
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return withAttributes(attributes);
     }
@@ -144,7 +145,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
                     return subAttributes.isEmpty() ? null : vsa.withAttributes(subAttributes);
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return withAttributes(attributes);
     }

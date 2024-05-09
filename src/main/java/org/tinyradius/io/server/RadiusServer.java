@@ -9,8 +9,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
@@ -22,10 +21,8 @@ import java.util.stream.IntStream;
 /**
  * Implements a simple Radius server.
  */
+@Log4j2
 public class RadiusServer implements Closeable {
-
-    private static final Logger logger = LogManager.getLogger();
-
 
     private final List<ChannelFuture> channelFutures;
     private final Promise<Void> isReady;
@@ -68,7 +65,7 @@ public class RadiusServer implements Closeable {
             final List<SocketAddress> addresses = channelFutures.stream()
                     .map(ChannelFuture::channel)
                     .map(Channel::localAddress).collect(Collectors.toList());
-            logger.info("Server start success: {} for address {}", f.isSuccess(), addresses);
+            log.info("Server start success: {} for address {}", f.isSuccess(), addresses);
         });
     }
 
@@ -82,7 +79,7 @@ public class RadiusServer implements Closeable {
 
     @Override
     public void close() {
-        logger.info("Closing server on {}", channelFutures.stream()
+        log.info("Closing server on {}", channelFutures.stream()
                 .map(ChannelFuture::channel)
                 .map(Channel::localAddress)
                 .collect(Collectors.toList()));

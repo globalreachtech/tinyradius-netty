@@ -1,11 +1,16 @@
 package org.tinyradius.core.dictionary;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
 /**
  * Vendor definition
  */
+@Getter
+@EqualsAndHashCode
 public class Vendor {
 
     private final int id;
@@ -35,22 +40,6 @@ public class Vendor {
             throw new IllegalArgumentException("Vendor lengthSize must be 0, 1, or 2");
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getTypeSize() {
-        return typeSize;
-    }
-
-    public int getLengthSize() {
-        return lengthSize;
-    }
-
     public int getHeaderSize() {
         return typeSize + lengthSize;
     }
@@ -77,22 +66,6 @@ public class Vendor {
             default:
                 return new byte[]{(byte) len};
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Vendor)) return false;
-        final Vendor vendor = (Vendor) o;
-        return id == vendor.id &&
-                typeSize == vendor.typeSize &&
-                lengthSize == vendor.lengthSize &&
-                name.equals(vendor.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, typeSize, lengthSize);
     }
 
     @Override

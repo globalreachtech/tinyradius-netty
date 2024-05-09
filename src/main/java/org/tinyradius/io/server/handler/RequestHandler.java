@@ -1,14 +1,12 @@
 package org.tinyradius.io.server.handler;
 
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.io.server.RequestCtx;
 
+@Log4j2
 public abstract class RequestHandler extends SimpleChannelInboundHandler<RequestCtx> {
-
-    private final Logger logger = LogManager.getLogger();
 
     /**
      * @return RadiusRequest subclass type that this handler can accept
@@ -26,7 +24,7 @@ public abstract class RequestHandler extends SimpleChannelInboundHandler<Request
         if (acceptedPacketType().isInstance(request)) {
             return true;
         } else {
-            logger.debug("Ignoring {} received - handler only accepts {} packets",
+            log.debug("Ignoring {} received - handler only accepts {} packets",
                     request.getClass().getSimpleName(), acceptedPacketType().getSimpleName());
             return false;
         }

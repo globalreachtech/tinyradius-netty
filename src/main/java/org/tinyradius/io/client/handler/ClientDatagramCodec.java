@@ -4,8 +4,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageCodec;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.response.RadiusResponse;
@@ -21,20 +21,16 @@ import static org.tinyradius.core.packet.response.RadiusResponse.fromDatagram;
  * <p>
  * Only manages datagram conversion, does not call encodeRequest() / decodeResponse().
  */
+@Log4j2
+@RequiredArgsConstructor
 @ChannelHandler.Sharable
 public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, PendingRequestCtx> {
 
-    private static final Logger logger = LogManager.getLogger();
-
     private final Dictionary dictionary;
-
-    public ClientDatagramCodec(Dictionary dictionary) {
-        this.dictionary = dictionary;
-    }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
-        logger.debug("Sending packet to {} - {}", msg.getEndpoint().getAddress(), msg.getRequest());
+        log.debug("Sending packet to {} - {}", msg.getEndpoint().getAddress(), msg.getRequest());
 
         final DatagramPacket datagramPacket = new DatagramPacket(
                 msg.getRequest().toByteBuf(),
@@ -49,17 +45,17 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
         final InetSocketAddress remoteAddress = msg.sender();
 
         if (remoteAddress == null) {
-            logger.warn("Ignoring response, remoteAddress is null");
+            log.warn("Ignoring response, remoteAddress is null");
             return;
         }
 
         try {
             RadiusResponse response = fromDatagram(dictionary, msg);
-            logger.debug("Received packet from {} - {}", remoteAddress, response);
+            log.debug("Received packet from {} - {}", remoteAddress, response);
 
             out.add(response);
         } catch (RadiusPacketException e) {
-            logger.warn("Could not deserialize packet: {}", e.getMessage());
+            log.warn("Could not deserialize packet: {}", e.getMessage());
         }
     }
 }

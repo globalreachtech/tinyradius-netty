@@ -6,8 +6,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
@@ -23,9 +22,8 @@ import java.util.List;
  * then be used to send any number of packets to any endpoints through
  * that socket.
  */
+@Log4j2
 public class RadiusClient implements Closeable {
-
-    private static final Logger logger = LogManager.getLogger();
 
     private final TimeoutHandler timeoutHandler;
     private final EventLoopGroup eventLoopGroup;
@@ -85,9 +83,9 @@ public class RadiusClient implements Closeable {
     public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint) {
         final Promise<RadiusResponse> promise = eventLoopGroup.next().<RadiusResponse>newPromise().addListener(f -> {
             if (f.isSuccess())
-                logger.info("Response received, packet: {}", f.getNow());
+                log.info("Response received, packet: {}", f.getNow());
             else
-                logger.warn(f.cause().getMessage());
+                log.warn(f.cause().getMessage());
         });
 
         channelFuture.addListener(s -> {
@@ -101,7 +99,7 @@ public class RadiusClient implements Closeable {
     }
 
     private void send(PendingRequestCtx ctx, int attempt) {
-        logger.info("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
+        log.info("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
         channelFuture.channel().writeAndFlush(ctx);
         timeoutHandler.onTimeout(() -> send(ctx, attempt + 1), attempt, ctx.getResponse());
     }

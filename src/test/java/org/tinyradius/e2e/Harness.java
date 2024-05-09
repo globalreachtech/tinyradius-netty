@@ -8,8 +8,7 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
@@ -36,9 +35,8 @@ import java.util.stream.Collectors;
 
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
+@Log4j2
 public class Harness {
-
-    private static final Logger logger = LogManager.getLogger();
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final Timer timer = new HashedWheelTimer();
@@ -62,10 +60,10 @@ public class Harness {
             RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, acctPort), secret);
             return requests.stream().map(r -> {
                 RadiusEndpoint endpoint = (r.getType() == ACCESS_REQUEST) ? accessEndpoint : acctEndpoint;
-                logger.info("Packet before it is sent\n{}\n", r);
+                log.info("Packet before it is sent\n{}\n", r);
                 RadiusResponse response = rc.communicate(r, endpoint).syncUninterruptibly().getNow();
-                logger.info("Packet after it was sent\n{}\n", r);
-                logger.info("Response\n{}\n", response);
+                log.info("Packet after it was sent\n{}\n", r);
+                log.info("Response\n{}\n", response);
                 return response;
             }).collect(Collectors.toList());
         }
@@ -111,9 +109,9 @@ public class Harness {
         };
         server.isReady().addListener(future1 -> {
             if (future1.isSuccess()) {
-                logger.info("Origin server started");
+                log.info("Origin server started");
             } else {
-                logger.info("Failed to start origin server", future1.cause());
+                log.info("Failed to start origin server", future1.cause());
                 server.close();
                 eventLoopGroup.shutdownGracefully();
             }
@@ -163,9 +161,9 @@ public class Harness {
 
         server.isReady().addListener(future1 -> {
             if (future1.isSuccess()) {
-                logger.info("Proxy server started");
+                log.info("Proxy server started");
             } else {
-                logger.info("Failed to start proxy server", future1.cause());
+                log.info("Failed to start proxy server", future1.cause());
                 shutdown.run();
                 throw new IOException("Failed to start proxy server: " + future1.cause().getMessage());
             }

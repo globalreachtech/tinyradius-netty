@@ -1,7 +1,7 @@
 package org.tinyradius.io.client.handler;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 import java.net.SocketAddress;
 import java.time.Clock;
@@ -10,19 +10,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Log4j2
+@RequiredArgsConstructor
 public class DefaultBlacklistManager implements BlacklistManager {
-    private static final Logger logger = LogManager.getLogger();
+
     private final long blacklistTtlMs;
     private final int failCountThreshold;
     private final Clock clock;
+
     private final Map<SocketAddress, AtomicInteger> failCounts = new ConcurrentHashMap<>();
     private final Map<SocketAddress, Long> blacklist = new ConcurrentHashMap<>();
-
-    public DefaultBlacklistManager(long blacklistTtlMs, int failCountThreshold, Clock clock) {
-        this.blacklistTtlMs = blacklistTtlMs;
-        this.failCountThreshold = failCountThreshold;
-        this.clock = clock;
-    }
 
     @Override
     public boolean isBlacklisted(SocketAddress socketAddress) {
@@ -39,7 +36,7 @@ public class DefaultBlacklistManager implements BlacklistManager {
 
         // blacklist expired
         reset(socketAddress);
-        logger.info("Endpoint {} removed from blacklist (expired)", socketAddress);
+        log.info("Endpoint {} removed from blacklist (expired)", socketAddress);
         return false;
     }
 
@@ -52,7 +49,7 @@ public class DefaultBlacklistManager implements BlacklistManager {
 
                 // only set if isn't already blacklisted, to avoid delayed responses extending ttl
                 blacklist.put(address, clock.millis() + blacklistTtlMs);
-                logger.debug("Endpoint {} added to blacklist", address);
+                log.debug("Endpoint {} added to blacklist", address);
             }
         }
     }

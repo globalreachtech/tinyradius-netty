@@ -1,9 +1,9 @@
 package org.tinyradius.core.attribute.rfc;
 
-public class Rfc2869 {
+import lombok.experimental.UtilityClass;
 
-    private Rfc2869() {
-    }
+@UtilityClass
+public class Rfc2869 {
 
     public static final byte ARAP_PASSWORD = 70;
     public static final byte ARAP_FEATURES = 71;

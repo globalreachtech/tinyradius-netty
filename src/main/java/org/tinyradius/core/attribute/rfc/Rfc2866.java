@@ -1,9 +1,9 @@
 package org.tinyradius.core.attribute.rfc;
 
-public class Rfc2866 {
+import lombok.experimental.UtilityClass;
 
-    private Rfc2866() {
-    }
+@UtilityClass
+public class Rfc2866 {
 
     public static final byte ACCT_STATUS_TYPE = 40;
     public static final byte ACCT_DELAY_TIME = 41;

@@ -1,6 +1,7 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Optional;
@@ -18,6 +19,7 @@ import java.util.Optional;
  * If Vendor is found, but attribute isn't, we typically use OctetsAttribute instead as
  * we can still read the sub-attribute metadata.
  */
+@Getter
 public class AnonSubAttribute implements RadiusAttribute {
 
     private final Dictionary dictionary;
@@ -31,11 +33,6 @@ public class AnonSubAttribute implements RadiusAttribute {
         this.data = data;
         if (vendorId == -1)
             throw new IllegalArgumentException("Undistinguished sub-attribute vendorId should not be -1, actual: " + vendorId);
-    }
-
-    @Override
-    public int getVendorId() {
-        return vendorId;
     }
 
     @Override
@@ -56,16 +53,6 @@ public class AnonSubAttribute implements RadiusAttribute {
     @Override
     public String getValueString() {
         return "[Unparsable sub-attribute (vendorId " + vendorId + ", length " + data.readableBytes() + ")]";
-    }
-
-    @Override
-    public Dictionary getDictionary() {
-        return dictionary;
-    }
-
-    @Override
-    public ByteBuf getData() {
-        return data;
     }
 
     @Override

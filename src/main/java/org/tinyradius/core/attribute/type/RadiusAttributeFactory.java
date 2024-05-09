@@ -11,14 +11,13 @@ import org.tinyradius.core.dictionary.Vendor;
 
 import java.util.Optional;
 
-public interface RadiusAttributeFactory<U extends RadiusAttribute> {
+public interface RadiusAttributeFactory<T extends RadiusAttribute> {
 
     Logger logger = LogManager.getLogger();
 
-    U newInstance(Dictionary dictionary, int vendorId, ByteBuf value);
+    T newInstance(Dictionary dictionary, int vendorId, ByteBuf value);
 
     byte[] parse(Dictionary dictionary, int vendorId, int type, String value);
-
 
     /**
      * @param dictionary dictionary to set attribute to use
@@ -26,9 +25,9 @@ public interface RadiusAttributeFactory<U extends RadiusAttribute> {
      * @param data       ByteBuf for entire attribute
      * @return new attribute
      */
-    default U create(Dictionary dictionary, int vendorId, ByteBuf data) {
+    default T create(Dictionary dictionary, int vendorId, ByteBuf data) {
         try {
-            final U attribute = newInstance(dictionary, vendorId, data);
+            final T attribute = newInstance(dictionary, vendorId, data);
             logger.trace("Created RadiusAttribute: vendorId: {}, type: {}",
                     attribute.getVendorId(), attribute.getType());
             return attribute;
@@ -46,7 +45,7 @@ public interface RadiusAttributeFactory<U extends RadiusAttribute> {
      * @param value      attribute value as byte array
      * @return new attribute
      */
-    default U create(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
+    default T create(Dictionary dictionary, int vendorId, int type, byte tag, byte[] value) {
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
         final int headerSize = vendor.map(Vendor::getHeaderSize).orElse(2);
 
@@ -77,7 +76,7 @@ public interface RadiusAttributeFactory<U extends RadiusAttribute> {
      * @param value      attribute value as string, converted to byte array based on type defined by vendorId/type code
      * @return new attribute
      */
-    default U create(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
+    default T create(Dictionary dictionary, int vendorId, int type, byte tag, String value) {
         final byte[] bytes = parse(dictionary, vendorId, type, value);
         return create(dictionary, vendorId, type, tag, bytes);
     }

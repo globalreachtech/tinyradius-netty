@@ -1,9 +1,9 @@
 package org.tinyradius.core.attribute.rfc;
 
-public class Rfc2868 {
+import lombok.experimental.UtilityClass;
 
-    private Rfc2868() {
-    }
+@UtilityClass
+public class Rfc2868 {
 
     public static final byte TUNNEL_TYPE = 64;
     public static final byte TUNNEL_MEDIUM_TYPE = 65;

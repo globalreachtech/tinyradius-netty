@@ -1,55 +1,29 @@
 package org.tinyradius.core.attribute.type;
 
-import io.netty.buffer.ByteBuf;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Delegate;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
-import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
+
 /**
  * Wrapper around attributes encoded with one of {@link AttributeCodecType}
  */
+@EqualsAndHashCode
 public class EncodedAttribute implements RadiusAttribute {
 
+    @Delegate
     private final RadiusAttribute delegate;
 
     public EncodedAttribute(RadiusAttribute attribute) {
         delegate = Objects.requireNonNull(attribute);
         if (attribute instanceof EncodedAttribute)
             throw new IllegalArgumentException("Cannot wrap EncodedDecorator twice");
-    }
-
-    @Override
-    public int getVendorId() {
-        return delegate.getVendorId();
-    }
-
-    @Override
-    public int getType() {
-        return delegate.getType();
-    }
-
-    @Override
-    public Optional<Byte> getTag() {
-        return delegate.getTag();
-    }
-
-    @Override
-    public ByteBuf getData() {
-        return delegate.getData();
-    }
-
-    @Override
-    public byte[] getValue() {
-        return delegate.getValue();
-    }
-
-    @Override
-    public String getValueString() {
-        return delegate.getValueString();
     }
 
     @Override
@@ -65,28 +39,10 @@ public class EncodedAttribute implements RadiusAttribute {
     }
 
     @Override
-    public Dictionary getDictionary() {
-        return delegate.getDictionary();
-    }
-
-    @Override
     public String toString() {
-        final AttributeCodecType codecType = getAttributeTemplate()
+        var codecType = getAttributeTemplate()
                 .map(AttributeTemplate::getCodecType)
-                .orElse(AttributeCodecType.NO_ENCRYPT);
+                .orElse(NO_ENCRYPT);
         return "[Encoded: " + codecType.name() + "] " + delegate;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EncodedAttribute)) return false;
-        final EncodedAttribute that = (EncodedAttribute) o;
-        return delegate.equals(that.delegate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(delegate);
     }
 }
