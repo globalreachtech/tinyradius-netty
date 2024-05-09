@@ -19,18 +19,18 @@ public class MemoryDictionary implements WritableDictionary {
     private static final Logger logger = LogManager.getLogger();
 
     private final Map<Integer, Vendor> vendorsByCode = new HashMap<>();
-    private final Map<Integer, Map<Integer, AttributeTemplate<?>>> attributesByCode = new HashMap<>();
-    private final Map<String, AttributeTemplate<?>> attributesByName = new HashMap<>();
+    private final Map<Integer, Map<Integer, AttributeTemplate>> attributesByCode = new HashMap<>();
+    private final Map<String, AttributeTemplate> attributesByName = new HashMap<>();
 
     @Override
-    public Optional<AttributeTemplate<?>> getAttributeTemplate(int vendorCode, int type) {
-        Map<Integer, AttributeTemplate<?>> vendorAttributes = attributesByCode.get(vendorCode);
+    public Optional<AttributeTemplate> getAttributeTemplate(int vendorCode, int type) {
+        Map<Integer, AttributeTemplate> vendorAttributes = attributesByCode.get(vendorCode);
         return Optional.ofNullable(vendorAttributes)
                 .map(va -> va.get(type));
     }
 
     @Override
-    public Optional<AttributeTemplate<?>> getAttributeTemplate(String name) {
+    public Optional<AttributeTemplate> getAttributeTemplate(String name) {
         return Optional.ofNullable(attributesByName.get(name));
     }
 
@@ -71,7 +71,7 @@ public class MemoryDictionary implements WritableDictionary {
      * @throws IllegalArgumentException duplicate attribute name/type code
      */
     @Override
-    public MemoryDictionary addAttributeTemplate(AttributeTemplate<?> attributeTemplate) {
+    public MemoryDictionary addAttributeTemplate(AttributeTemplate attributeTemplate) {
         if (attributeTemplate == null)
             throw new IllegalArgumentException("Attribute definition must not be null");
 
@@ -80,7 +80,7 @@ public class MemoryDictionary implements WritableDictionary {
         final String attributeName = attributeTemplate.getName();
 
         if (attributesByName.containsKey(attributeName)) {
-            final AttributeTemplate<?> existing = attributesByName.get(attributeName);
+            final AttributeTemplate existing = attributesByName.get(attributeName);
             if (existing.equals(attributeTemplate)) {
                 logger.info("Ignoring duplicate attribute definition: {} [{},{}] {}, hasTag={}, encrypt={} ",
                         existing.getName(), existing.getVendorId(), existing.getType(), existing.getDataType(),
@@ -93,7 +93,7 @@ public class MemoryDictionary implements WritableDictionary {
         }
         attributesByName.put(attributeName, attributeTemplate);
 
-        final Map<Integer, AttributeTemplate<?>> vendorAttributes = attributesByCode
+        final Map<Integer, AttributeTemplate> vendorAttributes = attributesByCode
                 .computeIfAbsent(vendorId, k -> new HashMap<>());
 
         // support multiple names with same code for compatibility

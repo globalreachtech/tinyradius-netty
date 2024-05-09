@@ -33,7 +33,6 @@ public interface Dictionary extends CoreDictionary {
     default RadiusAttribute createAttribute(int vendorId, int type, byte tag, byte[] value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
-                .map(a -> (RadiusAttribute) a)
                 .orElseGet(() -> OctetsAttribute.FACTORY.create(this, vendorId, type, tag, value));
     }
 
@@ -75,7 +74,6 @@ public interface Dictionary extends CoreDictionary {
     default RadiusAttribute createAttribute(int vendorId, int type, byte tag, String value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
-                .map(a -> (RadiusAttribute) a)
                 .orElseGet(() -> OctetsAttribute.FACTORY.create(this, vendorId, type, tag, value));
     }
 

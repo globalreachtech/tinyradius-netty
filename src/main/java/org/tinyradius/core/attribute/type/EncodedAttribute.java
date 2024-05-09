@@ -54,7 +54,7 @@ public class EncodedAttribute implements RadiusAttribute {
 
     @Override
     public RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
-        final Optional<AttributeTemplate<?>> template = getAttributeTemplate();
+        final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().decode(this, requestAuth, secret) : delegate;
     }

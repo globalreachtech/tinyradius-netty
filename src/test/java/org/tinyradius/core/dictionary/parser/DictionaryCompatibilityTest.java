@@ -19,7 +19,7 @@ class DictionaryCompatibilityTest {
     void latestFreeRadiusDict() throws IOException {
         final Dictionary dictionary = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary");
-        final Optional<AttributeTemplate<?>> attributeTemplate = dictionary.getAttributeTemplate(6);
+        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
         assertTrue(attributeTemplate.isPresent());
 
         // sanity check
@@ -33,7 +33,7 @@ class DictionaryCompatibilityTest {
     void jradiusDict() throws IOException {
         final Dictionary dictionary = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/jradius/dictionary");
-        final Optional<AttributeTemplate<?>> attributeTemplate = dictionary.getAttributeTemplate(6);
+        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
         assertTrue(attributeTemplate.isPresent());
 
         // sanity check

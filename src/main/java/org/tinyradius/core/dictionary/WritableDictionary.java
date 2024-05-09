@@ -23,5 +23,5 @@ public interface WritableDictionary extends Dictionary {
      * @param attributeTemplate AttributeTemplate to add
      * @return this WritableDictionary
      */
-    WritableDictionary addAttributeTemplate(AttributeTemplate<?> attributeTemplate);
+    WritableDictionary addAttributeTemplate(AttributeTemplate attributeTemplate);
 }

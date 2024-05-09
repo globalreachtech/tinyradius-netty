@@ -21,7 +21,7 @@ import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_PASSWORD;
 /**
  * Represents a Radius attribute type.
  */
-public class AttributeTemplate<T extends RadiusAttribute> {
+public class AttributeTemplate {
 
     private final int vendorId;
     private final int type;
@@ -31,7 +31,7 @@ public class AttributeTemplate<T extends RadiusAttribute> {
     private final boolean tagged;
     private final AttributeCodecType codecType;
 
-    private final RadiusAttributeFactory<T> factory;
+    private final RadiusAttributeFactory<? extends RadiusAttribute> factory;
 
     private final Map<Integer, String> int2str = new HashMap<>();
     private final Map<String, Integer> str2int = new HashMap<>();
@@ -46,7 +46,7 @@ public class AttributeTemplate<T extends RadiusAttribute> {
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or default 0 for none
      * @param hasTag      whether attribute supports tags, as defined in RFC2868, default false
      */
-    public AttributeTemplate(int vendorId, int type, String name, String dataType, RadiusAttributeFactory<T> factory, byte encryptFlag, boolean hasTag) {
+    public AttributeTemplate(int vendorId, int type, String name, String dataType, RadiusAttributeFactory<? extends RadiusAttribute> factory, byte encryptFlag, boolean hasTag) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
         requireNonNull(dataType, "Data type is null");
@@ -67,7 +67,7 @@ public class AttributeTemplate<T extends RadiusAttribute> {
      * @param value      value to set attribute
      * @return new RadiusAttribute
      */
-    public T create(Dictionary dictionary, byte tag, byte[] value) {
+    public RadiusAttribute create(Dictionary dictionary, byte tag, byte[] value) {
         return factory.create(dictionary, vendorId, type, tag, value);
     }
 
@@ -79,7 +79,7 @@ public class AttributeTemplate<T extends RadiusAttribute> {
      * @param value      value to set attribute
      * @return new RadiusAttribute
      */
-    public T create(Dictionary dictionary, byte tag, String value) {
+    public RadiusAttribute create(Dictionary dictionary, byte tag, String value) {
         return factory.create(dictionary, vendorId, type, tag, value);
     }
 
@@ -262,7 +262,7 @@ public class AttributeTemplate<T extends RadiusAttribute> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AttributeTemplate)) return false;
-        final AttributeTemplate<?> that = (AttributeTemplate<?>) o;
+        final AttributeTemplate that = (AttributeTemplate) o;
         return vendorId == that.vendorId &&
                 type == that.type &&
                 tagged == that.tagged &&

@@ -30,15 +30,15 @@ class AttributeTemplateTest {
      */
     @Test
     void testFlagDetection() {
-        final AttributeTemplate<?> template = new AttributeTemplate<>(
+        final AttributeTemplate template = new AttributeTemplate(
                 -1, 1, "TestAttr", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
-        final AttributeTemplate<?> userPassword = new AttributeTemplate<>(
+        final AttributeTemplate userPassword = new AttributeTemplate(
                 -1, 2, "Test-User-Password", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
-        final AttributeTemplate<?> tunnelPassword = new AttributeTemplate<>(
+        final AttributeTemplate tunnelPassword = new AttributeTemplate(
                 -1, 69, "Test-Tunnel-Password", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
-        final AttributeTemplate<?> ascendSend = new AttributeTemplate<>(
+        final AttributeTemplate ascendSend = new AttributeTemplate(
                 529, 214, "Test-Ascend-Send-Secret", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
-        final AttributeTemplate<?> custom = new AttributeTemplate<>(
+        final AttributeTemplate custom = new AttributeTemplate(
                 123, (byte) 123, "Test-Custom", "integer", IntegerAttribute.FACTORY, (byte) 1, true);
 
         final WritableDictionary customDict = new MemoryDictionary()
@@ -85,7 +85,7 @@ class AttributeTemplateTest {
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusAttribute attribute = dictionary.createAttribute("User-Name", username);
-        final AttributeTemplate<?> template = dictionary.getAttributeTemplate("User-Name").get();
+        final AttributeTemplate template = dictionary.getAttributeTemplate("User-Name").get();
 
         final OctetsAttribute encode = (OctetsAttribute) template.encode(attribute, requestAuth, "secret");
         assertEquals(attribute, encode);
@@ -99,7 +99,7 @@ class AttributeTemplateTest {
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusAttribute attribute = dictionary.createAttribute(-1, USER_PASSWORD, pw.getBytes(UTF_8));
-        final AttributeTemplate<?> template = dictionary.getAttributeTemplate(USER_PASSWORD).get();
+        final AttributeTemplate template = dictionary.getAttributeTemplate(USER_PASSWORD).get();
 
         assertArrayEquals(pw.getBytes(UTF_8), attribute.getValue());
         assertFalse(attribute.isEncoded());
@@ -135,7 +135,7 @@ class AttributeTemplateTest {
         final byte[] requestAuth = random.generateSeed(16);
 
         final RadiusAttribute attribute = dictionary.createAttribute(-1, TUNNEL_PASSWORD, tag, pw.getBytes(UTF_8));
-        final AttributeTemplate<?> template = dictionary.getAttributeTemplate(TUNNEL_PASSWORD).get();
+        final AttributeTemplate template = dictionary.getAttributeTemplate(TUNNEL_PASSWORD).get();
 
         assertEquals(tag, attribute.getTag().get());
         assertArrayEquals(pw.getBytes(UTF_8), attribute.getValue());

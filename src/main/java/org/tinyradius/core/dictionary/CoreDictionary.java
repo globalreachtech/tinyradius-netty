@@ -14,7 +14,7 @@ public interface CoreDictionary {
      * @param name attribute name
      * @return AttributeTemplate object or null
      */
-    Optional<AttributeTemplate<?>> getAttributeTemplate(String name);
+    Optional<AttributeTemplate> getAttributeTemplate(String name);
 
     /**
      * Returns the AttributeTemplate for the vendor -1 from the cache.
@@ -22,7 +22,7 @@ public interface CoreDictionary {
      * @param type type 1-255
      * @return AttributeTemplate
      */
-    default Optional<AttributeTemplate<?>> getAttributeTemplate(int type) {
+    default Optional<AttributeTemplate> getAttributeTemplate(int type) {
         return getAttributeTemplate(-1, type);
     }
 
@@ -34,7 +34,7 @@ public interface CoreDictionary {
      * @param type     type 1-255
      * @return AttributeTemplate
      */
-    Optional<AttributeTemplate<?>> getAttributeTemplate(int vendorId, int type);
+    Optional<AttributeTemplate> getAttributeTemplate(int vendorId, int type);
 
     /**
      * Retrieves the vendor with the given vendor code.

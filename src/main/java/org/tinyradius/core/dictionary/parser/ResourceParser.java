@@ -3,6 +3,7 @@ package org.tinyradius.core.dictionary.parser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.attribute.AttributeTemplate;
+import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttributeFactory;
 import org.tinyradius.core.dictionary.MemoryDictionary;
 import org.tinyradius.core.dictionary.Vendor;
@@ -183,7 +184,7 @@ public class ResourceParser {
                 tok[4 + offset].split(",");
 
         dictionary.addAttributeTemplate(
-                new AttributeTemplate<>(vendorId, type, name, dataType, factory, encryptFlag(flags), tagFlag(flags)));
+                new AttributeTemplate(vendorId, type, name, dataType, factory, encryptFlag(flags), tagFlag(flags)));
     }
 
     /**
@@ -292,7 +293,7 @@ public class ResourceParser {
     }
 
     public interface FactoryProvider {
-        RadiusAttributeFactory<?> fromDataType(String dataType);
+        RadiusAttributeFactory<? extends RadiusAttribute> fromDataType(String dataType);
     }
 
 }
