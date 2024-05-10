@@ -43,25 +43,25 @@ class AccessRequestTest {
 
         final AccessRequest papRequest = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null,
                 Collections.singletonList(dictionary.createAttribute(-1, USER_PASSWORD, encodedPw)));
-        assertTrue(papRequest instanceof AccessRequestPap);
+        assertInstanceOf(AccessRequestPap.class, papRequest);
 
         final AccessRequest chapRequest = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null,
                 Collections.singletonList(dictionary.createAttribute(-1, CHAP_PASSWORD, encodedPw)));
-        assertTrue(chapRequest instanceof AccessRequestChap);
+        assertInstanceOf(AccessRequestChap.class, chapRequest);
 
         final AccessRequest eapRequest = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null,
                 Collections.singletonList(dictionary.createAttribute(-1, EAP_MESSAGE, encodedPw)));
-        assertTrue(eapRequest instanceof AccessRequestEap);
+        assertInstanceOf(AccessRequestEap.class, eapRequest);
 
         final AccessRequest unknown = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
-        assertTrue(unknown instanceof AccessRequestNoAuth);
+        assertInstanceOf(AccessRequestNoAuth.class, unknown);
 
         final AccessRequest invalid = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null,
                 Arrays.asList(
                         dictionary.createAttribute(-1, CHAP_PASSWORD, encodedPw),
                         dictionary.createAttribute(-1, EAP_MESSAGE, encodedPw)
                 ));
-        assertTrue(invalid instanceof AccessRequestNoAuth);
+        assertInstanceOf(AccessRequestNoAuth.class, invalid);
     }
 
     /**

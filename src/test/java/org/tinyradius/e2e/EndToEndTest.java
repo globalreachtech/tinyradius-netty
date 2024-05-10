@@ -52,9 +52,9 @@ class EndToEndTest {
         List<RadiusResponse> responses = harness.testClient("localhost", PROXY_ACCESS_PORT, PROXY_ACCT_PORT, PROXY_SECRET,
                 List.of(r1, r2, r3));
 
-        assertEquals(responses.get(0).getType(), ACCESS_ACCEPT);
-        assertEquals(responses.get(1).getType(), ACCOUNTING_RESPONSE);
-        assertEquals(responses.get(2).getType(), ACCESS_REJECT);
+        assertEquals(ACCESS_ACCEPT, responses.get(0).getType());
+        assertEquals(ACCOUNTING_RESPONSE, responses.get(1).getType());
+        assertEquals(ACCESS_REJECT, responses.get(2).getType());
 
         Thread.sleep(1000);
         origin.close();
