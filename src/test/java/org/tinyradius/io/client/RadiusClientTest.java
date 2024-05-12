@@ -1,6 +1,7 @@
 package org.tinyradius.io.client;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
@@ -175,6 +176,7 @@ class RadiusClientTest {
         }
     }
 
+    @ChannelHandler.Sharable
     @RequiredArgsConstructor
     private static class CapturingOutboundHandler extends ChannelOutboundHandlerAdapter {
 
