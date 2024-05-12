@@ -3,16 +3,15 @@ package org.tinyradius.io.server.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.Timer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.tinyradius.io.server.RequestCtx;
 import org.tinyradius.io.server.ResponseCtx;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -20,23 +19,21 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 /**
  * Simple caching handler backed by ConcurrentHashMap, invalidates using {@link Timer}.
  */
+@Log4j2
+@RequiredArgsConstructor
 public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, ResponseCtx> {
 
-    private static final Logger logger = LogManager.getLogger();
-
+    /**
+     * for cache eviction
+     */
     private final Timer timer;
+
+    /**
+     * time for items to stay cached after being returned, in milliseconds
+     */
     private final int ttlMs;
 
     private final Map<Packet, ResponseCtx> requests = new ConcurrentHashMap<>();
-
-    /**
-     * @param timer for cache eviction
-     * @param ttlMs time for items to stay cached after being returned, in milliseconds
-     */
-    public BasicCachingHandler(Timer timer, int ttlMs) {
-        this.timer = timer;
-        this.ttlMs = ttlMs;
-    }
 
     /**
      * @param ctx        ChannelHandlerContext
@@ -63,10 +60,10 @@ public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, Respo
         final ResponseCtx responseContext = requests.get(packet);
 
         if (responseContext != null) {
-            logger.debug("Cache hit, resending response, id: {}, remote address: {}", packet.id, packet.remoteAddress);
+            log.debug("Cache hit, resending response, id: {}, remote address: {}", packet.id, packet.remoteAddress);
             onHit(ctx, requestCtx, responseContext, out);
         } else {
-            logger.debug("Cache miss, handling request, id: {}, remote address: {}", packet.id, packet.remoteAddress);
+            log.debug("Cache miss, handling request, id: {}, remote address: {}", packet.id, packet.remoteAddress);
             onMiss(ctx, requestCtx, out);
         }
     }
@@ -79,37 +76,16 @@ public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, Respo
         out.add(msg);
     }
 
+    @EqualsAndHashCode
+    @RequiredArgsConstructor
     private static class Packet {
 
         private final int id;
         private final InetSocketAddress remoteAddress;
         private final byte[] authenticator;
 
-        private Packet(int id, InetSocketAddress remoteAddress, byte[] authenticator) {
-            this.id = id;
-            this.remoteAddress = remoteAddress;
-            this.authenticator = authenticator;
-        }
-
         private static Packet from(RequestCtx ctx) {
             return new Packet(ctx.getRequest().getId(), ctx.getEndpoint().getAddress(), ctx.getRequest().getAuthenticator());
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Packet packet = (Packet) o;
-            return id == packet.id &&
-                    Objects.equals(remoteAddress, packet.remoteAddress) &&
-                    Arrays.equals(authenticator, packet.authenticator);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = Objects.hash(id, remoteAddress);
-            result = 31 * result + Arrays.hashCode(authenticator);
-            return result;
         }
     }
 }

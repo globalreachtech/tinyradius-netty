@@ -2,7 +2,6 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import org.junit.jupiter.api.Test;
-import org.tinyradius.TestUtils;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -14,6 +13,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 
 import static java.lang.Byte.toUnsignedInt;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.rfc.Rfc2865.CHAP_PASSWORD;
 import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_PASSWORD;
@@ -41,7 +41,7 @@ class OctetsAttributeTest {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 FACTORY.create(dictionary, -1, 3, (byte) 0, oversizedArray)); // CHAP-Password
 
-        assertTrue(TestUtils.getStackTrace(exception).contains("too long"));
+        assertThat(exception).hasMessageContaining("too long");
     }
 
     @Test

@@ -1,11 +1,14 @@
 package org.tinyradius.core.packet;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Packet type codes.
  */
+@UtilityClass
 public class PacketType {
 
     public static final byte ACCESS_REQUEST = 1; // RFC 2865
@@ -65,9 +68,6 @@ public class PacketType {
         map.put(STATUS_REJECT, "Status-Reject");
         map.put(RESERVED, "Reserved");
         return map;
-    }
-
-    private PacketType() {
     }
 
     public static String getPacketTypeName(byte code) {

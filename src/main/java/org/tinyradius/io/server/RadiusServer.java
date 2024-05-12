@@ -9,23 +9,21 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Implements a simple Radius server.
  */
+@Log4j2
 public class RadiusServer implements Closeable {
-
-    private static final Logger logger = LogManager.getLogger();
-
 
     private final List<ChannelFuture> channelFutures;
     private final Promise<Void> isReady;
@@ -60,15 +58,15 @@ public class RadiusServer implements Closeable {
 
         channelFutures = IntStream.range(0, channelHandlers.size())
                 .mapToObj(i -> bootstrap.clone().handler(channelHandlers.get(i)).bind(socketAddresses.get(i)))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         combiner.addAll(channelFutures.toArray(ChannelFuture[]::new));
         combiner.finish(isReady);
         isReady.addListener(f -> {
             final List<SocketAddress> addresses = channelFutures.stream()
                     .map(ChannelFuture::channel)
-                    .map(Channel::localAddress).collect(Collectors.toList());
-            logger.info("Server start success: {} for address {}", f.isSuccess(), addresses);
+                    .map(Channel::localAddress).collect(toList());
+            log.info("Server start success: {} for address {}", f.isSuccess(), addresses);
         });
     }
 
@@ -77,15 +75,15 @@ public class RadiusServer implements Closeable {
     }
 
     public List<Channel> getChannels() {
-        return channelFutures.stream().map(ChannelFuture::channel).collect(Collectors.toList());
+        return channelFutures.stream().map(ChannelFuture::channel).collect(toList());
     }
 
     @Override
     public void close() {
-        logger.info("Closing server on {}", channelFutures.stream()
+        log.info("Closing server on {}", channelFutures.stream()
                 .map(ChannelFuture::channel)
                 .map(Channel::localAddress)
-                .collect(Collectors.toList()));
+                .collect(toList()));
         channelFutures.stream()
                 .map(ChannelFuture::channel)
                 .forEach(ChannelOutboundInvoker::close);

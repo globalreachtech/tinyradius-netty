@@ -74,7 +74,7 @@ class TunnelPasswordCodec extends BaseCodec {
     }
 
     private static byte[] genSalt() {
-        final byte[] randomBytes = new byte[2];
+        var randomBytes = new byte[2];
         RANDOM.nextBytes(randomBytes);
         randomBytes[0] = (byte) (randomBytes[0] | 0b1000_0000); // MSF must be set
         return randomBytes;

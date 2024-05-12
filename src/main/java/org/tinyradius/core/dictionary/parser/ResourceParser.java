@@ -1,7 +1,7 @@
 package org.tinyradius.core.dictionary.parser;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttributeFactory;
@@ -17,13 +17,15 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
+import static java.lang.Integer.parseInt;
 import static org.tinyradius.core.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
 
+@Log4j2
+@RequiredArgsConstructor
 public class ResourceParser {
-
-    private static final Logger logger = LogManager.getLogger();
 
     private final WritableDictionary dictionary;
     private final ResourceResolver resourceResolver;
@@ -35,12 +37,6 @@ public class ResourceParser {
 
     public ResourceParser(ResourceResolver resourceResolver) {
         this(new MemoryDictionary(), resourceResolver, RadiusAttributeFactory::fromDataType);
-    }
-
-    public ResourceParser(WritableDictionary dictionary, ResourceResolver resourceResolver, FactoryProvider factoryProvider) {
-        this.dictionary = dictionary;
-        this.resourceResolver = resourceResolver;
-        this.factoryProvider = factoryProvider;
     }
 
     /**
@@ -114,22 +110,22 @@ public class ResourceParser {
                 parseVendor(tokens, lineNum);
                 break;
             case "BEGIN-TLV":
-                logger.warn("'BEGIN-TLV' not supported - ignoring");
+                log.warn("'BEGIN-TLV' not supported - ignoring");
                 break;
             case "END-TLV":
-                logger.warn("'END-TLV' not supported - ignoring");
+                log.warn("'END-TLV' not supported - ignoring");
                 break;
             case "PROTOCOL":
-                logger.warn("'PROTOCOL' not supported - ignoring");
+                log.warn("'PROTOCOL' not supported - ignoring");
                 break;
             case "BEGIN-PROTOCOL":
-                logger.warn("'BEGIN-PROTOCOL' not supported - ignoring");
+                log.warn("'BEGIN-PROTOCOL' not supported - ignoring");
                 break;
             case "END-PROTOCOL":
-                logger.warn("'END-PROTOCOL' not supported - ignoring");
+                log.warn("'END-PROTOCOL' not supported - ignoring");
                 break;
             case "MEMBER": // for 'struct' compound type
-                logger.warn("'MEMBER' not supported - ignoring");
+                log.warn("'MEMBER' not supported - ignoring");
                 break;
             default:
                 throw new IOException("Could not decode tokens on line " + lineNum + ": " + Arrays.toString(tokens));
@@ -173,7 +169,7 @@ public class ResourceParser {
         if (tok.length < 4 + offset || tok.length > 5 + offset)
             throw new IOException(tok[0] + " parse error on line " + lineNum + ", " + Arrays.toString(tok));
 
-        final int vendorId = offset == 1 ? Integer.parseInt(tok[1]) : currentVendor;
+        final int vendorId = offset == 1 ? parseInt(tok[1]) : currentVendor;
         final String name = tok[1 + offset];
         final int type = validateType(Integer.decode(tok[2 + offset]), vendorId);
         final String dataType = tok[3 + offset];
@@ -196,9 +192,9 @@ public class ResourceParser {
         if (tok.length != 4)
             throw new IOException("VALUE parse error on line " + lineNum + ": " + Arrays.toString(tok));
 
-        final String attributeName = tok[1];
-        final String enumName = tok[2];
-        final String valStr = tok[3];
+        var attributeName = tok[1];
+        var enumName = tok[2];
+        var valStr = tok[3];
 
         return d -> d.getAttributeTemplate(attributeName)
                 .orElseThrow(() -> new RuntimeException(new IOException(
@@ -218,15 +214,15 @@ public class ResourceParser {
 
         try {
             // Legacy TinyRadius format: VENDOR number vendor-name [format]
-            final int id = Integer.parseInt(tok[1]);
-            final String name = tok[2];
+            var id = parseInt(tok[1]);
+            var name = tok[2];
 
             dictionary.addVendor(new Vendor(id, name, format[0], format[1]));
         } catch (NumberFormatException e) {
             // FreeRadius format: VENDOR vendor-name number [format]
             try {
-                final String name = tok[1];
-                final int id = Integer.parseInt(tok[2]);
+                var name = tok[1];
+                var id = parseInt(tok[2]);
 
                 dictionary.addVendor(new Vendor(id, name, format[0], format[1]));
             } catch (NumberFormatException e1) {
@@ -242,8 +238,8 @@ public class ResourceParser {
         if (tok.length != 2)
             throw new IOException("Dictionary include parse error on line " + lineNum + ": " + Arrays.toString(tok));
 
-        final String includeFile = tok[1];
-        final String nextResource = resourceResolver.resolve(currentResource, includeFile);
+        var includeFile = tok[1];
+        var nextResource = resourceResolver.resolve(currentResource, includeFile);
 
         if (!nextResource.isEmpty())
             parseDictionary(nextResource);
@@ -267,12 +263,12 @@ public class ResourceParser {
             final String[] values = flag.substring(7).split(",");
             if (values.length == 2)
                 try {
-                    return new int[]{Integer.parseInt(values[0]), Integer.parseInt(values[1])};
+                    return new int[]{parseInt(values[0]), parseInt(values[1])};
                 } catch (Exception ignored) {
                     // use default [1,1]
                 }
         }
-        logger.warn("Ignoring vendor flag - invalid format: {}", flag);
+        log.warn("Ignoring vendor flag - invalid format: {}", flag);
         return new int[]{1, 1};
     }
 
@@ -285,11 +281,7 @@ public class ResourceParser {
     }
 
     private boolean tagFlag(String[] flags) {
-        for (final String flag : flags) {
-            if (flag.equals("has_tag"))
-                return true;
-        }
-        return false;
+        return Set.of(flags).contains("has_tag");
     }
 
     public interface FactoryProvider {

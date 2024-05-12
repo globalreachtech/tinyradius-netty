@@ -2,8 +2,10 @@ package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
@@ -11,25 +13,26 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
  */
+@Getter
+@Log4j2
+@EqualsAndHashCode
 public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements RadiusPacket<T> {
-
-    private static final Logger logger = LogManager.getLogger();
 
     private static final int HEADER_LENGTH = 20;
     private static final int CHILD_VENDOR_ID = -1;
 
     private final Dictionary dictionary;
+
     private final ByteBuf header;
     private final List<RadiusAttribute> attributes;
 
-    protected BaseRadiusPacket(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        this.dictionary = Objects.requireNonNull(dictionary, "Dictionary is null");
-        this.header = Objects.requireNonNull(header);
+    protected BaseRadiusPacket(@NonNull Dictionary dictionary, @NonNull ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        this.dictionary = dictionary;
+        this.header = header;
         this.attributes = List.copyOf(attributes);
 
         if (header.readableBytes() != HEADER_LENGTH)
@@ -53,33 +56,6 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     @Override
     public ByteBuf getHeader() {
         return Unpooled.unreleasableBuffer(header);
-    }
-
-    @Override
-    public byte getId() {
-        return header.getByte(1);
-    }
-
-    @Override
-    public byte getType() {
-        return header.getByte(0);
-    }
-
-    @Override
-    public List<RadiusAttribute> getAttributes() {
-        return attributes;
-    }
-
-    @Override
-    public byte[] getAuthenticator() {
-        final byte[] array = header.slice(4, 16).copy().array();
-        return Arrays.equals(array, new byte[array.length]) ?
-                null : array;
-    }
-
-    @Override
-    public Dictionary getDictionary() {
-        return dictionary;
     }
 
     @Override
@@ -127,7 +103,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
                     .anyMatch(a -> !a.isEncoded());
 
             if (decodedAlready)
-                logger.info("Skipping Packet Authenticator check - attributes have been decrypted already");
+                log.info("Skipping Packet Authenticator check - attributes have been decrypted already");
             else
                 throw new RadiusPacketException("Packet Authenticator check failed - bad authenticator or shared secret");
         }
@@ -135,7 +111,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     @Override
     public String toString() {
-        final StringBuilder s = new StringBuilder()
+        var s = new StringBuilder()
                 .append(PacketType.getPacketTypeName(getType()))
                 .append(", ID ").append(getId())
                 .append(", len ").append(getLength());
@@ -149,20 +125,5 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         }
 
         return s.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BaseRadiusPacket)) return false;
-        final BaseRadiusPacket<?> that = (BaseRadiusPacket<?>) o;
-        return header.equals(that.header) &&
-                attributes.equals(that.attributes) &&
-                dictionary.equals(that.dictionary);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(header, attributes, dictionary);
     }
 }

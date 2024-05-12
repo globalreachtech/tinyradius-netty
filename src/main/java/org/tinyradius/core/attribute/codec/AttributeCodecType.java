@@ -1,10 +1,15 @@
 package org.tinyradius.core.attribute.codec;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.util.Arrays;
 
 /**
  * Attribute encryption methods as used in FreeRadius dictionary files
  */
+@Getter
+@RequiredArgsConstructor
 public enum AttributeCodecType {
     NO_ENCRYPT(
             (byte) 0, new NoOpCodec()),
@@ -17,19 +22,6 @@ public enum AttributeCodecType {
 
     private final byte id;
     private final BaseCodec codec;
-
-    AttributeCodecType(byte id, BaseCodec codec) {
-        this.id = id;
-        this.codec = codec;
-    }
-
-    public byte getId() {
-        return id;
-    }
-
-    public BaseCodec getCodec() {
-        return codec;
-    }
 
     public static AttributeCodecType fromEncryptFlagId(byte id) {
         return Arrays.stream(values())

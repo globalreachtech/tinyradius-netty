@@ -29,28 +29,28 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
 
         byte[] addressBytes = address.getAddress();
 
-        if (prefixLength < 128) {
-            // Ensure bits beyond Prefix-Length are zero
-            // Check that the first byte that must have some zeroed bits is conformant. This first one is special because the
-            // comparison requires masking some bits, not the full byte should be zero
-            boolean passed = (addressBytes[prefixLength / 8] & 0xff & (0xff >> prefixLength - 8 * (prefixLength / 8))) == 0;
-            // Check the rest of the bytes
-            for (int i = prefixLength / 8 + 1; i < 16; i++) {
-                passed = passed && (addressBytes[i] == 0);
-            }
+        if (prefixLength < 128 && !bitsOutsidePrefixLengthZero(addressBytes, prefixLength))
+            throw new IllegalArgumentException("Prefix-Length is " + prefixLength + ", bits outside of the Prefix-Length must be zero");
 
-            // Throw exception if validation is not passed
-            if (!passed)
-                throw new IllegalArgumentException("Prefix-Length is " + prefixLength + ", bits outside of the Prefix-Length must be zero");
-        }
 
-        final int prefixBytes = (int) Math.ceil((double) prefixLength / 8); // bytes needed to hold bits
+        int prefixBytes = (int) Math.ceil((double) prefixLength / 8); // bytes needed to hold bits
 
         return ByteBuffer.allocate(2 + prefixBytes)
                 .put((byte) 0)
                 .put((byte) prefixLength)
                 .put(Arrays.copyOfRange(addressBytes, 0, prefixBytes))
                 .array();
+    }
+
+    private static boolean bitsOutsidePrefixLengthZero(byte[] addressBytes, int prefixLength) {
+        // Check that the first byte that must have some zeroed bits is conformant. This first one is special because the
+        // comparison requires masking some bits, not the full byte should be zero
+        boolean passed = (addressBytes[prefixLength / 8] & 0xff & (0xff >> prefixLength - 8 * (prefixLength / 8))) == 0;
+        // Check the rest of the bytes
+        for (int i = prefixLength / 8 + 1; i < 16; i++) {
+            passed = passed && (addressBytes[i] == 0);
+        }
+        return passed;
     }
 
     private static InetAddress convertString(String value) {

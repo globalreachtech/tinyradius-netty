@@ -1,7 +1,6 @@
 package org.tinyradius.core.dictionary;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.attribute.AttributeTemplate;
 
 import java.util.HashMap;
@@ -14,9 +13,8 @@ import java.util.Optional;
  * methods <code>addAttributeTemplate</code> and
  * <code>addVendor</code>.
  */
+@Log4j2
 public class MemoryDictionary implements WritableDictionary {
-
-    private static final Logger logger = LogManager.getLogger();
 
     private final Map<Integer, Vendor> vendorsByCode = new HashMap<>();
     private final Map<Integer, Map<Integer, AttributeTemplate>> attributesByCode = new HashMap<>();
@@ -52,7 +50,7 @@ public class MemoryDictionary implements WritableDictionary {
         final Optional<Vendor> existing = getVendor(vendor.getId());
         if (existing.isPresent()) {
             if (existing.get().equals(vendor)) {
-                logger.info("Ignoring duplicate vendor definition: {}", vendor);
+                log.info("Ignoring duplicate vendor definition: {}", vendor);
                 return this;
             } else {
                 throw new IllegalArgumentException("Duplicate vendor code: " + vendor.getId() +
@@ -82,7 +80,7 @@ public class MemoryDictionary implements WritableDictionary {
         if (attributesByName.containsKey(attributeName)) {
             final AttributeTemplate existing = attributesByName.get(attributeName);
             if (existing.equals(attributeTemplate)) {
-                logger.info("Ignoring duplicate attribute definition: {} [{},{}] {}, hasTag={}, encrypt={} ",
+                log.info("Ignoring duplicate attribute definition: {} [{},{}] {}, hasTag={}, encrypt={} ",
                         existing.getName(), existing.getVendorId(), existing.getType(), existing.getDataType(),
                         existing.isTagged(), existing.getCodecType());
                 return this;
@@ -98,7 +96,7 @@ public class MemoryDictionary implements WritableDictionary {
 
         // support multiple names with same code for compatibility
         if (vendorAttributes.containsKey(typeCode))
-            logger.warn("Duplicate type code [{},{}], overwriting {} with {}",
+            log.warn("Duplicate type code [{},{}], overwriting {} with {}",
                     vendorId, Integer.toUnsignedLong(typeCode), vendorAttributes.get(typeCode).getName(), attributeTemplate.getName());
 
         vendorAttributes.put(typeCode, attributeTemplate);

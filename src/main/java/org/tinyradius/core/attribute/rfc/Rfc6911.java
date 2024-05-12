@@ -1,9 +1,9 @@
 package org.tinyradius.core.attribute.rfc;
 
-public class Rfc6911 {
+import lombok.experimental.UtilityClass;
 
-    private Rfc6911() {
-    }
+@UtilityClass
+public class Rfc6911 {
 
     public static final byte FRAMED_IPV6_ADDRESS = (byte) 168;
     public static final byte DNS_SERVER_IPV6_ADDRESS = (byte) 169;

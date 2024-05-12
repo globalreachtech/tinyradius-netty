@@ -17,7 +17,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Partial implementation for encoding/verifying Message-Authenticator (RFC 2869)
@@ -90,7 +89,6 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
     }
 
     default byte[] computeMessageAuth(RadiusPacket<?> packet, String sharedSecret, byte[] requestAuth) {
-        Objects.requireNonNull(requestAuth, "Request Authenticator cannot be null for Message-Authenticator hashing");
         final byte[] messageAuthInput = calcMessageAuthInput(packet, requestAuth);
         return getHmacMd5(sharedSecret).doFinal(messageAuthInput);
     }

@@ -237,7 +237,7 @@ class PromiseAdapterTest {
         RadiusRequest packet = ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) id, null, Collections.emptyList()))
                 .withPapPassword(password)
                 .addAttribute(1, username);
-        assertTrue(packet instanceof AccessRequestPap);
+        assertInstanceOf(AccessRequestPap.class, packet);
         final RadiusEndpoint endpoint = new RadiusEndpoint(address, secret);
 
         // make packet too long to force encoder error

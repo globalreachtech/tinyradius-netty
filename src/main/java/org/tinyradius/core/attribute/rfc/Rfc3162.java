@@ -1,9 +1,9 @@
 package org.tinyradius.core.attribute.rfc;
 
-public class Rfc3162 {
+import lombok.experimental.UtilityClass;
 
-    private Rfc3162() {
-    }
+@UtilityClass
+public class Rfc3162 {
 
     public static final byte NAS_IPV6_ADDRESS = 95;
     public static final byte FRAMED_INTERFACE_ID = 96;

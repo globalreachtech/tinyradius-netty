@@ -1,6 +1,8 @@
 package org.tinyradius.core.attribute;
 
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
+import lombok.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.attribute.type.EncodedAttribute;
@@ -13,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static lombok.AccessLevel.NONE;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
 import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_PASSWORD;
 import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_PASSWORD;
@@ -21,19 +23,40 @@ import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_PASSWORD;
 /**
  * Represents a Radius attribute type.
  */
+@Getter
 public class AttributeTemplate {
 
+    /**
+     * vendor ID or -1 if not applicable
+     */
     private final int vendorId;
+    /**
+     * Radius type code for this attribute e.g. '1' (for User-Name)
+     */
     private final int type;
+    /**
+     * name of type e.g. 'User-Name'
+     */
     private final String name;
+    /**
+     * string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
+     */
     private final String dataType;
 
+    /**
+     * whether attribute supports Tag field as per RFC2868
+     */
     private final boolean tagged;
+    /**
+     * one of AttributeCodecType enum, defaults to NO_ENCRYPT for none
+     */
     private final AttributeCodecType codecType;
 
     private final RadiusAttributeFactory<? extends RadiusAttribute> factory;
 
+    @Getter(NONE)
     private final Map<Integer, String> int2str = new HashMap<>();
+    @Getter(NONE)
     private final Map<String, Integer> str2int = new HashMap<>();
 
     /**
@@ -46,10 +69,9 @@ public class AttributeTemplate {
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or default 0 for none
      * @param hasTag      whether attribute supports tags, as defined in RFC2868, default false
      */
-    public AttributeTemplate(int vendorId, int type, String name, String dataType, RadiusAttributeFactory<? extends RadiusAttribute> factory, byte encryptFlag, boolean hasTag) {
-        if (name == null || name.isEmpty())
+    public AttributeTemplate(int vendorId, int type, @NonNull String name, @NonNull String dataType, RadiusAttributeFactory<? extends RadiusAttribute> factory, byte encryptFlag, boolean hasTag) {
+        if (name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
-        requireNonNull(dataType, "Data type is null");
         this.vendorId = vendorId;
         this.type = type;
         this.name = name;
@@ -117,50 +139,8 @@ public class AttributeTemplate {
                 factory.create(dictionary, vendorId, type, tag, encodedValue);
     }
 
-    /**
-     * @return Radius type code for this attribute e.g. '1' (for User-Name)
-     */
-    public int getType() {
-        return type;
-    }
-
-    /**
-     * @return name of type e.g. 'User-Name'
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @return vendor ID or -1 if not applicable
-     */
-    public int getVendorId() {
-        return vendorId;
-    }
-
-    /**
-     * @return string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
-     */
-    public String getDataType() {
-        return dataType;
-    }
-
-    /**
-     * @return whether attribute supports Tag field as per RFC2868
-     */
-    public boolean isTagged() {
-        return tagged;
-    }
-
     public boolean isEncrypt() {
         return codecType != NO_ENCRYPT;
-    }
-
-    /**
-     * @return one of AttributeCodecType enum, defaults to NO_ENCRYPT for none
-     */
-    public AttributeCodecType getCodecType() {
-        return codecType;
     }
 
     /**

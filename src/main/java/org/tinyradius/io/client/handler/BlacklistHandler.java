@@ -3,8 +3,8 @@ package org.tinyradius.io.client.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.tinyradius.io.client.PendingRequestCtx;
 
 import java.io.IOException;
@@ -18,15 +18,11 @@ import java.time.Clock;
  * outcomes to catch all failure scenarios (e.g. timeouts). However, the earlier it's hooked, the
  * sooner it can fail fast the request if the endpoint is blacklisted.
  */
+@Log4j2
+@RequiredArgsConstructor
 public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
 
-    private static final Logger logger = LogManager.getLogger();
-
     private final BlacklistManager blacklistManager;
-
-    public BlacklistHandler(BlacklistManager blacklistManager) {
-        this.blacklistManager = blacklistManager;
-    }
 
     public BlacklistHandler(long blacklistTtlMs, int failCountThreshold, Clock clock) {
         this(new DefaultBlacklistManager(blacklistTtlMs, failCountThreshold, clock));
@@ -43,7 +39,7 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
             final InetSocketAddress address = request.getEndpoint().getAddress();
 
             if (blacklistManager.isBlacklisted(address)) {
-                logger.debug("Endpoint blacklisted: {}", address);
+                log.debug("Endpoint blacklisted: {}", address);
                 request.getRequest().toByteBuf().release();
                 request.getResponse().tryFailure(new IOException("Client send failed - endpoint blacklisted: " + address));
                 return;

@@ -16,7 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Basic attribute holder, for VendorSpecificAttribute (to hold sub-attributes) or RadiusPackets
@@ -114,7 +115,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
         if (length < typeSize + lengthSize)
             throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >= typeSize + lengthSize, " +
-                                               "but typeSize=" + typeSize + ", lengthSize=" + lengthSize);
+                    "but typeSize=" + typeSize + ", lengthSize=" + lengthSize);
 
         if (length > data.readableBytes())
             throw new IllegalArgumentException("Invalid attribute length " + length + ", parsable bytes " + data.readableBytes());
@@ -172,11 +173,9 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return list of RadiusAttribute objects, or empty list
      */
     default List<RadiusAttribute> getAttributes(String name) {
-        final Optional<AttributeTemplate> type = getDictionary().getAttributeTemplate(name);
-        if (type.isPresent())
-            return getAttributes(type.get());
-
-        throw new IllegalArgumentException("Unknown attribute type name'" + name + "'");
+        return getDictionary().getAttributeTemplate(name)
+                .map(this::getAttributes)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown attribute type name'" + name + "'"));
     }
 
     /**
@@ -188,7 +187,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     default List<RadiusAttribute> getAttributes(Predicate<RadiusAttribute> filter) {
         return getAttributes().stream()
                 .filter(filter)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     /**
@@ -227,9 +226,9 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     default T addAttribute(RadiusAttribute attribute) throws RadiusPacketException {
         if (attribute.getVendorId() != getChildVendorId())
             throw new IllegalArgumentException("Attribute vendor ID doesn't match: " +
-                                               "required " + getChildVendorId() + ", actual " + attribute.getVendorId());
+                    "required " + getChildVendorId() + ", actual " + attribute.getVendorId());
 
-        final ArrayList<RadiusAttribute> attributes = new ArrayList<>(getAttributes());
+        var attributes = new ArrayList<>(getAttributes());
         attributes.add(attribute);
         return withAttributes(attributes);
     }
@@ -285,7 +284,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @throws RadiusPacketException packet validation exceptions
      */
     default T removeLastAttribute(int type) throws RadiusPacketException {
-        List<RadiusAttribute> attributes = getAttributes(type);
+        var attributes = getAttributes(type);
         if (attributes.isEmpty())
             return withAttributes(getAttributes());
 

@@ -91,7 +91,7 @@ class BaseRadiusPacketTest {
         final StubPacket rp1 = new StubPacket()
                 .addAttribute("WISPr-Location-ID", "myLocationId");
         assertEquals(1, rp1.getAttributes().size());
-        assertTrue(rp1.getAttributes().get(0) instanceof VendorSpecificAttribute);
+        assertInstanceOf(VendorSpecificAttribute.class, rp1.getAttributes().get(0));
 
         final StubPacket rp2 = rp1.removeAttributes(14122, 1);
         assertTrue(rp2.getAttributes().isEmpty());

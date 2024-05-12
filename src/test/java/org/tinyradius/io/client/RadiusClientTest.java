@@ -10,6 +10,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
@@ -181,15 +182,11 @@ class RadiusClientTest {
         assertEquals(1, request.toByteBuf().refCnt()); // unpooled, let GC handle it
     }
 
-
+    @RequiredArgsConstructor
     private static class CapturingOutboundHandler extends ChannelOutboundHandlerAdapter {
 
         private final Consumer<Promise<RadiusResponse>> failFast;
         private final List<PendingRequestCtx> requests = new ArrayList<>();
-
-        private CapturingOutboundHandler(Consumer<Promise<RadiusResponse>> failFast) {
-            this.failFast = failFast;
-        }
 
         public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
             final PendingRequestCtx reqCtx = (PendingRequestCtx) msg;

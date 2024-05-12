@@ -2,33 +2,36 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import jakarta.xml.bind.DatatypeConverter;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
-import java.util.Objects;
 import java.util.Optional;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * The basic generic Radius attribute. All type-specific implementations extend this class
  * by adding additional type conversion methods and validations.
  */
+@Getter
+@EqualsAndHashCode
 public class OctetsAttribute implements RadiusAttribute {
 
     public static final RadiusAttributeFactory<OctetsAttribute> FACTORY = new Factory();
 
+    @EqualsAndHashCode.Exclude
     private final Dictionary dictionary;
 
     private final ByteBuf data;
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
-    public OctetsAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
-        this.dictionary = requireNonNull(dictionary, "Dictionary not set");
+    public OctetsAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
+        this.dictionary = dictionary;
         this.vendorId = vendorId;
-        this.data = requireNonNull(data, "Attribute data not set");
+        this.data = data;
 
         final int actualLength = data.readableBytes();
         if (actualLength > 255)
@@ -55,11 +58,6 @@ public class OctetsAttribute implements RadiusAttribute {
         }
     }
 
-    @Override
-    public int getVendorId() {
-        return vendorId;
-    }
-
     /**
      * @return RFC2868 Tag
      */
@@ -83,16 +81,6 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     @Override
-    public Dictionary getDictionary() {
-        return dictionary;
-    }
-
-    @Override
-    public ByteBuf getData() {
-        return data;
-    }
-
-    @Override
     public String toString() {
         final String tag = getTag()
                 .map(t -> ":" + t)
@@ -106,26 +94,6 @@ public class OctetsAttribute implements RadiusAttribute {
         return template.isPresent() ?
                 template.get().encode(this, requestAuth, secret) :
                 this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof OctetsAttribute)) return false;
-        OctetsAttribute that = (OctetsAttribute) o;
-        return getVendorId() == that.getVendorId() &&
-                data.equals(that.data);
-        /*
-         * https://netty.io/4.1/api/io/netty/buffer/ByteBuf.html#equals-java.lang.Object-
-         * Determines if the content of the specified buffer is identical to the content of this array. 'Identical' here means:
-         * the size of the contents of the two buffers are same and
-         * every single byte of the content of the two buffers are same.
-         */
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(data, getVendorId());
     }
 
     public static byte[] stringHexParser(String value) {

@@ -2,6 +2,8 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -14,13 +16,18 @@ import java.util.List;
 /**
  * Vendor-Specific attribute. Both an attribute itself and an attribute container for sub-attributes.
  */
+@Getter
+@EqualsAndHashCode(callSuper = true) // fields `attributes`/`childVendorId` are derived from byteBuf
 public class VendorSpecificAttribute extends OctetsAttribute implements AttributeHolder<VendorSpecificAttribute> {
 
     public static final RadiusAttributeFactory<VendorSpecificAttribute> FACTORY = new Factory();
 
     public static final byte VENDOR_SPECIFIC = 26;
 
+    @EqualsAndHashCode.Exclude
     private final int childVendorId;
+
+    @EqualsAndHashCode.Exclude
     private final List<RadiusAttribute> attributes;
 
     /**
@@ -89,16 +96,6 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     }
 
     @Override
-    public int getChildVendorId() {
-        return childVendorId;
-    }
-
-    @Override
-    public List<RadiusAttribute> getAttributes() {
-        return attributes;
-    }
-
-    @Override
     public VendorSpecificAttribute withAttributes(List<RadiusAttribute> attributes) {
         return new VendorSpecificAttribute(getDictionary(), getChildVendorId(), attributes);
     }
@@ -120,8 +117,8 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Vendor-Specific: Vendor ID ").append(getChildVendorId());
+        var sb = new StringBuilder()
+                .append("Vendor-Specific: Vendor ID ").append(getChildVendorId());
         getDictionary()
                 .getVendor(getChildVendorId())
                 .map(Vendor::getName)
@@ -130,17 +127,6 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
             sb.append("\n  ").append(sa.toString());
         }
         return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        // fields in subclass (attributes/childVendorId) are derived from byteBuf
-        return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
     }
 
     private static class Factory implements RadiusAttributeFactory<VendorSpecificAttribute> {

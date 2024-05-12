@@ -1,9 +1,9 @@
 package org.tinyradius.core.attribute.rfc;
 
-public class Rfc6572 {
+import lombok.experimental.UtilityClass;
 
-    private Rfc6572() {
-    }
+@UtilityClass
+public class Rfc6572 {
 
     public static final byte MOBILE_NODE_IDENTIFIER = (byte) 145;
     public static final byte SERVICE_SELECTION = (byte) 146;

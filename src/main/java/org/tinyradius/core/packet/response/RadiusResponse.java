@@ -7,20 +7,21 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.PacketType;
 import org.tinyradius.core.packet.RadiusPacket;
 
 import java.util.List;
+
+import static org.tinyradius.core.packet.PacketType.*;
 
 public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
 
     static RadiusResponse create(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         switch (header.getByte(0)) {
-            case PacketType.ACCESS_ACCEPT:
+            case ACCESS_ACCEPT:
                 return new AccessResponse.Accept(dictionary, header, attributes);
-            case PacketType.ACCESS_REJECT:
+            case ACCESS_REJECT:
                 return new AccessResponse.Reject(dictionary, header, attributes);
-            case PacketType.ACCESS_CHALLENGE:
+            case ACCESS_CHALLENGE:
                 return new AccessResponse.Challenge(dictionary, header, attributes);
             default:
                 return new GenericResponse(dictionary, header, attributes);

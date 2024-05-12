@@ -1,9 +1,9 @@
 package org.tinyradius.core.attribute.rfc;
 
-public class Rfc2865 {
+import lombok.experimental.UtilityClass;
 
-    private Rfc2865() {
-    }
+@UtilityClass
+public class Rfc2865 {
 
     public static final byte USER_NAME = 1;
     public static final byte USER_PASSWORD = 2;
