@@ -16,9 +16,9 @@ import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.attribute.AttributeTypes.TUNNEL_PASSWORD;
+import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
-import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_PASSWORD;
-import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_PASSWORD;
 
 class AttributeTemplateTest {
 

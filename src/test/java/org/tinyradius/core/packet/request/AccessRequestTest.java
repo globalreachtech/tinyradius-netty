@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.attribute.AttributeTypes.*;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
-import static org.tinyradius.core.packet.request.AccessRequest.*;
 
 class AccessRequestTest {
 

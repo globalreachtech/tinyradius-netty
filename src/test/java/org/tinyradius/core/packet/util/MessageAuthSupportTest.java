@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.RadiusPacket.buildHeader;
 
@@ -62,7 +63,7 @@ class MessageAuthSupportTest {
         jradiusRequest.setAuthenticator(encodedRequest.getAuthenticator());
         jRadius_generateRequestMessageAuthenticator(jradiusRequest);
 
-        final byte[] jradiusMsgAuth = jradiusRequest.getAttributes().get(MessageAuthSupport.MESSAGE_AUTHENTICATOR).getValue().getBytes();
+        final byte[] jradiusMsgAuth = jradiusRequest.getAttributes().get(MESSAGE_AUTHENTICATOR).getValue().getBytes();
 
         assertArrayEquals(jradiusMsgAuth, actualMsgAuth);
     }
@@ -74,7 +75,7 @@ class MessageAuthSupportTest {
         final byte[] hash = new byte[16];
         final ByteBuffer buffer = ByteBuffer.allocate(4096);
 
-        final Attr_UnknownAttribute attribute = new Attr_UnknownAttribute(MessageAuthSupport.MESSAGE_AUTHENTICATOR);
+        final Attr_UnknownAttribute attribute = new Attr_UnknownAttribute(MESSAGE_AUTHENTICATOR);
         attribute.setValue(hash);
 
         request.overwriteAttribute(attribute);

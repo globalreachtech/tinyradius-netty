@@ -1,6 +1,7 @@
 package org.tinyradius.io.client;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
@@ -8,7 +9,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,6 @@ import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
@@ -58,132 +57,139 @@ class RadiusClientTest {
 
     @Test
     void communicateWithTimeout() throws RadiusPacketException {
-        RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new CapturingOutboundHandler(a -> {
-        }));
+        var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
-        final TimeoutException e = assertThrows(TimeoutException.class,
-                () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
+        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.NOOP)) {
+            final TimeoutException e = assertThrows(TimeoutException.class,
+                    () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
 
-        assertTrue(e.getMessage().toLowerCase().contains("max attempts reached"));
-        verify(timeoutHandler).onTimeout(any(), anyInt(), any());
+            assertTrue(e.getMessage().toLowerCase().contains("max attempts reached"));
+            verify(timeoutHandler).onTimeout(any(), anyInt(), any());
+        }
     }
 
     @Test
     void communicateSuccess() throws RadiusPacketException {
-        final byte id = (byte) random.nextInt(256);
-        final RadiusResponse response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, Collections.emptyList());
-        final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(a -> a.trySuccess(response));
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
+        var id = (byte) random.nextInt(256);
+        var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
+        var response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, List.of());
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
-        final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
+        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.of(response))) {
+            var future = radiusClient.communicate(request, stubEndpoint);
 
-        await().until(future::isDone);
-        assertTrue(future.isSuccess());
-        assertSame(response, future.getNow());
+            await().until(future::isDone);
+            assertTrue(future.isSuccess());
+            assertSame(response, future.getNow());
+        }
     }
 
     @Test
     void outboundError() throws RadiusPacketException {
-        final Exception expectedException = new Exception("test 123");
-        final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(p -> p.tryFailure(expectedException));
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
+        var exception = new Exception("test 123");
+        var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
-        final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
+        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.of(exception))) {
+            var future = radiusClient.communicate(request, stubEndpoint);
 
-        await().until(future::isDone);
-        assertFalse(future.isSuccess());
-        assertSame(expectedException, future.cause());
+            await().until(future::isDone);
+            assertFalse(future.isSuccess());
+            assertSame(exception, future.cause());
+        }
     }
 
     @Test
     void communicateEndpointListFirstSuccess() throws RadiusPacketException {
-        final byte id = (byte) random.nextInt(256);
-        final RadiusResponse response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, Collections.emptyList());
-        final CapturingOutboundHandler capturingOutboundHandler = spy(new CapturingOutboundHandler(p -> p.trySuccess(response)));
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
+        byte id = (byte) random.nextInt(256);
+        var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
+        var response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, List.of());
+        var capturingOutboundHandler = CapturingOutboundHandler.of(response);
 
-        final InetSocketAddress address2 = new InetSocketAddress(1);
-        final RadiusEndpoint stubEndpoint2 = new RadiusEndpoint(address2, "secret2"); // never used
+        var stubEndpoint2 = new RadiusEndpoint(new InetSocketAddress(1), "secret2"); // never used
+        var stubEndpoint3 = new RadiusEndpoint(new InetSocketAddress(2), "secret3"); // never used
+        var endpoints = Arrays.asList(stubEndpoint, stubEndpoint2, stubEndpoint3);
 
-        final InetSocketAddress address3 = new InetSocketAddress(2);
-        final RadiusEndpoint stubEndpoint3 = new RadiusEndpoint(address3, "secret3"); // never used
+        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler)) {
+            var future = radiusClient.communicate(request, endpoints);
 
-        final List<RadiusEndpoint> endpoints = Arrays.asList(stubEndpoint, stubEndpoint2, stubEndpoint3);
+            await().until(future::isDone);
+            assertTrue(future.isSuccess());
+            assertEquals(response, future.getNow());
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
-        final Future<RadiusResponse> future = radiusClient.communicate(request, endpoints);
-
-        await().until(future::isDone);
-        assertTrue(future.isSuccess());
-        assertEquals(response, future.getNow());
-
-        assertEquals(1, capturingOutboundHandler.requests.size());
-        assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().getSecret());
+            assertEquals(1, capturingOutboundHandler.requests.size());
+            assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().getSecret());
+        }
     }
 
     @Test
     void communicateEndpointListEmpty() throws RadiusPacketException {
-        final Exception expectedException = new Exception("test 123");
-        final CapturingOutboundHandler capturingOutboundHandler = spy(new CapturingOutboundHandler(p -> p.tryFailure(expectedException)));
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
+        var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
+        var exception = new Exception("test 123");
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
-        final Future<RadiusResponse> future = radiusClient.communicate(request, Collections.emptyList());
+        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.of(exception))) {
+            var future = radiusClient.communicate(request, List.of());
 
-        await().until(future::isDone);
-        assertFalse(future.isSuccess());
-        assertTrue(future.cause().getMessage().contains("no valid endpoints"));
+            await().until(future::isDone);
+            assertFalse(future.isSuccess());
+            assertTrue(future.cause().getMessage().contains("no valid endpoints"));
+        }
     }
 
     @Test
     void communicateEndpointListAllFail() throws RadiusPacketException {
-        final Exception expectedException = new Exception("test 123");
-        final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(p -> p.tryFailure(expectedException));
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler);
+        var exception = new Exception("test 123");
+        var stubEndpoint2 = new RadiusEndpoint(new InetSocketAddress(1), "secret2");
+        var stubEndpoint3 = new RadiusEndpoint(new InetSocketAddress(2), "secret3");
+        var endpoints = List.of(stubEndpoint, stubEndpoint2, stubEndpoint3);
 
-        final RadiusEndpoint stubEndpoint2 = new RadiusEndpoint(new InetSocketAddress(1), "secret2");
-        final RadiusEndpoint stubEndpoint3 = new RadiusEndpoint(new InetSocketAddress(2), "secret3");
+        var capturingOutboundHandler = CapturingOutboundHandler.of(exception);
 
-        final List<RadiusEndpoint> endpoints = Arrays.asList(stubEndpoint, stubEndpoint2, stubEndpoint3);
+        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler)) {
+            var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
+            var future = radiusClient.communicate(request, endpoints);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
-        final Future<RadiusResponse> future = radiusClient.communicate(request, endpoints);
+            await().until(future::isDone);
+            assertFalse(future.isSuccess());
+            assertTrue(future.cause().getMessage().contains("all endpoints failed"));
+            assertSame(exception, future.cause().getCause());
 
-        await().until(future::isDone);
-        assertFalse(future.isSuccess());
-        assertTrue(future.cause().getMessage().contains("all endpoints failed"));
-        assertSame(expectedException, future.cause().getCause());
+            assertEquals(3, capturingOutboundHandler.requests.size());
+            assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().getSecret());
+            assertEquals("secret2", capturingOutboundHandler.requests.get(1).getEndpoint().getSecret());
+            assertEquals("secret3", capturingOutboundHandler.requests.get(2).getEndpoint().getSecret());
 
-        assertEquals(3, capturingOutboundHandler.requests.size());
-        assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().getSecret());
-        assertEquals("secret2", capturingOutboundHandler.requests.get(1).getEndpoint().getSecret());
-        assertEquals("secret3", capturingOutboundHandler.requests.get(2).getEndpoint().getSecret());
-
-        assertEquals(1, request.toByteBuf().refCnt()); // unpooled, let GC handle it
+            assertEquals(1, request.toByteBuf().refCnt()); // unpooled, let GC handle it
+        }
     }
 
     @Test
     void retainPacketsWithRetries() throws RadiusPacketException {
-        final CapturingOutboundHandler capturingOutboundHandler = new CapturingOutboundHandler(a -> {
-        });
-        final RadiusClient radiusClient = new RadiusClient(bootstrap, address,
-                new FixedTimeoutHandler(timer, 2, 0), capturingOutboundHandler);
+        try (var radiusClient = new RadiusClient(
+                bootstrap, address, new FixedTimeoutHandler(timer, 2, 0), CapturingOutboundHandler.NOOP)) {
+            var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
+            var future = radiusClient.communicate(request, stubEndpoint);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
-        final Future<RadiusResponse> future = radiusClient.communicate(request, stubEndpoint);
+            await().until(future::isDone);
+            assertFalse(future.isSuccess());
+            assertEquals("Client send timeout - max attempts reached: 2", future.cause().getMessage());
 
-        await().until(future::isDone);
-        assertFalse(future.isSuccess());
-        assertEquals("Client send timeout - max attempts reached: 2", future.cause().getMessage());
-
-        assertEquals(1, request.toByteBuf().refCnt()); // unpooled, let GC handle it
+            assertEquals(1, request.toByteBuf().refCnt()); // unpooled, let GC handle it
+        }
     }
 
+    @ChannelHandler.Sharable
     @RequiredArgsConstructor
     private static class CapturingOutboundHandler extends ChannelOutboundHandlerAdapter {
+
+        private static final CapturingOutboundHandler NOOP = new CapturingOutboundHandler(p -> {
+        });
+
+        private static CapturingOutboundHandler of(Exception exception) {
+            return new CapturingOutboundHandler(p -> p.tryFailure(exception));
+        }
+
+        private static CapturingOutboundHandler of(RadiusResponse response) {
+            return new CapturingOutboundHandler(p -> p.trySuccess(response));
+        }
 
         private final Consumer<Promise<RadiusResponse>> failFast;
         private final List<PendingRequestCtx> requests = new ArrayList<>();

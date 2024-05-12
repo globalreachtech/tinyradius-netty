@@ -10,9 +10,7 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.core.attribute.rfc.Rfc2865.FRAMED_ROUTING;
-import static org.tinyradius.core.attribute.rfc.Rfc2865.SERVICE_TYPE;
-import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_TYPE;
+import static org.tinyradius.core.attribute.AttributeTypes.*;
 
 class IntegerAttributeTest {
 

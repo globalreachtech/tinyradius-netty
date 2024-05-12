@@ -6,7 +6,7 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.core.attribute.rfc.Rfc3162.FRAMED_IPV6_PREFIX;
+import static org.tinyradius.core.attribute.AttributeTypes.FRAMED_IPV6_PREFIX;
 
 class Ipv6PrefixAttributeTest {
 

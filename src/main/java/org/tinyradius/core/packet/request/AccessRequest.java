@@ -4,35 +4,30 @@ import io.netty.buffer.ByteBuf;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.rfc.Rfc2865;
-import org.tinyradius.core.attribute.rfc.Rfc2869;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.RadiusPacket;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
+import static org.tinyradius.core.attribute.AttributeTypes.*;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
 /**
- * This class represents an Access-Request Radius packet.
+ * An Access-Request Radius packet.
  */
 public abstract class AccessRequest extends GenericRequest implements MessageAuthSupport<RadiusRequest> {
 
     protected static final Logger logger = LogManager.getLogger();
     protected static final SecureRandom RANDOM = new SecureRandom();
 
-    protected static final int USER_NAME = Rfc2865.USER_NAME;
-    protected static final int USER_PASSWORD = Rfc2865.USER_PASSWORD;
-    protected static final int CHAP_PASSWORD = Rfc2865.CHAP_PASSWORD;
-    protected static final int EAP_MESSAGE = Rfc2869.EAP_MESSAGE;
-    protected static final int ARAP_PASSWORD = Rfc2869.ARAP_PASSWORD;
-
-    private static final Set<Integer> AUTH_ATTRS = new HashSet<>(
-            Arrays.asList(USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE));
+    private static final Set<Integer> AUTH_ATTRS = Set.of(
+            (int) USER_PASSWORD, (int) CHAP_PASSWORD, (int) ARAP_PASSWORD, (int) EAP_MESSAGE);
 
     protected AccessRequest(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);

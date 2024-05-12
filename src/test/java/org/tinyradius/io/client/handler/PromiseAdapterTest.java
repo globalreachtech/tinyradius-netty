@@ -28,7 +28,7 @@ import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.core.attribute.rfc.Rfc2865.PROXY_STATE;
+import static org.tinyradius.core.attribute.AttributeTypes.PROXY_STATE;
 import static org.tinyradius.core.packet.PacketType.*;
 
 @ExtendWith(MockitoExtension.class)

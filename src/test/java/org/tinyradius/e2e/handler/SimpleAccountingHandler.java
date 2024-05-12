@@ -8,7 +8,7 @@ import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.server.RequestCtx;
 import org.tinyradius.io.server.handler.RequestHandler;
 
-import static org.tinyradius.core.attribute.rfc.Rfc2865.PROXY_STATE;
+import static org.tinyradius.core.attribute.AttributeTypes.PROXY_STATE;
 import static org.tinyradius.core.packet.PacketType.ACCOUNTING_RESPONSE;
 
 public class SimpleAccountingHandler extends RequestHandler {

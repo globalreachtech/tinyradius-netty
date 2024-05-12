@@ -48,6 +48,7 @@ sonarqube {
         property "sonar.projectKey", "globalreachtech_tinyradius-netty"
         property "sonar.organization", "globalreachtech"
         property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.exclusions", "'**/AttributeType**','**/PacketType**'"
     }
 }
 

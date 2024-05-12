@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface RadiusAttributeFactory<T extends RadiusAttribute> {
 
-    Logger logger = LogManager.getLogger();
+    Logger log = LogManager.getLogger();
 
     T newInstance(Dictionary dictionary, int vendorId, ByteBuf value);
 
@@ -28,7 +28,7 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
     default T create(Dictionary dictionary, int vendorId, ByteBuf data) {
         try {
             final T attribute = newInstance(dictionary, vendorId, data);
-            logger.trace("Created RadiusAttribute: vendorId: {}, type: {}",
+            log.trace("Creating RadiusAttribute: vendorId: {}, type: {}",
                     attribute.getVendorId(), attribute.getType());
             return attribute;
         } catch (Exception e) {

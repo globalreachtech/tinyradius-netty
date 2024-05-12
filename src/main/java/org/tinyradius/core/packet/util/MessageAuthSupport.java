@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
-import org.tinyradius.core.attribute.rfc.Rfc2869;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.packet.RadiusPacket;
 
@@ -18,6 +17,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
+
 /**
  * Partial implementation for encoding/verifying Message-Authenticator (RFC 2869)
  *
@@ -26,7 +27,6 @@ import java.util.List;
 public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPacket<T> {
 
     Logger msgAuthLogger = LogManager.getLogger();
-    int MESSAGE_AUTHENTICATOR = Rfc2869.MESSAGE_AUTHENTICATOR;
 
     static byte[] calcMessageAuthInput(RadiusPacket<?> packet, byte[] requestAuth) {
         final ByteBuf buf = Unpooled.buffer()
