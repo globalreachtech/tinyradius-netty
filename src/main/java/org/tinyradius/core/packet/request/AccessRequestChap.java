@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.CHAP_CHALLENGE;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.CHAP_PASSWORD;
+import static org.tinyradius.core.attribute.AttributeTypes.CHAP_CHALLENGE;
+import static org.tinyradius.core.attribute.AttributeTypes.CHAP_PASSWORD;
 
 /**
  * CHAP AccessRequest RFC2865

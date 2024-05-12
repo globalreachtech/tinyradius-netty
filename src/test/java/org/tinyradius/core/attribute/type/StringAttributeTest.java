@@ -8,7 +8,7 @@ import java.util.Date;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.USER_NAME;
+import static org.tinyradius.core.attribute.AttributeTypes.USER_NAME;
 
 class StringAttributeTest {
 

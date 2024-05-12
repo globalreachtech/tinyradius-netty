@@ -12,7 +12,7 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.USER_PASSWORD;
+import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
 class AccessRequestPapTest {

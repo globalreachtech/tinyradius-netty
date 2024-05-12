@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.MESSAGE_AUTHENTICATOR;
+import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.RadiusPacket.buildHeader;
 

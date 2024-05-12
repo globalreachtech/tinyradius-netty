@@ -17,7 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.tinyradius.core.attribute.RfcAttributeTypes.MESSAGE_AUTHENTICATOR;
+import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
 
 /**
  * Partial implementation for encoding/verifying Message-Authenticator (RFC 2869)

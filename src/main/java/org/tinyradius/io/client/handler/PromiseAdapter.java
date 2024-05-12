@@ -17,7 +17,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.PROXY_STATE;
+import static org.tinyradius.core.attribute.AttributeTypes.PROXY_STATE;
 
 /**
  * ClientHandler that matches requests/response by appending Proxy-State attribute to

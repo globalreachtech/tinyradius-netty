@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.*;
+import static org.tinyradius.core.attribute.AttributeTypes.*;
 
 class IntegerAttributeTest {
 

@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.*;
+import static org.tinyradius.core.attribute.AttributeTypes.*;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
 /**

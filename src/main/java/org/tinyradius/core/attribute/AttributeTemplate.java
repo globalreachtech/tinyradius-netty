@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import static lombok.AccessLevel.NONE;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.TUNNEL_PASSWORD;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.USER_PASSWORD;
+import static org.tinyradius.core.attribute.AttributeTypes.TUNNEL_PASSWORD;
+import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
 
 /**

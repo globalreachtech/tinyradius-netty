@@ -9,8 +9,8 @@ import java.net.UnknownHostException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.FRAMED_IP_ADDRESS;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.NAS_IPV6_ADDRESS;
+import static org.tinyradius.core.attribute.AttributeTypes.FRAMED_IP_ADDRESS;
+import static org.tinyradius.core.attribute.AttributeTypes.NAS_IPV6_ADDRESS;
 
 class IpAttributeTest {
 

@@ -7,7 +7,7 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.List;
 
-import static org.tinyradius.core.attribute.RfcAttributeTypes.MESSAGE_AUTHENTICATOR;
+import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
 
 public class AccessRequestNoAuth extends AccessRequest {
 

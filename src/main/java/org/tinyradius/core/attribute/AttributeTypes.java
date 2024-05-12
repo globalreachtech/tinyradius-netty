@@ -6,7 +6,7 @@ import lombok.experimental.UtilityClass;
  * Based on official IANA assignments for <a href="https://www.iana.org/assignments/radius-types/radius-types.xhtml#radius-types-2">Radius Attribute Types</a>
  */
 @UtilityClass
-public class RfcAttributeTypes {
+public class AttributeTypes {
 
     public static final byte USER_NAME = 1;
     public static final byte USER_PASSWORD = 2;

@@ -15,7 +15,7 @@ import java.util.Arrays;
 import static java.lang.Byte.toUnsignedInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.core.attribute.RfcAttributeTypes.*;
+import static org.tinyradius.core.attribute.AttributeTypes.*;
 
 class OctetsAttributeTest {
 

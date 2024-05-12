@@ -7,7 +7,7 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.List;
 
-import static org.tinyradius.core.attribute.RfcAttributeTypes.ARAP_PASSWORD;
+import static org.tinyradius.core.attribute.AttributeTypes.ARAP_PASSWORD;
 
 /**
  * ARAP AccessRequest RFC2869
