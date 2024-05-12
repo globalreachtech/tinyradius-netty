@@ -18,12 +18,10 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 public class EncodedAttribute implements RadiusAttribute {
 
     @Delegate
-    private final RadiusAttribute delegate;
+    private final OctetsAttribute delegate;
 
-    public EncodedAttribute(RadiusAttribute attribute) {
+    public EncodedAttribute(OctetsAttribute attribute) {
         delegate = Objects.requireNonNull(attribute);
-        if (attribute instanceof EncodedAttribute)
-            throw new IllegalArgumentException("Cannot wrap EncodedDecorator twice");
     }
 
     @Override
@@ -31,6 +29,11 @@ public class EncodedAttribute implements RadiusAttribute {
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().decode(this, requestAuth, secret) : delegate;
+    }
+
+    @Override
+    public RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
+        return RadiusAttribute.super.encode(requestAuth, secret);
     }
 
     @Override
