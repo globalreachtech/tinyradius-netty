@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.tinyradius.core.attribute.RfcAttributeTypes.USER_PASSWORD;
 
 /**
  * PAP AccessRequest RFC2865

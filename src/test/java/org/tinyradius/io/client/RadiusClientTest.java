@@ -58,8 +58,7 @@ class RadiusClientTest {
     void communicateWithTimeout() throws RadiusPacketException {
         var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
 
-        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, new CapturingOutboundHandler(a -> {
-        }))) {
+        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.NOOP)) {
             final TimeoutException e = assertThrows(TimeoutException.class,
                     () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
 

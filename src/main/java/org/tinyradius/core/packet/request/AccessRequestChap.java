@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.tinyradius.core.attribute.RfcAttributeTypes.CHAP_CHALLENGE;
+import static org.tinyradius.core.attribute.RfcAttributeTypes.CHAP_PASSWORD;
 
 /**
  * CHAP AccessRequest RFC2865
  */
 public class AccessRequestChap extends AccessRequest {
-
-    private static final byte CHAP_CHALLENGE = 60;
 
     public AccessRequestChap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);

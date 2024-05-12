@@ -8,9 +8,9 @@ import org.tinyradius.core.dictionary.Dictionary;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.tinyradius.core.attribute.RfcAttributeTypes.EAP_MESSAGE;
 import static org.tinyradius.core.attribute.RfcAttributeTypes.MESSAGE_AUTHENTICATOR;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
-import static org.tinyradius.core.packet.request.AccessRequest.EAP_MESSAGE;
 import static org.tinyradius.core.packet.request.AccessRequest.random16bytes;
 
 class AccessRequestEapTest {
