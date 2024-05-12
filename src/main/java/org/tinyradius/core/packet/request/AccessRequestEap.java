@@ -7,6 +7,8 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.List;
 
+import static org.tinyradius.core.attribute.RfcAttributeTypes.MESSAGE_AUTHENTICATOR;
+
 /**
  * EAP AccessRequest RFC3579
  */

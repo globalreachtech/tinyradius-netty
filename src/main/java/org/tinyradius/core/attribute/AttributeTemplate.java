@@ -16,9 +16,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import static lombok.AccessLevel.NONE;
+import static org.tinyradius.core.attribute.RfcAttributeTypes.TUNNEL_PASSWORD;
+import static org.tinyradius.core.attribute.RfcAttributeTypes.USER_PASSWORD;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
-import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_PASSWORD;
-import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_PASSWORD;
 
 /**
  * Represents a Radius attribute type.

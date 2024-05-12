@@ -13,7 +13,7 @@ import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_NAME;
+import static org.tinyradius.core.attribute.RfcAttributeTypes.USER_NAME;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.request.AccessRequest.CHAP_PASSWORD;
 

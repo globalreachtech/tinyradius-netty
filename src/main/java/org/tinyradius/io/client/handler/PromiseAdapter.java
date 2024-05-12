@@ -6,7 +6,7 @@ import io.netty.util.concurrent.Promise;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.rfc.Rfc2865;
+import org.tinyradius.core.attribute.RfcAttributeTypes;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
@@ -28,7 +28,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @RequiredArgsConstructor
 public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, PendingRequestCtx> {
 
-    private static final byte PROXY_STATE = Rfc2865.PROXY_STATE;
+    private static final byte PROXY_STATE = RfcAttributeTypes.PROXY_STATE;
 
     private final Map<String, Request> requests;
 
