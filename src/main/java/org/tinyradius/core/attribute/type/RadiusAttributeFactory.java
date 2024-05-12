@@ -32,8 +32,8 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
                     attribute.getVendorId(), attribute.getType());
             return attribute;
         } catch (Exception e) {
-            throw new IllegalArgumentException("Could not create attribute - vendorId: " + vendorId +
-                    ", bytes: 0x" + DatatypeConverter.printHexBinary(data.copy().array()), e);
+            throw new IllegalArgumentException("Could not create attribute with vendorId: " + vendorId +
+                    ", bytes: 0x" + DatatypeConverter.printHexBinary(data.copy().array()) + " - " + e.getMessage(), e);
         }
     }
 

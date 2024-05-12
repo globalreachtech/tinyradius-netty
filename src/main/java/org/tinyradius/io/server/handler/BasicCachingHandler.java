@@ -20,21 +20,20 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * Simple caching handler backed by ConcurrentHashMap, invalidates using {@link Timer}.
  */
 @Log4j2
+@RequiredArgsConstructor
 public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, ResponseCtx> {
 
+    /**
+     * for cache eviction
+     */
     private final Timer timer;
+
+    /**
+     * time for items to stay cached after being returned, in milliseconds
+     */
     private final int ttlMs;
 
     private final Map<Packet, ResponseCtx> requests = new ConcurrentHashMap<>();
-
-    /**
-     * @param timer for cache eviction
-     * @param ttlMs time for items to stay cached after being returned, in milliseconds
-     */
-    public BasicCachingHandler(Timer timer, int ttlMs) {
-        this.timer = timer;
-        this.ttlMs = ttlMs;
-    }
 
     /**
      * @param ctx        ChannelHandlerContext

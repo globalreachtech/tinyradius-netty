@@ -15,8 +15,9 @@ import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Implements a simple Radius server.
@@ -57,14 +58,14 @@ public class RadiusServer implements Closeable {
 
         channelFutures = IntStream.range(0, channelHandlers.size())
                 .mapToObj(i -> bootstrap.clone().handler(channelHandlers.get(i)).bind(socketAddresses.get(i)))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         combiner.addAll(channelFutures.toArray(ChannelFuture[]::new));
         combiner.finish(isReady);
         isReady.addListener(f -> {
             final List<SocketAddress> addresses = channelFutures.stream()
                     .map(ChannelFuture::channel)
-                    .map(Channel::localAddress).collect(Collectors.toList());
+                    .map(Channel::localAddress).collect(toList());
             log.info("Server start success: {} for address {}", f.isSuccess(), addresses);
         });
     }
@@ -74,7 +75,7 @@ public class RadiusServer implements Closeable {
     }
 
     public List<Channel> getChannels() {
-        return channelFutures.stream().map(ChannelFuture::channel).collect(Collectors.toList());
+        return channelFutures.stream().map(ChannelFuture::channel).collect(toList());
     }
 
     @Override
@@ -82,7 +83,7 @@ public class RadiusServer implements Closeable {
         log.info("Closing server on {}", channelFutures.stream()
                 .map(ChannelFuture::channel)
                 .map(Channel::localAddress)
-                .collect(Collectors.toList()));
+                .collect(toList()));
         channelFutures.stream()
                 .map(ChannelFuture::channel)
                 .forEach(ChannelOutboundInvoker::close);

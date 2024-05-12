@@ -1,13 +1,13 @@
 package org.tinyradius.core.attribute.type;
 
 import org.junit.jupiter.api.Test;
-import org.tinyradius.TestUtils;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.rfc.Rfc2865.FRAMED_IP_ADDRESS;
 import static org.tinyradius.core.attribute.rfc.Rfc3162.NAS_IPV6_ADDRESS;
@@ -34,7 +34,7 @@ class IpAttributeTest {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> V4FACTORY.create(dictionary, -1, FRAMED_IP_ADDRESS, (byte) 0, new byte[2]));
 
-        assertTrue(TestUtils.getStackTrace(exception).contains("should be 4 octets"));
+        assertThat(exception).hasMessageContaining("should be 4 octets");
     }
 
     @Test
@@ -42,7 +42,7 @@ class IpAttributeTest {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> V4FACTORY.create(dictionary, -1, FRAMED_IP_ADDRESS, (byte) 0, new byte[5]));
 
-        assertTrue(TestUtils.getStackTrace(exception).contains("should be 4 octets"));
+        assertThat(exception).hasMessageContaining("should be 4 octets");
     }
 
     @Test
@@ -79,7 +79,7 @@ class IpAttributeTest {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> V6FACTORY.create(dictionary, -1, NAS_IPV6_ADDRESS, (byte) 0, new byte[2]));
 
-        assertTrue(TestUtils.getStackTrace(exception).contains("should be 16 octets"));
+        assertThat(exception).hasMessageContaining("should be 16 octets");
     }
 
     @Test
@@ -87,7 +87,7 @@ class IpAttributeTest {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> V6FACTORY.create(dictionary, -1, NAS_IPV6_ADDRESS, (byte) 0, new byte[17]));
 
-        assertTrue(TestUtils.getStackTrace(exception).contains("should be 16 octets"));
+        assertThat(exception).hasMessageContaining("should be 16 octets");
     }
 
     @Test
@@ -121,10 +121,10 @@ class IpAttributeTest {
     void mismatchIpVersions() {
         final IllegalArgumentException v6Exception = assertThrows(IllegalArgumentException.class,
                 () -> V6FACTORY.create(dictionary, -1, NAS_IPV6_ADDRESS, (byte) 0, "192.168.0.1"));
-        assertTrue(TestUtils.getStackTrace(v6Exception).contains("should be 16 octets"));
+        assertThat(v6Exception).hasMessageContaining("should be 16 octets");
 
         final IllegalArgumentException v4Exception = assertThrows(IllegalArgumentException.class,
                 () -> V4FACTORY.create(dictionary, -1, FRAMED_IP_ADDRESS, (byte) 0, "2001:4860:4860::8888"));
-        assertTrue(TestUtils.getStackTrace(v4Exception).contains("should be 4 octets"));
+        assertThat(v4Exception).hasMessageContaining("should be 4 octets");
     }
 }

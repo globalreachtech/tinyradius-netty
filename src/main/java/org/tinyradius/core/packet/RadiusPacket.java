@@ -9,6 +9,7 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -31,10 +32,11 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * Returns header of this buffer's starting at the current
      * {@code readerIndex} and increases the {@code readerIndex} by the size
      * of the new slice (= {@link #HEADER_LENGTH}).
+     *
      * @param data byte array to parse
      * @return ByteBuf with 20 readable bytes
      * @throws RadiusPacketException if data is incorrect size or the length
-     * field does not match the packet size.
+     *                               field does not match the packet size.
      */
     static ByteBuf readHeader(ByteBuf data) throws RadiusPacketException {
         final int length = data.readableBytes();
@@ -82,12 +84,16 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
     /**
      * @return Radius packet type
      */
-    byte getType();
+    default byte getType() {
+        return getHeader().getByte(0);
+    }
 
     /**
      * @return Radius packet id
      */
-    byte getId();
+    default byte getId() {
+        return getHeader().getByte(1);
+    }
 
     /**
      * Returns the authenticator for this Radius packet.
@@ -100,7 +106,11 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      *
      * @return authenticator, 16 bytes
      */
-    byte[] getAuthenticator();
+    default byte[] getAuthenticator() {
+        var array = getHeader().slice(4, 16).copy().array();
+        return Arrays.equals(array, new byte[array.length]) ?
+                null : array;
+    }
 
     default int getLength() {
         return getHeader().readableBytes() + getAttributeByteBuf().readableBytes();

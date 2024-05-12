@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
+import static lombok.AccessLevel.NONE;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
 import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_PASSWORD;
 import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_PASSWORD;
@@ -22,43 +23,40 @@ import static org.tinyradius.core.attribute.rfc.Rfc2868.TUNNEL_PASSWORD;
 /**
  * Represents a Radius attribute type.
  */
+@Getter
 public class AttributeTemplate {
 
     /**
      * vendor ID or -1 if not applicable
      */
-    @Getter
     private final int vendorId;
     /**
      * Radius type code for this attribute e.g. '1' (for User-Name)
      */
-    @Getter
     private final int type;
     /**
      * name of type e.g. 'User-Name'
      */
-    @Getter
     private final String name;
     /**
      * string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      */
-    @Getter
     private final String dataType;
 
     /**
      * whether attribute supports Tag field as per RFC2868
      */
-    @Getter
     private final boolean tagged;
     /**
      * one of AttributeCodecType enum, defaults to NO_ENCRYPT for none
      */
-    @Getter
     private final AttributeCodecType codecType;
 
     private final RadiusAttributeFactory<? extends RadiusAttribute> factory;
 
+    @Getter(NONE)
     private final Map<Integer, String> int2str = new HashMap<>();
+    @Getter(NONE)
     private final Map<String, Integer> str2int = new HashMap<>();
 
     /**

@@ -1,7 +1,6 @@
 package org.tinyradius.core.attribute.type;
 
 import org.junit.jupiter.api.Test;
-import org.tinyradius.TestUtils;
 import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -9,6 +8,7 @@ import org.tinyradius.core.dictionary.parser.DictionaryParser;
 
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.rfc.Rfc2865.FRAMED_ROUTING;
 import static org.tinyradius.core.attribute.rfc.Rfc2865.SERVICE_TYPE;
@@ -54,14 +54,14 @@ class IntegerAttributeTest {
         // no tag
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, new byte[3]));
-        assertTrue(TestUtils.getStackTrace(e1).contains("should be 4 octets, actual: 3"));
+        assertThat(e1).hasMessageContaining("should be 4 octets, actual: 3");
 
         // has tag
         final Dictionary dict = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary.rfc2868");
         final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dict, -1, TUNNEL_TYPE, (byte) 0, new byte[2]));
-        assertTrue(TestUtils.getStackTrace(e2).contains("should be 3 octets if has_tag, actual: 2"));
+        assertThat(e2).hasMessageContaining("should be 3 octets if has_tag, actual: 2");
     }
 
     @Test
@@ -69,14 +69,14 @@ class IntegerAttributeTest {
         // no tag
         final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, new byte[5]));
-        assertTrue(TestUtils.getStackTrace(e1).contains("should be 4 octets, actual: 5"));
+        assertThat(e1).hasMessageContaining("should be 4 octets, actual: 5");
 
         // has tag
         final Dictionary dict = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary.rfc2868");
         final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dict, -1, 64, (byte) 0, new byte[4])); // Tunnel-Type
-        assertTrue(TestUtils.getStackTrace(e2).contains("should be 3 octets if has_tag, actual: 4"));
+        assertThat(e2).hasMessageContaining("should be 3 octets if has_tag, actual: 4");
     }
 
     @Test

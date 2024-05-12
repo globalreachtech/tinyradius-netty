@@ -1,5 +1,6 @@
 package org.tinyradius.core.dictionary.parser;
 
+import lombok.RequiredArgsConstructor;
 import org.tinyradius.core.dictionary.WritableDictionary;
 import org.tinyradius.core.dictionary.parser.resolver.ClasspathResourceResolver;
 import org.tinyradius.core.dictionary.parser.resolver.FileResourceResolver;
@@ -10,13 +11,10 @@ import java.io.IOException;
 /**
  * Parses a dictionary in Radiator format and fills a WritableDictionary.
  */
+@RequiredArgsConstructor
 public class DictionaryParser {
 
     private final ResourceResolver resourceResolver;
-
-    private DictionaryParser(ResourceResolver resourceResolver) {
-        this.resourceResolver = resourceResolver;
-    }
 
     public static DictionaryParser newClasspathParser() {
         return new DictionaryParser(ClasspathResourceResolver.INSTANCE);

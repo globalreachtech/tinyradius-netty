@@ -1,6 +1,7 @@
 package org.tinyradius.e2e.handler;
 
 import io.netty.channel.ChannelHandlerContext;
+import lombok.RequiredArgsConstructor;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.packet.request.AccessRequest;
 import org.tinyradius.core.packet.request.AccessRequestPap;
@@ -15,13 +16,10 @@ import static org.tinyradius.core.attribute.rfc.Rfc2865.PROXY_STATE;
 import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REJECT;
 
+@RequiredArgsConstructor
 public class SimpleAccessHandler extends RequestHandler {
 
     private final Map<String, String> credentials;
-
-    public SimpleAccessHandler(Map<String, String> credentials) {
-        this.credentials = credentials;
-    }
 
     @Override
     protected Class<? extends RadiusRequest> acceptedPacketType() {

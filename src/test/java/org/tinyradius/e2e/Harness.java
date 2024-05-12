@@ -2,7 +2,6 @@ package org.tinyradius.e2e;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -26,7 +25,7 @@ import org.tinyradius.io.server.RadiusServer;
 import org.tinyradius.io.server.handler.BasicCachingHandler;
 import org.tinyradius.io.server.handler.ServerPacketCodec;
 
-import java.io.Closeable;
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -43,21 +42,21 @@ public class Harness {
     private final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer);
 
     public List<RadiusResponse> testClient(String host, int accessPort, int acctPort, String secret, List<RadiusRequest> requests) {
-        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-        Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
+        var eventLoopGroup = new NioEventLoopGroup(4);
+        var bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
-        try (RadiusClient rc = new RadiusClient(
+        try (var rc = new RadiusClient(
                 bootstrap, new InetSocketAddress(0), new FixedTimeoutHandler(timer), new ChannelInitializer<DatagramChannel>() {
             @Override
-            protected void initChannel(DatagramChannel ch) {
+            protected void initChannel(@Nonnull DatagramChannel ch) {
                 ch.pipeline().addLast(
                         new ClientDatagramCodec(dictionary),
                         new PromiseAdapter(),
                         new BlacklistHandler(60_000, 3));
             }
         })) {
-            RadiusEndpoint accessEndpoint = new RadiusEndpoint(new InetSocketAddress(host, accessPort), secret);
-            RadiusEndpoint acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, acctPort), secret);
+            var accessEndpoint = new RadiusEndpoint(new InetSocketAddress(host, accessPort), secret);
+            var acctEndpoint = new RadiusEndpoint(new InetSocketAddress(host, acctPort), secret);
             return requests.stream().map(r -> {
                 RadiusEndpoint endpoint = (r.getType() == ACCESS_REQUEST) ? accessEndpoint : acctEndpoint;
                 log.info("Packet before it is sent\n{}\n", r);
@@ -76,37 +75,40 @@ public class Harness {
      * @param originSecret shared secret used by origin server
      * @return Closeable handler to trigger origin server shutdown
      */
-    public Closeable startOrigin(int originAccessPort, int originAcctPort, String originSecret, Map<String, String> credentials) {
-        EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-        Bootstrap bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
+    public RadiusServer startOrigin(int originAccessPort, int originAcctPort, String originSecret, Map<String, String> credentials) {
+        var eventLoopGroup = new NioEventLoopGroup(4);
+        var bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
-        ServerPacketCodec serverPacketCodec = new ServerPacketCodec(dictionary, x -> originSecret);
+        var serverPacketCodec = new ServerPacketCodec(dictionary, x -> originSecret);
 
-        BasicCachingHandler cachingHandlerAuth = new BasicCachingHandler(timer, 5000);
-        BasicCachingHandler cachingHandlerAcct = new BasicCachingHandler(timer, 5000);
+        var cachingHandlerAuth = new BasicCachingHandler(timer, 5000);
+        var cachingHandlerAcct = new BasicCachingHandler(timer, 5000);
 
-        SimpleAccessHandler simpleAccessHandler = new SimpleAccessHandler(credentials);
-        SimpleAccountingHandler simpleAccountingHandler = new SimpleAccountingHandler();
+        var simpleAccessHandler = new SimpleAccessHandler(credentials);
+        var simpleAccountingHandler = new SimpleAccountingHandler();
 
-        RadiusServer server = new RadiusServer(bootstrap,
+        var server = new RadiusServer(bootstrap,
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
-                    protected void initChannel(DatagramChannel ch) {
+                    protected void initChannel(@Nonnull DatagramChannel ch) {
                         ch.pipeline().addLast(serverPacketCodec, cachingHandlerAuth, simpleAccessHandler);
                     }
                 },
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
-                    protected void initChannel(DatagramChannel ch) {
+                    protected void initChannel(@Nonnull DatagramChannel ch) {
                         ch.pipeline().addLast(serverPacketCodec, cachingHandlerAcct, simpleAccountingHandler);
                     }
                 },
-                new InetSocketAddress(originAccessPort), new InetSocketAddress(originAcctPort));
+                new InetSocketAddress(originAccessPort), new InetSocketAddress(originAcctPort)) {
 
-        Runnable shutdown = () -> {
-            server.close();
-            eventLoopGroup.shutdownGracefully();
+            @Override
+            public void close() {
+                super.close();
+                eventLoopGroup.shutdownGracefully();
+            }
         };
+
         server.isReady().addListener(future1 -> {
             if (future1.isSuccess()) {
                 log.info("Origin server started");
@@ -117,8 +119,7 @@ public class Harness {
             }
         });
 
-
-        return shutdown::run;
+        return server;
     }
 
     /**
@@ -132,31 +133,32 @@ public class Harness {
      * @param originSecret     shared secret between proxy and origin server
      * @return Closeable handler to trigger proxy server shutdown
      */
-    public Closeable startProxy(int proxyAccessPort, int proxyAcctPort, String proxySecret, int originAccessPort, int originAcctPort, String originSecret) {
-        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-        Bootstrap bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
+    public RadiusServer startProxy(int proxyAccessPort, int proxyAcctPort, String proxySecret, int originAccessPort, int originAcctPort, String originSecret) {
+        var eventLoopGroup = new NioEventLoopGroup(4);
+        var bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
-        RadiusClient client = new RadiusClient(bootstrap, new InetSocketAddress(0), retryStrategy, new ChannelInitializer<DatagramChannel>() {
+        var client = new RadiusClient(bootstrap, new InetSocketAddress(0), retryStrategy, new ChannelInitializer<DatagramChannel>() {
             @Override
-            protected void initChannel(DatagramChannel ch) {
+            protected void initChannel(@Nonnull DatagramChannel ch) {
                 ch.pipeline().addLast(new ClientDatagramCodec(dictionary), new PromiseAdapter());
             }
         });
-        SimpleProxyHandler simpleProxyHandler = new SimpleProxyHandler(client, originAccessPort, originAcctPort, originSecret);
-        ChannelInitializer<DatagramChannel> channelInitializer = new ChannelInitializer<>() {
+        var simpleProxyHandler = new SimpleProxyHandler(client, originAccessPort, originAcctPort, originSecret);
+        var channelInitializer = new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
                 ch.pipeline().addLast(new ServerPacketCodec(dictionary, x -> proxySecret), simpleProxyHandler);
             }
         };
 
-        RadiusServer server = new RadiusServer(bootstrap, channelInitializer, channelInitializer,
-                new InetSocketAddress(proxyAccessPort), new InetSocketAddress(proxyAcctPort));
-
-        Runnable shutdown = () -> {
-            server.close();
-            client.close();
-            eventLoopGroup.shutdownGracefully();
+        var server = new RadiusServer(bootstrap, channelInitializer, channelInitializer,
+                new InetSocketAddress(proxyAccessPort), new InetSocketAddress(proxyAcctPort)) {
+            @Override
+            public void close() {
+                super.close();
+                client.close();
+                eventLoopGroup.shutdownGracefully();
+            }
         };
 
         server.isReady().addListener(future1 -> {
@@ -164,12 +166,12 @@ public class Harness {
                 log.info("Proxy server started");
             } else {
                 log.info("Failed to start proxy server", future1.cause());
-                shutdown.run();
+                server.close();
                 throw new IOException("Failed to start proxy server: " + future1.cause().getMessage());
             }
         });
 
-        return shutdown::run;
+        return server;
     }
 
 }

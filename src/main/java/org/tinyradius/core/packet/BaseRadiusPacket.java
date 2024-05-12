@@ -17,6 +17,7 @@ import java.util.Objects;
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
  */
+@Getter
 @Log4j2
 @EqualsAndHashCode
 public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements RadiusPacket<T> {
@@ -24,10 +25,9 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     private static final int HEADER_LENGTH = 20;
     private static final int CHILD_VENDOR_ID = -1;
 
-    @Getter
     private final Dictionary dictionary;
+
     private final ByteBuf header;
-    @Getter
     private final List<RadiusAttribute> attributes;
 
     protected BaseRadiusPacket(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
@@ -56,23 +56,6 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     @Override
     public ByteBuf getHeader() {
         return Unpooled.unreleasableBuffer(header);
-    }
-
-    @Override
-    public byte getId() {
-        return header.getByte(1);
-    }
-
-    @Override
-    public byte getType() {
-        return header.getByte(0);
-    }
-
-    @Override
-    public byte[] getAuthenticator() {
-        final byte[] array = header.slice(4, 16).copy().array();
-        return Arrays.equals(array, new byte[array.length]) ?
-                null : array;
     }
 
     @Override

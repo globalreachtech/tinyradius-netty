@@ -25,7 +25,7 @@ class AttributesTest {
         final RadiusAttribute a3 = dictionary.createAttribute(-1, 1, new byte[1]);
         assertEquals(StringAttribute.class, a3.getClass());
 
-        final RadiusAttribute a4 = dictionary.createAttribute(-1, 1, "mystring");
+        final RadiusAttribute a4 = dictionary.createAttribute(-1, 1, "myString");
         assertEquals(StringAttribute.class, a4.getClass());
     }
 
