@@ -2,9 +2,9 @@ package org.tinyradius.core.dictionary;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.nio.ByteBuffer;
-import java.util.Objects;
 
 /**
  * Vendor definition
@@ -24,9 +24,9 @@ public class Vendor {
      * @param typeSize   number of octets for vendor 'type' field
      * @param lengthSize number of octets for vendor 'length' field
      */
-    public Vendor(int id, String name, int typeSize, int lengthSize) {
+    public Vendor(int id, @NonNull String name, int typeSize, int lengthSize) {
         this.id = id;
-        this.name = Objects.requireNonNull(name);
+        this.name = name;
         this.typeSize = typeSize;
         this.lengthSize = lengthSize;
 

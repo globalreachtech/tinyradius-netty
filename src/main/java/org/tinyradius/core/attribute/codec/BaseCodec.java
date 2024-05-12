@@ -1,11 +1,11 @@
 package org.tinyradius.core.attribute.codec;
 
+import lombok.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.packet.RadiusPacket;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
-import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -20,8 +20,7 @@ public abstract class BaseCodec {
      * @return the byte array containing the encrypted data
      * @throws RadiusPacketException errors encoding attribute data
      */
-    public byte[] encode(byte[] data, byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
-        Objects.requireNonNull(sharedSecret);
+    public byte[] encode(byte[] data, byte[] requestAuth, @NonNull String sharedSecret) throws RadiusPacketException {
         if (requestAuth.length != 16)
             throw new RadiusPacketException("Request Authenticator must be 16 octets");
 
@@ -37,8 +36,7 @@ public abstract class BaseCodec {
      * @return decrypted data
      * @throws RadiusPacketException errors decoding attribute data
      */
-    public byte[] decode(byte[] data, byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
-        Objects.requireNonNull(sharedSecret);
+    public byte[] decode(byte[] data, byte[] requestAuth, @NonNull String sharedSecret) throws RadiusPacketException {
         if (requestAuth.length != 16)
             throw new RadiusPacketException("Request Authenticator must be 16 octets");
 

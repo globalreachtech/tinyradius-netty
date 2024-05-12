@@ -4,14 +4,13 @@ import io.netty.buffer.ByteBuf;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
 import java.util.Optional;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * The basic generic Radius attribute. All type-specific implementations extend this class
@@ -29,10 +28,10 @@ public class OctetsAttribute implements RadiusAttribute {
     private final ByteBuf data;
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
-    public OctetsAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
-        this.dictionary = requireNonNull(dictionary, "Dictionary not set");
+    public OctetsAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
+        this.dictionary = dictionary;
         this.vendorId = vendorId;
-        this.data = requireNonNull(data, "Attribute data not set");
+        this.data = data;
 
         final int actualLength = data.readableBytes();
         if (actualLength > 255)

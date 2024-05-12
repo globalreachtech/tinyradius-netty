@@ -2,6 +2,7 @@ package org.tinyradius.core.attribute;
 
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
+import lombok.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.attribute.type.EncodedAttribute;
@@ -14,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
 import static lombok.AccessLevel.NONE;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
 import static org.tinyradius.core.attribute.rfc.Rfc2865.USER_PASSWORD;
@@ -69,10 +69,9 @@ public class AttributeTemplate {
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or default 0 for none
      * @param hasTag      whether attribute supports tags, as defined in RFC2868, default false
      */
-    public AttributeTemplate(int vendorId, int type, String name, String dataType, RadiusAttributeFactory<? extends RadiusAttribute> factory, byte encryptFlag, boolean hasTag) {
-        if (name == null || name.isEmpty())
+    public AttributeTemplate(int vendorId, int type, @NonNull String name, @NonNull String dataType, RadiusAttributeFactory<? extends RadiusAttribute> factory, byte encryptFlag, boolean hasTag) {
+        if (name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
-        requireNonNull(dataType, "Data type is null");
         this.vendorId = vendorId;
         this.type = type;
         this.name = name;

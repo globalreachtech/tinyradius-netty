@@ -1,12 +1,12 @@
 package org.tinyradius.core.attribute.type;
 
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
@@ -14,15 +14,12 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 /**
  * Wrapper around attributes encoded with one of {@link AttributeCodecType}
  */
+@RequiredArgsConstructor
 @EqualsAndHashCode
 public class EncodedAttribute implements RadiusAttribute {
 
     @Delegate
     private final OctetsAttribute delegate;
-
-    public EncodedAttribute(OctetsAttribute attribute) {
-        delegate = Objects.requireNonNull(attribute);
-    }
 
     @Override
     public RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {

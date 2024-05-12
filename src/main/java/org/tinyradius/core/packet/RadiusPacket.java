@@ -2,6 +2,7 @@ package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import lombok.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.NestedAttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
@@ -13,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.requireNonNull;
 
 public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttributeHolder<T> {
 
@@ -139,9 +139,8 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      *                     otherwise set to 16 zero octets
      * @return new 16 byte response authenticator
      */
-    default byte[] genHashedAuth(String sharedSecret, byte[] requestAuth) {
-        requireNonNull(requestAuth, "Authenticator cannot be null");
-        if (sharedSecret == null || sharedSecret.isEmpty())
+    default byte[] genHashedAuth(@NonNull String sharedSecret, byte[] requestAuth) {
+        if (sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
         final byte[] attributeBytes = getAttributeByteBuf().copy().array();
