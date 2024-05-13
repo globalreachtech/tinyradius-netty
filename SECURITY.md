@@ -2,7 +2,8 @@
 
 ## Supported Versions
 
-Only latest version is supported. Note that the project does not follow semver, but effort is made to minimize API / package changes within a major version.
+Only latest version is supported. Note that the project does not follow semver, but effort is made to minimize API /
+package changes within a patch version.
 
 ## Reporting a Vulnerability
 
