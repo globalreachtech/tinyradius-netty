@@ -12,6 +12,8 @@ import org.tinyradius.core.dictionary.Vendor;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
+
 
 /**
  * Vendor-Specific attribute. Both an attribute itself and an attribute container for sub-attributes.
@@ -21,8 +23,6 @@ import java.util.List;
 public class VendorSpecificAttribute extends OctetsAttribute implements AttributeHolder<VendorSpecificAttribute> {
 
     public static final RadiusAttributeFactory<VendorSpecificAttribute> FACTORY = new Factory();
-
-    public static final byte VENDOR_SPECIFIC = 26;
 
     @EqualsAndHashCode.Exclude
     private final int childVendorId;

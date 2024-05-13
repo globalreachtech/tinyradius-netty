@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static java.lang.Integer.parseInt;
-import static org.tinyradius.core.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
+import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
 
 @Log4j2
 @RequiredArgsConstructor

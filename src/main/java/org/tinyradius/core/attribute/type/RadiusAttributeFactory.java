@@ -81,7 +81,6 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
         return create(dictionary, vendorId, type, tag, bytes);
     }
 
-    // TODO https://datatracker.ietf.org/doc/html/rfc8044
     static RadiusAttributeFactory<? extends RadiusAttribute> fromDataType(String dataType) {
         switch (dataType) {
             case "vsa":

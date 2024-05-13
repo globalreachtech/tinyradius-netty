@@ -1,6 +1,7 @@
 package org.tinyradius.core.attribute;
 
 import io.netty.buffer.ByteBuf;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import org.tinyradius.core.RadiusPacketException;
@@ -13,7 +14,6 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static lombok.AccessLevel.NONE;
 import static org.tinyradius.core.attribute.AttributeTypes.TUNNEL_PASSWORD;
@@ -24,6 +24,7 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
  * Represents a Radius attribute type.
  */
 @Getter
+@EqualsAndHashCode
 public class AttributeTemplate {
 
     /**
@@ -52,11 +53,14 @@ public class AttributeTemplate {
      */
     private final AttributeCodecType codecType;
 
+    @EqualsAndHashCode.Exclude
     private final RadiusAttributeFactory<? extends RadiusAttribute> factory;
 
     @Getter(NONE)
+    @EqualsAndHashCode.Exclude
     private final Map<Integer, String> int2str = new HashMap<>();
     @Getter(NONE)
+    @EqualsAndHashCode.Exclude
     private final Map<String, Integer> str2int = new HashMap<>();
 
     /**
@@ -236,23 +240,5 @@ public class AttributeTemplate {
             return ASCEND_SEND_SECRET;
 
         return fromEncryptFlagId(encryptFlag);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AttributeTemplate)) return false;
-        final AttributeTemplate that = (AttributeTemplate) o;
-        return vendorId == that.vendorId &&
-                type == that.type &&
-                tagged == that.tagged &&
-                name.equals(that.name) &&
-                dataType.equals(that.dataType) &&
-                codecType == that.codecType;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(vendorId, type, name, dataType, tagged, codecType);
     }
 }

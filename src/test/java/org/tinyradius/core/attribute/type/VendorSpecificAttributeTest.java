@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.tinyradius.core.attribute.type.VendorSpecificAttribute.VENDOR_SPECIFIC;
+import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
 
 class VendorSpecificAttributeTest {
 
