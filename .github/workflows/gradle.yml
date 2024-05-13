@@ -21,17 +21,11 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
       - name: Build with Gradle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         uses: gradle/actions/setup-gradle@v3
         with:
-          arguments: clean build jacocoTestReport sonarqube --info --warning-mode=all
+          arguments: clean build jacocoTestReport --info --warning-mode=all
       - name: Coveralls GitHub Action
         uses: coverallsapp/github-action@v2.3.0

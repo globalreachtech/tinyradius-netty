@@ -4,7 +4,6 @@ plugins {
     id 'signing'
     id 'maven-publish'
     id 'io.freefair.lombok' version '8.6'
-    id 'org.sonarqube' version '5.0.0.4638'
     id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
 }
 
@@ -40,15 +39,6 @@ jacocoTestReport {
     reports {
         xml.required = true
         html.required = true
-    }
-}
-
-sonarqube {
-    properties {
-        property "sonar.projectKey", "globalreachtech_tinyradius-netty"
-        property "sonar.organization", "globalreachtech"
-        property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.exclusions", "'**/AttributeType*','**/PacketType*'"
     }
 }
 
