@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     implementation 'org.apache.logging.log4j:log4j-api:2.23.1'
-    implementation 'io.netty:netty-codec:4.1.110.Final'
+    implementation 'io.netty:netty-codec:4.1.111.Final'
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.2'
 
     testImplementation 'org.apache.logging.log4j:log4j-core:2.23.1'
