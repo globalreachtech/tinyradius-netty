@@ -39,4 +39,4 @@ jobs:
         run: ./gradlew clean build jacocoTestReport sonarqube --info --warning-mode=all
 
       - name: Coveralls GitHub Action
-        uses: coverallsapp/github-action@v2.3.0
+        uses: coverallsapp/github-action@v2.3.1
