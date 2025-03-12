@@ -2,6 +2,7 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,6 +10,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.parser.DictionaryParser;
+import org.tinyradius.core.packet.request.AccessRequest;
+import org.tinyradius.core.packet.request.RadiusRequest;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -474,5 +477,24 @@ class VendorSpecificAttributeTest {
         // decode again
         final VendorSpecificAttribute decode1 = decoded.decode(requestAuth, secret);
         assertEquals(decode1, decoded);
+    }
+
+    @Test
+    void addToRequest() throws RadiusPacketException{
+
+        // Create vendor specific attribute
+        final String vendorAttrName = "WISPr-Location-ID";
+        RadiusAttribute vsa = dictionary.createAttribute(vendorAttrName, "anything");
+
+        // This Works --- Create request with empty attribute list and add vsa later
+        RadiusRequest request1 = ((AccessRequest) RadiusRequest.create(dictionary, (byte)1, (byte) 1, null, List.of()));
+        request1 = request1.addAttribute(vsa);
+        // Check. Retrieve the just inserted attribute and check name
+        assertEquals(vendorAttrName, request1.getAttribute(vendorAttrName).get().getAttributeName());
+
+        // This fails --- Create request with vsa in attribute list at creation time
+        RadiusRequest request2 = ((AccessRequest) RadiusRequest.create(dictionary, (byte)1, (byte) 1, null, List.of(vsa)));
+        // Check. Try to retrieve the inserted attribute and verify its name
+        assertEquals(vendorAttrName, request2.getAttribute(vendorAttrName).get().getAttributeName());
     }
 }
