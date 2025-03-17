@@ -81,7 +81,7 @@ Can be done by using the same code as in `NestedAttributeHolder.addAttribute`
         // Wrap vendor specific attributes. Same as in NestedAttributesHolder
         List<RadiusAttribute> wrappedAttributes = attributes.stream().map(attr -> 
             attr.getVendorId() == -1 ? attr : new VendorSpecificAttribute(dictionary, attr.getVendorId(), Collections.singletonList(attr))
-            ).toList();
+            ).collect(Collectors.toList());
         final ByteBuf header = RadiusPacket.buildHeader(type, id, authenticator, wrappedAttributes);
         return create(dictionary, header, wrappedAttributes);
     }

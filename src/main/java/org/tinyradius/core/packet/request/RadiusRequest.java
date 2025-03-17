@@ -12,6 +12,7 @@ import org.tinyradius.core.packet.RadiusPacket;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
@@ -45,7 +46,7 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
         // Wrap vendor specific attributes. Same as in NestedAttributesHolder
         List<RadiusAttribute> wrappedAttributes = attributes.stream().map(attr -> 
             attr.getVendorId() == -1 ? attr : new VendorSpecificAttribute(dictionary, attr.getVendorId(), Collections.singletonList(attr))
-            ).toList();
+            ).collect(Collectors.toList());
         final ByteBuf header = RadiusPacket.buildHeader(type, id, authenticator, wrappedAttributes);
         return create(dictionary, header, wrappedAttributes);
     }
