@@ -63,20 +63,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         return withAuthAttributes(getAuthenticator(), attributes);
     }
 
-    public T withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        final ByteBuf newHeader = RadiusPacket.buildHeader(getType(), getId(), auth, attributes);
-        return with(newHeader, attributes);
-    }
-
-    /**
-     * Naive with(), does not recalculate packet lengths in header.
-     *
-     * @param header     Radius packet header
-     * @param attributes Radius packet attributes
-     * @return RadiusPacket with the specified headers and attributes
-     * @throws RadiusPacketException packet validation exceptions
-     */
-    protected abstract T with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException;
+    public abstract T withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException;
 
     /**
      * @param sharedSecret shared secret
