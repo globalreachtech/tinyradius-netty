@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.RadiusPacket;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
 
 import java.security.SecureRandom;
@@ -146,7 +145,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * @return instance without USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE attributes
      */
     private AccessRequest withoutAuths() throws RadiusPacketException {
-        return withAttributes(getAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
+        return (AccessRequest) withAttributes(getAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
     }
 
     /**
@@ -164,7 +163,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
 
         final byte[] auth = genAuth(sharedSecret);
 
-        return withAuthAttributes(auth, encodeAttributes(auth, sharedSecret))
+        return ((AccessRequest) withAuthAttributes(auth, encodeAttributes(auth, sharedSecret)))
                 .encodeMessageAuth(sharedSecret, auth);
     }
 
@@ -182,16 +181,6 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
     }
 
-    @Override
-    public AccessRequest withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
-        return withAuthAttributes(getAuthenticator(), attributes);
-    }
-
-    @Override
-    public AccessRequest withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        final ByteBuf header = RadiusPacket.buildHeader(getType(), getId(), auth, attributes);
-        return create(getDictionary(), header, attributes);
-    }
 
     public interface AccessRequestFactory {
         AccessRequest newInstance(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException;

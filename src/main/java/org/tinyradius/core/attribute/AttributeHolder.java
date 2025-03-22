@@ -216,7 +216,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     T withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException;
 
     /**
-     * Adds a attribute to this attribute container.
+     * Adds an attribute to this attribute container.
      *
      * @param attribute attribute to add
      * @return object of same type with appended attribute

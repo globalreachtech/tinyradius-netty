@@ -1,6 +1,5 @@
 package org.tinyradius.core.packet;
 
-import io.netty.buffer.ByteBuf;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.RadiusPacketException;
@@ -8,6 +7,7 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.VendorSpecificAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.parser.DictionaryParser;
+import org.tinyradius.core.packet.request.RadiusRequest;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -197,6 +197,21 @@ class BaseRadiusPacketTest {
         assertEquals(23, packet2.toByteBuf().getShort(2));
     }
 
+    @Test
+    void vsaAutoWrap() throws RadiusPacketException {
+        final String vendorAttrName = "WISPr-Location-ID";
+        RadiusAttribute vsa = dictionary.createAttribute(vendorAttrName, "anything");
+
+        // Create request with empty attribute list and add vsa later
+        RadiusRequest request1 = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, List.of())
+                .addAttribute(vsa);
+        assertEquals(vendorAttrName, request1.getAttribute(vendorAttrName).get().getAttributeName());
+
+        // Create request with vsa in attribute list at creation time
+        RadiusRequest request2 = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, List.of(vsa));
+        assertEquals(vendorAttrName, request2.getAttribute(vendorAttrName).get().getAttributeName());
+    }
+
     private static class StubPacket extends BaseRadiusPacket<StubPacket> {
 
         private StubPacket() throws RadiusPacketException {
@@ -208,7 +223,7 @@ class BaseRadiusPacketTest {
         }
 
         @Override
-        protected StubPacket with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        public StubPacket withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
             return new StubPacket(attributes);
         }
     }

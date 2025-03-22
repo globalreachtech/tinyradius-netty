@@ -4,13 +4,12 @@ import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.RadiusPacket;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.toList;
 import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
 
 /**
@@ -24,14 +23,13 @@ public class AccessRequestPap extends AccessRequest {
 
     static AccessRequest withPassword(AccessRequest request, String password) throws RadiusPacketException {
         final List<RadiusAttribute> attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
-        final ByteBuf header = RadiusPacket.buildHeader(request.getType(), request.getId(), request.getAuthenticator(), attributes);
-        return create(request.getDictionary(), header, attributes);
+        return (AccessRequest) request.withAttributes(attributes);
     }
 
     private static List<RadiusAttribute> withPasswordAttribute(Dictionary dictionary, List<RadiusAttribute> attributes, String password) {
         final List<RadiusAttribute> newAttributes = attributes.stream()
                 .filter(a -> a.getVendorId() != -1 || a.getType() != USER_PASSWORD)
-                .collect(Collectors.toList());
+                .collect(toList());
 
         newAttributes.add(dictionary.createAttribute(-1, USER_PASSWORD, password.getBytes(UTF_8)));
         return newAttributes;

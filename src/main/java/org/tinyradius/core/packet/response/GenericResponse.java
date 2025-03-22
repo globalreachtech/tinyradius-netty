@@ -29,7 +29,7 @@ public class GenericResponse extends BaseRadiusPacket<RadiusResponse> implements
     }
 
     @Override
-    protected RadiusResponse with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        return RadiusResponse.create(getDictionary(), header, attributes);
+    public RadiusResponse withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        return RadiusResponse.create(getDictionary(), getType(), getId(), auth, attributes);
     }
 }

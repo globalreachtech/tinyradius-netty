@@ -1,6 +1,5 @@
 package org.tinyradius.core.packet.util;
 
-import io.netty.buffer.ByteBuf;
 import net.jradius.packet.RadiusFormat;
 import net.jradius.packet.RadiusPacket;
 import net.jradius.packet.attribute.Attr_UnknownAttribute;
@@ -91,8 +90,8 @@ class MessageAuthSupportTest {
         }
 
         @Override
-        protected TestPacket with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
-            return new TestPacket(header.getByte(0), header.getByte(1), header.slice(4, 16).copy().array(), attributes);
+        public TestPacket withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+            return new TestPacket(getType(), getId(), getAuthenticator(), attributes);
         }
     }
 }

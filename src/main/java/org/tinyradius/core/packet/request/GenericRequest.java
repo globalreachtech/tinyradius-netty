@@ -35,7 +35,7 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
     }
 
     @Override
-    protected RadiusRequest with(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        return RadiusRequest.create(getDictionary(), header, attributes);
+    public RadiusRequest withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        return RadiusRequest.create(getDictionary(), getType(), getId(), auth, attributes);
     }
 }
