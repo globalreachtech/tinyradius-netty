@@ -6,10 +6,13 @@ import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
+import org.tinyradius.core.attribute.type.VendorSpecificAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.RadiusPacket;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.tinyradius.core.packet.PacketType.*;
 
@@ -42,8 +45,12 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @throws RadiusPacketException packet validation exceptions
      */
     static RadiusResponse create(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        final ByteBuf header = RadiusPacket.buildHeader(type, id, authenticator, attributes);
-        return create(dictionary, header, attributes);
+        // Wrap vendor specific attributes. Same as in NestedAttributesHolder
+        List<RadiusAttribute> wrappedAttributes = attributes.stream().map(attr -> 
+            attr.getVendorId() == -1 ? attr : new VendorSpecificAttribute(dictionary, attr.getVendorId(), Collections.singletonList(attr))
+            ).collect(Collectors.toList());
+        final ByteBuf header = RadiusPacket.buildHeader(type, id, authenticator, wrappedAttributes);
+        return create(dictionary, header, wrappedAttributes);
     }
 
     /**
