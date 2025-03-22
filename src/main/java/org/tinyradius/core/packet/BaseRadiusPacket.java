@@ -60,8 +60,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     @Override
     public T withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
-        final ByteBuf newHeader = RadiusPacket.buildHeader(getType(), getId(), getAuthenticator(), attributes);
-        return with(newHeader, attributes);
+        return withAuthAttributes(getAuthenticator(), attributes);
     }
 
     public T withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {

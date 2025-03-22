@@ -146,7 +146,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * @return instance without USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE attributes
      */
     private AccessRequest withoutAuths() throws RadiusPacketException {
-        return withAttributes(getAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
+        return (AccessRequest) withAttributes(getAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
     }
 
     /**
@@ -180,11 +180,6 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
 
         verifyMessageAuth(sharedSecret, getAuthenticator());
         return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
-    }
-
-    @Override
-    public AccessRequest withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException {
-        return withAuthAttributes(getAuthenticator(), attributes);
     }
 
     @Override

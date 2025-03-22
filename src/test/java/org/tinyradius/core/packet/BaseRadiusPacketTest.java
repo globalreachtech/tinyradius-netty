@@ -8,6 +8,7 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.VendorSpecificAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.parser.DictionaryParser;
+import org.tinyradius.core.packet.request.RadiusRequest;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -195,6 +196,21 @@ class BaseRadiusPacketTest {
                 Collections.singletonList(dictionary.createAttribute("User-Name", "a")));
         assertEquals(23, packet2.toByteBuf().readableBytes());
         assertEquals(23, packet2.toByteBuf().getShort(2));
+    }
+
+    @Test
+    void vsaAutoWrap() throws RadiusPacketException {
+        final String vendorAttrName = "WISPr-Location-ID";
+        RadiusAttribute vsa = dictionary.createAttribute(vendorAttrName, "anything");
+
+        // Create request with empty attribute list and add vsa later
+        RadiusRequest request1 = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, List.of())
+                .addAttribute(vsa);
+        assertEquals(vendorAttrName, request1.getAttribute(vendorAttrName).get().getAttributeName());
+
+        // Create request with vsa in attribute list at creation time
+        RadiusRequest request2 = RadiusRequest.create(dictionary, (byte) 1, (byte) 1, null, List.of(vsa));
+        assertEquals(vendorAttrName, request2.getAttribute(vendorAttrName).get().getAttributeName());
     }
 
     private static class StubPacket extends BaseRadiusPacket<StubPacket> {

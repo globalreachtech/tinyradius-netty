@@ -33,8 +33,7 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
 
     /**
      * Creates a RadiusPacket object. Depending on the passed type, an
-     * appropriate packet is created. Also sets the type, and the
-     * the packet id.
+     * appropriate packet is created. Also sets the type, and the packet id.
      *
      * @param dictionary    custom dictionary to use
      * @param type          packet type
