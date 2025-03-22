@@ -30,8 +30,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
 @Log4j2
@@ -64,7 +64,7 @@ public class Harness {
                 log.info("Packet after it was sent\n{}\n", r);
                 log.info("Response\n{}\n", response);
                 return response;
-            }).collect(Collectors.toList());
+            }).collect(toList());
         }
     }
 

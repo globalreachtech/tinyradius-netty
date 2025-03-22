@@ -7,9 +7,9 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.toList;
 import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
 
 /**
@@ -29,7 +29,7 @@ public class AccessRequestPap extends AccessRequest {
     private static List<RadiusAttribute> withPasswordAttribute(Dictionary dictionary, List<RadiusAttribute> attributes, String password) {
         final List<RadiusAttribute> newAttributes = attributes.stream()
                 .filter(a -> a.getVendorId() != -1 || a.getType() != USER_PASSWORD)
-                .collect(Collectors.toList());
+                .collect(toList());
 
         newAttributes.add(dictionary.createAttribute(-1, USER_PASSWORD, password.getBytes(UTF_8)));
         return newAttributes;

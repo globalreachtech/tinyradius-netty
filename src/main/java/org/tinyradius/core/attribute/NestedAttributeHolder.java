@@ -4,7 +4,10 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.VendorSpecificAttribute;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -15,6 +18,19 @@ import static java.util.stream.Collectors.toList;
  * An abstraction of all attribute management methods used by Radius packets.
  */
 public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> extends AttributeHolder<T> {
+
+    int CHILD_VENDOR_ID = -1;
+
+    static RadiusAttribute vsaAutowrap(RadiusAttribute attribute) {
+        return attribute.getVendorId() == CHILD_VENDOR_ID ?
+                attribute :
+                new VendorSpecificAttribute(attribute.getDictionary(), attribute.getVendorId(), List.of(attribute));
+    }
+
+    @Override
+    default int getChildVendorId() {
+        return CHILD_VENDOR_ID;
+    }
 
     /**
      * Returns all attributes of this packet that match the
@@ -81,7 +97,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
 
     /**
      * Adds a Radius attribute to this packet. Can also be used
-     * to add Vendor-Specific sub-attributes. If a attribute with
+     * to add Vendor-Specific sub-attributes. If an attribute with
      * a vendor code != -1 is passed in, a VendorSpecificAttribute
      * is automatically created for the sub-attribute.
      *
@@ -89,11 +105,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      */
     @Override
     default T addAttribute(RadiusAttribute attribute) throws RadiusPacketException {
-        final RadiusAttribute toAdd = attribute.getVendorId() == getChildVendorId() ?
-                attribute :
-                new VendorSpecificAttribute(getDictionary(), attribute.getVendorId(), Collections.singletonList(attribute));
-
-        return AttributeHolder.super.addAttribute(toAdd);
+        return AttributeHolder.super.addAttribute(vsaAutowrap(attribute));
     }
 
     /**

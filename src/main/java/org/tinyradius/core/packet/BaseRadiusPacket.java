@@ -23,7 +23,6 @@ import java.util.List;
 public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements RadiusPacket<T> {
 
     private static final int HEADER_LENGTH = 20;
-    private static final int CHILD_VENDOR_ID = -1;
 
     private final Dictionary dictionary;
 
@@ -46,11 +45,6 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         if (length != declaredLength)
             throw new RadiusPacketException("Packet length mismatch, " +
                     "actual length (" + length + ")  does not match declared length (" + declaredLength + ")");
-    }
-
-    @Override
-    public int getChildVendorId() {
-        return CHILD_VENDOR_ID;
     }
 
     @Override

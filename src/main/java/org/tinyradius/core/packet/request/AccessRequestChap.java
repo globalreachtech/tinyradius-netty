@@ -10,9 +10,9 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.toList;
 import static org.tinyradius.core.attribute.AttributeTypes.CHAP_CHALLENGE;
 import static org.tinyradius.core.attribute.AttributeTypes.CHAP_PASSWORD;
 
@@ -48,7 +48,7 @@ public class AccessRequestChap extends AccessRequest {
         final List<RadiusAttribute> newAttributes = attributes.stream()
                 .filter(a -> !(a.getVendorId() == -1 && a.getType() == CHAP_PASSWORD)
                         && !(a.getVendorId() == -1 && a.getType() == CHAP_CHALLENGE))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         newAttributes.add(dictionary.createAttribute(-1, CHAP_CHALLENGE, challenge));
         newAttributes.add(dictionary.createAttribute(-1, CHAP_PASSWORD,

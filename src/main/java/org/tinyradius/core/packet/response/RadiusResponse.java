@@ -5,15 +5,14 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
+import org.tinyradius.core.attribute.NestedAttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.core.attribute.type.VendorSpecificAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.RadiusPacket;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static org.tinyradius.core.packet.PacketType.*;
 
 public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
@@ -44,10 +43,9 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @throws RadiusPacketException packet validation exceptions
      */
     static RadiusResponse create(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        // Wrap vendor specific attributes. Same as in NestedAttributesHolder
-        List<RadiusAttribute> wrappedAttributes = attributes.stream().map(attr -> 
-            attr.getVendorId() == -1 ? attr : new VendorSpecificAttribute(dictionary, attr.getVendorId(), Collections.singletonList(attr))
-            ).collect(Collectors.toList());
+        List<RadiusAttribute> wrappedAttributes = attributes.stream()
+                .map(NestedAttributeHolder::vsaAutowrap)
+                .collect(toList());
         final ByteBuf header = RadiusPacket.buildHeader(type, id, authenticator, wrappedAttributes);
         return create(dictionary, header, wrappedAttributes);
     }
