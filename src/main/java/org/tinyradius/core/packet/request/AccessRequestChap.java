@@ -27,8 +27,7 @@ public class AccessRequestChap extends AccessRequest {
 
     static AccessRequest withPassword(AccessRequest request, String password) throws RadiusPacketException {
         final List<RadiusAttribute> attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
-        final ByteBuf header = RadiusPacket.buildHeader(request.getType(), request.getId(), request.getAuthenticator(), attributes);
-        return create(request.getDictionary(), header, attributes);
+        return (AccessRequest) request.withAttributes(attributes);
     }
 
     /**

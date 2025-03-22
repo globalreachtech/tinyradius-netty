@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.RadiusPacket;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +23,7 @@ public class AccessRequestPap extends AccessRequest {
 
     static AccessRequest withPassword(AccessRequest request, String password) throws RadiusPacketException {
         final List<RadiusAttribute> attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
-        final ByteBuf header = RadiusPacket.buildHeader(request.getType(), request.getId(), request.getAuthenticator(), attributes);
-        return create(request.getDictionary(), header, attributes);
+        return (AccessRequest) request.withAttributes(attributes);
     }
 
     private static List<RadiusAttribute> withPasswordAttribute(Dictionary dictionary, List<RadiusAttribute> attributes, String password) {
