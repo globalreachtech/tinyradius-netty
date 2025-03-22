@@ -1,16 +1,17 @@
 plugins {
     id 'java-library'
-    id 'jacoco'
-    id 'signing'
-    id 'maven-publish'
     id 'io.freefair.lombok' version '8.13'
+    id 'jacoco'
     id 'org.sonarqube' version '6.0.1.5171'
-    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
+    id 'maven-publish'
+    id 'org.jreleaser' version '1.17.0'
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+    withJavadocJar()
+    withSourcesJar()
 }
 
 group = 'com.globalreachtech'
@@ -58,30 +59,32 @@ test {
     useJUnitPlatform()
 }
 
-tasks.register('javadocJar', Jar) {
-    archiveClassifier = 'javadoc'
-    from javadoc
-}
-
-tasks.register('sourcesJar', Jar) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-nexusPublishing {
-    repositories {
-        sonatype()
+jreleaser {
+    signing {
+        active = 'ALWAYS'
+        armored = true
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    stagingRepository('build/staging-deploy')
+                }
+            }
+        }
     }
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            groupId = group
+            artifactId = project.name
+
             from components.java
-            afterEvaluate {
-                artifact sourcesJar
-                artifact javadocJar
-            }
+
             pom {
                 name = project.name
                 description = 'TinyRadius-Netty is a small Java Radius library'
@@ -108,8 +111,9 @@ publishing {
             }
         }
     }
-}
-
-signing {
-    sign publishing.publications.mavenJava
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
 }

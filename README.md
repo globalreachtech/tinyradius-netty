@@ -33,25 +33,13 @@ See the [e2e tests](src/test/java/org/tinyradius/e2e/EndToEndTest.java) on usage
 
 ## Maintainers
 
-Set credentials for signing and Nexus in `~/.gradle/gradle.properties`:
-```
-signing.keyId=3D6EA292
-signing.password=******
-signing.secretKeyRingFile=C:\\Users\\user1\\secring.gpg
-
-sonatypeUsername=myUser
-sonatypePassword=***************
-```
-
-Push to staging repository (manually verify/release via Nexus UI):
-```shell
-./gradlew publishToSonatype closeSonatypeStagingRepository
-```
-
-Publish directly to Maven Central:
-```shell
-./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
-```
+- Ensure you have user tokens for [Central Portal](https://central.sonatype.org/publish-ea/publish-ea-guide/) instead of
+  legacy OSSRH
+- [Set up GPG](https://central.sonatype.org/publish/requirements/gpg/) for artifact signing
+- [Publish locally](https://jreleaser.org/guide/latest/examples/maven/staging-artifacts.html#_gradle) and confirm
+  artifacts
+- Use JReleaser
+  following [Portal Publisher config](https://jreleaser.org/guide/latest/examples/maven/maven-central.html#_gradle)
 
 ## License
 Copyright Matthias Wuttke and contributors:
