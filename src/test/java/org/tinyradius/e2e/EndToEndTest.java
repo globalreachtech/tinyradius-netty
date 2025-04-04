@@ -14,7 +14,6 @@ import org.tinyradius.io.server.RadiusServer;
 import java.util.List;
 import java.util.Map;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.tinyradius.core.packet.PacketType.*;
 
@@ -34,12 +33,13 @@ class EndToEndTest {
     private final Harness harness = new Harness();
 
     @Test
-    void testAll() throws RadiusPacketException {
+    void testAll() throws RadiusPacketException, InterruptedException {
         var username = "user1";
         var pw = "pw1";
         try (var origin = startOrigin(Map.of(username, pw));
              var proxy = startProxy()) {
-            await().until(() -> proxy.isReady().isSuccess() && origin.isReady().isSuccess());
+            proxy.isReady().sync();
+            origin.isReady().sync();
 
             RadiusRequest r1 = ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of()))
                     .withPapPassword(pw)
@@ -59,20 +59,26 @@ class EndToEndTest {
             assertEquals(ACCESS_ACCEPT, responses.get(0).getType());
             assertEquals(ACCOUNTING_RESPONSE, responses.get(1).getType());
             assertEquals(ACCESS_REJECT, responses.get(2).getType());
+
+            origin.closeAsync().sync();
+            proxy.closeAsync().sync();
         }
     }
 
     @Test
-    void testProxyStartup() {
+    void testProxyStartup() throws InterruptedException {
         try (var proxy = startProxy()) {
-            await().until(() -> proxy.isReady().isSuccess());
+            proxy.isReady().sync();
+            proxy.closeAsync().sync();
         }
     }
 
     @Test
-    void testOriginStartup() {
+    void testOriginStartup() throws InterruptedException {
         try (var origin = startOrigin(Map.of())) {
-            await().until(() -> origin.isReady().isSuccess());
+            origin.isReady().sync();
+            origin.closeAsync().sync();
+
         }
     }
 

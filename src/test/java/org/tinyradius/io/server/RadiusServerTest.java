@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.List;
 
 import static org.awaitility.Awaitility.await;
@@ -65,7 +64,7 @@ class RadiusServerTest {
         await().until(() -> !acctChannel.isRegistered());
 
         // no handlers registered
-        assertEquals(Collections.singletonList(TAIL_CONTEXT), accessChannel.pipeline().names());
-        assertEquals(Collections.singletonList(TAIL_CONTEXT), acctChannel.pipeline().names());
+        assertEquals(List.of(TAIL_CONTEXT), accessChannel.pipeline().names());
+        assertEquals(List.of(TAIL_CONTEXT), acctChannel.pipeline().names());
     }
 }

@@ -1,19 +1,15 @@
 package org.tinyradius.io.server;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelOutboundInvoker;
+import io.netty.channel.*;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
 import lombok.extern.log4j.Log4j2;
+import org.tinyradius.io.RadiusLifecycle;
 
-import java.io.Closeable;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -23,8 +19,9 @@ import static java.util.stream.Collectors.toList;
  * Implements a simple Radius server.
  */
 @Log4j2
-public class RadiusServer implements Closeable {
+public class RadiusServer implements RadiusLifecycle {
 
+    private final EventLoopGroup eventLoopGroup;
     private final List<ChannelFuture> channelFutures;
     private final Promise<Void> isReady;
 
@@ -52,8 +49,8 @@ public class RadiusServer implements Closeable {
         if (channelHandlers.size() != socketAddresses.size())
             throw new IllegalArgumentException(String.format("ChannelHandlers size (%s) and SocketAddresses size (%s) don't match",
                     channelHandlers.size(), socketAddresses.size()));
-
-        isReady = bootstrap.config().group().next().newPromise();
+        eventLoopGroup = bootstrap.config().group();
+        isReady = eventLoopGroup.next().newPromise();
         final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
 
         channelFutures = IntStream.range(0, channelHandlers.size())
@@ -62,16 +59,8 @@ public class RadiusServer implements Closeable {
 
         combiner.addAll(channelFutures.toArray(ChannelFuture[]::new));
         combiner.finish(isReady);
-        isReady.addListener(f -> {
-            final List<SocketAddress> addresses = channelFutures.stream()
-                    .map(ChannelFuture::channel)
-                    .map(Channel::localAddress).collect(toList());
-            log.info("Server start success: {} for address {}", f.isSuccess(), addresses);
-        });
-    }
-
-    public Future<Void> isReady() {
-        return isReady;
+        isReady.addListener(f ->
+                log.info("Server start success: {} for address {}", f.isSuccess(), socketAddresses));
     }
 
     public List<Channel> getChannels() {
@@ -79,13 +68,27 @@ public class RadiusServer implements Closeable {
     }
 
     @Override
-    public void close() {
+    public Future<Void> isReady() {
+        return isReady;
+    }
+
+    @Override
+    public Future<Void> closeAsync() {
         log.info("Closing server on {}", channelFutures.stream()
                 .map(ChannelFuture::channel)
                 .map(Channel::localAddress)
                 .collect(toList()));
-        channelFutures.stream()
+
+        final List<ChannelFuture> futures = channelFutures.stream()
                 .map(ChannelFuture::channel)
-                .forEach(ChannelOutboundInvoker::close);
+                .map(ChannelOutboundInvoker::close)
+                .collect(toList());
+
+        final Promise<Void> isClosed = eventLoopGroup.next().newPromise();
+        final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
+        combiner.addAll(futures.toArray(ChannelFuture[]::new));
+        combiner.finish(isClosed);
+
+        return isClosed;
     }
 }

@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
@@ -69,36 +68,34 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateSuccess() throws RadiusPacketException {
+    void communicateSuccess() throws RadiusPacketException, InterruptedException {
         var id = (byte) random.nextInt(256);
         var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
         var response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, List.of());
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.of(response))) {
-            var future = radiusClient.communicate(request, stubEndpoint);
+            var future = radiusClient.communicate(request, stubEndpoint).await();
 
-            await().until(future::isDone);
             assertTrue(future.isSuccess());
             assertSame(response, future.getNow());
         }
     }
 
     @Test
-    void outboundError() throws RadiusPacketException {
+    void outboundError() throws RadiusPacketException, InterruptedException {
         var exception = new Exception("test 123");
         var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.of(exception))) {
-            var future = radiusClient.communicate(request, stubEndpoint);
+            var future = radiusClient.communicate(request, stubEndpoint).await();
 
-            await().until(future::isDone);
             assertFalse(future.isSuccess());
             assertSame(exception, future.cause());
         }
     }
 
     @Test
-    void communicateEndpointListFirstSuccess() throws RadiusPacketException {
+    void communicateEndpointListFirstSuccess() throws RadiusPacketException, InterruptedException {
         byte id = (byte) random.nextInt(256);
         var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
         var response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, List.of());
@@ -109,9 +106,8 @@ class RadiusClientTest {
         var endpoints = Arrays.asList(stubEndpoint, stubEndpoint2, stubEndpoint3);
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler)) {
-            var future = radiusClient.communicate(request, endpoints);
+            var future = radiusClient.communicate(request, endpoints).await();
 
-            await().until(future::isDone);
             assertTrue(future.isSuccess());
             assertEquals(response, future.getNow());
 
@@ -121,21 +117,20 @@ class RadiusClientTest {
     }
 
     @Test
-    void communicateEndpointListEmpty() throws RadiusPacketException {
+    void communicateEndpointListEmpty() throws RadiusPacketException, InterruptedException {
         var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
         var exception = new Exception("test 123");
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.of(exception))) {
-            var future = radiusClient.communicate(request, List.of());
+            var future = radiusClient.communicate(request, List.of()).await();
 
-            await().until(future::isDone);
             assertFalse(future.isSuccess());
             assertTrue(future.cause().getMessage().contains("no valid endpoints"));
         }
     }
 
     @Test
-    void communicateEndpointListAllFail() throws RadiusPacketException {
+    void communicateEndpointListAllFail() throws RadiusPacketException, InterruptedException {
         var exception = new Exception("test 123");
         var stubEndpoint2 = new RadiusEndpoint(new InetSocketAddress(1), "secret2");
         var stubEndpoint3 = new RadiusEndpoint(new InetSocketAddress(2), "secret3");
@@ -145,9 +140,8 @@ class RadiusClientTest {
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, capturingOutboundHandler)) {
             var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
-            var future = radiusClient.communicate(request, endpoints);
+            var future = radiusClient.communicate(request, endpoints).await();
 
-            await().until(future::isDone);
             assertFalse(future.isSuccess());
             assertTrue(future.cause().getMessage().contains("all endpoints failed"));
             assertSame(exception, future.cause().getCause());
@@ -162,13 +156,12 @@ class RadiusClientTest {
     }
 
     @Test
-    void retainPacketsWithRetries() throws RadiusPacketException {
+    void retainPacketsWithRetries() throws RadiusPacketException, InterruptedException {
         try (var radiusClient = new RadiusClient(
                 bootstrap, address, new FixedTimeoutHandler(timer, 2, 0), CapturingOutboundHandler.NOOP)) {
             var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
-            var future = radiusClient.communicate(request, stubEndpoint);
+            var future = radiusClient.communicate(request, stubEndpoint).await();
 
-            await().until(future::isDone);
             assertFalse(future.isSuccess());
             assertEquals("Client send timeout - max attempts reached: 2", future.cause().getMessage());
 
