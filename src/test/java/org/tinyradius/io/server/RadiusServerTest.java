@@ -3,7 +3,9 @@ package org.tinyradius.io.server;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.List;
 
 import static org.awaitility.Awaitility.await;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class RadiusServerTest {
 
-    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
+    private final EventLoopGroup eventLoopGroup = new MultiThreadIoEventLoopGroup(2, NioIoHandler.newFactory());
 
     private final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
@@ -65,7 +66,7 @@ class RadiusServerTest {
         await().until(() -> !acctChannel.isRegistered());
 
         // no handlers registered
-        assertEquals(Collections.singletonList(TAIL_CONTEXT), accessChannel.pipeline().names());
-        assertEquals(Collections.singletonList(TAIL_CONTEXT), acctChannel.pipeline().names());
+        assertEquals(List.of(TAIL_CONTEXT), accessChannel.pipeline().names());
+        assertEquals(List.of(TAIL_CONTEXT), acctChannel.pipeline().names());
     }
 }

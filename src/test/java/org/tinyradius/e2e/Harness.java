@@ -2,7 +2,8 @@ package org.tinyradius.e2e;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
@@ -42,7 +43,7 @@ public class Harness {
     private final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer);
 
     public List<RadiusResponse> testClient(String host, int accessPort, int acctPort, String secret, List<RadiusRequest> requests) {
-        var eventLoopGroup = new NioEventLoopGroup(4);
+        var eventLoopGroup = new MultiThreadIoEventLoopGroup(4, NioIoHandler.newFactory());
         var bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
         try (var rc = new RadiusClient(
@@ -76,7 +77,7 @@ public class Harness {
      * @return Closeable handler to trigger origin server shutdown
      */
     public RadiusServer startOrigin(int originAccessPort, int originAcctPort, String originSecret, Map<String, String> credentials) {
-        var eventLoopGroup = new NioEventLoopGroup(4);
+        var eventLoopGroup = new MultiThreadIoEventLoopGroup(4, NioIoHandler.newFactory());
         var bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
         var serverPacketCodec = new ServerPacketCodec(dictionary, x -> originSecret);
@@ -134,7 +135,7 @@ public class Harness {
      * @return Closeable handler to trigger proxy server shutdown
      */
     public RadiusServer startProxy(int proxyAccessPort, int proxyAcctPort, String proxySecret, int originAccessPort, int originAcctPort, String originSecret) {
-        var eventLoopGroup = new NioEventLoopGroup(4);
+        var eventLoopGroup = new MultiThreadIoEventLoopGroup(4, NioIoHandler.newFactory());
         var bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
         var client = new RadiusClient(bootstrap, new InetSocketAddress(0), retryStrategy, new ChannelInitializer<DatagramChannel>() {

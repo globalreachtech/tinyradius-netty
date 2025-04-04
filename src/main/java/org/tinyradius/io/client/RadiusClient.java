@@ -10,9 +10,9 @@ import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
+import org.tinyradius.io.RadiusLifecycle;
 import org.tinyradius.io.client.timeout.TimeoutHandler;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.List;
  * that socket.
  */
 @Log4j2
-public class RadiusClient implements Closeable {
+public class RadiusClient implements RadiusLifecycle {
 
     private final TimeoutHandler timeoutHandler;
     private final EventLoopGroup eventLoopGroup;
@@ -105,7 +105,12 @@ public class RadiusClient implements Closeable {
     }
 
     @Override
-    public void close() {
-        channelFuture.channel().close();
+    public ChannelFuture isReady() {
+        return channelFuture;
+    }
+
+    @Override
+    public ChannelFuture closeAsync() {
+        return channelFuture.channel().close();
     }
 }
