@@ -1,11 +1,8 @@
 package org.tinyradius.io.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
@@ -43,7 +40,7 @@ class RadiusClientTest {
 
     private final SecureRandom random = new SecureRandom();
 
-    private final NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
+    private final EventLoopGroup eventLoopGroup = new MultiThreadIoEventLoopGroup(2, NioIoHandler.newFactory());
     private final InetSocketAddress address = new InetSocketAddress(0);
     private final RadiusEndpoint stubEndpoint = new RadiusEndpoint(address, "secret");
 
