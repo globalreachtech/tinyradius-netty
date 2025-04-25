@@ -19,7 +19,7 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
      * @return new authenticator, must be idempotent
      */
     protected byte[] genAuth(String sharedSecret) {
-        return genHashedAuth(sharedSecret, new byte[16]);
+        return genHashedAuth(sharedSecret, null);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
 
     @Override
     public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
-        verifyPacketAuth(sharedSecret, new byte[16]);
+        verifyPacketAuth(sharedSecret, null);
         return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
     }
 

@@ -2,6 +2,7 @@ package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import jakarta.annotation.Nullable;
 import lombok.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.NestedAttributeHolder;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNullElse;
 
 public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttributeHolder<T> {
 
@@ -58,12 +60,12 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
     /**
      * @param type       packet type
      * @param id         packet id
-     * @param auth       nullable 16-byte array
+     * @param auth       16-byte array, defaults to empty byte[16] if null
      * @param attributes packet attributes, used to calculate packet length for header
      * @return ByteBuf with 20 readable bytes
      * @throws RadiusPacketException packet validation exceptions
      */
-    static ByteBuf buildHeader(byte type, byte id, byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    static ByteBuf buildHeader(byte type, byte id, @Nullable byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
         if (auth != null && auth.length != 16) // length check only if not null
             throw new RadiusPacketException("Packet Authenticator must be 16 octets, actual: " + auth.length);
 
@@ -135,11 +137,10 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * Note: 'this' packet authenticator is ignored, only requestAuth param is used.
      *
      * @param sharedSecret shared secret
-     * @param requestAuth  request authenticator if hashing for response,
-     *                     otherwise set to 16 zero octets
+     * @param requestAuth  request authenticator if hashing for response, defaults to empty byte[16] if null
      * @return new 16-byte response authenticator
      */
-    default byte[] genHashedAuth(@NonNull String sharedSecret, byte[] requestAuth) {
+    default byte[] genHashedAuth(@NonNull String sharedSecret, @Nullable byte[] requestAuth) {
         if (sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
@@ -151,7 +152,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         md5.update(getId());
         md5.update((byte) (length >> 8));
         md5.update((byte) (length & 0xff));
-        md5.update(requestAuth);
+        md5.update(requireNonNullElse(requestAuth, new byte[16]));
         md5.update(attributeBytes);
         return md5.digest(sharedSecret.getBytes(UTF_8));
     }
