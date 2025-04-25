@@ -2,6 +2,7 @@ package org.tinyradius.core.packet.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
@@ -104,7 +105,10 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
      * @return encoded copy of packet
      * @throws RadiusPacketException packet validation exceptions
      */
-    default T encodeMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    default T encodeMessageAuth(@NonNull String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+        if (sharedSecret.isEmpty())
+            throw new IllegalArgumentException("Shared secret cannot be null/empty");
+
         // When the message integrity check is calculated the signature
         // string should be considered to be sixteen octets of zero.
         final ByteBuffer buffer = ByteBuffer.allocate(16);

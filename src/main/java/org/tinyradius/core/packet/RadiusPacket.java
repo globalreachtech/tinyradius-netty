@@ -137,7 +137,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * @param sharedSecret shared secret
      * @param requestAuth  request authenticator if hashing for response,
      *                     otherwise set to 16 zero octets
-     * @return new 16 byte response authenticator
+     * @return new 16-byte response authenticator
      */
     default byte[] genHashedAuth(@NonNull String sharedSecret, byte[] requestAuth) {
         if (sharedSecret.isEmpty())
