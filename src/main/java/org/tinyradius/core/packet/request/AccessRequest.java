@@ -159,9 +159,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      */
     @Override
     public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
-        var req = super.encodeRequest(sharedSecret);
-
-        return ((AccessRequest) req)
+        return ((AccessRequest) super.encodeRequest(sharedSecret))
                 .encodeMessageAuth(sharedSecret, null);
     }
 
