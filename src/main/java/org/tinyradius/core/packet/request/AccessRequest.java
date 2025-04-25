@@ -162,7 +162,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         var req = super.encodeRequest(sharedSecret);
 
         return ((AccessRequest) req)
-                .encodeMessageAuth(sharedSecret, req.getAuthenticator());
+                .encodeMessageAuth(sharedSecret, null);
     }
 
     @Override
@@ -175,7 +175,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         if (auth.length != 16)
             throw new RadiusPacketException("Authenticator check failed - authenticator must be 16 octets, actual " + auth.length);
 
-        verifyMessageAuth(sharedSecret, getAuthenticator());
+        verifyMessageAuth(sharedSecret, null);
         return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
     }
 

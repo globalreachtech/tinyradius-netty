@@ -2,6 +2,7 @@ package org.tinyradius.core.packet.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import jakarta.annotation.Nullable;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +19,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Objects.requireNonNullElse;
 import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
 
 /**
@@ -29,7 +31,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
 
     Logger msgAuthLogger = LogManager.getLogger();
 
-    static byte[] calcMessageAuthInput(RadiusPacket<?> packet, byte[] requestAuth) {
+    private static byte[] calcMessageAuthInput(RadiusPacket<?> packet, byte[] requestAuth) {
         final ByteBuf buf = Unpooled.buffer()
                 .writeByte(packet.getType())
                 .writeByte(packet.getId())
@@ -48,7 +50,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
         return buf.setShort(2, buf.readableBytes()).copy().array();
     }
 
-    static Mac getHmacMd5(String key) {
+    private static Mac getHmacMd5(String key) {
         try {
             final String HMAC_MD5 = "HmacMD5";
             final SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_MD5);
@@ -60,9 +62,20 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
         }
     }
 
-    default void verifyMessageAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
+    /**
+     * Verifies the packet with an encoded Message-Authenticator attribute.
+     * <p>
+     * Note: 'this' packet authenticator is ignored, only requestAuth param is used.
+     *
+     * @param sharedSecret shared secret
+     * @param requestAuth  corresponding request auth, or 'this' packet auth if null
+     * @throws RadiusPacketException packet validation exceptions
+     */
+    default void verifyMessageAuth(@NonNull String sharedSecret, @Nullable byte[] requestAuth) throws RadiusPacketException {
+        if (sharedSecret.isEmpty())
+            throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
+        final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
         if (msgAuthAttr.isEmpty())
             return;
 
@@ -89,23 +102,28 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
         }
     }
 
-    default byte[] computeMessageAuth(RadiusPacket<?> packet, String sharedSecret, byte[] requestAuth) {
-        final byte[] messageAuthInput = calcMessageAuthInput(packet, requestAuth);
+    /**
+     * @param packet       to compute messageAuth for
+     * @param sharedSecret shared secret
+     * @param requestAuth  corresponding request auth, or 'this' packet auth if null
+     * @return Message Authenticator byte array
+     */
+    private static byte[] computeMessageAuth(RadiusPacket<?> packet, String sharedSecret, @Nullable byte[] requestAuth) {
+        final byte[] messageAuthInput = calcMessageAuthInput(packet, requireNonNullElse(requestAuth, packet.getAuthenticator()));
         return getHmacMd5(sharedSecret).doFinal(messageAuthInput);
     }
 
     /**
-     * Creates packet with an encoded Message-Authenticator attribute.
+     * Creates a packet with an encoded Message-Authenticator attribute.
      * <p>
      * Note: 'this' packet authenticator is ignored, only requestAuth param is used.
      *
      * @param sharedSecret shared secret
-     * @param requestAuth  current packet auth if encoding request,
-     *                     otherwise corresponding request auth
+     * @param requestAuth  corresponding request auth, or 'this' packet auth if null
      * @return encoded copy of packet
      * @throws RadiusPacketException packet validation exceptions
      */
-    default T encodeMessageAuth(@NonNull String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    default T encodeMessageAuth(@NonNull String sharedSecret, @Nullable byte[] requestAuth) throws RadiusPacketException {
         if (sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
