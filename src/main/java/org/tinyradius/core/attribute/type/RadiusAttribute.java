@@ -4,12 +4,15 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
+import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 
 public interface RadiusAttribute {
 
@@ -133,6 +136,12 @@ public interface RadiusAttribute {
                 .orElse(false);
     }
 
+    default AttributeCodecType codecType() {
+        return getAttributeTemplate()
+                .map(AttributeTemplate::getCodecType)
+                .orElse(NO_ENCRYPT);
+    }
+
     default String getAttributeName() {
         return getAttributeTemplate()
                 .map(AttributeTemplate::getName)
@@ -184,5 +193,9 @@ public interface RadiusAttribute {
 
     default boolean isEncoded() {
         return false;
+    }
+
+    default boolean isDecoded() {
+        return !isEncoded();
     }
 }

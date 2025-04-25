@@ -146,6 +146,16 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     }
 
     /**
+     * Convenience method to get single attribute filtered by given predicate
+     *
+     * @param filter RadiusAttribute filter predicate
+     * @return RadiusAttribute object or null if there is no such attribute
+     */
+    default Optional<RadiusAttribute> getAttribute(Predicate<RadiusAttribute> filter) {
+        return getAttributes(filter).stream().findFirst();
+    }
+
+    /**
      * Convenience method to get single attribute.
      *
      * @param type attribute type
@@ -179,7 +189,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     }
 
     /**
-     * Returns attributes of the given type, filtered by given predicate
+     * Returns attributes filtered by given predicate
      *
      * @param filter RadiusAttribute filter predicate
      * @return list of RadiusAttribute objects, or empty list
