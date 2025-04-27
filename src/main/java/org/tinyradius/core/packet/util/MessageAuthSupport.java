@@ -64,8 +64,6 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
 
     /**
      * Verifies the packet with an encoded Message-Authenticator attribute.
-     * <p>
-     * Note: 'this' packet authenticator is ignored, only requestAuth param is used.
      *
      * @param sharedSecret shared secret
      * @param requestAuth  corresponding request auth, or 'this' packet auth if null
@@ -115,19 +113,17 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
 
     /**
      * Creates a packet with an encoded Message-Authenticator attribute.
-     * <p>
-     * Note: 'this' packet authenticator is ignored, only requestAuth param is used.
      *
      * @param sharedSecret shared secret
      * @param requestAuth  corresponding request auth, or 'this' packet auth if null
-     * @return encoded copy of packet
+     * @return encoded copy of this packet
      * @throws RadiusPacketException packet validation exceptions
      */
     default T encodeMessageAuth(@NonNull String sharedSecret, @Nullable byte[] requestAuth) throws RadiusPacketException {
         if (sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
-        // When the message integrity check is calculated the signature
+        // When the message integrity check is calculated, the signature
         // string should be considered to be sixteen octets of zero.
         final ByteBuffer buffer = ByteBuffer.allocate(16);
         final RadiusAttribute attribute = getDictionary().createAttribute(-1, MESSAGE_AUTHENTICATOR, (byte) 0, buffer.array());
@@ -135,7 +131,6 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
         final List<RadiusAttribute> attributes = getAttributes(a -> a.getType() != MESSAGE_AUTHENTICATOR);
         attributes.add(attribute);
 
-        // manually build attribute list instead of using convenience methods to avoid new packet creation
         final T newPacket = withAttributes(attributes);
         buffer.put(computeMessageAuth(newPacket, sharedSecret, requestAuth));
 
