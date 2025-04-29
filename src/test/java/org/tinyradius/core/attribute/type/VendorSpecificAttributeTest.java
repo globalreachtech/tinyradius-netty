@@ -10,8 +10,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.parser.DictionaryParser;
-import org.tinyradius.core.packet.request.AccessRequest;
-import org.tinyradius.core.packet.request.RadiusRequest;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

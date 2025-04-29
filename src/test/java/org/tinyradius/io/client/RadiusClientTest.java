@@ -10,6 +10,7 @@ import io.netty.util.concurrent.Promise;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.core.RadiusPacketException;
@@ -30,6 +31,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
@@ -47,6 +51,13 @@ class RadiusClientTest {
     private final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
     private final Timer timer = new HashedWheelTimer();
+
+    // Convenience class for encapsulating the three hook types
+    static class CommunicateHooks {
+        void preSendHook(int code, InetSocketAddress address){ /* To be mocked */}
+        void timeoutHook(int code, InetSocketAddress address){ /* To be mocked */}
+        void postReceiveHook(int code, InetSocketAddress address){/* To be mocked */}
+    }
 
     @Spy
     private final TimeoutHandler timeoutHandler = new FixedTimeoutHandler(timer); // no retries
@@ -163,6 +174,48 @@ class RadiusClientTest {
             assertEquals("Client send timeout - max attempts reached: 2", future.cause().getMessage());
 
             assertEquals(1, request.toByteBuf().refCnt()); // unpooled, let GC handle it
+        }
+    }
+
+    // "communicate" with per-request maxAttempts, timeout and hooks: request with success
+    @Test 
+    void communicateWithHooksSuccess() throws RadiusPacketException, InterruptedException{
+        var id = (byte) random.nextInt(256);
+        var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
+        var response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, List.of());
+
+        CommunicateHooks communicateHooks  = Mockito.mock(CommunicateHooks.class);
+
+        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.of(response))) {
+            var future = radiusClient.communicate(request, Arrays.asList(stubEndpoint), 1, 500,
+                communicateHooks::preSendHook, communicateHooks::timeoutHook, communicateHooks::postReceiveHook).await();
+
+            assertTrue(future.isSuccess());
+            assertSame(response, future.getNow());
+            verify(communicateHooks, times(1)).preSendHook(eq(1), any(InetSocketAddress.class));
+            verify(communicateHooks, times(1)).postReceiveHook(eq(2), any(InetSocketAddress.class));
+        }
+    }
+
+    // "communicate" with per-request maxAttempts, timeout and hooks: requests timed out in all endpoints
+    @Test 
+    void communicateWithHooksTimeout() throws RadiusPacketException, InterruptedException{
+        var maxAttempts = 2;
+        var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
+
+        var stubEndpoint2 = new RadiusEndpoint(new InetSocketAddress(1), "secret2"); // never used
+        var stubEndpoint3 = new RadiusEndpoint(new InetSocketAddress(2), "secret3"); // never used
+        var endpoints = Arrays.asList(stubEndpoint, stubEndpoint2,  stubEndpoint3);
+
+        CommunicateHooks communicateHooks  = Mockito.mock(CommunicateHooks.class);
+
+        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.NOOP)) {
+            var future = radiusClient.communicate(request, endpoints, maxAttempts, 500,
+                communicateHooks::preSendHook, communicateHooks::timeoutHook, communicateHooks::postReceiveHook).await();
+
+            assertFalse(future.isSuccess());
+            verify(communicateHooks, times(3 * maxAttempts)).preSendHook(eq(1), any(InetSocketAddress.class));
+            verify(communicateHooks, times(3 * maxAttempts)).timeoutHook(eq(1), any(InetSocketAddress.class));
         }
     }
 
