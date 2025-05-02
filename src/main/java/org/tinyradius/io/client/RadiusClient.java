@@ -137,12 +137,7 @@ public class RadiusClient implements RadiusLifecycle {
      * @param endpoint endpoint to send packet to
      * @param maxAttempts max attemtps per endpoint
      * @param timeoutMillis timeout in milliseconds per request
-     * @param preSendHook function to invoke before sending the radius request. 
-     * Parameters are the type of request and InetSocket address of the remote
-     * @param timeoutHook function to invoke when a timeout expires. Parameters
-     * are the type of the request and the InetSocketAddress of the remote.
-     * @param postReceiveHook function to invoke when a responsne is received.ctx
-     * Parameters are the type of the response and the InetSocketAddress of the remote.
+     * @param hooks instrumentation hooks
      * @return deferred response containing response packet or exception
      */
     public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint, int maxAttempts, int timeoutMillis, 
