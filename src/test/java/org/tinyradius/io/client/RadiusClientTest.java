@@ -53,10 +53,10 @@ class RadiusClientTest {
     private final Timer timer = new HashedWheelTimer();
 
     // Convenience class for encapsulating the three hook types
-    static class CommunicateHooks {
-        void preSendHook(int code, InetSocketAddress address){ /* To be mocked */}
-        void timeoutHook(int code, InetSocketAddress address){ /* To be mocked */}
-        void postReceiveHook(int code, InetSocketAddress address){/* To be mocked */}
+    static class CommunicateHooks implements RadiusClientHooks{
+        public void preSendHook(int code, InetSocketAddress address){ /* To be mocked */}
+        public void timeoutHook(int code, InetSocketAddress address){ /* To be mocked */}
+        public void postReceiveHook(int code, InetSocketAddress address){/* To be mocked */}
     }
 
     @Spy
@@ -188,7 +188,7 @@ class RadiusClientTest {
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.of(response))) {
             var future = radiusClient.communicate(request, Arrays.asList(stubEndpoint), 1, 500,
-                communicateHooks::preSendHook, communicateHooks::timeoutHook, communicateHooks::postReceiveHook).await();
+                communicateHooks).await();
 
             assertTrue(future.isSuccess());
             assertSame(response, future.getNow());
@@ -211,7 +211,7 @@ class RadiusClientTest {
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.NOOP)) {
             var future = radiusClient.communicate(request, endpoints, maxAttempts, 500,
-                communicateHooks::preSendHook, communicateHooks::timeoutHook, communicateHooks::postReceiveHook).await();
+                communicateHooks).await();
 
             assertFalse(future.isSuccess());
             verify(communicateHooks, times(3 * maxAttempts)).preSendHook(eq(1), any(InetSocketAddress.class));
@@ -237,6 +237,7 @@ class RadiusClientTest {
         private final Consumer<Promise<RadiusResponse>> failFast;
         private final List<PendingRequestCtx> requests = new ArrayList<>();
 
+        @Override
         public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
             final PendingRequestCtx reqCtx = (PendingRequestCtx) msg;
             requests.add(reqCtx);

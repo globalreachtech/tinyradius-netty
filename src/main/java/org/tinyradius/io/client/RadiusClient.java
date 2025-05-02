@@ -16,10 +16,8 @@ import org.tinyradius.io.client.timeout.FixedTimeoutHandler;
 import org.tinyradius.io.client.timeout.TimeoutHandler;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 /**
  * A simple Radius client which binds to a specific socket, and can
@@ -54,13 +52,12 @@ public class RadiusClient implements RadiusLifecycle {
     }
 
     private Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, TimeoutHandler perRequestTimeoutHandler,
-            BiConsumer<Byte, InetSocketAddress> preSendHook, BiConsumer<Byte, InetSocketAddress> timeoutHook, 
-            BiConsumer<Byte, InetSocketAddress> postReceiveHook) {
+            RadiusClientHooks hooks) {
         if (endpoints.isEmpty())
             return eventLoopGroup.next().newFailedFuture(new IOException("Client send failed - no valid endpoints"));
 
         final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
-        communicateRecursive(packet, endpoints, 0, promise, null, perRequestTimeoutHandler, preSendHook, timeoutHook, postReceiveHook);
+        communicateRecursive(packet, endpoints, 0, promise, null, perRequestTimeoutHandler, hooks);
 
         return promise;
     }
@@ -71,18 +68,12 @@ public class RadiusClient implements RadiusLifecycle {
      * @param endpoints endpoints to send packet to
      * @param maxAttempts max attemtps per endpoint
      * @param timeoutMillis timeout in milliseconds per request
-     * @param preSendHook function to invoke before sending the radius request. 
-     * Parameters are the type of request and InetSocket address of the remote
-     * @param timeoutHook function to invoke when a timeout expires. Parameters
-     * are the type of the request and the InetSocketAddress of the remote.
-     * @param postReceiveHook function to invoke when a responsne is received.
-     * Parameters are the type of the response and the InetSocketAddress of the remote.
+     * @param hooks instrumentation hooks
      * @return
      */
     public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, int maxAttempts, int timeoutMillis,
-                                              BiConsumer<Byte, InetSocketAddress> preSendHook, BiConsumer<Byte, InetSocketAddress> timeoutHook, 
-                                              BiConsumer<Byte, InetSocketAddress> postReceiveHook){
-        return communicate(packet, endpoints, new FixedTimeoutHandler(timer, maxAttempts, timeoutMillis), preSendHook, timeoutHook, postReceiveHook);
+                                              RadiusClientHooks hooks){
+        return communicate(packet, endpoints, new FixedTimeoutHandler(timer, maxAttempts, timeoutMillis), hooks);
     }
 
     /**
@@ -92,48 +83,46 @@ public class RadiusClient implements RadiusLifecycle {
      * @return
      */
     public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints){
-        return communicate(packet, endpoints, timeoutHandler, null, null, null);
+        return communicate(packet, endpoints, timeoutHandler, null);
     }
 
     private void communicateRecursive(RadiusRequest packet, List<RadiusEndpoint> endpoints, int endpointIndex,
                                       Promise<RadiusResponse> promise, Throwable lastException,  TimeoutHandler perRequestTimeoutHandler,
-                                      BiConsumer<Byte, InetSocketAddress> preSendHook, BiConsumer<Byte, InetSocketAddress> timeoutHook, 
-                                      BiConsumer<Byte, InetSocketAddress> postReceiveHook) {
+                                      RadiusClientHooks hooks) {
 
         if (endpointIndex >= endpoints.size()) {
             promise.tryFailure(new IOException("Client send failed - all endpoints failed", lastException));
             return;
         }
 
-        communicate(packet, endpoints.get(endpointIndex), perRequestTimeoutHandler, preSendHook, timeoutHook, postReceiveHook).addListener((Future<RadiusResponse> f) -> {
+        communicate(packet, endpoints.get(endpointIndex), perRequestTimeoutHandler, hooks).addListener((Future<RadiusResponse> f) -> {
             if (f.isSuccess())
                 promise.trySuccess(f.getNow());
             else
-                communicateRecursive(packet, endpoints, endpointIndex + 1, promise, f.cause(), perRequestTimeoutHandler, preSendHook, timeoutHook, postReceiveHook);
+                communicateRecursive(packet, endpoints, endpointIndex + 1, promise, f.cause(), perRequestTimeoutHandler, hooks);
         });
     }
 
 
     private Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint, TimeoutHandler perRequestTimeoutHandler, 
-                BiConsumer<Byte, InetSocketAddress> preSendHook, BiConsumer<Byte, InetSocketAddress> timeoutHook, 
-                BiConsumer<Byte, InetSocketAddress> postReceiveHook) {
+                RadiusClientHooks hooks) {
 
         final Promise<RadiusResponse> promise = eventLoopGroup.next().<RadiusResponse>newPromise().addListener(f -> {
             if (f.isSuccess()){
                 log.debug("Response received, packet: {}", f.getNow());
                 // Report response received to hook
-                if(postReceiveHook != null) postReceiveHook.accept(((RadiusResponse)f.getNow()).getType(), endpoint.getAddress());
+                if(hooks != null) hooks.postReceiveHook(((RadiusResponse)f.getNow()).getType(), endpoint.getAddress());
             }
             else{
                 log.warn(f.cause().getMessage());
                 // Report final timeout to hook
-                if(timeoutHook != null) timeoutHook.accept(packet.getType(), endpoint.getAddress());
+                if(hooks != null) hooks.timeoutHook(packet.getType(), endpoint.getAddress());
             }
         });
 
         channelFuture.addListener(s -> {
             if (s.isSuccess())
-                send(new PendingRequestCtx(packet, endpoint, promise), 1, perRequestTimeoutHandler, preSendHook, timeoutHook);
+                send(new PendingRequestCtx(packet, endpoint, promise), 1, perRequestTimeoutHandler, hooks);
             else
                 promise.tryFailure(s.cause());
         });
@@ -157,9 +146,8 @@ public class RadiusClient implements RadiusLifecycle {
      * @return deferred response containing response packet or exception
      */
     public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint, int maxAttempts, int timeoutMillis, 
-            BiConsumer<Byte, InetSocketAddress> preSendHook, BiConsumer<Byte, InetSocketAddress> timeoutHook, 
-            BiConsumer<Byte, InetSocketAddress> postReceiveHook){
-        return communicate(packet, endpoint, new FixedTimeoutHandler(timer, maxAttempts, timeoutMillis), preSendHook, timeoutHook, postReceiveHook);
+            RadiusClientHooks hooks){
+        return communicate(packet, endpoint, new FixedTimeoutHandler(timer, maxAttempts, timeoutMillis), hooks);
     }
 
     /**
@@ -169,21 +157,21 @@ public class RadiusClient implements RadiusLifecycle {
      * @return
      */
     public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint){
-        return communicate(packet, endpoint, timeoutHandler, null, null, null);
+        return communicate(packet, endpoint, timeoutHandler, null);
     }
 
-    private void send(PendingRequestCtx ctx, int attempt, TimeoutHandler timeoutHandler, BiConsumer<Byte, InetSocketAddress> preSendHook, BiConsumer<Byte, InetSocketAddress> timeoutHook){
+    private void send(PendingRequestCtx ctx, int attempt, TimeoutHandler timeoutHandler, RadiusClientHooks hooks){
         // More appropriate to use debug than info
         log.debug("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
         
         // Report send packet to hook
-        if(preSendHook != null) preSendHook.accept(ctx.getRequest().getType(), ctx.getEndpoint().getAddress());
+        if(hooks != null) hooks.preSendHook(ctx.getRequest().getType(), ctx.getEndpoint().getAddress());
         channelFuture.channel().writeAndFlush(ctx);
 
         timeoutHandler.onTimeout(() -> {
                 // Report timeout with retry (not final) to hook
-                if(timeoutHook != null) timeoutHook.accept(ctx.getRequest().getType(), ctx.getEndpoint().getAddress());
-                send(ctx, attempt + 1, timeoutHandler, preSendHook, timeoutHook);
+                if(hooks != null) hooks.timeoutHook(ctx.getRequest().getType(), ctx.getEndpoint().getAddress());
+                send(ctx, attempt + 1, timeoutHandler, hooks);
             }, attempt, ctx.getResponse());
     }
 
@@ -194,6 +182,7 @@ public class RadiusClient implements RadiusLifecycle {
 
     @Override
     public ChannelFuture closeAsync() {
+        timer.stop();
         return channelFuture.channel().close();
     }
 }

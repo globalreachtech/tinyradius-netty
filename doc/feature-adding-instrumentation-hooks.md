@@ -16,25 +16,33 @@ The modified `RadiusClient` has additional methods to:
 
 ## Implementation
 
+An interface is created to encapsulate the hook calls, to avoid having methods with too many parameters (`RadiusClientHooks`)
+
+```java
+public interface RadiusClientHooks {
+    void preSendHook(int code, InetSocketAddress address);
+    void timeoutHook(int code, InetSocketAddress address);
+    void postReceiveHook(int code, InetSocketAddress address);
+}
+```
+
 The signature of the enriched `communicate` method is as follows
 
 ```java
 public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, int maxAttempts, int timeoutMillis,
-            BiConsumer<Byte, InetSocketAddress> preSendHook, BiConsumer<Byte, InetSocketAddress> timeoutHook, 
-            BiConsumer<Byte, InetSocketAddress> postReceiveHook)
+            RadiusClientHooks hooks)
 ```
 
-Where `preSendHook` is invoked before sending the radius client request, `timeoutHook` is invoked when a timeout is fired, and `postReceiveHook` is invoked when a response is received, the `type` Byte parameter being the response type.
+Where, in `RadiusClientHooks`, `preSendHook` is invoked before sending the radius client request, `timeoutHook` is invoked when a timeout is fired, and `postReceiveHook` is invoked when a response is received, the `type` Byte parameter being the response type.
 
 And also analogous versions for `communicate` for a single Endpoint, such as
 
 ```java
 public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, int maxAttempts, int timeoutMillis,
-            BiConsumer<Byte, InetSocketAddress> preSendHook, BiConsumer<Byte, InetSocketAddress> timeoutHook, 
-            BiConsumer<Byte, InetSocketAddress> postReceiveHook)
+            RadiusClientHooks hooks)
 ```
 
-The implementation is pretty trivial, the only issue being the long list of parameters. The Hooks could be condensed in a specific Class, as done in the testing, but we have preferred to avoid defining unnecessary new types.
+The implementation is pretty trivial, the only issue being the long list of parameters.
 
 ## Note
 
