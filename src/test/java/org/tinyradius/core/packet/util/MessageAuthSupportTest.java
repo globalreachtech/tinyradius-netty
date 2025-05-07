@@ -45,8 +45,9 @@ class MessageAuthSupportTest {
         auth[0] = 1; // set auth to non-zeros
         final TestPacket testPacket = new TestPacket((byte) 1, (byte) 1, auth, Collections.emptyList());
 
-        final TestPacket encodedPacket = testPacket.encodeMessageAuth(secret, testPacket.getAuthenticator());
+        final TestPacket encodedPacket = testPacket.encodeMessageAuth(secret, null);
         encodedPacket.verifyMessageAuth(secret, testPacket.getAuthenticator());
+        encodedPacket.verifyMessageAuth(secret, null);
     }
 
     @Test
