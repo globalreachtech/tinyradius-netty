@@ -87,7 +87,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
             final RadiusResponse response = msg.decodeResponse(request.secret, request.auth)
                     .removeLastAttribute(PROXY_STATE);
 
-            log.info("Found request for response identifier {}, proxyState requestId '{}'",
+            log.debug("Found request for response identifier {}, proxyState requestId '{}'",
                     response.getId(), requestId);
             request.promise.trySuccess(response);
 
