@@ -8,6 +8,7 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
+import jakarta.annotation.Nonnull;
 import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -26,7 +27,6 @@ import org.tinyradius.io.server.RadiusServer;
 import org.tinyradius.io.server.handler.BasicCachingHandler;
 import org.tinyradius.io.server.handler.ServerPacketCodec;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;

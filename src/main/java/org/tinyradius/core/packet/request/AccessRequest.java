@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNullElse;
 import static java.util.stream.Collectors.toSet;
 import static org.tinyradius.core.attribute.AttributeTypes.*;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
@@ -92,9 +93,9 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     }
 
     @Override
-    protected byte[] genAuth(String sharedSecret) {
+    protected byte[] genAuth(String ignored) {
         // create authenticator only if needed - maintain idempotence
-        return getAuthenticator() == null ? random16bytes() : getAuthenticator();
+        return requireNonNullElse(getAuthenticator(), random16bytes());
     }
 
     /**
@@ -108,10 +109,10 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     }
 
     /**
-     * Set CHAP-Password attribute with provided password and initializes
+     * Set CHAP-Password attribute with the provided password and initializes
      * CHAP-Challenge with random bytes.
      * <p>
-     * Removes existing auth-related attributes if present (User-Password, CHAP-Password etc).
+     * Removes existing auth-related attributes if present (User-Password, CHAP-Password, etc).
      *
      * @param password plaintext password to encode into CHAP-Password
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
@@ -128,7 +129,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * Removes existing auth-related attributes if present (User-Password, CHAP-Password etc).
      *
      * @param password plaintext password to encode into User-Password
-     * @return AccessRequestPap with encoded User-Password attribute
+     * @return AccessRequestPap with the encoded User-Password attribute
      * @throws RadiusPacketException packet validation exceptions
      */
     public AccessRequest withPapPassword(String password) throws RadiusPacketException {
@@ -158,13 +159,8 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      */
     @Override
     public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
-        if (sharedSecret == null || sharedSecret.isEmpty())
-            throw new IllegalArgumentException("Shared secret cannot be null/empty");
-
-        final byte[] auth = genAuth(sharedSecret);
-
-        return ((AccessRequest) withAuthAttributes(auth, encodeAttributes(auth, sharedSecret)))
-                .encodeMessageAuth(sharedSecret, auth);
+        return ((AccessRequest) super.encodeRequest(sharedSecret))
+                .encodeMessageAuth(sharedSecret, null);
     }
 
     @Override
@@ -177,7 +173,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         if (auth.length != 16)
             throw new RadiusPacketException("Authenticator check failed - authenticator must be 16 octets, actual " + auth.length);
 
-        verifyMessageAuth(sharedSecret, getAuthenticator());
+        verifyMessageAuth(sharedSecret, null);
         return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
     }
 
