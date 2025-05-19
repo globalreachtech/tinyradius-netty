@@ -38,7 +38,7 @@ Where, in `RadiusClientHooks`, `preSendHook` is invoked before sending the radiu
 And also analogous versions for `communicate` for a single Endpoint, such as
 
 ```java
-public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, int maxAttempts, int timeoutMillis,
+public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint, int maxAttempts, int timeoutMillis,
             RadiusClientHooks hooks)
 ```
 

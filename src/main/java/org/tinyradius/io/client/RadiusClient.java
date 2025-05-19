@@ -34,7 +34,7 @@ public class RadiusClient implements RadiusLifecycle {
     private final HashedWheelTimer timer;
 
     // Used as default, if maxAttempts and timeoutMillis are not specified
-    private final TimeoutHandler timeoutHandler;
+    private final TimeoutHandler defaultTimeoutHandler;
     private final EventLoopGroup eventLoopGroup;
     private final ChannelFuture channelFuture;
 
@@ -46,7 +46,7 @@ public class RadiusClient implements RadiusLifecycle {
      */
     public RadiusClient(Bootstrap bootstrap, SocketAddress listenAddress, TimeoutHandler timeoutHandler, ChannelHandler handler) {
         this.eventLoopGroup = bootstrap.config().group();
-        this.timeoutHandler = timeoutHandler;
+        this.defaultTimeoutHandler = timeoutHandler;
         this.timer = new HashedWheelTimer();
         channelFuture = bootstrap.clone().handler(handler).bind(listenAddress);
     }
@@ -83,7 +83,7 @@ public class RadiusClient implements RadiusLifecycle {
      * @return
      */
     public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints){
-        return communicate(packet, endpoints, timeoutHandler, null);
+        return communicate(packet, endpoints, defaultTimeoutHandler, null);
     }
 
     private void communicateRecursive(RadiusRequest packet, List<RadiusEndpoint> endpoints, int endpointIndex,
@@ -152,7 +152,7 @@ public class RadiusClient implements RadiusLifecycle {
      * @return
      */
     public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint){
-        return communicate(packet, endpoint, timeoutHandler, null);
+        return communicate(packet, endpoint, defaultTimeoutHandler, null);
     }
 
     private void send(PendingRequestCtx ctx, int attempt, TimeoutHandler timeoutHandler, RadiusClientHooks hooks){
