@@ -19,18 +19,21 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
      * @return new authenticator, must be idempotent
      */
     protected byte[] genAuth(String sharedSecret) {
-        return genHashedAuth(sharedSecret, new byte[16]);
+        return genHashedAuth(sharedSecret, null);
     }
 
     @Override
     public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+        if (sharedSecret == null || sharedSecret.isEmpty())
+            throw new IllegalArgumentException("Shared secret cannot be null/empty");
+
         final byte[] auth = genAuth(sharedSecret);
         return withAuthAttributes(auth, encodeAttributes(auth, sharedSecret));
     }
 
     @Override
     public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
-        verifyPacketAuth(sharedSecret, new byte[16]);
+        verifyPacketAuth(sharedSecret, null);
         return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
     }
 
