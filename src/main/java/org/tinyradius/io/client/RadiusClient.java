@@ -4,7 +4,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.log4j.Log4j2;
@@ -12,7 +11,6 @@ import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
 import org.tinyradius.io.RadiusLifecycle;
-import org.tinyradius.io.client.timeout.FixedTimeoutHandler;
 import org.tinyradius.io.client.timeout.TimeoutHandler;
 
 import java.io.IOException;
@@ -30,9 +28,6 @@ import java.util.List;
 @Log4j2
 public class RadiusClient implements RadiusLifecycle {
 
-    // Will be used to create FixedTimeoutHandlers when not using the default
-    private final HashedWheelTimer timer;
-
     // Used as default, if maxAttempts and timeoutMillis are not specified
     private final TimeoutHandler defaultTimeoutHandler;
     private final EventLoopGroup eventLoopGroup;
@@ -47,33 +42,26 @@ public class RadiusClient implements RadiusLifecycle {
     public RadiusClient(Bootstrap bootstrap, SocketAddress listenAddress, TimeoutHandler timeoutHandler, ChannelHandler handler) {
         this.eventLoopGroup = bootstrap.config().group();
         this.defaultTimeoutHandler = timeoutHandler;
-        this.timer = new HashedWheelTimer();
         channelFuture = bootstrap.clone().handler(handler).bind(listenAddress);
-    }
-
-    private Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, TimeoutHandler perRequestTimeoutHandler,
-            RadiusClientHooks hooks) {
-        if (endpoints.isEmpty())
-            return eventLoopGroup.next().newFailedFuture(new IOException("Client send failed - no valid endpoints"));
-
-        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
-        communicateRecursive(packet, endpoints, 0, promise, null, perRequestTimeoutHandler, hooks);
-
-        return promise;
     }
 
     /**
      * Sends packet to specified endpoints in turn until an endpoint succeeds or all fail.
      * @param packet    packet to send
      * @param endpoints endpoints to send packet to
-     * @param maxAttempts max attemtps per endpoint
-     * @param timeoutMillis timeout in milliseconds per request
+     * @param timeoutHandler the timeoutHandler to use for this request
      * @param hooks instrumentation hooks
      * @return
      */
-    public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, int maxAttempts, int timeoutMillis,
-                                              RadiusClientHooks hooks){
-        return communicate(packet, endpoints, new FixedTimeoutHandler(timer, maxAttempts, timeoutMillis), hooks);
+    public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, TimeoutHandler timeoutHandler,
+            RadiusClientHooks hooks) {
+        if (endpoints.isEmpty())
+            return eventLoopGroup.next().newFailedFuture(new IOException("Client send failed - no valid endpoints"));
+
+        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
+        communicateRecursive(packet, endpoints, 0, promise, null, timeoutHandler, hooks);
+
+        return promise;
     }
 
     /**
@@ -87,7 +75,7 @@ public class RadiusClient implements RadiusLifecycle {
     }
 
     private void communicateRecursive(RadiusRequest packet, List<RadiusEndpoint> endpoints, int endpointIndex,
-                                      Promise<RadiusResponse> promise, Throwable lastException,  TimeoutHandler perRequestTimeoutHandler,
+                                      Promise<RadiusResponse> promise, Throwable lastException, TimeoutHandler timeoutHandler,
                                       RadiusClientHooks hooks) {
 
         if (endpointIndex >= endpoints.size()) {
@@ -95,16 +83,24 @@ public class RadiusClient implements RadiusLifecycle {
             return;
         }
 
-        communicate(packet, endpoints.get(endpointIndex), perRequestTimeoutHandler, hooks).addListener((Future<RadiusResponse> f) -> {
+        communicate(packet, endpoints.get(endpointIndex), timeoutHandler, hooks).addListener((Future<RadiusResponse> f) -> {
             if (f.isSuccess())
                 promise.trySuccess(f.getNow());
             else
-                communicateRecursive(packet, endpoints, endpointIndex + 1, promise, f.cause(), perRequestTimeoutHandler, hooks);
+                communicateRecursive(packet, endpoints, endpointIndex + 1, promise, f.cause(), timeoutHandler, hooks);
         });
     }
 
-
-    private Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint, TimeoutHandler perRequestTimeoutHandler, 
+    /**
+     * Sends packet to specified endpoint.
+     *
+     * @param packet   packet to send
+     * @param endpoint endpoint to send packet to
+     * @param timeoutHandler TimeoutHandler to use for this request.
+     * @param hooks instrumentation hooks
+     * @return deferred response containing response packet or exception
+     */
+    public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint, TimeoutHandler timeoutHandler, 
                 RadiusClientHooks hooks) {
 
         final Promise<RadiusResponse> promise = eventLoopGroup.next().<RadiusResponse>newPromise().addListener(f -> {
@@ -122,27 +118,12 @@ public class RadiusClient implements RadiusLifecycle {
 
         channelFuture.addListener(s -> {
             if (s.isSuccess())
-                send(new PendingRequestCtx(packet, endpoint, promise), 1, perRequestTimeoutHandler, hooks);
+                send(new PendingRequestCtx(packet, endpoint, promise), 1, timeoutHandler, hooks);
             else
                 promise.tryFailure(s.cause());
         });
 
         return promise;
-    }
-
-    /**
-     * Sends packet to specified endpoint.
-     *
-     * @param packet   packet to send
-     * @param endpoint endpoint to send packet to
-     * @param maxAttempts max attemtps per endpoint
-     * @param timeoutMillis timeout in milliseconds per request
-     * @param hooks instrumentation hooks
-     * @return deferred response containing response packet or exception
-     */
-    public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint, int maxAttempts, int timeoutMillis, 
-            RadiusClientHooks hooks){
-        return communicate(packet, endpoint, new FixedTimeoutHandler(timer, maxAttempts, timeoutMillis), hooks);
     }
 
     /**
@@ -177,7 +158,6 @@ public class RadiusClient implements RadiusLifecycle {
 
     @Override
     public ChannelFuture closeAsync() {
-        timer.stop();
         return channelFuture.channel().close();
     }
 }

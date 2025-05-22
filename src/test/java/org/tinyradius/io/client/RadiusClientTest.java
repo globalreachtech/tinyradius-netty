@@ -62,6 +62,11 @@ class RadiusClientTest {
     @Spy
     private final TimeoutHandler timeoutHandler = new FixedTimeoutHandler(timer); // no retries
 
+    // A per-request timeout handler
+    int perRequestAttempts = 2;
+    @Spy
+    private final TimeoutHandler perRequestTimeoutHandler = new FixedTimeoutHandler(timer, perRequestAttempts, 500); // no retries
+
     @Test
     void communicateWithTimeout() throws RadiusPacketException {
         var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
@@ -177,7 +182,7 @@ class RadiusClientTest {
         }
     }
 
-    // "communicate" with per-request maxAttempts, timeout and hooks: request with success
+    // "communicate" with per-request TimeoutHandler, timeout and hooks: request with success
     @Test 
     void communicateWithHooksSuccess() throws RadiusPacketException, InterruptedException{
         var id = (byte) random.nextInt(256);
@@ -187,7 +192,7 @@ class RadiusClientTest {
         CommunicateHooks communicateHooks  = Mockito.mock(CommunicateHooks.class);
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.of(response))) {
-            var future = radiusClient.communicate(request, Arrays.asList(stubEndpoint), 1, 500,
+            var future = radiusClient.communicate(request, Arrays.asList(stubEndpoint), timeoutHandler,
                 communicateHooks).await();
 
             assertTrue(future.isSuccess());
@@ -197,10 +202,9 @@ class RadiusClientTest {
         }
     }
 
-    // "communicate" with per-request maxAttempts, timeout and hooks: requests timed out in all endpoints
+    // "communicate" with per-request TimeoutHandler and hooks: requests timed out in all endpoints
     @Test 
     void communicateWithHooksTimeout() throws RadiusPacketException, InterruptedException{
-        var maxAttempts = 2;
         var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
 
         var stubEndpoint2 = new RadiusEndpoint(new InetSocketAddress(1), "secret2"); // never used
@@ -210,12 +214,11 @@ class RadiusClientTest {
         CommunicateHooks communicateHooks  = Mockito.mock(CommunicateHooks.class);
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.NOOP)) {
-            var future = radiusClient.communicate(request, endpoints, maxAttempts, 500,
-                communicateHooks).await();
+            var future = radiusClient.communicate(request, endpoints, perRequestTimeoutHandler, communicateHooks).await();
 
             assertFalse(future.isSuccess());
-            verify(communicateHooks, times(3 * maxAttempts)).preSendHook(eq(1), any(InetSocketAddress.class));
-            verify(communicateHooks, times(3 * maxAttempts)).timeoutHook(eq(1), any(InetSocketAddress.class));
+            verify(communicateHooks, times(3 * perRequestAttempts)).preSendHook(eq(1), any(InetSocketAddress.class));
+            verify(communicateHooks, times(3 * perRequestAttempts)).timeoutHook(eq(1), any(InetSocketAddress.class));
         }
     }
 
