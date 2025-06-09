@@ -16,6 +16,7 @@ import org.tinyradius.io.client.timeout.TimeoutHandler;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 /**
  * A simple Radius client which binds to a specific socket, and can
@@ -112,7 +113,7 @@ public class RadiusClient implements RadiusLifecycle {
             else{
                 log.warn(f.cause().getMessage());
                 // Report final timeout to hook
-                if(hooks != null) hooks.timeoutHook(packet.getType(), endpoint.getAddress());
+                if(hooks != null && f.cause() instanceof TimeoutException) hooks.timeoutHook(packet.getType(), endpoint.getAddress());
             }
         });
 
