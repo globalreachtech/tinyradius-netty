@@ -2,17 +2,19 @@ package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import jakarta.annotation.Nullable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
@@ -61,11 +63,10 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     /**
      * @param sharedSecret shared secret
-     * @param requestAuth  request authenticator if verifying response,
-     *                     otherwise set to 16 zero octets
-     * @throws RadiusPacketException if authenticator check fails
+     * @param requestAuth  request authenticator if verifying response, defaults to empty byte[16] if null
+     * @throws RadiusPacketException if the packet authenticator check fails
      */
-    protected void verifyPacketAuth(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    protected void verifyPacketAuth(String sharedSecret, @Nullable byte[] requestAuth) throws RadiusPacketException {
         final byte[] expectedAuth = genHashedAuth(sharedSecret, requestAuth);
         final byte[] auth = getAuthenticator();
         if (auth == null)
@@ -75,12 +76,9 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
             throw new RadiusPacketException("Packet Authenticator check failed - must be 16 octets, actual " + auth.length);
 
         if (!Arrays.equals(expectedAuth, auth)) {
-            // find attributes that should be encoded but aren't
-            final boolean decodedAlready = getAttributes().stream()
-                    .filter(a -> a.getAttributeTemplate()
-                            .map(AttributeTemplate::isEncrypt)
-                            .orElse(false))
-                    .anyMatch(a -> !a.isEncoded());
+            // find attributes that can be encoded but aren't
+            final boolean decodedAlready = getAttribute(a ->
+                    a.codecType() != NO_ENCRYPT && a.isDecoded()).isPresent();
 
             if (decodedAlready)
                 log.info("Skipping Packet Authenticator check - attributes have been decrypted already");

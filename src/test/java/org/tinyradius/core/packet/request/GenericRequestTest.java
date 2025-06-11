@@ -47,6 +47,9 @@ class GenericRequestTest {
         final RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
         assertArrayEquals(decoded.toBytes(), decoded2.toBytes());
         assertEquals(username, decoded2.getAttribute("User-Name").get().getValueString());
+
+        // sanity check
+        assertArrayEquals(decoded.toBytes(), decoded.toByteBuffer().array());
     }
 
 
