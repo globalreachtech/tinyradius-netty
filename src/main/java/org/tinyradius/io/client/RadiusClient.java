@@ -16,16 +16,21 @@ import org.tinyradius.io.client.timeout.TimeoutHandler;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 /**
  * A simple Radius client which binds to a specific socket, and can
  * then be used to send any number of packets to any endpoints through
  * that socket.
+ * 
+ * External functions to be invoke for each send try, timeout and response
+ * received may be optionally specified.
  */
 @Log4j2
 public class RadiusClient implements RadiusLifecycle {
 
-    private final TimeoutHandler timeoutHandler;
+    // Used as default, if maxAttempts and timeoutMillis are not specified
+    private final TimeoutHandler defaultTimeoutHandler;
     private final EventLoopGroup eventLoopGroup;
     private final ChannelFuture channelFuture;
 
@@ -37,39 +42,53 @@ public class RadiusClient implements RadiusLifecycle {
      */
     public RadiusClient(Bootstrap bootstrap, SocketAddress listenAddress, TimeoutHandler timeoutHandler, ChannelHandler handler) {
         this.eventLoopGroup = bootstrap.config().group();
-        this.timeoutHandler = timeoutHandler;
+        this.defaultTimeoutHandler = timeoutHandler;
         channelFuture = bootstrap.clone().handler(handler).bind(listenAddress);
     }
 
     /**
      * Sends packet to specified endpoints in turn until an endpoint succeeds or all fail.
-     *
      * @param packet    packet to send
      * @param endpoints endpoints to send packet to
-     * @return deferred response containing response packet or exception
+     * @param timeoutHandler the timeoutHandler to use for this request
+     * @param hooks instrumentation hooks
+     * @return
      */
-    public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints) {
+    public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, TimeoutHandler timeoutHandler,
+            RadiusClientHooks hooks) {
         if (endpoints.isEmpty())
             return eventLoopGroup.next().newFailedFuture(new IOException("Client send failed - no valid endpoints"));
 
         final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
-        communicateRecursive(packet, endpoints, 0, promise, null);
+        communicateRecursive(packet, endpoints, 0, promise, null, timeoutHandler, hooks);
 
         return promise;
     }
 
+    /**
+     * Sends packet to specified endpoints in turn until an endpoint succeeds or all fail.
+     * @param packet    packet to send
+     * @param endpoints endpoints to send packet to
+     * @return
+     */
+    public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints){
+        return communicate(packet, endpoints, defaultTimeoutHandler, null);
+    }
+
     private void communicateRecursive(RadiusRequest packet, List<RadiusEndpoint> endpoints, int endpointIndex,
-                                      Promise<RadiusResponse> promise, Throwable lastException) {
+                                      Promise<RadiusResponse> promise, Throwable lastException, TimeoutHandler timeoutHandler,
+                                      RadiusClientHooks hooks) {
+
         if (endpointIndex >= endpoints.size()) {
             promise.tryFailure(new IOException("Client send failed - all endpoints failed", lastException));
             return;
         }
 
-        communicate(packet, endpoints.get(endpointIndex)).addListener((Future<RadiusResponse> f) -> {
+        communicate(packet, endpoints.get(endpointIndex), timeoutHandler, hooks).addListener((Future<RadiusResponse> f) -> {
             if (f.isSuccess())
                 promise.trySuccess(f.getNow());
             else
-                communicateRecursive(packet, endpoints, endpointIndex + 1, promise, f.cause());
+                communicateRecursive(packet, endpoints, endpointIndex + 1, promise, f.cause(), timeoutHandler, hooks);
         });
     }
 
@@ -78,19 +97,29 @@ public class RadiusClient implements RadiusLifecycle {
      *
      * @param packet   packet to send
      * @param endpoint endpoint to send packet to
+     * @param timeoutHandler TimeoutHandler to use for this request.
+     * @param hooks instrumentation hooks
      * @return deferred response containing response packet or exception
      */
-    public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint) {
+    public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint, TimeoutHandler timeoutHandler, 
+                RadiusClientHooks hooks) {
+
         final Promise<RadiusResponse> promise = eventLoopGroup.next().<RadiusResponse>newPromise().addListener(f -> {
-            if (f.isSuccess())
-                log.info("Response received, packet: {}", f.getNow());
-            else
+            if (f.isSuccess()){
+                log.debug("Response received, packet: {}", f.getNow());
+                // Report response received to hook
+                if(hooks != null) hooks.postReceiveHook(((RadiusResponse)f.getNow()).getType(), endpoint.getAddress());
+            }
+            else{
                 log.warn(f.cause().getMessage());
+                // Report final timeout to hook
+                if(hooks != null && f.cause() instanceof TimeoutException) hooks.timeoutHook(packet.getType(), endpoint.getAddress());
+            }
         });
 
         channelFuture.addListener(s -> {
             if (s.isSuccess())
-                send(new PendingRequestCtx(packet, endpoint, promise), 1);
+                send(new PendingRequestCtx(packet, endpoint, promise), 1, timeoutHandler, hooks);
             else
                 promise.tryFailure(s.cause());
         });
@@ -98,10 +127,29 @@ public class RadiusClient implements RadiusLifecycle {
         return promise;
     }
 
-    private void send(PendingRequestCtx ctx, int attempt) {
-        log.info("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
+    /**
+     * Sends packet to specified endpoint with the default timeoutHandler and no hooks.
+     * @param packet   packet to send
+     * @param endpoint endpoint to send packet to
+     * @return
+     */
+    public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint){
+        return communicate(packet, endpoint, defaultTimeoutHandler, null);
+    }
+
+    private void send(PendingRequestCtx ctx, int attempt, TimeoutHandler timeoutHandler, RadiusClientHooks hooks){
+        // More appropriate to use debug than info
+        log.debug("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
+        
+        // Report send packet to hook
+        if(hooks != null) hooks.preSendHook(ctx.getRequest().getType(), ctx.getEndpoint().getAddress());
         channelFuture.channel().writeAndFlush(ctx);
-        timeoutHandler.onTimeout(() -> send(ctx, attempt + 1), attempt, ctx.getResponse());
+
+        timeoutHandler.onTimeout(() -> {
+                // Report timeout with retry (not final) to hook
+                if(hooks != null) hooks.timeoutHook(ctx.getRequest().getType(), ctx.getEndpoint().getAddress());
+                send(ctx, attempt + 1, timeoutHandler, hooks);
+            }, attempt, ctx.getResponse());
     }
 
     @Override
