@@ -22,7 +22,7 @@ import org.tinyradius.io.client.RadiusClient;
 import org.tinyradius.io.client.handler.BlacklistHandler;
 import org.tinyradius.io.client.handler.ClientDatagramCodec;
 import org.tinyradius.io.client.handler.PromiseAdapter;
-import org.tinyradius.io.client.timeout.FixedTimeoutHandler;
+import org.tinyradius.io.client.retry.FixedTimeoutHandler;
 import org.tinyradius.io.server.RadiusServer;
 import org.tinyradius.io.server.handler.BasicCachingHandler;
 import org.tinyradius.io.server.handler.ServerPacketCodec;
