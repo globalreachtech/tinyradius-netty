@@ -1,4 +1,4 @@
-package org.tinyradius.io.client.timeout;
+package org.tinyradius.io.client.retry;
 
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.EventExecutor;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class FixedTimeoutHandlerTest {
+class FixedDelayRetryStrategyTest {
 
     private final HashedWheelTimer timer = new HashedWheelTimer();
     private final EventExecutor eventExecutor = ImmediateEventExecutor.INSTANCE;
@@ -26,7 +26,7 @@ class FixedTimeoutHandlerTest {
     void retryFailIfMaxAttempts() {
         final Promise<RadiusResponse> promise = eventExecutor.newPromise();
 
-        final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 2, 0);
+        final FixedDelayRetryStrategy retryStrategy = new FixedDelayRetryStrategy(2, 0);
 
         // totalAttempts < maxAttempts
         retryStrategy.onTimeout(mockRetry, 1, promise);
