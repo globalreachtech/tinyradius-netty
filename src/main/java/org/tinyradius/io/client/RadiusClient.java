@@ -4,6 +4,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
+import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.log4j.Log4j2;
@@ -11,11 +12,14 @@ import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
 import org.tinyradius.io.RadiusLifecycle;
-import org.tinyradius.io.client.timeout.TimeoutHandler;
+import org.tinyradius.io.client.retry.RetryStrategy;
 
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
+
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * A simple Radius client which binds to a specific socket, and can
@@ -25,19 +29,21 @@ import java.util.List;
 @Log4j2
 public class RadiusClient implements RadiusLifecycle {
 
-    private final TimeoutHandler timeoutHandler;
+    private final Timer timer;
+    private final RetryStrategy retryStrategy;
     private final EventLoopGroup eventLoopGroup;
     private final ChannelFuture channelFuture;
 
     /**
-     * @param bootstrap      bootstrap with channel class and eventLoopGroup set up
-     * @param listenAddress  local address to bind to
-     * @param timeoutHandler retry strategy for scheduling retries and timeouts
-     * @param handler        ChannelHandler to handle outbound requests
+     * @param bootstrap     bootstrap with channel class and eventLoopGroup set up
+     * @param listenAddress local address to bind to
+     * @param retryStrategy retry strategy for scheduling retries and timeouts
+     * @param handler       ChannelHandler to handle outbound requests
      */
-    public RadiusClient(Bootstrap bootstrap, SocketAddress listenAddress, TimeoutHandler timeoutHandler, ChannelHandler handler) {
+    public RadiusClient(Timer timer, Bootstrap bootstrap, SocketAddress listenAddress, RetryStrategy retryStrategy, ChannelHandler handler) {
+        this.timer = timer;
         this.eventLoopGroup = bootstrap.config().group();
-        this.timeoutHandler = timeoutHandler;
+        this.retryStrategy = retryStrategy;
         channelFuture = bootstrap.clone().handler(handler).bind(listenAddress);
     }
 
@@ -101,7 +107,17 @@ public class RadiusClient implements RadiusLifecycle {
     private void send(PendingRequestCtx ctx, int attempt) {
         log.info("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
         channelFuture.channel().writeAndFlush(ctx);
-        timeoutHandler.onTimeout(() -> send(ctx, attempt + 1), attempt, ctx.getResponse());
+        timer.newTimeout(t -> {
+            if (ctx.getResponse().isDone())
+                return;
+
+            // trigger timeout event hooks here
+
+            if (attempt >= retryStrategy.maxAttempts())
+                ctx.getResponse().tryFailure(new TimeoutException("Client send timeout - max attempts reached. totalAttempts: " + attempt));
+            else
+                send(ctx, attempt + 1);
+        }, retryStrategy.delay(attempt).toNanos(), NANOSECONDS);
     }
 
     @Override
