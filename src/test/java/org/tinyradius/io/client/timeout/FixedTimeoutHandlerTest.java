@@ -4,6 +4,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -16,6 +17,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class FixedTimeoutHandlerTest {
 
+    @AutoClose("stop")
     private final HashedWheelTimer timer = new HashedWheelTimer();
     private final EventExecutor eventExecutor = ImmediateEventExecutor.INSTANCE;
 

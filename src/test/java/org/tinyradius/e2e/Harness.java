@@ -36,7 +36,7 @@ import static java.util.stream.Collectors.toList;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
 @Log4j2
-public class Harness {
+public class Harness implements AutoCloseable {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final Timer timer = new HashedWheelTimer();
@@ -175,4 +175,8 @@ public class Harness {
         return server;
     }
 
+    @Override
+    public void close() throws Exception {
+        timer.stop();
+    }
 }

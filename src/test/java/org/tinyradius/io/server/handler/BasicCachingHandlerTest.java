@@ -2,6 +2,8 @@ package org.tinyradius.io.server.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -32,13 +34,16 @@ class BasicCachingHandlerTest {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
+    @AutoClose("stop")
+    private final Timer timer = new HashedWheelTimer();
+
     @Mock
     private ChannelHandlerContext ctx;
 
     @Test
     void cacheHitAndTimeout() throws RadiusPacketException {
         final BasicCachingHandler basicCachingHandler =
-                new BasicCachingHandler(new HashedWheelTimer(), 500);
+                new BasicCachingHandler(timer, 500);
 
         final RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 100, null, Collections.emptyList()).encodeRequest("test");
         final RequestCtx requestCtx = new RequestCtx(request, new RadiusEndpoint(new InetSocketAddress(0), "foo"));
