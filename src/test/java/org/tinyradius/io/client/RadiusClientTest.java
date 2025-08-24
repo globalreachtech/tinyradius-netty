@@ -19,8 +19,8 @@ import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
-import org.tinyradius.io.client.timeout.FixedTimeoutHandler;
-import org.tinyradius.io.client.timeout.TimeoutHandler;
+import org.tinyradius.io.client.retry.FixedTimeoutHandler;
+import org.tinyradius.io.client.retry.TimeoutHandler;
 
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
