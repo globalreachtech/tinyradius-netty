@@ -1,5 +1,6 @@
 package org.tinyradius.e2e;
 
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -30,6 +31,7 @@ class EndToEndTest {
     private static final int ORIGIN_ACCT_PORT = 11813;
     private static final String ORIGIN_SECRET = "myOriginSecret";
 
+    @AutoClose
     private final Harness harness = new Harness();
 
     @Test
