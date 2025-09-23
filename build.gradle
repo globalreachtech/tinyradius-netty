@@ -31,7 +31,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.20.0'
     testImplementation 'org.awaitility:awaitility:4.3.0'
-    testImplementation 'org.assertj:assertj-core:3.27.5'
+    testImplementation 'org.assertj:assertj-core:3.27.6'
     testImplementation('net.jradius:jradius-core:1.1.5') {
         transitive = false // for reference implementation of hashing utilities
     }
