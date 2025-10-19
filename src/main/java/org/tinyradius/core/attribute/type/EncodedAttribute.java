@@ -1,11 +1,12 @@
 package org.tinyradius.core.attribute.type;
 
+import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.Delegate;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
+import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Optional;
 
@@ -18,7 +19,6 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 @EqualsAndHashCode
 public class EncodedAttribute implements RadiusAttribute {
 
-    @Delegate
     private final OctetsAttribute delegate;
 
     @Override
@@ -26,6 +26,36 @@ public class EncodedAttribute implements RadiusAttribute {
         final Optional<AttributeTemplate> template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().decode(this, requestAuth, secret) : delegate;
+    }
+
+    @Override
+    public int getVendorId() {
+        return delegate.getVendorId();
+    }
+
+    @Override
+    public Optional<Byte> getTag() {
+        return delegate.getTag();
+    }
+
+    @Override
+    public byte[] getValue() {
+        return delegate.getValue();
+    }
+
+    @Override
+    public String getValueString() {
+        return delegate.getValueString();
+    }
+
+    @Override
+    public Dictionary getDictionary() {
+        return delegate.getDictionary();
+    }
+
+    @Override
+    public ByteBuf getData() {
+        return delegate.getData();
     }
 
     @Override

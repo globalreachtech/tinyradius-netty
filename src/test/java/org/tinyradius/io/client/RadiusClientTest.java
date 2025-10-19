@@ -8,6 +8,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -50,6 +51,7 @@ class RadiusClientTest {
 
     private final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class);
 
+    @AutoClose("stop")
     private final Timer timer = new HashedWheelTimer();
 
     // Convenience class for encapsulating the three hook types

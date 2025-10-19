@@ -45,11 +45,11 @@ public class AttributeTemplate {
     private final String dataType;
 
     /**
-     * whether attribute supports Tag field as per RFC2868
+     * Whether attribute supports Tag field as per RFC2868
      */
     private final boolean tagged;
     /**
-     * one of AttributeCodecType enum, defaults to NO_ENCRYPT for none
+     * One of {@link AttributeCodecType} enum, defaults to NO_ENCRYPT for none
      */
     private final AttributeCodecType codecType;
 
@@ -207,7 +207,7 @@ public class AttributeTemplate {
      * @throws RadiusPacketException errors decoding attribute
      */
     public RadiusAttribute decode(RadiusAttribute attribute, byte[] requestAuth, String secret) throws RadiusPacketException {
-        if (!attribute.isEncoded())
+        if (attribute.isDecoded())
             return attribute;
 
         try {

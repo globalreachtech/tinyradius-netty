@@ -75,7 +75,7 @@ class OctetsAttributeTest {
 
         // User-Password (we need something with encrypt)
         final OctetsAttribute attribute = FACTORY.create(dictionary, -1, USER_PASSWORD, (byte) 0, value);
-        assertFalse(attribute.isEncoded());
+        assertTrue(attribute.isDecoded());
         assertArrayEquals(value, attribute.getValue());
 
         // encode
@@ -89,7 +89,7 @@ class OctetsAttributeTest {
 
         // decode
         final OctetsAttribute decode = (OctetsAttribute) encode.decode(requestAuth, secret);
-        assertFalse(decode.isEncoded());
+        assertTrue(decode.isDecoded());
         assertArrayEquals(value, decode.getValue());
 
         // decode again
@@ -109,7 +109,7 @@ class OctetsAttributeTest {
 
         // Tunnel-Password (actually a StringAttribute, we need something with encrypt and tag )
         final OctetsAttribute attribute = FACTORY.create(testDictionary, -1, TUNNEL_PASSWORD, tag, value);
-        assertFalse(attribute.isEncoded());
+        assertTrue(attribute.isDecoded());
         assertEquals(tag, attribute.getTag().get());
         assertArrayEquals(value, attribute.getValue());
         assertEquals("Tunnel-Password:123=0x00002710", attribute.toString());
@@ -126,7 +126,7 @@ class OctetsAttributeTest {
 
         // decode
         final OctetsAttribute decode = (OctetsAttribute) encode.decode(requestAuth, secret);
-        assertFalse(decode.isEncoded());
+        assertTrue(decode.isDecoded());
         assertEquals(tag, decode.getTag().get());
         assertArrayEquals(value, decode.getValue());
 

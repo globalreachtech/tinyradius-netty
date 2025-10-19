@@ -8,6 +8,7 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
+import jakarta.annotation.Nonnull;
 import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -26,7 +27,6 @@ import org.tinyradius.io.server.RadiusServer;
 import org.tinyradius.io.server.handler.BasicCachingHandler;
 import org.tinyradius.io.server.handler.ServerPacketCodec;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -36,7 +36,7 @@ import static java.util.stream.Collectors.toList;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
 @Log4j2
-public class Harness {
+public class Harness implements AutoCloseable {
 
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final Timer timer = new HashedWheelTimer();
@@ -175,4 +175,8 @@ public class Harness {
         return server;
     }
 
+    @Override
+    public void close() throws Exception {
+        timer.stop();
+    }
 }

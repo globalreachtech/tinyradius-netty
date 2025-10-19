@@ -102,7 +102,7 @@ class AttributeTemplateTest {
         final AttributeTemplate template = dictionary.getAttributeTemplate(USER_PASSWORD).get();
 
         assertArrayEquals(pw.getBytes(UTF_8), attribute.getValue());
-        assertFalse(attribute.isEncoded());
+        assertTrue(attribute.isDecoded());
 
         final RadiusAttribute encode1 = template.encode(attribute, requestAuth, secret);
         assertNotEquals(attribute, encode1);
@@ -117,13 +117,13 @@ class AttributeTemplateTest {
 
         final RadiusAttribute decode1 = template.decode(encode2, requestAuth, secret);
         assertEquals(attribute, decode1);
-        assertFalse(decode1.isEncoded());
+        assertTrue(decode1.isDecoded());
         assertArrayEquals(pw.getBytes(UTF_8), decode1.getValue());
 
         // idempotence check
         final RadiusAttribute decode2 = template.decode(decode1, requestAuth, secret);
         assertEquals(decode1, decode2);
-        assertFalse(decode2.isEncoded());
+        assertTrue(decode2.isDecoded());
         assertArrayEquals(pw.getBytes(UTF_8), decode2.getValue());
     }
 
@@ -139,7 +139,7 @@ class AttributeTemplateTest {
 
         assertEquals(tag, attribute.getTag().get());
         assertArrayEquals(pw.getBytes(UTF_8), attribute.getValue());
-        assertFalse(attribute.isEncoded());
+        assertTrue(attribute.isDecoded());
 
         final RadiusAttribute encode1 = template.encode(attribute, requestAuth, secret);
         assertNotEquals(attribute, encode1);
@@ -158,7 +158,7 @@ class AttributeTemplateTest {
 
         final RadiusAttribute decode1 = template.decode(encode2, requestAuth, secret);
         assertEquals(attribute, decode1);
-        assertFalse(decode1.isEncoded());
+        assertTrue(decode1.isDecoded());
         assertArrayEquals(pw.getBytes(UTF_8), decode1.getValue());
         assertEquals(tag, attribute.getTag().get());
         assertEquals(tag, attribute.toByteArray()[2]);
@@ -166,7 +166,7 @@ class AttributeTemplateTest {
         // idempotence check
         final RadiusAttribute decode2 = template.decode(decode1, requestAuth, secret);
         assertEquals(decode1, decode2);
-        assertFalse(decode2.isEncoded());
+        assertTrue(decode2.isDecoded());
         assertArrayEquals(pw.getBytes(UTF_8), decode2.getValue());
         assertEquals(tag, attribute.getTag().get());
         assertEquals(tag, attribute.toByteArray()[2]);
