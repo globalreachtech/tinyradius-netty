@@ -50,7 +50,6 @@ class RadiusClientTest {
 
     private final SecureRandom random = new SecureRandom();
 
-    @AutoClose
     private final EventLoopGroup eventLoopGroup = new MultiThreadIoEventLoopGroup(2, NioIoHandler.newFactory());
     private final InetSocketAddress address = new InetSocketAddress(0);
     private final RadiusEndpoint stubEndpoint = new RadiusEndpoint(address, "secret");
