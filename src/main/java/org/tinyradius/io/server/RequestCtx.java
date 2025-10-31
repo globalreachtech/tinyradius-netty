@@ -16,4 +16,11 @@ public class RequestCtx {
     public ResponseCtx withResponse(RadiusResponse response) {
         return new ResponseCtx(request, endpoint, response);
     }
+
+    public String toString() {
+        return "RequestCtx{" +
+                "packet=" + getRequest() +
+                ", endpoint=" + getEndpoint() +
+                "}";
+    }
 }
