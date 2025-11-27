@@ -1,13 +1,14 @@
 package org.tinyradius.io.client.timeout;
 
 import io.netty.util.Timer;
-import io.netty.util.concurrent.Promise;
 import lombok.RequiredArgsConstructor;
-import org.tinyradius.core.packet.response.RadiusResponse;
+import org.tinyradius.io.client.ClientEventListener;
+import org.tinyradius.io.client.PendingRequestCtx;
 
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.tinyradius.io.client.ClientEventListener.EventType.ATTEMPT_TIMEOUT;
 
 /**
  * TimeoutHandler that waits a fixed period for every timeout,
@@ -36,13 +37,15 @@ public class FixedTimeoutHandler implements TimeoutHandler {
     }
 
     @Override
-    public void onTimeout(Runnable retry, int totalAttempts, Promise<RadiusResponse> promise) {
+    public void scheduleTimeout(Runnable retry, int totalAttempts, PendingRequestCtx ctx, ClientEventListener eventListener) {
         timer.newTimeout(t -> {
-            if (promise.isDone())
+            if (ctx.getResponse().isDone())
                 return;
 
+            eventListener.onEvent(ATTEMPT_TIMEOUT, ctx);
+
             if (totalAttempts >= maxAttempts)
-                promise.tryFailure(new TimeoutException("Client send timeout - max attempts reached: " + maxAttempts));
+                ctx.getResponse().tryFailure(new TimeoutException("Client send timeout - max attempts reached: " + maxAttempts));
             else
                 retry.run();
         }, timeoutMs, MILLISECONDS);
