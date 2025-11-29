@@ -3,13 +3,13 @@ package org.tinyradius.io.client.timeout;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.ImmediateEventExecutor;
-import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.core.packet.response.RadiusResponse;
+import org.tinyradius.io.client.PendingRequestCtx;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -26,19 +26,20 @@ class FixedTimeoutHandlerTest {
 
     @Test
     void retryFailIfMaxAttempts() {
-        final Promise<RadiusResponse> promise = eventExecutor.newPromise();
+        var promise = eventExecutor.<RadiusResponse>newPromise();
+        var ctx = new PendingRequestCtx(null, null, promise);
 
         final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 2, 0);
 
         // totalAttempts < maxAttempts
-        retryStrategy.onTimeout(mockRetry, 1, promise);
+        retryStrategy.scheduleTimeout(mockRetry, 1, ctx);
         assertEquals(1, timer.pendingTimeouts());
 
         verify(mockRetry, timeout(500)).run();
         assertEquals(0, timer.pendingTimeouts());
 
         // totalAttempts >= maxAttempts
-        retryStrategy.onTimeout(mockRetry, 2, promise);
+        retryStrategy.scheduleTimeout(mockRetry, 2, ctx);
         assertEquals(1, timer.pendingTimeouts());
 
         // still one invocation after 500ms
@@ -51,12 +52,13 @@ class FixedTimeoutHandlerTest {
 
     @Test
     void retryRunOk() {
-        final Promise<RadiusResponse> promise = eventExecutor.newPromise();
+        var promise = eventExecutor.<RadiusResponse>newPromise();
+        var ctx = new PendingRequestCtx(null, null, promise);
 
         final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 3, 100);
 
         // first retry runs
-        retryStrategy.onTimeout(mockRetry, 1, promise);
+        retryStrategy.scheduleTimeout(mockRetry, 1, ctx);
         assertEquals(1, timer.pendingTimeouts());
 
         verify(mockRetry, timeout(500)).run();
@@ -67,11 +69,12 @@ class FixedTimeoutHandlerTest {
     void noRetryIfPromiseDone() {
         final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 3, 0);
 
-        final Promise<RadiusResponse> promise = eventExecutor.newPromise();
+        var promise = eventExecutor.<RadiusResponse>newPromise();
+        var ctx = new PendingRequestCtx(null, null, promise);
         promise.trySuccess(null);
         assertTrue(promise.isDone());
 
-        retryStrategy.onTimeout(mockRetry, 2, promise);
+        retryStrategy.scheduleTimeout(mockRetry, 2, ctx);
         assertEquals(1, timer.pendingTimeouts());
 
         verify(mockRetry, after(500).never()).run();

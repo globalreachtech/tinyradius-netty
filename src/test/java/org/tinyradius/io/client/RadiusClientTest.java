@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tinyradius.core.RadiusPacketException;
@@ -26,13 +28,20 @@ import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
+import static org.tinyradius.io.client.ClientEventListener.EventType.*;
 
 @ExtendWith(MockitoExtension.class)
 class RadiusClientTest {
@@ -50,6 +59,9 @@ class RadiusClientTest {
     @AutoClose("stop")
     private final Timer timer = new HashedWheelTimer();
 
+    @Mock
+    private ClientEventListener listener;
+
     @Spy
     private final TimeoutHandler timeoutHandler = new FixedTimeoutHandler(timer); // no retries
 
@@ -62,7 +74,7 @@ class RadiusClientTest {
                     () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
 
             assertTrue(e.getMessage().toLowerCase().contains("max attempts reached"));
-            verify(timeoutHandler).onTimeout(any(), anyInt(), any());
+            verify(timeoutHandler).scheduleTimeout(any(), anyInt(), any(), any());
         }
     }
 
@@ -168,6 +180,66 @@ class RadiusClientTest {
         }
     }
 
+    @Test
+    void communicateWithHooksSuccess() throws RadiusPacketException, InterruptedException {
+        var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) random.nextInt(256), null, List.of());
+        var response = RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) random.nextInt(256), null, List.of());
+
+        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.of(response))) {
+            var future = radiusClient.communicate(request, List.of(stubEndpoint), timeoutHandler, listener).await();
+
+            assertTrue(future.isSuccess());
+            assertSame(response, future.getNow());
+
+            var sendCaptor = ArgumentCaptor.forClass(PendingRequestCtx.class);
+            var receiveCaptor = ArgumentCaptor.forClass(PendingRequestCtx.class);
+
+            // event hook race condition
+            await().untilAsserted(() -> {
+                verify(listener).onEvent(eq(PRE_SEND), sendCaptor.capture());
+                verify(listener).onEvent(eq(POST_RECEIVE), receiveCaptor.capture());
+                assertThat(sendCaptor.getValue()).isSameAs(receiveCaptor.getValue());
+                assertThat(sendCaptor.getValue().getRequest()).isEqualTo(request);
+                assertThat(sendCaptor.getValue().getResponse().get()).isEqualTo(response);
+            });
+        }
+    }
+
+    @Test
+    void communicateWithHooksTimeout() throws RadiusPacketException, InterruptedException {
+        var endpoints = Arrays.asList(
+                stubEndpoint,
+                new RadiusEndpoint(new InetSocketAddress(1), "secret2"),
+                new RadiusEndpoint(new InetSocketAddress(2), "secret3")
+        );
+        int attemptsPerRequest = 2;
+        int endpointCount = endpoints.size();
+
+        var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
+        var retryingTimeoutHandler = new FixedTimeoutHandler(timer, attemptsPerRequest, 50);
+
+        try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.NOOP)) {
+            var future = radiusClient.communicate(request, endpoints, retryingTimeoutHandler, listener).await();
+
+            assertFalse(future.isSuccess());
+
+            var presendCaptor = ArgumentCaptor.forClass(PendingRequestCtx.class);
+            var timeoutCaptor = ArgumentCaptor.forClass(PendingRequestCtx.class);
+            verify(listener, times(endpointCount * attemptsPerRequest)).onEvent(eq(PRE_SEND), presendCaptor.capture());
+            verify(listener, times(endpointCount * attemptsPerRequest)).onEvent(eq(ATTEMPT_TIMEOUT), timeoutCaptor.capture());
+
+            var presends = presendCaptor.getAllValues();
+            assertThat(presends).hasSize(endpointCount * attemptsPerRequest);
+            assertThat(new HashSet<>(presends)).hasSize(endpointCount); // each endpoint has separate request ctx
+
+            var timeouts = timeoutCaptor.getAllValues();
+            assertThat(presends).hasSize(endpointCount * attemptsPerRequest);
+            assertThat(new HashSet<>(timeouts)).hasSize(endpointCount);
+
+            assertThat(presends).isEqualTo(timeouts);
+        }
+    }
+
     @ChannelHandler.Sharable
     @RequiredArgsConstructor
     private static class CapturingOutboundHandler extends ChannelOutboundHandlerAdapter {
@@ -186,6 +258,7 @@ class RadiusClientTest {
         private final Consumer<Promise<RadiusResponse>> failFast;
         private final List<PendingRequestCtx> requests = new ArrayList<>();
 
+        @Override
         public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
             final PendingRequestCtx reqCtx = (PendingRequestCtx) msg;
             requests.add(reqCtx);

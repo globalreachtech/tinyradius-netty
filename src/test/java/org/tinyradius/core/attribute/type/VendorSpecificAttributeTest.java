@@ -2,7 +2,6 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,8 +9,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.parser.DictionaryParser;
-import org.tinyradius.core.packet.request.AccessRequest;
-import org.tinyradius.core.packet.request.RadiusRequest;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -23,6 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 class VendorSpecificAttributeTest {
 
     private static final int WISPR_VENDOR_ID = 14122;
