@@ -1,9 +1,9 @@
 package org.tinyradius.core.packet.response;
 
 import org.junit.jupiter.api.Test;
+import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.RadiusPacketException;
 
 import java.security.SecureRandom;
 import java.util.Collections;
@@ -11,6 +11,7 @@ import java.util.Collections;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 class AccessResponseTest {
 
     private static final byte USER_PASSWORD = 2;

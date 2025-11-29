@@ -17,6 +17,7 @@ import static org.tinyradius.core.attribute.AttributeTypes.CHAP_PASSWORD;
 import static org.tinyradius.core.attribute.AttributeTypes.USER_NAME;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 class AccessRequestChapTest {
 
     private static final SecureRandom random = new SecureRandom();

@@ -2,7 +2,6 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 class VendorSpecificAttributeTest {
 
     private static final int WISPR_VENDOR_ID = 14122;
