@@ -16,7 +16,7 @@ import java.util.Optional;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 
 public interface RadiusAttribute {
-    HexFormat HEX_FORMAT = HexFormat.of();
+    HexFormat HEX_FORMAT = HexFormat.of().withUpperCase();
 
     /**
      * @return vendor Id if Vendor-Specific attribute or sub-attribute, otherwise -1
