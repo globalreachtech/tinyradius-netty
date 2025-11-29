@@ -52,10 +52,10 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
     }
 
     /**
-     * @param request the request in question
-     * @param client  the client endpoint the request originated from
-     *                (containing the address, port number and shared secret)
+     * @param request        the request in question
+     * @param clientEndpoint the client endpoint the request originated from
+     *                       (containing the address, port number and shared secret)
      * @return RadiusEndpoint to proxy request to
      */
-    protected abstract Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint client);
+    protected abstract Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint clientEndpoint);
 }
