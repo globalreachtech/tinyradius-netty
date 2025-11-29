@@ -20,4 +20,10 @@ public class PendingRequestCtx extends RequestCtx {
         this.response = response;
     }
 
+    public String toString() {
+        return "PendingRequestCtx{" +
+                "packet=" + getRequest() +
+                ", endpoint=" + getEndpoint() +
+                "}";
+    }
 }
