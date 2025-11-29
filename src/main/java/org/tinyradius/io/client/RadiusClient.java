@@ -151,7 +151,6 @@ public class RadiusClient implements RadiusLifecycle {
     }
 
     private void send(PendingRequestCtx ctx, int attempt, TimeoutHandler timeoutHandler, ClientEventListener listener) {
-        // More appropriate to use debug than info
         log.debug("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
 
         listener.onEvent(PRE_SEND, ctx);
