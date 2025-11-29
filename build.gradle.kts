@@ -27,12 +27,11 @@ repositories {
 }
 
 dependencies {
-    implementation("org.apache.logging.log4j:log4j-api:2.25.2")
-    implementation("io.netty:netty-codec-base:4.2.7.Final")
-    implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.4")
+    implementation(libs.log4j.api)
+    implementation(libs.netty.codec.base)
     implementation("jakarta.annotation:jakarta.annotation-api:3.0.0")
 
-    testImplementation("org.apache.logging.log4j:log4j-core:2.25.2")
+    testImplementation(libs.log4j.core)
     testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
     testImplementation("org.mockito:mockito-junit-jupiter:5.20.0")
     testImplementation("org.awaitility:awaitility:4.3.0")

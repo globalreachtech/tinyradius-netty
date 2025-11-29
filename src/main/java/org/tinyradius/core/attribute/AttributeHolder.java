@@ -2,7 +2,6 @@ package org.tinyradius.core.attribute;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import jakarta.xml.bind.DatatypeConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.RadiusPacketException;
@@ -18,6 +17,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
+import static org.tinyradius.core.attribute.type.RadiusAttribute.HEX_FORMAT;
 
 /**
  * Basic attribute holder, for VendorSpecificAttribute (to hold sub-attributes) or RadiusPackets
@@ -61,7 +61,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
                 throw new IllegalArgumentException("Attribute malformed, " + data.readableBytes() + " bytes remaining to parse (minimum 2 octets)");
         } catch (Exception e) {
             attrHolderLogger.trace("Could not extract all attributes: 0x{}",
-                    DatatypeConverter.printHexBinary(data.copy().array()));
+                    HEX_FORMAT.formatHex(data.copy().array()));
             throw new IllegalArgumentException("Error reading attributes, already extracted attributes: " + attributes, e);
         }
 
@@ -83,35 +83,21 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
                 .map(Vendor::getTypeSize)
                 .orElse(1);
 
-        int type;
-        switch (typeSize) {
-            case 2:
-                type = data.getShort(data.readerIndex());
-                break;
-            case 4:
-                type = data.getInt(data.readerIndex());
-                break;
-            case 1:
-            default:
-                type = Byte.toUnsignedInt(data.getByte(data.readerIndex()));
-        }
+        int type = switch (typeSize) {
+            case 2 -> data.getShort(data.readerIndex());
+            case 4 -> data.getInt(data.readerIndex());
+            default -> Byte.toUnsignedInt(data.getByte(data.readerIndex()));
+        };
 
         final int lengthSize = vendor
                 .map(Vendor::getLengthSize)
                 .orElse(1);
 
-        int length;
-        switch (lengthSize) {
-            case 0:
-                length = data.readableBytes();
-                break;
-            case 2:
-                length = data.getShort(data.readerIndex() + typeSize);
-                break;
-            case 1:
-            default:
-                length = Byte.toUnsignedInt(data.getByte(data.readerIndex() + typeSize)); // max 255
-        }
+        int length = switch (lengthSize) {
+            case 0 -> data.readableBytes();
+            case 2 -> data.getShort(data.readerIndex() + typeSize);
+            default -> Byte.toUnsignedInt(data.getByte(data.readerIndex() + typeSize)); // max 255
+        };
 
         if (length < typeSize + lengthSize)
             throw new IllegalArgumentException("Invalid attribute length " + length + ", must be >= typeSize + lengthSize, " +
