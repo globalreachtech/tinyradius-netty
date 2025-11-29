@@ -2,7 +2,6 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import jakarta.xml.bind.DatatypeConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tinyradius.core.attribute.AttributeTemplate;
@@ -10,6 +9,8 @@ import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
 import java.util.Optional;
+
+import static org.tinyradius.core.attribute.type.RadiusAttribute.HEX_FORMAT;
 
 public interface RadiusAttributeFactory<T extends RadiusAttribute> {
 
@@ -33,7 +34,7 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
             return attribute;
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not create attribute with vendorId: " + vendorId +
-                    ", bytes: 0x" + DatatypeConverter.printHexBinary(data.copy().array()) + " - " + e.getMessage(), e);
+                    ", bytes: 0x" + HEX_FORMAT.formatHex(data.copy().array()) + " - " + e.getMessage(), e);
         }
     }
 
@@ -82,36 +83,15 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
     }
 
     static RadiusAttributeFactory<? extends RadiusAttribute> fromDataType(String dataType) {
-        switch (dataType) {
-            case "vsa":
-                return VendorSpecificAttribute.FACTORY;
-            case "string":
-            case "text":
-                return StringAttribute.FACTORY;
-            case "integer":
-            case "date":
-            case "enum":
-                return IntegerAttribute.FACTORY;
-            case "ipaddr":
-            case "ipv4addr":
-                return IpAttribute.V4.FACTORY;
-            case "ipv6addr":
-                return IpAttribute.V6.FACTORY;
-            case "ipv6prefix":
-                return Ipv6PrefixAttribute.FACTORY;
-            case "octets":
-            case "ifid":
-            case "integer64":
-            case "ether":
-            case "abinary":
-            case "byte":
-            case "short":
-            case "signed":
-            case "tlv": // nested attributes
-            case "struct": // compound types
-            case "ipv4prefix":
-            default:
-                return OctetsAttribute.FACTORY;
-        }
+        return switch (dataType) {
+            case "vsa" -> VendorSpecificAttribute.FACTORY;
+            case "string", "text" -> StringAttribute.FACTORY;
+            case "integer", "date", "enum" -> IntegerAttribute.FACTORY;
+            case "ipaddr", "ipv4addr" -> IpAttribute.V4.FACTORY;
+            case "ipv6addr" -> IpAttribute.V6.FACTORY;
+            case "ipv6prefix" -> Ipv6PrefixAttribute.FACTORY; // nested attributes
+            // compound types
+            default -> OctetsAttribute.FACTORY;
+        };
     }
 }

@@ -1,7 +1,6 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
-import jakarta.xml.bind.DatatypeConverter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -47,15 +46,11 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     private int extractLength(int typeSize, int lengthSize) {
-        switch (lengthSize) {
-            case 0:
-                return data.readableBytes();
-            case 2:
-                return data.getShort(typeSize);
-            case 1:
-            default:
-                return Byte.toUnsignedInt(data.getByte(typeSize)); // max 255
-        }
+        return switch (lengthSize) {
+            case 0 -> data.readableBytes();
+            case 2 -> data.getShort(typeSize);
+            default -> Byte.toUnsignedInt(data.getByte(typeSize)); // max 255
+        };
     }
 
     /**
@@ -77,7 +72,7 @@ public class OctetsAttribute implements RadiusAttribute {
 
     @Override
     public String getValueString() {
-        return "0x" + DatatypeConverter.printHexBinary(getValue());
+        return "0x" + HEX_FORMAT.formatHex(getValue());
     }
 
     @Override
@@ -97,7 +92,7 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     public static byte[] stringHexParser(String value) {
-        return DatatypeConverter.parseHexBinary(value);
+        return HEX_FORMAT.parseHex(value);
     }
 
     private static class Factory implements RadiusAttributeFactory<OctetsAttribute> {
