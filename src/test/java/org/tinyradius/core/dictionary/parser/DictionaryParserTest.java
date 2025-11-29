@@ -18,6 +18,7 @@ import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 class DictionaryParserTest {
 
     private static final String PACKAGE_PREFIX = "org/tinyradius/core/dictionary/";
@@ -195,10 +196,11 @@ class DictionaryParserTest {
         assertEquals("Login-User", attributeTemplate.get().getEnumeration(1));
         assertEquals("Digest-Attributes", dictionary.getAttributeTemplate(-1, 207).get().getName());
 
-        Files.walk(tmpPath)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+        try (var paths = Files.walk(tmpPath)) {
+            paths.sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
     }
 
     private void copyDict(Path tempDir, String... files) throws IOException {

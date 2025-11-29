@@ -61,9 +61,6 @@ class EndToEndTest {
             assertEquals(ACCESS_ACCEPT, responses.get(0).getType());
             assertEquals(ACCOUNTING_RESPONSE, responses.get(1).getType());
             assertEquals(ACCESS_REJECT, responses.get(2).getType());
-
-            origin.closeAsync().sync();
-            proxy.closeAsync().sync();
         }
     }
 
@@ -71,7 +68,6 @@ class EndToEndTest {
     void testProxyStartup() throws InterruptedException {
         try (var proxy = startProxy()) {
             proxy.isReady().sync();
-            proxy.closeAsync().sync();
         }
     }
 
@@ -79,8 +75,6 @@ class EndToEndTest {
     void testOriginStartup() throws InterruptedException {
         try (var origin = startOrigin(Map.of())) {
             origin.isReady().sync();
-            origin.closeAsync().sync();
-
         }
     }
 

@@ -195,7 +195,7 @@ class RadiusClientTest {
             var receiveCaptor = ArgumentCaptor.forClass(PendingRequestCtx.class);
 
             // event hook race condition
-            await().untilAsserted(() ->{
+            await().untilAsserted(() -> {
                 verify(listener).onEvent(eq(PRE_SEND), sendCaptor.capture());
                 verify(listener).onEvent(eq(POST_RECEIVE), receiveCaptor.capture());
                 assertThat(sendCaptor.getValue()).isSameAs(receiveCaptor.getValue());

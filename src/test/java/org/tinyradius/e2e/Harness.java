@@ -176,7 +176,7 @@ public class Harness implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         timer.stop();
     }
 }

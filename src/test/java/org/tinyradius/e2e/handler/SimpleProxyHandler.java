@@ -27,7 +27,7 @@ public class SimpleProxyHandler extends ProxyHandler {
     }
 
     @Override
-    public Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint client) {
+    public Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint clientEndpoint) {
         InetAddress address = InetAddress.getLoopbackAddress();
         int port = request instanceof AccountingRequest ? originAcctPort : originAuthPort;
         return Optional.of(new RadiusEndpoint(new InetSocketAddress(address, port), originSecret));
