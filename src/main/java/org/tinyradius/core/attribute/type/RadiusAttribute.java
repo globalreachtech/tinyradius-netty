@@ -9,12 +9,14 @@ import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
 import java.util.Collections;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 
 public interface RadiusAttribute {
+    HexFormat HEX_FORMAT = HexFormat.of().withUpperCase();
 
     /**
      * @return vendor Id if Vendor-Specific attribute or sub-attribute, otherwise -1
@@ -25,30 +27,22 @@ public interface RadiusAttribute {
      * @return attribute type code, typically 0-255
      */
     default int getType() {
-        switch (getTypeSize()) {
-            case 2:
-                return getData().getShort(0);
-            case 4:
-                return getData().getInt(0);
-            case 1:
-            default:
-                return Byte.toUnsignedInt(getData().getByte(0));
-        }
+        return switch (getTypeSize()) {
+            case 2 -> getData().getShort(0);
+            case 4 -> getData().getInt(0);
+            default -> Byte.toUnsignedInt(getData().getByte(0));
+        };
     }
 
     /**
      * @return number of octets used by attribute - uses declared length where possible, otherwise uses readableBytes
      */
     default int getLength() {
-        switch (getLengthSize()) {
-            case 0:
-                return getData().readableBytes();
-            case 2:
-                return getData().getShort(getTypeSize());
-            case 1:
-            default:
-                return Byte.toUnsignedInt(getData().getByte(getTypeSize())); // max 255
-        }
+        return switch (getLengthSize()) {
+            case 0 -> getData().readableBytes();
+            case 2 -> getData().getShort(getTypeSize());
+            default -> Byte.toUnsignedInt(getData().getByte(getTypeSize())); // max 255
+        };
     }
 
     /**

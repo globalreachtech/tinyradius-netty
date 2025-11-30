@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.request.RadiusRequest.fromDatagram;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @ExtendWith(MockitoExtension.class)
 class ClientDatagramCodecTest {
 

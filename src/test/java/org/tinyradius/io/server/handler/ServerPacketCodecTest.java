@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @ExtendWith(MockitoExtension.class)
 class ServerPacketCodecTest {
 

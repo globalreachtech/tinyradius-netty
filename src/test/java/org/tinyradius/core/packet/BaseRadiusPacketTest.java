@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 class BaseRadiusPacketTest {
 
     private final SecureRandom random = new SecureRandom();
@@ -66,13 +67,15 @@ class BaseRadiusPacketTest {
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
                 ipV6Attributes.stream().map(RadiusAttribute::getValueString).toArray());
 
-        assertEquals("Access-Request, ID 1, len 96, attributes={\n" +
-                "Vendor-Specific: Vendor ID 14122 (WISPr)\n" +
-                "  WISPr-Location-ID=myLocationId\n" +
-                "Framed-IP-Address=0.18.214.135\n" +
-                "Framed-IPv6-Address=fe80:0:0:0:0:0:0:0\n" +
-                "Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/64\n" +
-                "Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/128\n}", packet.toString());
+        assertEquals("""
+                Access-Request, ID 1, len 96, attributes={
+                Vendor-Specific: Vendor ID 14122 (WISPr)
+                  WISPr-Location-ID=myLocationId
+                Framed-IP-Address=0.18.214.135
+                Framed-IPv6-Address=fe80:0:0:0:0:0:0:0
+                Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/64
+                Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/128
+                }""", packet.toString());
     }
 
     @Test

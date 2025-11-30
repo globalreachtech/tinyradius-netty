@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.AttributeTypes.PROXY_STATE;
 import static org.tinyradius.core.packet.PacketType.*;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @ExtendWith(MockitoExtension.class)
 class PromiseAdapterTest {
 
