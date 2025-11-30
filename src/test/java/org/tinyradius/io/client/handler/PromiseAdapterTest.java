@@ -61,7 +61,7 @@ class PromiseAdapterTest {
         handler.encode(ctx, new PendingRequestCtx(originalRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
-        final RadiusRequest processedPacket1 = ((PendingRequestCtx) out1.getFirst()).getRequest();
+        final RadiusRequest processedPacket1 = ((PendingRequestCtx) out1.get(0)).getRequest();
         final List<RadiusAttribute> attributes1 = processedPacket1.getAttributes();
 
         // check proxy-state added
@@ -74,7 +74,7 @@ class PromiseAdapterTest {
         handler.encode(ctx, new PendingRequestCtx(processedPacket1, endpoint, promise), out2);
 
         assertEquals(1, out1.size());
-        final RadiusRequest processedPacket2 = ((PendingRequestCtx) out2.getFirst()).getRequest();
+        final RadiusRequest processedPacket2 = ((PendingRequestCtx) out2.get(0)).getRequest();
 
         // check another proxy-state added
         final List<RadiusAttribute> attributes2 = processedPacket2.getAttributes();
@@ -129,7 +129,7 @@ class PromiseAdapterTest {
 
         assertEquals(1, out.size());
 
-        final RadiusRequest preparedRequest = ((PendingRequestCtx) out.getFirst()).getRequest();
+        final RadiusRequest preparedRequest = ((PendingRequestCtx) out.get(0)).getRequest();
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).get().getValue();
 
         // using id 99
@@ -159,7 +159,7 @@ class PromiseAdapterTest {
         handler.encode(ctx, new PendingRequestCtx(request, requestEndpoint, promise), out);
 
         assertEquals(1, out.size());
-        final RadiusRequest preparedRequest = ((RequestCtx) out.getFirst()).getRequest();
+        final RadiusRequest preparedRequest = ((RequestCtx) out.get(0)).getRequest();
         final byte[] requestProxyState = preparedRequest.getAttribute(PROXY_STATE).get().getValue();
 
         final RadiusResponse response = RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 1, null,
@@ -192,7 +192,7 @@ class PromiseAdapterTest {
 
         assertEquals(1, out.size());
 
-        final RadiusRequest encodedRequest = ((RequestCtx) out.getFirst()).getRequest();
+        final RadiusRequest encodedRequest = ((RequestCtx) out.get(0)).getRequest();
         assertNotEquals(pw, new String(encodedRequest.getAttribute("Tunnel-Password").get().getValue(), UTF_8));
 
         // capture request details

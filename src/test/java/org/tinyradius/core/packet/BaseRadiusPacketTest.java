@@ -49,14 +49,14 @@ class BaseRadiusPacketTest {
         final List<VendorSpecificAttribute> vendorAttributes = packet.getVendorAttributes(14122);
         assertEquals(1, vendorAttributes.size());
 
-        final List<RadiusAttribute> wisprLocations = vendorAttributes.getFirst().getAttributes();
+        final List<RadiusAttribute> wisprLocations = vendorAttributes.get(0).getAttributes();
         assertEquals(1, wisprLocations.size());
-        assertEquals("myLocationId", wisprLocations.getFirst().getValueString());
+        assertEquals("myLocationId", wisprLocations.get(0).getValueString());
 
         assertEquals("myLocationId", packet.getAttribute(14122, 1).get().getValueString());
         final List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, 1);
         assertEquals(1, wisprLocations2.size());
-        assertEquals("myLocationId", wisprLocations2.getFirst().getValueString());
+        assertEquals("myLocationId", wisprLocations2.get(0).getValueString());
 
         assertEquals("0.18.214.135", packet.getAttribute(8).get().getValueString());
         assertEquals("0.18.214.135", packet.getAttribute("Framed-IP-Address").get().getValueString());
@@ -94,7 +94,7 @@ class BaseRadiusPacketTest {
         final StubPacket rp1 = new StubPacket()
                 .addAttribute("WISPr-Location-ID", "myLocationId");
         assertEquals(1, rp1.getAttributes().size());
-        assertInstanceOf(VendorSpecificAttribute.class, rp1.getAttributes().getFirst());
+        assertInstanceOf(VendorSpecificAttribute.class, rp1.getAttributes().get(0));
 
         final StubPacket rp2 = rp1.removeAttributes(14122, 1);
         assertTrue(rp2.getAttributes().isEmpty());
@@ -131,7 +131,7 @@ class BaseRadiusPacketTest {
 
         List<RadiusAttribute> rp2Attributes = rp2.getAttributes(6);
         assertEquals(1, rp2Attributes.size());
-        assertEquals("Login-User", rp2Attributes.getFirst().getValueString());
+        assertEquals("Login-User", rp2Attributes.get(0).getValueString());
 
         // remove again
         final StubPacket rp3 = rp2.removeLastAttribute(6);

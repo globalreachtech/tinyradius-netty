@@ -55,7 +55,7 @@ class MessageAuthSupportTest {
         // impl under test
         final AccessRequestNoAuth encodedRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList())
                 .encodeRequest(secret);
-        final byte[] actualMsgAuth = encodedRequest.getAttributes().getFirst().getValue();
+        final byte[] actualMsgAuth = encodedRequest.getAttributes().get(0).getValue();
 
         // jradius impl
         final net.jradius.packet.AccessRequest jradiusRequest = new net.jradius.packet.AccessRequest();

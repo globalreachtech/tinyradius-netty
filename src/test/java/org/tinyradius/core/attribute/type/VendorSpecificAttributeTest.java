@@ -176,7 +176,7 @@ class VendorSpecificAttributeTest {
         assertEquals(length, vsaByteBuf.length);
         assertEquals(3, vsa.getAttributes().size());
 
-        final RadiusAttribute sub1 = vsa.getAttributes().getFirst();
+        final RadiusAttribute sub1 = vsa.getAttributes().get(0);
         assertFalse(sub1.getAttributeName().contains("Unknown"));
         assertEquals(attribute1, sub1.getType());
 
@@ -191,7 +191,7 @@ class VendorSpecificAttributeTest {
         final VendorSpecificAttribute parsed = new VendorSpecificAttribute(dictionary, -1, Unpooled.wrappedBuffer(vsaByteBuf));
         assertArrayEquals(vsa.toByteArray(), parsed.toByteArray());
 
-        final RadiusAttribute parsedSub1 = parsed.getAttributes().getFirst();
+        final RadiusAttribute parsedSub1 = parsed.getAttributes().get(0);
         assertFalse(parsedSub1.getAttributeName().contains("Unknown"));
         assertEquals(attribute1, parsedSub1.getType());
         assertArrayEquals(sub1.toByteArray(), parsedSub1.toByteArray());
@@ -234,7 +234,7 @@ class VendorSpecificAttributeTest {
         assertEquals(length, vsaByteBuf.length);
         assertEquals(3, vsa.getAttributes().size());
 
-        final RadiusAttribute sub1 = vsa.getAttributes().getFirst();
+        final RadiusAttribute sub1 = vsa.getAttributes().get(0);
         assertEquals("USR-Last-Number-Dialed-Out", sub1.getAttributeName());
         assertEquals(attribute1, sub1.getType());
 
@@ -250,7 +250,7 @@ class VendorSpecificAttributeTest {
 
         assertEquals(1, parsed.getAttributes().size());
 
-        final RadiusAttribute parsedSub1 = parsed.getAttributes().getFirst();
+        final RadiusAttribute parsedSub1 = parsed.getAttributes().get(0);
         assertEquals("USR-Last-Number-Dialed-Out", parsedSub1.getAttributeName());
         assertEquals(attribute1, parsedSub1.getType());
 
@@ -280,7 +280,7 @@ class VendorSpecificAttributeTest {
         final VendorSpecificAttribute attribute1 = FACTORY.create(dictionary, -1, vsaByteBuf);
 
         assertEquals(1, attribute1.getAttributes().size());
-        final AnonSubAttribute sub1 = (AnonSubAttribute) attribute1.getAttributes().getFirst();
+        final AnonSubAttribute sub1 = (AnonSubAttribute) attribute1.getAttributes().get(0);
         assertArrayEquals(bytes, sub1.toByteArray());
         assertEquals("[Unparsable sub-attribute (vendorId 123456, length 10)]", sub1.getValueString());
         assertArrayEquals(vsaByteBuf.copy().array(), attribute1.toByteArray());
@@ -290,7 +290,7 @@ class VendorSpecificAttributeTest {
                 vsaByteBuf.slice(2, vsaByteBuf.readableBytes() - 2).copy().array());
 
         assertEquals(1, attribute2.getAttributes().size());
-        final AnonSubAttribute sub2 = (AnonSubAttribute) attribute1.getAttributes().getFirst();
+        final AnonSubAttribute sub2 = (AnonSubAttribute) attribute1.getAttributes().get(0);
         assertArrayEquals(bytes, sub2.toByteArray());
         assertEquals("[Unparsable sub-attribute (vendorId 123456, length 10)]", sub2.getValueString());
         assertArrayEquals(vsaByteBuf.copy().array(), attribute2.toByteArray());
@@ -340,7 +340,7 @@ class VendorSpecificAttributeTest {
     void createTooLong() {
         final List<RadiusAttribute> attributes = Collections.singletonList(
                 dictionary.createAttribute(WISPR_VENDOR_ID, 26, new byte[253]));
-        assertInstanceOf(OctetsAttribute.class, attributes.getFirst());
+        assertInstanceOf(OctetsAttribute.class, attributes.get(0));
         final Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> new VendorSpecificAttribute(dictionary, WISPR_VENDOR_ID, attributes));
         assertTrue(exception.getMessage().contains("Attribute too long"));

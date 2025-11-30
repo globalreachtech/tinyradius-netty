@@ -82,7 +82,7 @@ class ServerPacketCodecTest {
         assertEquals(1, out1.size());
 
         // check decoded
-        final RequestCtx requestCtx = (RequestCtx) out1.getFirst();
+        final RequestCtx requestCtx = (RequestCtx) out1.get(0);
         assertEquals(remoteAddress, requestCtx.getEndpoint().getAddress());
         assertEquals(secret, requestCtx.getEndpoint().getSecret());
         final AccessRequestPap decodedRequest = (AccessRequestPap) requestCtx.getRequest();
@@ -97,7 +97,7 @@ class ServerPacketCodecTest {
         assertEquals(1, out2.size());
 
         // check encoded
-        final DatagramPacket response = (DatagramPacket) out2.getFirst();
+        final DatagramPacket response = (DatagramPacket) out2.get(0);
         assertArrayEquals(response.content().copy().array(),
                 new DatagramPacket(responsePacket.encodeResponse(secret, request.getAuthenticator()).toByteBuf(), remoteAddress, address).content().copy().array());
     }
