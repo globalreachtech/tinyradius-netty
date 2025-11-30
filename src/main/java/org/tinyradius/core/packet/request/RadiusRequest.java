@@ -19,14 +19,11 @@ import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
 
     static RadiusRequest create(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        switch (header.getByte(0)) {
-            case ACCESS_REQUEST:
-                return AccessRequest.create(dictionary, header, attributes);
-            case ACCOUNTING_REQUEST:
-                return new AccountingRequest(dictionary, header, attributes);
-            default:
-                return new GenericRequest(dictionary, header, attributes);
-        }
+        return switch (header.getByte(0)) {
+            case ACCESS_REQUEST -> AccessRequest.create(dictionary, header, attributes);
+            case ACCOUNTING_REQUEST -> new AccountingRequest(dictionary, header, attributes);
+            default -> new GenericRequest(dictionary, header, attributes);
+        };
     }
 
     /**

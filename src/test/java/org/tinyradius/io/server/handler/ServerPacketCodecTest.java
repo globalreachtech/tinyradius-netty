@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @ExtendWith(MockitoExtension.class)
 class ServerPacketCodecTest {
 
@@ -81,7 +82,7 @@ class ServerPacketCodecTest {
         assertEquals(1, out1.size());
 
         // check decoded
-        final RequestCtx requestCtx = (RequestCtx) out1.get(0);
+        final RequestCtx requestCtx = (RequestCtx) out1.getFirst();
         assertEquals(remoteAddress, requestCtx.getEndpoint().getAddress());
         assertEquals(secret, requestCtx.getEndpoint().getSecret());
         final AccessRequestPap decodedRequest = (AccessRequestPap) requestCtx.getRequest();
@@ -96,7 +97,7 @@ class ServerPacketCodecTest {
         assertEquals(1, out2.size());
 
         // check encoded
-        final DatagramPacket response = (DatagramPacket) out2.get(0);
+        final DatagramPacket response = (DatagramPacket) out2.getFirst();
         assertArrayEquals(response.content().copy().array(),
                 new DatagramPacket(responsePacket.encodeResponse(secret, request.getAuthenticator()).toByteBuf(), remoteAddress, address).content().copy().array());
     }

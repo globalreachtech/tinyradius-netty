@@ -45,27 +45,19 @@ public class Vendor {
     }
 
     public byte[] toTypeBytes(int type) {
-        switch (typeSize) {
-            case 2:
-                return ByteBuffer.allocate(Short.BYTES).putShort((short) type).array();
-            case 4:
-                return ByteBuffer.allocate(Integer.BYTES).putInt(type).array();
-            case 1:
-            default:
-                return new byte[]{(byte) type};
-        }
+        return switch (typeSize) {
+            case 2 -> ByteBuffer.allocate(Short.BYTES).putShort((short) type).array();
+            case 4 -> ByteBuffer.allocate(Integer.BYTES).putInt(type).array();
+            default -> new byte[]{(byte) type};
+        };
     }
 
     public byte[] toLengthBytes(int len) {
-        switch (lengthSize) {
-            case 0:
-                return new byte[0];
-            case 2:
-                return ByteBuffer.allocate(Short.BYTES).putShort((short) len).array();
-            case 1:
-            default:
-                return new byte[]{(byte) len};
-        }
+        return switch (lengthSize) {
+            case 0 -> new byte[0];
+            case 2 -> ByteBuffer.allocate(Short.BYTES).putShort((short) len).array();
+            default -> new byte[]{(byte) len};
+        };
     }
 
     @Override

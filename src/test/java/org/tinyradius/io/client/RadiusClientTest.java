@@ -123,7 +123,7 @@ class RadiusClientTest {
             assertEquals(response, future.getNow());
 
             assertEquals(1, capturingOutboundHandler.requests.size());
-            assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().getSecret());
+            assertEquals("secret", capturingOutboundHandler.requests.getFirst().getEndpoint().getSecret());
         }
     }
 

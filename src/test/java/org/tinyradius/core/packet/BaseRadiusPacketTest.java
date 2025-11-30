@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 class BaseRadiusPacketTest {
 
     private final SecureRandom random = new SecureRandom();
@@ -48,14 +49,14 @@ class BaseRadiusPacketTest {
         final List<VendorSpecificAttribute> vendorAttributes = packet.getVendorAttributes(14122);
         assertEquals(1, vendorAttributes.size());
 
-        final List<RadiusAttribute> wisprLocations = vendorAttributes.get(0).getAttributes();
+        final List<RadiusAttribute> wisprLocations = vendorAttributes.getFirst().getAttributes();
         assertEquals(1, wisprLocations.size());
-        assertEquals("myLocationId", wisprLocations.get(0).getValueString());
+        assertEquals("myLocationId", wisprLocations.getFirst().getValueString());
 
         assertEquals("myLocationId", packet.getAttribute(14122, 1).get().getValueString());
         final List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, 1);
         assertEquals(1, wisprLocations2.size());
-        assertEquals("myLocationId", wisprLocations2.get(0).getValueString());
+        assertEquals("myLocationId", wisprLocations2.getFirst().getValueString());
 
         assertEquals("0.18.214.135", packet.getAttribute(8).get().getValueString());
         assertEquals("0.18.214.135", packet.getAttribute("Framed-IP-Address").get().getValueString());
@@ -66,13 +67,15 @@ class BaseRadiusPacketTest {
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
                 ipV6Attributes.stream().map(RadiusAttribute::getValueString).toArray());
 
-        assertEquals("Access-Request, ID 1, len 96, attributes={\n" +
-                "Vendor-Specific: Vendor ID 14122 (WISPr)\n" +
-                "  WISPr-Location-ID=myLocationId\n" +
-                "Framed-IP-Address=0.18.214.135\n" +
-                "Framed-IPv6-Address=fe80:0:0:0:0:0:0:0\n" +
-                "Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/64\n" +
-                "Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/128\n}", packet.toString());
+        assertEquals("""
+                Access-Request, ID 1, len 96, attributes={
+                Vendor-Specific: Vendor ID 14122 (WISPr)
+                  WISPr-Location-ID=myLocationId
+                Framed-IP-Address=0.18.214.135
+                Framed-IPv6-Address=fe80:0:0:0:0:0:0:0
+                Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/64
+                Framed-IPv6-Prefix=fe80:0:0:0:0:0:0:0/128
+                }""", packet.toString());
     }
 
     @Test
@@ -91,7 +94,7 @@ class BaseRadiusPacketTest {
         final StubPacket rp1 = new StubPacket()
                 .addAttribute("WISPr-Location-ID", "myLocationId");
         assertEquals(1, rp1.getAttributes().size());
-        assertInstanceOf(VendorSpecificAttribute.class, rp1.getAttributes().get(0));
+        assertInstanceOf(VendorSpecificAttribute.class, rp1.getAttributes().getFirst());
 
         final StubPacket rp2 = rp1.removeAttributes(14122, 1);
         assertTrue(rp2.getAttributes().isEmpty());
@@ -128,7 +131,7 @@ class BaseRadiusPacketTest {
 
         List<RadiusAttribute> rp2Attributes = rp2.getAttributes(6);
         assertEquals(1, rp2Attributes.size());
-        assertEquals("Login-User", rp2Attributes.get(0).getValueString());
+        assertEquals("Login-User", rp2Attributes.getFirst().getValueString());
 
         // remove again
         final StubPacket rp3 = rp2.removeLastAttribute(6);

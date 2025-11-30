@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.request.RadiusRequest.fromDatagram;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @ExtendWith(MockitoExtension.class)
 class ClientDatagramCodecTest {
 
@@ -63,7 +64,7 @@ class ClientDatagramCodecTest {
         codec.decode(ctx, new DatagramPacket(encodeResponse.toByteBuf(), address, address), out1);
 
         assertEquals(1, out1.size());
-        final RadiusResponse actual = (RadiusResponse) out1.get(0);
+        final RadiusResponse actual = (RadiusResponse) out1.getFirst();
         assertEquals(encodeResponse.toString(), actual.toString()); // should still be encoded
     }
 
@@ -117,7 +118,7 @@ class ClientDatagramCodecTest {
         codec.encode(ctx, new PendingRequestCtx(accessRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
-        final AccessRequestPap sentAccessPacket = (AccessRequestPap) fromDatagram(dictionary, (DatagramPacket) out1.get(0))
+        final AccessRequestPap sentAccessPacket = (AccessRequestPap) fromDatagram(dictionary, (DatagramPacket) out1.getFirst())
                 .decodeRequest(secret);
 
         // check user details correctly encoded

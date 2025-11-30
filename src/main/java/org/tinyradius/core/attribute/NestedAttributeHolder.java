@@ -120,10 +120,9 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
 
         final List<RadiusAttribute> attributes = getAttributes().stream()
                 .map(a -> {
-                    if (!(a instanceof VendorSpecificAttribute))
+                    if (!(a instanceof VendorSpecificAttribute vsa))
                         return a;
 
-                    final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
                     final List<RadiusAttribute> subAttributes = vsa.getAttributes(sa -> !sa.equals(attribute));
                     return subAttributes.isEmpty() ? null : vsa.withAttributes(subAttributes);
                 })
@@ -149,10 +148,9 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
 
         final List<RadiusAttribute> attributes = getAttributes().stream()
                 .map(a -> {
-                    if (!(a instanceof VendorSpecificAttribute))
+                    if (!(a instanceof VendorSpecificAttribute vsa))
                         return a;
 
-                    final VendorSpecificAttribute vsa = (VendorSpecificAttribute) a;
                     final List<RadiusAttribute> subAttributes = vsa.getAttributes(sa -> sa.getType() != type || sa.getVendorId() != vendorId);
                     return subAttributes.isEmpty() ? null : vsa.withAttributes(subAttributes);
                 })

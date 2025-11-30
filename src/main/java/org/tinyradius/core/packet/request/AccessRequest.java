@@ -69,20 +69,17 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         }
 
         final int authType = detectedAuth.iterator().next();
-        switch (authType) {
-            case EAP_MESSAGE:
-                return AccessRequestEap::new;
-            case CHAP_PASSWORD:
-                return AccessRequestChap::new;
-            case USER_PASSWORD:
-                return AccessRequestPap::new;
-            case ARAP_PASSWORD:
-                return AccessRequestArap::new;
-            default:
+        return switch (authType) {
+            case EAP_MESSAGE -> AccessRequestEap::new;
+            case CHAP_PASSWORD -> AccessRequestChap::new;
+            case USER_PASSWORD -> AccessRequestPap::new;
+            case ARAP_PASSWORD -> AccessRequestArap::new;
+            default -> {
                 // shouldn't happen - if AUTH_ATTRS contains authType, it should be handled
                 logger.warn("Cannot process authType {}, defaulting to NoAuth", authType);
-                return AccessRequestNoAuth::new;
-        }
+                yield AccessRequestNoAuth::new;
+            }
+        };
     }
 
     protected static byte[] random16bytes() {

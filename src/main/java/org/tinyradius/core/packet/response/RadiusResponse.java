@@ -18,16 +18,12 @@ import static org.tinyradius.core.packet.PacketType.*;
 public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
 
     static RadiusResponse create(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        switch (header.getByte(0)) {
-            case ACCESS_ACCEPT:
-                return new AccessResponse.Accept(dictionary, header, attributes);
-            case ACCESS_REJECT:
-                return new AccessResponse.Reject(dictionary, header, attributes);
-            case ACCESS_CHALLENGE:
-                return new AccessResponse.Challenge(dictionary, header, attributes);
-            default:
-                return new GenericResponse(dictionary, header, attributes);
-        }
+        return switch (header.getByte(0)) {
+            case ACCESS_ACCEPT -> new AccessResponse.Accept(dictionary, header, attributes);
+            case ACCESS_REJECT -> new AccessResponse.Reject(dictionary, header, attributes);
+            case ACCESS_CHALLENGE -> new AccessResponse.Challenge(dictionary, header, attributes);
+            default -> new GenericResponse(dictionary, header, attributes);
+        };
     }
 
     /**
