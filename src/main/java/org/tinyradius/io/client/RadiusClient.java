@@ -151,7 +151,7 @@ public class RadiusClient implements RadiusLifecycle {
     }
 
     private void send(PendingRequestCtx ctx, int attempt, TimeoutHandler timeoutHandler, ClientEventListener listener) {
-        log.debug("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().getAddress());
+        log.debug("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().address());
 
         listener.onEvent(PRE_SEND, ctx);
         channelFuture.channel().writeAndFlush(ctx);

@@ -37,11 +37,11 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
         try {
             final DatagramPacket datagramPacket = new DatagramPacket(
                     msg.getResponse()
-                            .encodeResponse(msg.getEndpoint().getSecret(), msg.getRequest().getAuthenticator())
+                            .encodeResponse(msg.getEndpoint().secret(), msg.getRequest().getAuthenticator())
                             .toByteBuf(),
-                    msg.getEndpoint().getAddress(),
+                    msg.getEndpoint().address(),
                     (InetSocketAddress) ctx.channel().localAddress());
-            log.debug("Sending packet to {}", msg.getEndpoint().getAddress());
+            log.debug("Sending packet to {}", msg.getEndpoint().address());
             out.add(datagramPacket);
         } catch (RadiusPacketException e) {
             log.warn("Could not serialize packet: {}", e.getMessage());

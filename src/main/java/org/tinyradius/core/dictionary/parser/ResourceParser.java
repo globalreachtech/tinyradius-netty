@@ -137,7 +137,7 @@ public class ResourceParser {
             throw new IOException("BEGIN-VENDOR parse error on line " + lineNum + ", " + Arrays.toString(tok));
 
         currentVendor = dictionary.getVendor(tok[1])
-                .map(Vendor::getId)
+                .map(Vendor::id)
                 .orElse(-1);
     }
 
@@ -146,7 +146,7 @@ public class ResourceParser {
             throw new IOException("End-Vendor parse error on line " + lineNum + ", " + Arrays.toString(tok));
 
         final int vendorId = dictionary.getVendor(tok[1])
-                .map(Vendor::getId)
+                .map(Vendor::id)
                 .orElse(-1);
 
         if (currentVendor != vendorId)
@@ -249,7 +249,7 @@ public class ResourceParser {
 
     private int validateType(int type, int vendorId) {
         final int max = dictionary.getVendor(vendorId)
-                .map(Vendor::getTypeSize)
+                .map(Vendor::typeSize)
                 .map(t -> (int) Math.pow(2, 8d * t) - 1)
                 .orElse(255);
 

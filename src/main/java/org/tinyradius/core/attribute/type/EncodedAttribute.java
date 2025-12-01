@@ -1,8 +1,7 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
@@ -15,11 +14,7 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 /**
  * Wrapper around attributes encoded with one of {@link AttributeCodecType}
  */
-@RequiredArgsConstructor
-@EqualsAndHashCode
-public class EncodedAttribute implements RadiusAttribute {
-
-    private final OctetsAttribute delegate;
+public record EncodedAttribute(OctetsAttribute delegate) implements RadiusAttribute {
 
     @Override
     public RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
@@ -68,6 +63,7 @@ public class EncodedAttribute implements RadiusAttribute {
         return true;
     }
 
+    @NonNull
     @Override
     public String toString() {
         var codecType = getAttributeTemplate()

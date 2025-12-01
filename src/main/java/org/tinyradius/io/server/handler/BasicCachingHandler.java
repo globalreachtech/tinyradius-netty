@@ -3,15 +3,17 @@ package org.tinyradius.io.server.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.Timer;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.io.server.RequestCtx;
 import org.tinyradius.io.server.ResponseCtx;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -76,16 +78,31 @@ public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, Respo
         out.add(msg);
     }
 
-    @EqualsAndHashCode
-    @RequiredArgsConstructor
-    private static class Packet {
-
-        private final int id;
-        private final InetSocketAddress remoteAddress;
-        private final byte[] authenticator;
+    private record Packet(int id, InetSocketAddress remoteAddress, byte[] authenticator) {
 
         private static Packet from(RequestCtx ctx) {
-            return new Packet(ctx.getRequest().getId(), ctx.getEndpoint().getAddress(), ctx.getRequest().getAuthenticator());
+            return new Packet(ctx.getRequest().getId(), ctx.getEndpoint().address(), ctx.getRequest().getAuthenticator());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Packet packet)) return false;
+            return id == packet.id && Objects.deepEquals(authenticator, packet.authenticator) && Objects.equals(remoteAddress, packet.remoteAddress);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, remoteAddress, Arrays.hashCode(authenticator));
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "Packet{" +
+                    "id=" + id +
+                    ", remoteAddress=" + remoteAddress +
+                    ", authenticator=" + Arrays.toString(authenticator) +
+                    '}';
         }
     }
 }

@@ -121,7 +121,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
                 .append("Vendor-Specific: Vendor ID ").append(getChildVendorId());
         getDictionary()
                 .getVendor(getChildVendorId())
-                .map(Vendor::getName)
+                .map(Vendor::name)
                 .ifPresent(s -> sb.append(" (").append(s).append(")"));
         for (RadiusAttribute sa : getAttributes()) {
             sb.append("\n  ").append(sa.toString());

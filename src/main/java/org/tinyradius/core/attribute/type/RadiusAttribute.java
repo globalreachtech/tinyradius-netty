@@ -98,7 +98,7 @@ public interface RadiusAttribute {
      */
     default int getTypeSize() {
         return getVendor()
-                .map(Vendor::getTypeSize)
+                .map(Vendor::typeSize)
                 .orElse(1);
     }
 
@@ -107,7 +107,7 @@ public interface RadiusAttribute {
      */
     default int getLengthSize() {
         return getVendor()
-                .map(Vendor::getLengthSize)
+                .map(Vendor::lengthSize)
                 .orElse(1);
     }
 

@@ -80,7 +80,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
 
         final int typeSize = vendor
-                .map(Vendor::getTypeSize)
+                .map(Vendor::typeSize)
                 .orElse(1);
 
         int type = switch (typeSize) {
@@ -90,7 +90,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         };
 
         final int lengthSize = vendor
-                .map(Vendor::getLengthSize)
+                .map(Vendor::lengthSize)
                 .orElse(1);
 
         int length = switch (lengthSize) {

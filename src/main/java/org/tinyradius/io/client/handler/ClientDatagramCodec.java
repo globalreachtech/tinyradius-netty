@@ -30,11 +30,11 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
-        log.debug("Sending packet to {} - {}", msg.getEndpoint().getAddress(), msg.getRequest());
+        log.debug("Sending packet to {} - {}", msg.getEndpoint().address(), msg.getRequest());
 
         final DatagramPacket datagramPacket = new DatagramPacket(
                 msg.getRequest().toByteBuf(),
-                msg.getEndpoint().getAddress(),
+                msg.getEndpoint().address(),
                 (InetSocketAddress) ctx.channel().localAddress());
 
         out.add(datagramPacket);

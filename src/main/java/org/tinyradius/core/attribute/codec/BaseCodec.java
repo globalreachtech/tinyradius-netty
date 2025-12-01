@@ -1,6 +1,6 @@
 package org.tinyradius.core.attribute.codec;
 
-import lombok.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.packet.RadiusPacket;
 

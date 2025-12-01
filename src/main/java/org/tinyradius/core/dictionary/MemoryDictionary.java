@@ -36,7 +36,7 @@ public class MemoryDictionary implements WritableDictionary {
     public Optional<Vendor> getVendor(String vendorName) {
         return vendorsByCode.values()
                 .stream()
-                .filter(e -> e.getName().equals(vendorName))
+                .filter(e -> e.name().equals(vendorName))
                 .findFirst();
     }
 
@@ -47,18 +47,18 @@ public class MemoryDictionary implements WritableDictionary {
 
     @Override
     public MemoryDictionary addVendor(Vendor vendor) {
-        final Optional<Vendor> existing = getVendor(vendor.getId());
+        final Optional<Vendor> existing = getVendor(vendor.id());
         if (existing.isPresent()) {
             if (existing.get().equals(vendor)) {
                 log.info("Ignoring duplicate vendor definition: {}", vendor);
                 return this;
             } else {
-                throw new IllegalArgumentException("Duplicate vendor code: " + vendor.getId() +
+                throw new IllegalArgumentException("Duplicate vendor code: " + vendor.id() +
                         " (adding " + vendor + ", but already set to " + existing.get() + ")");
             }
         }
 
-        vendorsByCode.put(vendor.getId(), vendor);
+        vendorsByCode.put(vendor.id(), vendor);
         return this;
     }
 

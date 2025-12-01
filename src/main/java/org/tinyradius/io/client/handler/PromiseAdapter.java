@@ -42,14 +42,14 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
         try {
             final RadiusRequest encodedRequest = packet
                     .addAttribute(packet.getDictionary().createAttribute(-1, PROXY_STATE, requestId.getBytes(UTF_8)))
-                    .encodeRequest(msg.getEndpoint().getSecret());
+                    .encodeRequest(msg.getEndpoint().secret());
 
             msg.getResponse().addListener(f -> {
                 requests.remove(requestId);
                 log.debug("Removing {} from pending requests", requestId);
             });
 
-            requests.put(requestId, new Request(msg.getEndpoint().getSecret(), encodedRequest.getAuthenticator(), encodedRequest.getId(), msg.getResponse()));
+            requests.put(requestId, new Request(msg.getEndpoint().secret(), encodedRequest.getAuthenticator(), encodedRequest.getId(), msg.getResponse()));
             log.debug("Adding {} to pending requests", requestId);
 
             out.add(new PendingRequestCtx(encodedRequest, msg.getEndpoint(), msg.getResponse()));
