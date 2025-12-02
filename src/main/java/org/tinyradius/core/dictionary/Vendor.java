@@ -44,15 +44,4 @@ public record Vendor(int id, @NonNull String name, int typeSize, int lengthSize)
             default -> new byte[]{(byte) len};
         };
     }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return "Vendor{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", typeSize=" + typeSize +
-                ", lengthSize=" + lengthSize +
-                '}';
-    }
 }
