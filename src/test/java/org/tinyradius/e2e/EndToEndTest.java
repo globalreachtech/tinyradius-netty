@@ -1,6 +1,7 @@
 package org.tinyradius.e2e;
 
 import org.junit.jupiter.api.AutoClose;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -66,6 +67,7 @@ class EndToEndTest {
         }
     }
 
+    @Disabled("Already tested in testAll()")
     @Test
     void testProxyStartup() throws InterruptedException {
         try (var proxy = startProxy()) {
@@ -73,6 +75,7 @@ class EndToEndTest {
         }
     }
 
+    @Disabled("Already tested in testAll()")
     @Test
     void testOriginStartup() throws InterruptedException {
         try (var origin = startOrigin(Map.of())) {
