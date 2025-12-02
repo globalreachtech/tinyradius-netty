@@ -1,7 +1,6 @@
 package org.tinyradius.io.client.timeout;
 
 import io.netty.util.Timer;
-import lombok.RequiredArgsConstructor;
 import org.tinyradius.io.client.ClientEventListener;
 import org.tinyradius.io.client.PendingRequestCtx;
 
@@ -13,24 +12,12 @@ import static org.tinyradius.io.client.ClientEventListener.EventType.ATTEMPT_TIM
 /**
  * TimeoutHandler that waits a fixed period for every timeout,
  * up to a predefined max attempt count.
+ *
+ * @param timer       netty timer for timing out requests
+ * @param maxAttempts max number of attempts to try before returning failure
+ * @param timeoutMs   time to wait before timeout or next retry, in milliseconds
  */
-@RequiredArgsConstructor
-public class FixedTimeoutHandler implements TimeoutHandler {
-
-    /**
-     * netty timer for timing out requests
-     */
-    private final Timer timer;
-
-    /**
-     * max number of attempts to try before returning failure
-     */
-    private final int maxAttempts;
-
-    /**
-     * time to wait before timeout or next retry, in milliseconds
-     */
-    private final int timeoutMs;
+public record FixedTimeoutHandler(Timer timer, int maxAttempts, int timeoutMs) implements TimeoutHandler {
 
     public FixedTimeoutHandler(Timer timer) {
         this(timer, 1, 1000);
