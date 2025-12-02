@@ -86,6 +86,9 @@ publishing {
         create<MavenPublication>("mavenJava") {
             groupId = groupId
             artifactId = project.name
+
+            from(components["java"])
+
             pom {
                 name = project.name
                 description = "TinyRadius-Netty is a small Java Radius library"
