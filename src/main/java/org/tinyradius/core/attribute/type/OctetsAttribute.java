@@ -3,7 +3,7 @@ package org.tinyradius.core.attribute.type;
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -37,8 +37,8 @@ public class OctetsAttribute implements RadiusAttribute {
             throw new IllegalArgumentException("Attribute too long, max 255 octets, actual: " + actualLength);
 
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
-        final int typeSize = vendor.map(Vendor::getTypeSize).orElse(1);
-        final int lengthSize = vendor.map(Vendor::getLengthSize).orElse(1);
+        final int typeSize = vendor.map(Vendor::typeSize).orElse(1);
+        final int lengthSize = vendor.map(Vendor::lengthSize).orElse(1);
 
         final int length = extractLength(typeSize, lengthSize);
         if (length != actualLength)

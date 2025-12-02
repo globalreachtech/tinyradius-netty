@@ -39,7 +39,7 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
             return;
         }
 
-        log.debug("Proxying packet to {}", serverEndpoint.get().getAddress());
+        log.debug("Proxying packet to {}", serverEndpoint.get().address());
 
         radiusClient.communicate(request, serverEndpoint.get()).addListener(f -> {
             final RadiusResponse packet = (RadiusResponse) f.getNow();

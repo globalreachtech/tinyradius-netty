@@ -3,7 +3,7 @@ package org.tinyradius.core.attribute;
 import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.attribute.type.EncodedAttribute;

@@ -3,11 +3,11 @@ import org.jreleaser.model.Active
 
 plugins {
     `java-library`
-    id("io.freefair.lombok") version "9.1.0"
-    jacoco
-    id("org.sonarqube") version "7.1.0.6387"
     `maven-publish`
-    id("org.jreleaser") version "1.21.0"
+    jacoco
+    alias(libs.plugins.freefair.lombok)
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.jreleaser)
 }
 
 java {
@@ -29,16 +29,13 @@ repositories {
 dependencies {
     implementation(libs.log4j.api)
     implementation(libs.netty.codec.base)
-    implementation("jakarta.annotation:jakarta.annotation-api:3.0.0")
 
     testImplementation(libs.log4j.core)
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.20.0")
-    testImplementation("org.awaitility:awaitility:4.3.0")
-    testImplementation("org.assertj:assertj-core:3.27.6")
-    testImplementation("net.jradius:jradius-core:1.1.5") {
-        isTransitive = false // for reference hashing utilities
-    }
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.mockito.junit.jupiter)
+    testImplementation(libs.awaitility)
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.jradius.core) { isTransitive = false } // reference hashing utilities
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

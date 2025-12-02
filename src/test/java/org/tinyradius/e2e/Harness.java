@@ -8,8 +8,8 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import jakarta.annotation.Nonnull;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.RadiusRequest;
@@ -49,7 +49,7 @@ public class Harness implements AutoCloseable {
         try (var rc = new RadiusClient(
                 bootstrap, new InetSocketAddress(0), new FixedTimeoutHandler(timer), new ChannelInitializer<DatagramChannel>() {
             @Override
-            protected void initChannel(@Nonnull DatagramChannel ch) {
+            protected void initChannel(@NonNull DatagramChannel ch) {
                 ch.pipeline().addLast(
                         new ClientDatagramCodec(dictionary),
                         new PromiseAdapter(),
@@ -91,13 +91,13 @@ public class Harness implements AutoCloseable {
         var server = new RadiusServer(bootstrap,
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
-                    protected void initChannel(@Nonnull DatagramChannel ch) {
+                    protected void initChannel(@NonNull DatagramChannel ch) {
                         ch.pipeline().addLast(serverPacketCodec, cachingHandlerAuth, simpleAccessHandler);
                     }
                 },
                 new ChannelInitializer<DatagramChannel>() {
                     @Override
-                    protected void initChannel(@Nonnull DatagramChannel ch) {
+                    protected void initChannel(@NonNull DatagramChannel ch) {
                         ch.pipeline().addLast(serverPacketCodec, cachingHandlerAcct, simpleAccountingHandler);
                     }
                 },
@@ -140,7 +140,7 @@ public class Harness implements AutoCloseable {
 
         var client = new RadiusClient(bootstrap, new InetSocketAddress(0), retryStrategy, new ChannelInitializer<DatagramChannel>() {
             @Override
-            protected void initChannel(@Nonnull DatagramChannel ch) {
+            protected void initChannel(@NonNull DatagramChannel ch) {
                 ch.pipeline().addLast(new ClientDatagramCodec(dictionary), new PromiseAdapter());
             }
         });

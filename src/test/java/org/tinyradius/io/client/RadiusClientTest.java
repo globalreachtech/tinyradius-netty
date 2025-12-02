@@ -123,7 +123,7 @@ class RadiusClientTest {
             assertEquals(response, future.getNow());
 
             assertEquals(1, capturingOutboundHandler.requests.size());
-            assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().getSecret());
+            assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().secret());
         }
     }
 
@@ -158,9 +158,9 @@ class RadiusClientTest {
             assertSame(exception, future.cause().getCause());
 
             assertEquals(3, capturingOutboundHandler.requests.size());
-            assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().getSecret());
-            assertEquals("secret2", capturingOutboundHandler.requests.get(1).getEndpoint().getSecret());
-            assertEquals("secret3", capturingOutboundHandler.requests.get(2).getEndpoint().getSecret());
+            assertEquals("secret", capturingOutboundHandler.requests.get(0).getEndpoint().secret());
+            assertEquals("secret2", capturingOutboundHandler.requests.get(1).getEndpoint().secret());
+            assertEquals("secret3", capturingOutboundHandler.requests.get(2).getEndpoint().secret());
 
             assertEquals(1, request.toByteBuf().refCnt()); // unpooled, let GC handle it
         }

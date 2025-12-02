@@ -2,11 +2,11 @@ package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import jakarta.annotation.Nullable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -66,7 +66,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
      * @param requestAuth  request authenticator if verifying response, defaults to empty byte[16] if null
      * @throws RadiusPacketException if the packet authenticator check fails
      */
-    protected void verifyPacketAuth(String sharedSecret, @Nullable byte[] requestAuth) throws RadiusPacketException {
+    protected void verifyPacketAuth(String sharedSecret, byte @Nullable [] requestAuth) throws RadiusPacketException {
         final byte[] expectedAuth = genHashedAuth(sharedSecret, requestAuth);
         final byte[] auth = getAuthenticator();
         if (auth == null)

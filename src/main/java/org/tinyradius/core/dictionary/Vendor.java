@@ -1,35 +1,20 @@
 package org.tinyradius.core.dictionary;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.nio.ByteBuffer;
 
 /**
  * Vendor definition
+ *
+ * @param id         Vendor ID
+ * @param name       Vendor Name
+ * @param typeSize   number of octets for vendor 'type' field
+ * @param lengthSize number of octets for vendor 'length' field
  */
-@Getter
-@EqualsAndHashCode
-public class Vendor {
+public record Vendor(int id, @NonNull String name, int typeSize, int lengthSize) {
 
-    private final int id;
-    private final String name;
-    private final int typeSize;
-    private final int lengthSize;
-
-    /**
-     * @param id         Vendor ID
-     * @param name       Vendor Name
-     * @param typeSize   number of octets for vendor 'type' field
-     * @param lengthSize number of octets for vendor 'length' field
-     */
-    public Vendor(int id, @NonNull String name, int typeSize, int lengthSize) {
-        this.id = id;
-        this.name = name;
-        this.typeSize = typeSize;
-        this.lengthSize = lengthSize;
-
+    public Vendor {
         if (id < 0)
             throw new IllegalArgumentException("Vendor ID must be positive: " + id + " (" + name + ")");
         if (name.isEmpty())
@@ -60,6 +45,7 @@ public class Vendor {
         };
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Vendor{" +

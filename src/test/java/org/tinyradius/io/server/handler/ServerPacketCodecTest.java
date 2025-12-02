@@ -83,8 +83,8 @@ class ServerPacketCodecTest {
 
         // check decoded
         final RequestCtx requestCtx = (RequestCtx) out1.get(0);
-        assertEquals(remoteAddress, requestCtx.getEndpoint().getAddress());
-        assertEquals(secret, requestCtx.getEndpoint().getSecret());
+        assertEquals(remoteAddress, requestCtx.getEndpoint().address());
+        assertEquals(secret, requestCtx.getEndpoint().secret());
         final AccessRequestPap decodedRequest = (AccessRequestPap) requestCtx.getRequest();
         assertEquals(password, decodedRequest.getPassword().get());
         assertEquals(1, decodedRequest.getId());

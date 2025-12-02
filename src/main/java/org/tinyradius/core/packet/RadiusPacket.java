@@ -2,8 +2,8 @@ package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import jakarta.annotation.Nullable;
-import lombok.NonNull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.NestedAttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
@@ -64,7 +64,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * @return ByteBuf with 20 readable bytes
      * @throws RadiusPacketException packet validation exceptions
      */
-    static ByteBuf buildHeader(byte type, byte id, @Nullable byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    static ByteBuf buildHeader(byte type, byte id, byte @Nullable [] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
         if (auth != null && auth.length != 16) // length check only if not null
             throw new RadiusPacketException("Packet Authenticator must be 16 octets, actual: " + auth.length);
 
@@ -139,7 +139,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * @param requestAuth  request authenticator if hashing for response, defaults to empty byte[16] if null
      * @return new 16-byte response authenticator
      */
-    default byte[] genHashedAuth(@NonNull String sharedSecret, @Nullable byte[] requestAuth) {
+    default byte[] genHashedAuth(@NonNull String sharedSecret, byte @Nullable [] requestAuth) {
         if (sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 

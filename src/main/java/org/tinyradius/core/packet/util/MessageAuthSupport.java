@@ -2,10 +2,10 @@ package org.tinyradius.core.packet.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import jakarta.annotation.Nullable;
-import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.packet.RadiusPacket;
@@ -68,7 +68,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
      * @param requestAuth  corresponding request auth, or 'this' packet auth if null
      * @throws RadiusPacketException packet validation exceptions
      */
-    default void verifyMessageAuth(@NonNull String sharedSecret, @Nullable byte[] requestAuth) throws RadiusPacketException {
+    default void verifyMessageAuth(@NonNull String sharedSecret, byte @Nullable [] requestAuth) throws RadiusPacketException {
         if (sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
@@ -102,7 +102,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
      * @param requestAuth  corresponding request auth, defaults to 'this' packet auth if null
      * @return Message Authenticator byte array
      */
-    private static byte[] computeMessageAuth(RadiusPacket<?> packet, String sharedSecret, @Nullable byte[] requestAuth) {
+    private static byte[] computeMessageAuth(RadiusPacket<?> packet, String sharedSecret, byte @Nullable [] requestAuth) {
         final byte[] messageAuthInput = calcMessageAuthInput(
                 packet, requestAuth != null ? requestAuth : packet.getAuthenticator());
         return getHmacMd5(sharedSecret).doFinal(messageAuthInput);
@@ -116,7 +116,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
      * @return encoded copy of this packet
      * @throws RadiusPacketException packet validation exceptions
      */
-    default T encodeMessageAuth(@NonNull String sharedSecret, @Nullable byte[] requestAuth) throws RadiusPacketException {
+    default T encodeMessageAuth(@NonNull String sharedSecret, byte @Nullable [] requestAuth) throws RadiusPacketException {
         if (sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 

@@ -35,7 +35,7 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
         if (msg instanceof PendingRequestCtx request) {
-            final InetSocketAddress address = request.getEndpoint().getAddress();
+            final InetSocketAddress address = request.getEndpoint().address();
 
             if (blacklistManager.isBlacklisted(address)) {
                 log.debug("Endpoint blacklisted: {}", address);
