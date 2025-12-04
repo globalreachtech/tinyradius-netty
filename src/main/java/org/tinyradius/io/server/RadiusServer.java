@@ -13,8 +13,6 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static java.util.stream.Collectors.toList;
-
 /**
  * Implements a simple Radius server.
  */
@@ -55,7 +53,7 @@ public class RadiusServer implements RadiusLifecycle {
 
         channelFutures = IntStream.range(0, channelHandlers.size())
                 .mapToObj(i -> bootstrap.clone().handler(channelHandlers.get(i)).bind(socketAddresses.get(i)))
-                .collect(toList());
+                .toList();
 
         combiner.addAll(channelFutures.toArray(ChannelFuture[]::new));
         combiner.finish(isReady);
@@ -64,7 +62,7 @@ public class RadiusServer implements RadiusLifecycle {
     }
 
     public List<Channel> getChannels() {
-        return channelFutures.stream().map(ChannelFuture::channel).collect(toList());
+        return channelFutures.stream().map(ChannelFuture::channel).toList();
     }
 
     @Override
@@ -77,12 +75,12 @@ public class RadiusServer implements RadiusLifecycle {
         log.info("Closing server on {}", channelFutures.stream()
                 .map(ChannelFuture::channel)
                 .map(Channel::localAddress)
-                .collect(toList()));
+                .toList());
 
         final List<ChannelFuture> futures = channelFutures.stream()
                 .map(ChannelFuture::channel)
                 .map(ChannelOutboundInvoker::close)
-                .collect(toList());
+                .toList();
 
         final Promise<Void> isClosed = eventLoopGroup.next().newPromise();
         final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);

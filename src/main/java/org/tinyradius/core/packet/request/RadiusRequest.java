@@ -12,7 +12,6 @@ import org.tinyradius.core.packet.RadiusPacket;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
@@ -41,7 +40,7 @@ public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
     static RadiusRequest create(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
         List<RadiusAttribute> wrappedAttributes = attributes.stream()
                 .map(NestedAttributeHolder::vsaAutowrap)
-                .collect(toList());
+                .toList();
         final ByteBuf header = RadiusPacket.buildHeader(type, id, authenticator, wrappedAttributes);
         return create(dictionary, header, wrappedAttributes);
     }
