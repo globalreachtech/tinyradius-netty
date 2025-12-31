@@ -127,6 +127,9 @@ public class ResourceParser {
             case "MEMBER": // for 'struct' compound type
                 log.warn("'MEMBER' not supported - ignoring");
                 break;
+            case "STRUCT": 
+                log.warn("'STRUCT' not supported - ignoring");
+                break;
             default:
                 throw new IOException("Could not decode tokens on line " + lineNum + ": " + Arrays.toString(tokens));
         }
@@ -171,7 +174,15 @@ public class ResourceParser {
 
         final int vendorId = offset == 1 ? parseInt(tok[1]) : currentVendor;
         final String name = tok[1 + offset];
-        final int type = validateType(Integer.decode(tok[2 + offset]), vendorId);
+        //final int type = validateType(Integer.decode(tok[2 + offset]), vendorId);
+        int tmpType;
+        try{
+            tmpType = validateType(Integer.decode(tok[2 + offset]), vendorId);
+        } catch (NumberFormatException e){
+            log.warn(String.format("attribute type is not an integer and not supported - vendor: %d, attributeName: %s, type: %s", vendorId, name, tok[2 + offset]));
+            return;
+        }
+        final int type = tmpType;
         final String dataType = tok[3 + offset];
         final RadiusAttributeFactory<?> factory =
                 factoryProvider.fromDataType(vendorId == -1 && type == VENDOR_SPECIFIC ? "vsa" : dataType);
@@ -196,10 +207,10 @@ public class ResourceParser {
         var enumName = tok[2];
         var valStr = tok[3];
 
+        // If the attributeName is not found, log and ignore instead of throwing RuntimeException
         return d -> d.getAttributeTemplate(attributeName)
-                .orElseThrow(() -> new RuntimeException(new IOException(
-                        "Unknown attribute type while parsing VALUE: " + attributeName + ", line: " + lineNum)))
-                .addEnumerationValue(Integer.decode(valStr), enumName);
+            .ifPresentOrElse(at -> at.addEnumerationValue(Integer.decode(valStr), enumName), 
+                () -> log.debug(String.format("Unknown attribute type while parsing VALUE: %s, line: %d", attributeName,lineNum)));
     }
 
     /**
