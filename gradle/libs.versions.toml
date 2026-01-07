@@ -7,7 +7,7 @@ netty-codec-base = { module = "io.netty:netty-codec-base", version.ref = "netty"
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "6.0.1" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "6.0.2" }
 mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version = "5.21.0" }
 awaitility = { module = "org.awaitility:awaitility", version = "4.3.0" }
 assertj-core = { module = "org.assertj:assertj-core", version = "3.27.6" }
