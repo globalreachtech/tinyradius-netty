@@ -86,7 +86,7 @@ public class MemoryDictionary implements WritableDictionary {
                 return this;
             } else {
                 throw new IllegalArgumentException("Duplicate attribute definition name, " +
-                        "existing attribute not equal to new attribute: " + attributeName + "vendor: " + vendorId);
+                        "existing attribute not equal to new attribute: " + attributeName + ", vendorId: " + vendorId);
             }
         }
         attributesByName.put(attributeName, attributeTemplate);
