@@ -48,15 +48,19 @@ public class RadiusServer implements RadiusLifecycle {
             throw new IllegalArgumentException(String.format("ChannelHandlers size (%s) and SocketAddresses size (%s) don't match",
                     channelHandlers.size(), socketAddresses.size()));
         eventLoopGroup = bootstrap.config().group();
-        isReady = eventLoopGroup.next().newPromise();
-        final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
-
+        
+        EventLoop eventLoop = eventLoopGroup.next();
+        isReady = eventLoop.newPromise();
+        final PromiseCombiner combiner = new PromiseCombiner(eventLoop);
         channelFutures = IntStream.range(0, channelHandlers.size())
                 .mapToObj(i -> bootstrap.clone().handler(channelHandlers.get(i)).bind(socketAddresses.get(i)))
                 .toList();
 
-        combiner.addAll(channelFutures.toArray(ChannelFuture[]::new));
-        combiner.finish(isReady);
+        eventLoop.execute(() ->{
+            combiner.addAll(channelFutures.toArray(ChannelFuture[]::new));
+            combiner.finish(isReady);
+        });
+
         isReady.addListener(f ->
                 log.info("Server start success: {} for address {}", f.isSuccess(), socketAddresses));
     }
@@ -82,10 +86,13 @@ public class RadiusServer implements RadiusLifecycle {
                 .map(ChannelOutboundInvoker::close)
                 .toList();
 
-        final Promise<Void> isClosed = eventLoopGroup.next().newPromise();
-        final PromiseCombiner combiner = new PromiseCombiner(ImmediateEventExecutor.INSTANCE);
-        combiner.addAll(futures.toArray(ChannelFuture[]::new));
-        combiner.finish(isClosed);
+        EventLoop eventLoop = eventLoopGroup.next();
+        final Promise<Void> isClosed = eventLoop.newPromise();
+        final PromiseCombiner combiner = new PromiseCombiner(eventLoop);
+        eventLoop.execute(() -> {
+            combiner.addAll(futures.toArray(ChannelFuture[]::new));
+            combiner.finish(isClosed);
+        });
 
         return isClosed;
     }
