@@ -1,6 +1,6 @@
 [versions]
 log4j = "2.25.3"
-netty = "4.2.9.Final"
+netty = "4.2.10.Final"
 
 [libraries]
 netty-codec-base = { module = "io.netty:netty-codec-base", version.ref = "netty" }
