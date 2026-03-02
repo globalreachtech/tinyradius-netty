@@ -19,4 +19,4 @@ jradius-core = { module = "net.jradius:jradius-core", version = "1.1.5" }
 [plugins]
 freefair-lombok = { id = "io.freefair.lombok", version = "9.2.0" }
 sonarqube = { id = "org.sonarqube", version = "7.2.2.6593" }
-jreleaser = { id = "org.jreleaser", version = "1.21.0" }
+jreleaser = { id = "org.jreleaser", version = "1.23.0" }
