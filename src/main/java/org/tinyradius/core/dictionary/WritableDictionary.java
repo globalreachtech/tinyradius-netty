@@ -5,6 +5,11 @@ import org.tinyradius.core.attribute.AttributeTemplate;
 /**
  * A dictionary that is not read-only. Provides methods
  * to add entries to the dictionary.
+ * <p>
+ * You can use the class <code>DictionaryParser</code>
+ * to populate <code>WritableDictionary</code> objects with
+ * data from a dictionary file in the well-known Radiator
+ * dictionary file format.
  */
 public interface WritableDictionary extends Dictionary {
 

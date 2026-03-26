@@ -22,6 +22,10 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
 
 /**
  * Represents a Radius attribute type.
+ * <p>
+ * Each attribute type is represented by an instance of this object.
+ * This class stores the type code, the type name, and the vendor ID
+ * for each attribute type.
  */
 @Getter
 @EqualsAndHashCode
