@@ -66,6 +66,7 @@ public class MemoryDictionary implements WritableDictionary {
      * Adds an AttributeTemplate object to the cache.
      *
      * @param attributeTemplate AttributeTemplate object
+     * @return this MemoryDictionary
      * @throws IllegalArgumentException duplicate attribute name/type code
      */
     @Override

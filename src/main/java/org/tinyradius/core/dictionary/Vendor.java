@@ -25,10 +25,20 @@ public record Vendor(int id, @NonNull String name, int typeSize, int lengthSize)
             throw new IllegalArgumentException("Vendor lengthSize must be 0, 1, or 2");
     }
 
+    /**
+     * Calculates the size of the vendor attribute header in bytes.
+     *
+     * @return the size of the vendor attribute header in bytes
+     */
     public int getHeaderSize() {
         return typeSize + lengthSize;
     }
 
+    /**
+     * Converts an integer type to its byte representation according to the vendor's typeSize.
+     * @param type the type code
+     * @return the type in bytes
+     */
     public byte[] toTypeBytes(int type) {
         return switch (typeSize) {
             case 2 -> ByteBuffer.allocate(Short.BYTES).putShort((short) type).array();
@@ -37,6 +47,11 @@ public record Vendor(int id, @NonNull String name, int typeSize, int lengthSize)
         };
     }
 
+    /**
+     * Converts an integer length to its byte representation according to the vendor's lengthSize.
+     * @param len the length
+     * @return the length in bytes
+     */
     public byte[] toLengthBytes(int len) {
         return switch (lengthSize) {
             case 0 -> new byte[0];

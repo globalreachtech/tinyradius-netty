@@ -4,6 +4,9 @@ import org.tinyradius.core.attribute.AttributeTemplate;
 
 import java.util.Optional;
 
+/**
+ * A dictionary that provides methods to look up attribute templates and vendors.
+ */
 public interface CoreDictionary {
 
     /**

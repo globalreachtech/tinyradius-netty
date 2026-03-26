@@ -15,6 +15,9 @@ public class DefaultDictionary {
 
     private static final String DEFAULT_SOURCE = "org/tinyradius/core/dictionary/default_dictionary";
 
+    /**
+     * The singleton instance of the default dictionary.
+     */
     public static final WritableDictionary INSTANCE = create();
 
     private DefaultDictionary() {
