@@ -22,12 +22,19 @@ import static org.tinyradius.core.attribute.type.RadiusAttribute.HEX_FORMAT;
 /**
  * Basic attribute holder, for VendorSpecificAttribute (to hold sub-attributes) or RadiusPackets
  * <p>
- * Should only hold single layer of attributes
+ * Should only hold a single layer of attributes
+ * @param <T> The type of the attribute holder
  */
 public interface AttributeHolder<T extends AttributeHolder<T>> {
 
     Logger attrHolderLogger = LogManager.getLogger();
 
+    /**
+     * Converts a list of attributes to a ByteBuf.
+     *
+     * @param attributes the list of attributes
+     * @return a ByteBuf containing the serialized attributes
+     */
     static ByteBuf attributesToBytes(List<RadiusAttribute> attributes) {
         return Unpooled.wrappedBuffer(attributes.stream()
                 .map(RadiusAttribute::toByteBuf)
@@ -69,12 +76,12 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     }
 
     /**
-     * Parses attribute and increases readerIndex by size of attribute.
+     * Parses an attribute and increases readerIndex by size of attribute.
      *
      * @param dictionary dictionary to parse attribute
      * @param vendorId   vendor Id to set attributes
      * @param data       byte array to parse
-     * @return list of RadiusAttributes
+     * @return a RadiusAttribute
      */
     static RadiusAttribute readAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
         final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
@@ -110,13 +117,19 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     }
 
     /**
+     * Gets the VendorId to restrict (sub)attributes, or -1 for top level.
      * @return VendorId to restrict (sub)attributes, or -1 for top level
      */
     int getChildVendorId();
 
+    /**
+     * Gets the dictionary used by this attribute holder.
+     * @return the dictionary
+     */
     Dictionary getDictionary();
 
     /**
+     * Gets the list of attributes in this holder.
      * @return list of RadiusAttributes
      */
     List<RadiusAttribute> getAttributes();
@@ -209,6 +222,12 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         return attributesToBytes(getAttributes());
     }
 
+    /**
+     * Returns a new attribute holder with the given attributes.
+     * @param attributes the new list of attributes
+     * @return a new attribute holder with the given attributes
+     * @throws RadiusPacketException if the packet is invalid
+     */
     T withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException;
 
     /**
@@ -229,6 +248,13 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
         return withAttributes(attributes);
     }
 
+    /**
+     * Adds a Radius attribute.
+     * @param name the name of the attribute
+     * @param value the value of the attribute
+     * @return object of same type with appended attribute
+     * @throws RadiusPacketException packet validation exceptions
+     */
     default T addAttribute(String name, String value) throws RadiusPacketException {
         return addAttribute(
                 getDictionary().createAttribute(name, value));

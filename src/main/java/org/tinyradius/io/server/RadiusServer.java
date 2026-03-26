@@ -23,6 +23,8 @@ public class RadiusServer implements RadiusLifecycle {
     private final Promise<Void> isReady;
 
     /**
+     * Creates a new RADIUS server that listens on two sockets.
+     *
      * @param bootstrap bootstrap with channel class and eventLoopGroup set up
      * @param handler1  ChannelHandler to handle requests received on socket1
      * @param handler2  ChannelHandler to handle requests received on socket2
@@ -38,6 +40,8 @@ public class RadiusServer implements RadiusLifecycle {
     }
 
     /**
+     * Creates a new RADIUS server that listens on multiple sockets.
+     *
      * @param bootstrap       bootstrap with channel class and eventLoopGroup set up
      * @param channelHandlers list of channelHandlers to handle requests
      * @param socketAddresses list of socketAddresses to bind channelHandlers to, must be same length
@@ -64,6 +68,11 @@ public class RadiusServer implements RadiusLifecycle {
                 log.info("Server start success: {} for address {}", f.isSuccess(), socketAddresses));
     }
 
+    /**
+     * Returns the channels the server is listening on.
+     *
+     * @return the channels the server is listening on
+     */
     public List<Channel> getChannels() {
         return channelFutures.stream().map(ChannelFuture::channel).toList();
     }
