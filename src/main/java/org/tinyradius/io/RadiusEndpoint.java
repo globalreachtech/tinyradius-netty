@@ -8,6 +8,8 @@ import java.net.InetSocketAddress;
 /**
  * Wrapper class for a remote endpoint address and the shared secret
  * used for securing the communication.
+ * @param address the remote address
+ * @param secret the shared secret
  */
 public record RadiusEndpoint(InetSocketAddress address, String secret) {
 

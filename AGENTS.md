@@ -12,7 +12,9 @@
 
 - Conformity with RFC specifications as annotated in the code is important
 - Consult FreeRadius on logic implementation if needed
-- Interoperability / alignment with FreeRadius is preferred, especially regarding dictionaries
+- Interoperability / alignment with [FreeRadius](https://www.freeradius.org/) is preferred, especially regarding
+  dictionaries
+- Interoperability with [Radiator](https://radiatorsoftware.com/) should also be considered
 - Consult Netty documentation and discussions when using libraries, pay attention to memory leaks, idioms, and best
   practices
 

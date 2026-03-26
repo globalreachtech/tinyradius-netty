@@ -8,6 +8,14 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ *
+ * Default implementation
+ * of <code>WritableDictionary</code>. It manages a dictionary held
+ * in the RAM. This class is used together with the
+ * <code>DictionaryParser</code> by the class {@link org.tinyradius.core.dictionary.DefaultDictionary}
+ * which is a singleton object containing the default dictionary
+ * that is used if there is no dictionary explicitly specified.
+ * <p>
  * A dictionary that keeps the values and names in hash maps
  * in the memory. The dictionary has to be filled using the
  * methods <code>addAttributeTemplate</code> and
@@ -66,6 +74,7 @@ public class MemoryDictionary implements WritableDictionary {
      * Adds an AttributeTemplate object to the cache.
      *
      * @param attributeTemplate AttributeTemplate object
+     * @return this MemoryDictionary
      * @throws IllegalArgumentException duplicate attribute name/type code
      */
     @Override

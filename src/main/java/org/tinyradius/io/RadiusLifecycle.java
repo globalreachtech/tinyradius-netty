@@ -2,10 +2,22 @@ package org.tinyradius.io;
 
 import io.netty.util.concurrent.Future;
 
+/**
+ * A lifecycle interface for RADIUS clients and servers.
+ */
 public interface RadiusLifecycle extends AutoCloseable {
 
+    /**
+     * Returns a future that is notified when this lifecycle component is ready.
+     *
+     * @return a future that is notified when this lifecycle component is ready
+     */
     Future<Void> isReady();
 
+    /**
+     * Closes this resource asynchronously.
+     * @return a future that is notified when the close operation is complete
+     */
     Future<Void> closeAsync();
 
     /**

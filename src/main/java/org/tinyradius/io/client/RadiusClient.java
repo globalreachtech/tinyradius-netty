@@ -38,6 +38,8 @@ public class RadiusClient implements RadiusLifecycle {
     private final ChannelFuture channelFuture;
 
     /**
+     * Creates a new RADIUS client.
+     *
      * @param bootstrap      bootstrap with channel class and eventLoopGroup set up
      * @param listenAddress  local address to bind to
      * @param timeoutHandler retry strategy for scheduling retries and timeouts
@@ -48,6 +50,8 @@ public class RadiusClient implements RadiusLifecycle {
     }
 
     /**
+     * Creates a new RADIUS client with a custom event listener.
+     *
      * @param bootstrap      bootstrap with channel class and eventLoopGroup set up
      * @param listenAddress  local address to bind to
      * @param timeoutHandler retry strategy for scheduling retries and timeouts
@@ -81,7 +85,7 @@ public class RadiusClient implements RadiusLifecycle {
     }
 
     /**
-     * Sends packet to specified endpoints in turn until an endpoint succeeds or all fail.
+     * Sends packet to specified endpoints in turn until an endpoint succeeds or all fail, using the default timeout handler and event listener.
      *
      * @param packet    packet to send
      * @param endpoints endpoints to send packet to

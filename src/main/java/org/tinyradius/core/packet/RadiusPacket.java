@@ -16,11 +16,26 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * A RADIUS packet.
+ *
+ * @param <T> The type of the packet
+ */
 public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttributeHolder<T> {
 
+    /**
+     * The length of the RADIUS packet header.
+     */
     int HEADER_LENGTH = 20;
+    /**
+     * The maximum length of a RADIUS packet.
+     */
     int MAX_PACKET_LENGTH = 4096;
 
+    /**
+     * Returns a new MD5 message digest.
+     * @return a new MD5 message digest
+     */
     static MessageDigest getMd5Digest() {
         try {
             return MessageDigest.getInstance("MD5");
@@ -57,6 +72,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
     }
 
     /**
+     * Builds a RADIUS packet header.
      * @param type       packet type
      * @param id         packet id
      * @param auth       16-byte array, defaults to empty byte[16] if null
@@ -80,9 +96,14 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
                 .writeBytes(auth == null ? new byte[16] : auth);
     }
 
+    /**
+     * Returns the header of the packet.
+     * @return the header of the packet
+     */
     ByteBuf getHeader();
 
     /**
+     * Returns the Radius packet type.
      * @return Radius packet type
      */
     default byte getType() {
@@ -90,6 +111,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
     }
 
     /**
+     * Returns the Radius packet id.
      * @return Radius packet id
      */
     default byte getId() {
@@ -113,19 +135,35 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
                 null : array;
     }
 
+    /**
+     * Returns the length of the packet.
+     * @return the length of the packet
+     */
     default int getLength() {
         return getHeader().readableBytes() + getAttributeByteBuf().readableBytes();
     }
 
+    /**
+     * Returns the packet as a ByteBuf.
+     * @return the packet as a ByteBuf
+     */
     default ByteBuf toByteBuf() {
         return Unpooled.unreleasableBuffer(
                 Unpooled.wrappedBuffer(getHeader(), getAttributeByteBuf()));
     }
 
+    /**
+     * Returns the packet as a ByteBuffer.
+     * @return the packet as a ByteBuffer
+     */
     default ByteBuffer toByteBuffer() {
         return toByteBuf().nioBuffer();
     }
 
+    /**
+     * Returns the packet as a byte array.
+     * @return the packet as a byte array
+     */
     default byte[] toBytes() {
         return toByteBuf().copy().array();
     }

@@ -14,6 +14,9 @@ public interface ClientEventListener {
      */
     void onEvent(EventType eventType, PendingRequestCtx pendingRequestCtx);
 
+    /**
+     * The type of event that occurred.
+     */
     enum EventType {
         /**
          * Triggered just before a request is sent and channel flushed
@@ -30,6 +33,9 @@ public interface ClientEventListener {
     }
 
 
+    /**
+     * A no-op listener that does nothing.
+     */
     ClientEventListener NO_OP_LISTENER = (EventType eventType, PendingRequestCtx pendingRequestCtx) -> {
     };
 
