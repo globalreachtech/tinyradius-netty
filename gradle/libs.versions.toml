@@ -1,5 +1,5 @@
 [versions]
-log4j = "2.25.3"
+log4j = "2.25.4"
 netty = "4.2.12.Final"
 
 [libraries]
