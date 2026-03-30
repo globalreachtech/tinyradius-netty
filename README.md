@@ -31,6 +31,14 @@ TinyRadius-Netty is a Java Radius library, loosely based off the TinyRadius Radi
 
 See the [e2e tests](src/test/java/org/tinyradius/e2e/EndToEndTest.java) on usage as Client/Server/Proxy.
 
+## Contributing / Feature Requests
+
+It's impossible to keep up to date with all the RFCs and every vendor's custom implementation of the spec, so this has been designed to be as open and extensible as possible. The code intentionally makes liberal use of interfaces, parsers/factories in place of constructors etc, even at the expense of simplicity at times.
+
+- If you can use your own implementation for your use case, good!
+- If you can add your custom implementation, and raise a PR to merge it in here, great!
+- If you have a suggestion to refactor existing code to support more use cases and encourage more vendor/spec support, even better!
+
 ## Maintainers
 
 - Ensure you have user tokens for [Central Portal](https://central.sonatype.org/publish-ea/publish-ea-guide/) instead of
