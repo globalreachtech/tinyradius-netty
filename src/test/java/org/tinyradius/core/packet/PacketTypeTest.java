@@ -3,6 +3,7 @@ package org.tinyradius.core.packet;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.tinyradius.core.packet.PacketType.*;
 
 class PacketTypeTest {
@@ -24,5 +25,12 @@ class PacketTypeTest {
     void getDefaultPacketType() {
         String unknown = PacketType.getPacketTypeName((byte) 256);
         assertEquals("Unknown (" + 0 + ")", unknown);
+    }
+
+    @Test
+    void testFromCode() {
+        assertEquals(ACCESS_REQUEST, PacketType.fromCode((byte) 1));
+        assertEquals(ACCESS_ACCEPT, PacketType.fromCode((byte) 2));
+        assertThrows(IllegalArgumentException.class, () -> PacketType.fromCode((byte) 0));
     }
 }

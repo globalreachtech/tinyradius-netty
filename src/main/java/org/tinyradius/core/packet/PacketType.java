@@ -90,4 +90,11 @@ public class PacketType {
     public static String getPacketTypeName(byte code) {
         return typeNames.getOrDefault(code, "Unknown (" + code + ")");
     }
+
+    public static byte fromCode(byte code) {
+        if (!typeNames.containsKey(code)) {
+            throw new IllegalArgumentException("Unknown packet type code: " + code);
+        }
+        return code;
+    }
 }

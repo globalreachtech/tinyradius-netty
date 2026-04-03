@@ -1,6 +1,5 @@
 package org.tinyradius.core.dictionary.parser;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -15,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class DictionaryCompatibilityTest {
 
     @Test
-    @Disabled("throws NumberFormatException: For input string: \"241.26\"")
+        //@Disabled("throws NumberFormatException: For input string: \"241.26\"")
     void latestFreeRadiusDict() throws IOException {
         Dictionary dictionary = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary");
@@ -29,7 +28,7 @@ class DictionaryCompatibilityTest {
     }
 
     @Test
-    @Disabled("throws IOException: Unknown attribute type while parsing VALUE: Framed-Compression, line: 20")
+        //@Disabled("throws IOException: Unknown attribute type while parsing VALUE: Framed-Compression, line: 20")
     void jradiusDict() throws IOException {
         Dictionary dictionary = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/jradius/dictionary");

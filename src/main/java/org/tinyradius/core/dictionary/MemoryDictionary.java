@@ -67,8 +67,7 @@ public class MemoryDictionary implements WritableDictionary {
                 log.info("Ignoring duplicate vendor definition: {}", vendor);
                 return this;
             } else {
-                throw new IllegalArgumentException("Duplicate vendor code: " + vendor.id() +
-                        " (adding " + vendor + ", but already set to " + existing.get() + ")");
+                log.warn("Duplicate vendor code: {} (adding {}, but already set to {}). Overwriting existing vendor.", vendor.id(), vendor, existing.get());
             }
         }
 
@@ -98,8 +97,7 @@ public class MemoryDictionary implements WritableDictionary {
                         existing.isTagged(), existing.getCodecType());
                 return this;
             } else {
-                throw new IllegalArgumentException("Duplicate attribute definition name, " +
-                        "existing attribute not equal to new attribute: " + attributeName + ", vendorId: " + vendorId);
+                log.warn("Duplicate attribute definition name, existing attribute not equal to new attribute: {}, vendorId: {}. Overwriting existing attribute.", attributeName, vendorId);
             }
         }
         attributesByName.put(attributeName, attributeTemplate);
