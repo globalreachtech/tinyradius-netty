@@ -2,7 +2,7 @@
 
 ## Coding Syntax
 
-- ALWAYS declare `final` for class level variables
+- ALWAYS declare `final` for class level variables that are not reassigned
 - NEVER declare `final` for local variables
 - Prefer using `var` for declaring local object types that are not in a stream pipeline
 - ALWAYS use latest syntax as allowed by the Java version defined in `build.gradle.kts`
