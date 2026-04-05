@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jspecify.annotations.NonNull;
-import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
@@ -93,32 +92,6 @@ public class OctetsAttribute implements RadiusAttribute {
                 .map(t -> ":" + t)
                 .orElse("");
         return getAttributeName() + tag + "=" + getValueString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NonNull
-    public RadiusAttribute encode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
-        var template = getAttributeTemplate();
-        if (template.isPresent()) {
-            return template.get().encode(this, requestAuth, secret);
-        }
-        return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @NonNull
-    public RadiusAttribute decode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
-        var template = getAttributeTemplate();
-        if (template.isPresent()) {
-            return template.get().decode(this, requestAuth, secret);
-        }
-        return this;
     }
 
     /**

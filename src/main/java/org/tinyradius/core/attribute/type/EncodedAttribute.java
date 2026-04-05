@@ -84,15 +84,6 @@ public record EncodedAttribute(OctetsAttribute delegate) implements RadiusAttrib
      * {@inheritDoc}
      */
     @Override
-    @NonNull
-    public RadiusAttribute encode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
-        return RadiusAttribute.super.encode(requestAuth, secret);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean isEncoded() {
         return true;
     }
