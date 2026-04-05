@@ -1,5 +1,11 @@
 # AGENTS
 
+## Coding
+
+- Always declare `final` for class level variables
+- Never declare `final` for local variables
+- Prefer using `var` for declaring local non-generic variables that are not in a stream pipeline
+
 ## Development
 
 - Java version is defined in `build.gradle.kts` - always prefer latest syntax as allowed by the version
@@ -7,6 +13,7 @@
 - Anything related to parsing / validating / building packets should be in `core` package
 - Add JSpecify annotations to methods that are modified based on inferred nullability
 - Ask before making backwards-incompatible changes to public APIs. Prefer convenience or overloaded methods.
+- Remove unused imports after making changes
 
 ## Domain
 
@@ -23,6 +30,8 @@
 - After every change, tests do not have to pass, but everything should compile
 - Always run and fix tests so they all pass before committing
 - Add / update tests after making changes to ensure coverage
+- Add assertions and steps to existing tests if similar test cases already exist, or create new tests for new test
+  cases. Do not delete existing tests.
 
 ## Documentation
 
