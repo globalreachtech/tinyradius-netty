@@ -26,13 +26,10 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     private static final int HEADER_LENGTH = 20;
 
-    @NonNull
     private final Dictionary dictionary;
 
-    @NonNull
     private final ByteBuf header;
 
-    @NonNull
     private final List<RadiusAttribute> attributes;
 
     protected BaseRadiusPacket(@NonNull Dictionary dictionary, @NonNull ByteBuf header, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {

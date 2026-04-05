@@ -20,11 +20,9 @@ public class OctetsAttribute implements RadiusAttribute {
 
     public static final RadiusAttributeFactory<OctetsAttribute> FACTORY = new Factory();
 
-    @NonNull
     @EqualsAndHashCode.Exclude
     private final Dictionary dictionary;
 
-    @NonNull
     private final ByteBuf data;
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 

@@ -28,7 +28,6 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     @EqualsAndHashCode.Exclude
     private final int childVendorId;
 
-    @NonNull
     @EqualsAndHashCode.Exclude
     private final List<RadiusAttribute> attributes;
 

@@ -43,12 +43,10 @@ public class AttributeTemplate {
     /**
      * name of type e.g. 'User-Name'
      */
-    @NonNull
     private final String name;
     /**
      * string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      */
-    @NonNull
     private final String dataType;
 
     /**
@@ -58,19 +56,15 @@ public class AttributeTemplate {
     /**
      * One of {@link AttributeCodecType} enum, defaults to NO_ENCRYPT for none
      */
-    @NonNull
     private final AttributeCodecType codecType;
 
-    @NonNull
     @EqualsAndHashCode.Exclude
     private final RadiusAttributeFactory<? extends RadiusAttribute> factory;
 
-    @NonNull
     @Getter(NONE)
     @EqualsAndHashCode.Exclude
     private final Map<Integer, String> int2str = new HashMap<>();
 
-    @NonNull
     @Getter(NONE)
     @EqualsAndHashCode.Exclude
     private final Map<String, Integer> str2int = new HashMap<>();
