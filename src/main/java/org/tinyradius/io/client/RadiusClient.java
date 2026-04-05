@@ -34,16 +34,12 @@ import static org.tinyradius.io.client.ClientEventListener.NO_OP_LISTENER;
 @Log4j2
 public class RadiusClient implements RadiusLifecycle {
 
-    @NonNull
     private final TimeoutHandler defaultTimeoutHandler;
 
-    @NonNull
     private final ClientEventListener defaultEventListener;
 
-    @NonNull
     private final EventLoopGroup eventLoopGroup;
 
-    @NonNull
     private final ChannelFuture channelFuture;
 
     /**

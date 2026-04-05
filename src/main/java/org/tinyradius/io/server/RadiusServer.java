@@ -19,13 +19,10 @@ import java.util.stream.IntStream;
 @Log4j2
 public class RadiusServer implements RadiusLifecycle {
 
-    @NonNull
     private final EventLoopGroup eventLoopGroup;
 
-    @NonNull
     private final List<ChannelFuture> channelFutures;
 
-    @NonNull
     private final Promise<Void> isReady;
 
     /**
