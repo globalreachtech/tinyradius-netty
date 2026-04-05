@@ -192,7 +192,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
         byte[] attributeBytes = getAttributeByteBuf().copy().array();
         int length = HEADER_LENGTH + attributeBytes.length;
 
-        MessageDigest md5 = getMd5Digest();
+        var md5 = getMd5Digest();
         md5.update(getType());
         md5.update(getId());
         md5.update((byte) (length >> 8));

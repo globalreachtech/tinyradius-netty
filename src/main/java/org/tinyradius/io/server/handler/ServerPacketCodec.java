@@ -54,7 +54,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
         try {
             var request = fromDatagram(dictionary, msg);
 
-            String secret = secretProvider.getSharedSecret(remoteAddress, request);
+            var secret = secretProvider.getSharedSecret(remoteAddress, request);
             if (secret == null) {
                 log.warn("Ignoring packet from {}, shared secret lookup failed", remoteAddress);
                 return;

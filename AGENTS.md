@@ -2,7 +2,7 @@
 
 ## Coding Syntax
 
-- ALWAYS declare `final` for class level variables that are not reassigned
+- ALWAYS declare `final` for class level variables that are not reassigned, except interfaces or where they are redundant
 - NEVER declare `final` for local variables
 - Prefer `var` for type declarations EXCEPT primitives, primitive arrays, and variables in a stream pipeline
 - ALWAYS use latest syntax as allowed by the Java version defined in `build.gradle.kts`
@@ -13,7 +13,7 @@
 - Anything related to sending / receiving packets should be in `io` package
 - Anything related to parsing / validating / building packets should be in `core` package
 - Ask before making backwards-incompatible changes to public APIs. Prefer convenience or overloaded methods.
-- ALWAYS remove unused imports after making changes
+- ALWAYS remove unused imports after every task
 
 ## Domain
 

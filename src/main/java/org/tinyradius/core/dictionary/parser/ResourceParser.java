@@ -75,7 +75,7 @@ public class ResourceParser {
 
     private void parseLine(String rawLine, int lineNum, String resource) throws IOException {
         int commentIndex = rawLine.indexOf('#');
-        String line = commentIndex == -1 ?
+        var line = commentIndex == -1 ?
                 rawLine.trim() :
                 rawLine.substring(0, commentIndex).trim();
 
@@ -181,7 +181,7 @@ public class ResourceParser {
             log.warn("Attribute type is not an integer and not supported - vendor: {}, attributeName: {}, type: {}", vendorId, name, tok[2 + offset]);
             return;
         }
-        String dataType = tok[3 + offset];
+        var dataType = tok[3 + offset];
         RadiusAttributeFactory<?> factory =
                 factoryProvider.fromDataType(vendorId == -1 && type == VENDOR_SPECIFIC ? "vsa" : dataType);
         String[] flags = tok.length == 4 + offset ?

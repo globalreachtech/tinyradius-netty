@@ -107,7 +107,7 @@ public class RadiusServer implements RadiusLifecycle {
                 .toList();
 
         var eventLoop = eventLoopGroup.next();
-        Promise<Void> isClosed = eventLoop.newPromise();
+        var isClosed = eventLoop.<Void>newPromise();
         var combiner = new PromiseCombiner(eventLoop);
         eventLoop.execute(() -> {
             combiner.addAll(futures.toArray(ChannelFuture[]::new));

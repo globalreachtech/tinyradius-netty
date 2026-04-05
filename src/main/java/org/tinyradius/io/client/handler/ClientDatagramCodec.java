@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.client.PendingRequestCtx;
 
 import java.net.InetSocketAddress;
@@ -50,7 +49,7 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
         }
 
         try {
-            RadiusResponse response = fromDatagram(dictionary, msg);
+            var response = fromDatagram(dictionary, msg);
             log.debug("Received packet from {} - {}", remoteAddress, response);
 
             out.add(response);
