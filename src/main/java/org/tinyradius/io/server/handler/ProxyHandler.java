@@ -29,7 +29,7 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
-        final RadiusRequest request = msg.getRequest();
+        var request = msg.getRequest();
 
         RadiusEndpoint clientEndpoint = msg.getEndpoint();
         Optional<RadiusEndpoint> serverEndpoint = getOriginServer(request, clientEndpoint);
@@ -42,9 +42,9 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
         log.debug("Proxying packet to {}", serverEndpoint.get().address());
 
         radiusClient.communicate(request, serverEndpoint.get()).addListener(f -> {
-            final RadiusResponse packet = (RadiusResponse) f.getNow();
+            var packet = (RadiusResponse) f.getNow();
             if (f.isSuccess() && packet != null) {
-                final RadiusResponse response = RadiusResponse.create(
+                var response = RadiusResponse.create(
                         request.getDictionary(), packet.getType(), packet.getId(), packet.getAuthenticator(), packet.getAttributes());
                 ctx.writeAndFlush(msg.withResponse(response));
             }

@@ -17,7 +17,7 @@ public class AccessRequestNoAuth extends AccessRequest {
 
     @Override
     public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
-        final RadiusRequest radiusRequest = super.encodeRequest(sharedSecret);
+        var radiusRequest = super.encodeRequest(sharedSecret);
         checkMessageAuth(radiusRequest.getAttributes()); // MessageAuthSupport should append Message-Auth during encoding
         return radiusRequest;
     }
@@ -29,7 +29,7 @@ public class AccessRequestNoAuth extends AccessRequest {
     }
 
     private static void checkMessageAuth(List<RadiusAttribute> attributes) {
-        final long count = attributes.stream()
+        long count = attributes.stream()
                 .filter(a -> a.getType() == MESSAGE_AUTHENTICATOR)
                 .count();
         if (count != 1)

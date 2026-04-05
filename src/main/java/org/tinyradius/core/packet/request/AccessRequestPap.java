@@ -22,12 +22,12 @@ public class AccessRequestPap extends AccessRequest {
     }
 
     static AccessRequest withPassword(AccessRequest request, String password) throws RadiusPacketException {
-        final List<RadiusAttribute> attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
+        var attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
         return (AccessRequest) request.withAttributes(attributes);
     }
 
     private static List<RadiusAttribute> withPasswordAttribute(Dictionary dictionary, List<RadiusAttribute> attributes, String password) {
-        final List<RadiusAttribute> newAttributes = attributes.stream()
+        var newAttributes = attributes.stream()
                 .filter(a -> a.getVendorId() != -1 || a.getType() != USER_PASSWORD)
                 .collect(toList());
 
@@ -58,7 +58,7 @@ public class AccessRequestPap extends AccessRequest {
     }
 
     private void checkUserPassword() throws RadiusPacketException {
-        final int count = getAttributes(USER_PASSWORD).size();
+        int count = getAttributes(USER_PASSWORD).size();
         if (count != 1)
             throw new RadiusPacketException("AccessRequest (PAP) should have exactly one User-Password attribute, has " + count);
     }

@@ -58,8 +58,8 @@ public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, Respo
 
     @Override
     protected void decode(ChannelHandlerContext ctx, RequestCtx requestCtx, List<Object> out) {
-        final Packet packet = Packet.from(requestCtx);
-        final ResponseCtx responseContext = requests.get(packet);
+        var packet = Packet.from(requestCtx);
+        var responseContext = requests.get(packet);
 
         if (responseContext != null) {
             log.debug("Cache hit, resending response, id: {}, remote address: {}", packet.id, packet.remoteAddress);
@@ -72,7 +72,7 @@ public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, Respo
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ResponseCtx msg, List<Object> out) {
-        final Packet packet = Packet.from(msg);
+        var packet = Packet.from(msg);
         requests.put(packet, msg);
         timer.newTimeout(t -> requests.remove(packet), ttlMs, MILLISECONDS);
         out.add(msg);

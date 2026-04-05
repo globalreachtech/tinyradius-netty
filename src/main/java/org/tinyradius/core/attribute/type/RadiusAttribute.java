@@ -2,6 +2,7 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
@@ -66,24 +67,28 @@ public interface RadiusAttribute {
      * Returns the tag if available and specified for attribute type (RFC2868).
      * @return Tag if available and specified for attribute type (RFC2868)
      */
+    @NonNull
     Optional<Byte> getTag();
 
     /**
      * Returns the attribute data as raw bytes.
      * @return attribute data as raw bytes
      */
+    @NonNull
     byte[] getValue();
 
     /**
      * Returns the value of this attribute as a hex string.
      * @return value of this attribute as a hex string.
      */
+    @NonNull
     String getValueString();
 
     /**
      * Returns the dictionary that attribute uses.
      * @return dictionary that attribute uses
      */
+    @NonNull
     Dictionary getDictionary();
 
     /**
@@ -91,12 +96,14 @@ public interface RadiusAttribute {
      *
      * @return underlying ByteBuf for attribute, includes attribute header, (optional) tag, and value
      */
+    @NonNull
     ByteBuf getData();
 
     /**
      * Returns the underlying ByteBuf for attribute, includes attribute header, (optional) tag, and value.
      * @return underlying ByteBuf for attribute, includes attribute header, (optional) tag, and value
      */
+    @NonNull
     default ByteBuf toByteBuf() {
         return Unpooled.unreleasableBuffer(getData());
     }
@@ -105,6 +112,7 @@ public interface RadiusAttribute {
      * Returns the entire attribute (including headers) as byte array.
      * @return entire attribute (including headers) as byte array
      */
+    @NonNull
     default byte[] toByteArray() {
         return getData().copy().array();
     }
@@ -144,6 +152,7 @@ public interface RadiusAttribute {
      *
      * @return the vendor for this attribute, if any
      */
+    @NonNull
     default Optional<Vendor> getVendor() {
         return getDictionary().getVendor(getVendorId());
     }
@@ -162,6 +171,7 @@ public interface RadiusAttribute {
      * Returns the codec type for this attribute.
      * @return the codec type for this attribute
      */
+    @NonNull
     default AttributeCodecType codecType() {
         return getAttributeTemplate()
                 .map(AttributeTemplate::getCodecType)
@@ -172,6 +182,7 @@ public interface RadiusAttribute {
      * Returns the name of the attribute.
      * @return the name of the attribute
      */
+    @NonNull
     default String getAttributeName() {
         return getAttributeTemplate()
                 .map(AttributeTemplate::getName)
@@ -186,6 +197,7 @@ public interface RadiusAttribute {
      *
      * @return List of RadiusAttributes
      */
+    @NonNull
     default List<RadiusAttribute> flatten() {
         return Collections.singletonList(this);
     }
@@ -194,6 +206,7 @@ public interface RadiusAttribute {
      * Returns the AttributeTemplate used to define this attribute.
      * @return AttributeTemplate used to define this attribute
      */
+    @NonNull
     default Optional<AttributeTemplate> getAttributeTemplate() {
         return getDictionary().getAttributeTemplate(getVendorId(), getType());
     }
@@ -206,7 +219,8 @@ public interface RadiusAttribute {
      * @return attribute with encoded data
      * @throws RadiusPacketException errors encoding attribute
      */
-    default RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
+    @NonNull
+    default RadiusAttribute encode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
         return this;
     }
 
@@ -218,7 +232,8 @@ public interface RadiusAttribute {
      * @return attribute with encoded data
      * @throws RadiusPacketException errors decoding attribute
      */
-    default RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
+    @NonNull
+    default RadiusAttribute decode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
         return this;
     }
 

@@ -1,5 +1,6 @@
 package org.tinyradius.core.attribute;
 
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.VendorSpecificAttribute;
@@ -21,7 +22,14 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
 
     int CHILD_VENDOR_ID = -1;
 
-    static RadiusAttribute vsaAutowrap(RadiusAttribute attribute) {
+    /**
+     * Automatically wraps an attribute in a VendorSpecificAttribute if it has a vendor ID.
+     *
+     * @param attribute the attribute to wrap
+     * @return the wrapped (or original) attribute
+     */
+    @NonNull
+    static RadiusAttribute vsaAutowrap(@NonNull RadiusAttribute attribute) {
         return attribute.getVendorId() == CHILD_VENDOR_ID ?
                 attribute :
                 new VendorSpecificAttribute(attribute.getDictionary(), attribute.getVendorId(), List.of(attribute));
@@ -42,6 +50,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @param type     attribute type code
      * @return list of RadiusAttribute objects, or empty list
      */
+    @NonNull
     default List<RadiusAttribute> getAttributes(int vendorId, int type) {
         if (vendorId == getChildVendorId())
             return getAttributes(type);
@@ -53,8 +62,12 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
                 .collect(toList());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    default List<RadiusAttribute> getAttributes(AttributeTemplate type) {
+    @NonNull
+    default List<RadiusAttribute> getAttributes(@NonNull AttributeTemplate type) {
         return getAttributes(type.getVendorId(), type.getType());
     }
 
@@ -67,6 +80,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @param type     attribute type
      * @return RadiusAttribute object or null if there is no such attribute
      */
+    @NonNull
     default Optional<RadiusAttribute> getAttribute(int vendorId, int type) {
         return getAttributes(vendorId, type).stream().findFirst();
     }
@@ -77,6 +91,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @param vendorId vendor ID to filter by
      * @return List with VendorSpecificAttribute objects, or empty list
      */
+    @NonNull
     default List<VendorSpecificAttribute> getVendorAttributes(int vendorId) {
         return getAttributes().stream()
                 .filter(VendorSpecificAttribute.class::isInstance)
@@ -86,8 +101,11 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
     }
 
     /**
-     * @return List of attributes, flattening VSAs and unwrapping nested attributes if found
+     * Returns all attributes, flattening VSAs and unwrapping nested attributes if found.
+     *
+     * @return List of attributes
      */
+    @NonNull
     default List<RadiusAttribute> getFlattenedAttributes() {
         return getAttributes().stream()
                 .map(RadiusAttribute::flatten)
@@ -102,9 +120,12 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * is automatically created for the sub-attribute.
      *
      * @param attribute RadiusAttribute object
+     * @return object of the same type with appended attribute
+     * @throws RadiusPacketException packet validation exceptions
      */
     @Override
-    default T addAttribute(RadiusAttribute attribute) throws RadiusPacketException {
+    @NonNull
+    default T addAttribute(@NonNull RadiusAttribute attribute) throws RadiusPacketException {
         return AttributeHolder.super.addAttribute(vsaAutowrap(attribute));
     }
 
@@ -112,18 +133,21 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * Removes all instances of the specified attribute from this packet.
      *
      * @param attribute RadiusAttribute to remove
+     * @return object of the same type with removed attribute
+     * @throws RadiusPacketException packet validation exceptions
      */
     @Override
-    default T removeAttribute(RadiusAttribute attribute) throws RadiusPacketException {
+    @NonNull
+    default T removeAttribute(@NonNull RadiusAttribute attribute) throws RadiusPacketException {
         if (attribute.getVendorId() == getChildVendorId())
             return AttributeHolder.super.removeAttribute(attribute);
 
-        final List<RadiusAttribute> attributes = getAttributes().stream()
+        var attributes = getAttributes().stream()
                 .map(a -> {
                     if (!(a instanceof VendorSpecificAttribute vsa))
                         return a;
 
-                    final List<RadiusAttribute> subAttributes = vsa.getAttributes(sa -> !sa.equals(attribute));
+                    var subAttributes = vsa.getAttributes(sa -> !sa.equals(attribute));
                     return subAttributes.isEmpty() ? null : vsa.withAttributes(subAttributes);
                 })
                 .filter(Objects::nonNull)
@@ -142,16 +166,17 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
      * @return object of same type with removed attributes
      * @throws RadiusPacketException packet validation exceptions
      */
+    @NonNull
     default T removeAttributes(int vendorId, int type) throws RadiusPacketException {
         if (vendorId == getChildVendorId())
             return removeAttributes(type);
 
-        final List<RadiusAttribute> attributes = getAttributes().stream()
+        var attributes = getAttributes().stream()
                 .map(a -> {
                     if (!(a instanceof VendorSpecificAttribute vsa))
                         return a;
 
-                    final List<RadiusAttribute> subAttributes = vsa.getAttributes(sa -> sa.getType() != type || sa.getVendorId() != vendorId);
+                    var subAttributes = vsa.getAttributes(sa -> sa.getType() != type || sa.getVendorId() != vendorId);
                     return subAttributes.isEmpty() ? null : vsa.withAttributes(subAttributes);
                 })
                 .filter(Objects::nonNull)

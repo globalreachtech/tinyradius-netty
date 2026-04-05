@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.attribute.type.EncodedAttribute;
@@ -42,10 +43,12 @@ public class AttributeTemplate {
     /**
      * name of type e.g. 'User-Name'
      */
+    @NonNull
     private final String name;
     /**
      * string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
      */
+    @NonNull
     private final String dataType;
 
     /**
@@ -55,14 +58,19 @@ public class AttributeTemplate {
     /**
      * One of {@link AttributeCodecType} enum, defaults to NO_ENCRYPT for none
      */
+    @NonNull
     private final AttributeCodecType codecType;
 
+    @NonNull
     @EqualsAndHashCode.Exclude
     private final RadiusAttributeFactory<? extends RadiusAttribute> factory;
 
+    @NonNull
     @Getter(NONE)
     @EqualsAndHashCode.Exclude
     private final Map<Integer, String> int2str = new HashMap<>();
+
+    @NonNull
     @Getter(NONE)
     @EqualsAndHashCode.Exclude
     private final Map<String, Integer> str2int = new HashMap<>();
@@ -74,10 +82,11 @@ public class AttributeTemplate {
      * @param type        sub-attribute type code, as unsigned byte
      * @param name        sub-attribute name
      * @param dataType    string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
+     * @param factory     the factory to create the attribute
      * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or default 0 for none
      * @param hasTag      whether attribute supports tags, as defined in RFC2868, default false
      */
-    public AttributeTemplate(int vendorId, int type, @NonNull String name, @NonNull String dataType, RadiusAttributeFactory<? extends RadiusAttribute> factory, byte encryptFlag, boolean hasTag) {
+    public AttributeTemplate(int vendorId, int type, @NonNull String name, @NonNull String dataType, @NonNull RadiusAttributeFactory<? extends RadiusAttribute> factory, byte encryptFlag, boolean hasTag) {
         if (name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
         this.vendorId = vendorId;
@@ -97,7 +106,8 @@ public class AttributeTemplate {
      * @param value      value to set attribute
      * @return new RadiusAttribute
      */
-    public RadiusAttribute create(Dictionary dictionary, byte tag, byte[] value) {
+    @NonNull
+    public RadiusAttribute create(@NonNull Dictionary dictionary, byte tag, @NonNull byte[] value) {
         return factory.create(dictionary, vendorId, type, tag, value);
     }
 
@@ -109,21 +119,23 @@ public class AttributeTemplate {
      * @param value      value to set attribute
      * @return new RadiusAttribute
      */
-    public RadiusAttribute create(Dictionary dictionary, byte tag, String value) {
+    @NonNull
+    public RadiusAttribute create(@NonNull Dictionary dictionary, byte tag, @NonNull String value) {
         return factory.create(dictionary, vendorId, type, tag, value);
     }
 
     /**
      * Parse RadiusAttribute from raw byte data.
      * <p>
-     * If attribute type has encryption, this will create an OctetsAttribute wrapped in EncodedDecorator,
-     * otherwise uses the type specified in dictionary.
+     * If the attribute type has encryption, this will create an OctetsAttribute wrapped in EncodedDecorator,
+     * otherwise uses the type specified in the dictionary.
      *
      * @param dictionary dictionary to use
      * @param data       attribute data to parse incl. type/length
      * @return new RadiusAttribute
      */
-    public RadiusAttribute parse(Dictionary dictionary, ByteBuf data) {
+    @NonNull
+    public RadiusAttribute parse(@NonNull Dictionary dictionary, @NonNull ByteBuf data) {
         return isEncrypt() ?
                 new EncodedAttribute(OctetsAttribute.FACTORY.create(dictionary, vendorId, data)) :
                 factory.create(dictionary, vendorId, data);
@@ -132,8 +144,8 @@ public class AttributeTemplate {
     /**
      * Create RadiusAttribute with encoded data.
      * <p>
-     * If attribute type supports encryption, this will
-     * return an OctetsAttribute as underlying implementation
+     * If the attribute type supports encryption, this will
+     * return an OctetsAttribute as an underlying implementation
      * so contents aren't validated at construction.
      *
      * @param dictionary   dictionary to use
@@ -141,32 +153,44 @@ public class AttributeTemplate {
      * @param encodedValue encoded data, attribute data excl. type/length/tag
      * @return new RadiusAttribute
      */
-    public RadiusAttribute createEncoded(Dictionary dictionary, byte tag, byte[] encodedValue) {
+    @NonNull
+    public RadiusAttribute createEncoded(@NonNull Dictionary dictionary, byte tag, @NonNull byte[] encodedValue) {
         return isEncrypt() ?
                 new EncodedAttribute(OctetsAttribute.FACTORY.create(dictionary, vendorId, type, tag, encodedValue)) :
                 factory.create(dictionary, vendorId, type, tag, encodedValue);
     }
 
+    /**
+     * Returns true if attribute supports encryption.
+     *
+     * @return true if attribute supports encryption
+     */
     public boolean isEncrypt() {
         return codecType != NO_ENCRYPT;
     }
 
     /**
+     * Returns the enumeration name for the given integer value.
+     *
      * @param value int value
      * @return the name of the given integer value if this attribute
      * is an enumeration, or null if it is not or if the integer value
      * is unknown.
      */
+    @Nullable
     public String getEnumeration(int value) {
         return int2str.get(value);
     }
 
     /**
+     * Returns the integer value for the given enumeration name.
+     *
      * @param value string value
      * @return the number of the given string value if this attribute is
      * an enumeration, or null if it is not or if the string value is unknown.
      */
-    public Integer getEnumeration(String value) {
+    @Nullable
+    public Integer getEnumeration(@NonNull String value) {
         return str2int.get(value);
     }
 
@@ -176,21 +200,24 @@ public class AttributeTemplate {
      * @param num  number that shall get a name
      * @param name the name for this number
      */
-    public void addEnumerationValue(int num, String name) {
-        if (name == null || name.isEmpty())
+    public void addEnumerationValue(int num, @NonNull String name) {
+        if (name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
         int2str.put(num, name);
         str2int.put(name, num);
     }
 
     /**
+     * Encodes the attribute.
+     *
      * @param attribute   attribute to encode
      * @param requestAuth (corresponding) request packet authenticator
      * @param secret      shared secret to encode with
      * @return attribute with encoded data
      * @throws RadiusPacketException errors encoding attribute
      */
-    public RadiusAttribute encode(RadiusAttribute attribute, byte[] requestAuth, String secret) throws RadiusPacketException {
+    @NonNull
+    public RadiusAttribute encode(@NonNull RadiusAttribute attribute, @NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
         // don't wrap in EncodedDecorator if not supported
         if (!isEncrypt() || attribute.isEncoded())
             return attribute;
@@ -204,13 +231,16 @@ public class AttributeTemplate {
     }
 
     /**
+     * Decodes the attribute.
+     *
      * @param attribute   attribute to decode
      * @param requestAuth (corresponding) request packet authenticator
      * @param secret      shared secret to decode with
      * @return attribute with decoded data
      * @throws RadiusPacketException errors decoding attribute
      */
-    public RadiusAttribute decode(RadiusAttribute attribute, byte[] requestAuth, String secret) throws RadiusPacketException {
+    @NonNull
+    public RadiusAttribute decode(@NonNull RadiusAttribute attribute, @NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
         if (attribute.isDecoded())
             return attribute;
 
@@ -222,17 +252,39 @@ public class AttributeTemplate {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NonNull
     public String toString() {
-        String s = Integer.toUnsignedString(getType()) + "/" + getName() + ": " + getDataType();
+        var s = Integer.toUnsignedString(getType()) + "/" + getName() + ": " + getDataType();
         if (getVendorId() != -1)
             s += " (Vendor " + getVendorId() + ")";
         return s;
     }
 
+    /**
+     * Detects if the attribute supports tags.
+     *
+     * @param vendorId the vendor ID
+     * @param type the attribute type
+     * @param hasTag the initial value
+     * @return true if it has a tag
+     */
     private static boolean detectHasTag(int vendorId, int type, boolean hasTag) {
         return (vendorId == -1 && type == TUNNEL_PASSWORD) || hasTag;
     }
 
+    /**
+     * Detects the attribute codec type.
+     *
+     * @param vendorId the vendor ID
+     * @param type the attribute type
+     * @param encryptFlag the initial encrypt flag
+     * @return the codec type
+     */
+    @NonNull
     private static AttributeCodecType detectAttributeCodec(int vendorId, int type, byte encryptFlag) {
         if (vendorId == -1 && type == USER_PASSWORD)
             return RFC2865_USER_PASSWORD;

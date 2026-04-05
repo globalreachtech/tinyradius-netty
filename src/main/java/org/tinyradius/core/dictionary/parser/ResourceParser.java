@@ -74,15 +74,15 @@ public class ResourceParser {
     }
 
     private void parseLine(String rawLine, int lineNum, String resource) throws IOException {
-        final int commentIndex = rawLine.indexOf('#');
-        final String line = commentIndex == -1 ?
+        int commentIndex = rawLine.indexOf('#');
+        String line = commentIndex == -1 ?
                 rawLine.trim() :
                 rawLine.substring(0, commentIndex).trim();
 
         if (line.isEmpty())
             return;
 
-        final String[] tokens = line.split("\\s+");
+        String[] tokens = line.split("\\s+");
 
         if (tokens.length != 0)
             parseTokens(tokens, lineNum, resource);
@@ -148,7 +148,7 @@ public class ResourceParser {
         if (tok.length != 2)
             throw new IOException("End-Vendor parse error on line " + lineNum + ", " + Arrays.toString(tok));
 
-        final int vendorId = dictionary.getVendor(tok[1])
+        int vendorId = dictionary.getVendor(tok[1])
                 .map(Vendor::id)
                 .orElse(-1);
 
@@ -167,24 +167,24 @@ public class ResourceParser {
         // VENDORATTR   529     Ascend-Send-Secret  214 string
 
         // VENDORATTR have extra vendorId field in tok[1]
-        final int offset = tok[0].equals("VENDORATTR") ? 1 : 0;
+        int offset = tok[0].equals("VENDORATTR") ? 1 : 0;
 
         if (tok.length < 4 + offset || tok.length > 5 + offset)
             throw new IOException(tok[0] + " parse error on line " + lineNum + ", " + Arrays.toString(tok));
 
-        final int vendorId = offset == 1 ? parseInt(tok[1]) : currentVendor;
-        final String name = tok[1 + offset];
+        int vendorId = offset == 1 ? parseInt(tok[1]) : currentVendor;
+        String name = tok[1 + offset];
         int type;
         try{
             type = validateType(Integer.decode(tok[2 + offset]), vendorId);
         } catch (NumberFormatException e){
-            log.warn(String.format("Attribute type is not an integer and not supported - vendor: %d, attributeName: %s, type: %s", vendorId, name, tok[2 + offset]));
+            log.warn("Attribute type is not an integer and not supported - vendor: {}, attributeName: {}, type: {}", vendorId, name, tok[2 + offset]);
             return;
         }
-        final String dataType = tok[3 + offset];
-        final RadiusAttributeFactory<?> factory =
+        String dataType = tok[3 + offset];
+        RadiusAttributeFactory<?> factory =
                 factoryProvider.fromDataType(vendorId == -1 && type == VENDOR_SPECIFIC ? "vsa" : dataType);
-        final String[] flags = tok.length == 4 + offset ?
+        String[] flags = tok.length == 4 + offset ?
                 new String[0] :
                 tok[4 + offset].split(",");
 
@@ -208,7 +208,7 @@ public class ResourceParser {
         // If the attributeName is not found, log and ignore instead of throwing RuntimeException
         return d -> d.getAttributeTemplate(attributeName)
             .ifPresentOrElse(at -> at.addEnumerationValue(Integer.decode(valStr), enumName), 
-                () -> log.warn(String.format("Unknown attribute type while parsing VALUE: %s, line: %d", attributeName,lineNum)));
+                () -> log.warn("Unknown attribute type while parsing VALUE: {}, line: {}", attributeName, lineNum));
     }
 
     /**
@@ -218,12 +218,12 @@ public class ResourceParser {
         if (tok.length < 3 || tok.length > 4)
             throw new IOException("VENDOR parse error on line " + lineNum + ": " + Arrays.toString(tok));
 
-        final int[] format = tok.length == 4 ?
+        int[] format = tok.length == 4 ?
                 formatFlag(tok[3]) : new int[]{1, 1};
 
         try {
             // Legacy TinyRadius format: VENDOR number vendor-name [format]
-            var id = parseInt(tok[1]);
+            int id = parseInt(tok[1]);
             var name = tok[2];
 
             dictionary.addVendor(new Vendor(id, name, format[0], format[1]));
@@ -231,7 +231,7 @@ public class ResourceParser {
             // FreeRadius format: VENDOR vendor-name number [format]
             try {
                 var name = tok[1];
-                var id = parseInt(tok[2]);
+                int id = parseInt(tok[2]);
 
                 dictionary.addVendor(new Vendor(id, name, format[0], format[1]));
             } catch (NumberFormatException e1) {
@@ -257,7 +257,7 @@ public class ResourceParser {
     }
 
     private int validateType(int type, int vendorId) {
-        final int max = dictionary.getVendor(vendorId)
+        int max = dictionary.getVendor(vendorId)
                 .map(Vendor::typeSize)
                 .map(t -> (int) Math.pow(2, 8d * t) - 1)
                 .orElse(255);
@@ -269,7 +269,7 @@ public class ResourceParser {
 
     private int[] formatFlag(String flag) {
         if (flag.startsWith("format=")) {
-            final String[] values = flag.substring(7).split(",");
+            String[] values = flag.substring(7).split(",");
             if (values.length == 2)
                 try {
                     return new int[]{parseInt(values[0]), parseInt(values[1])};
@@ -282,7 +282,7 @@ public class ResourceParser {
     }
 
     private byte encryptFlag(String[] flags) {
-        for (final String flag : flags) {
+        for (String flag : flags) {
             if (flag.length() == 9 && flag.startsWith("encrypt="))
                 return Byte.parseByte(flag.substring(8, 9));
         }

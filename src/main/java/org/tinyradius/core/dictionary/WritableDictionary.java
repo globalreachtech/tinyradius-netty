@@ -1,5 +1,6 @@
 package org.tinyradius.core.dictionary;
 
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.AttributeTemplate;
 
 /**
@@ -20,7 +21,8 @@ public interface WritableDictionary extends Dictionary {
      * @return this WritableDictionary
      * @throws IllegalArgumentException empty vendor name, invalid vendor ID
      */
-    WritableDictionary addVendor(Vendor vendor);
+    @NonNull
+    WritableDictionary addVendor(@NonNull Vendor vendor);
 
     /**
      * Adds an AttributeTemplate object to the dictionary.
@@ -28,5 +30,6 @@ public interface WritableDictionary extends Dictionary {
      * @param attributeTemplate AttributeTemplate to add
      * @return this WritableDictionary
      */
-    WritableDictionary addAttributeTemplate(AttributeTemplate attributeTemplate);
+    @NonNull
+    WritableDictionary addAttributeTemplate(@NonNull AttributeTemplate attributeTemplate);
 }

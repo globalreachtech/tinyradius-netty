@@ -18,10 +18,10 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
 
     @Override
     public RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
-        final RadiusResponse response = ((AccessResponse) withAttributes(encodeAttributes(requestAuth, sharedSecret)))
+        var response = ((AccessResponse) withAttributes(encodeAttributes(requestAuth, sharedSecret)))
                 .encodeMessageAuth(sharedSecret, requestAuth);
 
-        final byte[] auth = response.genHashedAuth(sharedSecret, requestAuth);
+        var auth = response.genHashedAuth(sharedSecret, requestAuth);
         return withAuthAttributes(auth, response.getAttributes());
     }
 
@@ -32,7 +32,7 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
     }
 
     private static void checkType(byte allowed, ByteBuf header) {
-        final byte type = header.getByte(0);
+        byte type = header.getByte(0);
         if (type != allowed)
             throw new IllegalArgumentException("First octet must be " + allowed + ", actual: " + type);
     }

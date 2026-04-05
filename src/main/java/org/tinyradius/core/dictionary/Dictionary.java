@@ -1,6 +1,7 @@
 package org.tinyradius.core.dictionary;
 
 import io.netty.buffer.ByteBuf;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.type.OctetsAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 
@@ -14,10 +15,11 @@ public interface Dictionary extends CoreDictionary {
      *
      * @param vendorId vendor ID or -1
      * @param type     attribute type
-     * @param value    attribute data as byte array
+     * @param value    attribute data as a byte array
      * @return RadiusAttribute object
      */
-    default RadiusAttribute createAttribute(int vendorId, int type, byte[] value) {
+    @NonNull
+    default RadiusAttribute createAttribute(int vendorId, int type, @NonNull byte[] value) {
         return createAttribute(vendorId, type, (byte) 0, value);
     }
 
@@ -27,10 +29,11 @@ public interface Dictionary extends CoreDictionary {
      * @param vendorId vendor ID or -1
      * @param type     attribute type
      * @param tag      tag as per RFC2868, nullable, ignored if not supported by attribute
-     * @param value    attribute data as byte array
+     * @param value    attribute data as a byte array
      * @return RadiusAttribute object
      */
-    default RadiusAttribute createAttribute(int vendorId, int type, byte tag, byte[] value) {
+    @NonNull
+    default RadiusAttribute createAttribute(int vendorId, int type, byte tag, @NonNull byte[] value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
                 .orElseGet(() -> OctetsAttribute.FACTORY.create(this, vendorId, type, tag, value));
@@ -44,7 +47,8 @@ public interface Dictionary extends CoreDictionary {
      * @param data     attribute data to parse incl. type/length
      * @return RadiusAttribute object
      */
-    default RadiusAttribute createAttribute(int vendorId, int type, ByteBuf data) {
+    @NonNull
+    default RadiusAttribute createAttribute(int vendorId, int type, @NonNull ByteBuf data) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.parse(this, data))
                 .orElseGet(() -> OctetsAttribute.FACTORY.create(this, vendorId, data));
@@ -58,7 +62,8 @@ public interface Dictionary extends CoreDictionary {
      * @param value    attribute data as String
      * @return RadiusAttribute object
      */
-    default RadiusAttribute createAttribute(int vendorId, int type, String value) {
+    @NonNull
+    default RadiusAttribute createAttribute(int vendorId, int type, @NonNull String value) {
         return createAttribute(vendorId, type, (byte) 0, value);
     }
 
@@ -71,7 +76,8 @@ public interface Dictionary extends CoreDictionary {
      * @param value    attribute data as String
      * @return RadiusAttribute object
      */
-    default RadiusAttribute createAttribute(int vendorId, int type, byte tag, String value) {
+    @NonNull
+    default RadiusAttribute createAttribute(int vendorId, int type, byte tag, @NonNull String value) {
         return getAttributeTemplate(vendorId, type)
                 .map(at -> at.create(this, tag, value))
                 .orElseGet(() -> OctetsAttribute.FACTORY.create(this, vendorId, type, tag, value));
@@ -89,7 +95,8 @@ public interface Dictionary extends CoreDictionary {
      * @param value value of the attribute, for example "127.0.0.1"
      * @return RadiusAttribute object
      */
-    default RadiusAttribute createAttribute(String name, String value) {
+    @NonNull
+    default RadiusAttribute createAttribute(@NonNull String name, @NonNull String value) {
         return getAttributeTemplate(name)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown attribute type name: '" + name + "'"))
                 .create(this, (byte) 0, value);

@@ -27,7 +27,7 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
         if (sharedSecret == null || sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
-        final byte[] auth = genAuth(sharedSecret);
+        byte[] auth = genAuth(sharedSecret);
         return withAuthAttributes(auth, encodeAttributes(auth, sharedSecret));
     }
 

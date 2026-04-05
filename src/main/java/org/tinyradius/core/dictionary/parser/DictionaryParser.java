@@ -39,7 +39,7 @@ public record DictionaryParser(ResourceResolver resourceResolver) {
      * @throws IOException parse error reading from input
      */
     public WritableDictionary parseDictionary(String resource) throws IOException {
-        final ResourceParser resourceParser = new ResourceParser(resourceResolver);
+        var resourceParser = new ResourceParser(resourceResolver);
         return resourceParser.parseDictionary(resource);
     }
 }

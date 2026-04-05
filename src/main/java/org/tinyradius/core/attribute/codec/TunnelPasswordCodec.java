@@ -1,6 +1,5 @@
 package org.tinyradius.core.attribute.codec;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.tinyradius.core.RadiusPacketException;
 
@@ -17,14 +16,14 @@ class TunnelPasswordCodec extends BaseCodec {
 
     @Override
     protected byte[] encodeData(byte[] data, byte[] auth, byte[] secret) {
-        final byte[] salt = genSalt();
-        final byte[] combined = ByteBuffer.allocate(data.length + 1)
+        byte[] salt = genSalt();
+        byte[] combined = ByteBuffer.allocate(data.length + 1)
                 .put((byte) data.length)
                 .put(data)
                 .array();
 
-        final byte[] plaintext = pad16x(combined);
-        final ByteBuffer buffer = ByteBuffer.allocate(plaintext.length + 2)
+        byte[] plaintext = pad16x(combined);
+        var buffer = ByteBuffer.allocate(plaintext.length + 2)
                 .put(salt);
 
         byte[] c = ByteBuffer.allocate(18)
@@ -42,7 +41,7 @@ class TunnelPasswordCodec extends BaseCodec {
 
     @Override
     protected byte[] decodeData(byte[] encodedData, byte[] auth, byte[] secret) throws RadiusPacketException {
-        final int strLen = encodedData.length - 2;
+        int strLen = encodedData.length - 2;
         if (strLen < 16)
             throw new RadiusPacketException("Malformed attribute while decoding with RFC2868 Tunnel-Password method - " +
                     "string must be at least 16 octets, actual: " + strLen);
@@ -51,22 +50,22 @@ class TunnelPasswordCodec extends BaseCodec {
             throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 Tunnel-Password method - " +
                     "string octets must be multiple of 16, actual: " + strLen);
 
-        final byte[] encodedStr = Arrays.copyOfRange(encodedData, 2, encodedData.length);
-        final byte[] salt = Arrays.copyOfRange(encodedData, 0, 2);
+        byte[] encodedStr = Arrays.copyOfRange(encodedData, 2, encodedData.length);
+        byte[] salt = Arrays.copyOfRange(encodedData, 0, 2);
 
         byte[] c = ByteBuffer.allocate(18)
                 .put(auth)
                 .put(salt)
                 .array();
 
-        final ByteBuf plaintext = Unpooled.buffer(encodedStr.length, encodedStr.length);
+        var plaintext = Unpooled.buffer(encodedStr.length, encodedStr.length);
 
         for (int i = 0; i < strLen; i += 16) {
             plaintext.writeBytes(xor16(encodedStr, i, md5(secret, c)));
             c = Arrays.copyOfRange(encodedStr, i, i + 16);
         }
 
-        final byte len = plaintext.readByte(); // first
+        byte len = plaintext.readByte(); // first
 
         return plaintext
                 .writerIndex(len + 1) // strip padding

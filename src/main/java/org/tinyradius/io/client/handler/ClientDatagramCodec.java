@@ -32,7 +32,7 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
         log.debug("Sending packet to {} - {}", msg.getEndpoint().address(), msg.getRequest());
 
-        final DatagramPacket datagramPacket = new DatagramPacket(
+        var datagramPacket = new DatagramPacket(
                 msg.getRequest().toByteBuf(),
                 msg.getEndpoint().address(),
                 (InetSocketAddress) ctx.channel().localAddress());
@@ -42,7 +42,7 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
 
     @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
-        final InetSocketAddress remoteAddress = msg.sender();
+        var remoteAddress = msg.sender();
 
         if (remoteAddress == null) {
             log.warn("Ignoring response, remoteAddress is null");

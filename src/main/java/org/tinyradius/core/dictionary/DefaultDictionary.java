@@ -1,5 +1,6 @@
 package org.tinyradius.core.dictionary;
 
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.dictionary.parser.DictionaryParser;
 
 import java.io.IOException;
@@ -18,13 +19,20 @@ public class DefaultDictionary {
     /**
      * The singleton instance of the default dictionary.
      */
+    @NonNull
     public static final WritableDictionary INSTANCE = create();
 
     private DefaultDictionary() {
     }
 
+    /**
+     * Creates the default dictionary by parsing the classpath resource.
+     *
+     * @return the default dictionary
+     */
+    @NonNull
     private static WritableDictionary create() {
-        final DictionaryParser dictionaryParser = DictionaryParser.newClasspathParser();
+        var dictionaryParser = DictionaryParser.newClasspathParser();
 
         try {
             return dictionaryParser.parseDictionary(DEFAULT_SOURCE);

@@ -5,7 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
@@ -21,9 +20,11 @@ public class OctetsAttribute implements RadiusAttribute {
 
     public static final RadiusAttributeFactory<OctetsAttribute> FACTORY = new Factory();
 
+    @NonNull
     @EqualsAndHashCode.Exclude
     private final Dictionary dictionary;
 
+    @NonNull
     private final ByteBuf data;
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
@@ -32,15 +33,15 @@ public class OctetsAttribute implements RadiusAttribute {
         this.vendorId = vendorId;
         this.data = data;
 
-        final int actualLength = data.readableBytes();
+        int actualLength = data.readableBytes();
         if (actualLength > 255)
             throw new IllegalArgumentException("Attribute too long, max 255 octets, actual: " + actualLength);
 
-        final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
-        final int typeSize = vendor.map(Vendor::typeSize).orElse(1);
-        final int lengthSize = vendor.map(Vendor::lengthSize).orElse(1);
+        var vendor = dictionary.getVendor(vendorId);
+        int typeSize = vendor.map(Vendor::typeSize).orElse(1);
+        int lengthSize = vendor.map(Vendor::lengthSize).orElse(1);
 
-        final int length = extractLength(typeSize, lengthSize);
+        int length = extractLength(typeSize, lengthSize);
         if (length != actualLength)
             throw new IllegalArgumentException("Attribute declared length is " + length + ", actual length: " + actualLength);
     }
@@ -54,56 +55,102 @@ public class OctetsAttribute implements RadiusAttribute {
     }
 
     /**
-     * @return RFC2868 Tag
+     * {@inheritDoc}
      */
     @Override
+    @NonNull
     public Optional<Byte> getTag() {
         return isTagged() ?
                 Optional.of(data.getByte(getHeaderSize())) :
                 Optional.empty();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public byte[] getValue() {
-        final int offset = getHeaderSize() + getTagSize();
+        int offset = getHeaderSize() + getTagSize();
         return data.slice(offset, data.readableBytes() - offset)
                 .copy().array();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public String getValueString() {
         return "0x" + HEX_FORMAT.formatHex(getValue());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public String toString() {
-        final String tag = getTag()
+        var tag = getTag()
                 .map(t -> ":" + t)
                 .orElse("");
         return getAttributeName() + tag + "=" + getValueString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
-        final Optional<AttributeTemplate> template = getAttributeTemplate();
-        return template.isPresent() ?
-                template.get().encode(this, requestAuth, secret) :
-                this;
+    @NonNull
+    public RadiusAttribute encode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+        var template = getAttributeTemplate();
+        if (template.isPresent()) {
+            return template.get().encode(this, requestAuth, secret);
+        }
+        return this;
     }
 
-    public static byte[] stringHexParser(String value) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NonNull
+    public RadiusAttribute decode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+        var template = getAttributeTemplate();
+        if (template.isPresent()) {
+            return template.get().decode(this, requestAuth, secret);
+        }
+        return this;
+    }
+
+    /**
+     * Parses a hex string into a byte array.
+     *
+     * @param value hex string
+     * @return byte array
+     */
+    @NonNull
+    public static byte[] stringHexParser(@NonNull String value) {
         return HEX_FORMAT.parseHex(value);
     }
 
     private static class Factory implements RadiusAttributeFactory<OctetsAttribute> {
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public OctetsAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value) {
+        @NonNull
+        public OctetsAttribute newInstance(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf value) {
             return new OctetsAttribute(dictionary, vendorId, value);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public byte[] parse(Dictionary dictionary, int vendorId, int type, String value) {
+        @NonNull
+        public byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
             return stringHexParser(value);
         }
     }

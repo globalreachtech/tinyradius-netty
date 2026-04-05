@@ -1,6 +1,7 @@
 package org.tinyradius.core.dictionary;
 
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.AttributeTemplate;
 
 import java.util.HashMap;
@@ -29,19 +30,22 @@ public class MemoryDictionary implements WritableDictionary {
     private final Map<String, AttributeTemplate> attributesByName = new HashMap<>();
 
     @Override
+    @NonNull
     public Optional<AttributeTemplate> getAttributeTemplate(int vendorCode, int type) {
-        Map<Integer, AttributeTemplate> vendorAttributes = attributesByCode.get(vendorCode);
+        var vendorAttributes = attributesByCode.get(vendorCode);
         return Optional.ofNullable(vendorAttributes)
                 .map(va -> va.get(type));
     }
 
     @Override
-    public Optional<AttributeTemplate> getAttributeTemplate(String name) {
+    @NonNull
+    public Optional<AttributeTemplate> getAttributeTemplate(@NonNull String name) {
         return Optional.ofNullable(attributesByName.get(name));
     }
 
     @Override
-    public Optional<Vendor> getVendor(String vendorName) {
+    @NonNull
+    public Optional<Vendor> getVendor(@NonNull String vendorName) {
         return vendorsByCode.values()
                 .stream()
                 .filter(e -> e.name().equals(vendorName))
@@ -49,13 +53,15 @@ public class MemoryDictionary implements WritableDictionary {
     }
 
     @Override
+    @NonNull
     public Optional<Vendor> getVendor(int vendorId) {
         return Optional.ofNullable(vendorsByCode.get(vendorId));
     }
 
     @Override
-    public MemoryDictionary addVendor(Vendor vendor) {
-        final Optional<Vendor> existing = getVendor(vendor.id());
+    @NonNull
+    public MemoryDictionary addVendor(@NonNull Vendor vendor) {
+        var existing = getVendor(vendor.id());
         if (existing.isPresent()) {
             if (existing.get().equals(vendor)) {
                 log.info("Ignoring duplicate vendor definition: {}", vendor);
@@ -78,16 +84,14 @@ public class MemoryDictionary implements WritableDictionary {
      * @throws IllegalArgumentException duplicate attribute name/type code
      */
     @Override
-    public MemoryDictionary addAttributeTemplate(AttributeTemplate attributeTemplate) {
-        if (attributeTemplate == null)
-            throw new IllegalArgumentException("Attribute definition must not be null");
-
-        final int vendorId = attributeTemplate.getVendorId();
-        final int typeCode = attributeTemplate.getType();
-        final String attributeName = attributeTemplate.getName();
+    @NonNull
+    public MemoryDictionary addAttributeTemplate(@NonNull AttributeTemplate attributeTemplate) {
+        var vendorId = attributeTemplate.getVendorId();
+        var typeCode = attributeTemplate.getType();
+        var attributeName = attributeTemplate.getName();
 
         if (attributesByName.containsKey(attributeName)) {
-            final AttributeTemplate existing = attributesByName.get(attributeName);
+            var existing = attributesByName.get(attributeName);
             if (existing.equals(attributeTemplate)) {
                 log.info("Ignoring duplicate attribute definition: {} [{},{}] {}, hasTag={}, encrypt={} ",
                         existing.getName(), existing.getVendorId(), existing.getType(), existing.getDataType(),
@@ -100,7 +104,7 @@ public class MemoryDictionary implements WritableDictionary {
         }
         attributesByName.put(attributeName, attributeTemplate);
 
-        final Map<Integer, AttributeTemplate> vendorAttributes = attributesByCode
+        var vendorAttributes = attributesByCode
                 .computeIfAbsent(vendorId, k -> new HashMap<>());
 
         // support multiple names with same code for compatibility

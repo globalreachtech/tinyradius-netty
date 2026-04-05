@@ -2,6 +2,7 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 
@@ -14,7 +15,14 @@ public class IntegerAttribute extends OctetsAttribute {
 
     public static final RadiusAttributeFactory<IntegerAttribute> FACTORY = new Factory();
 
-    public IntegerAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
+    /**
+     * Creates a new IntegerAttribute.
+     *
+     * @param dictionary the dictionary to use
+     * @param vendorId the vendor ID
+     * @param data the attribute data
+     */
+    public IntegerAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
         super(dictionary, vendorId, data);
         if (!isTagged() && getValue().length != 4)
             throw new IllegalArgumentException("Integer / Date should be 4 octets, actual: " + getValue().length);
@@ -23,6 +31,8 @@ public class IntegerAttribute extends OctetsAttribute {
     }
 
     /**
+     * Returns the long value of this attribute (unsigned int).
+     *
      * @return long value of this attribute (unsigned int)
      */
     public long getValueLong() {
@@ -30,10 +40,12 @@ public class IntegerAttribute extends OctetsAttribute {
     }
 
     /**
+     * Returns the int value of this attribute. May be negative as Java ints are signed.
+     *
      * @return int value of this attribute. May be negative as Java ints are signed.
      */
     public int getValueInt() {
-        final byte[] value = getValue();
+        byte[] value = getValue();
         return value.length == 4 ?
                 ByteBuffer.wrap(value).getInt() :
                 ByteBuffer.allocate(Integer.BYTES) // length == 3
@@ -47,19 +59,30 @@ public class IntegerAttribute extends OctetsAttribute {
      * Tries to resolve enumerations.
      */
     @Override
+    @NonNull
     public String getValueString() {
-        final int value = getValueInt();
+        int value = getValueInt();
         return getAttributeTemplate()
                 .map(at -> at.getEnumeration(value))
                 .orElseGet(() -> Integer.toUnsignedString(value));
     }
 
-    public static byte[] stringParser(Dictionary dictionary, int vendorId, int type, String value) {
-        final int integer = dictionary.getAttributeTemplate(vendorId, type)
+    /**
+     * Parses a string value into a byte array for an integer attribute.
+     *
+     * @param dictionary the dictionary to use
+     * @param vendorId the vendor ID
+     * @param type the attribute type
+     * @param value the string value
+     * @return byte array
+     */
+    @NonNull
+    public static byte[] stringParser(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
+        int integer = dictionary.getAttributeTemplate(vendorId, type)
                 .map(at -> at.getEnumeration(value))
                 .orElseGet(() -> Integer.parseUnsignedInt(value));
 
-        final ByteBuf byteBuf = Unpooled.buffer(Integer.BYTES, Integer.BYTES).writeInt(integer);
+        var byteBuf = Unpooled.buffer(Integer.BYTES, Integer.BYTES).writeInt(integer);
 
         return dictionary.getAttributeTemplate(vendorId, type)
                 .filter(AttributeTemplate::isTagged)
@@ -70,13 +93,21 @@ public class IntegerAttribute extends OctetsAttribute {
 
     private static class Factory implements RadiusAttributeFactory<IntegerAttribute> {
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public IntegerAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value) {
+        @NonNull
+        public IntegerAttribute newInstance(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf value) {
             return new IntegerAttribute(dictionary, vendorId, value);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public byte[] parse(Dictionary dictionary, int vendorId, int type, String value) {
+        @NonNull
+        public byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
             return IntegerAttribute.stringParser(dictionary, vendorId, type, value);
         }
     }
