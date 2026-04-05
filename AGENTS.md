@@ -4,7 +4,7 @@
 
 - ALWAYS declare `final` for class level variables that are not reassigned
 - NEVER declare `final` for local variables
-- Prefer using `var` for declaring local object types that are not in a stream pipeline and not a primitive array
+- Prefer `var` for type declarations EXCEPT primitives, primitive arrays, and variables in a stream pipeline
 - ALWAYS use latest syntax as allowed by the Java version defined in `build.gradle.kts`
 - ALWAYS add JSpecify annotations to method parameters and signatures that are modified based on inferred nullability
 
