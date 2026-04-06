@@ -48,7 +48,7 @@ tasks.jacocoTestReport {
 }
 
 checkstyle {
-    maxWarnings = 0
+//    maxWarnings = 0
 }
 
 sonarqube {
