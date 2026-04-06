@@ -1,5 +1,6 @@
 package org.tinyradius.core.packet;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.RadiusPacketException;
@@ -49,14 +50,14 @@ class BaseRadiusPacketTest {
         List<VendorSpecificAttribute> vendorAttributes = packet.getVendorAttributes(14122);
         assertEquals(1, vendorAttributes.size());
 
-        List<RadiusAttribute> wisprLocations = vendorAttributes.get(0).getAttributes();
+        List<RadiusAttribute> wisprLocations = vendorAttributes.getFirst().getAttributes();
         assertEquals(1, wisprLocations.size());
-        assertEquals("myLocationId", wisprLocations.get(0).getValueString());
+        assertEquals("myLocationId", wisprLocations.getFirst().getValueString());
 
         assertEquals("myLocationId", packet.getAttribute(14122, 1).get().getValueString());
         List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, 1);
         assertEquals(1, wisprLocations2.size());
-        assertEquals("myLocationId", wisprLocations2.get(0).getValueString());
+        assertEquals("myLocationId", wisprLocations2.getFirst().getValueString());
 
         assertEquals("0.18.214.135", packet.getAttribute(8).get().getValueString());
         assertEquals("0.18.214.135", packet.getAttribute("Framed-IP-Address").get().getValueString());
@@ -94,7 +95,7 @@ class BaseRadiusPacketTest {
         StubPacket rp1 = new StubPacket()
                 .addAttribute("WISPr-Location-ID", "myLocationId");
         assertEquals(1, rp1.getAttributes().size());
-        assertInstanceOf(VendorSpecificAttribute.class, rp1.getAttributes().get(0));
+        assertInstanceOf(VendorSpecificAttribute.class, rp1.getAttributes().getFirst());
 
         StubPacket rp2 = rp1.removeAttributes(14122, 1);
         assertTrue(rp2.getAttributes().isEmpty());
@@ -131,7 +132,7 @@ class BaseRadiusPacketTest {
 
         List<RadiusAttribute> rp2Attributes = rp2.getAttributes(6);
         assertEquals(1, rp2Attributes.size());
-        assertEquals("Login-User", rp2Attributes.get(0).getValueString());
+        assertEquals("Login-User", rp2Attributes.getFirst().getValueString());
 
         // remove again
         StubPacket rp3 = rp2.removeLastAttribute(6);
@@ -226,7 +227,7 @@ class BaseRadiusPacketTest {
         }
 
         @Override
-        public StubPacket withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        public @NonNull StubPacket withAuthAttributes(byte[] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
             return new StubPacket(attributes);
         }
     }

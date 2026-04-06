@@ -5,6 +5,7 @@ import net.jradius.packet.RadiusPacket;
 import net.jradius.packet.attribute.Attr_UnknownAttribute;
 import net.jradius.util.MD5;
 import net.jradius.util.MessageAuthenticator;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
@@ -55,7 +56,7 @@ class MessageAuthSupportTest {
         // impl under test
         AccessRequestNoAuth encodedRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList())
                 .encodeRequest(secret);
-        byte[] actualMsgAuth = encodedRequest.getAttributes().get(0).getValue();
+        byte[] actualMsgAuth = encodedRequest.getAttributes().getFirst().getValue();
 
         // jradius impl
         net.jradius.packet.AccessRequest jradiusRequest = new net.jradius.packet.AccessRequest();
@@ -91,7 +92,7 @@ class MessageAuthSupportTest {
         }
 
         @Override
-        public TestPacket withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        public @NonNull TestPacket withAuthAttributes(byte[] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
             return new TestPacket(getType(), getId(), getAuthenticator(), attributes);
         }
     }
