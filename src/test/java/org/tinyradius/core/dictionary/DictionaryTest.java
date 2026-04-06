@@ -18,18 +18,18 @@ class DictionaryTest {
     @Test
     void createAttributeString() {
         // parsed as string
-        final Optional<AttributeTemplate> exists = dictionary.getAttributeTemplate(-1, 1);
+        Optional<AttributeTemplate> exists = dictionary.getAttributeTemplate(-1, 1);
         assertTrue(exists.isPresent());
 
-        final RadiusAttribute string = dictionary.createAttribute(-1, 1, (byte) 0, "00");
+        RadiusAttribute string = dictionary.createAttribute(-1, 1, (byte) 0, "00");
         assertEquals(StringAttribute.class, string.getClass());
         assertEquals("User-Name", string.getAttributeName());
 
         // parsed as octets if attributeTemplate not found
-        final Optional<AttributeTemplate> noExists = dictionary.getAttributeTemplate(999, 1);
+        Optional<AttributeTemplate> noExists = dictionary.getAttributeTemplate(999, 1);
         assertFalse(noExists.isPresent());
 
-        final RadiusAttribute octets = dictionary.createAttribute(999, 1, (byte) 0, "00");
+        RadiusAttribute octets = dictionary.createAttribute(999, 1, (byte) 0, "00");
         assertEquals(OctetsAttribute.class, octets.getClass()); // check not subclass
         assertTrue(octets.getAttributeName().contains("Unknown"));
     }
@@ -37,18 +37,18 @@ class DictionaryTest {
     @Test
     void createAttributeBytes() {
         // parsed as string
-        final Optional<AttributeTemplate> exists = dictionary.getAttributeTemplate(-1, 1);
+        Optional<AttributeTemplate> exists = dictionary.getAttributeTemplate(-1, 1);
         assertTrue(exists.isPresent());
 
-        final RadiusAttribute string = dictionary.createAttribute(-1, 1, (byte) 0, new byte[1]);
+        RadiusAttribute string = dictionary.createAttribute(-1, 1, (byte) 0, new byte[1]);
         assertEquals(StringAttribute.class, string.getClass());
         assertEquals("User-Name", string.getAttributeName());
 
         // parsed as octets if attributeTemplate not found
-        final Optional<AttributeTemplate> noExists = dictionary.getAttributeTemplate(999, 1);
+        Optional<AttributeTemplate> noExists = dictionary.getAttributeTemplate(999, 1);
         assertFalse(noExists.isPresent());
 
-        final RadiusAttribute octets = dictionary.createAttribute(999, 1, (byte) 0, new byte[1]);
+        RadiusAttribute octets = dictionary.createAttribute(999, 1, (byte) 0, new byte[1]);
         assertEquals(OctetsAttribute.class, octets.getClass()); // check not subclass
         assertTrue(octets.getAttributeName().contains("Unknown"));
     }
@@ -56,18 +56,18 @@ class DictionaryTest {
     @Test
     void createAttributeByteBuf() {
         // parsed as string
-        final Optional<AttributeTemplate> exists = dictionary.getAttributeTemplate(-1, 1);
+        Optional<AttributeTemplate> exists = dictionary.getAttributeTemplate(-1, 1);
         assertTrue(exists.isPresent());
 
-        final RadiusAttribute string = dictionary.createAttribute(-1, 1, Unpooled.wrappedBuffer(new byte[]{1, 3, 0}));
+        RadiusAttribute string = dictionary.createAttribute(-1, 1, Unpooled.wrappedBuffer(new byte[]{1, 3, 0}));
         assertEquals(StringAttribute.class, string.getClass());
         assertEquals("User-Name", string.getAttributeName());
 
         // parsed as octets if attributeTemplate not found
-        final Optional<AttributeTemplate> noExists = dictionary.getAttributeTemplate(999, 1);
+        Optional<AttributeTemplate> noExists = dictionary.getAttributeTemplate(999, 1);
         assertFalse(noExists.isPresent());
 
-        final RadiusAttribute octets = dictionary.createAttribute(999, 1, Unpooled.wrappedBuffer(new byte[]{1, 3, 0}));
+        RadiusAttribute octets = dictionary.createAttribute(999, 1, Unpooled.wrappedBuffer(new byte[]{1, 3, 0}));
         assertEquals(OctetsAttribute.class, octets.getClass()); // check not subclass
         assertTrue(octets.getAttributeName().contains("Unknown"));
     }

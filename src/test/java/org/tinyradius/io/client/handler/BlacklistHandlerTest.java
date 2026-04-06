@@ -48,15 +48,15 @@ class BlacklistHandlerTest {
     private ChannelPromise channelPromise;
 
     private PendingRequestCtx genRequest(int port) throws RadiusPacketException {
-        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(port), "mySecret");
-        final Promise<RadiusResponse> promise = eventExecutor.newPromise();
-        final RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
+        RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(port), "mySecret");
+        Promise<RadiusResponse> promise = eventExecutor.newPromise();
+        RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
         return new PendingRequestCtx(request, endpoint, promise);
     }
 
     @Test
     void noBlacklist() throws RadiusPacketException {
-        final PendingRequestCtx request = genRequest(0);
+        PendingRequestCtx request = genRequest(0);
         handler.write(handlerContext, request, channelPromise);
 
         verify(handlerContext).write(request, channelPromise);
@@ -64,11 +64,11 @@ class BlacklistHandlerTest {
 
     @Test
     void testBlacklist() throws RadiusPacketException {
-        final PendingRequestCtx request1 = genRequest(0);
+        PendingRequestCtx request1 = genRequest(0);
         handler.write(handlerContext, request1, channelPromise);
         verify(handlerContext).write(request1, channelPromise);
 
-        final PendingRequestCtx request2 = genRequest(0);
+        PendingRequestCtx request2 = genRequest(0);
         handler.write(handlerContext, request2, channelPromise);
         verify(handlerContext).write(request2, channelPromise);
 
@@ -76,7 +76,7 @@ class BlacklistHandlerTest {
         request1.getResponse().tryFailure(new TimeoutException());
         request2.getResponse().tryFailure(new TimeoutException());
 
-        final PendingRequestCtx request3 = genRequest(0);
+        PendingRequestCtx request3 = genRequest(0);
         handler.write(handlerContext, request3, channelPromise);
 
         // next request blacklisted
@@ -85,17 +85,17 @@ class BlacklistHandlerTest {
         assertFalse(request3.getResponse().isSuccess());
 
         // different endpoint still works
-        final PendingRequestCtx diffEndpoint = genRequest(1);
+        PendingRequestCtx diffEndpoint = genRequest(1);
         handler.write(handlerContext, diffEndpoint, channelPromise);
         verify(handlerContext).write(diffEndpoint, channelPromise);
     }
 
     @Test
     void blacklistEndByExpire() throws RadiusPacketException {
-        final PendingRequestCtx request1 = genRequest(0);
+        PendingRequestCtx request1 = genRequest(0);
         handler.write(handlerContext, request1, channelPromise);
 
-        final PendingRequestCtx request2 = genRequest(0);
+        PendingRequestCtx request2 = genRequest(0);
         handler.write(handlerContext, request2, channelPromise);
 
         // two failures to trigger blacklist
@@ -103,7 +103,7 @@ class BlacklistHandlerTest {
         request2.getResponse().tryFailure(new TimeoutException());
 
         // next request blacklisted
-        final PendingRequestCtx blacklisted1 = genRequest(0);
+        PendingRequestCtx blacklisted1 = genRequest(0);
         handler.write(handlerContext, blacklisted1, channelPromise);
 
         verify(handlerContext, never()).write(blacklisted1, channelPromise);
@@ -111,27 +111,27 @@ class BlacklistHandlerTest {
         assertFalse(blacklisted1.getResponse().isSuccess());
 
         for (int i = 0; i <= 4; i++) {
-            final PendingRequestCtx laterRequest = genRequest(0);
+            PendingRequestCtx laterRequest = genRequest(0);
             handler.write(handlerContext, laterRequest, channelPromise);
             verify(handlerContext, never()).write(laterRequest, channelPromise);
             clock.tickSeconds(1);
         }
 
         // blacklist expires after 5s
-        final PendingRequestCtx laterRequest = genRequest(0);
+        PendingRequestCtx laterRequest = genRequest(0);
         handler.write(handlerContext, laterRequest, channelPromise);
         verify(handlerContext).write(laterRequest, channelPromise);
     }
 
     @Test
     void blacklistEndBySuccessfulResponse() throws RadiusPacketException {
-        final PendingRequestCtx request1 = genRequest(0);
+        PendingRequestCtx request1 = genRequest(0);
         handler.write(handlerContext, request1, channelPromise);
 
-        final PendingRequestCtx request2 = genRequest(0);
+        PendingRequestCtx request2 = genRequest(0);
         handler.write(handlerContext, request2, channelPromise);
 
-        final PendingRequestCtx request3 = genRequest(0);
+        PendingRequestCtx request3 = genRequest(0);
         handler.write(handlerContext, request3, channelPromise);
 
         // two failures to trigger blacklist
@@ -140,7 +140,7 @@ class BlacklistHandlerTest {
         // request3 no response yet
 
         // next request blacklisted
-        final PendingRequestCtx blacklisted1 = genRequest(0);
+        PendingRequestCtx blacklisted1 = genRequest(0);
         handler.write(handlerContext, blacklisted1, channelPromise);
 
         verify(handlerContext, never()).write(blacklisted1, channelPromise);
@@ -151,20 +151,20 @@ class BlacklistHandlerTest {
         request3.getResponse().trySuccess(null);
 
         // success should expire blacklist
-        final PendingRequestCtx laterRequest = genRequest(0);
+        PendingRequestCtx laterRequest = genRequest(0);
         handler.write(handlerContext, laterRequest, channelPromise);
         verify(handlerContext).write(laterRequest, channelPromise);
     }
 
     @Test
     void repeatFailsDontExtendBlacklist() throws RadiusPacketException {
-        final PendingRequestCtx request1 = genRequest(0);
+        PendingRequestCtx request1 = genRequest(0);
         handler.write(handlerContext, request1, channelPromise);
 
-        final PendingRequestCtx request2 = genRequest(0);
+        PendingRequestCtx request2 = genRequest(0);
         handler.write(handlerContext, request2, channelPromise);
 
-        final PendingRequestCtx request3 = genRequest(0);
+        PendingRequestCtx request3 = genRequest(0);
         handler.write(handlerContext, request3, channelPromise);
 
         // two failures to trigger blacklist
@@ -172,7 +172,7 @@ class BlacklistHandlerTest {
         request2.getResponse().tryFailure(new TimeoutException());
 
         // next request blacklisted
-        final PendingRequestCtx blacklisted1 = genRequest(0);
+        PendingRequestCtx blacklisted1 = genRequest(0);
         handler.write(handlerContext, blacklisted1, channelPromise);
         verify(handlerContext, never()).write(blacklisted1, channelPromise);
         assertTrue(blacklisted1.getResponse().isDone());
@@ -183,25 +183,25 @@ class BlacklistHandlerTest {
         // fail again
         request3.getResponse().tryFailure(new Exception());
 
-        final PendingRequestCtx later1 = genRequest(0);
+        PendingRequestCtx later1 = genRequest(0);
         handler.write(handlerContext, later1, channelPromise);
         verify(handlerContext, never()).write(later1, channelPromise);
 
         clock.tickSeconds(1);
 
         // blacklist expires 5s after first failure
-        final PendingRequestCtx later2 = genRequest(0);
+        PendingRequestCtx later2 = genRequest(0);
         handler.write(handlerContext, later2, channelPromise);
         verify(handlerContext).write(later2, channelPromise);
     }
 
     @Test
     void onlyTimeoutsTriggerBlacklist() throws RadiusPacketException {
-        final PendingRequestCtx request1 = genRequest(0);
+        PendingRequestCtx request1 = genRequest(0);
         handler.write(handlerContext, request1, channelPromise);
         verify(handlerContext).write(request1, channelPromise);
 
-        final PendingRequestCtx request2 = genRequest(0);
+        PendingRequestCtx request2 = genRequest(0);
         handler.write(handlerContext, request2, channelPromise);
         verify(handlerContext).write(request2, channelPromise);
 
@@ -209,14 +209,14 @@ class BlacklistHandlerTest {
         request1.getResponse().tryFailure(new TimeoutException());
         request2.getResponse().tryFailure(new IOException());
 
-        final PendingRequestCtx request3 = genRequest(0);
+        PendingRequestCtx request3 = genRequest(0);
         handler.write(handlerContext, request3, channelPromise);
         verify(handlerContext).write(request3, channelPromise);
 
         // second TimeoutException should trigger blacklist
         request3.getResponse().tryFailure(new TimeoutException());
 
-        final PendingRequestCtx request4 = genRequest(0);
+        PendingRequestCtx request4 = genRequest(0);
         handler.write(handlerContext, request4, channelPromise);
         verify(handlerContext, never()).write(request4, channelPromise);
     }

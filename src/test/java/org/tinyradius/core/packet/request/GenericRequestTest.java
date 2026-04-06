@@ -23,28 +23,28 @@ class GenericRequestTest {
 
     @Test
     void encodeDecode() throws RadiusPacketException {
-        final String sharedSecret = "sharedSecret1";
-        final String username = "myUsername";
+        String sharedSecret = "sharedSecret1";
+        String username = "myUsername";
 
-        final GenericRequest request = (GenericRequest) RadiusRequest.create(dictionary, ACCOUNTING_RESPONSE, (byte) 1, null, Collections.emptyList())
+        GenericRequest request = (GenericRequest) RadiusRequest.create(dictionary, ACCOUNTING_RESPONSE, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute("User-Name", username));
 
-        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
+        RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
         assertTrue(e.getMessage().contains("authenticator missing"));
 
-        final RadiusRequest encoded = request.encodeRequest(sharedSecret);
+        RadiusRequest encoded = request.encodeRequest(sharedSecret);
         assertNotNull(encoded.getAuthenticator());
         assertEquals(username, encoded.getAttribute("User-Name").get().getValueString());
 
         // idempotence check
-        final RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
+        RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
         assertArrayEquals(encoded.toBytes(), encoded2.toBytes());
 
-        final RadiusRequest decoded = encoded2.decodeRequest(sharedSecret);
+        RadiusRequest decoded = encoded2.decodeRequest(sharedSecret);
         assertEquals(username, decoded.getAttribute("User-Name").get().getValueString());
 
         // idempotence check
-        final RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
+        RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
         assertArrayEquals(decoded.toBytes(), decoded2.toBytes());
         assertEquals(username, decoded2.getAttribute("User-Name").get().getValueString());
 
@@ -61,12 +61,12 @@ class GenericRequestTest {
                 .addAttribute(dictionary.createAttribute(-1, 1, user.getBytes(UTF_8)))
                 .addAttribute("Acct-Status-Type", "7");
 
-        final byte[] attributeBytes = request.getAttributeByteBuf().copy().array();
-        final int length = attributeBytes.length + HEADER_LENGTH;
-        final byte[] expectedAuthenticator = RadiusUtils.makeRFC2866RequestAuthenticator(
+        byte[] attributeBytes = request.getAttributeByteBuf().copy().array();
+        int length = attributeBytes.length + HEADER_LENGTH;
+        byte[] expectedAuthenticator = RadiusUtils.makeRFC2866RequestAuthenticator(
                 sharedSecret, ACCOUNTING_RESPONSE, (byte) 1, length, attributeBytes, 0, attributeBytes.length);
 
-        final RadiusRequest encoded = request.encodeRequest(sharedSecret);
+        RadiusRequest encoded = request.encodeRequest(sharedSecret);
 
         assertEquals(request.getType(), encoded.getType());
         assertEquals(request.getId(), encoded.getId());

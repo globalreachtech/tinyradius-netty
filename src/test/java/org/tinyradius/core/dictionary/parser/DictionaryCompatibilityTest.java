@@ -17,9 +17,9 @@ class DictionaryCompatibilityTest {
     @Test
     @Disabled("throws NumberFormatException: For input string: \"241.26\"")
     void latestFreeRadiusDict() throws IOException {
-        final Dictionary dictionary = DictionaryParser.newClasspathParser()
+        Dictionary dictionary = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary");
-        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
+        Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
         assertTrue(attributeTemplate.isPresent());
 
         // sanity check
@@ -31,9 +31,9 @@ class DictionaryCompatibilityTest {
     @Test
     @Disabled("throws IOException: Unknown attribute type while parsing VALUE: Framed-Compression, line: 20")
     void jradiusDict() throws IOException {
-        final Dictionary dictionary = DictionaryParser.newClasspathParser()
+        Dictionary dictionary = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/jradius/dictionary");
-        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
+        Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
         assertTrue(attributeTemplate.isPresent());
 
         // sanity check

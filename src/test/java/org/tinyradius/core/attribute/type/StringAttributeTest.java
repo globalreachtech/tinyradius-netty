@@ -18,7 +18,7 @@ class StringAttributeTest {
 
     @Test
     void dataBadSizes() {
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dictionary, -1, USER_NAME, (byte) 0, ""));
 
         assertEquals("String attribute value should be min 3 octets, actual: 2", exception.getCause().getMessage());
@@ -26,8 +26,8 @@ class StringAttributeTest {
 
     @Test
     void getDataValue() {
-        final String s = new Date().toString();
-        final StringAttribute stringAttribute = FACTORY.create(dictionary, -1, USER_NAME, (byte) 0, s);
+        String s = new Date().toString();
+        StringAttribute stringAttribute = FACTORY.create(dictionary, -1, USER_NAME, (byte) 0, s);
         assertEquals(s, stringAttribute.getValueString());
         assertArrayEquals(s.getBytes(UTF_8), stringAttribute.getValue());
     }

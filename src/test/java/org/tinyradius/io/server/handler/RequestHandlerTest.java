@@ -23,7 +23,7 @@ class RequestHandlerTest {
 
     @Test
     void acceptRejectMsg() throws Exception {
-        final RequestHandler requestHandler = new RequestHandler() {
+        RequestHandler requestHandler = new RequestHandler() {
 
             @Override
             protected Class<? extends RadiusRequest> acceptedPacketType() {
@@ -35,8 +35,8 @@ class RequestHandlerTest {
             }
         };
 
-        final AccountingRequest acctRequest = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
-        final AccessRequestNoAuth authRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
+        AccountingRequest acctRequest = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
+        AccessRequestNoAuth authRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
 
         assertFalse(requestHandler.acceptInboundMessage(new RequestCtx(acctRequest, null)));
         assertTrue(requestHandler.acceptInboundMessage(new RequestCtx(authRequest, null)));

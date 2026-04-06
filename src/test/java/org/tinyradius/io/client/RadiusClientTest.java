@@ -70,7 +70,7 @@ class RadiusClientTest {
         var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.NOOP)) {
-            final TimeoutException e = assertThrows(TimeoutException.class,
+            TimeoutException e = assertThrows(TimeoutException.class,
                     () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
 
             assertTrue(e.getMessage().toLowerCase().contains("max attempts reached"));
@@ -260,7 +260,7 @@ class RadiusClientTest {
 
         @Override
         public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-            final PendingRequestCtx reqCtx = (PendingRequestCtx) msg;
+            PendingRequestCtx reqCtx = (PendingRequestCtx) msg;
             requests.add(reqCtx);
             failFast.accept((reqCtx).getResponse());
 

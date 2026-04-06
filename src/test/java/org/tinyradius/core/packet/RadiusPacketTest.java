@@ -44,15 +44,15 @@ class RadiusPacketTest {
         RadiusRequest maxSizeRequest = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
         maxSizeRequest = addBytesToPacket(maxSizeRequest, 4096);
 
-        final ByteBuf byteBuf = new DatagramPacket(maxSizeRequest.encodeRequest("mySecret").toByteBuf(), new InetSocketAddress(0))
+        ByteBuf byteBuf = new DatagramPacket(maxSizeRequest.encodeRequest("mySecret").toByteBuf(), new InetSocketAddress(0))
                 .content();
 
         assertEquals(4096, byteBuf.readableBytes());
         assertEquals(4096, byteBuf.getShort(2));
 
         // test length 4097
-        final RadiusRequest oversizeRequest = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
-        final RadiusPacketException exception = assertThrows(RadiusPacketException.class,
+        RadiusRequest oversizeRequest = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
+        RadiusPacketException exception = assertThrows(RadiusPacketException.class,
                 () -> addBytesToPacket(oversizeRequest, 4097));
 
         assertTrue(exception.getMessage().contains("too long"));
@@ -60,21 +60,21 @@ class RadiusPacketTest {
 
     @Test
     void testToDatagram() throws RadiusPacketException {
-        final InetSocketAddress address = new InetSocketAddress(random.nextInt(65535));
-        final byte[] proxyState = random.generateSeed(198);
+        InetSocketAddress address = new InetSocketAddress(random.nextInt(65535));
+        byte[] proxyState = random.generateSeed(198);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList())
+        RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, 33, proxyState))
                 .addAttribute(dictionary.createAttribute(-1, 33, random.generateSeed(198)));
 
-        final RadiusRequest encoded = request.encodeRequest("mySecret");
+        RadiusRequest encoded = request.encodeRequest("mySecret");
 
-        final DatagramPacket datagram = new DatagramPacket(encoded.toByteBuf(), address);
+        DatagramPacket datagram = new DatagramPacket(encoded.toByteBuf(), address);
 
         assertEquals(address, datagram.recipient());
 
         // packet
-        final byte[] packet = datagram.content().copy().array();
+        byte[] packet = datagram.content().copy().array();
         assertEquals(420, packet.length);
 
         assertEquals(encoded.getType(), toUnsignedInt(packet[0]));
@@ -83,7 +83,7 @@ class RadiusPacketTest {
         assertArrayEquals(encoded.getAuthenticator(), Arrays.copyOfRange(packet, 4, 20));
 
         // attribute
-        final byte[] attributes = Arrays.copyOfRange(packet, 20, packet.length);
+        byte[] attributes = Arrays.copyOfRange(packet, 20, packet.length);
         assertEquals(400, attributes.length); // 2x 2-octet header + 2x 198
 
         assertEquals(33, attributes[0]);
@@ -92,22 +92,22 @@ class RadiusPacketTest {
 
     @Test
     void buildHeader() throws RadiusPacketException {
-        final RadiusAttribute attribute1 = dictionary.createAttribute("User-Name", "abc");
-        final RadiusAttribute attribute2 = dictionary.createAttribute("Service-Type", "1");
+        RadiusAttribute attribute1 = dictionary.createAttribute("User-Name", "abc");
+        RadiusAttribute attribute2 = dictionary.createAttribute("Service-Type", "1");
 
-        final ByteBuf noAttributes = RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[16], Collections.emptyList());
+        ByteBuf noAttributes = RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[16], Collections.emptyList());
         assertEquals(20, noAttributes.readableBytes());
         assertEquals(20, noAttributes.getShort(2));
 
-        final ByteBuf someAttributes = RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[16], Arrays.asList(attribute1, attribute2));
+        ByteBuf someAttributes = RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[16], Arrays.asList(attribute1, attribute2));
         assertEquals(20, someAttributes.readableBytes());
         assertEquals(20 + attribute1.toByteArray().length + attribute2.toByteArray().length, someAttributes.getShort(2));
 
-        final ByteBuf nullAuth = RadiusPacket.buildHeader((byte) 1, (byte) 1, null, Collections.singletonList(attribute1));
+        ByteBuf nullAuth = RadiusPacket.buildHeader((byte) 1, (byte) 1, null, Collections.singletonList(attribute1));
         assertEquals(20, nullAuth.readableBytes());
         assertEquals(20 + attribute1.toByteArray().length, nullAuth.getShort(2));
 
-        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () ->
+        RadiusPacketException e = assertThrows(RadiusPacketException.class, () ->
                 RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[15], Collections.emptyList()));
         assertTrue(e.getMessage().contains("must be 16 octets"));
     }
