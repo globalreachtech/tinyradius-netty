@@ -174,7 +174,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
             throw new RadiusPacketException("Authenticator check failed - authenticator must be 16 octets, actual " + auth.length);
 
         verifyMessageAuth(sharedSecret, null);
-        return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
+        return withAttributes(decodeAttributes(auth, sharedSecret));
     }
 
 
