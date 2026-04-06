@@ -20,10 +20,8 @@ import org.tinyradius.core.dictionary.Dictionary;
  */
 public class AnonSubAttribute implements RadiusAttribute {
 
-    @NonNull
     private final Dictionary dictionary;
 
-    @NonNull
     private final ByteBuf data;
     private final int vendorId; // should not be -1 (should not be top level attribute)
 
