@@ -1,6 +1,7 @@
 package org.tinyradius.core.packet;
 
 import lombok.experimental.UtilityClass;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 
@@ -87,6 +88,7 @@ public class PacketType {
             entry(PROTOCOL_ERROR, "Protocol-Error")
     );
 
+    @NonNull
     public static String getPacketTypeName(byte code) {
         return typeNames.getOrDefault(code, "Unknown (" + code + ")");
     }

@@ -2,6 +2,7 @@ package org.tinyradius.io.server.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -51,7 +52,7 @@ class ProxyHandlerTest {
     void handleSuccess() throws RadiusPacketException {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint clientEndpoint) {
+            public @NonNull Optional<RadiusEndpoint> getOriginServer(@NonNull RadiusRequest request, @NonNull RadiusEndpoint clientEndpoint) {
                 return Optional.of(stubEndpoint);
             }
         };
@@ -72,7 +73,7 @@ class ProxyHandlerTest {
     void handleRadiusClientError() throws RadiusPacketException {
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint clientEndpoint) {
+            public @NonNull Optional<RadiusEndpoint> getOriginServer(@NonNull RadiusRequest request, @NonNull RadiusEndpoint clientEndpoint) {
                 return Optional.of(stubEndpoint);
             }
         };
@@ -92,7 +93,7 @@ class ProxyHandlerTest {
 
         ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
-            public Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint clientEndpoint) {
+            public @NonNull Optional<RadiusEndpoint> getOriginServer(@NonNull RadiusRequest request, @NonNull RadiusEndpoint clientEndpoint) {
                 return Optional.empty();
             }
         };

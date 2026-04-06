@@ -6,6 +6,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageCodec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.io.client.PendingRequestCtx;
@@ -28,7 +29,7 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
     private final Dictionary dictionary;
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
+    protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull PendingRequestCtx msg, @NonNull List<Object> out) {
         log.debug("Sending packet to {} - {}", msg.getEndpoint().address(), msg.getRequest());
 
         var datagramPacket = new DatagramPacket(
@@ -40,7 +41,7 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
+    protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull DatagramPacket msg, @NonNull List<Object> out) {
         var remoteAddress = msg.sender();
 
         if (remoteAddress == null) {

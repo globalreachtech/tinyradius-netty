@@ -1,6 +1,7 @@
 package org.tinyradius.io.client.timeout;
 
 import io.netty.util.Timer;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.io.client.ClientEventListener;
 import org.tinyradius.io.client.PendingRequestCtx;
 
@@ -17,14 +18,14 @@ import static org.tinyradius.io.client.ClientEventListener.EventType.ATTEMPT_TIM
  * @param maxAttempts max number of attempts to try before returning failure
  * @param timeoutMs   time to wait before timeout or next retry, in milliseconds
  */
-public record FixedTimeoutHandler(Timer timer, int maxAttempts, int timeoutMs) implements TimeoutHandler {
+public record FixedTimeoutHandler(@NonNull Timer timer, int maxAttempts, int timeoutMs) implements TimeoutHandler {
 
-    public FixedTimeoutHandler(Timer timer) {
+    public FixedTimeoutHandler(@NonNull Timer timer) {
         this(timer, 1, 1000);
     }
 
     @Override
-    public void scheduleTimeout(Runnable retry, int totalAttempts, PendingRequestCtx ctx, ClientEventListener eventListener) {
+    public void scheduleTimeout(@NonNull Runnable retry, int totalAttempts, @NonNull PendingRequestCtx ctx, @NonNull ClientEventListener eventListener) {
         timer.newTimeout(t -> {
             if (ctx.getResponse().isDone())
                 return;

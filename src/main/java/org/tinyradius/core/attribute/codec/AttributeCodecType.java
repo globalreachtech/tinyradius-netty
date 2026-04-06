@@ -2,6 +2,7 @@ package org.tinyradius.core.attribute.codec;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 
@@ -23,7 +24,7 @@ public enum AttributeCodecType {
     private final byte id;
     private final BaseCodec codec;
 
-    public static AttributeCodecType fromEncryptFlagId(byte id) {
+    public static @NonNull AttributeCodecType fromEncryptFlagId(byte id) {
         return Arrays.stream(values())
                 .filter(t -> t.getId() == id)
                 .findFirst()

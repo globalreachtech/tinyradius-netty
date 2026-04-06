@@ -1,5 +1,7 @@
 package org.tinyradius.io.client;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * Instrumentation event hooks for RadiusClient, with event types for various stages in a request/response lifecycle
  */
@@ -12,7 +14,7 @@ public interface ClientEventListener {
      * @param eventType         event type
      * @param pendingRequestCtx pending request context containing response promise
      */
-    void onEvent(EventType eventType, PendingRequestCtx pendingRequestCtx);
+    void onEvent(@NonNull EventType eventType, @NonNull PendingRequestCtx pendingRequestCtx);
 
     /**
      * The type of event that occurred.

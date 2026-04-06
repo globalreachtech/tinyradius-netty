@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
@@ -57,5 +58,6 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
      *                       (containing the address, port number and shared secret)
      * @return RadiusEndpoint to proxy request to
      */
-    protected abstract Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint clientEndpoint);
+    @NonNull
+    protected abstract Optional<RadiusEndpoint> getOriginServer(@NonNull RadiusRequest request, @NonNull RadiusEndpoint clientEndpoint);
 }

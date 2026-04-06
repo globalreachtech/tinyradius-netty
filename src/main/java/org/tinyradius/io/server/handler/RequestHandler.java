@@ -2,6 +2,7 @@ package org.tinyradius.io.server.handler;
 
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.io.server.RequestCtx;
 
@@ -11,6 +12,7 @@ public abstract class RequestHandler extends SimpleChannelInboundHandler<Request
     /**
      * @return RadiusRequest subclass type that this handler can accept
      */
+    @NonNull
     protected abstract Class<? extends RadiusRequest> acceptedPacketType();
 
     @Override

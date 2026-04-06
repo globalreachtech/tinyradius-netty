@@ -5,6 +5,7 @@ import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.io.client.PendingRequestCtx;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
 
     private final BlacklistManager blacklistManager;
 
-    public BlacklistHandler(long blacklistTtlMs, int failCountThreshold, Clock clock) {
+    public BlacklistHandler(long blacklistTtlMs, int failCountThreshold, @NonNull Clock clock) {
         this(new DefaultBlacklistManager(blacklistTtlMs, failCountThreshold, clock));
     }
 
@@ -32,7 +33,7 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
     }
 
     @Override
-    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
+    public void write(@NonNull ChannelHandlerContext ctx, @NonNull Object msg, @NonNull ChannelPromise promise) {
         if (msg instanceof PendingRequestCtx request) {
             var address = request.getEndpoint().address();
 

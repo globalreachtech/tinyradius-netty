@@ -1,6 +1,7 @@
 package org.tinyradius.e2e.handler;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.packet.request.AccountingRequest;
 import org.tinyradius.core.packet.request.RadiusRequest;
@@ -14,7 +15,7 @@ import static org.tinyradius.core.packet.PacketType.ACCOUNTING_RESPONSE;
 public class SimpleAccountingHandler extends RequestHandler {
 
     @Override
-    protected Class<? extends RadiusRequest> acceptedPacketType() {
+    protected @NonNull Class<? extends RadiusRequest> acceptedPacketType() {
         return AccountingRequest.class;
     }
 

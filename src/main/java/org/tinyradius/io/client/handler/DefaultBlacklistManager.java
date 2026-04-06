@@ -2,6 +2,7 @@ package org.tinyradius.io.client.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
 
 import java.net.SocketAddress;
 import java.time.Clock;
@@ -22,7 +23,7 @@ public class DefaultBlacklistManager implements BlacklistManager {
     private final Map<SocketAddress, Long> blacklist = new ConcurrentHashMap<>();
 
     @Override
-    public boolean isBlacklisted(SocketAddress socketAddress) {
+    public boolean isBlacklisted(@NonNull SocketAddress socketAddress) {
         Long blacklistExpiry = blacklist.get(socketAddress);
 
         // not blacklisted
@@ -41,7 +42,7 @@ public class DefaultBlacklistManager implements BlacklistManager {
     }
 
     @Override
-    public void logFailure(SocketAddress address, Throwable cause) {
+    public void logFailure(@NonNull SocketAddress address, @NonNull Throwable cause) {
         if (cause instanceof TimeoutException) {
             int failCount = failCounts.computeIfAbsent(address, k -> new AtomicInteger()).incrementAndGet();
 
@@ -55,7 +56,7 @@ public class DefaultBlacklistManager implements BlacklistManager {
     }
 
     @Override
-    public void reset(SocketAddress socketAddress) {
+    public void reset(@NonNull SocketAddress socketAddress) {
         blacklist.remove(socketAddress);
         failCounts.remove(socketAddress);
     }
