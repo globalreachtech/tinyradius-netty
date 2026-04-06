@@ -1,12 +1,14 @@
 package org.tinyradius.core.packet.request;
 
 import io.netty.buffer.ByteBuf;
-import java.util.List;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.BaseRadiusPacket;
+
+import java.util.List;
 
 public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest {
 
@@ -33,12 +35,12 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
 
     @Override
     public @NonNull RadiusRequest decodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
-        verifyPacketAuth(sharedSecret, null);
-        return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
+        var auth = verifyPacketAuth(sharedSecret, null);
+        return withAttributes(decodeAttributes(auth, sharedSecret));
     }
 
     @Override
-    public @NonNull RadiusRequest withAuthAttributes(byte[] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
+    public @NonNull RadiusRequest withAuthAttributes(byte @Nullable [] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         return RadiusRequest.create(getDictionary(), getType(), getId(), auth, attributes);
     }
 }

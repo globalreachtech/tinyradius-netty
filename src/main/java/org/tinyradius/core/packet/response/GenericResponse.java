@@ -1,12 +1,14 @@
 package org.tinyradius.core.packet.response;
 
 import io.netty.buffer.ByteBuf;
-import java.util.List;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.BaseRadiusPacket;
+
+import java.util.List;
 
 public class GenericResponse extends BaseRadiusPacket<RadiusResponse> implements RadiusResponse {
 
@@ -28,7 +30,7 @@ public class GenericResponse extends BaseRadiusPacket<RadiusResponse> implements
     }
 
     @Override
-    public @NonNull RadiusResponse withAuthAttributes(byte[] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
+    public @NonNull RadiusResponse withAuthAttributes(byte @Nullable [] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         return RadiusResponse.create(getDictionary(), getType(), getId(), auth, attributes);
     }
 }

@@ -83,10 +83,10 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
      * Verifies the packet authenticator.
      *
      * @param sharedSecret shared secret
-     * @param requestAuth  request authenticator if verifying response, defaults to empty byte[16] if null
+     * @param requestAuth  request authenticator if verifying response
      * @throws RadiusPacketException if the packet authenticator check fails
      */
-    protected void verifyPacketAuth(@NonNull String sharedSecret, byte @Nullable [] requestAuth) throws RadiusPacketException {
+    protected byte @NonNull [] verifyPacketAuth(@NonNull String sharedSecret, byte @Nullable [] requestAuth) throws RadiusPacketException {
         byte[] expectedAuth = genHashedAuth(sharedSecret, requestAuth);
         byte[] auth = getAuthenticator();
         if (auth == null)
@@ -101,10 +101,11 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
                     a.codecType() != NO_ENCRYPT && a.isDecoded()).isPresent();
 
             if (decodedAlready)
-                log.info("Skipping Packet Authenticator check - attributes have been decrypted already");
+                log.debug("Skipping Packet Authenticator check - attributes have been decrypted already");
             else
                 throw new RadiusPacketException("Packet Authenticator check failed - bad authenticator or shared secret");
         }
+        return auth;
     }
 
     /**

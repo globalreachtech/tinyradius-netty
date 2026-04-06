@@ -1,6 +1,7 @@
 package org.tinyradius.core.packet;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.RadiusPacketException;
@@ -227,7 +228,7 @@ class BaseRadiusPacketTest {
         }
 
         @Override
-        public @NonNull StubPacket withAuthAttributes(byte[] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
+        public @NonNull StubPacket withAuthAttributes(byte @Nullable [] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
             return new StubPacket(attributes);
         }
     }
