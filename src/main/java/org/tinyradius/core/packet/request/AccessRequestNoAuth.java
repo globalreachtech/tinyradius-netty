@@ -1,13 +1,13 @@
 package org.tinyradius.core.packet.request;
 
+import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
+
 import io.netty.buffer.ByteBuf;
+import java.util.List;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-
-import java.util.List;
-
-import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
 
 public class AccessRequestNoAuth extends AccessRequest {
 
@@ -16,14 +16,14 @@ public class AccessRequestNoAuth extends AccessRequest {
     }
 
     @Override
-    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+    public @NonNull RadiusRequest encodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         var radiusRequest = super.encodeRequest(sharedSecret);
         checkMessageAuth(radiusRequest.getAttributes()); // MessageAuthSupport should append Message-Auth during encoding
         return radiusRequest;
     }
 
     @Override
-    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
+    public @NonNull RadiusRequest decodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         checkMessageAuth(getAttributes());
         return super.decodeRequest(sharedSecret);
     }

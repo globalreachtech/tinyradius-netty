@@ -1,21 +1,25 @@
 package org.tinyradius.core.packet.request;
 
-import io.netty.buffer.ByteBuf;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.util.MessageAuthSupport;
+import static java.util.stream.Collectors.toSet;
+import static org.tinyradius.core.attribute.AttributeTypes.ARAP_PASSWORD;
+import static org.tinyradius.core.attribute.AttributeTypes.CHAP_PASSWORD;
+import static org.tinyradius.core.attribute.AttributeTypes.EAP_MESSAGE;
+import static org.tinyradius.core.attribute.AttributeTypes.USER_NAME;
+import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
+import io.netty.buffer.ByteBuf;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
-import static org.tinyradius.core.attribute.AttributeTypes.*;
-import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.NonNull;
+import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.type.RadiusAttribute;
+import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.packet.util.MessageAuthSupport;
 
 /**
  * An Access-Request Radius packet.
@@ -154,13 +158,13 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * @return RadiusPacket with new authenticator and encoded attributes
      */
     @Override
-    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+    public @NonNull RadiusRequest encodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         return ((AccessRequest) super.encodeRequest(sharedSecret))
                 .encodeMessageAuth(sharedSecret, null);
     }
 
     @Override
-    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
+    public @NonNull RadiusRequest decodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         // authenticator is random, so can't run verifyPacketAuth(), but we can do basic checks
         byte[] auth = getAuthenticator();
         if (auth == null)
@@ -170,7 +174,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
             throw new RadiusPacketException("Authenticator check failed - authenticator must be 16 octets, actual " + auth.length);
 
         verifyMessageAuth(sharedSecret, null);
-        return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
+        return withAttributes(decodeAttributes(auth, sharedSecret));
     }
 
 

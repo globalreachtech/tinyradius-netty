@@ -1,6 +1,8 @@
 package org.tinyradius.core.packet.request;
 
 import io.netty.buffer.ByteBuf;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -23,8 +25,8 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
     }
 
     @Override
-    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
-        if (sharedSecret == null || sharedSecret.isEmpty())
+    public @NonNull RadiusRequest encodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
+        if (sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
         byte[] auth = genAuth(sharedSecret);
@@ -32,13 +34,13 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
     }
 
     @Override
-    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
-        verifyPacketAuth(sharedSecret, null);
-        return withAttributes(decodeAttributes(getAuthenticator(), sharedSecret));
+    public @NonNull RadiusRequest decodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
+        var auth = verifyPacketAuth(sharedSecret, null);
+        return withAttributes(decodeAttributes(auth, sharedSecret));
     }
 
     @Override
-    public RadiusRequest withAuthAttributes(byte[] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    public @NonNull RadiusRequest withAuthAttributes(byte @Nullable [] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         return RadiusRequest.create(getDictionary(), getType(), getId(), auth, attributes);
     }
 }

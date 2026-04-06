@@ -1,8 +1,13 @@
 package org.tinyradius.core.packet.response;
 
+import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
+import static org.tinyradius.core.packet.PacketType.ACCESS_CHALLENGE;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REJECT;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
+import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
@@ -11,10 +16,6 @@ import org.tinyradius.core.attribute.NestedAttributeHolder;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.RadiusPacket;
-
-import java.util.List;
-
-import static org.tinyradius.core.packet.PacketType.*;
 
 public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
 
@@ -108,7 +109,7 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @throws RadiusPacketException errors encoding packet
      */
     @NonNull
-    RadiusResponse encodeResponse(@NonNull String sharedSecret, @NonNull byte[] requestAuth) throws RadiusPacketException;
+    RadiusResponse encodeResponse(@NonNull String sharedSecret, byte @NonNull [] requestAuth) throws RadiusPacketException;
 
     /**
      * Decodes the response against the supplied shared secret and request authenticator.
@@ -121,5 +122,5 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @throws RadiusPacketException errors verifying or decoding packet
      */
     @NonNull
-    RadiusResponse decodeResponse(@NonNull String sharedSecret, @NonNull byte[] requestAuth) throws RadiusPacketException;
+    RadiusResponse decodeResponse(@NonNull String sharedSecret, byte @NonNull [] requestAuth) throws RadiusPacketException;
 }

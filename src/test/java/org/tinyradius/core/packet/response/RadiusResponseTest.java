@@ -52,11 +52,15 @@ class RadiusResponseTest {
 
         AccessResponse.Accept response = (AccessResponse.Accept) RadiusResponse.create(dictionary, (byte) 2, id, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, 33, "state3333".getBytes(UTF_8)));
-        RadiusResponse encodedResponse = response.encodeResponse(sharedSecret, encodedRequest.getAuthenticator());
+
+        byte[] authenticator = encodedRequest.getAuthenticator();
+        assert authenticator != null;
+
+        RadiusResponse encodedResponse = response.encodeResponse(sharedSecret, authenticator);
 
         DatagramPacket datagramPacket = new DatagramPacket(encodedResponse.toByteBuf(), remoteAddress);
         RadiusResponse packet = RadiusResponse.fromDatagram(dictionary, datagramPacket)
-                .decodeResponse(sharedSecret, encodedRequest.getAuthenticator());
+                .decodeResponse(sharedSecret, authenticator);
 
         assertEquals(encodedResponse.getId(), packet.getId());
         assertEquals("state3333", new String(packet.getAttribute(33).get().getValue()));

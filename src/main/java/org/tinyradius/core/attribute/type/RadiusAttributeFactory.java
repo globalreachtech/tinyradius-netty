@@ -1,5 +1,7 @@
 package org.tinyradius.core.attribute.type;
 
+import static org.tinyradius.core.attribute.type.RadiusAttribute.HEX_FORMAT;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.apache.logging.log4j.LogManager;
@@ -8,8 +10,6 @@ import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
-
-import static org.tinyradius.core.attribute.type.RadiusAttribute.HEX_FORMAT;
 
 public interface RadiusAttributeFactory<T extends RadiusAttribute> {
 
@@ -35,8 +35,7 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
      * @param value      the string value
      * @return the byte array representation
      */
-    @NonNull
-    byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value);
+    byte @NonNull [] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value);
 
     /**
      * Creates a RadiusAttribute from raw byte data.
@@ -70,7 +69,7 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
      * @return new attribute
      */
     @NonNull
-    default T create(@NonNull Dictionary dictionary, int vendorId, int type, byte tag, @NonNull byte[] value) {
+    default T create(@NonNull Dictionary dictionary, int vendorId, int type, byte tag, byte @NonNull [] value) {
         var vendor = dictionary.getVendor(vendorId);
         int headerSize = vendor.map(Vendor::getHeaderSize).orElse(2);
 
@@ -95,8 +94,7 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
      * @param tag        the tag byte
      * @return the tag bytes, or an empty array if not tagged
      */
-    @NonNull
-    private static byte[] toTagBytes(@NonNull Dictionary dictionary, int vendorId, int type, byte tag) {
+    private static byte @NonNull [] toTagBytes(@NonNull Dictionary dictionary, int vendorId, int type, byte tag) {
         return dictionary.getAttributeTemplate(vendorId, type)
                 .filter(AttributeTemplate::isTagged)
                 .map(x -> new byte[]{tag})

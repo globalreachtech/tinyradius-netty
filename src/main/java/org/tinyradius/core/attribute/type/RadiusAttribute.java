@@ -1,20 +1,19 @@
 package org.tinyradius.core.attribute.type;
 
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Collections;
+import java.util.HexFormat;
+import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
-
-import java.util.Collections;
-import java.util.HexFormat;
-import java.util.List;
-import java.util.Optional;
-
-import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 
 /**
  * Base interface for all RADIUS attributes.
@@ -80,8 +79,7 @@ public interface RadiusAttribute {
      *
      * @return attribute data as raw bytes
      */
-    @NonNull
-    byte[] getValue();
+    byte @NonNull [] getValue();
 
     /**
      * Returns the value of this attribute as a hex string.
@@ -122,8 +120,7 @@ public interface RadiusAttribute {
      *
      * @return entire attribute (including headers) as byte array
      */
-    @NonNull
-    default byte[] toByteArray() {
+    default byte @NonNull [] toByteArray() {
         return getData().copy().array();
     }
 
@@ -237,7 +234,7 @@ public interface RadiusAttribute {
      * @throws RadiusPacketException errors encoding attribute
      */
     @NonNull
-    default RadiusAttribute encode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+    default RadiusAttribute encode(byte @NonNull [] requestAuth, @NonNull String secret) throws RadiusPacketException {
         var template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().encode(this, requestAuth, secret) : this;
@@ -252,7 +249,7 @@ public interface RadiusAttribute {
      * @throws RadiusPacketException errors decoding attribute
      */
     @NonNull
-    default RadiusAttribute decode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+    default RadiusAttribute decode(byte @NonNull [] requestAuth, @NonNull String secret) throws RadiusPacketException {
         var template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().decode(this, requestAuth, secret) : this;

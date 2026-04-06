@@ -1,15 +1,14 @@
 package org.tinyradius.core.attribute.type;
 
-import io.netty.buffer.ByteBuf;
-import org.jspecify.annotations.NonNull;
-import org.tinyradius.core.dictionary.Dictionary;
+import static java.lang.Byte.toUnsignedInt;
 
+import io.netty.buffer.ByteBuf;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-
-import static java.lang.Byte.toUnsignedInt;
+import org.jspecify.annotations.NonNull;
+import org.tinyradius.core.dictionary.Dictionary;
 
 /**
  * This class represents a Radius attribute for an IPv6 prefix.
@@ -38,8 +37,7 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
      * @param prefixLength the prefix length
      * @return the encoded byte array
      */
-    @NonNull
-    private static byte[] validate(@NonNull InetAddress address, int prefixLength) {
+    private static byte @NonNull [] validate(@NonNull InetAddress address, int prefixLength) {
         if (prefixLength < 0 || prefixLength > 128)
             throw new IllegalArgumentException("IPv6 Prefix Prefix-Length should be between 0 and 128, declared: " + prefixLength);
 
@@ -65,7 +63,7 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
      * @param prefixLength the prefix length
      * @return true if bits outside prefix are zero
      */
-    private static boolean bitsOutsidePrefixLengthZero(@NonNull byte[] addressBytes, int prefixLength) {
+    private static boolean bitsOutsidePrefixLengthZero(byte @NonNull [] addressBytes, int prefixLength) {
         // Check that the first byte that must have some zeroed bits is conformant. This first one is special because the
         // comparison requires masking some bits, not the full byte should be zero
         boolean passed = (addressBytes[prefixLength / 8] & 0xff & (0xff >> prefixLength - 8 * (prefixLength / 8))) == 0;
@@ -105,7 +103,7 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
      * @return the InetAddress
      */
     @NonNull
-    private static InetAddress convertBytes(@NonNull byte[] data) {
+    private static InetAddress convertBytes(byte @NonNull [] data) {
         if (data.length < 2 || data.length > 18)
             throw new IllegalArgumentException("IPv6 Prefix body should be 2-18 octets (2-octet header + max 16 octet address), actual: " + data.length);
 
@@ -126,7 +124,7 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
      * @return the InetAddress
      */
     @NonNull
-    private static InetAddress extractAddress(@NonNull byte[] data) {
+    private static InetAddress extractAddress(byte @NonNull [] data) {
         try {
             var array = ByteBuffer.allocate(16).put(data, 2, data.length - 2).array();
             return InetAddress.getByAddress(array);
@@ -152,8 +150,7 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
      * @param value the string value
      * @return the byte array
      */
-    @NonNull
-    public static byte[] stringParser(@NonNull String value) {
+    public static byte @NonNull [] stringParser(@NonNull String value) {
         return validate(convertString(value), Integer.parseInt(value.split("/")[1]));
     }
 
@@ -172,8 +169,7 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
          * {@inheritDoc}
          */
         @Override
-        @NonNull
-        public byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
+        public byte @NonNull [] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
             return Ipv6PrefixAttribute.stringParser(value);
         }
     }

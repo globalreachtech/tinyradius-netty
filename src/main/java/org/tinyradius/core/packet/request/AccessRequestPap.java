@@ -1,16 +1,16 @@
 package org.tinyradius.core.packet.request;
 
-import io.netty.buffer.ByteBuf;
-import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.core.dictionary.Dictionary;
-
-import java.util.List;
-import java.util.Optional;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toList;
 import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
+
+import io.netty.buffer.ByteBuf;
+import java.util.List;
+import java.util.Optional;
+import org.jspecify.annotations.NonNull;
+import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.type.RadiusAttribute;
+import org.tinyradius.core.dictionary.Dictionary;
 
 /**
  * PAP AccessRequest RFC2865
@@ -46,13 +46,13 @@ public class AccessRequestPap extends AccessRequest {
     }
 
     @Override
-    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+    public @NonNull RadiusRequest encodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         checkUserPassword();
         return super.encodeRequest(sharedSecret);
     }
 
     @Override
-    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
+    public @NonNull RadiusRequest decodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         checkUserPassword();
         return super.decodeRequest(sharedSecret);
     }

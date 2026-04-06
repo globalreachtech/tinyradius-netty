@@ -34,9 +34,11 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
     @Override
     protected void encode(ChannelHandlerContext ctx, ResponseCtx msg, List<Object> out) {
         try {
+            // should never be null - decode will have already thrown Exception
+            var requestAuth = msg.getRequest().getAuthenticator();
             var datagramPacket = new DatagramPacket(
                     msg.getResponse()
-                            .encodeResponse(msg.getEndpoint().secret(), msg.getRequest().getAuthenticator())
+                            .encodeResponse(msg.getEndpoint().secret(), requestAuth == null ? new byte[16] : requestAuth)
                             .toByteBuf(),
                     msg.getEndpoint().address(),
                     (InetSocketAddress) ctx.channel().localAddress());

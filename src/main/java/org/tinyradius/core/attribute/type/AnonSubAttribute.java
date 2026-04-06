@@ -1,10 +1,9 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
+import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.dictionary.Dictionary;
-
-import java.util.Optional;
 
 /**
  * Represents an unparsable VSA sub-attribute.
@@ -21,10 +20,8 @@ import java.util.Optional;
  */
 public class AnonSubAttribute implements RadiusAttribute {
 
-    @NonNull
     private final Dictionary dictionary;
 
-    @NonNull
     private final ByteBuf data;
     private final int vendorId; // should not be -1 (should not be top level attribute)
 
@@ -91,8 +88,7 @@ public class AnonSubAttribute implements RadiusAttribute {
      * {@inheritDoc}
      */
     @Override
-    @NonNull
-    public byte[] getValue() {
+    public byte @NonNull [] getValue() {
         return data.copy().array();
     }
 

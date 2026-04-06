@@ -198,6 +198,7 @@ class PromiseAdapterTest {
         // capture request details
         byte[] requestProxyState = encodedRequest.getAttribute(PROXY_STATE).get().getValue();
         byte[] requestAuthenticator = encodedRequest.getAuthenticator();
+        assert requestAuthenticator != null;
 
         assertFalse(promise.isDone());
 

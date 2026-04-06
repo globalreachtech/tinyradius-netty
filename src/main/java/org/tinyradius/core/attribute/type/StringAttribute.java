@@ -1,10 +1,10 @@
 package org.tinyradius.core.attribute.type;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import io.netty.buffer.ByteBuf;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.dictionary.Dictionary;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This class represents a Radius attribute which only contains a string.
@@ -41,8 +41,7 @@ public class StringAttribute extends OctetsAttribute {
      * @param s string to parse
      * @return byte array
      */
-    @NonNull
-    public static byte[] stringParser(@NonNull String s) {
+    public static byte @NonNull [] stringParser(@NonNull String s) {
         return s.getBytes(UTF_8);
     }
 
@@ -61,8 +60,7 @@ public class StringAttribute extends OctetsAttribute {
          * {@inheritDoc}
          */
         @Override
-        @NonNull
-        public byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
+        public byte @NonNull [] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
             return stringParser(value);
         }
     }

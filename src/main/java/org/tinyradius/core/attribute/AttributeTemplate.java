@@ -101,7 +101,7 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     @NonNull
-    public RadiusAttribute create(@NonNull Dictionary dictionary, byte tag, @NonNull byte[] value) {
+    public RadiusAttribute create(@NonNull Dictionary dictionary, byte tag, byte @NonNull [] value) {
         return factory.create(dictionary, vendorId, type, tag, value);
     }
 
@@ -148,7 +148,7 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     @NonNull
-    public RadiusAttribute createEncoded(@NonNull Dictionary dictionary, byte tag, @NonNull byte[] encodedValue) {
+    public RadiusAttribute createEncoded(@NonNull Dictionary dictionary, byte tag, byte @NonNull [] encodedValue) {
         return isEncrypt() ?
                 new EncodedAttribute(OctetsAttribute.FACTORY.create(dictionary, vendorId, type, tag, encodedValue)) :
                 factory.create(dictionary, vendorId, type, tag, encodedValue);
@@ -211,7 +211,7 @@ public class AttributeTemplate {
      * @throws RadiusPacketException errors encoding attribute
      */
     @NonNull
-    public RadiusAttribute encode(@NonNull RadiusAttribute attribute, @NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+    public RadiusAttribute encode(@NonNull RadiusAttribute attribute, byte @NonNull [] requestAuth, @NonNull String secret) throws RadiusPacketException {
         // don't wrap in EncodedDecorator if not supported
         if (!isEncrypt() || attribute.isEncoded())
             return attribute;
@@ -234,7 +234,7 @@ public class AttributeTemplate {
      * @throws RadiusPacketException errors decoding attribute
      */
     @NonNull
-    public RadiusAttribute decode(@NonNull RadiusAttribute attribute, @NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+    public RadiusAttribute decode(@NonNull RadiusAttribute attribute, byte @NonNull [] requestAuth, @NonNull String secret) throws RadiusPacketException {
         if (attribute.isDecoded())
             return attribute;
 

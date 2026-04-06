@@ -1,12 +1,11 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
-import org.jspecify.annotations.NonNull;
-import org.tinyradius.core.dictionary.Dictionary;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import org.jspecify.annotations.NonNull;
+import org.tinyradius.core.dictionary.Dictionary;
 
 /**
  * This class represents a Radius attribute for an IP address.
@@ -23,8 +22,7 @@ public abstract class IpAttribute extends OctetsAttribute {
      * @param value the string value
      * @return the byte array
      */
-    @NonNull
-    public static byte[] stringParser(@NonNull String value) {
+    public static byte @NonNull [] stringParser(@NonNull String value) {
         if (value.isEmpty())
             throw new IllegalArgumentException("Address can't be empty");
 
@@ -42,7 +40,7 @@ public abstract class IpAttribute extends OctetsAttribute {
      * @return the InetAddress
      */
     @NonNull
-    private static InetAddress convert(@NonNull byte[] data) {
+    private static InetAddress convert(byte @NonNull [] data) {
         try {
             return InetAddress.getByAddress(data);
         } catch (UnknownHostException e) {
@@ -102,8 +100,7 @@ public abstract class IpAttribute extends OctetsAttribute {
              * {@inheritDoc}
              */
             @Override
-            @NonNull
-            public byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
+            public byte @NonNull [] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
                 return IpAttribute.stringParser(value);
             }
         }
@@ -143,8 +140,7 @@ public abstract class IpAttribute extends OctetsAttribute {
              * {@inheritDoc}
              */
             @Override
-            @NonNull
-            public byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
+            public byte @NonNull [] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
                 return IpAttribute.stringParser(value);
             }
         }
