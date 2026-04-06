@@ -1,14 +1,16 @@
 package org.tinyradius.core.packet.response;
 
+import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
+import static org.tinyradius.core.packet.PacketType.ACCESS_CHALLENGE;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REJECT;
+
 import io.netty.buffer.ByteBuf;
+import java.util.List;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
-
-import java.util.List;
-
-import static org.tinyradius.core.packet.PacketType.*;
 
 public class AccessResponse extends GenericResponse implements MessageAuthSupport<RadiusResponse> {
 
@@ -17,7 +19,7 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
     }
 
     @Override
-    public RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    public @NonNull RadiusResponse encodeResponse(@NonNull String sharedSecret, byte @NonNull [] requestAuth) throws RadiusPacketException {
         var response = ((AccessResponse) withAttributes(encodeAttributes(requestAuth, sharedSecret)))
                 .encodeMessageAuth(sharedSecret, requestAuth);
 
@@ -26,7 +28,7 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
     }
 
     @Override
-    public RadiusResponse decodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException {
+    public @NonNull RadiusResponse decodeResponse(@NonNull String sharedSecret, byte @NonNull [] requestAuth) throws RadiusPacketException {
         verifyMessageAuth(sharedSecret, requestAuth);
         return super.decodeResponse(sharedSecret, requestAuth);
     }

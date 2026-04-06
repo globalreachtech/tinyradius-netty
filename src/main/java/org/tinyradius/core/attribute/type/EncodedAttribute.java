@@ -1,15 +1,14 @@
 package org.tinyradius.core.attribute.type;
 
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
+
 import io.netty.buffer.ByteBuf;
+import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.dictionary.Dictionary;
-
-import java.util.Optional;
-
-import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 
 /**
  * Wrapper around attributes encoded with one of {@link AttributeCodecType}
@@ -21,7 +20,7 @@ public record EncodedAttribute(OctetsAttribute delegate) implements RadiusAttrib
      */
     @Override
     @NonNull
-    public RadiusAttribute decode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+    public RadiusAttribute decode(byte @NonNull [] requestAuth, @NonNull String secret) throws RadiusPacketException {
         var template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().decode(this, requestAuth, secret) : delegate;
@@ -48,8 +47,7 @@ public record EncodedAttribute(OctetsAttribute delegate) implements RadiusAttrib
      * {@inheritDoc}
      */
     @Override
-    @NonNull
-    public byte[] getValue() {
+    public byte @NonNull [] getValue() {
         return delegate.getValue();
     }
 

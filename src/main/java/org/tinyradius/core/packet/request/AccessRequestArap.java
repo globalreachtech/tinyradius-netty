@@ -1,13 +1,13 @@
 package org.tinyradius.core.packet.request;
 
+import static org.tinyradius.core.attribute.AttributeTypes.ARAP_PASSWORD;
+
 import io.netty.buffer.ByteBuf;
+import java.util.List;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-
-import java.util.List;
-
-import static org.tinyradius.core.attribute.AttributeTypes.ARAP_PASSWORD;
 
 /**
  * ARAP AccessRequest RFC2869
@@ -20,13 +20,13 @@ public class AccessRequestArap extends AccessRequest {
     }
 
     @Override
-    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+    public @NonNull RadiusRequest encodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         validateArapAttributes();
         return super.encodeRequest(sharedSecret);
     }
 
     @Override
-    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
+    public @NonNull RadiusRequest decodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         validateArapAttributes();
         return super.decodeRequest(sharedSecret);
     }

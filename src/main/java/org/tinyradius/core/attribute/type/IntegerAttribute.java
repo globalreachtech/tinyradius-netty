@@ -2,11 +2,10 @@ package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.nio.ByteBuffer;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
-
-import java.nio.ByteBuffer;
 
 /**
  * This class represents a Radius attribute which only contains a 32-bit integer.
@@ -76,8 +75,7 @@ public class IntegerAttribute extends OctetsAttribute {
      * @param value      the string value
      * @return byte array
      */
-    @NonNull
-    public static byte[] stringParser(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
+    public static byte @NonNull [] stringParser(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
         int integer = dictionary.getAttributeTemplate(vendorId, type)
                 .map(at -> at.getEnumeration(value))
                 .orElseGet(() -> Integer.parseUnsignedInt(value));
@@ -106,8 +104,7 @@ public class IntegerAttribute extends OctetsAttribute {
          * {@inheritDoc}
          */
         @Override
-        @NonNull
-        public byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
+        public byte @NonNull [] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
             return IntegerAttribute.stringParser(dictionary, vendorId, type, value);
         }
     }

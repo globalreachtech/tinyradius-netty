@@ -1,19 +1,17 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
+import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
-import java.util.Optional;
-
 /**
  * The basic generic Radius attribute. All type-specific implementations extend this class
  * by adding additional type conversion methods and validations.
  */
-@Getter
 @EqualsAndHashCode
 public class OctetsAttribute implements RadiusAttribute {
 
@@ -22,7 +20,10 @@ public class OctetsAttribute implements RadiusAttribute {
     @EqualsAndHashCode.Exclude
     private final Dictionary dictionary;
 
+    @Getter
     private final ByteBuf data;
+
+    @Getter
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
     public OctetsAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
@@ -66,8 +67,7 @@ public class OctetsAttribute implements RadiusAttribute {
      * {@inheritDoc}
      */
     @Override
-    @NonNull
-    public byte[] getValue() {
+    public byte @NonNull [] getValue() {
         int offset = getHeaderSize() + getTagSize();
         return data.slice(offset, data.readableBytes() - offset)
                 .copy().array();
@@ -100,9 +100,13 @@ public class OctetsAttribute implements RadiusAttribute {
      * @param value hex string
      * @return byte array
      */
-    @NonNull
-    public static byte[] stringHexParser(@NonNull String value) {
+    public static byte @NonNull [] stringHexParser(@NonNull String value) {
         return HEX_FORMAT.parseHex(value);
+    }
+
+    @Override
+    public @NonNull Dictionary getDictionary() {
+        return dictionary;
     }
 
     private static class Factory implements RadiusAttributeFactory<OctetsAttribute> {
@@ -120,8 +124,7 @@ public class OctetsAttribute implements RadiusAttribute {
          * {@inheritDoc}
          */
         @Override
-        @NonNull
-        public byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
+        public byte @NonNull [] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
             return stringHexParser(value);
         }
     }

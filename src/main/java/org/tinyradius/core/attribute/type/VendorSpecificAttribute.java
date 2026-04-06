@@ -1,7 +1,11 @@
 package org.tinyradius.core.attribute.type;
 
+import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jspecify.annotations.NonNull;
@@ -9,11 +13,6 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
 
 
 /**
@@ -139,7 +138,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      */
     @Override
     @NonNull
-    public VendorSpecificAttribute encode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+    public VendorSpecificAttribute encode(byte @NonNull [] requestAuth, @NonNull String secret) throws RadiusPacketException {
         return new VendorSpecificAttribute(getDictionary(), getChildVendorId(), encodeAttributes(requestAuth, secret));
     }
 
@@ -148,7 +147,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      */
     @Override
     @NonNull
-    public VendorSpecificAttribute decode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+    public VendorSpecificAttribute decode(byte @NonNull [] requestAuth, @NonNull String secret) throws RadiusPacketException {
         return new VendorSpecificAttribute(getDictionary(), getChildVendorId(), decodeAttributes(requestAuth, secret));
     }
 
@@ -185,8 +184,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
          * {@inheritDoc}
          */
         @Override
-        @NonNull
-        public byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
+        public byte @NonNull [] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
             return stringHexParser(value);
         }
     }

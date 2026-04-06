@@ -1,6 +1,17 @@
 package org.tinyradius.core.attribute;
 
+import static lombok.AccessLevel.NONE;
+import static org.tinyradius.core.attribute.AttributeTypes.TUNNEL_PASSWORD;
+import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.ASCEND_SEND_SECRET;
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.RFC2865_USER_PASSWORD;
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.RFC2868_TUNNEL_PASSWORD;
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.fromEncryptFlagId;
+
 import io.netty.buffer.ByteBuf;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jspecify.annotations.NonNull;
@@ -12,14 +23,6 @@ import org.tinyradius.core.attribute.type.OctetsAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttributeFactory;
 import org.tinyradius.core.dictionary.Dictionary;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static lombok.AccessLevel.NONE;
-import static org.tinyradius.core.attribute.AttributeTypes.TUNNEL_PASSWORD;
-import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
-import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
 
 /**
  * Represents a Radius attribute type.
@@ -101,7 +104,7 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     @NonNull
-    public RadiusAttribute create(@NonNull Dictionary dictionary, byte tag, @NonNull byte[] value) {
+    public RadiusAttribute create(@NonNull Dictionary dictionary, byte tag, byte @NonNull [] value) {
         return factory.create(dictionary, vendorId, type, tag, value);
     }
 
@@ -148,7 +151,7 @@ public class AttributeTemplate {
      * @return new RadiusAttribute
      */
     @NonNull
-    public RadiusAttribute createEncoded(@NonNull Dictionary dictionary, byte tag, @NonNull byte[] encodedValue) {
+    public RadiusAttribute createEncoded(@NonNull Dictionary dictionary, byte tag, byte @NonNull [] encodedValue) {
         return isEncrypt() ?
                 new EncodedAttribute(OctetsAttribute.FACTORY.create(dictionary, vendorId, type, tag, encodedValue)) :
                 factory.create(dictionary, vendorId, type, tag, encodedValue);
@@ -211,7 +214,7 @@ public class AttributeTemplate {
      * @throws RadiusPacketException errors encoding attribute
      */
     @NonNull
-    public RadiusAttribute encode(@NonNull RadiusAttribute attribute, @NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+    public RadiusAttribute encode(@NonNull RadiusAttribute attribute, byte @NonNull [] requestAuth, @NonNull String secret) throws RadiusPacketException {
         // don't wrap in EncodedDecorator if not supported
         if (!isEncrypt() || attribute.isEncoded())
             return attribute;
@@ -234,7 +237,7 @@ public class AttributeTemplate {
      * @throws RadiusPacketException errors decoding attribute
      */
     @NonNull
-    public RadiusAttribute decode(@NonNull RadiusAttribute attribute, @NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+    public RadiusAttribute decode(@NonNull RadiusAttribute attribute, byte @Nullable [] requestAuth, @NonNull String secret) throws RadiusPacketException {
         if (attribute.isDecoded())
             return attribute;
 

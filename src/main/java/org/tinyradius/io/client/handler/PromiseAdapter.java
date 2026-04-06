@@ -1,21 +1,20 @@
 package org.tinyradius.io.client.handler;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.tinyradius.core.attribute.AttributeTypes.PROXY_STATE;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.concurrent.Promise;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.client.PendingRequestCtx;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.tinyradius.core.attribute.AttributeTypes.PROXY_STATE;
 
 /**
  * ClientHandler that matches requests/response by appending Proxy-State attribute to
@@ -95,13 +94,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
         }
     }
 
-    @RequiredArgsConstructor
-    private static class Request {
-
-        private final String secret;
-        private final byte[] auth;
-        private final int id;
-        private final Promise<RadiusResponse> promise;
+    private record Request(String secret, byte[] auth, int id, Promise<RadiusResponse> promise) {
     }
 
 }

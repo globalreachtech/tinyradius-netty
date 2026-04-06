@@ -1,7 +1,15 @@
 package org.tinyradius.core.attribute;
 
+import static java.util.stream.Collectors.toList;
+import static org.tinyradius.core.attribute.type.RadiusAttribute.HEX_FORMAT;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
@@ -10,15 +18,6 @@ import org.tinyradius.core.attribute.type.AnonSubAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-
-import static java.util.stream.Collectors.toList;
-import static org.tinyradius.core.attribute.type.RadiusAttribute.HEX_FORMAT;
 
 /**
  * Basic attribute holder, for VendorSpecificAttribute (to hold sub-attributes) or RadiusPackets
@@ -347,7 +346,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @throws RadiusPacketException errors encoding attributes
      */
     @NonNull
-    default List<RadiusAttribute> encodeAttributes(@NonNull byte[] requestAuth, @NonNull String sharedSecret) throws RadiusPacketException {
+    default List<RadiusAttribute> encodeAttributes(byte @NonNull [] requestAuth, @NonNull String sharedSecret) throws RadiusPacketException {
         var encoded = new ArrayList<RadiusAttribute>();
         for (var a : getAttributes()) {
             var encode = a.encode(requestAuth, sharedSecret);
@@ -363,7 +362,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @throws RadiusPacketException errors decoding attributes
      */
     @NonNull
-    default List<RadiusAttribute> decodeAttributes(@NonNull byte[] requestAuth, @NonNull String sharedSecret) throws RadiusPacketException {
+    default List<RadiusAttribute> decodeAttributes(byte @NonNull [] requestAuth, @NonNull String sharedSecret) throws RadiusPacketException {
         var decoded = new ArrayList<RadiusAttribute>();
         for (var a : getAttributes()) {
             var decode = a.decode(requestAuth, sharedSecret);

@@ -1,14 +1,14 @@
 package org.tinyradius.core.packet.request;
 
+import static org.tinyradius.core.attribute.AttributeTypes.EAP_MESSAGE;
+import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
+
 import io.netty.buffer.ByteBuf;
+import java.util.List;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
-
-import java.util.List;
-
-import static org.tinyradius.core.attribute.AttributeTypes.EAP_MESSAGE;
-import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
 
 /**
  * EAP AccessRequest RFC3579
@@ -20,14 +20,14 @@ public class AccessRequestEap extends AccessRequest {
     }
 
     @Override
-    public RadiusRequest encodeRequest(String sharedSecret) throws RadiusPacketException {
+    public @NonNull RadiusRequest encodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         validateEapAttributes();
         // Message-Auth added at end of encoding
         return super.encodeRequest(sharedSecret);
     }
 
     @Override
-    public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
+    public @NonNull RadiusRequest decodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         validateEapAttributes();
 
         var messageAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);

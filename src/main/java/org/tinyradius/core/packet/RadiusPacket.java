@@ -1,20 +1,19 @@
 package org.tinyradius.core.packet;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.NestedAttributeHolder;
-import org.tinyradius.core.attribute.type.RadiusAttribute;
-
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.attribute.NestedAttributeHolder;
+import org.tinyradius.core.attribute.type.RadiusAttribute;
 
 /**
  * A RADIUS packet.
@@ -137,8 +136,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      *
      * @return authenticator, 16 bytes
      */
-    @Nullable
-    default byte[] getAuthenticator() {
+    default byte @Nullable [] getAuthenticator() {
         var array = getHeader().slice(4, 16).copy().array();
         return Arrays.equals(array, new byte[array.length]) ?
                 null : array;
@@ -179,8 +177,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      *
      * @return the packet as a byte array
      */
-    @NonNull
-    default byte[] toBytes() {
+    default byte @NonNull [] toBytes() {
         return toByteBuf().copy().array();
     }
 
@@ -193,8 +190,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * @param requestAuth  request authenticator if hashing for response, defaults to empty byte[16] if null
      * @return new 16-byte response authenticator
      */
-    @NonNull
-    default byte[] genHashedAuth(@NonNull String sharedSecret, byte @Nullable [] requestAuth) {
+    default byte @NonNull [] genHashedAuth(@NonNull String sharedSecret, byte @Nullable [] requestAuth) {
         if (sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
