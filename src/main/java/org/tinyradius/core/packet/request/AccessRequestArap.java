@@ -32,7 +32,7 @@ public class AccessRequestArap extends AccessRequest {
     }
 
     private void validateArapAttributes() throws RadiusPacketException {
-        final int count = getAttributes(ARAP_PASSWORD).size();
+        int count = getAttributes(ARAP_PASSWORD).size();
         if (count != 1)
             throw new RadiusPacketException("AccessRequest (ARAP) should have exactly one ARAP-Password attribute, has " + count);
     }

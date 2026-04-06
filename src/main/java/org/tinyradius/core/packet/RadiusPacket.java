@@ -34,6 +34,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns a new MD5 message digest.
+     *
      * @return a new MD5 message digest
      */
     static MessageDigest getMd5Digest() {
@@ -54,15 +55,16 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * @throws RadiusPacketException if data is incorrect size or the length
      *                               field does not match the packet size.
      */
-    static ByteBuf readHeader(ByteBuf data) throws RadiusPacketException {
-        final int length = data.readableBytes();
+    @NonNull
+    static ByteBuf readHeader(@NonNull ByteBuf data) throws RadiusPacketException {
+        int length = data.readableBytes();
         if (length < HEADER_LENGTH)
             throw new RadiusPacketException("Bad packet: parsable bytes too short (" + length + " bytes)");
         if (length > MAX_PACKET_LENGTH)
             throw new RadiusPacketException("Bad packet: parsable bytes too long (" + length + " bytes)");
 
-        final ByteBuf header = data.readSlice(20);
-        final short declaredLength = header.getShort(2);
+        var header = data.readSlice(20);
+        int declaredLength = header.getShort(2);
 
         if (length != declaredLength)
             throw new RadiusPacketException("Bad packet: packet length mismatch, " +
@@ -73,6 +75,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Builds a RADIUS packet header.
+     *
      * @param type       packet type
      * @param id         packet id
      * @param auth       16-byte array, defaults to empty byte[16] if null
@@ -80,11 +83,12 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * @return ByteBuf with 20 readable bytes
      * @throws RadiusPacketException packet validation exceptions
      */
-    static ByteBuf buildHeader(byte type, byte id, byte @Nullable [] auth, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    @NonNull
+    static ByteBuf buildHeader(byte type, byte id, byte @Nullable [] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         if (auth != null && auth.length != 16) // length check only if not null
             throw new RadiusPacketException("Packet Authenticator must be 16 octets, actual: " + auth.length);
 
-        final int attributeLen = attributes.stream()
+        int attributeLen = attributes.stream()
                 .map(RadiusAttribute::getData)
                 .mapToInt(ByteBuf::readableBytes)
                 .sum();
@@ -98,12 +102,15 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the header of the packet.
+     *
      * @return the header of the packet
      */
+    @NonNull
     ByteBuf getHeader();
 
     /**
      * Returns the Radius packet type.
+     *
      * @return Radius packet type
      */
     default byte getType() {
@@ -112,6 +119,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the Radius packet id.
+     *
      * @return Radius packet id
      */
     default byte getId() {
@@ -129,6 +137,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      *
      * @return authenticator, 16 bytes
      */
+    @Nullable
     default byte[] getAuthenticator() {
         var array = getHeader().slice(4, 16).copy().array();
         return Arrays.equals(array, new byte[array.length]) ?
@@ -137,6 +146,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the length of the packet.
+     *
      * @return the length of the packet
      */
     default int getLength() {
@@ -145,8 +155,10 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the packet as a ByteBuf.
+     *
      * @return the packet as a ByteBuf
      */
+    @NonNull
     default ByteBuf toByteBuf() {
         return Unpooled.unreleasableBuffer(
                 Unpooled.wrappedBuffer(getHeader(), getAttributeByteBuf()));
@@ -154,16 +166,20 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the packet as a ByteBuffer.
+     *
      * @return the packet as a ByteBuffer
      */
+    @NonNull
     default ByteBuffer toByteBuffer() {
         return toByteBuf().nioBuffer();
     }
 
     /**
      * Returns the packet as a byte array.
+     *
      * @return the packet as a byte array
      */
+    @NonNull
     default byte[] toBytes() {
         return toByteBuf().copy().array();
     }
@@ -177,14 +193,15 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
      * @param requestAuth  request authenticator if hashing for response, defaults to empty byte[16] if null
      * @return new 16-byte response authenticator
      */
+    @NonNull
     default byte[] genHashedAuth(@NonNull String sharedSecret, byte @Nullable [] requestAuth) {
         if (sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
-        final byte[] attributeBytes = getAttributeByteBuf().copy().array();
-        final int length = HEADER_LENGTH + attributeBytes.length;
+        byte[] attributeBytes = getAttributeByteBuf().copy().array();
+        int length = HEADER_LENGTH + attributeBytes.length;
 
-        final MessageDigest md5 = getMd5Digest();
+        var md5 = getMd5Digest();
         md5.update(getType());
         md5.update(getId());
         md5.update((byte) (length >> 8));

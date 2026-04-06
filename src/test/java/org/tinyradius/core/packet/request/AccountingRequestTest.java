@@ -25,16 +25,16 @@ class AccountingRequestTest {
     void encodeAccountingRequest() throws RadiusPacketException {
         String sharedSecret = "sharedSecret";
         String user = "myUser1";
-        final AccountingRequest request = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList())
+        AccountingRequest request = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, 1, user.getBytes(UTF_8)))
                 .addAttribute("Acct-Status-Type", "7");
 
-        final byte[] attributeBytes = request.getAttributeByteBuf().copy().array();
-        final int length = attributeBytes.length + HEADER_LENGTH;
-        final byte[] expectedAuthenticator = RadiusUtils.makeRFC2866RequestAuthenticator(
+        byte[] attributeBytes = request.getAttributeByteBuf().copy().array();
+        int length = attributeBytes.length + HEADER_LENGTH;
+        byte[] expectedAuthenticator = RadiusUtils.makeRFC2866RequestAuthenticator(
                 sharedSecret, ACCOUNTING_REQUEST, (byte) 1, length, attributeBytes, 0, attributeBytes.length);
 
-        final RadiusRequest encoded = request.encodeRequest(sharedSecret);
+        RadiusRequest encoded = request.encodeRequest(sharedSecret);
 
         assertEquals(request.getType(), encoded.getType());
         assertEquals(request.getId(), encoded.getId());

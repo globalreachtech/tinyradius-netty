@@ -1,6 +1,7 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.net.InetAddress;
@@ -17,13 +18,28 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
 
     public static final RadiusAttributeFactory<Ipv6PrefixAttribute> FACTORY = new Factory();
 
-    public Ipv6PrefixAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
+    /**
+     * Creates a new Ipv6PrefixAttribute.
+     *
+     * @param dictionary the dictionary to use
+     * @param vendorId   the vendor ID
+     * @param data       the attribute data
+     */
+    public Ipv6PrefixAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
         super(dictionary, vendorId, data);
-        final byte[] value = getValue();
+        byte[] value = getValue();
         validate(convertBytes(value), toUnsignedInt(value[1])); // check, but don't trim
     }
 
-    private static byte[] validate(InetAddress address, int prefixLength) {
+    /**
+     * Validates an IPv6 address and prefix length.
+     *
+     * @param address      the IPv6 address
+     * @param prefixLength the prefix length
+     * @return the encoded byte array
+     */
+    @NonNull
+    private static byte[] validate(@NonNull InetAddress address, int prefixLength) {
         if (prefixLength < 0 || prefixLength > 128)
             throw new IllegalArgumentException("IPv6 Prefix Prefix-Length should be between 0 and 128, declared: " + prefixLength);
 
@@ -42,7 +58,14 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
                 .array();
     }
 
-    private static boolean bitsOutsidePrefixLengthZero(byte[] addressBytes, int prefixLength) {
+    /**
+     * Checks if bits outside the prefix length are zero.
+     *
+     * @param addressBytes the address bytes
+     * @param prefixLength the prefix length
+     * @return true if bits outside prefix are zero
+     */
+    private static boolean bitsOutsidePrefixLengthZero(@NonNull byte[] addressBytes, int prefixLength) {
         // Check that the first byte that must have some zeroed bits is conformant. This first one is special because the
         // comparison requires masking some bits, not the full byte should be zero
         boolean passed = (addressBytes[prefixLength / 8] & 0xff & (0xff >> prefixLength - 8 * (prefixLength / 8))) == 0;
@@ -53,11 +76,18 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
         return passed;
     }
 
-    private static InetAddress convertString(String value) {
-        if (value == null || value.isEmpty())
+    /**
+     * Converts a string prefix into an InetAddress.
+     *
+     * @param value the string value
+     * @return the InetAddress
+     */
+    @NonNull
+    private static InetAddress convertString(@NonNull String value) {
+        if (value.isEmpty())
             throw new IllegalArgumentException("Invalid IPv6 prefix, empty: " + value);
         try {
-            final String[] tokens = value.split("/");
+            var tokens = value.split("/");
 
             if (tokens.length != 2)
                 throw new IllegalArgumentException("Invalid IPv6 prefix expression, should be in format 'prefix/length': " + value);
@@ -68,12 +98,19 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
         }
     }
 
-    private static InetAddress convertBytes(byte[] data) {
+    /**
+     * Converts a byte array into an InetAddress.
+     *
+     * @param data the byte array
+     * @return the InetAddress
+     */
+    @NonNull
+    private static InetAddress convertBytes(@NonNull byte[] data) {
         if (data.length < 2 || data.length > 18)
             throw new IllegalArgumentException("IPv6 Prefix body should be 2-18 octets (2-octet header + max 16 octet address), actual: " + data.length);
 
-        final int prefixLength = toUnsignedInt(data[1]);
-        final int availablePrefixBits = (data.length - 2) * 8;
+        int prefixLength = toUnsignedInt(data[1]);
+        int availablePrefixBits = (data.length - 2) * 8;
 
         if (availablePrefixBits < prefixLength)
             throw new IllegalArgumentException("IPv6 Prefix Prefix-Length declared " + prefixLength + " bits, " +
@@ -82,9 +119,16 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
         return extractAddress(data);
     }
 
-    private static InetAddress extractAddress(byte[] data) {
+    /**
+     * Extracts the IPv6 address from the byte array.
+     *
+     * @param data the byte array
+     * @return the InetAddress
+     */
+    @NonNull
+    private static InetAddress extractAddress(@NonNull byte[] data) {
         try {
-            final byte[] array = ByteBuffer.allocate(16).put(data, 2, data.length - 2).array();
+            var array = ByteBuffer.allocate(16).put(data, 2, data.length - 2).array();
             return InetAddress.getByAddress(array);
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("Bad IPv6 prefix, invalid IPv6 address: "
@@ -96,24 +140,40 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
      * Returns the attribute value as a string of the format "x:x:x:x:x:x:x:x/yy".
      */
     @Override
+    @NonNull
     public String getValueString() {
-        final byte[] data = getValue();
+        var data = getValue();
         return extractAddress(data).getHostAddress() + "/" + toUnsignedInt(data[1]);
     }
 
-    public static byte[] stringParser(String value) {
+    /**
+     * Parses a string prefix into a byte array.
+     *
+     * @param value the string value
+     * @return the byte array
+     */
+    @NonNull
+    public static byte[] stringParser(@NonNull String value) {
         return validate(convertString(value), Integer.parseInt(value.split("/")[1]));
     }
 
     private static class Factory implements RadiusAttributeFactory<Ipv6PrefixAttribute> {
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public Ipv6PrefixAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value) {
+        @NonNull
+        public Ipv6PrefixAttribute newInstance(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf value) {
             return new Ipv6PrefixAttribute(dictionary, vendorId, value);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public byte[] parse(Dictionary dictionary, int vendorId, int type, String value) {
+        @NonNull
+        public byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
             return Ipv6PrefixAttribute.stringParser(value);
         }
     }

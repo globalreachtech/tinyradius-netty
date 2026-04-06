@@ -6,8 +6,6 @@ import io.netty.util.concurrent.Promise;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.attribute.type.RadiusAttribute;
-import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.client.PendingRequestCtx;
 
@@ -36,11 +34,11 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
 
     @Override
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
-        final RadiusRequest packet = msg.getRequest();
-        final String requestId = UUID.randomUUID().toString();
+        var packet = msg.getRequest();
+        var requestId = UUID.randomUUID().toString();
 
         try {
-            final RadiusRequest encodedRequest = packet
+            var encodedRequest = packet
                     .addAttribute(packet.getDictionary().createAttribute(-1, PROXY_STATE, requestId.getBytes(UTF_8)))
                     .encodeRequest(msg.getEndpoint().secret());
 
@@ -63,14 +61,14 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
     protected void decode(ChannelHandlerContext ctx, RadiusResponse msg, List<Object> out) {
 
         // retrieve my Proxy-State attribute (the last)
-        final List<RadiusAttribute> proxyStates = msg.getAttributes(PROXY_STATE);
+        var proxyStates = msg.getAttributes(PROXY_STATE);
         if (proxyStates.isEmpty()) {
             log.warn("Ignoring response - no Proxy-State attribute");
             return;
         }
 
-        final String requestId = new String(proxyStates.get(proxyStates.size() - 1).getValue(), UTF_8);
-        final Request request = requests.get(requestId);
+        var requestId = new String(proxyStates.get(proxyStates.size() - 1).getValue(), UTF_8);
+        var request = requests.get(requestId);
 
         if (request == null) {
             log.warn("Ignoring response - request context not found, requestId {}", requestId);
@@ -84,7 +82,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
         }
 
         try {
-            final RadiusResponse response = msg.decodeResponse(request.secret, request.auth)
+            var response = msg.decodeResponse(request.secret, request.auth)
                     .removeLastAttribute(PROXY_STATE);
 
             log.debug("Found request for response identifier {}, proxyState requestId '{}'",

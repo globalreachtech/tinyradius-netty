@@ -3,6 +3,8 @@ package org.tinyradius.core.packet.response;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.attribute.NestedAttributeHolder;
@@ -16,7 +18,17 @@ import static org.tinyradius.core.packet.PacketType.*;
 
 public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
 
-    static RadiusResponse create(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    /**
+     * Creates a RadiusResponse object.
+     *
+     * @param dictionary the dictionary to use
+     * @param header     the packet header
+     * @param attributes the packet attributes
+     * @return the new RadiusResponse
+     * @throws RadiusPacketException if there is an error creating the response
+     */
+    @NonNull
+    static RadiusResponse create(@NonNull Dictionary dictionary, @NonNull ByteBuf header, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         return switch (header.getByte(0)) {
             case ACCESS_ACCEPT -> new AccessResponse.Accept(dictionary, header, attributes);
             case ACCESS_REJECT -> new AccessResponse.Reject(dictionary, header, attributes);
@@ -37,11 +49,12 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @return RadiusPacket object
      * @throws RadiusPacketException packet validation exceptions
      */
-    static RadiusResponse create(Dictionary dictionary, byte type, byte id, byte[] authenticator, List<RadiusAttribute> attributes) throws RadiusPacketException {
-        List<RadiusAttribute> wrappedAttributes = attributes.stream()
+    @NonNull
+    static RadiusResponse create(@NonNull Dictionary dictionary, byte type, byte id, byte @Nullable [] authenticator, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
+        var wrappedAttributes = attributes.stream()
                 .map(NestedAttributeHolder::vsaAutowrap)
                 .toList();
-        final ByteBuf header = RadiusPacket.buildHeader(type, id, authenticator, wrappedAttributes);
+        var header = RadiusPacket.buildHeader(type, id, authenticator, wrappedAttributes);
         return create(dictionary, header, wrappedAttributes);
     }
 
@@ -57,7 +70,8 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    static RadiusResponse fromDatagram(Dictionary dictionary, DatagramPacket datagram) throws RadiusPacketException {
+    @NonNull
+    static RadiusResponse fromDatagram(@NonNull Dictionary dictionary, @NonNull DatagramPacket datagram) throws RadiusPacketException {
         // copy into Unpooled heap buffer so let JVM manage GC
         return fromByteBuf(dictionary, Unpooled.unreleasableBuffer(
                 Unpooled.copiedBuffer(datagram.content())));
@@ -75,7 +89,8 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @return new RadiusPacket object
      * @throws RadiusPacketException malformed packet
      */
-    static RadiusResponse fromByteBuf(Dictionary dictionary, ByteBuf byteBuf) throws RadiusPacketException {
+    @NonNull
+    static RadiusResponse fromByteBuf(@NonNull Dictionary dictionary, @NonNull ByteBuf byteBuf) throws RadiusPacketException {
         return RadiusResponse.create(dictionary, RadiusPacket.readHeader(byteBuf),
                 AttributeHolder.readAttributes(dictionary, -1, byteBuf));
     }
@@ -92,7 +107,8 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @return new RadiusPacket instance with same properties and valid authenticator
      * @throws RadiusPacketException errors encoding packet
      */
-    RadiusResponse encodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException;
+    @NonNull
+    RadiusResponse encodeResponse(@NonNull String sharedSecret, @NonNull byte[] requestAuth) throws RadiusPacketException;
 
     /**
      * Decodes the response against the supplied shared secret and request authenticator.
@@ -104,5 +120,6 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * @return verified RadiusResponse with decoded attributes if appropriate
      * @throws RadiusPacketException errors verifying or decoding packet
      */
-    RadiusResponse decodeResponse(String sharedSecret, byte[] requestAuth) throws RadiusPacketException;
+    @NonNull
+    RadiusResponse decodeResponse(@NonNull String sharedSecret, @NonNull byte[] requestAuth) throws RadiusPacketException;
 }

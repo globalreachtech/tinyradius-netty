@@ -30,7 +30,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
 
     protected AccessRequest(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
-        final byte type = header.getByte(0);
+        byte type = header.getByte(0);
         if (type != ACCESS_REQUEST)
             throw new IllegalArgumentException("First octet must be " + ACCESS_REQUEST + ", actual: " + type);
     }
@@ -54,7 +54,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
          * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
          * MUST NOT contain more than one type of those four attributes.
          */
-        final Set<Integer> detectedAuth = attributes.stream()
+        var detectedAuth = attributes.stream()
                 .map(RadiusAttribute::getType)
                 .filter(AUTH_ATTRS::contains)
                 .collect(toSet());
@@ -68,7 +68,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
             return AccessRequestNoAuth::new;
         }
 
-        final int authType = detectedAuth.iterator().next();
+        int authType = detectedAuth.iterator().next();
         return switch (authType) {
             case EAP_MESSAGE -> AccessRequestEap::new;
             case CHAP_PASSWORD -> AccessRequestChap::new;
@@ -83,7 +83,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     }
 
     protected static byte[] random16bytes() {
-        final byte[] randomBytes = new byte[16];
+        byte[] randomBytes = new byte[16];
         RANDOM.nextBytes(randomBytes);
         return randomBytes;
     }
@@ -162,7 +162,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     @Override
     public RadiusRequest decodeRequest(String sharedSecret) throws RadiusPacketException {
         // authenticator is random, so can't run verifyPacketAuth(), but we can do basic checks
-        final byte[] auth = getAuthenticator();
+        byte[] auth = getAuthenticator();
         if (auth == null)
             throw new RadiusPacketException("Authenticator check failed - authenticator missing");
 

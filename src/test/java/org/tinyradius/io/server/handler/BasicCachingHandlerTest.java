@@ -42,39 +42,39 @@ class BasicCachingHandlerTest {
 
     @Test
     void cacheHitAndTimeout() throws RadiusPacketException {
-        final BasicCachingHandler basicCachingHandler =
+        BasicCachingHandler basicCachingHandler =
                 new BasicCachingHandler(timer, 500);
 
-        final RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 100, null, Collections.emptyList()).encodeRequest("test");
-        final RequestCtx requestCtx = new RequestCtx(request, new RadiusEndpoint(new InetSocketAddress(0), "foo"));
-        final ResponseCtx responseContext = requestCtx.withResponse(RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 100, null, Collections.emptyList()));
+        RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 100, null, Collections.emptyList()).encodeRequest("test");
+        RequestCtx requestCtx = new RequestCtx(request, new RadiusEndpoint(new InetSocketAddress(0), "foo"));
+        ResponseCtx responseContext = requestCtx.withResponse(RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 100, null, Collections.emptyList()));
 
         // cache miss
-        final ArrayList<Object> in1 = new ArrayList<>();
+        ArrayList<Object> in1 = new ArrayList<>();
         basicCachingHandler.decode(ctx, requestCtx, in1);
         assertEquals(1, in1.size());
         assertTrue(in1.contains(requestCtx));
 
         // cache miss again if no response
-        final ArrayList<Object> in2 = new ArrayList<>();
+        ArrayList<Object> in2 = new ArrayList<>();
         basicCachingHandler.decode(ctx, requestCtx, in2);
         assertEquals(1, in2.size());
         assertTrue(in2.contains(requestCtx));
 
         // response
-        final ArrayList<Object> in3 = new ArrayList<>();
+        ArrayList<Object> in3 = new ArrayList<>();
         basicCachingHandler.encode(ctx, responseContext, in3);
 
         // ctx only used if cache hits (to flush response)
         verifyNoInteractions(ctx);
 
         // cache hit
-        final ArrayList<Object> in4 = new ArrayList<>();
+        ArrayList<Object> in4 = new ArrayList<>();
         basicCachingHandler.decode(ctx, requestCtx, in4);
         assertEquals(0, in4.size());
 
         // cache hit again
-        final ArrayList<Object> in5 = new ArrayList<>();
+        ArrayList<Object> in5 = new ArrayList<>();
         basicCachingHandler.decode(ctx, requestCtx, in5);
         assertEquals(0, in5.size());
 
@@ -83,14 +83,14 @@ class BasicCachingHandlerTest {
 
         // assert cache miss, but only after 500ms (cache timeout)
         await().atLeast(500, MILLISECONDS).untilAsserted(() -> {
-            final ArrayList<Object> in6 = new ArrayList<>();
+            ArrayList<Object> in6 = new ArrayList<>();
             basicCachingHandler.decode(ctx, requestCtx, in6);
             assertEquals(1, in6.size());
             assertTrue(in6.contains(requestCtx));
         });
 
         // cache miss again if no response
-        final ArrayList<Object> in7 = new ArrayList<>();
+        ArrayList<Object> in7 = new ArrayList<>();
         basicCachingHandler.decode(ctx, requestCtx, in7);
         assertEquals(1, in7.size());
         assertTrue(in7.contains(requestCtx));

@@ -16,7 +16,7 @@ public class AccountingRequest extends GenericRequest {
 
     public AccountingRequest(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
-        final byte type = header.getByte(0);
+        byte type = header.getByte(0);
         if (type != ACCOUNTING_REQUEST)
             throw new IllegalArgumentException("First octet must be " + ACCOUNTING_REQUEST + ", actual: " + type);
     }

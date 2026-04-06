@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.AnonSubAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
@@ -23,6 +24,7 @@ import static org.tinyradius.core.attribute.type.RadiusAttribute.HEX_FORMAT;
  * Basic attribute holder, for VendorSpecificAttribute (to hold sub-attributes) or RadiusPackets
  * <p>
  * Should only hold a single layer of attributes
+ *
  * @param <T> The type of the attribute holder
  */
 public interface AttributeHolder<T extends AttributeHolder<T>> {
@@ -35,7 +37,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param attributes the list of attributes
      * @return a ByteBuf containing the serialized attributes
      */
-    static ByteBuf attributesToBytes(List<RadiusAttribute> attributes) {
+    @NonNull
+    static ByteBuf attributesToBytes(@NonNull List<RadiusAttribute> attributes) {
         return Unpooled.wrappedBuffer(attributes.stream()
                 .map(RadiusAttribute::toByteBuf)
                 .toArray(ByteBuf[]::new));
@@ -49,14 +52,15 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param data       byte array to parse
      * @return list of RadiusAttributes
      */
-    static List<RadiusAttribute> readAttributes(Dictionary dictionary, int vendorId, ByteBuf data) {
-        final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
+    @NonNull
+    static List<RadiusAttribute> readAttributes(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
+        var vendor = dictionary.getVendor(vendorId);
 
         // if reading sub-attribute for undefined VSA, treat entire body of vsa (ex vendorId) as undistinguished bytes
         if (vendorId != -1 && vendor.isEmpty())
             return Collections.singletonList(new AnonSubAttribute(dictionary, vendorId, data));
 
-        final List<RadiusAttribute> attributes = new ArrayList<>();
+        var attributes = new ArrayList<RadiusAttribute>();
 
         try {
             // at least 2 octets left (minimum size header)
@@ -83,10 +87,11 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param data       byte array to parse
      * @return a RadiusAttribute
      */
-    static RadiusAttribute readAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
-        final Optional<Vendor> vendor = dictionary.getVendor(vendorId);
+    @NonNull
+    static RadiusAttribute readAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
+        var vendor = dictionary.getVendor(vendorId);
 
-        final int typeSize = vendor
+        int typeSize = vendor
                 .map(Vendor::typeSize)
                 .orElse(1);
 
@@ -96,7 +101,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
             default -> Byte.toUnsignedInt(data.getByte(data.readerIndex()));
         };
 
-        final int lengthSize = vendor
+        int lengthSize = vendor
                 .map(Vendor::lengthSize)
                 .orElse(1);
 
@@ -118,48 +123,56 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
     /**
      * Gets the VendorId to restrict (sub)attributes, or -1 for top level.
+     *
      * @return VendorId to restrict (sub)attributes, or -1 for top level
      */
     int getChildVendorId();
 
     /**
      * Gets the dictionary used by this attribute holder.
+     *
      * @return the dictionary
      */
+    @NonNull
     Dictionary getDictionary();
 
     /**
      * Gets the list of attributes in this holder.
+     *
      * @return list of RadiusAttributes
      */
+    @NonNull
     List<RadiusAttribute> getAttributes();
 
     /**
-     * Convenience method to get single attribute.
+     * Convenience method to get a single attribute.
      *
      * @param type attribute type name
      * @return RadiusAttribute object or null if there is no such attribute
      */
-    default Optional<RadiusAttribute> getAttribute(String type) {
+    @NonNull
+    default Optional<RadiusAttribute> getAttribute(@NonNull String type) {
         return getAttributes(type).stream().findFirst();
     }
 
     /**
-     * Convenience method to get single attribute filtered by given predicate
+     * Convenience method to get a single attribute filtered by a given predicate
      *
      * @param filter RadiusAttribute filter predicate
      * @return RadiusAttribute object or null if there is no such attribute
      */
-    default Optional<RadiusAttribute> getAttribute(Predicate<RadiusAttribute> filter) {
+    @NonNull
+    default Optional<RadiusAttribute> getAttribute(@NonNull Predicate<RadiusAttribute> filter) {
         return getAttributes(filter).stream().findFirst();
     }
 
     /**
-     * Convenience method to get single attribute.
+     * Convenience method to get a single attribute.
      *
      * @param type attribute type
      * @return RadiusAttribute object or null if there is no such attribute
      */
+    @NonNull
     default Optional<RadiusAttribute> getAttribute(int type) {
         return getAttributes(type).stream().findFirst();
     }
@@ -170,6 +183,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type type of attributes to get
      * @return list of RadiusAttribute objects, or empty list
      */
+    @NonNull
     default List<RadiusAttribute> getAttributes(int type) {
         return getAttributes(a -> a.getType() == type);
     }
@@ -181,19 +195,21 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param name attribute type name
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> getAttributes(String name) {
+    @NonNull
+    default List<RadiusAttribute> getAttributes(@NonNull String name) {
         return getDictionary().getAttributeTemplate(name)
                 .map(this::getAttributes)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown attribute type name'" + name + "'"));
     }
 
     /**
-     * Returns attributes filtered by given predicate
+     * Returns attributes filtered by the given predicate
      *
      * @param filter RadiusAttribute filter predicate
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> getAttributes(Predicate<RadiusAttribute> filter) {
+    @NonNull
+    default List<RadiusAttribute> getAttributes(@NonNull Predicate<RadiusAttribute> filter) {
         return getAttributes().stream()
                 .filter(filter)
                 .collect(toList());
@@ -206,7 +222,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @param type attribute type name
      * @return list of RadiusAttribute objects, or empty list
      */
-    default List<RadiusAttribute> getAttributes(AttributeTemplate type) {
+    @NonNull
+    default List<RadiusAttribute> getAttributes(@NonNull AttributeTemplate type) {
         if (type.getVendorId() == getChildVendorId())
             return getAttributes(type.getType());
 
@@ -218,27 +235,31 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      *
      * @return byte array with encoded attributes
      */
+    @NonNull
     default ByteBuf getAttributeByteBuf() {
         return attributesToBytes(getAttributes());
     }
 
     /**
      * Returns a new attribute holder with the given attributes.
+     *
      * @param attributes the new list of attributes
      * @return a new attribute holder with the given attributes
      * @throws RadiusPacketException if the packet is invalid
      */
-    T withAttributes(List<RadiusAttribute> attributes) throws RadiusPacketException;
+    @NonNull
+    T withAttributes(@NonNull List<RadiusAttribute> attributes) throws RadiusPacketException;
 
     /**
      * Adds an attribute to this attribute container.
      *
      * @param attribute attribute to add
-     * @return object of same type with appended attribute
+     * @return object of the same type with appended attribute
      * @throws IllegalArgumentException if the attribute's vendorId does not match AttributeHolder's childVendorId
      * @throws RadiusPacketException    packet validation exceptions
      */
-    default T addAttribute(RadiusAttribute attribute) throws RadiusPacketException {
+    @NonNull
+    default T addAttribute(@NonNull RadiusAttribute attribute) throws RadiusPacketException {
         if (attribute.getVendorId() != getChildVendorId())
             throw new IllegalArgumentException("Attribute vendor ID doesn't match: " +
                     "required " + getChildVendorId() + ", actual " + attribute.getVendorId());
@@ -250,12 +271,14 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
     /**
      * Adds a Radius attribute.
-     * @param name the name of the attribute
+     *
+     * @param name  the name of the attribute
      * @param value the value of the attribute
-     * @return object of same type with appended attribute
+     * @return object of the same type with appended attribute
      * @throws RadiusPacketException packet validation exceptions
      */
-    default T addAttribute(String name, String value) throws RadiusPacketException {
+    @NonNull
+    default T addAttribute(@NonNull String name, @NonNull String value) throws RadiusPacketException {
         return addAttribute(
                 getDictionary().createAttribute(name, value));
     }
@@ -265,10 +288,11 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      *
      * @param type  attribute type code
      * @param value string value to set
-     * @return object of same type with appended attribute
+     * @return object of the same type with appended attribute
      * @throws RadiusPacketException packet validation exceptions
      */
-    default T addAttribute(int type, String value) throws RadiusPacketException {
+    @NonNull
+    default T addAttribute(int type, @NonNull String value) throws RadiusPacketException {
         return addAttribute(
                 getDictionary().createAttribute(getChildVendorId(), type, (byte) 0, value));
     }
@@ -277,10 +301,11 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * Removes <i>all</i> instances of the specified attribute from this attribute container.
      *
      * @param attribute attributes to remove
-     * @return object of same type with removed attribute
+     * @return object of the same type with removed attribute
      * @throws RadiusPacketException packet validation exceptions
      */
-    default T removeAttribute(RadiusAttribute attribute) throws RadiusPacketException {
+    @NonNull
+    default T removeAttribute(@NonNull RadiusAttribute attribute) throws RadiusPacketException {
         return withAttributes(
                 getAttributes(a -> !a.equals(attribute)));
     }
@@ -289,9 +314,10 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * Removes all attributes from this packet which have got the specified type.
      *
      * @param type attribute type to remove
-     * @return object of same type with removed attributes
+     * @return object of the same type with removed attributes
      * @throws RadiusPacketException packet validation exceptions
      */
+    @NonNull
     default T removeAttributes(int type) throws RadiusPacketException {
         return withAttributes(
                 getAttributes(a -> a.getType() != type));
@@ -302,9 +328,10 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * type from the packet.
      *
      * @param type attribute type code
-     * @return object of same type with removed attribute
+     * @return object of the same type with removed attribute
      * @throws RadiusPacketException packet validation exceptions
      */
+    @NonNull
     default T removeLastAttribute(int type) throws RadiusPacketException {
         var attributes = getAttributes(type);
         if (attributes.isEmpty())
@@ -319,10 +346,11 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return encoded version of attributes
      * @throws RadiusPacketException errors encoding attributes
      */
-    default List<RadiusAttribute> encodeAttributes(byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> encoded = new ArrayList<>();
-        for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute encode = a.encode(requestAuth, sharedSecret);
+    @NonNull
+    default List<RadiusAttribute> encodeAttributes(@NonNull byte[] requestAuth, @NonNull String sharedSecret) throws RadiusPacketException {
+        var encoded = new ArrayList<RadiusAttribute>();
+        for (var a : getAttributes()) {
+            var encode = a.encode(requestAuth, sharedSecret);
             encoded.add(encode);
         }
         return encoded;
@@ -334,10 +362,11 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      * @return decoded/original version of attributes
      * @throws RadiusPacketException errors decoding attributes
      */
-    default List<RadiusAttribute> decodeAttributes(byte[] requestAuth, String sharedSecret) throws RadiusPacketException {
-        final List<RadiusAttribute> decoded = new ArrayList<>();
-        for (RadiusAttribute a : getAttributes()) {
-            RadiusAttribute decode = a.decode(requestAuth, sharedSecret);
+    @NonNull
+    default List<RadiusAttribute> decodeAttributes(@NonNull byte[] requestAuth, @NonNull String sharedSecret) throws RadiusPacketException {
+        var decoded = new ArrayList<RadiusAttribute>();
+        for (var a : getAttributes()) {
+            var decode = a.decode(requestAuth, sharedSecret);
             decoded.add(decode);
         }
         return decoded;

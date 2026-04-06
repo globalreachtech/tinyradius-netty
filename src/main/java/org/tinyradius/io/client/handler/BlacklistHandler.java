@@ -8,7 +8,6 @@ import lombok.extern.log4j.Log4j2;
 import org.tinyradius.io.client.PendingRequestCtx;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.time.Clock;
 
 /**
@@ -35,7 +34,7 @@ public class BlacklistHandler extends ChannelOutboundHandlerAdapter {
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
         if (msg instanceof PendingRequestCtx request) {
-            final InetSocketAddress address = request.getEndpoint().address();
+            var address = request.getEndpoint().address();
 
             if (blacklistManager.isBlacklisted(address)) {
                 log.debug("Endpoint blacklisted: {}", address);

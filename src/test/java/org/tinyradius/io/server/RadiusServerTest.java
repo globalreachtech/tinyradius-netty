@@ -33,14 +33,14 @@ class RadiusServerTest {
 
     @Test
     void serverStartStop() {
-        final RadiusServer server = new RadiusServer(bootstrap, accessHandler, acctHandler, new InetSocketAddress(0), new InetSocketAddress(0));
+        RadiusServer server = new RadiusServer(bootstrap, accessHandler, acctHandler, new InetSocketAddress(0), new InetSocketAddress(0));
 
         // registering event loop and adding handlers is almost instant
         // socket binding is variable, possible race condition, so we sync
         server.isReady().syncUninterruptibly();
 
-        final Channel accessChannel = server.getChannels().get(0);
-        final Channel acctChannel = server.getChannels().get(1);
+        Channel accessChannel = server.getChannels().get(0);
+        Channel acctChannel = server.getChannels().get(1);
 
         // registered with eventLoop
         assertTrue(accessChannel.isRegistered());
@@ -52,10 +52,10 @@ class RadiusServerTest {
 
         // handlers registered
         String TAIL_CONTEXT = "DefaultChannelPipeline$TailContext#0";
-        final List<String> accessPipeline = accessChannel.pipeline().names();
+        List<String> accessPipeline = accessChannel.pipeline().names();
         assertEquals(TAIL_CONTEXT, accessPipeline.get(1));
         assertTrue(accessPipeline.get(0).contains("ChannelHandler$MockitoMock$"));
-        final List<String> accountingPipeline = acctChannel.pipeline().names();
+        List<String> accountingPipeline = acctChannel.pipeline().names();
         assertEquals(TAIL_CONTEXT, accountingPipeline.get(1));
         assertTrue(accountingPipeline.get(0).contains("ChannelHandler$MockitoMock$"));
 

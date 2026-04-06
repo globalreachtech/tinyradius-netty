@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.io.RadiusEndpoint;
 import org.tinyradius.io.server.RequestCtx;
 import org.tinyradius.io.server.ResponseCtx;
@@ -35,7 +34,7 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
     @Override
     protected void encode(ChannelHandlerContext ctx, ResponseCtx msg, List<Object> out) {
         try {
-            final DatagramPacket datagramPacket = new DatagramPacket(
+            var datagramPacket = new DatagramPacket(
                     msg.getResponse()
                             .encodeResponse(msg.getEndpoint().secret(), msg.getRequest().getAuthenticator())
                             .toByteBuf(),
@@ -50,12 +49,12 @@ public class ServerPacketCodec extends MessageToMessageCodec<DatagramPacket, Res
 
     @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
-        final InetSocketAddress remoteAddress = msg.sender();
+        var remoteAddress = msg.sender();
 
         try {
-            final RadiusRequest request = fromDatagram(dictionary, msg);
+            var request = fromDatagram(dictionary, msg);
 
-            String secret = secretProvider.getSharedSecret(remoteAddress, request);
+            var secret = secretProvider.getSharedSecret(remoteAddress, request);
             if (secret == null) {
                 log.warn("Ignoring packet from {}, shared secret lookup failed", remoteAddress);
                 return;

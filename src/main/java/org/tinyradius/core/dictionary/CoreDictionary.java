@@ -1,5 +1,6 @@
 package org.tinyradius.core.dictionary;
 
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.AttributeTemplate;
 
 import java.util.Optional;
@@ -17,7 +18,8 @@ public interface CoreDictionary {
      * @param name attribute name
      * @return AttributeTemplate object or null
      */
-    Optional<AttributeTemplate> getAttributeTemplate(String name);
+    @NonNull
+    Optional<AttributeTemplate> getAttributeTemplate(@NonNull String name);
 
     /**
      * Returns the AttributeTemplate for the vendor -1 from the cache.
@@ -25,6 +27,7 @@ public interface CoreDictionary {
      * @param type type 1-255
      * @return AttributeTemplate
      */
+    @NonNull
     default Optional<AttributeTemplate> getAttributeTemplate(int type) {
         return getAttributeTemplate(-1, type);
     }
@@ -37,6 +40,7 @@ public interface CoreDictionary {
      * @param type     type 1-255
      * @return AttributeTemplate
      */
+    @NonNull
     Optional<AttributeTemplate> getAttributeTemplate(int vendorId, int type);
 
     /**
@@ -45,6 +49,7 @@ public interface CoreDictionary {
      * @param vendorId vendor number
      * @return vendor
      */
+    @NonNull
     Optional<Vendor> getVendor(int vendorId);
 
     /**
@@ -54,6 +59,7 @@ public interface CoreDictionary {
      * @param vendorName name of the vendor
      * @return vendorId or -1
      */
-    Optional<Vendor> getVendor(String vendorName);
+    @NonNull
+    Optional<Vendor> getVendor(@NonNull String vendorName);
 
 }

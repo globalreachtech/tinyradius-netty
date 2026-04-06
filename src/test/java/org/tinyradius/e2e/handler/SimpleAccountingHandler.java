@@ -20,8 +20,8 @@ public class SimpleAccountingHandler extends RequestHandler {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) throws RadiusPacketException {
-        final RadiusRequest request = msg.getRequest();
-        final RadiusResponse answer = RadiusResponse.create(
+        RadiusRequest request = msg.getRequest();
+        RadiusResponse answer = RadiusResponse.create(
                 request.getDictionary(), ACCOUNTING_RESPONSE, request.getId(), null, request.getAttributes(PROXY_STATE));
 
         ctx.writeAndFlush(msg.withResponse(answer));

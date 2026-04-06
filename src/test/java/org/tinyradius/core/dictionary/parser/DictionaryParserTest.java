@@ -34,7 +34,7 @@ class DictionaryParserTest {
 
     @Test
     void classpathIncludeDict() {
-        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
+        Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
         assertTrue(attributeTemplate.isPresent());
         assertEquals("Service-Type", attributeTemplate.get().getName());
         assertEquals("Login-User", attributeTemplate.get().getEnumeration(1));
@@ -45,23 +45,23 @@ class DictionaryParserTest {
     void testVendorAttrFlags() {
         // VENDORATTR      14122   WISPr-Bandwidth-Min-Up         5       integer has_tag
 
-        final AttributeTemplate attribute = dictionary.getAttributeTemplate("WISPr-Redirection-URL").get();
+        AttributeTemplate attribute = dictionary.getAttributeTemplate("WISPr-Redirection-URL").get();
         assertFalse(attribute.isTagged());
         assertEquals(NO_ENCRYPT, attribute.getCodecType());
 
-        final AttributeTemplate tagAttribute = dictionary.getAttributeTemplate("WISPr-Bandwidth-Min-Up").get();
+        AttributeTemplate tagAttribute = dictionary.getAttributeTemplate("WISPr-Bandwidth-Min-Up").get();
         assertTrue(tagAttribute.isTagged());
         assertEquals(NO_ENCRYPT, tagAttribute.getCodecType());
 
-        final AttributeTemplate encryptAttribute = dictionary.getAttributeTemplate("WISPr-Bandwidth-Min-Down").get();
+        AttributeTemplate encryptAttribute = dictionary.getAttributeTemplate("WISPr-Bandwidth-Min-Down").get();
         assertFalse(encryptAttribute.isTagged());
         assertEquals(RFC2865_USER_PASSWORD, encryptAttribute.getCodecType());
 
-        final AttributeTemplate tagEncryptAttribute = dictionary.getAttributeTemplate("WISPr-Bandwidth-Max-Up").get();
+        AttributeTemplate tagEncryptAttribute = dictionary.getAttributeTemplate("WISPr-Bandwidth-Max-Up").get();
         assertTrue(tagEncryptAttribute.isTagged());
         assertEquals(RFC2868_TUNNEL_PASSWORD, tagEncryptAttribute.getCodecType());
 
-        final AttributeTemplate encryptTagAttribute = dictionary.getAttributeTemplate("WISPr-Bandwidth-Max-Down").get();
+        AttributeTemplate encryptTagAttribute = dictionary.getAttributeTemplate("WISPr-Bandwidth-Max-Down").get();
         assertTrue(encryptTagAttribute.isTagged());
         assertEquals(ASCEND_SEND_SECRET, encryptTagAttribute.getCodecType());
     }
@@ -71,23 +71,23 @@ class DictionaryParserTest {
         // BEGIN-VENDOR	Ascend
         // ATTRIBUTE	Ascend-Max-Shared-Users			2	integer  has_tag
 
-        final AttributeTemplate attribute = dictionary.getAttributeTemplate("Ascend-Test").get();
+        AttributeTemplate attribute = dictionary.getAttributeTemplate("Ascend-Test").get();
         assertFalse(attribute.isTagged());
         assertEquals(NO_ENCRYPT, attribute.getCodecType());
 
-        final AttributeTemplate tagAttribute = dictionary.getAttributeTemplate("Ascend-Max-Shared-Users").get();
+        AttributeTemplate tagAttribute = dictionary.getAttributeTemplate("Ascend-Max-Shared-Users").get();
         assertTrue(tagAttribute.isTagged());
         assertEquals(NO_ENCRYPT, tagAttribute.getCodecType());
 
-        final AttributeTemplate encryptAttribute = dictionary.getAttributeTemplate("Ascend-UU-Info").get();
+        AttributeTemplate encryptAttribute = dictionary.getAttributeTemplate("Ascend-UU-Info").get();
         assertFalse(encryptAttribute.isTagged());
         assertEquals(RFC2865_USER_PASSWORD, encryptAttribute.getCodecType());
 
-        final AttributeTemplate tagEncryptAttribute = dictionary.getAttributeTemplate("Ascend-CIR-Timer").get();
+        AttributeTemplate tagEncryptAttribute = dictionary.getAttributeTemplate("Ascend-CIR-Timer").get();
         assertTrue(tagEncryptAttribute.isTagged());
         assertEquals(RFC2868_TUNNEL_PASSWORD, tagEncryptAttribute.getCodecType());
 
-        final AttributeTemplate encryptTagAttribute = dictionary.getAttributeTemplate("Ascend-FR-08-Mode").get();
+        AttributeTemplate encryptTagAttribute = dictionary.getAttributeTemplate("Ascend-FR-08-Mode").get();
         assertTrue(encryptTagAttribute.isTagged());
         assertEquals(ASCEND_SEND_SECRET, encryptTagAttribute.getCodecType());
     }
@@ -96,23 +96,23 @@ class DictionaryParserTest {
     void testAttributeFlags() {
         // ATTRIBUTE PKM-SAID    141      short encrypt=1
 
-        final AttributeTemplate attribute = dictionary.getAttributeTemplate("PKM-Config-Settings").get();
+        AttributeTemplate attribute = dictionary.getAttributeTemplate("PKM-Config-Settings").get();
         assertFalse(attribute.isTagged());
         assertEquals(NO_ENCRYPT, attribute.getCodecType());
 
-        final AttributeTemplate tagAttribute = dictionary.getAttributeTemplate("PKM-Cryptosuite-List").get();
+        AttributeTemplate tagAttribute = dictionary.getAttributeTemplate("PKM-Cryptosuite-List").get();
         assertTrue(tagAttribute.isTagged());
         assertEquals(NO_ENCRYPT, tagAttribute.getCodecType());
 
-        final AttributeTemplate encryptAttribute = dictionary.getAttributeTemplate("PKM-SAID").get();
+        AttributeTemplate encryptAttribute = dictionary.getAttributeTemplate("PKM-SAID").get();
         assertFalse(encryptAttribute.isTagged());
         assertEquals(RFC2865_USER_PASSWORD, encryptAttribute.getCodecType());
 
-        final AttributeTemplate tagEncryptAttribute = dictionary.getAttributeTemplate("PKM-SA-Descriptor").get();
+        AttributeTemplate tagEncryptAttribute = dictionary.getAttributeTemplate("PKM-SA-Descriptor").get();
         assertTrue(tagEncryptAttribute.isTagged());
         assertEquals(RFC2868_TUNNEL_PASSWORD, tagEncryptAttribute.getCodecType());
 
-        final AttributeTemplate encryptTagAttribute = dictionary.getAttributeTemplate("PKM-Auth-Key").get();
+        AttributeTemplate encryptTagAttribute = dictionary.getAttributeTemplate("PKM-Auth-Key").get();
         assertTrue(encryptTagAttribute.isTagged());
         assertEquals(ASCEND_SEND_SECRET, encryptTagAttribute.getCodecType());
     }
@@ -121,7 +121,7 @@ class DictionaryParserTest {
     void valueEnumDeferred() {
         // parse VALUE before corresponding ATTRIBUTE
 
-        final AttributeTemplate template = dictionary.getAttributeTemplate("Timetra-Restrict-To-Home").get();
+        AttributeTemplate template = dictionary.getAttributeTemplate("Timetra-Restrict-To-Home").get();
         assertEquals("true", template.getEnumeration(1));
         assertEquals(1, template.getEnumeration("true"));
         assertEquals("false", template.getEnumeration(2));
@@ -130,12 +130,12 @@ class DictionaryParserTest {
 
     @Test
     void attributeNonDecimal() {
-        final AttributeTemplate template1 = dictionary.getAttributeTemplate("USR-Last-Number-Dialed-Out").get();
+        AttributeTemplate template1 = dictionary.getAttributeTemplate("USR-Last-Number-Dialed-Out").get();
         assertEquals(102, template1.getType());
         assertEquals("string", template1.getDataType());
         assertEquals(429, template1.getVendorId());
 
-        final AttributeTemplate template2 = dictionary.getAttributeTemplate(429, 232).get();
+        AttributeTemplate template2 = dictionary.getAttributeTemplate(429, 232).get();
         assertEquals("USR-Last-Number-Dialed-In-DNIS", template2.getName());
         assertEquals("string", template2.getDataType());
         assertEquals(429, template2.getVendorId());
@@ -143,25 +143,25 @@ class DictionaryParserTest {
 
     @Test
     void valueAttributeNonDecimal() {
-        final AttributeTemplate serviceType = dictionary.getAttributeTemplate("Service-Type").get();
+        AttributeTemplate serviceType = dictionary.getAttributeTemplate("Service-Type").get();
         assertEquals(0x06300001, serviceType.getEnumeration("Annex-Authorize-Only"));
         assertEquals("Annex-Authorize-Only", serviceType.getEnumeration(0x06300001));
 
-        final AttributeTemplate acctStatusType = dictionary.getAttributeTemplate("Acct-Status-Type").get();
+        AttributeTemplate acctStatusType = dictionary.getAttributeTemplate("Acct-Status-Type").get();
         assertEquals(0x06300001, acctStatusType.getEnumeration("Annex-User-Reject"));
         assertEquals("Annex-User-Reject", acctStatusType.getEnumeration(0x06300001));
     }
 
     @Test
     void vendorFormatFlag() {
-        final Vendor wispr = dictionary.getVendor("WISPr").get();
+        Vendor wispr = dictionary.getVendor("WISPr").get();
         assertSame(dictionary.getVendor(14122).get(), wispr);
         assertEquals(14122, wispr.id());
         assertEquals("WISPr", wispr.name());
         assertEquals(1, wispr.typeSize());
         assertEquals(1, wispr.lengthSize());
 
-        final Vendor lucent = dictionary.getVendor("Lucent").get();
+        Vendor lucent = dictionary.getVendor("Lucent").get();
         assertSame(dictionary.getVendor(4846).get(), lucent);
         assertEquals(4846, lucent.id());
         assertEquals("Lucent", lucent.name());
@@ -171,16 +171,16 @@ class DictionaryParserTest {
 
     @Test
     void attributeCustomTypeSize() {
-        final AttributeTemplate basic = dictionary.getAttributeTemplate("Lucent-Max-Shared-Users").get();
+        AttributeTemplate basic = dictionary.getAttributeTemplate("Lucent-Max-Shared-Users").get();
         assertEquals(2, basic.getType());
 
-        final AttributeTemplate custom = dictionary.getAttributeTemplate("Lucent-Retrain-Reason").get();
+        AttributeTemplate custom = dictionary.getAttributeTemplate("Lucent-Retrain-Reason").get();
         assertEquals(20119, custom.getType());
     }
 
     @Test
     void fileSystemIncludeDict() throws IOException {
-        final Path tmpPath = Files.createTempDirectory("tinyradius_test_");
+        Path tmpPath = Files.createTempDirectory("tinyradius_test_");
         copyDict(tmpPath, TEST_DICTIONARY,
                 "default_dictionary",
                 "dictionary.rfc5904",
@@ -188,9 +188,9 @@ class DictionaryParserTest {
                 "dictionary.ascend",
                 "dictionary.alcatel.sr");
 
-        final Dictionary dictionary = DictionaryParser.newFileParser().parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
+        Dictionary dictionary = DictionaryParser.newFileParser().parseDictionary(tmpPath + "/" + TEST_DICTIONARY);
 
-        final Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
+        Optional<AttributeTemplate> attributeTemplate = dictionary.getAttributeTemplate(6);
         assertTrue(attributeTemplate.isPresent());
         assertEquals("Service-Type", attributeTemplate.get().getName());
         assertEquals("Login-User", attributeTemplate.get().getEnumeration(1));
@@ -204,7 +204,7 @@ class DictionaryParserTest {
     }
 
     private void copyDict(Path tempDir, String... files) throws IOException {
-        for (final String file : files) {
+        for (String file : files) {
             Files.copy(
                     requireNonNull(this.getClass().getClassLoader().getResourceAsStream(PACKAGE_PREFIX + file)),
                     tempDir.resolve(file), REPLACE_EXISTING);

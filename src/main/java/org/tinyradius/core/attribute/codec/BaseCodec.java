@@ -61,7 +61,7 @@ public abstract class BaseCodec {
     protected abstract byte[] decodeData(byte[] encodedData, byte[] auth, byte[] secret) throws RadiusPacketException;
 
     protected static byte[] xor16(byte[] src1, int src1offset, byte[] src2) {
-        final byte[] dst = new byte[16];
+        byte[] dst = new byte[16];
 
         if (src1offset < 0)
             throw new IndexOutOfBoundsException("src1offset is less than 0");

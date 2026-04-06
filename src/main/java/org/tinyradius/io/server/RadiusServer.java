@@ -6,6 +6,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.io.RadiusLifecycle;
 
 import java.net.InetSocketAddress;
@@ -19,7 +20,9 @@ import java.util.stream.IntStream;
 public class RadiusServer implements RadiusLifecycle {
 
     private final EventLoopGroup eventLoopGroup;
+
     private final List<ChannelFuture> channelFutures;
+
     private final Promise<Void> isReady;
 
     /**
@@ -31,11 +34,11 @@ public class RadiusServer implements RadiusLifecycle {
      * @param socket1   socket to listen on
      * @param socket2   socket to listen on
      */
-    public RadiusServer(Bootstrap bootstrap,
-                        ChannelHandler handler1,
-                        ChannelHandler handler2,
-                        InetSocketAddress socket1,
-                        InetSocketAddress socket2) {
+    public RadiusServer(@NonNull Bootstrap bootstrap,
+                        @NonNull ChannelHandler handler1,
+                        @NonNull ChannelHandler handler2,
+                        @NonNull InetSocketAddress socket1,
+                        @NonNull InetSocketAddress socket2) {
         this(bootstrap, List.of(handler1, handler2), List.of(socket1, socket2));
     }
 
@@ -46,20 +49,20 @@ public class RadiusServer implements RadiusLifecycle {
      * @param channelHandlers list of channelHandlers to handle requests
      * @param socketAddresses list of socketAddresses to bind channelHandlers to, must be same length
      */
-    public RadiusServer(Bootstrap bootstrap, List<ChannelHandler> channelHandlers, List<InetSocketAddress> socketAddresses) {
+    public RadiusServer(@NonNull Bootstrap bootstrap, @NonNull List<ChannelHandler> channelHandlers, @NonNull List<InetSocketAddress> socketAddresses) {
         if (channelHandlers.size() != socketAddresses.size())
             throw new IllegalArgumentException(String.format("ChannelHandlers size (%s) and SocketAddresses size (%s) don't match",
                     channelHandlers.size(), socketAddresses.size()));
         eventLoopGroup = bootstrap.config().group();
 
-        EventLoop eventLoop = eventLoopGroup.next();
+        var eventLoop = eventLoopGroup.next();
         isReady = eventLoop.newPromise();
-        final PromiseCombiner combiner = new PromiseCombiner(eventLoop);
+        var combiner = new PromiseCombiner(eventLoop);
         channelFutures = IntStream.range(0, channelHandlers.size())
                 .mapToObj(i -> bootstrap.clone().handler(channelHandlers.get(i)).bind(socketAddresses.get(i)))
                 .toList();
 
-        eventLoop.execute(() ->{
+        eventLoop.execute(() -> {
             combiner.addAll(channelFutures.toArray(ChannelFuture[]::new));
             combiner.finish(isReady);
         });
@@ -73,30 +76,39 @@ public class RadiusServer implements RadiusLifecycle {
      *
      * @return the channels the server is listening on
      */
+    @NonNull
     public List<Channel> getChannels() {
         return channelFutures.stream().map(ChannelFuture::channel).toList();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public Future<Void> isReady() {
         return isReady;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public Future<Void> closeAsync() {
         log.info("Closing server on {}", channelFutures.stream()
                 .map(ChannelFuture::channel)
                 .map(Channel::localAddress)
                 .toList());
 
-        final List<ChannelFuture> futures = channelFutures.stream()
+        var futures = channelFutures.stream()
                 .map(ChannelFuture::channel)
                 .map(ChannelOutboundInvoker::close)
                 .toList();
 
-        EventLoop eventLoop = eventLoopGroup.next();
-        final Promise<Void> isClosed = eventLoop.newPromise();
-        final PromiseCombiner combiner = new PromiseCombiner(eventLoop);
+        var eventLoop = eventLoopGroup.next();
+        var isClosed = eventLoop.<Void>newPromise();
+        var combiner = new PromiseCombiner(eventLoop);
         eventLoop.execute(() -> {
             combiner.addAll(futures.toArray(ChannelFuture[]::new));
             combiner.finish(isClosed);

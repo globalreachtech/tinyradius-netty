@@ -16,25 +16,25 @@ class AttributesTest {
 
     @Test
     void createAttributeKnownTypes() {
-        final RadiusAttribute a1 = dictionary.createAttribute(-1, 8, new byte[4]);
+        RadiusAttribute a1 = dictionary.createAttribute(-1, 8, new byte[4]);
         assertEquals(IpAttribute.V4.class, a1.getClass());
 
-        final RadiusAttribute a2 = dictionary.createAttribute(-1, 8, "1.1.1.1");
+        RadiusAttribute a2 = dictionary.createAttribute(-1, 8, "1.1.1.1");
         assertEquals(IpAttribute.V4.class, a2.getClass());
 
-        final RadiusAttribute a3 = dictionary.createAttribute(-1, 1, new byte[1]);
+        RadiusAttribute a3 = dictionary.createAttribute(-1, 1, new byte[1]);
         assertEquals(StringAttribute.class, a3.getClass());
 
-        final RadiusAttribute a4 = dictionary.createAttribute(-1, 1, "myString");
+        RadiusAttribute a4 = dictionary.createAttribute(-1, 1, "myString");
         assertEquals(StringAttribute.class, a4.getClass());
     }
 
     @Test
     void createAttributeUnknownTypes() {
-        final RadiusAttribute a1 = dictionary.createAttribute(-1, 255, new byte[5]);
+        RadiusAttribute a1 = dictionary.createAttribute(-1, 255, new byte[5]);
         assertEquals(OctetsAttribute.class, a1.getClass());
 
-        final RadiusAttribute a2 = dictionary.createAttribute(-1, 255, "");
+        RadiusAttribute a2 = dictionary.createAttribute(-1, 255, "");
         assertEquals(OctetsAttribute.class, a2.getClass());
     }
 }

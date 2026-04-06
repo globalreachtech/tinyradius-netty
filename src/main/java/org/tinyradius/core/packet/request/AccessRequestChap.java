@@ -7,7 +7,6 @@ import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.RadiusPacket;
 
 import java.nio.ByteBuffer;
-import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,7 +25,7 @@ public class AccessRequestChap extends AccessRequest {
     }
 
     static AccessRequest withPassword(AccessRequest request, String password) throws RadiusPacketException {
-        final List<RadiusAttribute> attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
+        var attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
         return (AccessRequest) request.withAttributes(attributes);
     }
 
@@ -43,9 +42,9 @@ public class AccessRequestChap extends AccessRequest {
         if (password == null || password.isEmpty())
             throw new IllegalArgumentException("Could not encode CHAP attributes, password not set");
 
-        final byte[] challenge = random16bytes();
+        byte[] challenge = random16bytes();
 
-        final List<RadiusAttribute> newAttributes = attributes.stream()
+        var newAttributes = attributes.stream()
                 .filter(a -> !(a.getVendorId() == -1 && a.getType() == CHAP_PASSWORD)
                         && !(a.getVendorId() == -1 && a.getType() == CHAP_CHALLENGE))
                 .collect(toList());
@@ -79,7 +78,7 @@ public class AccessRequestChap extends AccessRequest {
      * @return 17 octet CHAP-encoded password (1 octet for CHAP ID, 16 octets CHAP response)
      */
     private static byte[] computeChapPassword(byte chapId, String plaintextPw, byte[] chapChallenge) {
-        final MessageDigest md5 = RadiusPacket.getMd5Digest();
+        var md5 = RadiusPacket.getMd5Digest();
         md5.update(chapId);
         md5.update(plaintextPw.getBytes(UTF_8));
         md5.update(chapChallenge);
@@ -103,11 +102,11 @@ public class AccessRequestChap extends AccessRequest {
             return false;
         }
 
-        final byte[] chapChallenge = getAttribute(CHAP_CHALLENGE)
+        byte[] chapChallenge = getAttribute(CHAP_CHALLENGE)
                 .map(RadiusAttribute::getValue)
                 .orElse(getAuthenticator());
 
-        final byte[] chapPassword = getAttribute(CHAP_PASSWORD)
+        byte[] chapPassword = getAttribute(CHAP_PASSWORD)
                 .map(RadiusAttribute::getValue)
                 .orElse(null);
         if (chapPassword == null || chapPassword.length != 17) {
@@ -119,7 +118,7 @@ public class AccessRequestChap extends AccessRequest {
     }
 
     private void validateChapAttributes() throws RadiusPacketException {
-        final int count = getAttributes(CHAP_PASSWORD).size();
+        int count = getAttributes(CHAP_PASSWORD).size();
         if (count != 1)
             throw new RadiusPacketException("AccessRequest (CHAP) should have exactly one CHAP-Password attribute, has " + count);
         // CHAP-Challenge can use Request Authenticator instead of attribute

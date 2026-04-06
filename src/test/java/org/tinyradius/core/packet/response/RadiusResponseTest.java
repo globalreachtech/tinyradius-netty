@@ -29,33 +29,33 @@ class RadiusResponseTest {
 
     @Test
     void createResponse() throws RadiusPacketException {
-        final AccessResponse accessAccept = (AccessResponse) RadiusResponse.create(dictionary, PacketType.ACCESS_ACCEPT, (byte) 1, null, Collections.emptyList());
+        AccessResponse accessAccept = (AccessResponse) RadiusResponse.create(dictionary, PacketType.ACCESS_ACCEPT, (byte) 1, null, Collections.emptyList());
         assertEquals(PacketType.ACCESS_ACCEPT, accessAccept.getType());
 
-        final GenericResponse accountingResponse = (GenericResponse) RadiusResponse.create(dictionary, PacketType.ACCOUNTING_RESPONSE, (byte) 2, null, Collections.emptyList());
+        GenericResponse accountingResponse = (GenericResponse) RadiusResponse.create(dictionary, PacketType.ACCOUNTING_RESPONSE, (byte) 2, null, Collections.emptyList());
         assertEquals(PacketType.ACCOUNTING_RESPONSE, accountingResponse.getType());
     }
 
     @Test
     void fromResponseDatagram() throws RadiusPacketException {
-        final String user = "user2";
-        final String plaintextPw = "myPassword2";
-        final String sharedSecret = "sharedSecret2";
+        String user = "user2";
+        String plaintextPw = "myPassword2";
+        String sharedSecret = "sharedSecret2";
 
-        final byte id = (byte) random.nextInt(256);
+        byte id = (byte) random.nextInt(256);
 
-        final AccessRequestPap request = (AccessRequestPap)
+        AccessRequestPap request = (AccessRequestPap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, id, null, Collections.emptyList()))
                         .withPapPassword(plaintextPw)
                         .addAttribute(USER_NAME, user);
-        final RadiusRequest encodedRequest = request.encodeRequest(sharedSecret);
+        RadiusRequest encodedRequest = request.encodeRequest(sharedSecret);
 
-        final AccessResponse.Accept response = (AccessResponse.Accept) RadiusResponse.create(dictionary, (byte) 2, id, null, Collections.emptyList())
+        AccessResponse.Accept response = (AccessResponse.Accept) RadiusResponse.create(dictionary, (byte) 2, id, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, 33, "state3333".getBytes(UTF_8)));
-        final RadiusResponse encodedResponse = response.encodeResponse(sharedSecret, encodedRequest.getAuthenticator());
+        RadiusResponse encodedResponse = response.encodeResponse(sharedSecret, encodedRequest.getAuthenticator());
 
-        final DatagramPacket datagramPacket = new DatagramPacket(encodedResponse.toByteBuf(), remoteAddress);
-        final RadiusResponse packet = RadiusResponse.fromDatagram(dictionary, datagramPacket)
+        DatagramPacket datagramPacket = new DatagramPacket(encodedResponse.toByteBuf(), remoteAddress);
+        RadiusResponse packet = RadiusResponse.fromDatagram(dictionary, datagramPacket)
                 .decodeResponse(sharedSecret, encodedRequest.getAuthenticator());
 
         assertEquals(encodedResponse.getId(), packet.getId());

@@ -33,7 +33,7 @@ class MessageAuthSupportTest {
 
     @Test
     void decodeNoMessageAuth() throws RadiusPacketException {
-        final TestPacket testPacket = new TestPacket((byte) 1, (byte) 1, new byte[16], Collections.emptyList());
+        TestPacket testPacket = new TestPacket((byte) 1, (byte) 1, new byte[16], Collections.emptyList());
 
         // should always pass if nothing to verify
         testPacket.verifyMessageAuth(secret, null);
@@ -41,11 +41,11 @@ class MessageAuthSupportTest {
 
     @Test
     void selfEncodeVerify() throws RadiusPacketException {
-        final byte[] auth = new byte[16];
+        byte[] auth = new byte[16];
         auth[0] = 1; // set auth to non-zeros
-        final TestPacket testPacket = new TestPacket((byte) 1, (byte) 1, auth, Collections.emptyList());
+        TestPacket testPacket = new TestPacket((byte) 1, (byte) 1, auth, Collections.emptyList());
 
-        final TestPacket encodedPacket = testPacket.encodeMessageAuth(secret, null);
+        TestPacket encodedPacket = testPacket.encodeMessageAuth(secret, null);
         encodedPacket.verifyMessageAuth(secret, testPacket.getAuthenticator());
         encodedPacket.verifyMessageAuth(secret, null);
     }
@@ -53,17 +53,17 @@ class MessageAuthSupportTest {
     @Test
     void testEncode() throws Exception {
         // impl under test
-        final AccessRequestNoAuth encodedRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList())
+        AccessRequestNoAuth encodedRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList())
                 .encodeRequest(secret);
-        final byte[] actualMsgAuth = encodedRequest.getAttributes().get(0).getValue();
+        byte[] actualMsgAuth = encodedRequest.getAttributes().get(0).getValue();
 
         // jradius impl
-        final net.jradius.packet.AccessRequest jradiusRequest = new net.jradius.packet.AccessRequest();
+        net.jradius.packet.AccessRequest jradiusRequest = new net.jradius.packet.AccessRequest();
         jradiusRequest.setIdentifier(1);
         jradiusRequest.setAuthenticator(encodedRequest.getAuthenticator());
         jRadius_generateRequestMessageAuthenticator(jradiusRequest);
 
-        final byte[] jradiusMsgAuth = jradiusRequest.getAttributes().get(MESSAGE_AUTHENTICATOR).getValue().getBytes();
+        byte[] jradiusMsgAuth = jradiusRequest.getAttributes().get(MESSAGE_AUTHENTICATOR).getValue().getBytes();
 
         assertArrayEquals(jradiusMsgAuth, actualMsgAuth);
     }
@@ -72,10 +72,10 @@ class MessageAuthSupportTest {
      * Adapted from {@link MessageAuthenticator#generateRequestMessageAuthenticator}
      */
     private static void jRadius_generateRequestMessageAuthenticator(RadiusPacket request) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
-        final byte[] hash = new byte[16];
-        final ByteBuffer buffer = ByteBuffer.allocate(4096);
+        byte[] hash = new byte[16];
+        ByteBuffer buffer = ByteBuffer.allocate(4096);
 
-        final Attr_UnknownAttribute attribute = new Attr_UnknownAttribute(MESSAGE_AUTHENTICATOR);
+        Attr_UnknownAttribute attribute = new Attr_UnknownAttribute(MESSAGE_AUTHENTICATOR);
         attribute.setValue(hash);
 
         request.overwriteAttribute(attribute);

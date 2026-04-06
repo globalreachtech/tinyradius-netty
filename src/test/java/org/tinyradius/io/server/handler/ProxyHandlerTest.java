@@ -56,8 +56,8 @@ class ProxyHandlerTest {
             }
         };
 
-        final AccountingRequest request = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
-        final RadiusResponse mockResponse = RadiusResponse.create(dictionary, ACCOUNTING_RESPONSE, (byte) 123, null,
+        AccountingRequest request = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
+        RadiusResponse mockResponse = RadiusResponse.create(dictionary, ACCOUNTING_RESPONSE, (byte) 123, null,
                 Collections.singletonList(dictionary.createAttribute(-1, (byte) 33, "state1".getBytes(UTF_8))));
 
         when(client.communicate(any(RadiusRequest.class), any(RadiusEndpoint.class))).thenReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(mockResponse));
@@ -79,7 +79,7 @@ class ProxyHandlerTest {
 
         when(client.communicate(any(RadiusRequest.class), any(RadiusEndpoint.class))).thenReturn(GlobalEventExecutor.INSTANCE.newFailedFuture(new Exception("test")));
 
-        final AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 123, null, Collections.emptyList());
+        AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 123, null, Collections.emptyList());
 
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
 
@@ -90,14 +90,14 @@ class ProxyHandlerTest {
     @Test
     void handleNullServerEndPoint() throws RadiusPacketException {
 
-        final ProxyHandler proxyHandler = new ProxyHandler(client) {
+        ProxyHandler proxyHandler = new ProxyHandler(client) {
             @Override
             public Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint clientEndpoint) {
                 return Optional.empty();
             }
         };
 
-        final AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 123, null, Collections.emptyList());
+        AccountingRequest packet = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 123, null, Collections.emptyList());
         proxyHandler.channelRead0(ctx, new RequestCtx(packet, stubEndpoint));
 
         verifyNoInteractions(ctx);

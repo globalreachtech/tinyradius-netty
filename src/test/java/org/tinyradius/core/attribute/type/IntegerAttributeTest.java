@@ -20,7 +20,7 @@ class IntegerAttributeTest {
 
     @Test
     void intMaxUnsigned() {
-        final IntegerAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, Long.toString(0xffffffffL));
+        IntegerAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, Long.toString(0xffffffffL));
 
         assertEquals(-1, attribute.getValueInt());
         assertEquals(0xffffffffL, attribute.getValueLong());
@@ -29,8 +29,8 @@ class IntegerAttributeTest {
 
     @Test
     void intMaxSigned() {
-        final int value = Integer.MAX_VALUE;
-        final IntegerAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, String.valueOf(value));
+        int value = Integer.MAX_VALUE;
+        IntegerAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, String.valueOf(value));
 
         assertEquals(value, attribute.getValueInt());
         assertEquals(value, attribute.getValueLong());
@@ -39,8 +39,8 @@ class IntegerAttributeTest {
 
     @Test
     void bytesOk() {
-        final byte[] bytes = new byte[]{0, 0, (byte) 0xff, (byte) 0xff};
-        final IntegerAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, bytes);
+        byte[] bytes = new byte[]{0, 0, (byte) 0xff, (byte) 0xff};
+        IntegerAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, bytes);
 
         assertEquals(65535, attribute.getValueInt());
         assertEquals(65535, attribute.getValueLong());
@@ -50,14 +50,14 @@ class IntegerAttributeTest {
     @Test
     void bytesTooShort() throws IOException {
         // no tag
-        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, new byte[3]));
         assertThat(e1).hasMessageContaining("should be 4 octets, actual: 3");
 
         // has tag
-        final Dictionary dict = DictionaryParser.newClasspathParser()
+        Dictionary dict = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary.rfc2868");
-        final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dict, -1, TUNNEL_TYPE, (byte) 0, new byte[2]));
         assertThat(e2).hasMessageContaining("should be 3 octets if has_tag, actual: 2");
     }
@@ -65,21 +65,21 @@ class IntegerAttributeTest {
     @Test
     void bytesTooLong() throws IOException {
         // no tag
-        final IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, new byte[5]));
         assertThat(e1).hasMessageContaining("should be 4 octets, actual: 5");
 
         // has tag
-        final Dictionary dict = DictionaryParser.newClasspathParser()
+        Dictionary dict = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary.rfc2868");
-        final IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dict, -1, 64, (byte) 0, new byte[4])); // Tunnel-Type
         assertThat(e2).hasMessageContaining("should be 3 octets if has_tag, actual: 4");
     }
 
     @Test
     void stringOk() {
-        final IntegerAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, "12345");
+        IntegerAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, "12345");
 
         assertEquals(12345, attribute.getValueInt());
         assertEquals(12345, attribute.getValueLong());
@@ -88,8 +88,8 @@ class IntegerAttributeTest {
 
     @Test
     void stringTooBig() {
-        final String strLong = Long.toString(0xffffffffffL);
-        final NumberFormatException exception = assertThrows(NumberFormatException.class,
+        String strLong = Long.toString(0xffffffffffL);
+        NumberFormatException exception = assertThrows(NumberFormatException.class,
                 () -> FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, strLong));
 
         assertTrue(exception.getMessage().toLowerCase().contains("exceeds range"));
@@ -97,7 +97,7 @@ class IntegerAttributeTest {
 
     @Test
     void stringEmpty() {
-        final NumberFormatException exception = assertThrows(NumberFormatException.class,
+        NumberFormatException exception = assertThrows(NumberFormatException.class,
                 () -> FACTORY.create(dictionary, -1, FRAMED_ROUTING, (byte) 0, ""));
 
         assertTrue(exception.getMessage().toLowerCase().contains("for input string: \"\""));
@@ -105,7 +105,7 @@ class IntegerAttributeTest {
 
     @Test
     void stringEnum() {
-        final IntegerAttribute attribute = FACTORY.create(dictionary, -1, SERVICE_TYPE, (byte) 0, "Login-User");
+        IntegerAttribute attribute = FACTORY.create(dictionary, -1, SERVICE_TYPE, (byte) 0, "Login-User");
 
         assertEquals(1, attribute.getValueInt());
         assertEquals(1, attribute.getValueLong());
@@ -114,7 +114,7 @@ class IntegerAttributeTest {
 
     @Test
     void stringInvalid() {
-        final NumberFormatException exception = assertThrows(NumberFormatException.class,
+        NumberFormatException exception = assertThrows(NumberFormatException.class,
                 () -> FACTORY.create(dictionary, -1, SERVICE_TYPE, (byte) 0, "badString"));
 
         assertTrue(exception.getMessage().toLowerCase().contains("for input string: \"badstring\""));
@@ -127,7 +127,7 @@ class IntegerAttributeTest {
         // VALUE		Service-Type		Callback-Login-User	3
 
         // from enum
-        final IntegerAttribute serviceType = FACTORY.create(dictionary, -1, SERVICE_TYPE, (byte) 1, "Callback-Login-User");
+        IntegerAttribute serviceType = FACTORY.create(dictionary, -1, SERVICE_TYPE, (byte) 1, "Callback-Login-User");
         assertEquals(6, serviceType.getLength());
         assertEquals(6, serviceType.getData().readableBytes());
         assertEquals(6, serviceType.toByteArray().length);
@@ -139,15 +139,15 @@ class IntegerAttributeTest {
         assertFalse(serviceType.getTag().isPresent());
 
         // from int string
-        final IntegerAttribute serviceType2 = FACTORY.create(dictionary, -1, SERVICE_TYPE, (byte) 1, "3");
+        IntegerAttribute serviceType2 = FACTORY.create(dictionary, -1, SERVICE_TYPE, (byte) 1, "3");
         assertArrayEquals(serviceType.toByteArray(), serviceType2.toByteArray());
 
         // from byte[]
-        final IntegerAttribute serviceType3 = FACTORY.create(dictionary, -1, SERVICE_TYPE, (byte) 1, new byte[]{0, 0, 0, 3});
+        IntegerAttribute serviceType3 = FACTORY.create(dictionary, -1, SERVICE_TYPE, (byte) 1, new byte[]{0, 0, 0, 3});
         assertArrayEquals(serviceType.toByteArray(), serviceType3.toByteArray());
 
         // from parse
-        final IntegerAttribute parsedServiceType = (IntegerAttribute) AttributeHolder.readAttribute(dictionary, -1, serviceType.toByteBuf().copy());
+        IntegerAttribute parsedServiceType = (IntegerAttribute) AttributeHolder.readAttribute(dictionary, -1, serviceType.toByteBuf().copy());
         assertArrayEquals(serviceType.toByteArray(), parsedServiceType.toByteArray());
     }
 
@@ -162,11 +162,11 @@ class IntegerAttributeTest {
     void enumTagged() throws IOException {
         // ATTRIBUTE	Tunnel-Type				64	integer	has_tag
         // VALUE	Tunnel-Type			L2F			2
-        final Dictionary dict = DictionaryParser.newClasspathParser()
+        Dictionary dict = DictionaryParser.newClasspathParser()
                 .parseDictionary("org/tinyradius/core/dictionary/freeradius/dictionary.rfc2868");
 
         // from enum
-        final IntegerAttribute vlan = (IntegerAttribute) dict.getAttributeTemplate("Tunnel-Type").get()
+        IntegerAttribute vlan = (IntegerAttribute) dict.getAttributeTemplate("Tunnel-Type").get()
                 .create(dict, (byte) 123, "L2F");
         assertEquals(6, vlan.getLength());
         assertEquals(6, vlan.getData().readableBytes());
@@ -179,17 +179,17 @@ class IntegerAttributeTest {
         assertEquals((byte) 123, vlan.getTag().get());
 
         // from int string
-        final IntegerAttribute vlan2 = (IntegerAttribute) dict.getAttributeTemplate("Tunnel-Type").get()
+        IntegerAttribute vlan2 = (IntegerAttribute) dict.getAttributeTemplate("Tunnel-Type").get()
                 .create(dict, (byte) 123, "2");
         assertArrayEquals(vlan.toByteArray(), vlan2.toByteArray());
 
         // from byte[]
-        final IntegerAttribute vlan3 = (IntegerAttribute) dict.getAttributeTemplate("Tunnel-Type").get()
+        IntegerAttribute vlan3 = (IntegerAttribute) dict.getAttributeTemplate("Tunnel-Type").get()
                 .create(dict, (byte) 123, new byte[]{0, 0, 2});
         assertArrayEquals(vlan.toByteArray(), vlan3.toByteArray());
 
         // from parse
-        final IntegerAttribute parsedVlan = (IntegerAttribute) AttributeHolder.readAttribute(dict, -1, vlan.toByteBuf().copy());
+        IntegerAttribute parsedVlan = (IntegerAttribute) AttributeHolder.readAttribute(dict, -1, vlan.toByteBuf().copy());
         assertArrayEquals(vlan.toByteArray(), parsedVlan.toByteArray());
     }
 }

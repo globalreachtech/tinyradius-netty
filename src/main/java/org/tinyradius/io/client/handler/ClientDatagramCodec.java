@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.dictionary.Dictionary;
-import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.client.PendingRequestCtx;
 
 import java.net.InetSocketAddress;
@@ -32,7 +31,7 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
     protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
         log.debug("Sending packet to {} - {}", msg.getEndpoint().address(), msg.getRequest());
 
-        final DatagramPacket datagramPacket = new DatagramPacket(
+        var datagramPacket = new DatagramPacket(
                 msg.getRequest().toByteBuf(),
                 msg.getEndpoint().address(),
                 (InetSocketAddress) ctx.channel().localAddress());
@@ -42,7 +41,7 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
 
     @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
-        final InetSocketAddress remoteAddress = msg.sender();
+        var remoteAddress = msg.sender();
 
         if (remoteAddress == null) {
             log.warn("Ignoring response, remoteAddress is null");
@@ -50,7 +49,7 @@ public class ClientDatagramCodec extends MessageToMessageCodec<DatagramPacket, P
         }
 
         try {
-            RadiusResponse response = fromDatagram(dictionary, msg);
+            var response = fromDatagram(dictionary, msg);
             log.debug("Received packet from {} - {}", remoteAddress, response);
 
             out.add(response);

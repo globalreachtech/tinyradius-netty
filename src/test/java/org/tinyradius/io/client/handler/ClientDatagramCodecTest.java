@@ -53,33 +53,33 @@ class ClientDatagramCodecTest {
 
     @Test
     void decodeSuccess() throws RadiusPacketException {
-        final byte[] requestAuth = random.generateSeed(16);
-        final String password = "myPw";
+        byte[] requestAuth = random.generateSeed(16);
+        String password = "myPw";
 
-        final RadiusResponse encodeResponse = RadiusResponse.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList())
+        RadiusResponse encodeResponse = RadiusResponse.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList())
                 .addAttribute("User-Password", password)
                 .encodeResponse("mySecret", requestAuth);
 
-        final List<Object> out1 = new ArrayList<>();
+        List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, new DatagramPacket(encodeResponse.toByteBuf(), address, address), out1);
 
         assertEquals(1, out1.size());
-        final RadiusResponse actual = (RadiusResponse) out1.get(0);
+        RadiusResponse actual = (RadiusResponse) out1.get(0);
         assertEquals(encodeResponse.toString(), actual.toString()); // should still be encoded
     }
 
     @Test
     void decodeRadiusException() throws RadiusPacketException {
-        final byte[] requestAuth = random.generateSeed(16);
+        byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusResponse response = RadiusResponse.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList());
+        RadiusResponse response = RadiusResponse.create(dictionary, (byte) 5, (byte) 1, null, Collections.emptyList());
 
-        final DatagramPacket datagram = new DatagramPacket(
+        DatagramPacket datagram = new DatagramPacket(
                 response.encodeResponse("mySecret", requestAuth).toByteBuf(), address, address);
 
         datagram.content().setByte(3, 7); // corrupt bytes to trigger error
 
-        final List<Object> out1 = new ArrayList<>();
+        List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, datagram, out1);
 
         assertTrue(out1.isEmpty());
@@ -87,11 +87,11 @@ class ClientDatagramCodecTest {
 
     @Test
     void decodeRemoteAddressNull() throws RadiusPacketException {
-        final byte[] requestAuth = random.generateSeed(16);
+        byte[] requestAuth = random.generateSeed(16);
 
-        final RadiusResponse response = RadiusResponse.create(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList());
+        RadiusResponse response = RadiusResponse.create(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList());
 
-        final List<Object> out1 = new ArrayList<>();
+        List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, new DatagramPacket(response.encodeResponse("mySecret", requestAuth).toByteBuf(), address), out1);
 
         assertTrue(out1.isEmpty());
@@ -99,26 +99,26 @@ class ClientDatagramCodecTest {
 
     @Test
     void encodeAccessRequest() throws RadiusPacketException {
-        final String secret = UUID.randomUUID().toString();
-        final String username = "myUsername";
-        final String password = "myPassword";
-        final byte id = (byte) random.nextInt(256);
+        String secret = UUID.randomUUID().toString();
+        String username = "myUsername";
+        String password = "myPassword";
+        byte id = (byte) random.nextInt(256);
 
-        final AccessRequestPap accessRequest = (AccessRequestPap)
+        AccessRequestPap accessRequest = (AccessRequestPap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, id, null, Collections.emptyList()))
                         .withPapPassword(password)
                         .addAttribute(USER_NAME, username)
                         .encodeRequest(secret);
-        final RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
+        RadiusEndpoint endpoint = new RadiusEndpoint(new InetSocketAddress(0), secret);
 
         when(ctx.channel()).thenReturn(mock(Channel.class));
 
         // process
-        final List<Object> out1 = new ArrayList<>();
+        List<Object> out1 = new ArrayList<>();
         codec.encode(ctx, new PendingRequestCtx(accessRequest, endpoint, promise), out1);
 
         assertEquals(1, out1.size());
-        final AccessRequestPap sentAccessPacket = (AccessRequestPap) fromDatagram(dictionary, (DatagramPacket) out1.get(0))
+        AccessRequestPap sentAccessPacket = (AccessRequestPap) fromDatagram(dictionary, (DatagramPacket) out1.get(0))
                 .decodeRequest(secret);
 
         // check user details correctly encoded

@@ -36,6 +36,7 @@ public record Vendor(int id, @NonNull String name, int typeSize, int lengthSize)
 
     /**
      * Converts an integer type to its byte representation according to the vendor's typeSize.
+     *
      * @param type the type code
      * @return the type in bytes
      */
@@ -49,6 +50,7 @@ public record Vendor(int id, @NonNull String name, int typeSize, int lengthSize)
 
     /**
      * Converts an integer length to its byte representation according to the vendor's lengthSize.
+     *
      * @param len the length
      * @return the length in bytes
      */

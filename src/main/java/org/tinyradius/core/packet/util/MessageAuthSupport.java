@@ -1,6 +1,5 @@
 package org.tinyradius.core.packet.util;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +15,6 @@ import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
@@ -31,7 +29,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
     Logger msgAuthLogger = LogManager.getLogger();
 
     private static byte[] calcMessageAuthInput(RadiusPacket<?> packet, byte[] requestAuth) {
-        final ByteBuf buf = Unpooled.buffer()
+        var buf = Unpooled.buffer()
                 .writeByte(packet.getType())
                 .writeByte(packet.getId())
                 .writeShort(0) // placeholder
@@ -51,9 +49,9 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
 
     private static Mac getHmacMd5(String key) {
         try {
-            final String HMAC_MD5 = "HmacMD5";
-            final SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_MD5);
-            final Mac mac = Mac.getInstance(HMAC_MD5);
+            var HMAC_MD5 = "HmacMD5";
+            var secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_MD5);
+            var mac = Mac.getInstance(HMAC_MD5);
             mac.init(secretKeySpec);
             return mac;
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
@@ -72,21 +70,21 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
         if (sharedSecret.isEmpty())
             throw new IllegalArgumentException("Shared secret cannot be null/empty");
 
-        final List<RadiusAttribute> msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
+        var msgAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
         if (msgAuthAttr.isEmpty())
             return;
 
         if (msgAuthAttr.size() > 1)
             throw new RadiusPacketException("Message-Authenticator check failed - should have at most one count, has " + msgAuthAttr.size());
 
-        final byte[] messageAuth = msgAuthAttr.get(0).getValue();
+        byte[] messageAuth = msgAuthAttr.get(0).getValue();
 
         if (messageAuth.length != 16)
             throw new RadiusPacketException("Message-Authenticator check failed - must be 16 octets, actual " + messageAuth.length);
 
         if (!Arrays.equals(messageAuth, computeMessageAuth(this, sharedSecret, requestAuth))) {
             // find attributes that can be encoded but aren't
-            final boolean decodedAlready = getAttribute(a ->
+            boolean decodedAlready = getAttribute(a ->
                     a.codecType() != NO_ENCRYPT && a.isDecoded()).isPresent();
 
             if (decodedAlready)
@@ -103,7 +101,7 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
      * @return Message Authenticator byte array
      */
     private static byte[] computeMessageAuth(RadiusPacket<?> packet, String sharedSecret, byte @Nullable [] requestAuth) {
-        final byte[] messageAuthInput = calcMessageAuthInput(
+        byte[] messageAuthInput = calcMessageAuthInput(
                 packet, requestAuth != null ? requestAuth : packet.getAuthenticator());
         return getHmacMd5(sharedSecret).doFinal(messageAuthInput);
     }
@@ -122,13 +120,13 @@ public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPac
 
         // When the message integrity check is calculated, the signature
         // string should be considered to be sixteen octets of zero.
-        final ByteBuffer buffer = ByteBuffer.allocate(16);
-        final RadiusAttribute attribute = getDictionary().createAttribute(-1, MESSAGE_AUTHENTICATOR, (byte) 0, buffer.array());
+        var buffer = ByteBuffer.allocate(16);
+        var attribute = getDictionary().createAttribute(-1, MESSAGE_AUTHENTICATOR, (byte) 0, buffer.array());
 
-        final List<RadiusAttribute> attributes = getAttributes(a -> a.getType() != MESSAGE_AUTHENTICATOR);
+        var attributes = getAttributes(a -> a.getType() != MESSAGE_AUTHENTICATOR);
         attributes.add(attribute);
 
-        final T newPacket = withAttributes(attributes);
+        var newPacket = withAttributes(attributes);
         buffer.put(computeMessageAuth(newPacket, sharedSecret, requestAuth));
 
         return newPacket;

@@ -24,32 +24,32 @@ class AccessRequestPapTest {
     @ValueSource(strings = {"shortPw", "my16charPassword", "myMuchLongerPassword"})
     @ParameterizedTest
     void encodeDecode(String password) throws RadiusPacketException {
-        final String sharedSecret = "sharedSecret1";
-        final String username = "myUsername";
+        String sharedSecret = "sharedSecret1";
+        String username = "myUsername";
 
-        final AccessRequestPap request = (AccessRequestPap)
+        AccessRequestPap request = (AccessRequestPap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withPapPassword(password)
                         .addAttribute(dictionary.createAttribute("User-Name", username));
         assertEquals(password, request.getPassword().get());
 
-        final RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
+        RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
         assertTrue(e.getMessage().contains("authenticator missing"));
 
-        final RadiusRequest encoded = request.encodeRequest(sharedSecret);
+        RadiusRequest encoded = request.encodeRequest(sharedSecret);
         assertNotEquals(password, ((AccessRequestPap) encoded).getPassword().get());
         assertNotNull(encoded.getAuthenticator());
 
         // idempotence check
-        final RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
+        RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
         assertArrayEquals(encoded.toBytes(), encoded2.toBytes());
 
-        final RadiusRequest decoded = encoded2.decodeRequest(sharedSecret);
+        RadiusRequest decoded = encoded2.decodeRequest(sharedSecret);
         assertEquals(password, ((AccessRequestPap) decoded).getPassword().get());
         assertEquals(username, decoded.getAttribute("User-Name").get().getValueString());
 
         // idempotence check
-        final RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
+        RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
         assertArrayEquals(decoded.toBytes(), decoded2.toBytes());
         assertEquals(password, ((AccessRequestPap) decoded2).getPassword().get());
         assertEquals(username, decoded2.getAttribute("User-Name").get().getValueString());
@@ -57,35 +57,35 @@ class AccessRequestPapTest {
 
     @Test
     void decodeChecksAttributeCount() throws RadiusPacketException {
-        final String sharedSecret = "sharedSecret1";
-        final AccessRequestNoAuth request1 = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
+        String sharedSecret = "sharedSecret1";
+        AccessRequestNoAuth request1 = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one pw attribute
-        final RadiusRequest request2 = request1.withPapPassword("myPassword")
+        RadiusRequest request2 = request1.withPapPassword("myPassword")
                 .encodeRequest(sharedSecret)
                 .decodeRequest(sharedSecret);
 
         // add one pw attribute
-        final RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute(-1, USER_PASSWORD, new byte[16]));
+        RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute(-1, USER_PASSWORD, new byte[16]));
         assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
     }
 
     @ValueSource(strings = {"shortPw", "my16charPassword", "myMuchLongerPassword"})
     @ParameterizedTest
     void encodePapPassword(String password) throws RadiusPacketException {
-        final String user = "myUser1";
-        final String sharedSecret = "sharedSecret1";
+        String user = "myUser1";
+        String sharedSecret = "sharedSecret1";
 
-        final AccessRequestPap request = (AccessRequestPap)
+        AccessRequestPap request = (AccessRequestPap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 2, null, Collections.emptyList()))
                         .withPapPassword(password)
                         .addAttribute(USER_NAME, user);
 
         // encode
-        final AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
+        AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
 
-        final byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
+        byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
                 request.getPassword().get().getBytes(UTF_8), encoded.getAuthenticator(), sharedSecret);
 
         // check correct encode

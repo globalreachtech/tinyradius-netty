@@ -7,6 +7,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
@@ -33,8 +35,11 @@ import static org.tinyradius.io.client.ClientEventListener.NO_OP_LISTENER;
 public class RadiusClient implements RadiusLifecycle {
 
     private final TimeoutHandler defaultTimeoutHandler;
+
     private final ClientEventListener defaultEventListener;
+
     private final EventLoopGroup eventLoopGroup;
+
     private final ChannelFuture channelFuture;
 
     /**
@@ -45,7 +50,7 @@ public class RadiusClient implements RadiusLifecycle {
      * @param timeoutHandler retry strategy for scheduling retries and timeouts
      * @param handler        ChannelHandler to handle outbound requests
      */
-    public RadiusClient(Bootstrap bootstrap, SocketAddress listenAddress, TimeoutHandler timeoutHandler, ChannelHandler handler) {
+    public RadiusClient(@NonNull Bootstrap bootstrap, @NonNull SocketAddress listenAddress, @NonNull TimeoutHandler timeoutHandler, @NonNull ChannelHandler handler) {
         this(bootstrap, listenAddress, timeoutHandler, handler, NO_OP_LISTENER);
     }
 
@@ -58,7 +63,7 @@ public class RadiusClient implements RadiusLifecycle {
      * @param handler        ChannelHandler to handle outbound requests
      * @param eventListener  instrumentation hooks for client events
      */
-    public RadiusClient(Bootstrap bootstrap, SocketAddress listenAddress, TimeoutHandler timeoutHandler, ChannelHandler handler, ClientEventListener eventListener) {
+    public RadiusClient(@NonNull Bootstrap bootstrap, @NonNull SocketAddress listenAddress, @NonNull TimeoutHandler timeoutHandler, @NonNull ChannelHandler handler, @NonNull ClientEventListener eventListener) {
         this.defaultTimeoutHandler = timeoutHandler;
         this.defaultEventListener = eventListener;
         eventLoopGroup = bootstrap.config().group();
@@ -74,11 +79,12 @@ public class RadiusClient implements RadiusLifecycle {
      * @param listener       instrumentation hooks
      * @return deferred response containing response packet or exception
      */
-    public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints, TimeoutHandler timeoutHandler, ClientEventListener listener) {
+    @NonNull
+    public Future<RadiusResponse> communicate(@NonNull RadiusRequest packet, @NonNull List<RadiusEndpoint> endpoints, @NonNull TimeoutHandler timeoutHandler, @NonNull ClientEventListener listener) {
         if (endpoints.isEmpty())
             return eventLoopGroup.next().newFailedFuture(new IOException("Client send failed - no valid endpoints"));
 
-        final Promise<RadiusResponse> promise = eventLoopGroup.next().newPromise();
+        var promise = eventLoopGroup.next().<RadiusResponse>newPromise();
         communicateNextEndpoint(packet, endpoints, 0, promise, null, timeoutHandler, listener);
 
         return promise;
@@ -91,13 +97,14 @@ public class RadiusClient implements RadiusLifecycle {
      * @param endpoints endpoints to send packet to
      * @return deferred response containing response packet or exception
      */
-    public Future<RadiusResponse> communicate(RadiusRequest packet, List<RadiusEndpoint> endpoints) {
+    @NonNull
+    public Future<RadiusResponse> communicate(@NonNull RadiusRequest packet, @NonNull List<RadiusEndpoint> endpoints) {
         return communicate(packet, endpoints, defaultTimeoutHandler, defaultEventListener);
     }
 
-    private void communicateNextEndpoint(RadiusRequest packet, List<RadiusEndpoint> endpoints, int endpointIndex,
-                                         Promise<RadiusResponse> promise, Throwable lastException, TimeoutHandler timeoutHandler,
-                                         ClientEventListener listener) {
+    private void communicateNextEndpoint(@NonNull RadiusRequest packet, @NonNull List<RadiusEndpoint> endpoints, int endpointIndex,
+                                         @NonNull Promise<RadiusResponse> promise, @Nullable Throwable lastException, @NonNull TimeoutHandler timeoutHandler,
+                                         @NonNull ClientEventListener listener) {
 
         if (endpointIndex >= endpoints.size()) {
             promise.tryFailure(new IOException("Client send failed - all endpoints failed", lastException));
@@ -119,7 +126,8 @@ public class RadiusClient implements RadiusLifecycle {
      * @param endpoint endpoint to send packet to
      * @return deferred response containing response packet or exception
      */
-    public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint) {
+    @NonNull
+    public Future<RadiusResponse> communicate(@NonNull RadiusRequest packet, @NonNull RadiusEndpoint endpoint) {
         return communicate(packet, endpoint, defaultTimeoutHandler, defaultEventListener);
     }
 
@@ -132,7 +140,8 @@ public class RadiusClient implements RadiusLifecycle {
      * @param listener       instrumentation event listeners
      * @return deferred response containing response packet or exception
      */
-    public Future<RadiusResponse> communicate(RadiusRequest packet, RadiusEndpoint endpoint, TimeoutHandler timeoutHandler, ClientEventListener listener) {
+    @NonNull
+    public Future<RadiusResponse> communicate(@NonNull RadiusRequest packet, @NonNull RadiusEndpoint endpoint, @NonNull TimeoutHandler timeoutHandler, @NonNull ClientEventListener listener) {
         var promise = eventLoopGroup.next().<RadiusResponse>newPromise();
 
         channelFuture.addListener(s -> {
@@ -154,7 +163,7 @@ public class RadiusClient implements RadiusLifecycle {
         return promise;
     }
 
-    private void send(PendingRequestCtx ctx, int attempt, TimeoutHandler timeoutHandler, ClientEventListener listener) {
+    private void send(@NonNull PendingRequestCtx ctx, int attempt, @NonNull TimeoutHandler timeoutHandler, @NonNull ClientEventListener listener) {
         log.debug("Attempt {}, sending packet to {}", attempt, ctx.getEndpoint().address());
 
         listener.onEvent(PRE_SEND, ctx);
@@ -163,12 +172,20 @@ public class RadiusClient implements RadiusLifecycle {
         timeoutHandler.scheduleTimeout(() -> send(ctx, attempt + 1, timeoutHandler, listener), attempt, ctx, listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public ChannelFuture isReady() {
         return channelFuture;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public ChannelFuture closeAsync() {
         return channelFuture.channel().close();
     }

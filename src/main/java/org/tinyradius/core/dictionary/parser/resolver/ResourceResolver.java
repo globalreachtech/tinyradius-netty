@@ -19,6 +19,7 @@ public interface ResourceResolver {
 
     /**
      * Opens an input stream for reading the given dictionary resource.
+     *
      * @param resource the resource to open
      * @return an input stream for reading
      * @throws IOException if the resource cannot be opened

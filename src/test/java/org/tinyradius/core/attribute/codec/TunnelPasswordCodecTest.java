@@ -27,34 +27,34 @@ class TunnelPasswordCodecTest {
     @ValueSource(strings = {"shortPw", "my16charPassword", "myMuchLongerPassword", "myMuchLongerPasswordMyMuchLongerPassword"})
     @ParameterizedTest
     void encodeDecode(String password) throws RadiusPacketException {
-        final byte[] requestAuth = random.generateSeed(16);
-        final String sharedSecret = "sharedSecret1";
+        byte[] requestAuth = random.generateSeed(16);
+        String sharedSecret = "sharedSecret1";
 
-        final RadiusAttribute attribute = dictionary.createAttribute(-1, TUNNEL_PASSWORD, password.getBytes(UTF_8));
+        RadiusAttribute attribute = dictionary.createAttribute(-1, TUNNEL_PASSWORD, password.getBytes(UTF_8));
         assertEquals(password, new String(attribute.getValue(), UTF_8));
 
-        final byte[] encode = codec.encode(attribute.getValue(), requestAuth, sharedSecret);
+        byte[] encode = codec.encode(attribute.getValue(), requestAuth, sharedSecret);
         assertNotEquals(password, new String(encode, UTF_8));
 
-        final byte[] decode = codec.decode(encode, requestAuth, sharedSecret);
+        byte[] decode = codec.decode(encode, requestAuth, sharedSecret);
         assertEquals(password, new String(decode, UTF_8));
     }
 
     @Test
     void encodeDecodeNumber() throws RadiusPacketException {
-        final int pw = 12345;
-        final byte[] pwByte = ByteBuffer.allocate(Integer.BYTES).putInt(pw).array();
-        final byte[] requestAuth = random.generateSeed(16);
-        final String sharedSecret = "sharedSecret1";
+        int pw = 12345;
+        byte[] pwByte = ByteBuffer.allocate(Integer.BYTES).putInt(pw).array();
+        byte[] requestAuth = random.generateSeed(16);
+        String sharedSecret = "sharedSecret1";
 
         // 529/1 is integer type
-        final RadiusAttribute attribute = dictionary.createAttribute(529, 1, pwByte);
+        RadiusAttribute attribute = dictionary.createAttribute(529, 1, pwByte);
         assertArrayEquals(pwByte, attribute.getValue());
 
-        final byte[] encode = codec.encode(attribute.getValue(), requestAuth, sharedSecret);
+        byte[] encode = codec.encode(attribute.getValue(), requestAuth, sharedSecret);
         assertNotEquals(Arrays.toString(pwByte), Arrays.toString(encode));
 
-        final byte[] decode = codec.decode(encode, requestAuth, sharedSecret);
+        byte[] decode = codec.decode(encode, requestAuth, sharedSecret);
         assertArrayEquals(pwByte, decode);
     }
 }

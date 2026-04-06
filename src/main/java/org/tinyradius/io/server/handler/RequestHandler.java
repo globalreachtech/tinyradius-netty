@@ -15,11 +15,11 @@ public abstract class RequestHandler extends SimpleChannelInboundHandler<Request
 
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception {
-        final boolean acceptInboundMessage = super.acceptInboundMessage(msg);
+        var acceptInboundMessage = super.acceptInboundMessage(msg);
         if (!acceptInboundMessage)
             return false;
 
-        final RadiusRequest request = ((RequestCtx) msg).getRequest();
+        var request = ((RequestCtx) msg).getRequest();
 
         if (acceptedPacketType().isInstance(request)) {
             return true;

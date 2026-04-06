@@ -43,7 +43,7 @@ public class DefaultBlacklistManager implements BlacklistManager {
     @Override
     public void logFailure(SocketAddress address, Throwable cause) {
         if (cause instanceof TimeoutException) {
-            final int failCount = failCounts.computeIfAbsent(address, k -> new AtomicInteger()).incrementAndGet();
+            int failCount = failCounts.computeIfAbsent(address, k -> new AtomicInteger()).incrementAndGet();
 
             if (failCount >= failCountThreshold && blacklist.get(address) == null) {
 

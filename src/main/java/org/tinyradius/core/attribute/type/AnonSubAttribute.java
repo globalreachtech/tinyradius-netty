@@ -1,7 +1,7 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
-import lombok.Getter;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Optional;
@@ -19,43 +19,97 @@ import java.util.Optional;
  * If Vendor is found, but attribute isn't, we typically use OctetsAttribute instead as
  * we can still read the sub-attribute metadata.
  */
-@Getter
 public class AnonSubAttribute implements RadiusAttribute {
 
+    @NonNull
     private final Dictionary dictionary;
 
+    @NonNull
     private final ByteBuf data;
     private final int vendorId; // should not be -1 (should not be top level attribute)
 
-    public AnonSubAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NonNull
+    public Dictionary getDictionary() {
+        return dictionary;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NonNull
+    public ByteBuf getData() {
+        return data;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getVendorId() {
+        return vendorId;
+    }
+
+    /**
+     * Creates a new AnonSubAttribute.
+     *
+     * @param dictionary the dictionary to use
+     * @param vendorId   the vendor ID
+     * @param data       the attribute data
+     */
+    public AnonSubAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
         this.dictionary = dictionary;
         this.vendorId = vendorId;
         this.data = data;
-        if (vendorId == -1)
+        if (vendorId == -1) {
             throw new IllegalArgumentException("Undistinguished sub-attribute vendorId should not be -1, actual: " + vendorId);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getType() {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public Optional<Byte> getTag() {
         return Optional.empty();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public byte[] getValue() {
         return data.copy().array();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public String getValueString() {
         return "[Unparsable sub-attribute (vendorId " + vendorId + ", length " + data.readableBytes() + ")]";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public String toString() {
         return getValueString();
     }

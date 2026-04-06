@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -31,11 +32,13 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     private final List<RadiusAttribute> attributes;
 
     /**
+     * Creates a new Vendor-Specific attribute.
+     *
      * @param dictionary dictionary to use for (sub)attributes
      * @param vendorId   ignored, VSAs should always be -1 (top level attribute)
      * @param data       data to parse for childVendorId and sub-attributes
      */
-    public VendorSpecificAttribute(Dictionary dictionary, int vendorId, ByteBuf data) {
+    public VendorSpecificAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
         this(dictionary, validate(data).getInt(2),
                 AttributeHolder.readAttributes(dictionary, data.getInt(2), data.slice(6, data.readableBytes() - 6)),
                 data);
@@ -44,8 +47,16 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     }
 
     // get around `Call to 'this()' must be first statement in constructor body`
-    private static ByteBuf validate(ByteBuf data) {
-        final int len = data.readableBytes();
+
+    /**
+     * Validates VSA data.
+     *
+     * @param data the data to validate
+     * @return the data
+     */
+    @NonNull
+    private static ByteBuf validate(@NonNull ByteBuf data) {
+        int len = data.readableBytes();
         if (len < 7) // VSA headers are 6 bytes
             throw new IllegalArgumentException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
 
@@ -53,24 +64,32 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     }
 
     /**
-     * Constructs a new Vendor-Specific attribute
+     * Constructs a new Vendor-Specific attribute.
      *
      * @param dictionary    dictionary to use for (sub)attributes
      * @param childVendorId vendor ID of the sub-attributes
      * @param attributes    sub-attributes held
      */
-    public VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes) {
+    public VendorSpecificAttribute(@NonNull Dictionary dictionary, int childVendorId, @NonNull List<RadiusAttribute> attributes) {
         this(dictionary, childVendorId, attributes, toByteBuf(childVendorId, attributes));
-        final boolean mismatchVendorId = attributes.stream()
+        boolean mismatchVendorId = attributes.stream()
                 .map(RadiusAttribute::getVendorId)
                 .anyMatch(id -> id != childVendorId);
         if (mismatchVendorId)
             throw new IllegalArgumentException("Vendor-Specific attribute sub-attributes must have same vendorId as VSA childVendorId: " + childVendorId);
     }
 
-    private static ByteBuf toByteBuf(int childVendorId, List<RadiusAttribute> attributes) {
-        final ByteBuf attributesBytes = AttributeHolder.attributesToBytes(attributes);
-        final ByteBuf header = Unpooled.buffer(6, 6)
+    /**
+     * Converts vendor ID and attributes to a ByteBuf.
+     *
+     * @param childVendorId vendor ID
+     * @param attributes    list of attributes
+     * @return the ByteBuf
+     */
+    @NonNull
+    private static ByteBuf toByteBuf(int childVendorId, @NonNull List<RadiusAttribute> attributes) {
+        var attributesBytes = AttributeHolder.attributesToBytes(attributes);
+        var header = Unpooled.buffer(6, 6)
                 .writeByte(VENDOR_SPECIFIC)
                 .writeByte(attributesBytes.readableBytes() + 6)
                 .writeInt(childVendorId);
@@ -78,12 +97,14 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     }
 
     /**
+     * Internal constructor for VendorSpecificAttribute.
+     *
      * @param dictionary    dictionary to use for (sub)attributes
      * @param childVendorId vendor ID of the sub-attributes
      * @param attributes    sub-attributes held
      * @param data          equivalent of childVendorId + subattribute data in byte array form
      */
-    private VendorSpecificAttribute(Dictionary dictionary, int childVendorId, List<RadiusAttribute> attributes, ByteBuf data) {
+    private VendorSpecificAttribute(@NonNull Dictionary dictionary, int childVendorId, @NonNull List<RadiusAttribute> attributes, @NonNull ByteBuf data) {
         super(dictionary, -1, data);
         this.childVendorId = childVendorId;
         this.attributes = List.copyOf(attributes);
@@ -95,27 +116,47 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
         validate(data);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public VendorSpecificAttribute withAttributes(List<RadiusAttribute> attributes) {
+    @NonNull
+    public VendorSpecificAttribute withAttributes(@NonNull List<RadiusAttribute> attributes) {
         return new VendorSpecificAttribute(getDictionary(), getChildVendorId(), attributes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public List<RadiusAttribute> flatten() {
         return new ArrayList<>(getAttributes());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public VendorSpecificAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
+    @NonNull
+    public VendorSpecificAttribute encode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
         return new VendorSpecificAttribute(getDictionary(), getChildVendorId(), encodeAttributes(requestAuth, secret));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public VendorSpecificAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
+    @NonNull
+    public VendorSpecificAttribute decode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
         return new VendorSpecificAttribute(getDictionary(), getChildVendorId(), decodeAttributes(requestAuth, secret));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public String toString() {
         var sb = new StringBuilder()
                 .append("Vendor-Specific: Vendor ID ").append(getChildVendorId());
@@ -123,7 +164,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
                 .getVendor(getChildVendorId())
                 .map(Vendor::name)
                 .ifPresent(s -> sb.append(" (").append(s).append(")"));
-        for (RadiusAttribute sa : getAttributes()) {
+        for (var sa : getAttributes()) {
             sb.append("\n  ").append(sa.toString());
         }
         return sb.toString();
@@ -131,13 +172,21 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
 
     private static class Factory implements RadiusAttributeFactory<VendorSpecificAttribute> {
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public VendorSpecificAttribute newInstance(Dictionary dictionary, int vendorId, ByteBuf value) {
+        @NonNull
+        public VendorSpecificAttribute newInstance(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf value) {
             return new VendorSpecificAttribute(dictionary, vendorId, value);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        public byte[] parse(Dictionary dictionary, int vendorId, int type, String value) {
+        @NonNull
+        public byte[] parse(@NonNull Dictionary dictionary, int vendorId, int type, @NonNull String value) {
             return stringHexParser(value);
         }
     }

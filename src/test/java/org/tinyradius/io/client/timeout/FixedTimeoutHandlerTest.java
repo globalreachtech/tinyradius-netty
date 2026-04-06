@@ -29,7 +29,7 @@ class FixedTimeoutHandlerTest {
         var promise = eventExecutor.<RadiusResponse>newPromise();
         var ctx = new PendingRequestCtx(null, null, promise);
 
-        final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 2, 0);
+        FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 2, 0);
 
         // totalAttempts < maxAttempts
         retryStrategy.scheduleTimeout(mockRetry, 1, ctx);
@@ -55,7 +55,7 @@ class FixedTimeoutHandlerTest {
         var promise = eventExecutor.<RadiusResponse>newPromise();
         var ctx = new PendingRequestCtx(null, null, promise);
 
-        final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 3, 100);
+        FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 3, 100);
 
         // first retry runs
         retryStrategy.scheduleTimeout(mockRetry, 1, ctx);
@@ -67,7 +67,7 @@ class FixedTimeoutHandlerTest {
 
     @Test
     void noRetryIfPromiseDone() {
-        final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 3, 0);
+        FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer, 3, 0);
 
         var promise = eventExecutor.<RadiusResponse>newPromise();
         var ctx = new PendingRequestCtx(null, null, promise);

@@ -30,8 +30,8 @@ class BaseRadiusPacketTest {
 
     @Test
     void doesNotMutateOriginalAttributeList() throws RadiusPacketException {
-        final List<RadiusAttribute> attributes = Collections.emptyList(); // immutable
-        final StubPacket rp = new StubPacket(attributes)
+        List<RadiusAttribute> attributes = Collections.emptyList(); // immutable
+        StubPacket rp = new StubPacket(attributes)
                 .addAttribute("WISPr-Location-ID", "myLocationId");
 
         assertEquals(1, rp.getAttributes().size());
@@ -46,15 +46,15 @@ class BaseRadiusPacketTest {
                 .addAttribute(97, "fe80::/64")
                 .addAttribute(97, "fe80::/128");
 
-        final List<VendorSpecificAttribute> vendorAttributes = packet.getVendorAttributes(14122);
+        List<VendorSpecificAttribute> vendorAttributes = packet.getVendorAttributes(14122);
         assertEquals(1, vendorAttributes.size());
 
-        final List<RadiusAttribute> wisprLocations = vendorAttributes.get(0).getAttributes();
+        List<RadiusAttribute> wisprLocations = vendorAttributes.get(0).getAttributes();
         assertEquals(1, wisprLocations.size());
         assertEquals("myLocationId", wisprLocations.get(0).getValueString());
 
         assertEquals("myLocationId", packet.getAttribute(14122, 1).get().getValueString());
-        final List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, 1);
+        List<RadiusAttribute> wisprLocations2 = packet.getAttributes(14122, 1);
         assertEquals(1, wisprLocations2.size());
         assertEquals("myLocationId", wisprLocations2.get(0).getValueString());
 
@@ -63,7 +63,7 @@ class BaseRadiusPacketTest {
         assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute(168).get().getValueString());
         assertEquals("fe80:0:0:0:0:0:0:0", packet.getAttribute("Framed-IPv6-Address").get().getValueString());
 
-        final List<RadiusAttribute> ipV6Attributes = packet.getAttributes(97);
+        List<RadiusAttribute> ipV6Attributes = packet.getAttributes(97);
         assertArrayEquals(new String[]{"fe80:0:0:0:0:0:0:0/64", "fe80:0:0:0:0:0:0:0/128"},
                 ipV6Attributes.stream().map(RadiusAttribute::getValueString).toArray());
 
@@ -80,29 +80,29 @@ class BaseRadiusPacketTest {
 
     @Test
     void removeSpecificAttribute() throws RadiusPacketException {
-        final RadiusAttribute ra = dictionary.createAttribute(-1, 8, new byte[4]);
-        final StubPacket rp = new StubPacket()
+        RadiusAttribute ra = dictionary.createAttribute(-1, 8, new byte[4]);
+        StubPacket rp = new StubPacket()
                 .addAttribute(ra);
         assertEquals(1, rp.getAttributes().size());
 
-        final StubPacket removed = rp.removeAttribute(ra);
+        StubPacket removed = rp.removeAttribute(ra);
         assertEquals(0, removed.getAttributes().size());
     }
 
     @Test
     void removeSpecificVendorAttributes() throws RadiusPacketException {
-        final StubPacket rp1 = new StubPacket()
+        StubPacket rp1 = new StubPacket()
                 .addAttribute("WISPr-Location-ID", "myLocationId");
         assertEquals(1, rp1.getAttributes().size());
         assertInstanceOf(VendorSpecificAttribute.class, rp1.getAttributes().get(0));
 
-        final StubPacket rp2 = rp1.removeAttributes(14122, 1);
+        StubPacket rp2 = rp1.removeAttributes(14122, 1);
         assertTrue(rp2.getAttributes().isEmpty());
 
-        final StubPacket rp3 = rp2.addAttribute("WISPr-Location-ID", "myLocationId");
-        final RadiusAttribute ra = rp3.getAttribute(14122, 1).get();
+        StubPacket rp3 = rp2.addAttribute("WISPr-Location-ID", "myLocationId");
+        RadiusAttribute ra = rp3.getAttribute(14122, 1).get();
 
-        final StubPacket rp4 = rp3.removeAttribute(ra);
+        StubPacket rp4 = rp3.removeAttribute(ra);
         assertEquals(0, rp4.getAttributes().size());
     }
 
@@ -127,20 +127,20 @@ class BaseRadiusPacketTest {
                 .addAttribute("User-Name", "user");
 
         // remove once
-        final StubPacket rp2 = rp.removeLastAttribute(6);
+        StubPacket rp2 = rp.removeLastAttribute(6);
 
         List<RadiusAttribute> rp2Attributes = rp2.getAttributes(6);
         assertEquals(1, rp2Attributes.size());
         assertEquals("Login-User", rp2Attributes.get(0).getValueString());
 
         // remove again
-        final StubPacket rp3 = rp2.removeLastAttribute(6);
+        StubPacket rp3 = rp2.removeLastAttribute(6);
 
         List<RadiusAttribute> rp3Attributes = rp3.getAttributes(6);
         assertEquals(0, rp3Attributes.size());
 
         // last remove should do nothing
-        final StubPacket rp4 = rp3.removeLastAttribute(6);
+        StubPacket rp4 = rp3.removeLastAttribute(6);
 
         List<RadiusAttribute> rp4Attributes = rp4.getAttributes(6);
         assertEquals(0, rp4Attributes.size());
@@ -164,7 +164,7 @@ class BaseRadiusPacketTest {
                 .addAttribute("Reply-Message", "foobar")
                 .addAttribute(vsa);
 
-        final List<RadiusAttribute> attributes = radiusPacket.getFlattenedAttributes();
+        List<RadiusAttribute> attributes = radiusPacket.getFlattenedAttributes();
 
         assertEquals("Service-Type=999", attributes.get(0).toString());
         assertEquals("Filter-Id=abc", attributes.get(1).toString());
@@ -178,22 +178,22 @@ class BaseRadiusPacketTest {
 
     @Test
     void withAttributesUpdatesHeaderLength() throws RadiusPacketException {
-        final StubPacket stubPacket = new StubPacket();
+        StubPacket stubPacket = new StubPacket();
         assertEquals(20, stubPacket.toByteBuf().readableBytes());
         assertEquals(20, stubPacket.toByteBuf().getShort(2));
 
-        final StubPacket packet2 = stubPacket.withAttributes(Collections.singletonList(dictionary.createAttribute("User-Name", "a")));
+        StubPacket packet2 = stubPacket.withAttributes(Collections.singletonList(dictionary.createAttribute("User-Name", "a")));
         assertEquals(23, packet2.toByteBuf().readableBytes());
         assertEquals(23, packet2.toByteBuf().getShort(2));
     }
 
     @Test
     void withAuthAttributesUpdatesHeaderLength() throws RadiusPacketException {
-        final StubPacket stubPacket = new StubPacket();
+        StubPacket stubPacket = new StubPacket();
         assertEquals(20, stubPacket.toByteBuf().readableBytes());
         assertEquals(20, stubPacket.toByteBuf().getShort(2));
 
-        final StubPacket packet2 = stubPacket.withAuthAttributes(
+        StubPacket packet2 = stubPacket.withAuthAttributes(
                 random.generateSeed(16),
                 Collections.singletonList(dictionary.createAttribute("User-Name", "a")));
         assertEquals(23, packet2.toByteBuf().readableBytes());
@@ -202,7 +202,7 @@ class BaseRadiusPacketTest {
 
     @Test
     void vsaAutoWrap() throws RadiusPacketException {
-        final String vendorAttrName = "WISPr-Location-ID";
+        String vendorAttrName = "WISPr-Location-ID";
         RadiusAttribute vsa = dictionary.createAttribute(vendorAttrName, "anything");
 
         // Create request with empty attribute list and add vsa later

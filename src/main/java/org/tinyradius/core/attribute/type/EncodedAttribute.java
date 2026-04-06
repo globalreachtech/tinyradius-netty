@@ -16,48 +16,73 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
  */
 public record EncodedAttribute(OctetsAttribute delegate) implements RadiusAttribute {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public RadiusAttribute decode(byte[] requestAuth, String secret) throws RadiusPacketException {
-        final Optional<AttributeTemplate> template = getAttributeTemplate();
+    @NonNull
+    public RadiusAttribute decode(@NonNull byte[] requestAuth, @NonNull String secret) throws RadiusPacketException {
+        var template = getAttributeTemplate();
         return template.isPresent() ?
                 template.get().decode(this, requestAuth, secret) : delegate;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getVendorId() {
         return delegate.getVendorId();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public Optional<Byte> getTag() {
         return delegate.getTag();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public byte[] getValue() {
         return delegate.getValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public String getValueString() {
         return delegate.getValueString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public Dictionary getDictionary() {
         return delegate.getDictionary();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @NonNull
     public ByteBuf getData() {
         return delegate.getData();
     }
 
-    @Override
-    public RadiusAttribute encode(byte[] requestAuth, String secret) throws RadiusPacketException {
-        return RadiusAttribute.super.encode(requestAuth, secret);
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isEncoded() {
         return true;

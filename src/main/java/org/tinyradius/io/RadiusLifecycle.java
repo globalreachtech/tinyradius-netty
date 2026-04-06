@@ -16,6 +16,7 @@ public interface RadiusLifecycle extends AutoCloseable {
 
     /**
      * Closes this resource asynchronously.
+     *
      * @return a future that is notified when the close operation is complete
      */
     Future<Void> closeAsync();
