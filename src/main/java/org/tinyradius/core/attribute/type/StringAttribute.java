@@ -17,8 +17,8 @@ public class StringAttribute extends OctetsAttribute {
      * Creates a new StringAttribute.
      *
      * @param dictionary the dictionary to use
-     * @param vendorId the vendor ID
-     * @param data the attribute data
+     * @param vendorId   the vendor ID
+     * @param data       the attribute data
      */
     public StringAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
         super(dictionary, vendorId, data);

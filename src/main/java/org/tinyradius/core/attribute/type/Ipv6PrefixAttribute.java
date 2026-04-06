@@ -22,8 +22,8 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
      * Creates a new Ipv6PrefixAttribute.
      *
      * @param dictionary the dictionary to use
-     * @param vendorId the vendor ID
-     * @param data the attribute data
+     * @param vendorId   the vendor ID
+     * @param data       the attribute data
      */
     public Ipv6PrefixAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
         super(dictionary, vendorId, data);
@@ -34,7 +34,7 @@ public class Ipv6PrefixAttribute extends OctetsAttribute {
     /**
      * Validates an IPv6 address and prefix length.
      *
-     * @param address the IPv6 address
+     * @param address      the IPv6 address
      * @param prefixLength the prefix length
      * @return the encoded byte array
      */

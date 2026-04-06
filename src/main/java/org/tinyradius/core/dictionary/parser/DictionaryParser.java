@@ -9,6 +9,7 @@ import java.io.IOException;
 
 /**
  * Parses a dictionary in Radiator format and fills a WritableDictionary.
+ *
  * @param resourceResolver The resource resolver to use to read dictionary files
  */
 public record DictionaryParser(ResourceResolver resourceResolver) {
@@ -24,6 +25,7 @@ public record DictionaryParser(ResourceResolver resourceResolver) {
 
     /**
      * Creates a new DictionaryParser that resolves files via the local filesystem.
+     *
      * @return a new DictionaryParser that resolves files via the local filesystem
      */
     public static DictionaryParser newFileParser() {

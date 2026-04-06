@@ -22,7 +22,7 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * Creates a RadiusResponse object.
      *
      * @param dictionary the dictionary to use
-     * @param header the packet header
+     * @param header     the packet header
      * @param attributes the packet attributes
      * @return the new RadiusResponse
      * @throws RadiusPacketException if there is an error creating the response

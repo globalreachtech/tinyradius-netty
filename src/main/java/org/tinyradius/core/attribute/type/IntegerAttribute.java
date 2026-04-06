@@ -19,8 +19,8 @@ public class IntegerAttribute extends OctetsAttribute {
      * Creates a new IntegerAttribute.
      *
      * @param dictionary the dictionary to use
-     * @param vendorId the vendor ID
-     * @param data the attribute data
+     * @param vendorId   the vendor ID
+     * @param data       the attribute data
      */
     public IntegerAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
         super(dictionary, vendorId, data);
@@ -49,9 +49,9 @@ public class IntegerAttribute extends OctetsAttribute {
         return value.length == 4 ?
                 ByteBuffer.wrap(value).getInt() :
                 ByteBuffer.allocate(Integer.BYTES) // length == 3
-                        .put((byte) 0)
-                        .put(value)
-                        .getInt(0);
+                .put((byte) 0)
+                .put(value)
+                .getInt(0);
     }
 
     /**
@@ -71,9 +71,9 @@ public class IntegerAttribute extends OctetsAttribute {
      * Parses a string value into a byte array for an integer attribute.
      *
      * @param dictionary the dictionary to use
-     * @param vendorId the vendor ID
-     * @param type the attribute type
-     * @param value the string value
+     * @param vendorId   the vendor ID
+     * @param type       the attribute type
+     * @param value      the string value
      * @return byte array
      */
     @NonNull

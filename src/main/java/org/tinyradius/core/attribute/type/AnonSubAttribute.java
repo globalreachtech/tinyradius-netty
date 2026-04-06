@@ -58,8 +58,8 @@ public class AnonSubAttribute implements RadiusAttribute {
      * Creates a new AnonSubAttribute.
      *
      * @param dictionary the dictionary to use
-     * @param vendorId the vendor ID
-     * @param data the attribute data
+     * @param vendorId   the vendor ID
+     * @param data       the attribute data
      */
     public AnonSubAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
         this.dictionary = dictionary;

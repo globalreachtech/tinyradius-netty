@@ -34,6 +34,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns a new MD5 message digest.
+     *
      * @return a new MD5 message digest
      */
     static MessageDigest getMd5Digest() {
@@ -74,6 +75,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Builds a RADIUS packet header.
+     *
      * @param type       packet type
      * @param id         packet id
      * @param auth       16-byte array, defaults to empty byte[16] if null
@@ -100,6 +102,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the header of the packet.
+     *
      * @return the header of the packet
      */
     @NonNull
@@ -107,6 +110,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the Radius packet type.
+     *
      * @return Radius packet type
      */
     default byte getType() {
@@ -115,6 +119,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the Radius packet id.
+     *
      * @return Radius packet id
      */
     default byte getId() {
@@ -141,6 +146,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the length of the packet.
+     *
      * @return the length of the packet
      */
     default int getLength() {
@@ -149,6 +155,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the packet as a ByteBuf.
+     *
      * @return the packet as a ByteBuf
      */
     @NonNull
@@ -159,6 +166,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the packet as a ByteBuffer.
+     *
      * @return the packet as a ByteBuffer
      */
     @NonNull
@@ -168,6 +176,7 @@ public interface RadiusPacket<T extends RadiusPacket<T>> extends NestedAttribute
 
     /**
      * Returns the packet as a byte array.
+     *
      * @return the packet as a byte array
      */
     @NonNull

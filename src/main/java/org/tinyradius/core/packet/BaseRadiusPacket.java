@@ -71,7 +71,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     /**
      * Creates a new packet with the given authenticator and attributes.
      *
-     * @param auth the authenticator
+     * @param auth       the authenticator
      * @param attributes the attributes
      * @return the new packet
      * @throws RadiusPacketException if there is an error creating the packet

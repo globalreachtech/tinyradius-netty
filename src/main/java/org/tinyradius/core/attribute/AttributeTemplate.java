@@ -262,8 +262,8 @@ public class AttributeTemplate {
      * Detects if the attribute supports tags.
      *
      * @param vendorId the vendor ID
-     * @param type the attribute type
-     * @param hasTag the initial value
+     * @param type     the attribute type
+     * @param hasTag   the initial value
      * @return true if it has a tag
      */
     private static boolean detectHasTag(int vendorId, int type, boolean hasTag) {
@@ -273,8 +273,8 @@ public class AttributeTemplate {
     /**
      * Detects the attribute codec type.
      *
-     * @param vendorId the vendor ID
-     * @param type the attribute type
+     * @param vendorId    the vendor ID
+     * @param type        the attribute type
      * @param encryptFlag the initial encrypt flag
      * @return the codec type
      */

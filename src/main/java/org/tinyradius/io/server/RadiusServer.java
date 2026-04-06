@@ -62,7 +62,7 @@ public class RadiusServer implements RadiusLifecycle {
                 .mapToObj(i -> bootstrap.clone().handler(channelHandlers.get(i)).bind(socketAddresses.get(i)))
                 .toList();
 
-        eventLoop.execute(() ->{
+        eventLoop.execute(() -> {
             combiner.addAll(channelFutures.toArray(ChannelFuture[]::new));
             combiner.finish(isReady);
         });

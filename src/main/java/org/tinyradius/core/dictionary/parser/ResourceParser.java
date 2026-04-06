@@ -127,7 +127,7 @@ public class ResourceParser {
             case "MEMBER": // for 'struct' compound type
                 log.warn("'MEMBER' not supported - ignoring");
                 break;
-            case "STRUCT": 
+            case "STRUCT":
                 log.warn("'STRUCT' not supported - ignoring");
                 break;
             default:
@@ -175,9 +175,9 @@ public class ResourceParser {
         int vendorId = offset == 1 ? parseInt(tok[1]) : currentVendor;
         String name = tok[1 + offset];
         int type;
-        try{
+        try {
             type = validateType(Integer.decode(tok[2 + offset]), vendorId);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             log.warn("Attribute type is not an integer and not supported - vendor: {}, attributeName: {}, type: {}", vendorId, name, tok[2 + offset]);
             return;
         }
@@ -207,8 +207,8 @@ public class ResourceParser {
 
         // If the attributeName is not found, log and ignore instead of throwing RuntimeException
         return d -> d.getAttributeTemplate(attributeName)
-            .ifPresentOrElse(at -> at.addEnumerationValue(Integer.decode(valStr), enumName), 
-                () -> log.warn("Unknown attribute type while parsing VALUE: {}, line: {}", attributeName, lineNum));
+                .ifPresentOrElse(at -> at.addEnumerationValue(Integer.decode(valStr), enumName),
+                        () -> log.warn("Unknown attribute type while parsing VALUE: {}, line: {}", attributeName, lineNum));
     }
 
     /**

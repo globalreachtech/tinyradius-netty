@@ -24,6 +24,7 @@ import static org.tinyradius.core.attribute.type.RadiusAttribute.HEX_FORMAT;
  * Basic attribute holder, for VendorSpecificAttribute (to hold sub-attributes) or RadiusPackets
  * <p>
  * Should only hold a single layer of attributes
+ *
  * @param <T> The type of the attribute holder
  */
 public interface AttributeHolder<T extends AttributeHolder<T>> {
@@ -122,12 +123,14 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
     /**
      * Gets the VendorId to restrict (sub)attributes, or -1 for top level.
+     *
      * @return VendorId to restrict (sub)attributes, or -1 for top level
      */
     int getChildVendorId();
 
     /**
      * Gets the dictionary used by this attribute holder.
+     *
      * @return the dictionary
      */
     @NonNull
@@ -135,6 +138,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
     /**
      * Gets the list of attributes in this holder.
+     *
      * @return list of RadiusAttributes
      */
     @NonNull
@@ -238,6 +242,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
     /**
      * Returns a new attribute holder with the given attributes.
+     *
      * @param attributes the new list of attributes
      * @return a new attribute holder with the given attributes
      * @throws RadiusPacketException if the packet is invalid
@@ -266,7 +271,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
 
     /**
      * Adds a Radius attribute.
-     * @param name the name of the attribute
+     *
+     * @param name  the name of the attribute
      * @param value the value of the attribute
      * @return object of the same type with appended attribute
      * @throws RadiusPacketException packet validation exceptions

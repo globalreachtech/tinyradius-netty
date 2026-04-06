@@ -69,8 +69,8 @@ public abstract class IpAttribute extends OctetsAttribute {
          * Creates a new IPv4 attribute.
          *
          * @param dictionary the dictionary to use
-         * @param vendorId the vendor ID
-         * @param data the attribute data
+         * @param vendorId   the vendor ID
+         * @param data       the attribute data
          */
         public V4(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
             super(dictionary, vendorId, data);
@@ -119,8 +119,8 @@ public abstract class IpAttribute extends OctetsAttribute {
          * Creates a new IPv6 attribute.
          *
          * @param dictionary the dictionary to use
-         * @param vendorId the vendor ID
-         * @param data the attribute data
+         * @param vendorId   the vendor ID
+         * @param data       the attribute data
          */
         public V6(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
             super(dictionary, vendorId, data);

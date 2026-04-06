@@ -19,8 +19,8 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
      * Creates a new instance of the attribute.
      *
      * @param dictionary the dictionary to use
-     * @param vendorId the vendor ID
-     * @param value the attribute data
+     * @param vendorId   the vendor ID
+     * @param value      the attribute data
      * @return the new instance
      */
     @NonNull
@@ -30,9 +30,9 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
      * Parses the string value of the attribute into a byte array.
      *
      * @param dictionary the dictionary to use
-     * @param vendorId the vendor ID
-     * @param type the attribute type
-     * @param value the string value
+     * @param vendorId   the vendor ID
+     * @param type       the attribute type
+     * @param value      the string value
      * @return the byte array representation
      */
     @NonNull
@@ -90,9 +90,9 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
      * Returns the tag bytes for the given attribute.
      *
      * @param dictionary the dictionary to use
-     * @param vendorId the vendor ID
-     * @param type the attribute type
-     * @param tag the tag byte
+     * @param vendorId   the vendor ID
+     * @param type       the attribute type
+     * @param tag        the tag byte
      * @return the tag bytes, or an empty array if not tagged
      */
     @NonNull

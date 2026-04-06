@@ -47,6 +47,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     }
 
     // get around `Call to 'this()' must be first statement in constructor body`
+
     /**
      * Validates VSA data.
      *
@@ -82,7 +83,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * Converts vendor ID and attributes to a ByteBuf.
      *
      * @param childVendorId vendor ID
-     * @param attributes list of attributes
+     * @param attributes    list of attributes
      * @return the ByteBuf
      */
     @NonNull
