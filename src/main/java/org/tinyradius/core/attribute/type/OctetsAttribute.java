@@ -1,12 +1,12 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
+
+import java.util.Optional;
 
 /**
  * The basic generic Radius attribute. All type-specific implementations extend this class
@@ -20,10 +20,8 @@ public class OctetsAttribute implements RadiusAttribute {
     @EqualsAndHashCode.Exclude
     private final Dictionary dictionary;
 
-    @Getter
     private final ByteBuf data;
 
-    @Getter
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
     public OctetsAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
@@ -50,6 +48,17 @@ public class OctetsAttribute implements RadiusAttribute {
             case 2 -> data.getShort(typeSize);
             default -> Byte.toUnsignedInt(data.getByte(typeSize)); // max 255
         };
+    }
+
+    @Override
+    public int getVendorId() {
+        return vendorId;
+    }
+
+    @Override
+    @NonNull
+    public ByteBuf getData() {
+        return data;
     }
 
     /**
