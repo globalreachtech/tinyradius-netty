@@ -28,9 +28,9 @@ import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
 @RequiredArgsConstructor
 public class ResourceParser {
 
-    private final @NonNull WritableDictionary dictionary;
-    private final @NonNull ResourceResolver resourceResolver;
-    private final @NonNull FactoryProvider factoryProvider;
+    private final WritableDictionary dictionary;
+    private final ResourceResolver resourceResolver;
+    private final FactoryProvider factoryProvider;
 
     // support for VALUE declared before ATTRIBUTE
     private final List<Consumer<WritableDictionary>> deferred = new LinkedList<>();
