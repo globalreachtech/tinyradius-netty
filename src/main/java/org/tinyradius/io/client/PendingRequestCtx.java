@@ -14,7 +14,7 @@ import org.tinyradius.io.server.RequestCtx;
 @Getter
 public class PendingRequestCtx extends RequestCtx {
 
-    private final @NonNull Promise<RadiusResponse> response;
+    private final Promise<RadiusResponse> response;
 
     public PendingRequestCtx(@NonNull RadiusRequest packet, @NonNull RadiusEndpoint endpoint, @NonNull Promise<RadiusResponse> response) {
         super(packet, endpoint);
