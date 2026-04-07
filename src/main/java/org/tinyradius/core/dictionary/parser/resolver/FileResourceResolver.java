@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 
 public class FileResourceResolver implements ResourceResolver {
 
-    public static final @NonNull ResourceResolver INSTANCE = new FileResourceResolver();
+    public static final ResourceResolver INSTANCE = new FileResourceResolver();
 
     private FileResourceResolver() {
     }
