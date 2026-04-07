@@ -679,7 +679,7 @@ public class AttributeTypes {
      * <p>
      * The name of the IPv6 address pool to be used.
      */
-    public static final byte FRAMED_IPv6_POOL = 100;
+    public static final byte FRAMED_IPV6_POOL = 100;
 
     /**
      * Error-Cause Attribute [RFC3576]
