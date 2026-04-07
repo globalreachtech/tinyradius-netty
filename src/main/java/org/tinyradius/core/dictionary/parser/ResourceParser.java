@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.AttributeTemplate;
+import org.tinyradius.core.attribute.codec.AttributeCodecType;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttributeFactory;
 import org.tinyradius.core.dictionary.MemoryDictionary;
@@ -23,6 +24,7 @@ import java.util.function.Consumer;
 
 import static java.lang.Integer.parseInt;
 import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -283,12 +285,16 @@ public class ResourceParser {
         return new int[]{1, 1};
     }
 
-    private byte encryptFlag(String[] flags) {
+    private AttributeCodecType encryptFlag(String[] flags) {
         for (String flag : flags) {
-            if (flag.length() == 9 && flag.startsWith("encrypt="))
-                return Byte.parseByte(flag.substring(8, 9));
+            if (flag.startsWith("encrypt="))
+                try {
+                    return AttributeCodecType.fromId(Byte.parseByte(flag.substring(8)));
+                } catch (NumberFormatException e) {
+                    return AttributeCodecType.fromName(flag.substring(8));
+                }
         }
-        return 0;
+        return NO_ENCRYPT;
     }
 
     private boolean tagFlag(String[] flags) {

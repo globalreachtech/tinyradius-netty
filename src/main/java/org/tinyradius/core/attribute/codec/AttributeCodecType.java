@@ -18,14 +18,21 @@ public enum AttributeCodecType {
             (byte) 1, "User-Password", new UserPasswordCodec()),
     RFC2868_TUNNEL_PASSWORD(
             (byte) 2, "Tunnel-Password", new TunnelPasswordCodec()), // RFC 2548 SALT algo?
-    ASCEND_SEND_SECRET(
-            (byte) 3, "Ascend-Secret", new AscendSendSecretCodec());
+    ASCEND_SECRET(
+            (byte) 3, "Ascend-Secret", new AscendSecretCodec());
 
     private final byte id;
     private final String name;
     private final BaseCodec codec;
 
-    public static @NonNull AttributeCodecType fromEncryptFlagId(byte id) {
+    public static @NonNull AttributeCodecType fromName(String name) {
+        return Arrays.stream(values())
+                .filter(t -> t.getName().equals(name))
+                .findFirst()
+                .orElse(NO_ENCRYPT);
+    }
+
+    public static @NonNull AttributeCodecType fromId(byte id) {
         return Arrays.stream(values())
                 .filter(t -> t.getId() == id)
                 .findFirst()
