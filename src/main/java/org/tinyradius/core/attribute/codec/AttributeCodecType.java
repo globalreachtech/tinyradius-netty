@@ -13,15 +13,16 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public enum AttributeCodecType {
     NO_ENCRYPT(
-            (byte) 0, new NoOpCodec()),
+            (byte) 0, "", new NoOpCodec()),
     RFC2865_USER_PASSWORD(
-            (byte) 1, new UserPasswordCodec()),
+            (byte) 1, "User-Password", new UserPasswordCodec()),
     RFC2868_TUNNEL_PASSWORD(
-            (byte) 2, new TunnelPasswordCodec()),
+            (byte) 2, "Tunnel-Password", new TunnelPasswordCodec()), // RFC 2548 SALT algo?
     ASCEND_SEND_SECRET(
-            (byte) 3, new AscendSendSecretCodec());
+            (byte) 3, "Ascend-Secret", new AscendSendSecretCodec());
 
     private final byte id;
+    private final String name;
     private final BaseCodec codec;
 
     public static @NonNull AttributeCodecType fromEncryptFlagId(byte id) {
