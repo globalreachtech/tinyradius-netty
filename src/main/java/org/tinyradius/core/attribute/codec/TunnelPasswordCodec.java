@@ -47,7 +47,7 @@ class TunnelPasswordCodec extends BaseCodec {
                     "string must be at least 16 octets, actual: " + strLen);
 
         if (strLen % 16 != 0)
-            throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 Tunnel-Password method - " +
+            throw new RadiusPacketException("Malformed attribute while decoding with RFC2868 Tunnel-Password method - " +
                     "string octets must be multiple of 16, actual: " + strLen);
 
         byte[] encodedStr = Arrays.copyOfRange(encodedData, 2, encodedData.length);
