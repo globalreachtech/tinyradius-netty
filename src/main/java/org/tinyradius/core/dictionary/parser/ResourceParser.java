@@ -2,6 +2,7 @@ package org.tinyradius.core.dictionary.parser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttributeFactory;
@@ -35,7 +36,7 @@ public class ResourceParser {
     private final List<Consumer<WritableDictionary>> deferred = new LinkedList<>();
     private int currentVendor = -1;
 
-    public ResourceParser(ResourceResolver resourceResolver) {
+    public ResourceParser(@NonNull ResourceResolver resourceResolver) {
         this(new MemoryDictionary(), resourceResolver, RadiusAttributeFactory::fromDataType);
     }
 
@@ -46,7 +47,8 @@ public class ResourceParser {
      * @return dictionary with contents loaded from specified resource
      * @throws IOException parse error reading from input
      */
-    public WritableDictionary parseDictionary(String resource) throws IOException {
+    @NonNull
+    public WritableDictionary parseDictionary(@NonNull String resource) throws IOException {
         try (InputStream inputStream = resourceResolver.openStream(resource);
              BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
 
@@ -294,7 +296,8 @@ public class ResourceParser {
     }
 
     public interface FactoryProvider {
-        RadiusAttributeFactory<? extends RadiusAttribute> fromDataType(String dataType);
+        @NonNull
+        RadiusAttributeFactory<? extends RadiusAttribute> fromDataType(@NonNull String dataType);
     }
 
 }

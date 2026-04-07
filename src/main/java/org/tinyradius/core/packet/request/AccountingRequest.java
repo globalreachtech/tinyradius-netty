@@ -1,6 +1,7 @@
 package org.tinyradius.core.packet.request;
 
 import io.netty.buffer.ByteBuf;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -14,7 +15,7 @@ import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
  */
 public class AccountingRequest extends GenericRequest {
 
-    public AccountingRequest(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    public AccountingRequest(@NonNull Dictionary dictionary, @NonNull ByteBuf header, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
         byte type = header.getByte(0);
         if (type != ACCOUNTING_REQUEST)

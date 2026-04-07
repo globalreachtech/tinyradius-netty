@@ -1,12 +1,14 @@
 package org.tinyradius.io.client.handler;
 
+import org.jspecify.annotations.NonNull;
+
 import java.net.SocketAddress;
 
 public interface BlacklistManager {
 
-    boolean isBlacklisted(SocketAddress address);
+    boolean isBlacklisted(@NonNull SocketAddress address);
 
-    void logFailure(SocketAddress address, Throwable cause);
+    void logFailure(@NonNull SocketAddress address, @NonNull Throwable cause);
 
-    void reset(SocketAddress address);
+    void reset(@NonNull SocketAddress address);
 }

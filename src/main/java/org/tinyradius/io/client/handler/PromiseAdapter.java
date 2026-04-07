@@ -1,20 +1,22 @@
 package org.tinyradius.io.client.handler;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.tinyradius.core.attribute.AttributeTypes.PROXY_STATE;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.concurrent.Promise;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
+import org.tinyradius.core.RadiusPacketException;
+import org.tinyradius.core.packet.response.RadiusResponse;
+import org.tinyradius.io.client.PendingRequestCtx;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.tinyradius.core.RadiusPacketException;
-import org.tinyradius.core.packet.response.RadiusResponse;
-import org.tinyradius.io.client.PendingRequestCtx;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.tinyradius.core.attribute.AttributeTypes.PROXY_STATE;
 
 /**
  * ClientHandler that matches requests/response by appending Proxy-State attribute to
@@ -32,7 +34,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, PendingRequestCtx msg, List<Object> out) {
+    protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull PendingRequestCtx msg, @NonNull List<Object> out) {
         var packet = msg.getRequest();
         var requestId = UUID.randomUUID().toString();
 
@@ -57,7 +59,7 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, RadiusResponse msg, List<Object> out) {
+    protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull RadiusResponse msg, @NonNull List<Object> out) {
 
         // retrieve my Proxy-State attribute (the last)
         var proxyStates = msg.getAttributes(PROXY_STATE);

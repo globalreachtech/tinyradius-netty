@@ -1,5 +1,6 @@
 package org.tinyradius.io.client.timeout;
 
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.io.client.ClientEventListener;
 import org.tinyradius.io.client.PendingRequestCtx;
 
@@ -25,10 +26,10 @@ public interface TimeoutHandler {
      *
      * @param retry         runnable to invoke to retry
      * @param totalAttempts current attempt count
-     * @param ctx           request context with promise that resolves when a response is received
+     * @param ctx           request context with a promise that resolves when a response is received
      * @param eventListener event listener
      */
-    void scheduleTimeout(Runnable retry, int totalAttempts, PendingRequestCtx ctx, ClientEventListener eventListener);
+    void scheduleTimeout(@NonNull Runnable retry, int totalAttempts, @NonNull PendingRequestCtx ctx, @NonNull ClientEventListener eventListener);
 
     /**
      * Schedule a timeout handler in the future. Invoked immediately after a request is sent
@@ -44,7 +45,7 @@ public interface TimeoutHandler {
      * @param totalAttempts current attempt count
      * @param ctx           request context with promise that resolves when a response is received
      */
-    default void scheduleTimeout(Runnable retry, int totalAttempts, PendingRequestCtx ctx) {
+    default void scheduleTimeout(@NonNull Runnable retry, int totalAttempts, @NonNull PendingRequestCtx ctx) {
         scheduleTimeout(retry, totalAttempts, ctx, NO_OP_LISTENER);
     }
 }

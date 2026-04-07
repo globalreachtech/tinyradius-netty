@@ -1,6 +1,7 @@
 package org.tinyradius.e2e.handler;
 
 import io.netty.channel.ChannelHandler;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.packet.request.AccountingRequest;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.io.RadiusEndpoint;
@@ -27,7 +28,7 @@ public class SimpleProxyHandler extends ProxyHandler {
     }
 
     @Override
-    public Optional<RadiusEndpoint> getOriginServer(RadiusRequest request, RadiusEndpoint clientEndpoint) {
+    public @NonNull Optional<RadiusEndpoint> getOriginServer(@NonNull RadiusRequest request, @NonNull RadiusEndpoint clientEndpoint) {
         InetAddress address = InetAddress.getLoopbackAddress();
         int port = request instanceof AccountingRequest ? originAcctPort : originAuthPort;
         return Optional.of(new RadiusEndpoint(new InetSocketAddress(address, port), originSecret));

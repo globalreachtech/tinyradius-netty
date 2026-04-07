@@ -1,5 +1,7 @@
 package org.tinyradius.core.dictionary.parser.resolver;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,7 +17,8 @@ public interface ResourceResolver {
      * @param nextResource    the resource requested (e.g. via an $INCLUDE directive)
      * @return the resolved resource path
      */
-    String resolve(String currentResource, String nextResource);
+    @NonNull
+    String resolve(@NonNull String currentResource, @NonNull String nextResource);
 
     /**
      * Opens an input stream for reading the given dictionary resource.
@@ -24,5 +27,6 @@ public interface ResourceResolver {
      * @return an input stream for reading
      * @throws IOException if the resource cannot be opened
      */
-    InputStream openStream(String resource) throws IOException;
+    @NonNull
+    InputStream openStream(@NonNull String resource) throws IOException;
 }

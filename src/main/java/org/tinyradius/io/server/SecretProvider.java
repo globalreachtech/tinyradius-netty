@@ -1,5 +1,7 @@
 package org.tinyradius.io.server;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.packet.request.RadiusRequest;
 
 import java.net.InetSocketAddress;
@@ -13,7 +15,8 @@ public interface SecretProvider {
      * @param address IP address and port number of remote host/client
      * @return shared secret or null
      */
-    String getSharedSecret(InetSocketAddress address);
+    @Nullable
+    String getSharedSecret(@NonNull InetSocketAddress address);
 
     /**
      * An alternative method of returning shared secret but with the
@@ -27,7 +30,8 @@ public interface SecretProvider {
      * @return shared secret or null
      */
     @SuppressWarnings("unused")
-    default String getSharedSecret(InetSocketAddress address, RadiusRequest request) {
+    @Nullable
+    default String getSharedSecret(@NonNull InetSocketAddress address, @NonNull RadiusRequest request) {
         return getSharedSecret(address);
     }
 

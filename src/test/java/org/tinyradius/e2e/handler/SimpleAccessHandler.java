@@ -2,6 +2,7 @@ package org.tinyradius.e2e.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.packet.request.AccessRequest;
 import org.tinyradius.core.packet.request.AccessRequestPap;
@@ -22,7 +23,7 @@ public class SimpleAccessHandler extends RequestHandler {
     private final Map<String, String> credentials;
 
     @Override
-    protected Class<? extends RadiusRequest> acceptedPacketType() {
+    protected @NonNull Class<? extends RadiusRequest> acceptedPacketType() {
         return AccessRequest.class;
     }
 

@@ -1,11 +1,11 @@
 package org.tinyradius.core.attribute.codec;
 
 import io.netty.buffer.Unpooled;
-import org.tinyradius.core.RadiusPacketException;
-
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import org.jspecify.annotations.NonNull;
+import org.tinyradius.core.RadiusPacketException;
 
 /**
  * Attribute is encrypted with the method as defined in RFC2868 for the Tunnel-Password attribute
@@ -15,7 +15,7 @@ class TunnelPasswordCodec extends BaseCodec {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     @Override
-    protected byte[] encodeData(byte[] data, byte[] auth, byte[] secret) {
+    protected byte @NonNull [] encodeData(byte @NonNull [] data, byte @NonNull [] auth, byte @NonNull [] secret) {
         byte[] salt = genSalt();
         byte[] combined = ByteBuffer.allocate(data.length + 1)
                 .put((byte) data.length)
@@ -40,14 +40,14 @@ class TunnelPasswordCodec extends BaseCodec {
     }
 
     @Override
-    protected byte[] decodeData(byte[] encodedData, byte[] auth, byte[] secret) throws RadiusPacketException {
+    protected byte @NonNull [] decodeData(byte @NonNull [] encodedData, byte @NonNull [] auth, byte @NonNull [] secret) throws RadiusPacketException {
         int strLen = encodedData.length - 2;
         if (strLen < 16)
             throw new RadiusPacketException("Malformed attribute while decoding with RFC2868 Tunnel-Password method - " +
                     "string must be at least 16 octets, actual: " + strLen);
 
         if (strLen % 16 != 0)
-            throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 Tunnel-Password method - " +
+            throw new RadiusPacketException("Malformed attribute while decoding with RFC2868 Tunnel-Password method - " +
                     "string octets must be multiple of 16, actual: " + strLen);
 
         byte[] encodedStr = Arrays.copyOfRange(encodedData, 2, encodedData.length);

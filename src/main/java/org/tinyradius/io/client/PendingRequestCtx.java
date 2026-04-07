@@ -2,6 +2,7 @@ package org.tinyradius.io.client;
 
 import io.netty.util.concurrent.Promise;
 import lombok.Getter;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
@@ -15,7 +16,7 @@ public class PendingRequestCtx extends RequestCtx {
 
     private final Promise<RadiusResponse> response;
 
-    public PendingRequestCtx(RadiusRequest packet, RadiusEndpoint endpoint, Promise<RadiusResponse> response) {
+    public PendingRequestCtx(@NonNull RadiusRequest packet, @NonNull RadiusEndpoint endpoint, @NonNull Promise<RadiusResponse> response) {
         super(packet, endpoint);
         this.response = response;
     }

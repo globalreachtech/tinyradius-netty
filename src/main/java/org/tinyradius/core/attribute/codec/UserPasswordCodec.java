@@ -1,6 +1,7 @@
 package org.tinyradius.core.attribute.codec;
 
 import io.netty.buffer.Unpooled;
+import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 
 import java.nio.ByteBuffer;
@@ -12,7 +13,7 @@ import java.util.Arrays;
 class UserPasswordCodec extends BaseCodec {
 
     @Override
-    protected byte[] encodeData(byte[] data, byte[] auth, byte[] secret) {
+    protected byte @NonNull [] encodeData(byte @NonNull [] data, byte @NonNull [] auth, byte @NonNull [] secret) {
         byte[] str = pad16x(data);
         ByteBuffer buffer = ByteBuffer.allocate(str.length);
 
@@ -27,7 +28,7 @@ class UserPasswordCodec extends BaseCodec {
     }
 
     @Override
-    protected byte[] decodeData(byte[] encodedData, byte[] auth, byte[] secret) throws RadiusPacketException {
+    protected byte @NonNull [] decodeData(byte @NonNull [] encodedData, byte @NonNull [] auth, byte @NonNull [] secret) throws RadiusPacketException {
         if (encodedData.length < 16)
             throw new RadiusPacketException("Malformed attribute while decoding with RFC2865 User-Password method - " +
                     "data must be at least 16 octets, actual: " + encodedData.length);
