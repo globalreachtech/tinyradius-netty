@@ -31,21 +31,18 @@ class AttributeTemplateTest {
     @Test
     void testFlagDetection() {
         AttributeTemplate template = new AttributeTemplate(
-                -1, 1, "TestAttr", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
+                -1, 1, "TestAttr", "integer", IntegerAttribute.FACTORY, NO_ENCRYPT, false);
         AttributeTemplate userPassword = new AttributeTemplate(
-                -1, 2, "Test-User-Password", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
+                -1, 2, "Test-User-Password", "integer", IntegerAttribute.FACTORY, NO_ENCRYPT, false);
         AttributeTemplate tunnelPassword = new AttributeTemplate(
-                -1, 69, "Test-Tunnel-Password", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
-        AttributeTemplate ascendSend = new AttributeTemplate(
-                529, 214, "Test-Ascend-Send-Secret", "integer", IntegerAttribute.FACTORY, (byte) 0, false);
+                -1, 69, "Test-Tunnel-Password", "integer", IntegerAttribute.FACTORY, NO_ENCRYPT, false);
         AttributeTemplate custom = new AttributeTemplate(
-                123, (byte) 123, "Test-Custom", "integer", IntegerAttribute.FACTORY, (byte) 1, true);
+                123, (byte) 123, "Test-Custom", "integer", IntegerAttribute.FACTORY, RFC2865_USER_PASSWORD, true);
 
         WritableDictionary customDict = new MemoryDictionary()
                 .addAttributeTemplate(template)
                 .addAttributeTemplate(userPassword)
                 .addAttributeTemplate(tunnelPassword)
-                .addAttributeTemplate(ascendSend)
                 .addAttributeTemplate(custom);
 
         assertEquals(NO_ENCRYPT, template.getCodecType());
@@ -65,12 +62,6 @@ class AttributeTemplateTest {
         assertTrue(tunnelPasswordDecoded.getTag().isPresent());
         EncodedAttribute tunnelPasswordEncoded = (EncodedAttribute) tunnelPassword.createEncoded(customDict, (byte) 1, new byte[4]);
         assertTrue(tunnelPasswordEncoded.getTag().isPresent());
-
-        assertEquals(ASCEND_SEND_SECRET, ascendSend.getCodecType());
-        IntegerAttribute ascendSendDecoded = (IntegerAttribute) ascendSend.create(customDict, (byte) 1, new byte[4]);
-        assertFalse(ascendSendDecoded.getTag().isPresent());
-        EncodedAttribute ascendSendEncoded = (EncodedAttribute) ascendSend.createEncoded(customDict, (byte) 1, new byte[4]);
-        assertFalse(ascendSendEncoded.getTag().isPresent());
 
         assertEquals(RFC2865_USER_PASSWORD, custom.getCodecType());
         IntegerAttribute customDecoded = (IntegerAttribute) custom.create(customDict, (byte) 1, new byte[3]); // int length 3 if has_tag

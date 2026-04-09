@@ -72,15 +72,15 @@ public class AttributeTemplate {
     /**
      * Create a new attribute type.
      *
-     * @param vendorId    vendor ID or -1 if N/A
-     * @param type        sub-attribute type code, as unsigned byte
-     * @param name        sub-attribute name
-     * @param dataType    string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
-     * @param factory     the factory to create the attribute
-     * @param encryptFlag encrypt flag as per FreeRadius dictionary format, can be 1/2/3, or default 0 for none
-     * @param hasTag      whether attribute supports tags, as defined in RFC2868, default false
+     * @param vendorId  vendor ID or -1 if N/A
+     * @param type      sub-attribute type code, as unsigned byte
+     * @param name      sub-attribute name
+     * @param dataType  string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
+     * @param factory   the factory to create the attribute
+     * @param dictionaryCodecType codec type
+     * @param hasTag    whether attribute supports tags, as defined in RFC2868, default false
      */
-    public AttributeTemplate(int vendorId, int type, @NonNull String name, @NonNull String dataType, @NonNull RadiusAttributeFactory<? extends RadiusAttribute> factory, byte encryptFlag, boolean hasTag) {
+    public AttributeTemplate(int vendorId, int type, @NonNull String name, @NonNull String dataType, @NonNull RadiusAttributeFactory<? extends RadiusAttribute> factory, AttributeCodecType dictionaryCodecType, boolean hasTag) {
         if (name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
         this.vendorId = vendorId;
@@ -89,7 +89,7 @@ public class AttributeTemplate {
         this.dataType = dataType.toLowerCase();
         this.factory = factory;
         this.tagged = detectHasTag(vendorId, type, hasTag);
-        this.codecType = detectAttributeCodec(vendorId, type, encryptFlag);
+        this.codecType = confirmAttributeCodec(vendorId, type, dictionaryCodecType);
     }
 
     /**
@@ -271,24 +271,21 @@ public class AttributeTemplate {
     }
 
     /**
-     * Detects the attribute codec type.
+     * Override attribute codec if RFC specifies
      *
-     * @param vendorId    the vendor ID
-     * @param type        the attribute type
-     * @param encryptFlag the initial encrypt flag
+     * @param vendorId  the vendor ID
+     * @param type      the attribute type
+     * @param codecType the initial encrypt flag
      * @return the codec type
      */
     @NonNull
-    private static AttributeCodecType detectAttributeCodec(int vendorId, int type, byte encryptFlag) {
+    private static AttributeCodecType confirmAttributeCodec(int vendorId, int type, AttributeCodecType codecType) {
         if (vendorId == -1 && type == USER_PASSWORD)
             return RFC2865_USER_PASSWORD;
 
         if (vendorId == -1 && type == TUNNEL_PASSWORD)
             return RFC2868_TUNNEL_PASSWORD;
 
-        if (vendorId == 529 && type == 214) // Ascend-Send-Secret
-            return ASCEND_SEND_SECRET;
-
-        return fromEncryptFlagId(encryptFlag);
+        return codecType;
     }
 }
