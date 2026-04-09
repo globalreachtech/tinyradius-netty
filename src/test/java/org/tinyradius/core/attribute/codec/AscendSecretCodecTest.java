@@ -15,13 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AscendSecretCodecTest {
 
-    /**
-     * Ascend-Send-Secret (vendor 529, attribute 3) and Ascend-Receive-Secret (vendor 529, attribute 2)
-     * both use the same encryption. We use Ascend-Send-Secret = attr 3.
-     */
-    private static final int ASCEND_VENDOR_ID = 529;
-    private static final int ASCEND_SEND_SECRET = 3;
-
     private final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
@@ -33,7 +26,8 @@ class AscendSecretCodecTest {
         byte[] requestAuth = random.generateSeed(16);
         String sharedSecret = "sharedSecret1";
 
-        RadiusAttribute attribute = dictionary.createAttribute(ASCEND_VENDOR_ID, ASCEND_SEND_SECRET, secret.getBytes(UTF_8));
+        RadiusAttribute attribute = dictionary.createAttribute(1, 1, secret.getBytes(UTF_8));
+
         assertEquals(secret, new String(attribute.getValue(), UTF_8));
 
         byte[] encoded = codec.encode(attribute.getValue(), requestAuth, sharedSecret);

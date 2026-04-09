@@ -17,8 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserPasswordCodecTest {
 
-    private static final byte USER_PASSWORD = 2;
-
     private final SecureRandom random = new SecureRandom();
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
@@ -30,7 +28,7 @@ class UserPasswordCodecTest {
         byte[] requestAuth = random.generateSeed(16);
         String sharedSecret = "sharedSecret1";
 
-        RadiusAttribute attribute = dictionary.createAttribute(-1, USER_PASSWORD, password.getBytes(UTF_8));
+        RadiusAttribute attribute = dictionary.createAttribute(1, 1, password.getBytes(UTF_8));
         assertEquals(password, new String(attribute.getValue(), UTF_8));
 
         byte[] encode = codec.encode(attribute.getValue(), requestAuth, sharedSecret);
