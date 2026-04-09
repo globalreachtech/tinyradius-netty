@@ -17,12 +17,13 @@
 
 ## Domain
 
-- ALWAYS conform with RFC specifications as annotated in the code
-- Consult FreeRadius on logic implementation if needed
-- Interoperability / alignment with [FreeRadius](https://www.freeradius.org/) is preferred, especially regarding dictionaries
-- Interoperability with [Radiator](https://radiatorsoftware.com/) should also be considered
-- Consult Netty documentation and discussions when using libraries, pay attention to memory leaks, idioms, and best
-  practices
+- ALWAYS follow implementations in the following order:
+  1. RFC specifications as in code comments
+  2. Vendor specifications
+  3. Latest FreeRadius implementation as on GitHub repository
+  4. Internal knowledge only as a last resort
+- Interoperability / alignment with [FreeRadius](https://www.freeradius.org/) and [Radiator](https://radiatorsoftware.com/) is preferred, especially regarding dictionaries
+- Consult Netty documentation and discussions when using libraries, pay attention to memory leaks, idioms, and best practices
 
 ## Testing
 
