@@ -5,7 +5,6 @@ plugins {
     `java-library`
     `maven-publish`
     jacoco
-    checkstyle
     alias(libs.plugins.freefair.lombok)
     alias(libs.plugins.sonarqube)
     alias(libs.plugins.jreleaser)
@@ -45,10 +44,6 @@ tasks.jacocoTestReport {
         xml.required = true
         html.required = true
     }
-}
-
-checkstyle {
-//    maxWarnings = 0
 }
 
 sonarqube {
