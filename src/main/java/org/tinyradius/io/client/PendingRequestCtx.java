@@ -16,11 +16,21 @@ public class PendingRequestCtx extends RequestCtx {
 
     private final Promise<RadiusResponse> response;
 
+    /**
+     * Creates a new PendingRequestCtx.
+     *
+     * @param packet   the RADIUS request packet
+     * @param endpoint the remote endpoint to which the request is being sent
+     * @param response the promise to be resolved when a response is received
+     */
     public PendingRequestCtx(@NonNull RadiusRequest packet, @NonNull RadiusEndpoint endpoint, @NonNull Promise<RadiusResponse> response) {
         super(packet, endpoint);
         this.response = response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "PendingRequestCtx{" +

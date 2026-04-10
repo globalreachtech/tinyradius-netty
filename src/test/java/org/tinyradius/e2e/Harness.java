@@ -8,7 +8,8 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -34,9 +35,9 @@ import java.util.Map;
 
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 
-@Log4j2
 public class Harness implements AutoCloseable {
 
+    private static final Logger log = LogManager.getLogger(Harness.class);
     private final Dictionary dictionary = DefaultDictionary.INSTANCE;
     private final Timer timer = new HashedWheelTimer();
     private final FixedTimeoutHandler retryStrategy = new FixedTimeoutHandler(timer);
@@ -79,7 +80,7 @@ public class Harness implements AutoCloseable {
         var eventLoopGroup = new MultiThreadIoEventLoopGroup(4, NioIoHandler.newFactory());
         var bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
-        var serverPacketCodec = new ServerPacketCodec(dictionary, x -> originSecret);
+        var serverPacketCodec = new ServerPacketCodec(dictionary, _ -> originSecret);
 
         var cachingHandlerAuth = new BasicCachingHandler(timer, 5000);
         var cachingHandlerAcct = new BasicCachingHandler(timer, 5000);
@@ -147,7 +148,7 @@ public class Harness implements AutoCloseable {
         var channelInitializer = new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-                ch.pipeline().addLast(new ServerPacketCodec(dictionary, x -> proxySecret), simpleProxyHandler);
+                ch.pipeline().addLast(new ServerPacketCodec(dictionary, _ -> proxySecret), simpleProxyHandler);
             }
         };
 

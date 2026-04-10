@@ -12,6 +12,9 @@ import org.tinyradius.core.dictionary.Dictionary;
  */
 public class IntegerAttribute extends OctetsAttribute {
 
+    /**
+     * Default factory for creating {@link IntegerAttribute} instances.
+     */
     public static final RadiusAttributeFactory<IntegerAttribute> FACTORY = new Factory();
 
     /**

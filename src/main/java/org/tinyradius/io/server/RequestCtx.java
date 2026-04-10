@@ -22,16 +22,31 @@ public class RequestCtx {
     private final RadiusRequest request;
     private final RadiusEndpoint endpoint;
 
+    /**
+     * Creates a new RequestCtx.
+     *
+     * @param request  the incoming RADIUS request
+     * @param endpoint the remote endpoint from which the request was received
+     */
     public RequestCtx(@NonNull RadiusRequest request, @NonNull RadiusEndpoint endpoint) {
         this.request = request;
         this.endpoint = endpoint;
     }
 
+    /**
+     * Creates a {@link ResponseCtx} for sending a response back to the client.
+     *
+     * @param response the RADIUS response to send
+     * @return a new ResponseCtx with the given response and matching request/endpoint
+     */
     @NonNull
     public ResponseCtx withResponse(@NonNull RadiusResponse response) {
         return new ResponseCtx(request, endpoint, response);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "RequestCtx{" +

@@ -17,6 +17,12 @@ import java.util.List;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
+/**
+ * Radius Request Packet interface.
+ * <p>
+ * This interface defines the contract for Radius request packets, which are sent
+ * from a client to a Radius server (e.g., Access-Request, Accounting-Request).
+ */
 public interface RadiusRequest extends RadiusPacket<RadiusRequest> {
 
     /**

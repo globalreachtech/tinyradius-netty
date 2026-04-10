@@ -20,10 +20,18 @@ import static org.tinyradius.io.client.ClientEventListener.EventType.ATTEMPT_TIM
  */
 public record FixedTimeoutHandler(@NonNull Timer timer, int maxAttempts, int timeoutMs) implements TimeoutHandler {
 
+    /**
+     * Creates a new FixedTimeoutHandler with default values (1 attempt, 1000ms timeout).
+     *
+     * @param timer netty timer for timing out requests
+     */
     public FixedTimeoutHandler(@NonNull Timer timer) {
         this(timer, 1, 1000);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void scheduleTimeout(@NonNull Runnable retry, int totalAttempts, @NonNull PendingRequestCtx ctx, @NonNull ClientEventListener eventListener) {
         timer.newTimeout(t -> {

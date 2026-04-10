@@ -3,8 +3,8 @@ package org.tinyradius.io.client.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.concurrent.Promise;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.packet.response.RadiusResponse;
@@ -14,25 +14,40 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.tinyradius.core.attribute.AttributeTypes.PROXY_STATE;
 
 /**
  * ClientHandler that matches requests/response by appending Proxy-State attribute to
- * outbound packets. This avoids problem with mismatched requests/responses when using
+ * outbound packets. This avoids the problem with mismatched requests/responses when using
  * packet id, which is limited to 256 unique IDs.
  */
-@Log4j2
-@RequiredArgsConstructor
 public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, PendingRequestCtx> {
 
+    private static final Logger log = LogManager.getLogger(PromiseAdapter.class);
     private final Map<String, Request> requests;
 
-    public PromiseAdapter() {
-        this(new ConcurrentHashMap<>());
+    /**
+     * Creates a new PromiseAdapter with a custom map supplier for pending requests.
+     *
+     * @param mapSupplier The supplier that provides the map for storing pending requests.
+     */
+    public PromiseAdapter(Supplier<Map<String, Request>> mapSupplier) {
+        this.requests = mapSupplier.get();
     }
 
+    /**
+     * Creates a new PromiseAdapter with a default map (ConcurrentHashMap) for pending requests.
+     */
+    public PromiseAdapter() {
+        this(ConcurrentHashMap::new);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void encode(@NonNull ChannelHandlerContext ctx, @NonNull PendingRequestCtx msg, @NonNull List<Object> out) {
         var packet = msg.getRequest();
@@ -58,6 +73,9 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull RadiusResponse msg, @NonNull List<Object> out) {
 
@@ -96,7 +114,15 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
         }
     }
 
-    private record Request(String secret, byte[] auth, int id, Promise<RadiusResponse> promise) {
+    /**
+     * Internal record to store request context for matching responses.
+     *
+     * @param secret  The RADIUS shared secret used for this request.
+     * @param auth    The authenticator of the request packet.
+     * @param id      The packet identifier.
+     * @param promise The promise to be completed when a matching response is received.
+     */
+    public record Request(String secret, byte[] auth, int id, Promise<RadiusResponse> promise) {
     }
 
 }

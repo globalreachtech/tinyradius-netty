@@ -1,30 +1,39 @@
 package org.tinyradius.core.packet.request;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.stream.Collectors.toList;
-import static org.tinyradius.core.attribute.AttributeTypes.CHAP_CHALLENGE;
-import static org.tinyradius.core.attribute.AttributeTypes.CHAP_PASSWORD;
-
 import io.netty.buffer.ByteBuf;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.RadiusPacket;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.toList;
+import static org.tinyradius.core.attribute.AttributeTypes.CHAP_CHALLENGE;
+import static org.tinyradius.core.attribute.AttributeTypes.CHAP_PASSWORD;
+
 /**
  * CHAP AccessRequest RFC2865
  */
 public class AccessRequestChap extends AccessRequest {
 
-    public AccessRequestChap(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    /**
+     * Constructs an AccessRequestChap.
+     *
+     * @param dictionary the dictionary to use
+     * @param header     the packet header
+     * @param attributes the packet attributes
+     * @throws RadiusPacketException if there is an error creating the request
+     */
+    public AccessRequestChap(@NonNull Dictionary dictionary, @NonNull ByteBuf header, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
     }
 
-    static AccessRequest withPassword(AccessRequest request, String password) throws RadiusPacketException {
+    static @NonNull AccessRequest withPassword(@NonNull AccessRequest request, @NonNull String password) throws RadiusPacketException {
         var attributes = withPasswordAttribute(request.getDictionary(), request.getAttributes(), password);
         return (AccessRequest) request.withAttributes(attributes);
     }
@@ -38,8 +47,8 @@ public class AccessRequestChap extends AccessRequest {
      * @return AccessRequestChap with encoded CHAP-Password and CHAP-Challenge attributes
      * @throws IllegalArgumentException invalid password
      */
-    private static List<RadiusAttribute> withPasswordAttribute(Dictionary dictionary, List<RadiusAttribute> attributes, String password) {
-        if (password == null || password.isEmpty())
+    private static @NonNull List<RadiusAttribute> withPasswordAttribute(@NonNull Dictionary dictionary, @NonNull List<RadiusAttribute> attributes, @NonNull String password) {
+        if (password.isEmpty())
             throw new IllegalArgumentException("Could not encode CHAP attributes, password not set");
 
         byte[] challenge = random16bytes();
@@ -56,18 +65,6 @@ public class AccessRequestChap extends AccessRequest {
         return newAttributes;
     }
 
-    @Override
-    public @NonNull RadiusRequest encodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
-        validateChapAttributes();
-        return super.encodeRequest(sharedSecret);
-    }
-
-    @Override
-    public @NonNull RadiusRequest decodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
-        validateChapAttributes();
-        return super.decodeRequest(sharedSecret);
-    }
-
     /**
      * Encodes a plain-text password using the given CHAP challenge.
      * See RFC 2865 section 2.2
@@ -77,7 +74,7 @@ public class AccessRequestChap extends AccessRequest {
      * @param chapChallenge random 16 octet CHAP challenge
      * @return 17 octet CHAP-encoded password (1 octet for CHAP ID, 16 octets CHAP response)
      */
-    private static byte[] computeChapPassword(byte chapId, String plaintextPw, byte[] chapChallenge) {
+    private static byte @NonNull [] computeChapPassword(byte chapId, @NonNull String plaintextPw, byte @NonNull [] chapChallenge) {
         var md5 = RadiusPacket.getMd5Digest();
         md5.update(chapId);
         md5.update(plaintextPw.getBytes(UTF_8));
@@ -93,11 +90,11 @@ public class AccessRequestChap extends AccessRequest {
      * Checks that the passed plain-text password matches the password
      * (hash) send with this Access-Request packet.
      *
-     * @param password plaintext password to verify packet against
+     * @param password plaintext password to verify the packet against
      * @return true if the password is valid, false otherwise
      */
-    public boolean checkPassword(String password) {
-        if (password == null || password.isEmpty()) {
+    public boolean checkPassword(@NonNull String password) {
+        if (password.isEmpty()) {
             logger.warn("Plaintext password to check against is empty");
             return false;
         }
@@ -105,6 +102,11 @@ public class AccessRequestChap extends AccessRequest {
         byte[] chapChallenge = getAttribute(CHAP_CHALLENGE)
                 .map(RadiusAttribute::getValue)
                 .orElse(getAuthenticator());
+        if (chapChallenge == null) {
+            logger.warn("CHAP-Challenge not found in attribute or in packet authenticator");
+            return false;
+        }
+
 
         byte[] chapPassword = getAttribute(CHAP_PASSWORD)
                 .map(RadiusAttribute::getValue)
@@ -117,10 +119,15 @@ public class AccessRequestChap extends AccessRequest {
         return Arrays.equals(chapPassword, computeChapPassword(chapPassword[0], password, chapChallenge));
     }
 
-    private void validateChapAttributes() throws RadiusPacketException {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void validateAttributes() throws RadiusPacketException {
         int count = getAttributes(CHAP_PASSWORD).size();
         if (count != 1)
             throw new RadiusPacketException("AccessRequest (CHAP) should have exactly one CHAP-Password attribute, has " + count);
         // CHAP-Challenge can use Request Authenticator instead of attribute
     }
 }
+

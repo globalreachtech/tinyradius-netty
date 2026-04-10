@@ -1,18 +1,6 @@
 package org.tinyradius.core.packet.request;
 
-import static java.util.stream.Collectors.toSet;
-import static org.tinyradius.core.attribute.AttributeTypes.ARAP_PASSWORD;
-import static org.tinyradius.core.attribute.AttributeTypes.CHAP_PASSWORD;
-import static org.tinyradius.core.attribute.AttributeTypes.EAP_MESSAGE;
-import static org.tinyradius.core.attribute.AttributeTypes.USER_NAME;
-import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
-import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
-
 import io.netty.buffer.ByteBuf;
-import java.security.SecureRandom;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
@@ -21,18 +9,42 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
 
+import java.security.SecureRandom;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
+import static org.tinyradius.core.attribute.AttributeTypes.*;
+import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
+
 /**
  * An Access-Request Radius packet.
  */
 public abstract class AccessRequest extends GenericRequest implements MessageAuthSupport<RadiusRequest> {
 
+    /**
+     * Logger for this class.
+     */
     protected static final Logger logger = LogManager.getLogger();
+
+    /**
+     * Secure random number generator.
+     */
     protected static final SecureRandom RANDOM = new SecureRandom();
 
     private static final Set<Integer> AUTH_ATTRS = Set.of(
             (int) USER_PASSWORD, (int) CHAP_PASSWORD, (int) ARAP_PASSWORD, (int) EAP_MESSAGE);
 
-    protected AccessRequest(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    /**
+     * Constructs an AccessRequest.
+     *
+     * @param dictionary the dictionary to use
+     * @param header     the packet header
+     * @param attributes the packet attributes
+     * @throws RadiusPacketException if there is an error creating the request
+     */
+    protected AccessRequest(@NonNull Dictionary dictionary, @NonNull ByteBuf header, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
         byte type = header.getByte(0);
         if (type != ACCESS_REQUEST)
@@ -48,11 +60,11 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      *                   or a stub AccessRequest will be returned
      * @return AccessRequest auth mechanism-specific implementation
      */
-    static AccessRequest create(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    static @NonNull AccessRequest create(@NonNull Dictionary dictionary, @NonNull ByteBuf header, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         return lookupAuthType(attributes).newInstance(dictionary, header, attributes);
     }
 
-    private static AccessRequestFactory lookupAuthType(List<RadiusAttribute> attributes) {
+    private static @NonNull AccessRequestFactory lookupAuthType(@NonNull List<RadiusAttribute> attributes) {
         /*
          * An Access-Request that contains either a User-Password or
          * CHAP-Password or ARAP-Password or one or more EAP-Message attributes
@@ -86,14 +98,22 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         };
     }
 
-    protected static byte[] random16bytes() {
+    /**
+     * Generates a random 16-octet authenticator.
+     *
+     * @return 16-octet random byte array
+     */
+    protected static byte @NonNull [] random16bytes() {
         byte[] randomBytes = new byte[16];
         RANDOM.nextBytes(randomBytes);
         return randomBytes;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected byte[] genAuth(String ignored) {
+    protected byte @NonNull [] genAuth(String ignored) {
         byte[] auth = getAuthenticator();
         return auth == null ? random16bytes() : auth; // create new auth only if needed - maintain idempotence
     }
@@ -103,7 +123,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      *
      * @return username as String
      */
-    public Optional<String> getUsername() {
+    public @NonNull Optional<String> getUsername() {
         return getAttribute(-1, USER_NAME)
                 .map(RadiusAttribute::getValueString);
     }
@@ -119,7 +139,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * @throws IllegalArgumentException invalid password
      * @throws RadiusPacketException    packet validation exceptions
      */
-    public AccessRequest withChapPassword(String password) throws RadiusPacketException {
+    public @NonNull AccessRequest withChapPassword(@NonNull String password) throws RadiusPacketException {
         return AccessRequestChap.withPassword(withoutAuths(), password);
     }
 
@@ -132,8 +152,21 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      * @return AccessRequestPap with the encoded User-Password attribute
      * @throws RadiusPacketException packet validation exceptions
      */
-    public AccessRequest withPapPassword(String password) throws RadiusPacketException {
+    public @NonNull AccessRequest withPapPassword(@NonNull String password) throws RadiusPacketException {
         return AccessRequestPap.withPassword(withoutAuths(), password);
+    }
+
+    /**
+     * Set ARAP-Password attribute with the provided password.
+     * <p>
+     * Removes existing auth-related attributes if present (User-Password, CHAP-Password, etc).
+     *
+     * @param password plaintext password to encode into ARAP-Password
+     * @return AccessRequestArap with encoded ARAP-Password attribute
+     * @throws RadiusPacketException packet validation exceptions
+     */
+    public @NonNull AccessRequest withArapPassword(@NonNull String password) throws RadiusPacketException {
+        return AccessRequestArap.withPassword(withoutAuths(), password);
     }
 
     /**
@@ -145,7 +178,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      *
      * @return instance without USER_PASSWORD, CHAP_PASSWORD, ARAP_PASSWORD, EAP_MESSAGE attributes
      */
-    private AccessRequest withoutAuths() throws RadiusPacketException {
+    private @NonNull AccessRequest withoutAuths() throws RadiusPacketException {
         return (AccessRequest) withAttributes(getAttributes(a -> !(a.getVendorId() == -1 && AUTH_ATTRS.contains(a.getType()))));
     }
 
@@ -159,12 +192,18 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
      */
     @Override
     public @NonNull RadiusRequest encodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
+        validateAttributes();
         return ((AccessRequest) super.encodeRequest(sharedSecret))
-                .encodeMessageAuth(sharedSecret, null);
+                .encodeMessageAuth(sharedSecret, null); // always add messageAuth CVE-2024-3596
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull RadiusRequest decodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
+        validateAttributes();
+
         // authenticator is random, so can't run verifyPacketAuth(), but we can do basic checks
         byte[] auth = getAuthenticator();
         if (auth == null)
@@ -177,8 +216,26 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
         return withAttributes(decodeAttributes(auth, sharedSecret));
     }
 
+    /**
+     * Validates that the packet contains the correct attributes for its authentication type.
+     *
+     * @throws RadiusPacketException if validation fails
+     */
+    protected abstract void validateAttributes() throws RadiusPacketException;
 
+    /**
+     * Factory interface for creating AccessRequest instances.
+     */
     public interface AccessRequestFactory {
-        AccessRequest newInstance(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException;
+        /**
+         * Creates a new AccessRequest instance.
+         *
+         * @param dictionary the dictionary to use
+         * @param header     the packet header
+         * @param attributes the packet attributes
+         * @return new AccessRequest instance
+         * @throws RadiusPacketException if there is an error creating the request
+         */
+        @NonNull AccessRequest newInstance(@NonNull Dictionary dictionary, @NonNull ByteBuf header, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException;
     }
 }

@@ -11,6 +11,9 @@ import org.tinyradius.core.dictionary.Dictionary;
  */
 public class StringAttribute extends OctetsAttribute {
 
+    /**
+     * Default factory for creating {@link StringAttribute} instances.
+     */
     public static final RadiusAttributeFactory<StringAttribute> FACTORY = new Factory();
 
     /**

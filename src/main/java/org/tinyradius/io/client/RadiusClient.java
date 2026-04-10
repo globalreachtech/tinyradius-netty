@@ -6,7 +6,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.packet.request.RadiusRequest;
@@ -31,9 +32,9 @@ import static org.tinyradius.io.client.ClientEventListener.NO_OP_LISTENER;
  * External functions to be invoke for each send try, timeout and response
  * received may be optionally specified.
  */
-@Log4j2
 public class RadiusClient implements RadiusLifecycle {
 
+    private static final Logger log = LogManager.getLogger(RadiusClient.class);
     private final TimeoutHandler defaultTimeoutHandler;
 
     private final ClientEventListener defaultEventListener;

@@ -86,6 +86,9 @@ public record EncodedAttribute(OctetsAttribute delegate) implements RadiusAttrib
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @NonNull
     @Override
     public String toString() {

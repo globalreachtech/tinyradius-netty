@@ -18,6 +18,13 @@ public class ResponseCtx extends RequestCtx {
 
     private final RadiusResponse response;
 
+    /**
+     * Creates a new ResponseCtx.
+     *
+     * @param packet   the original RADIUS request
+     * @param endpoint the remote endpoint from which the request was received
+     * @param response the RADIUS response to be sent
+     */
     public ResponseCtx(@NonNull RadiusRequest packet, @NonNull RadiusEndpoint endpoint, @NonNull RadiusResponse response) {
         super(packet, endpoint);
         this.response = response;

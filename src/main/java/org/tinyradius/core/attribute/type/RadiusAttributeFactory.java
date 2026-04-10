@@ -11,6 +11,11 @@ import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
+/**
+ * Factory interface for creating {@link RadiusAttribute} instances.
+ *
+ * @param <T> the type of attribute created by this factory
+ */
 public interface RadiusAttributeFactory<T extends RadiusAttribute> {
 
     Logger log = LogManager.getLogger();

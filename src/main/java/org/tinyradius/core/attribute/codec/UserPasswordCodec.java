@@ -8,11 +8,17 @@ import org.tinyradius.core.RadiusPacketException;
  */
 class UserPasswordCodec extends BaseCodec {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected byte @NonNull [] encodeData(byte @NonNull [] data, byte @NonNull [] auth, byte @NonNull [] secret) {
         return cbcMd5Encode(data, auth, secret, true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected byte @NonNull [] decodeData(byte @NonNull [] encodedData, byte @NonNull [] auth, byte @NonNull [] secret) throws RadiusPacketException {
         byte[] decoded = cbcMd5Decode(encodedData, auth, secret, true);

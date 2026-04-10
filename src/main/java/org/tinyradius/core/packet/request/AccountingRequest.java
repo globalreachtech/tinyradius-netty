@@ -15,6 +15,14 @@ import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
  */
 public class AccountingRequest extends GenericRequest {
 
+    /**
+     * Constructs an AccountingRequest.
+     *
+     * @param dictionary the dictionary to use
+     * @param header     the packet header
+     * @param attributes the packet attributes
+     * @throws RadiusPacketException if there is an error creating the request
+     */
     public AccountingRequest(@NonNull Dictionary dictionary, @NonNull ByteBuf header, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
         byte type = header.getByte(0);

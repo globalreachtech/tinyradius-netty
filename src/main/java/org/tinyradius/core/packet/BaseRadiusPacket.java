@@ -4,7 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
@@ -20,10 +21,10 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
  * Base Radius Packet implementation without support for authenticators or encoding
  */
 @Getter
-@Log4j2
 @EqualsAndHashCode
 public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements RadiusPacket<T> {
 
+    private static final Logger log = LogManager.getLogger(BaseRadiusPacket.class);
     private static final int HEADER_LENGTH = 20;
 
     private final Dictionary dictionary;
@@ -32,6 +33,14 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
 
     private final List<RadiusAttribute> attributes;
 
+    /**
+     * Constructs a BaseRadiusPacket.
+     *
+     * @param dictionary the dictionary to use for attribute lookups
+     * @param header     the 20-octet packet header
+     * @param attributes the list of attributes for this packet
+     * @throws RadiusPacketException if the packet length or header is invalid
+     */
     protected BaseRadiusPacket(@NonNull Dictionary dictionary, @NonNull ByteBuf header, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         this.dictionary = dictionary;
         this.header = header;

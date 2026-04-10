@@ -20,10 +20,21 @@ import java.util.List;
  */
 public class GenericResponse extends BaseRadiusPacket<RadiusResponse> implements RadiusResponse {
 
+    /**
+     * Constructs a GenericResponse.
+     *
+     * @param dictionary the dictionary to use for attribute lookups
+     * @param header     the 20-octet packet header
+     * @param attributes the list of attributes for this packet
+     * @throws RadiusPacketException if the packet length or header is invalid
+     */
     public GenericResponse(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull RadiusResponse encodeResponse(@NonNull String sharedSecret, byte @NonNull [] requestAuth) throws RadiusPacketException {
         var response = withAttributes(encodeAttributes(requestAuth, sharedSecret));
@@ -31,12 +42,18 @@ public class GenericResponse extends BaseRadiusPacket<RadiusResponse> implements
         return withAuthAttributes(auth, response.getAttributes());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull RadiusResponse decodeResponse(@NonNull String sharedSecret, byte @NonNull [] requestAuth) throws RadiusPacketException {
         verifyPacketAuth(sharedSecret, requestAuth);
         return withAttributes(decodeAttributes(requestAuth, sharedSecret));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull RadiusResponse withAuthAttributes(byte @Nullable [] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         return RadiusResponse.create(getDictionary(), getType(), getId(), auth, attributes);

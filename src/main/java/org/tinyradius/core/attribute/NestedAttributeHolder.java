@@ -72,7 +72,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
     }
 
     /**
-     * Convenience method to get single attribute.
+     * Convenience method to get a single attribute.
      * <p>
      * If vendorId doesn't match childVendorId, will search sub-attributes.
      *
