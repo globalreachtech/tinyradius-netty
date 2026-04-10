@@ -1,6 +1,5 @@
 package org.tinyradius.core.dictionary.parser;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.AttributeTemplate;
@@ -26,8 +25,22 @@ import static java.lang.Integer.parseInt;
 import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 
+/**
+ * Parses RADIUS dictionary files in FreeRADIUS/Radiator format.
+ * <p>
+ * This parser reads dictionary files containing attribute type definitions,
+ * vendor definitions, and value mappings. It builds a dictionary that can be used
+ * to create and encode RADIUS packets with proper attribute types.
+ * <p>
+ * Dictionary files follow the format:
+ * <ul>
+ *   <li>ATTRIBUTE - attribute name, type, and optional vendor</li>
+ *   <li>VALUE - enumeration values for attributes</li>
+ *   <li>VENDOR - vendor ID and name</li>
+ *   <li>FORMAT - attribute value formatting rules</li>
+ * </ul>
+ **/
 @Log4j2
-@RequiredArgsConstructor
 public class ResourceParser {
 
     private final WritableDictionary dictionary;
@@ -38,6 +51,12 @@ public class ResourceParser {
     private final List<Consumer<WritableDictionary>> deferred = new LinkedList<>();
     private int currentVendor = -1;
 
+    public ResourceParser(WritableDictionary dictionary, ResourceResolver resourceResolver, FactoryProvider factoryProvider) {
+        this.dictionary = dictionary;
+        this.resourceResolver = resourceResolver;
+        this.factoryProvider = factoryProvider;
+    }
+
     public ResourceParser(@NonNull ResourceResolver resourceResolver) {
         this(new MemoryDictionary(), resourceResolver, RadiusAttributeFactory::fromDataType);
     }
@@ -46,7 +65,7 @@ public class ResourceParser {
      * Parses the dictionary from the specified InputStream.
      *
      * @param resource location of resource, resolved depending on {@link ResourceResolver}
-     * @return dictionary with contents loaded from specified resource
+     * @return dictionary with contents loaded from the specified resource
      * @throws IOException parse error reading from input
      */
     @NonNull

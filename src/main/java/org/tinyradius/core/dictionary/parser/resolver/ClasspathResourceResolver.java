@@ -6,6 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 
+/**
+ * Resolves dictionary resources from the classpath.
+ * <p>
+ * This resolver locates dictionary files as classpath resources,
+ * typically packaged within the application JAR or available
+ * on the classpath. Use this resolver to load built-in
+ * dictionary files.
+ */
 public class ClasspathResourceResolver implements ResourceResolver {
 
     public static final @NonNull ResourceResolver INSTANCE = new ClasspathResourceResolver();

@@ -12,6 +12,16 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.util.MessageAuthSupport;
 
+/**
+ * RADIUS Access-Response packet implementation.
+ * <p>
+ * Represents Access-Accept, Access-Reject, and Access-Challenge responses.
+ * This class extends {@link GenericResponse} to provide Message-Authenticator
+ * support for EAP methods.
+ * <p>
+ * Access-Challenge responses are sent when additional authentication
+ * information is required from the user (e.g., OTP token or secondary password).
+ */
 public class AccessResponse extends GenericResponse implements MessageAuthSupport<RadiusResponse> {
 
     private AccessResponse(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {

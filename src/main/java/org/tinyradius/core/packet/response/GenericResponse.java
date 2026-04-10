@@ -10,6 +10,14 @@ import org.tinyradius.core.packet.BaseRadiusPacket;
 
 import java.util.List;
 
+/**
+ * Generic RADIUS response packet implementation.
+ * <p>
+ * This is a basic implementation of {@link RadiusResponse} that can encode
+ * response packets (Access-Accept, Access-Reject, Access-Challenge, Accounting-Response).
+ * Use {@link AccessResponse} for access-specific responses that require
+ * Message-Authenticator support.
+ */
 public class GenericResponse extends BaseRadiusPacket<RadiusResponse> implements RadiusResponse {
 
     public GenericResponse(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {

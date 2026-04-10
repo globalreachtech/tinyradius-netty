@@ -7,6 +7,13 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+/**
+ * Resolves dictionary resources from the filesystem.
+ * <p>
+ * This resolver locates dictionary files by resolving relative paths
+ * against the filesystem. It is typically used with absolute paths
+ * or paths relative to a base directory.
+ */
 public class FileResourceResolver implements ResourceResolver {
 
     public static final ResourceResolver INSTANCE = new FileResourceResolver();

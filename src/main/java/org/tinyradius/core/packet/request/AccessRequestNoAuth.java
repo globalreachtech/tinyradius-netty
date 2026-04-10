@@ -1,14 +1,22 @@
 package org.tinyradius.core.packet.request;
 
-import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
-
 import io.netty.buffer.ByteBuf;
-import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 
+import java.util.List;
+
+import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
+
+/**
+ * Basic Access-Request without Message-Authenticator attribute or any encoding.
+ * <p>
+ * Use this class when the authentication method does not require MD5 challenge-response (e.g., PAP with no EAP).
+ * <p>
+ * This is also used internally during construction of other Access-Request types.
+ */
 public class AccessRequestNoAuth extends AccessRequest {
 
     public AccessRequestNoAuth(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {

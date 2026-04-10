@@ -6,6 +6,16 @@ import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.RadiusEndpoint;
 
+/**
+ * Context object for an incoming RADIUS server request.
+ * <p>
+ * Holds the incoming request packet and the remote endpoint (address and shared secret)
+ * from which the request was received. This context is passed through the
+ * Netty channel pipeline for processing the request.
+ * <p>
+ * Use {@link #withResponse(RadiusResponse)} to create a {@link ResponseCtx}
+ * for sending a response back to the client.
+ */
 @Getter
 public class RequestCtx {
 

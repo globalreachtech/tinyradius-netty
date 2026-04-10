@@ -1,6 +1,5 @@
 package org.tinyradius.io.client.handler;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jspecify.annotations.NonNull;
 
@@ -11,8 +10,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Default implementation of {@link BlacklistManager}.
+ * <p>
+ * Tracks failed requests per endpoint and blacklists endpoints that exceed
+ * a configurable failure threshold. Endpoints are automatically removed
+ * from the blacklist after a configurable TTL expires.
+ * <p>
+ * This implementation uses an in-memory ConcurrentHashMap to store
+ * failure counts and timestamps. For production deployments with
+ * multiple client instances, consider using a shared store (e.g., Redis).
+ */
 @Log4j2
-@RequiredArgsConstructor
 public class DefaultBlacklistManager implements BlacklistManager {
 
     private final long blacklistTtlMs;
@@ -21,6 +30,18 @@ public class DefaultBlacklistManager implements BlacklistManager {
 
     private final Map<SocketAddress, AtomicInteger> failCounts = new ConcurrentHashMap<>();
     private final Map<SocketAddress, Long> blacklist = new ConcurrentHashMap<>();
+
+    /**
+     * @param blacklistTtlMs     time-to-live for blacklist entries in milliseconds
+     * @param failCountThreshold number of failures before blacklisting an endpoint
+     * @param clock              clock for timestamp operations
+     */
+    public DefaultBlacklistManager(long blacklistTtlMs, int failCountThreshold, Clock clock) {
+        this.blacklistTtlMs = blacklistTtlMs;
+        this.failCountThreshold = failCountThreshold;
+        this.clock = clock;
+    }
+
 
     @Override
     public boolean isBlacklisted(@NonNull SocketAddress socketAddress) {
@@ -48,7 +69,7 @@ public class DefaultBlacklistManager implements BlacklistManager {
 
             if (failCount >= failCountThreshold && blacklist.get(address) == null) {
 
-                // only set if isn't already blacklisted, to avoid delayed responses extending ttl
+                // only set if isn't already blacklisted to avoid delayed responses extending ttl
                 blacklist.put(address, clock.millis() + blacklistTtlMs);
                 log.debug("Endpoint {} added to blacklist", address);
             }
