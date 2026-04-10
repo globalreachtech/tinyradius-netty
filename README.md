@@ -41,13 +41,13 @@ It's impossible to keep up to date with all the RFCs and every vendor's custom i
 
 ## Maintainers
 
-- Ensure you have user tokens for [Central Portal](https://central.sonatype.org/publish-ea/publish-ea-guide/) instead of
-  legacy OSSRH
+- Create a commit with version in `build.gradle.kts` and tag set to v1.x.x 
+- Ensure you have user tokens for [Central Portal](https://central.sonatype.org/publish-ea/publish-ea-guide/) instead of legacy OSSRH
 - [Set up GPG](https://central.sonatype.org/publish/requirements/gpg/) for artifact signing
-- [Publish locally](https://jreleaser.org/guide/latest/examples/maven/staging-artifacts.html#_gradle) and confirm
-  artifacts
-- Use JReleaser
-  following [Portal Publisher config](https://jreleaser.org/guide/latest/examples/maven/maven-central.html#_gradle)
+- [Publish locally](https://jreleaser.org/guide/latest/examples/maven/staging-artifacts.html#_gradle) and confirm artifacts
+- Use JReleaser following [Portal Publisher config](https://jreleaser.org/guide/latest/examples/maven/maven-central.html#_gradle)
+- Create new commit with version set to next patch version and `-SNAPSHOT` suffix
+- Publish new release with changelog
 
 ## License
 Copyright Matthias Wuttke and contributors:
