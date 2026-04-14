@@ -80,7 +80,7 @@ public class Harness implements AutoCloseable {
         var eventLoopGroup = new MultiThreadIoEventLoopGroup(4, NioIoHandler.newFactory());
         var bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
 
-        var serverPacketCodec = new ServerPacketCodec(dictionary, _ -> originSecret);
+        var serverPacketCodec = new ServerPacketCodec(dictionary, ignored -> originSecret);
 
         var cachingHandlerAuth = new BasicCachingHandler(timer, 5000);
         var cachingHandlerAcct = new BasicCachingHandler(timer, 5000);
@@ -148,7 +148,7 @@ public class Harness implements AutoCloseable {
         var channelInitializer = new ChannelInitializer<DatagramChannel>() {
             @Override
             protected void initChannel(DatagramChannel ch) {
-                ch.pipeline().addLast(new ServerPacketCodec(dictionary, _ -> proxySecret), simpleProxyHandler);
+                ch.pipeline().addLast(new ServerPacketCodec(dictionary, ignored -> proxySecret), simpleProxyHandler);
             }
         };
 
