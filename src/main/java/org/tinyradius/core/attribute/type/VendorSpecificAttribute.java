@@ -7,7 +7,6 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
@@ -18,7 +17,6 @@ import org.tinyradius.core.dictionary.Vendor;
 /**
  * Vendor-Specific attribute. Both an attribute itself and an attribute container for sub-attributes.
  */
-@Getter
 @EqualsAndHashCode(callSuper = true) // fields `attributes`/`childVendorId` are derived from byteBuf
 public class VendorSpecificAttribute extends OctetsAttribute implements AttributeHolder<VendorSpecificAttribute> {
 
@@ -46,6 +44,27 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
                 data);
         if (vendorId != -1)
             throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
+    }
+
+    /**
+     * Returns the vendor ID of the sub-attributes.
+     *
+     * @return the child vendor ID
+     */
+    @Override
+    public int getChildVendorId() {
+        return childVendorId;
+    }
+
+    /**
+     * Returns the list of sub-attributes held by this VSA.
+     *
+     * @return the attributes
+     */
+    @Override
+    @NonNull
+    public List<RadiusAttribute> getAttributes() {
+        return attributes;
     }
 
     // get around `Call to 'this()' must be first statement in constructor body`

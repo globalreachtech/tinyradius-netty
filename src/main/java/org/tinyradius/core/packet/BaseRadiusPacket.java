@@ -3,7 +3,6 @@ package org.tinyradius.core.packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
@@ -20,7 +19,6 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
  */
-@Getter
 @EqualsAndHashCode
 public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements RadiusPacket<T> {
 
@@ -57,6 +55,28 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         if (length != declaredLength)
             throw new RadiusPacketException("Packet length mismatch, " +
                     "actual length (" + length + ")  does not match declared length (" + declaredLength + ")");
+    }
+
+    /**
+     * Returns the dictionary used by this packet.
+     *
+     * @return the dictionary
+     */
+    @Override
+    @NonNull
+    public Dictionary getDictionary() {
+        return dictionary;
+    }
+
+    /**
+     * Returns the list of attributes in this packet.
+     *
+     * @return the attributes
+     */
+    @Override
+    @NonNull
+    public List<RadiusAttribute> getAttributes() {
+        return attributes;
     }
 
     /**
