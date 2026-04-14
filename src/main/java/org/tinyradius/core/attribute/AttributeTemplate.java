@@ -1,8 +1,6 @@
 package org.tinyradius.core.attribute;
 
 import io.netty.buffer.ByteBuf;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
@@ -15,8 +13,8 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-import static lombok.AccessLevel.NONE;
 import static org.tinyradius.core.attribute.AttributeTypes.TUNNEL_PASSWORD;
 import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
@@ -28,8 +26,6 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
  * This class stores the type code, the type name, and the vendor ID
  * for each attribute type.
  */
-@Getter
-@EqualsAndHashCode
 public class AttributeTemplate {
 
     /**
@@ -58,29 +54,30 @@ public class AttributeTemplate {
      */
     private final AttributeCodecType codecType;
 
-    @EqualsAndHashCode.Exclude
     private final RadiusAttributeFactory<? extends RadiusAttribute> factory;
 
-    @Getter(NONE)
-    @EqualsAndHashCode.Exclude
     private final Map<Integer, String> int2str = new HashMap<>();
 
-    @Getter(NONE)
-    @EqualsAndHashCode.Exclude
     private final Map<String, Integer> str2int = new HashMap<>();
 
     /**
      * Create a new attribute type.
      *
-     * @param vendorId  vendor ID or -1 if N/A
-     * @param type      sub-attribute type code, as unsigned byte
-     * @param name      sub-attribute name
-     * @param dataType  string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
-     * @param factory   the factory to create the attribute
+     * @param vendorId            vendor ID or -1 if N/A
+     * @param type                sub-attribute type code, as unsigned byte
+     * @param name                sub-attribute name
+     * @param dataType            string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
+     * @param factory             the factory to create the attribute
      * @param dictionaryCodecType codec type
-     * @param hasTag    whether attribute supports tags, as defined in RFC2868, default false
+     * @param hasTag              whether attribute supports tags, as defined in RFC2868, default false
      */
-    public AttributeTemplate(int vendorId, int type, @NonNull String name, @NonNull String dataType, @NonNull RadiusAttributeFactory<? extends RadiusAttribute> factory, AttributeCodecType dictionaryCodecType, boolean hasTag) {
+    public AttributeTemplate(int vendorId,
+                             int type,
+                             @NonNull String name,
+                             @NonNull String dataType,
+                             @NonNull RadiusAttributeFactory<? extends RadiusAttribute> factory,
+                             AttributeCodecType dictionaryCodecType,
+                             boolean hasTag) {
         if (name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
         this.vendorId = vendorId;
@@ -90,6 +87,73 @@ public class AttributeTemplate {
         this.factory = factory;
         this.tagged = detectHasTag(vendorId, type, hasTag);
         this.codecType = confirmAttributeCodec(vendorId, type, dictionaryCodecType);
+    }
+
+    /**
+     * Returns the vendor ID of this attribute type.
+     *
+     * @return vendor ID or -1 if not applicable
+     */
+    public int getVendorId() {
+        return vendorId;
+    }
+
+    /**
+     * Returns the Radius type code for this attribute.
+     *
+     * @return Radius type code
+     */
+    public int getType() {
+        return type;
+    }
+
+    /**
+     * Returns the name of this attribute type.
+     *
+     * @return attribute type name
+     */
+    @NonNull
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the data type of this attribute.
+     *
+     * @return data type (e.g., "string", "octets", "integer")
+     */
+    @NonNull
+    public String getDataType() {
+        return dataType;
+    }
+
+    /**
+     * Returns whether this attribute supports the Tag field as per RFC 2868.
+     *
+     * @return true if tagged, false otherwise
+     */
+    public boolean isTagged() {
+        return tagged;
+    }
+
+    /**
+     * Returns the codec type used for this attribute.
+     *
+     * @return the attribute codec type
+     */
+    @NonNull
+    public AttributeCodecType getCodecType() {
+        return codecType;
+    }
+
+    /**
+     * Returns the factory used to create instances of this attribute.
+     *
+     * @return the Radius attribute factory
+     */
+    @NonNull
+    public RadiusAttributeFactory<? extends RadiusAttribute> getFactory() {
+        return factory;
     }
 
     /**
@@ -256,6 +320,30 @@ public class AttributeTemplate {
         if (getVendorId() != -1)
             s += " (Vendor " + getVendorId() + ")";
         return s;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AttributeTemplate that = (AttributeTemplate) o;
+        return vendorId == that.vendorId
+                && type == that.type
+                && tagged == that.tagged
+                && Objects.equals(name, that.name)
+                && Objects.equals(dataType, that.dataType)
+                && codecType == that.codecType;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(vendorId, type, name, dataType, tagged, codecType);
     }
 
     /**

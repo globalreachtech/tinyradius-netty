@@ -10,9 +10,7 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.packet.response.RadiusResponse;
 import org.tinyradius.io.client.PendingRequestCtx;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -123,6 +121,19 @@ public class PromiseAdapter extends MessageToMessageCodec<RadiusResponse, Pendin
      * @param promise The promise to be completed when a matching response is received.
      */
     public record Request(String secret, byte[] auth, int id, Promise<RadiusResponse> promise) {
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Request request)) return false;
+            return id == request.id
+                    && Objects.deepEquals(auth, request.auth)
+                    && Objects.equals(secret, request.secret)
+                    && Objects.equals(promise, request.promise);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(secret, Arrays.hashCode(auth), id, promise);
+        }
     }
 
 }

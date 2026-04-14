@@ -116,7 +116,9 @@ public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, Respo
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof Packet packet)) return false;
-            return id == packet.id && Objects.deepEquals(authenticator, packet.authenticator) && Objects.equals(remoteAddress, packet.remoteAddress);
+            return id == packet.id
+                    && Objects.deepEquals(authenticator, packet.authenticator)
+                    && Objects.equals(remoteAddress, packet.remoteAddress);
         }
 
         /**
