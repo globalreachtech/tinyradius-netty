@@ -1,7 +1,6 @@
 package org.tinyradius.core.packet;
 
 import java.util.Map;
-import lombok.experimental.UtilityClass;
 import org.jspecify.annotations.NonNull;
 
 import static java.util.Map.entry;
@@ -9,7 +8,6 @@ import static java.util.Map.entry;
 /**
  * Based on official IANA assignments for <a href="https://www.iana.org/assignments/radius-types/radius-types.xhtml#radius-types-27">Radius Packet Type Codes</a>
  */
-@UtilityClass
 public class PacketType {
 
     /**
