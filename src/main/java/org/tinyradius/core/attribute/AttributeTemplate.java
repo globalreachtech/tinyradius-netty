@@ -13,7 +13,6 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.tinyradius.core.attribute.AttributeTypes.TUNNEL_PASSWORD;
 import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
@@ -25,40 +24,28 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.*;
  * Each attribute type is represented by an instance of this object.
  * This class stores the type code, the type name, and the vendor ID
  * for each attribute type.
+ *
+ * @param vendorId  vendor ID or -1 if not applicable
+ * @param type      Radius type code for this attribute e.g. '1' (for User-Name)
+ * @param name      name of type e.g. 'User-Name'
+ * @param dataType  string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
+ * @param tagged    Whether attribute supports Tag field as per RFC2868
+ * @param codecType One of {@link AttributeCodecType} enum, defaults to NO_ENCRYPT for none
+ * @param factory   the factory used to create instances of this attribute
+ * @param int2str   Internal map for integer-to-string enumeration mapping
+ * @param str2int   Internal map for string-to-integer enumeration mapping
  */
-public class AttributeTemplate {
-
-    /**
-     * vendor ID or -1 if not applicable
-     */
-    private final int vendorId;
-    /**
-     * Radius type code for this attribute e.g. '1' (for User-Name)
-     */
-    private final int type;
-    /**
-     * name of type e.g. 'User-Name'
-     */
-    private final String name;
-    /**
-     * string | octets | integer | date | ipaddr | ipv6addr | ipv6prefix
-     */
-    private final String dataType;
-
-    /**
-     * Whether attribute supports Tag field as per RFC2868
-     */
-    private final boolean tagged;
-    /**
-     * One of {@link AttributeCodecType} enum, defaults to NO_ENCRYPT for none
-     */
-    private final AttributeCodecType codecType;
-
-    private final RadiusAttributeFactory<? extends RadiusAttribute> factory;
-
-    private final Map<Integer, String> int2str = new HashMap<>();
-
-    private final Map<String, Integer> str2int = new HashMap<>();
+public record AttributeTemplate(
+        int vendorId,
+        int type,
+        @NonNull String name,
+        @NonNull String dataType,
+        boolean tagged,
+        @NonNull AttributeCodecType codecType,
+        @NonNull RadiusAttributeFactory<? extends RadiusAttribute> factory,
+        @NonNull Map<Integer, String> int2str,
+        @NonNull Map<String, Integer> str2int
+) {
 
     /**
      * Create a new attribute type.
@@ -78,82 +65,12 @@ public class AttributeTemplate {
                              @NonNull RadiusAttributeFactory<? extends RadiusAttribute> factory,
                              AttributeCodecType dictionaryCodecType,
                              boolean hasTag) {
+        this(vendorId, type, name, dataType.toLowerCase(),
+                detectHasTag(vendorId, type, hasTag),
+                confirmAttributeCodec(vendorId, type, dictionaryCodecType),
+                factory, new HashMap<>(), new HashMap<>());
         if (name.isEmpty())
             throw new IllegalArgumentException("Name is empty");
-        this.vendorId = vendorId;
-        this.type = type;
-        this.name = name;
-        this.dataType = dataType.toLowerCase();
-        this.factory = factory;
-        this.tagged = detectHasTag(vendorId, type, hasTag);
-        this.codecType = confirmAttributeCodec(vendorId, type, dictionaryCodecType);
-    }
-
-    /**
-     * Returns the vendor ID of this attribute type.
-     *
-     * @return vendor ID or -1 if not applicable
-     */
-    public int getVendorId() {
-        return vendorId;
-    }
-
-    /**
-     * Returns the Radius type code for this attribute.
-     *
-     * @return Radius type code
-     */
-    public int getType() {
-        return type;
-    }
-
-    /**
-     * Returns the name of this attribute type.
-     *
-     * @return attribute type name
-     */
-    @NonNull
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Returns the data type of this attribute.
-     *
-     * @return data type (e.g., "string", "octets", "integer")
-     */
-    @NonNull
-    public String getDataType() {
-        return dataType;
-    }
-
-    /**
-     * Returns whether this attribute supports the Tag field as per RFC 2868.
-     *
-     * @return true if tagged, false otherwise
-     */
-    public boolean isTagged() {
-        return tagged;
-    }
-
-    /**
-     * Returns the codec type used for this attribute.
-     *
-     * @return the attribute codec type
-     */
-    @NonNull
-    public AttributeCodecType getCodecType() {
-        return codecType;
-    }
-
-    /**
-     * Returns the factory used to create instances of this attribute.
-     *
-     * @return the Radius attribute factory
-     */
-    @NonNull
-    public RadiusAttributeFactory<? extends RadiusAttribute> getFactory() {
-        return factory;
     }
 
     /**
@@ -316,34 +233,10 @@ public class AttributeTemplate {
     @Override
     @NonNull
     public String toString() {
-        var s = Integer.toUnsignedString(getType()) + "/" + getName() + ": " + getDataType();
-        if (getVendorId() != -1)
-            s += " (Vendor " + getVendorId() + ")";
+        var s = Integer.toUnsignedString(type()) + "/" + name() + ": " + dataType();
+        if (vendorId() != -1)
+            s += " (Vendor " + vendorId() + ")";
         return s;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AttributeTemplate that = (AttributeTemplate) o;
-        return vendorId == that.vendorId
-                && type == that.type
-                && tagged == that.tagged
-                && Objects.equals(name, that.name)
-                && Objects.equals(dataType, that.dataType)
-                && codecType == that.codecType;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(vendorId, type, name, dataType, tagged, codecType);
     }
 
     /**

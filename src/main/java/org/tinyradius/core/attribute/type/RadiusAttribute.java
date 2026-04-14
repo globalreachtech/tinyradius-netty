@@ -153,7 +153,7 @@ public interface RadiusAttribute {
      */
     default int getTagSize() {
         return getDictionary().getAttributeTemplate(getVendorId(), getType())
-                .map(AttributeTemplate::isTagged)
+                .map(AttributeTemplate::tagged)
                 .orElse(false) ? 1 : 0;
     }
 
@@ -174,7 +174,7 @@ public interface RadiusAttribute {
      */
     default boolean isTagged() {
         return getAttributeTemplate()
-                .map(AttributeTemplate::isTagged)
+                .map(AttributeTemplate::tagged)
                 .orElse(false);
     }
 
@@ -186,7 +186,7 @@ public interface RadiusAttribute {
     @NonNull
     default AttributeCodecType codecType() {
         return getAttributeTemplate()
-                .map(AttributeTemplate::getCodecType)
+                .map(AttributeTemplate::codecType)
                 .orElse(NO_ENCRYPT);
     }
 
@@ -198,7 +198,7 @@ public interface RadiusAttribute {
     @NonNull
     default String getAttributeName() {
         return getAttributeTemplate()
-                .map(AttributeTemplate::getName)
+                .map(AttributeTemplate::name)
                 .orElse(getVendorId() != -1 ?
                         "Unknown-Sub-Attribute-" + getType() :
                         "Unknown-Attribute-" + getType());
@@ -206,7 +206,7 @@ public interface RadiusAttribute {
 
     /**
      * Returns set of all nested attributes if contains sub-attributes,
-     * otherwise singleton set of current attribute.
+     * otherwise singleton set of the current attribute.
      *
      * @return List of RadiusAttributes
      */

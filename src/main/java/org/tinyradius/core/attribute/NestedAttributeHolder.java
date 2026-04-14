@@ -68,7 +68,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
     @Override
     @NonNull
     default List<RadiusAttribute> getAttributes(@NonNull AttributeTemplate type) {
-        return getAttributes(type.getVendorId(), type.getType());
+        return getAttributes(type.vendorId(), type.type());
     }
 
     /**

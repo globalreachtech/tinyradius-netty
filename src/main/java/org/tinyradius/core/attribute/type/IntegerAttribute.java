@@ -86,7 +86,7 @@ public class IntegerAttribute extends OctetsAttribute {
         var byteBuf = Unpooled.buffer(Integer.BYTES, Integer.BYTES).writeInt(integer);
 
         return dictionary.getAttributeTemplate(vendorId, type)
-                .filter(AttributeTemplate::isTagged)
+                .filter(AttributeTemplate::tagged)
                 .map(x -> byteBuf.copy(1, 3)) // skip first octet if has_tag
                 .orElse(byteBuf)
                 .array();

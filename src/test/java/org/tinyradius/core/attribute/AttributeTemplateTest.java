@@ -45,25 +45,25 @@ class AttributeTemplateTest {
                 .addAttributeTemplate(tunnelPassword)
                 .addAttributeTemplate(custom);
 
-        assertEquals(NO_ENCRYPT, template.getCodecType());
+        assertEquals(NO_ENCRYPT, template.codecType());
         IntegerAttribute templateDecoded = (IntegerAttribute) template.create(customDict, (byte) 1, new byte[4]);
         assertFalse(templateDecoded.getTag().isPresent());
         IntegerAttribute templateEncoded = (IntegerAttribute) template.createEncoded(customDict, (byte) 1, new byte[4]);
         assertFalse(templateEncoded.getTag().isPresent());
 
-        assertEquals(RFC2865_USER_PASSWORD, userPassword.getCodecType());
+        assertEquals(RFC2865_USER_PASSWORD, userPassword.codecType());
         IntegerAttribute userPasswordDecoded = (IntegerAttribute) userPassword.create(customDict, (byte) 1, new byte[4]);
         assertFalse(userPasswordDecoded.getTag().isPresent());
         EncodedAttribute userPasswordEncoded = (EncodedAttribute) userPassword.createEncoded(customDict, (byte) 1, new byte[4]);
         assertFalse(userPasswordEncoded.getTag().isPresent());
 
-        assertEquals(RFC2868_TUNNEL_PASSWORD, tunnelPassword.getCodecType());
+        assertEquals(RFC2868_TUNNEL_PASSWORD, tunnelPassword.codecType());
         IntegerAttribute tunnelPasswordDecoded = (IntegerAttribute) tunnelPassword.create(customDict, (byte) 1, new byte[3]);  // int length 3 if has_tag
         assertTrue(tunnelPasswordDecoded.getTag().isPresent());
         EncodedAttribute tunnelPasswordEncoded = (EncodedAttribute) tunnelPassword.createEncoded(customDict, (byte) 1, new byte[4]);
         assertTrue(tunnelPasswordEncoded.getTag().isPresent());
 
-        assertEquals(RFC2865_USER_PASSWORD, custom.getCodecType());
+        assertEquals(RFC2865_USER_PASSWORD, custom.codecType());
         IntegerAttribute customDecoded = (IntegerAttribute) custom.create(customDict, (byte) 1, new byte[3]); // int length 3 if has_tag
         assertTrue(customDecoded.getTag().isPresent());
         EncodedAttribute customEncoded = (EncodedAttribute) custom.createEncoded(customDict, (byte) 1, new byte[4]);

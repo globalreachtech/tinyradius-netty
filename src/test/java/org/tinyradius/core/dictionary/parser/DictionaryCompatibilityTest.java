@@ -23,9 +23,9 @@ class DictionaryCompatibilityTest {
         assertTrue(attributeTemplate.isPresent());
 
         // sanity check
-        assertEquals("Service-Type", attributeTemplate.get().getName());
+        assertEquals("Service-Type", attributeTemplate.get().name());
         assertEquals("Login-User", attributeTemplate.get().getEnumeration(1));
-        assertEquals("Digest-Attributes", dictionary.getAttributeTemplate(-1, 207).get().getName());
+        assertEquals("Digest-Attributes", dictionary.getAttributeTemplate(-1, 207).get().name());
     }
 
     @Test
@@ -37,9 +37,9 @@ class DictionaryCompatibilityTest {
         assertTrue(attributeTemplate.isPresent());
 
         // sanity check
-        assertEquals("Service-Type", attributeTemplate.get().getName());
+        assertEquals("Service-Type", attributeTemplate.get().name());
         assertEquals("Login-User", attributeTemplate.get().getEnumeration(1));
-        assertEquals("Digest-Attributes", dictionary.getAttributeTemplate(-1, 207).get().getName());
+        assertEquals("Digest-Attributes", dictionary.getAttributeTemplate(-1, 207).get().name());
     }
 
 }

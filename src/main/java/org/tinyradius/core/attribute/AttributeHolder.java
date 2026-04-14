@@ -223,8 +223,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
      */
     @NonNull
     default List<RadiusAttribute> getAttributes(@NonNull AttributeTemplate type) {
-        if (type.getVendorId() == getChildVendorId())
-            return getAttributes(type.getType());
+        if (type.vendorId() == getChildVendorId())
+            return getAttributes(type.type());
 
         return Collections.emptyList();
     }

@@ -119,16 +119,16 @@ public class MemoryDictionary implements WritableDictionary {
     @Override
     @NonNull
     public MemoryDictionary addAttributeTemplate(@NonNull AttributeTemplate attributeTemplate) {
-        var vendorId = attributeTemplate.getVendorId();
-        var typeCode = attributeTemplate.getType();
-        var attributeName = attributeTemplate.getName();
+        var vendorId = attributeTemplate.vendorId();
+        var typeCode = attributeTemplate.type();
+        var attributeName = attributeTemplate.name();
 
         if (attributesByName.containsKey(attributeName)) {
             var existing = attributesByName.get(attributeName);
             if (existing.equals(attributeTemplate)) {
                 log.info("Ignoring duplicate attribute definition: {} [{},{}] {}, hasTag={}, encrypt={} ",
-                        existing.getName(), existing.getVendorId(), existing.getType(), existing.getDataType(),
-                        existing.isTagged(), existing.getCodecType());
+                        existing.name(), existing.vendorId(), existing.type(), existing.dataType(),
+                        existing.tagged(), existing.codecType());
                 return this;
             } else {
                 throw new IllegalArgumentException("Duplicate attribute definition name, " +
@@ -143,7 +143,7 @@ public class MemoryDictionary implements WritableDictionary {
         // support multiple names with same code for compatibility
         if (vendorAttributes.containsKey(typeCode))
             log.warn("Duplicate type code [{},{}], overwriting {} with {}",
-                    vendorId, Integer.toUnsignedLong(typeCode), vendorAttributes.get(typeCode).getName(), attributeTemplate.getName());
+                    vendorId, Integer.toUnsignedLong(typeCode), vendorAttributes.get(typeCode).name(), attributeTemplate.name());
 
         vendorAttributes.put(typeCode, attributeTemplate);
         return this;
