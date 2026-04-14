@@ -51,7 +51,7 @@ public class AccessRequestChap extends AccessRequest {
         if (password.isEmpty())
             throw new IllegalArgumentException("Could not encode CHAP attributes, password not set");
 
-        byte[] challenge = random16bytes();
+        byte[] challenge = randomBytes(16);
 
         var newAttributes = attributes.stream()
                 .filter(a -> !(a.getVendorId() == -1 && a.getType() == CHAP_PASSWORD)

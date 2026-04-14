@@ -99,12 +99,13 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     }
 
     /**
-     * Generates a random 16-octet authenticator.
+     * Generates a random byte array.
      *
-     * @return 16-octet random byte array
+     * @param octets number of octets in array
+     * @return random byte array
      */
-    protected static byte @NonNull [] random16bytes() {
-        byte[] randomBytes = new byte[16];
+    protected static byte @NonNull [] randomBytes(int octets) {
+        byte[] randomBytes = new byte[octets];
         RANDOM.nextBytes(randomBytes);
         return randomBytes;
     }
@@ -115,7 +116,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     @Override
     protected byte @NonNull [] genAuth(String ignored) {
         byte[] auth = getAuthenticator();
-        return auth == null ? random16bytes() : auth; // create new auth only if needed - maintain idempotence
+        return auth == null ? randomBytes(16) : auth; // create new auth only if needed - maintain idempotence
     }
 
     /**

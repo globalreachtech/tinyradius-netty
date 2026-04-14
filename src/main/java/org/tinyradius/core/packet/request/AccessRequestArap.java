@@ -7,9 +7,14 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,26 +52,12 @@ public class AccessRequestArap extends AccessRequest {
      */
     static @NonNull AccessRequest withPassword(@NonNull AccessRequest request, @NonNull String password) throws RadiusPacketException {
         if (password.isEmpty())
-            throw new IllegalArgumentException("Could not encode ARAP attributes, password not set");
+            throw new IllegalArgumentException("Could not encode ARAP attributes, password is empty");
 
-        byte[] authenticator = request.getAuthenticator();
-        if (authenticator == null || authenticator.length != 16) {
-            // AccessRequest should have a random 16-octet authenticator
-            // If missing, we must generate one to derive the server challenge
-            request = (AccessRequest) request.withAuthAttributes(random16bytes(), request.getAttributes());
-            authenticator = request.getAuthenticator();
-        }
-
-        // Server challenge is the lower 8 octets of the RADIUS Request Authenticator (RFC 2869 5.7)
-        byte[] serverChallenge = new byte[8];
-        System.arraycopy(authenticator, 8, serverChallenge, 0, 8);
-
-        byte[] peerChallenge = random8bytes();
-        byte[] response = computeArapResponse(password, serverChallenge);
-
+        var auth = randomBytes(16);
         byte[] arapPassword = ByteBuffer.allocate(16)
-                .put(peerChallenge)
-                .put(response)
+                .put(randomBytes(8))
+                .put(computeArapResponse(password, auth))
                 .array();
 
         var newAttributes = request.getAttributes().stream()
@@ -75,7 +66,7 @@ public class AccessRequestArap extends AccessRequest {
 
         newAttributes.add(request.getDictionary().createAttribute(-1, ARAP_PASSWORD, arapPassword));
 
-        return (AccessRequest) request.withAttributes(newAttributes);
+        return (AccessRequest) request.withAuthAttributes(auth, newAttributes);
     }
 
     /**
@@ -100,17 +91,13 @@ public class AccessRequestArap extends AccessRequest {
             return false;
         }
 
-        byte[] authenticator = getAuthenticator();
-        if (authenticator == null || authenticator.length != 16) {
-            logger.warn("Request authenticator missing or invalid length");
+        byte[] auth = getAuthenticator();
+        if (auth == null) {
+            logger.warn("Request authenticator missing");
             return false;
         }
 
-        // Server challenge is the lower 8 octets of the RADIUS Request Authenticator
-        byte[] serverChallenge = new byte[8];
-        System.arraycopy(authenticator, 8, serverChallenge, 0, 8);
-
-        byte[] expectedResponse = computeArapResponse(password, serverChallenge);
+        byte[] expectedResponse = computeArapResponse(password, auth);
         byte[] actualResponse = new byte[8];
         System.arraycopy(arapPassword, 8, actualResponse, 0, 8);
 
@@ -127,26 +114,29 @@ public class AccessRequestArap extends AccessRequest {
             throw new RadiusPacketException("AccessRequest (ARAP) should have exactly one ARAP-Password attribute, has " + count);
     }
 
-    private static byte @NonNull [] computeArapResponse(@NonNull String password, byte @NonNull [] challenge) {
-        try {
-            // DES key is derived from the password (first 8 octets, padded with 0 if shorter)
-            byte[] keyBytes = new byte[8];
-            byte[] passwordBytes = password.getBytes(UTF_8);
-            System.arraycopy(passwordBytes, 0, keyBytes, 0, Math.min(passwordBytes.length, 8));
+    private static byte @NonNull [] computeArapResponse(@NonNull String password, byte @NonNull [] authenticator) {
+        // Server challenge is the lower 8 octets of the RADIUS Request Authenticator (RFC 2869 5.7)
+        byte[] challenge = new byte[8];
+        System.arraycopy(authenticator, 8, challenge, 0, 8);
 
-            var secretKey = new SecretKeySpec(keyBytes, "DES");
+        // DES key is derived from the password (first 8 octets, padded with 0 if shorter)
+        byte[] keyBytes = new byte[8];
+        byte[] passwordBytes = password.getBytes(UTF_8);
+        System.arraycopy(passwordBytes, 0, keyBytes, 0, Math.min(passwordBytes.length, 8));
+
+        return doCipher(keyBytes, challenge);
+    }
+
+    private static byte[] doCipher(byte[] key, byte[] challenge) {
+        var secretKey = new SecretKeySpec(key, "DES");
+        try {
             var cipher = Cipher.getInstance("DES/ECB/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             return cipher.doFinal(challenge);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to compute ARAP response", e);
+        } catch (NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException |
+                 NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
-    }
-
-    private static byte @NonNull [] random8bytes() {
-        byte[] bytes = new byte[8];
-        RANDOM.nextBytes(bytes);
-        return bytes;
     }
 }
 
