@@ -2,7 +2,6 @@ package org.tinyradius.core.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import lombok.EqualsAndHashCode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
@@ -13,13 +12,13 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
  */
-@EqualsAndHashCode
 public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements RadiusPacket<T> {
 
     private static final Logger log = LogManager.getLogger(BaseRadiusPacket.class);
@@ -28,7 +27,6 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
     private final Dictionary dictionary;
 
     private final ByteBuf header;
-
     private final List<RadiusAttribute> attributes;
 
     /**
@@ -157,5 +155,16 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
         }
 
         return s.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof BaseRadiusPacket<?> that)) return false;
+        return Objects.equals(header, that.header) && Objects.equals(attributes, that.attributes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(header, attributes);
     }
 }
