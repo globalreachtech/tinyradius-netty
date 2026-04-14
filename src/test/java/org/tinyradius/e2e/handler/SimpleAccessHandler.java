@@ -1,7 +1,6 @@
 package org.tinyradius.e2e.handler;
 
 import io.netty.channel.ChannelHandlerContext;
-import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.packet.request.AccessRequest;
@@ -17,10 +16,21 @@ import static org.tinyradius.core.attribute.AttributeTypes.PROXY_STATE;
 import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REJECT;
 
-@RequiredArgsConstructor
+/**
+ * Simple access handler for testing purposes.
+ */
 public class SimpleAccessHandler extends RequestHandler {
 
     private final Map<String, String> credentials;
+
+    /**
+     * Constructs a {@code SimpleAccessHandler} with the given credentials.
+     *
+     * @param credentials the map of username to password for authentication
+     */
+    public SimpleAccessHandler(Map<String, String> credentials) {
+        this.credentials = credentials;
+    }
 
     @Override
     protected @NonNull Class<? extends RadiusRequest> acceptedPacketType() {

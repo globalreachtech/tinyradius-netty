@@ -7,7 +7,6 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -241,7 +240,6 @@ class RadiusClientTest {
     }
 
     @ChannelHandler.Sharable
-    @RequiredArgsConstructor
     private static class CapturingOutboundHandler extends ChannelOutboundHandlerAdapter {
 
         private static final CapturingOutboundHandler NOOP = new CapturingOutboundHandler(p -> {
@@ -256,6 +254,16 @@ class RadiusClientTest {
         }
 
         private final Consumer<Promise<RadiusResponse>> failFast;
+
+        /**
+         * Constructs a {@code CapturingOutboundHandler}.
+         *
+         * @param failFast consumer to handle the promise immediately
+         */
+        public CapturingOutboundHandler(Consumer<Promise<RadiusResponse>> failFast) {
+            this.failFast = failFast;
+        }
+
         private final List<PendingRequestCtx> requests = new ArrayList<>();
 
         @Override
