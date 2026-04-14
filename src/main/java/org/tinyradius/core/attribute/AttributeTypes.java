@@ -6,6 +6,9 @@ package org.tinyradius.core.attribute;
 @SuppressWarnings("unused")
 public class AttributeTypes {
 
+    private AttributeTypes() {
+    }
+
     /**
      * User-Name [RFC2865]
      * <p>

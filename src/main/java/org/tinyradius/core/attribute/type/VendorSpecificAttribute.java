@@ -24,8 +24,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      */
     public static final RadiusAttributeFactory<VendorSpecificAttribute> FACTORY = new Factory();
 
-    // fields `attributes`/`childVendorId` are derived from byteBuf
-    private final int childVendorId;
+    // derived from byteBuf
     private final List<RadiusAttribute> attributes;
 
     /**
@@ -36,7 +35,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * @param attributes    sub-attributes held
      */
     public VendorSpecificAttribute(@NonNull Dictionary dictionary, int childVendorId, @NonNull List<RadiusAttribute> attributes) {
-        this(dictionary, childVendorId, attributes, toByteBuf(childVendorId, attributes));
+        this(dictionary, attributes, toByteBuf(childVendorId, attributes));
         if (attributes.stream().anyMatch(a -> a.getVendorId() != childVendorId))
             throw new IllegalArgumentException("Vendor-Specific attribute sub-attributes must have same vendorId as VSA childVendorId: " + childVendorId);
     }
@@ -45,12 +44,12 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      * Creates a new Vendor-Specific attribute.
      *
      * @param dictionary dictionary to use for (sub)attributes
-     * @param vendorId   ignored, VSAs should always be -1 (top level attribute)
+     * @param vendorId   must be -1 (VSA is always a top level attribute)
      * @param data       data to parse for childVendorId and sub-attributes
      */
     public VendorSpecificAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
-        this(dictionary, validate(data).getInt(2),
-                AttributeHolder.readAttributes(dictionary, data.getInt(2), data.slice(6, data.readableBytes() - 6)),
+        this(dictionary,
+                AttributeHolder.readAttributes(dictionary, validate(data).getInt(2), data.slice(6, data.readableBytes() - 6)),
                 data);
         if (vendorId != -1)
             throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
@@ -59,20 +58,16 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     /**
      * Internal constructor for VendorSpecificAttribute.
      *
-     * @param dictionary    dictionary to use for (sub)attributes
-     * @param childVendorId vendor ID of the sub-attributes
-     * @param attributes    sub-attributes held
-     * @param data          equivalent of childVendorId + subattribute data in byte array form
+     * @param dictionary dictionary to use for (sub)attributes
+     * @param attributes sub-attributes held
+     * @param data       equivalent of childVendorId + subattribute data in byte array form
      */
-    private VendorSpecificAttribute(@NonNull Dictionary dictionary, int childVendorId, @NonNull List<RadiusAttribute> attributes, @NonNull ByteBuf data) {
+    private VendorSpecificAttribute(@NonNull Dictionary dictionary, @NonNull List<RadiusAttribute> attributes, @NonNull ByteBuf data) {
         super(dictionary, -1, data);
-        this.childVendorId = childVendorId;
         this.attributes = List.copyOf(attributes);
-
         if (data.getByte(0) != VENDOR_SPECIFIC)
             throw new IllegalArgumentException("Vendor-Specific attribute attributeId should always be 26, " +
                     "actual: " + data.getByte(0));
-
         validate(data);
     }
 
@@ -83,7 +78,7 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      */
     @Override
     public int getChildVendorId() {
-        return childVendorId;
+        return getData().getInt(2);
     }
 
     /**
@@ -97,20 +92,11 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
         return attributes;
     }
 
-    // get around `Call to 'this()' must be first statement in constructor body`
-
-    /**
-     * Validates VSA data.
-     *
-     * @param data the data to validate
-     * @return the data
-     */
     @NonNull
     private static ByteBuf validate(@NonNull ByteBuf data) {
         int len = data.readableBytes();
         if (len < 7) // VSA headers are 6 bytes
             throw new IllegalArgumentException("Vendor-Specific attribute should be greater than 6 octets, actual: " + len);
-
         return data;
     }
 

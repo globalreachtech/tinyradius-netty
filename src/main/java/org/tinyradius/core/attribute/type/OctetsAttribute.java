@@ -21,8 +21,11 @@ public class OctetsAttribute implements RadiusAttribute {
 
     private final Dictionary dictionary;
 
+    /**
+     * for (Vendor-Specific) sub-attributes, otherwise -1
+     */
+    private final int vendorId;
     private final ByteBuf data;
-    private final int vendorId; // for (Vendor-Specific) sub-attributes, otherwise -1
 
     /**
      * Creates a new OctetsAttribute.
