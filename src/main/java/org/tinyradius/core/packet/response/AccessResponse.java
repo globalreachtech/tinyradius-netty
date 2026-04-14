@@ -28,15 +28,21 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
         super(dictionary, header, attributes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull RadiusResponse encodeResponse(@NonNull String sharedSecret, byte @NonNull [] requestAuth) throws RadiusPacketException {
         var response = ((AccessResponse) withAttributes(encodeAttributes(requestAuth, sharedSecret)))
-                .encodeMessageAuth(sharedSecret, requestAuth);
+                .encodeMessageAuth(sharedSecret, requestAuth); // always add messageAuth CVE-2024-3596
 
         var auth = response.genHashedAuth(sharedSecret, requestAuth);
         return withAuthAttributes(auth, response.getAttributes());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull RadiusResponse decodeResponse(@NonNull String sharedSecret, byte @NonNull [] requestAuth) throws RadiusPacketException {
         verifyMessageAuth(sharedSecret, requestAuth);
@@ -49,21 +55,54 @@ public class AccessResponse extends GenericResponse implements MessageAuthSuppor
             throw new IllegalArgumentException("First octet must be " + allowed + ", actual: " + type);
     }
 
+    /**
+     * Represents an Access-Accept response.
+     */
     public static class Accept extends AccessResponse {
+        /**
+         * Constructs an Access-Accept response.
+         *
+         * @param dictionary the dictionary to use
+         * @param header     the packet header
+         * @param attributes the packet attributes
+         * @throws RadiusPacketException if there is an error creating the response
+         */
         public Accept(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
             super(dictionary, header, attributes);
             checkType(ACCESS_ACCEPT, header);
         }
     }
 
+    /**
+     * Represents an Access-Reject response.
+     */
     public static class Reject extends AccessResponse {
+        /**
+         * Constructs an Access-Reject response.
+         *
+         * @param dictionary the dictionary to use
+         * @param header     the packet header
+         * @param attributes the packet attributes
+         * @throws RadiusPacketException if there is an error creating the response
+         */
         public Reject(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
             super(dictionary, header, attributes);
             checkType(ACCESS_REJECT, header);
         }
     }
 
+    /**
+     * Represents an Access-Challenge response.
+     */
     public static class Challenge extends AccessResponse {
+        /**
+         * Constructs an Access-Challenge response.
+         *
+         * @param dictionary the dictionary to use
+         * @param header     the packet header
+         * @param attributes the packet attributes
+         * @throws RadiusPacketException if there is an error creating the response
+         */
         public Challenge(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
             super(dictionary, header, attributes);
             checkType(ACCESS_CHALLENGE, header);

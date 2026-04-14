@@ -10,13 +10,29 @@ import org.tinyradius.core.packet.BaseRadiusPacket;
 
 import java.util.List;
 
+/**
+ * Generic RADIUS request packet implementation.
+ * <p>
+ * This is a basic implementation of {@link RadiusRequest} that can encode
+ * request packets (e.g., Accounting-Request).
+ */
 public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements RadiusRequest {
 
+    /**
+     * Constructs a GenericRequest.
+     *
+     * @param dictionary the dictionary to use
+     * @param header     the packet header
+     * @param attributes the packet attributes
+     * @throws RadiusPacketException if there is an error creating the request
+     */
     public GenericRequest(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
     }
 
     /**
+     * Generates the authenticator for this request.
+     *
      * @param sharedSecret to generate authenticator
      * @return new authenticator, must be idempotent
      */
@@ -24,6 +40,9 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
         return genHashedAuth(sharedSecret, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull RadiusRequest encodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         if (sharedSecret.isEmpty())
@@ -33,12 +52,18 @@ public class GenericRequest extends BaseRadiusPacket<RadiusRequest> implements R
         return withAuthAttributes(auth, encodeAttributes(auth, sharedSecret));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull RadiusRequest decodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
         var auth = verifyPacketAuth(sharedSecret, null);
         return withAttributes(decodeAttributes(auth, sharedSecret));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull RadiusRequest withAuthAttributes(byte @Nullable [] auth, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         return RadiusRequest.create(getDictionary(), getType(), getId(), auth, attributes);

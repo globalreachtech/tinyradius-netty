@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.AttributeTypes.EAP_MESSAGE;
 import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
-import static org.tinyradius.core.packet.request.AccessRequest.random16bytes;
+import static org.tinyradius.core.packet.request.AccessRequest.randomBytes;
 
 class AccessRequestEapTest {
 
@@ -20,7 +20,7 @@ class AccessRequestEapTest {
     @Test
     void encodeDecode() throws RadiusPacketException {
         String sharedSecret = "sharedSecret1";
-        byte[] message = random16bytes();
+        byte[] message = randomBytes(16);
 
         AccessRequestEap request = (AccessRequestEap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, message));

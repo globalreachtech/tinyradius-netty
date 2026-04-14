@@ -22,6 +22,9 @@ import org.tinyradius.core.dictionary.Vendor;
 @EqualsAndHashCode(callSuper = true) // fields `attributes`/`childVendorId` are derived from byteBuf
 public class VendorSpecificAttribute extends OctetsAttribute implements AttributeHolder<VendorSpecificAttribute> {
 
+    /**
+     * Default factory for creating {@link VendorSpecificAttribute} instances.
+     */
     public static final RadiusAttributeFactory<VendorSpecificAttribute> FACTORY = new Factory();
 
     @EqualsAndHashCode.Exclude

@@ -5,7 +5,8 @@ import io.netty.channel.*;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.PromiseCombiner;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.io.RadiusLifecycle;
 
@@ -16,9 +17,9 @@ import java.util.stream.IntStream;
 /**
  * Implements a simple Radius server.
  */
-@Log4j2
 public class RadiusServer implements RadiusLifecycle {
 
+    private static final Logger log = LogManager.getLogger(RadiusServer.class);
     private final EventLoopGroup eventLoopGroup;
 
     private final List<ChannelFuture> channelFutures;

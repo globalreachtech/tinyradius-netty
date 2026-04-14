@@ -1,6 +1,7 @@
 package org.tinyradius.core.dictionary;
 
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.AttributeTemplate;
 
@@ -22,13 +23,20 @@ import java.util.Optional;
  * methods <code>addAttributeTemplate</code> and
  * <code>addVendor</code>.
  */
-@Log4j2
 public class MemoryDictionary implements WritableDictionary {
 
+    private static final Logger log = LogManager.getLogger(MemoryDictionary.class);
     private final Map<Integer, Vendor> vendorsByCode = new HashMap<>();
     private final Map<Integer, Map<Integer, AttributeTemplate>> attributesByCode = new HashMap<>();
     private final Map<String, AttributeTemplate> attributesByName = new HashMap<>();
 
+    /**
+     * Returns an AttributeTemplate for the given vendor code and type code.
+     *
+     * @param vendorCode vendor code or -1 for common attributes
+     * @param type       attribute type code
+     * @return the AttributeTemplate or empty Optional
+     */
     @Override
     @NonNull
     public Optional<AttributeTemplate> getAttributeTemplate(int vendorCode, int type) {
@@ -37,12 +45,24 @@ public class MemoryDictionary implements WritableDictionary {
                 .map(va -> va.get(type));
     }
 
+    /**
+     * Returns an AttributeTemplate for the given attribute name.
+     *
+     * @param name attribute name
+     * @return the AttributeTemplate or empty Optional
+     */
     @Override
     @NonNull
     public Optional<AttributeTemplate> getAttributeTemplate(@NonNull String name) {
         return Optional.ofNullable(attributesByName.get(name));
     }
 
+    /**
+     * Returns the vendor with the given name.
+     *
+     * @param vendorName vendor name
+     * @return the vendor or empty Optional
+     */
     @Override
     @NonNull
     public Optional<Vendor> getVendor(@NonNull String vendorName) {
@@ -52,12 +72,25 @@ public class MemoryDictionary implements WritableDictionary {
                 .findFirst();
     }
 
+    /**
+     * Returns the vendor with the given vendor ID.
+     *
+     * @param vendorId vendor ID
+     * @return the vendor or empty Optional
+     */
     @Override
     @NonNull
     public Optional<Vendor> getVendor(int vendorId) {
         return Optional.ofNullable(vendorsByCode.get(vendorId));
     }
 
+    /**
+     * Adds the given vendor to the dictionary.
+     *
+     * @param vendor vendor to add
+     * @return this MemoryDictionary
+     * @throws IllegalArgumentException if the vendor code is already in use
+     */
     @Override
     @NonNull
     public MemoryDictionary addVendor(@NonNull Vendor vendor) {

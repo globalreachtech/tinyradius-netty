@@ -16,11 +16,21 @@ import java.nio.file.Paths;
  */
 public class ClasspathResourceResolver implements ResourceResolver {
 
+    /**
+     * Singleton instance of ClasspathResourceResolver.
+     */
     public static final @NonNull ResourceResolver INSTANCE = new ClasspathResourceResolver();
 
     private ClasspathResourceResolver() {
     }
 
+    /**
+     * Resolves the next resource path relative to the current resource path on the classpath.
+     *
+     * @param currentResource current resource path on the classpath
+     * @param nextResource    next resource path to resolve
+     * @return the resolved classpath resource path or an empty string if not found
+     */
     @Override
     @NonNull
     public String resolve(@NonNull String currentResource, @NonNull String nextResource) {
@@ -34,6 +44,13 @@ public class ClasspathResourceResolver implements ResourceResolver {
                 path : "";
     }
 
+    /**
+     * Opens an InputStream for the specified classpath resource.
+     *
+     * @param resource classpath resource path
+     * @return InputStream for the resource
+     * @throws IOException if the resource is not found or cannot be opened
+     */
     @Override
     @NonNull
     public InputStream openStream(@NonNull String resource) throws IOException {

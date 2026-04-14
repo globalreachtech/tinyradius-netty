@@ -15,6 +15,9 @@ import java.util.Optional;
 @EqualsAndHashCode
 public class OctetsAttribute implements RadiusAttribute {
 
+    /**
+     * Default factory for creating {@link OctetsAttribute} instances.
+     */
     public static final RadiusAttributeFactory<OctetsAttribute> FACTORY = new Factory();
 
     @EqualsAndHashCode.Exclude
@@ -24,6 +27,13 @@ public class OctetsAttribute implements RadiusAttribute {
 
     private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
+    /**
+     * Creates a new OctetsAttribute.
+     *
+     * @param dictionary the dictionary to use
+     * @param vendorId   the vendor ID
+     * @param data       the attribute data
+     */
     public OctetsAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
         this.dictionary = dictionary;
         this.vendorId = vendorId;
@@ -50,11 +60,17 @@ public class OctetsAttribute implements RadiusAttribute {
         };
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getVendorId() {
         return vendorId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @NonNull
     public ByteBuf getData() {
@@ -113,6 +129,9 @@ public class OctetsAttribute implements RadiusAttribute {
         return HEX_FORMAT.parseHex(value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull Dictionary getDictionary() {
         return dictionary;

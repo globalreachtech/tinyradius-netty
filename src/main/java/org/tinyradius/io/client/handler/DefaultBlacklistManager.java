@@ -1,6 +1,7 @@
 package org.tinyradius.io.client.handler;
 
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 
 import java.net.SocketAddress;
@@ -21,9 +22,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * failure counts and timestamps. For production deployments with
  * multiple client instances, consider using a shared store (e.g., Redis).
  */
-@Log4j2
 public class DefaultBlacklistManager implements BlacklistManager {
 
+    private static final Logger log = LogManager.getLogger(DefaultBlacklistManager.class);
     private final long blacklistTtlMs;
     private final int failCountThreshold;
     private final Clock clock;
@@ -43,6 +44,9 @@ public class DefaultBlacklistManager implements BlacklistManager {
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isBlacklisted(@NonNull SocketAddress socketAddress) {
         Long blacklistExpiry = blacklist.get(socketAddress);
@@ -62,6 +66,9 @@ public class DefaultBlacklistManager implements BlacklistManager {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void logFailure(@NonNull SocketAddress address, @NonNull Throwable cause) {
         if (cause instanceof TimeoutException) {
@@ -76,6 +83,9 @@ public class DefaultBlacklistManager implements BlacklistManager {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void reset(@NonNull SocketAddress socketAddress) {
         blacklist.remove(socketAddress);

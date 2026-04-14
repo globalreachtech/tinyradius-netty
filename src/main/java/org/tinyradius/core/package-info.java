@@ -3,7 +3,7 @@
  * <p>
  * This package handles the fundamental logic of the RADIUS protocol, including:
  * <ul>
- *   <li><b>Parsing & Building</b>: Logic for constructing and deconstructing RADIUS packets.</li>
+ *   <li><b>Parsing &amp; Building</b>: Logic for constructing and deconstructing RADIUS packets.</li>
  *   <li><b>Validation</b>: Ensuring packets meet RFC specifications and vendor-specific requirements.</li>
  *   <li><b>Immutability</b>: Packets and Attributes are designed to be fully immutable for thread safety and predictability.</li>
  *   <li><b>Security</b>: Signing and verifying Request Authenticators for Access and Accounting requests/responses.

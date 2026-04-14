@@ -2,8 +2,8 @@ package org.tinyradius.io.server.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
@@ -22,12 +22,23 @@ import java.util.Optional;
  * with upstream servers. RadiusClient should also use a variant of {@link PromiseAdapter}
  * which matches requests/responses by adding a custom Proxy-State attribute.
  */
-@Log4j2
-@RequiredArgsConstructor
 public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCtx> {
 
+    private static final Logger log = LogManager.getLogger(ProxyHandler.class);
     private final RadiusClient radiusClient;
 
+    /**
+     * Constructs a {@code ProxyHandler} with the specified {@link RadiusClient}.
+     *
+     * @param radiusClient the RadiusClient to use for proxying requests
+     */
+    protected ProxyHandler(RadiusClient radiusClient) {
+        this.radiusClient = radiusClient;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RequestCtx msg) {
         var request = msg.getRequest();

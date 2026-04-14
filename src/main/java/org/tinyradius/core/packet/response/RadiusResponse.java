@@ -17,6 +17,12 @@ import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.RadiusPacket;
 
+/**
+ * Radius Response Packet interface.
+ * <p>
+ * This interface defines the contract for Radius response packets, which are sent
+ * from a Radius server back to a client (e.g., Access-Accept, Access-Reject).
+ */
 public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
 
     /**

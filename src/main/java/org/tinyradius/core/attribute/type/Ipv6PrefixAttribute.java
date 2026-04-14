@@ -15,6 +15,9 @@ import org.tinyradius.core.dictionary.Dictionary;
  */
 public class Ipv6PrefixAttribute extends OctetsAttribute {
 
+    /**
+     * Default factory for creating {@link Ipv6PrefixAttribute} instances.
+     */
     public static final RadiusAttributeFactory<Ipv6PrefixAttribute> FACTORY = new Factory();
 
     /**

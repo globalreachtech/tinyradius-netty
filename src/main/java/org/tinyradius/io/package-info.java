@@ -9,7 +9,7 @@
  *   <li><b>Pipeline Processing</b>: Uses Netty's {@code ChannelHandler} interceptor
  *   filter pattern to manage the packet lifecycle, including decoding, processing logic,
  *   and encoding.</li>
- *   <li><b>Timeouts & Retries</b>: Support for scheduling retries and managing
+ *   <li><b>Timeouts &amp; Retries</b>: Support for scheduling retries and managing
  *   request timeouts efficiently.</li>
  *   <li><b>Thread Management</b>: Leverages Netty's event loop for efficient
  *   thread utilization.</li>

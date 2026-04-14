@@ -14,6 +14,9 @@ import java.net.InetSocketAddress;
  */
 public record RadiusEndpoint(InetSocketAddress address, String secret) {
 
+    /**
+     * {@inheritDoc}
+     */
     @NonNull
     @Override
     public String toString() {

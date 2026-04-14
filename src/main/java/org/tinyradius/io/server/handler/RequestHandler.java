@@ -1,13 +1,21 @@
 package org.tinyradius.io.server.handler;
 
 import io.netty.channel.SimpleChannelInboundHandler;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.io.server.RequestCtx;
 
-@Log4j2
+/**
+ * Base class for RADIUS server request handlers.
+ * <p>
+ * This class handles {@link RequestCtx} messages and filters them based on the
+ * accepted packet type defined by {@link #acceptedPacketType()}.
+ */
 public abstract class RequestHandler extends SimpleChannelInboundHandler<RequestCtx> {
+
+    private static final Logger log = LogManager.getLogger(RequestHandler.class);
 
     /**
      * @return RadiusRequest subclass type that this handler can accept
@@ -15,6 +23,9 @@ public abstract class RequestHandler extends SimpleChannelInboundHandler<Request
     @NonNull
     protected abstract Class<? extends RadiusRequest> acceptedPacketType();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception {
         var acceptInboundMessage = super.acceptInboundMessage(msg);

@@ -6,6 +6,9 @@ import org.tinyradius.core.packet.request.RadiusRequest;
 
 import java.net.InetSocketAddress;
 
+/**
+ * Interface for providing RADIUS shared secrets based on the remote address or request.
+ */
 public interface SecretProvider {
 
     /**

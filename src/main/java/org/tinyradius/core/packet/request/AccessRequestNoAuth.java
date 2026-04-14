@@ -19,29 +19,35 @@ import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR
  */
 public class AccessRequestNoAuth extends AccessRequest {
 
-    public AccessRequestNoAuth(Dictionary dictionary, ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+    /**
+     * Constructs an AccessRequestNoAuth.
+     *
+     * @param dictionary the dictionary to use for attribute lookups
+     * @param header     the 20-octet packet header
+     * @param attributes the list of attributes for this packet
+     * @throws RadiusPacketException if the packet length or header is invalid
+     */
+    public AccessRequestNoAuth(@NonNull Dictionary dictionary, @NonNull ByteBuf header, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
         super(dictionary, header, attributes);
     }
 
-    @Override
-    public @NonNull RadiusRequest encodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
-        var radiusRequest = super.encodeRequest(sharedSecret);
-        checkMessageAuth(radiusRequest.getAttributes()); // MessageAuthSupport should append Message-Auth during encoding
-        return radiusRequest;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NonNull RadiusRequest decodeRequest(@NonNull String sharedSecret) throws RadiusPacketException {
-        checkMessageAuth(getAttributes());
+        var messageAuthAttr = getAttributes(MESSAGE_AUTHENTICATOR);
+        if (messageAuthAttr.size() != 1)
+            logger.warn("AccessRequest without one of User-Password/CHAP-Password/ARAP-Password/EAP-Message " +
+                    "should contain a Message-Authenticator");
         return super.decodeRequest(sharedSecret);
     }
 
-    private static void checkMessageAuth(List<RadiusAttribute> attributes) {
-        long count = attributes.stream()
-                .filter(a -> a.getType() == MESSAGE_AUTHENTICATOR)
-                .count();
-        if (count != 1)
-            logger.warn("AccessRequest without one of User-Password/CHAP-Password/ARAP-Password/EAP-Message " +
-                    "should contain a Message-Authenticator");
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void validateAttributes() {
+        // nothing to validate
     }
 }

@@ -13,6 +13,9 @@ class TunnelPasswordCodec extends BaseCodec {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected byte @NonNull [] encodeData(byte @NonNull [] data, byte @NonNull [] auth, byte @NonNull [] secret) {
         byte[] salt = genSalt();
@@ -33,6 +36,9 @@ class TunnelPasswordCodec extends BaseCodec {
                 .array();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected byte @NonNull [] decodeData(byte @NonNull [] encodedData, byte @NonNull [] auth, byte @NonNull [] secret) throws RadiusPacketException {
         byte[] encodedStr = Arrays.copyOfRange(encodedData, 2, encodedData.length);

@@ -61,6 +61,9 @@ public abstract class IpAttribute extends OctetsAttribute {
      * IPv4 Address
      */
     public static class V4 extends IpAttribute {
+        /**
+         * Default factory for creating {@link V4} instances.
+         */
         public static final RadiusAttributeFactory<V4> FACTORY = new Factory();
 
         /**
@@ -110,6 +113,9 @@ public abstract class IpAttribute extends OctetsAttribute {
      * IPv6 Address
      */
     public static class V6 extends IpAttribute {
+        /**
+         * Default factory for creating {@link V6} instances.
+         */
         public static final RadiusAttributeFactory<V6> FACTORY = new Factory();
 
         /**

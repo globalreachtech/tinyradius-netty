@@ -1,6 +1,7 @@
 package org.tinyradius.core.dictionary.parser;
 
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.attribute.AttributeTemplate;
 import org.tinyradius.core.attribute.codec.AttributeCodecType;
@@ -40,9 +41,9 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
  *   <li>FORMAT - attribute value formatting rules</li>
  * </ul>
  **/
-@Log4j2
 public class ResourceParser {
 
+    private static final Logger log = LogManager.getLogger(ResourceParser.class);
     private final WritableDictionary dictionary;
     private final ResourceResolver resourceResolver;
     private final FactoryProvider factoryProvider;
@@ -51,12 +52,25 @@ public class ResourceParser {
     private final List<Consumer<WritableDictionary>> deferred = new LinkedList<>();
     private int currentVendor = -1;
 
+    /**
+     * Constructs a ResourceParser with the specified dictionary, resource resolver, and factory provider.
+     *
+     * @param dictionary       dictionary to populate
+     * @param resourceResolver resolver to use for loading resources
+     * @param factoryProvider  provider for attribute factories
+     */
     public ResourceParser(WritableDictionary dictionary, ResourceResolver resourceResolver, FactoryProvider factoryProvider) {
         this.dictionary = dictionary;
         this.resourceResolver = resourceResolver;
         this.factoryProvider = factoryProvider;
     }
 
+    /**
+     * Constructs a ResourceParser with the specified resource resolver.
+     * Uses a new MemoryDictionary as the default dictionary and {@link RadiusAttributeFactory#fromDataType} as the factory provider.
+     *
+     * @param resourceResolver resolver to use for loading resources
+     */
     public ResourceParser(@NonNull ResourceResolver resourceResolver) {
         this(new MemoryDictionary(), resourceResolver, RadiusAttributeFactory::fromDataType);
     }
@@ -320,6 +334,9 @@ public class ResourceParser {
         return Set.of(flags).contains("has_tag");
     }
 
+    /**
+     * Interface for providing attribute factories based on data type names.
+     */
     public interface FactoryProvider {
         @NonNull
         RadiusAttributeFactory<? extends RadiusAttribute> fromDataType(@NonNull String dataType);
