@@ -1,23 +1,22 @@
 package org.tinyradius.core.attribute.type;
 
-import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.EqualsAndHashCode;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.AttributeHolder;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.tinyradius.core.attribute.AttributeTypes.VENDOR_SPECIFIC;
+
 
 /**
  * Vendor-Specific attribute. Both an attribute itself and an attribute container for sub-attributes.
  */
-@EqualsAndHashCode(callSuper = true) // fields `attributes`/`childVendorId` are derived from byteBuf
 public class VendorSpecificAttribute extends OctetsAttribute implements AttributeHolder<VendorSpecificAttribute> {
 
     /**
@@ -25,11 +24,22 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
      */
     public static final RadiusAttributeFactory<VendorSpecificAttribute> FACTORY = new Factory();
 
-    @EqualsAndHashCode.Exclude
+    // fields `attributes`/`childVendorId` are derived from byteBuf
     private final int childVendorId;
-
-    @EqualsAndHashCode.Exclude
     private final List<RadiusAttribute> attributes;
+
+    /**
+     * Constructs a new Vendor-Specific attribute.
+     *
+     * @param dictionary    dictionary to use for (sub)attributes
+     * @param childVendorId vendor ID of the sub-attributes
+     * @param attributes    sub-attributes held
+     */
+    public VendorSpecificAttribute(@NonNull Dictionary dictionary, int childVendorId, @NonNull List<RadiusAttribute> attributes) {
+        this(dictionary, childVendorId, attributes, toByteBuf(childVendorId, attributes));
+        if (attributes.stream().anyMatch(a -> a.getVendorId() != childVendorId))
+            throw new IllegalArgumentException("Vendor-Specific attribute sub-attributes must have same vendorId as VSA childVendorId: " + childVendorId);
+    }
 
     /**
      * Creates a new Vendor-Specific attribute.
@@ -44,6 +54,26 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
                 data);
         if (vendorId != -1)
             throw new IllegalArgumentException("Vendor-Specific attribute should be top level attribute, vendorId should be -1, actual: " + vendorId);
+    }
+
+    /**
+     * Internal constructor for VendorSpecificAttribute.
+     *
+     * @param dictionary    dictionary to use for (sub)attributes
+     * @param childVendorId vendor ID of the sub-attributes
+     * @param attributes    sub-attributes held
+     * @param data          equivalent of childVendorId + subattribute data in byte array form
+     */
+    private VendorSpecificAttribute(@NonNull Dictionary dictionary, int childVendorId, @NonNull List<RadiusAttribute> attributes, @NonNull ByteBuf data) {
+        super(dictionary, -1, data);
+        this.childVendorId = childVendorId;
+        this.attributes = List.copyOf(attributes);
+
+        if (data.getByte(0) != VENDOR_SPECIFIC)
+            throw new IllegalArgumentException("Vendor-Specific attribute attributeId should always be 26, " +
+                    "actual: " + data.getByte(0));
+
+        validate(data);
     }
 
     /**
@@ -85,22 +115,6 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
     }
 
     /**
-     * Constructs a new Vendor-Specific attribute.
-     *
-     * @param dictionary    dictionary to use for (sub)attributes
-     * @param childVendorId vendor ID of the sub-attributes
-     * @param attributes    sub-attributes held
-     */
-    public VendorSpecificAttribute(@NonNull Dictionary dictionary, int childVendorId, @NonNull List<RadiusAttribute> attributes) {
-        this(dictionary, childVendorId, attributes, toByteBuf(childVendorId, attributes));
-        boolean mismatchVendorId = attributes.stream()
-                .map(RadiusAttribute::getVendorId)
-                .anyMatch(id -> id != childVendorId);
-        if (mismatchVendorId)
-            throw new IllegalArgumentException("Vendor-Specific attribute sub-attributes must have same vendorId as VSA childVendorId: " + childVendorId);
-    }
-
-    /**
      * Converts vendor ID and attributes to a ByteBuf.
      *
      * @param childVendorId vendor ID
@@ -115,26 +129,6 @@ public class VendorSpecificAttribute extends OctetsAttribute implements Attribut
                 .writeByte(attributesBytes.readableBytes() + 6)
                 .writeInt(childVendorId);
         return Unpooled.wrappedBuffer(header, attributesBytes);
-    }
-
-    /**
-     * Internal constructor for VendorSpecificAttribute.
-     *
-     * @param dictionary    dictionary to use for (sub)attributes
-     * @param childVendorId vendor ID of the sub-attributes
-     * @param attributes    sub-attributes held
-     * @param data          equivalent of childVendorId + subattribute data in byte array form
-     */
-    private VendorSpecificAttribute(@NonNull Dictionary dictionary, int childVendorId, @NonNull List<RadiusAttribute> attributes, @NonNull ByteBuf data) {
-        super(dictionary, -1, data);
-        this.childVendorId = childVendorId;
-        this.attributes = List.copyOf(attributes);
-
-        if (data.getByte(0) != VENDOR_SPECIFIC)
-            throw new IllegalArgumentException("Vendor-Specific attribute attributeId should always be 26, " +
-                    "actual: " + data.getByte(0));
-
-        validate(data);
     }
 
     /**
