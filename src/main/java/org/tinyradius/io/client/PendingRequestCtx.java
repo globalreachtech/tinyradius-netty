@@ -1,7 +1,6 @@
 package org.tinyradius.io.client;
 
 import io.netty.util.concurrent.Promise;
-import lombok.Getter;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
@@ -11,7 +10,6 @@ import org.tinyradius.io.server.RequestCtx;
 /**
  * Wrapper that holds a promise to be resolved when response is received.
  */
-@Getter
 public class PendingRequestCtx extends RequestCtx {
 
     private final Promise<RadiusResponse> response;
@@ -26,6 +24,16 @@ public class PendingRequestCtx extends RequestCtx {
     public PendingRequestCtx(@NonNull RadiusRequest packet, @NonNull RadiusEndpoint endpoint, @NonNull Promise<RadiusResponse> response) {
         super(packet, endpoint);
         this.response = response;
+    }
+
+    /**
+     * Returns the promise for the RADIUS response.
+     *
+     * @return the response promise
+     */
+    @NonNull
+    public Promise<RadiusResponse> getResponse() {
+        return response;
     }
 
     /**

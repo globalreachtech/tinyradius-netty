@@ -5,7 +5,6 @@ plugins {
     `java-library`
     `maven-publish`
     jacoco
-    alias(libs.plugins.freefair.lombok)
     alias(libs.plugins.sonarqube)
     alias(libs.plugins.jreleaser)
 }

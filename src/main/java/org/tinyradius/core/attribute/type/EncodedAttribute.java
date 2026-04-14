@@ -93,7 +93,7 @@ public record EncodedAttribute(OctetsAttribute delegate) implements RadiusAttrib
     @Override
     public String toString() {
         var codecType = getAttributeTemplate()
-                .map(AttributeTemplate::getCodecType)
+                .map(AttributeTemplate::codecType)
                 .orElse(NO_ENCRYPT);
         return "[Encoded: " + codecType.name() + "] " + delegate;
     }

@@ -1,6 +1,5 @@
 package org.tinyradius.io.server;
 
-import lombok.Getter;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
@@ -16,7 +15,6 @@ import org.tinyradius.io.RadiusEndpoint;
  * Use {@link #withResponse(RadiusResponse)} to create a {@link ResponseCtx}
  * for sending a response back to the client.
  */
-@Getter
 public class RequestCtx {
 
     private final RadiusRequest request;
@@ -31,6 +29,26 @@ public class RequestCtx {
     public RequestCtx(@NonNull RadiusRequest request, @NonNull RadiusEndpoint endpoint) {
         this.request = request;
         this.endpoint = endpoint;
+    }
+
+    /**
+     * Returns the incoming RADIUS request packet.
+     *
+     * @return the RADIUS request
+     */
+    @NonNull
+    public RadiusRequest getRequest() {
+        return request;
+    }
+
+    /**
+     * Returns the remote endpoint from which the request was received.
+     *
+     * @return the remote endpoint (address and secret)
+     */
+    @NonNull
+    public RadiusEndpoint getEndpoint() {
+        return endpoint;
     }
 
     /**

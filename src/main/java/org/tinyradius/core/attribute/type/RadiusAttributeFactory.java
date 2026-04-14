@@ -101,7 +101,7 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
      */
     private static byte @NonNull [] toTagBytes(@NonNull Dictionary dictionary, int vendorId, int type, byte tag) {
         return dictionary.getAttributeTemplate(vendorId, type)
-                .filter(AttributeTemplate::isTagged)
+                .filter(AttributeTemplate::tagged)
                 .map(x -> new byte[]{tag})
                 .orElse(new byte[0]);
     }

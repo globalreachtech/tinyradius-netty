@@ -1,13 +1,13 @@
 package org.tinyradius.core.attribute;
 
-import lombok.experimental.UtilityClass;
-
 /**
  * Based on official IANA assignments for <a href="https://www.iana.org/assignments/radius-types/radius-types.xhtml#radius-types-2">Radius Attribute Types</a>
  */
 @SuppressWarnings("unused")
-@UtilityClass
 public class AttributeTypes {
+
+    private AttributeTypes() {
+    }
 
     /**
      * User-Name [RFC2865]

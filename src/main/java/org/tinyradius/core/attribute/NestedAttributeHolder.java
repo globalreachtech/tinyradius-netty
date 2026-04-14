@@ -20,6 +20,10 @@ import static java.util.stream.Collectors.toList;
  */
 public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> extends AttributeHolder<T> {
 
+
+    /**
+     * Default child vendor ID for top-level (non-vendor-specific) attributes.
+     */
     int CHILD_VENDOR_ID = -1;
 
     /**
@@ -68,7 +72,7 @@ public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> exten
     @Override
     @NonNull
     default List<RadiusAttribute> getAttributes(@NonNull AttributeTemplate type) {
-        return getAttributes(type.getVendorId(), type.getType());
+        return getAttributes(type.vendorId(), type.type());
     }
 
     /**

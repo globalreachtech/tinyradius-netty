@@ -1,18 +1,17 @@
 package org.tinyradius.core.attribute.type;
 
 import io.netty.buffer.ByteBuf;
-import lombok.EqualsAndHashCode;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.Vendor;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * The basic generic Radius attribute. All type-specific implementations extend this class
  * by adding additional type conversion methods and validations.
  */
-@EqualsAndHashCode
 public class OctetsAttribute implements RadiusAttribute {
 
     /**
@@ -20,12 +19,13 @@ public class OctetsAttribute implements RadiusAttribute {
      */
     public static final RadiusAttributeFactory<OctetsAttribute> FACTORY = new Factory();
 
-    @EqualsAndHashCode.Exclude
     private final Dictionary dictionary;
 
+    /**
+     * for (Vendor-Specific) sub-attributes, otherwise -1
+     */
+    private final int vendorId;
     private final ByteBuf data;
-
-    private final int vendorId; // for Vendor-Specific sub-attributes, otherwise -1
 
     /**
      * Creates a new OctetsAttribute.
@@ -135,6 +135,17 @@ public class OctetsAttribute implements RadiusAttribute {
     @Override
     public @NonNull Dictionary getDictionary() {
         return dictionary;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof OctetsAttribute that)) return false;
+        return vendorId == that.vendorId && Objects.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(data, vendorId);
     }
 
     private static class Factory implements RadiusAttributeFactory<OctetsAttribute> {
