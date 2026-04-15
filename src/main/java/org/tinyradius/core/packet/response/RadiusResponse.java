@@ -111,7 +111,7 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      *
      * @param sharedSecret shared secret to be used to encode this packet
      * @param requestAuth  request packet authenticator
-     * @return new RadiusPacket instance with same properties and valid authenticator
+     * @return new RadiusPacket instance with the same properties and valid authenticator
      * @throws RadiusPacketException errors encoding packet
      */
     @NonNull
@@ -123,7 +123,7 @@ public interface RadiusResponse extends RadiusPacket<RadiusResponse> {
      * Must be idempotent.
      *
      * @param sharedSecret shared secret
-     * @param requestAuth  authenticator for corresponding request
+     * @param requestAuth  authenticator for the corresponding request
      * @return verified RadiusResponse with decoded attributes if appropriate
      * @throws RadiusPacketException errors verifying or decoding packet
      */
