@@ -30,7 +30,7 @@ public record Vendor(int id, @NonNull String name, int typeSize, int lengthSize)
      *
      * @return the size of the vendor attribute header in bytes
      */
-    public int getHeaderSize() {
+    public int headerSize() {
         return typeSize + lengthSize;
     }
 
