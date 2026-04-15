@@ -3,6 +3,7 @@ package org.tinyradius.core.packet.request;
 import io.netty.buffer.ByteBuf;
 import jdk.jfr.Experimental;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
 import org.tinyradius.core.dictionary.Dictionary;
@@ -69,6 +70,13 @@ public class AccessRequestArap extends AccessRequest {
         return (AccessRequest) request.withAuthAttributes(auth, newAttributes);
     }
 
+    public byte @Nullable [] getClientChallenge(){
+        return getAttribute(ARAP_PASSWORD)
+                .map(RadiusAttribute::getValue)
+                .map(i -> Arrays.copyOfRange(i, 0, 8))
+                .orElse(null);
+    }
+
     /**
      * Checks that the passed plain-text password matches the response
      * sent in the ARAP-Password attribute.
@@ -109,9 +117,13 @@ public class AccessRequestArap extends AccessRequest {
      */
     @Override
     protected void validateAttributes() throws RadiusPacketException {
-        int count = getAttributes(ARAP_PASSWORD).size();
+        var attributes = getAttributes(ARAP_PASSWORD);
+        int count = attributes.size();
         if (count != 1)
             throw new RadiusPacketException("AccessRequest (ARAP) should have exactly one ARAP-Password attribute, has " + count);
+
+        if (attributes.get(0).getValue().length != 16)
+            throw new RadiusPacketException("ARAP-Password attribute should be 16 octets, has " + attributes.get(0).getValue().length);
     }
 
     private static byte @NonNull [] computeArapResponse(@NonNull String password, byte @NonNull [] authenticator) {
