@@ -26,7 +26,7 @@ public abstract class AccessRequest extends GenericRequest implements MessageAut
     /**
      * Logger for this class.
      */
-    protected static final Logger logger = LogManager.getLogger();
+    protected static final Logger logger = LogManager.getLogger(AccessRequest.class);
 
     /**
      * Secure random number generator.

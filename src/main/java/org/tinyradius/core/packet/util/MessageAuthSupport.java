@@ -26,7 +26,7 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
  */
 public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPacket<T> {
 
-    Logger msgAuthLogger = LogManager.getLogger();
+    Logger msgAuthLogger = LogManager.getLogger(MessageAuthSupport.class);
 
     private static byte[] calcMessageAuthInput(RadiusPacket<?> packet, byte[] requestAuth) {
         var buf = Unpooled.buffer()

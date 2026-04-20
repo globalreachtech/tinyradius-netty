@@ -18,7 +18,7 @@ import org.tinyradius.core.dictionary.Vendor;
  */
 public interface RadiusAttributeFactory<T extends RadiusAttribute> {
 
-    Logger log = LogManager.getLogger();
+    Logger log = LogManager.getLogger(RadiusAttributeFactory.class);
 
     /**
      * Creates a new instance of the attribute.

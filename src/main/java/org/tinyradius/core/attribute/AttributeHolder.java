@@ -28,7 +28,7 @@ import org.tinyradius.core.dictionary.Vendor;
  */
 public interface AttributeHolder<T extends AttributeHolder<T>> {
 
-    Logger attrHolderLogger = LogManager.getLogger();
+    Logger attrHolderLogger = LogManager.getLogger(AttributeHolder.class);
 
     /**
      * Converts a list of attributes to a ByteBuf.
