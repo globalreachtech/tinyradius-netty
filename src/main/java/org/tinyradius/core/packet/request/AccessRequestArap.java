@@ -55,6 +55,10 @@ public class AccessRequestArap extends AccessRequest {
         if (password.isEmpty())
             throw new IllegalArgumentException("Could not encode ARAP attributes, password is empty");
 
+        byte[] passwordBytes = password.getBytes(UTF_8);
+        if (passwordBytes.length > 8)
+            throw new IllegalArgumentException("Could not encode ARAP attributes, password is greater than 8 octets");
+
         var auth = randomBytes(16);
         byte[] arapPassword = ByteBuffer.allocate(16)
                 .put(randomBytes(8))
@@ -80,6 +84,9 @@ public class AccessRequestArap extends AccessRequest {
     /**
      * Checks that the passed plain-text password matches the response
      * sent in the ARAP-Password attribute.
+     * <p>
+     * RFC 2869 Section 2.2:
+     * "If the user's password is greater than 8 octets in length, an Access-Reject MUST be sent instead."
      *
      * @param password plaintext password to verify against
      * @return true if the password is valid, false otherwise
@@ -87,6 +94,13 @@ public class AccessRequestArap extends AccessRequest {
     public boolean checkPassword(@NonNull String password) {
         if (password.isEmpty()) {
             logger.warn("Plaintext password to check against is empty");
+            return false;
+        }
+
+        byte[] passwordBytes = password.getBytes(UTF_8);
+        if (passwordBytes.length > 8) {
+            // RFC 2869 Section 2.2: "If the user's password is greater than 8 octets in length, an Access-Reject MUST be sent instead."
+            logger.warn("Plaintext password to check against is greater than 8 octets. Access-Reject must be sent.");
             return false;
         }
 
@@ -113,10 +127,45 @@ public class AccessRequestArap extends AccessRequest {
     }
 
     /**
+     * Calculates the 8-octet ARAP-Challenge-Response value (Attribute 84).
+     * <p>
+     * RFC 2869 Section 2.2:
+     * "The RADIUS server calculates this 8-octet value by taking the
+     * dial-in client's challenge (from the high-order 8 octets of the
+     * ARAP-Password attribute) and performing DES encryption on it, using
+     * the authenticating user's password as the key.  If the password is
+     * less than 8 octets, it is padded at the end with NULL octets.  If the
+     * user's password is greater than 8 octets in length, an Access-Reject MUST be
+     * sent instead."
+     *
+     * @param password plaintext user password
+     * @return 8-octet challenge response, or null if computing is not possible (e.g. invalid password length)
+     */
+    public byte @Nullable [] getChallengeResponse(@NonNull String password) {
+        byte[] passwordBytes = password.getBytes(UTF_8);
+        if (passwordBytes.length > 8) {
+            // RFC 2869 Section 2.2: "If the user's password is greater than 8 octets in length, an Access-Reject MUST be sent instead."
+            logger.warn("Plaintext password is greater than 8 octets. Access-Reject must be sent.");
+            return null;
+        }
+
+        byte[] clientChallenge = getClientChallenge();
+        if (clientChallenge == null) {
+            logger.warn("Client challenge missing, cannot compute ARAP-Challenge-Response");
+            return null;
+        }
+
+        byte[] keyBytes = new byte[8];
+        System.arraycopy(passwordBytes, 0, keyBytes, 0, passwordBytes.length);
+
+        return doCipher(keyBytes, clientChallenge);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
-    protected void validateAttributes() throws RadiusPacketException {
+     protected void validateAttributes() throws RadiusPacketException {
         var attributes = getAttributes(ARAP_PASSWORD);
         int count = attributes.size();
         if (count != 1)
@@ -127,7 +176,7 @@ public class AccessRequestArap extends AccessRequest {
     }
 
     private static byte @NonNull [] computeArapResponse(@NonNull String password, byte @NonNull [] authenticator) {
-        // Server challenge is the lower 8 octets of the RADIUS Request Authenticator (RFC 2869 5.7)
+        // Server challenge is the lower 8 octets of the RADIUS Request Authenticator (RFC 2869 Section 2.2)
         byte[] challenge = new byte[8];
         System.arraycopy(authenticator, 8, challenge, 0, 8);
 
