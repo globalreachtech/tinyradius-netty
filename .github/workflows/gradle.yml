@@ -30,7 +30,7 @@ jobs:
           key: ${{ runner.os }}-sonar
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@v6.2.0
 
       - name: Build with Gradle
         env:
@@ -39,4 +39,4 @@ jobs:
         run: ./gradlew clean build jacocoTestReport sonarqube --info --warning-mode=all
 
       - name: Coveralls GitHub Action
-        uses: coverallsapp/github-action@v2.3.7
+        uses: coverallsapp/github-action@v2.3.8
