@@ -79,7 +79,7 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     }
 
     /**
-     * Parses an attribute and increases readerIndex by size of attribute.
+     * Parses an attribute and increases readerIndex by the size of the attribute.
      *
      * @param dictionary dictionary to parse attribute
      * @param vendorId   vendor Id to set attributes
