@@ -17,10 +17,10 @@ class AccessRequestArapTest {
 
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
-    @ValueSource(strings = {"pw123", "password", "veryLongPassword"})
+    @ValueSource(strings = {"pw123", "password"})
     @ParameterizedTest
     void checkPassword(String password) throws RadiusPacketException {
-        AccessRequestArap request = (AccessRequestArap)
+        var request = (AccessRequestArap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withArapPassword(password);
 
@@ -30,32 +30,67 @@ class AccessRequestArapTest {
     }
 
     @Test
+    void checkPasswordTooLongThrows() {
+        assertThrows(IllegalArgumentException.class, () ->
+            ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
+                    .withArapPassword("veryLongPassword")
+        );
+    }
+
+    @Test
+    void checkPasswordTooLongReturnsFalse() throws RadiusPacketException {
+        var request = (AccessRequestArap)
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
+                        .withArapPassword("pw123");
+
+        assertFalse(request.checkPassword("veryLongPassword"));
+    }
+
+    @Test
+    void challengeResponse() throws RadiusPacketException {
+        var password = "testpw";
+        var request = (AccessRequestArap)
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
+                        .withArapPassword(password);
+
+        byte[] clientChallenge = request.getClientChallenge();
+        assertNotNull(clientChallenge);
+        assertEquals(8, clientChallenge.length);
+
+        byte[] response = request.getChallengeResponse(password);
+        assertNotNull(response);
+        assertEquals(8, response.length);
+
+        assertNull(request.getChallengeResponse("veryLongPassword"));
+    }
+
+    @Test
     void validateAttributes() throws RadiusPacketException {
-        AccessRequest request = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
+        var request = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
         
         // No ARAP-Password yet, should be AccessRequestNoAuth
         assertInstanceOf(AccessRequestNoAuth.class, request);
 
         // Add ARAP-Password
-        AccessRequestArap arapRequest = (AccessRequestArap) request.withArapPassword("testpw");
+        var arapRequest = (AccessRequestArap) request.withArapPassword("testpw");
         arapRequest.validateAttributes();
 
         // Add another ARAP-Password, should fail validation
-        AccessRequest arapRequest2 = (AccessRequest) arapRequest.addAttribute(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[16]));
+        var arapRequest2 = (AccessRequest) arapRequest.addAttribute(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[16]));
         assertThrows(RadiusPacketException.class, arapRequest2::validateAttributes);
     }
 
     @Test
     void encodeDecode() throws RadiusPacketException {
-        String sharedSecret = "secret";
-        String password = "myPassword";
+        var sharedSecret = "secret";
+        var password = "myPw";
         
-        AccessRequestArap request = (AccessRequestArap)
+        var request = (AccessRequestArap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withArapPassword(password);
 
-        RadiusRequest encoded = request.encodeRequest(sharedSecret);
-        RadiusRequest decoded = encoded.decodeRequest(sharedSecret);
+        var encoded = request.encodeRequest(sharedSecret);
+        var decoded = encoded.decodeRequest(sharedSecret);
 
         assertInstanceOf(AccessRequestArap.class, decoded);
         assertTrue(((AccessRequestArap) decoded).checkPassword(password));
