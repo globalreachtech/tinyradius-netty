@@ -17,5 +17,5 @@ jradius-core = { module = "net.jradius:jradius-core", version = "1.1.5" }
 
 
 [plugins]
-sonarqube = { id = "org.sonarqube", version = "7.4.0.8496" }
+sonarqube = { id = "org.sonarqube", version = "7.5.0.8588" }
 jreleaser = { id = "org.jreleaser", version = "1.26.0" }
