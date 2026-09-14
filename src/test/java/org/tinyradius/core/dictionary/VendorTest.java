@@ -27,7 +27,7 @@ class VendorTest {
     @ParameterizedTest
     void headerSize(int typeSize, int lengthSize) {
         Vendor vendor = new Vendor(1, "foo", typeSize, lengthSize);
-        assertEquals(typeSize + lengthSize, vendor.getHeaderSize());
+        assertEquals(typeSize + lengthSize, vendor.headerSize());
     }
 
     @ValueSource(ints = {0, 3, 5, 6})

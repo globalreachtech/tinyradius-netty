@@ -76,7 +76,7 @@ public interface RadiusAttributeFactory<T extends RadiusAttribute> {
     @NonNull
     default T create(@NonNull Dictionary dictionary, int vendorId, int type, byte tag, byte @NonNull [] value) {
         var vendor = dictionary.getVendor(vendorId);
-        int headerSize = vendor.map(Vendor::getHeaderSize).orElse(2);
+        int headerSize = vendor.map(Vendor::headerSize).orElse(2);
 
         byte[] tagBytes = toTagBytes(dictionary, vendorId, type, tag);
         int length = headerSize + tagBytes.length + value.length;
