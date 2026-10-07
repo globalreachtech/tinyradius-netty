@@ -1,6 +1,7 @@
 package org.tinyradius.core.attribute.type;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.tinyradius.core.attribute.AttributeTypes.USER_PASSWORD;
 
 import io.netty.buffer.ByteBuf;
 import org.jspecify.annotations.NonNull;
@@ -25,8 +26,9 @@ public class StringAttribute extends OctetsAttribute {
      */
     public StringAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
         super(dictionary, vendorId, data);
-        if (!data.isReadable(3))
+        if (getType() != USER_PASSWORD && !data.isReadable(3)) {
             throw new IllegalArgumentException("String attribute value should be min 3 octets, actual: " + data.readableBytes());
+        }
     }
 
     /**
