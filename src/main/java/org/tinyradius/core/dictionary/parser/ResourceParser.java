@@ -86,7 +86,6 @@ public class ResourceParser {
     public WritableDictionary parseDictionary(@NonNull String resource) throws IOException {
         try (InputStream inputStream = resourceResolver.openStream(resource);
              BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
-
             String line;
             int lineNum = -1;
             while ((line = in.readLine()) != null) {
@@ -338,6 +337,12 @@ public class ResourceParser {
      * Interface for providing attribute factories based on data type names.
      */
     public interface FactoryProvider {
+        /**
+         * Returns an attribute factory for the specified data type.
+         *
+         * @param dataType the data type name
+         * @return the attribute factory for the data type
+         */
         @NonNull
         RadiusAttributeFactory<? extends RadiusAttribute> fromDataType(@NonNull String dataType);
     }

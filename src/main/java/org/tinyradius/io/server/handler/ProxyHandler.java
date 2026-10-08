@@ -64,6 +64,8 @@ public abstract class ProxyHandler extends SimpleChannelInboundHandler<RequestCt
     }
 
     /**
+     * Determines the origin server endpoint to proxy the request to.
+     *
      * @param request        the request in question
      * @param clientEndpoint the client endpoint the request originated from
      *                       (containing the address, port number and shared secret)

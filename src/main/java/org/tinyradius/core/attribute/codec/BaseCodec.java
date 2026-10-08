@@ -15,6 +15,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public abstract class BaseCodec {
 
     /**
+     * Default constructor.
+     */
+    protected BaseCodec() {
+    }
+
+    /**
      * Encodes plaintext data.
      *
      * @param data         the data to encrypt

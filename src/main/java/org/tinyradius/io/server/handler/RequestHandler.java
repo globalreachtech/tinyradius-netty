@@ -18,6 +18,8 @@ public abstract class RequestHandler extends SimpleChannelInboundHandler<Request
     private static final Logger log = LogManager.getLogger(RequestHandler.class);
 
     /**
+     * Returns the {@link RadiusRequest} subclass type that this handler accepts.
+     *
      * @return RadiusRequest subclass type that this handler can accept
      */
     @NonNull

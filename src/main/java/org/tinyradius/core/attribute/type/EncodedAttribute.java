@@ -12,6 +12,8 @@ import org.tinyradius.core.dictionary.Dictionary;
 
 /**
  * Wrapper around attributes encoded with one of {@link AttributeCodecType}
+ *
+ * @param delegate the underlying raw octets attribute
  */
 public record EncodedAttribute(OctetsAttribute delegate) implements RadiusAttribute {
 

@@ -28,6 +28,9 @@ import org.tinyradius.core.dictionary.Vendor;
  */
 public interface AttributeHolder<T extends AttributeHolder<T>> {
 
+    /**
+     * Logger for attribute holder operations.
+     */
     Logger attrHolderLogger = LogManager.getLogger(AttributeHolder.class);
 
     /**
@@ -340,6 +343,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     }
 
     /**
+     * Encodes the attributes of this packet / attributeHolder.
+     *
      * @param requestAuth  request authenticator to encode attributes
      * @param sharedSecret shared secret with server/client to encode attributes
      * @return encoded version of attributes
@@ -356,6 +361,8 @@ public interface AttributeHolder<T extends AttributeHolder<T>> {
     }
 
     /**
+     * Decodes the attributes of this packet / attributeHolder.
+     *
      * @param requestAuth  request authenticator to decode attributes
      * @param sharedSecret shared secret with server/client to decode attributes
      * @return decoded/original version of attributes

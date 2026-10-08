@@ -26,6 +26,9 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
  */
 public interface MessageAuthSupport<T extends RadiusPacket<T>> extends RadiusPacket<T> {
 
+    /**
+     * Logger for message authentication operations.
+     */
     Logger msgAuthLogger = LogManager.getLogger(MessageAuthSupport.class);
 
     private static byte[] calcMessageAuthInput(RadiusPacket<?> packet, byte[] requestAuth) {

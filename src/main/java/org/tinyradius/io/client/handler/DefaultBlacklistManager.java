@@ -33,6 +33,8 @@ public class DefaultBlacklistManager implements BlacklistManager {
     private final Map<SocketAddress, Long> blacklist = new ConcurrentHashMap<>();
 
     /**
+     * Constructs a new DefaultBlacklistManager with the specified configuration.
+     *
      * @param blacklistTtlMs     time-to-live for blacklist entries in milliseconds
      * @param failCountThreshold number of failures before blacklisting an endpoint
      * @param clock              clock for timestamp operations

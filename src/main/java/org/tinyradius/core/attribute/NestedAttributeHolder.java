@@ -17,6 +17,8 @@ import static java.util.stream.Collectors.toList;
  * and filtering by vendorId.
  * <p>
  * An abstraction of all attribute management methods used by Radius packets.
+ *
+ * @param <T> the type of the attribute holder
  */
 public interface NestedAttributeHolder<T extends NestedAttributeHolder<T>> extends AttributeHolder<T> {
 

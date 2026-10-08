@@ -14,6 +14,9 @@ import java.nio.ByteBuffer;
  */
 public record Vendor(int id, @NonNull String name, int typeSize, int lengthSize) {
 
+    /**
+     * Compact constructor for validating Vendor fields.
+     */
     public Vendor {
         if (id < 0)
             throw new IllegalArgumentException("Vendor ID must be positive: " + id + " (" + name + ")");

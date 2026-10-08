@@ -18,6 +18,9 @@ import org.tinyradius.core.dictionary.Vendor;
  */
 public interface RadiusAttributeFactory<T extends RadiusAttribute> {
 
+    /**
+     * Logger for radius attribute factory operations.
+     */
     Logger log = LogManager.getLogger(RadiusAttributeFactory.class);
 
     /**

@@ -18,6 +18,8 @@ import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 
 /**
  * Base Radius Packet implementation without support for authenticators or encoding
+ *
+ * @param <T> the type of the packet
  */
 public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements RadiusPacket<T> {
 
@@ -111,6 +113,7 @@ public abstract class BaseRadiusPacket<T extends RadiusPacket<T>> implements Rad
      *
      * @param sharedSecret shared secret
      * @param requestAuth  request authenticator if verifying response
+     * @return the verified packet authenticator
      * @throws RadiusPacketException if the packet authenticator check fails
      */
     protected byte @NonNull [] verifyPacketAuth(@NonNull String sharedSecret, byte @Nullable [] requestAuth) throws RadiusPacketException {

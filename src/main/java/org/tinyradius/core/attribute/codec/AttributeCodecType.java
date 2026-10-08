@@ -48,7 +48,9 @@ public enum AttributeCodecType {
     }
 
     /**
-     * The internal numeric ID for the codec type, as defined in Radiator/FreeRadius dictionaries
+     * The internal numeric ID for the codec type, as defined in Radiator/FreeRadius dictionaries.
+     *
+     * @return the internal numeric ID
      */
     public byte getId() {
         return id;
@@ -56,6 +58,8 @@ public enum AttributeCodecType {
 
     /**
      * The string name of the codec type, as used in dictionary files.
+     *
+     * @return the name of the codec type
      */
     public String getCodecName() {
         return codecName;
@@ -63,6 +67,8 @@ public enum AttributeCodecType {
 
     /**
      * The codec implementation used to encode and decode attribute data.
+     *
+     * @return the codec implementation
      */
     public BaseCodec getCodec() {
         return codec;
