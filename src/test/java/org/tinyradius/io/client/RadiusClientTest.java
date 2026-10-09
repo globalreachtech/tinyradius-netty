@@ -242,7 +242,7 @@ class RadiusClientTest {
     @ChannelHandler.Sharable
     private static class CapturingOutboundHandler extends ChannelOutboundHandlerAdapter {
 
-        private static final CapturingOutboundHandler NOOP = new CapturingOutboundHandler(_ -> {
+        private static final CapturingOutboundHandler NOOP = new CapturingOutboundHandler(promise -> {
         });
 
         private static CapturingOutboundHandler of(Exception exception) {
