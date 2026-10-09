@@ -9,8 +9,8 @@ import java.nio.ByteBuffer;
  *
  * @param id         Vendor ID
  * @param name       Vendor Name
- * @param typeSize   number of octets for vendor 'type' field
- * @param lengthSize number of octets for vendor 'length' field
+ * @param typeSize   number of octets for the vendor 'type' field
+ * @param lengthSize number of octets for the vendor 'length' field
  */
 public record Vendor(int id, @NonNull String name, int typeSize, int lengthSize) {
 
