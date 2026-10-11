@@ -54,7 +54,7 @@ class ServerPacketCodecTest {
     void decodeExceptionDropPacket() throws RadiusPacketException {
         RadiusRequest request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList()).encodeRequest("mySecret");
         DatagramPacket datagram = new DatagramPacket(request.toByteBuf(), address);
-        ServerPacketCodec codec = new ServerPacketCodec(dictionary, x -> "bad secret");
+        ServerPacketCodec codec = new ServerPacketCodec(dictionary, address -> "bad secret");
 
         List<Object> out1 = new ArrayList<>();
         codec.decode(ctx, datagram, out1);

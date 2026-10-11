@@ -1,10 +1,11 @@
 package org.tinyradius.core.attribute.type;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import io.netty.buffer.ByteBuf;
 import org.jspecify.annotations.NonNull;
 import org.tinyradius.core.dictionary.Dictionary;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.tinyradius.core.attribute.codec.AttributeCodecType.NO_ENCRYPT;
 
 /**
  * This class represents a Radius attribute which only contains a string.
@@ -25,8 +26,9 @@ public class StringAttribute extends OctetsAttribute {
      */
     public StringAttribute(@NonNull Dictionary dictionary, int vendorId, @NonNull ByteBuf data) {
         super(dictionary, vendorId, data);
-        if (!data.isReadable(3))
-            throw new IllegalArgumentException("String attribute value should be min 3 octets, actual: " + data.readableBytes());
+        int minLength = getHeaderSize() + getTagSize() + (codecType() == NO_ENCRYPT ? 1 : 0);
+        if (!data.isReadable(minLength))
+            throw new IllegalArgumentException("String attribute value should be min " + minLength + " octets, actual: " + data.readableBytes());
     }
 
     /**
