@@ -29,11 +29,9 @@ class AccessRequestArapTest {
     }
 
     @Test
-    void checkPasswordTooLongThrows() {
-        assertThrows(IllegalArgumentException.class, () ->
-            ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
-                    .withArapPassword("veryLongPassword")
-        );
+    void checkPasswordTooLongThrows() throws RadiusPacketException {
+        var request = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
+        assertThrows(IllegalArgumentException.class, () -> request.withArapPassword("veryLongPassword"));
     }
 
     @Test
@@ -88,6 +86,10 @@ class AccessRequestArapTest {
         // Add another ARAP-Password, should fail validation
         var arapRequest2 = (AccessRequest) arapRequest.addAttribute(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[16]));
         assertThrows(RadiusPacketException.class, arapRequest2::validateAttributes);
+
+        // ARAP-Password with invalid length (not 16 octets), should fail validation
+        var invalidLengthRequest = (AccessRequest) request.addAttribute(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[8]));
+        assertThrows(RadiusPacketException.class, invalidLengthRequest::validateAttributes);
     }
 
     @Test

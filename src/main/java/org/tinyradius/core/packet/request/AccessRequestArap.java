@@ -56,7 +56,7 @@ public class AccessRequestArap extends AccessRequest {
         if (passwordBytes.length > 8)
             throw new IllegalArgumentException("Could not encode ARAP attributes, password is greater than 8 octets");
 
-        var auth = randomBytes(16);
+        byte[] auth = randomBytes(16);
         byte[] arapPassword = ByteBuffer.allocate(16)
                 .put(randomBytes(8))
                 .put(computeArapResponse(password, auth))
