@@ -8,6 +8,7 @@ import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.AttributeTypes.ARAP_PASSWORD;
@@ -17,45 +18,99 @@ class AccessRequestArapTest {
 
     private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
-    @ValueSource(strings = {"pw123", "password", "veryLongPassword"})
+    @ValueSource(strings = {"", "pw123", "password"})
     @ParameterizedTest
     void checkPassword(String password) throws RadiusPacketException {
-        AccessRequestArap request = (AccessRequestArap)
+        var request = (AccessRequestArap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withArapPassword(password);
 
         assertTrue(request.checkPassword(password));
         assertFalse(request.checkPassword("wrongPassword"));
-        assertFalse(request.checkPassword(""));
+    }
+
+    @Test
+    void checkPasswordTooLongThrows() throws RadiusPacketException {
+        var request = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
+        assertThrows(IllegalArgumentException.class, () -> request.withArapPassword("veryLongPassword"));
+    }
+
+    @Test
+    void checkPasswordTooLongReturnsFalse() throws RadiusPacketException {
+        var request = (AccessRequestArap)
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
+                        .withArapPassword("pw123");
+
+        assertFalse(request.checkPassword("veryLongPassword"));
+    }
+
+    @Test
+    void challengeResponse() throws RadiusPacketException {
+        var password = "testpw";
+        var request = (AccessRequestArap)
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
+                        .withArapPassword(password);
+
+        byte[] clientChallenge = request.getClientChallenge();
+        assertNotNull(clientChallenge);
+        assertEquals(8, clientChallenge.length);
+
+        byte[] response = request.getChallengeResponse(password);
+        assertNotNull(response);
+        assertEquals(8, response.length);
+
+        assertNull(request.getChallengeResponse("veryLongPassword"));
+    }
+
+    @Test
+    void challengeResponseEmptyPassword() throws RadiusPacketException {
+        var request = (AccessRequestArap)
+                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
+                        .withArapPassword("");
+
+        byte[] response = request.getChallengeResponse("");
+        assertNotNull(response);
+        assertEquals(8, response.length);
+    }
+
+    @Test
+    void clientChallengeMalformedReturnsNull() throws RadiusPacketException {
+        var malformed = (AccessRequestArap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16],
+                List.of(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[8])));
+        assertNull(malformed.getClientChallenge());
     }
 
     @Test
     void validateAttributes() throws RadiusPacketException {
-        AccessRequest request = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
+        var request = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
         
         // No ARAP-Password yet, should be AccessRequestNoAuth
         assertInstanceOf(AccessRequestNoAuth.class, request);
 
         // Add ARAP-Password
-        AccessRequestArap arapRequest = (AccessRequestArap) request.withArapPassword("testpw");
+        var arapRequest = (AccessRequestArap) request.withArapPassword("testpw");
         arapRequest.validateAttributes();
 
         // Add another ARAP-Password, should fail validation
-        AccessRequest arapRequest2 = (AccessRequest) arapRequest.addAttribute(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[16]));
+        var arapRequest2 = (AccessRequest) arapRequest.addAttribute(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[16]));
         assertThrows(RadiusPacketException.class, arapRequest2::validateAttributes);
+
+        // ARAP-Password with invalid length (not 16 octets), should fail validation
+        var invalidLengthRequest = (AccessRequest) request.addAttribute(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[8]));
+        assertThrows(RadiusPacketException.class, invalidLengthRequest::validateAttributes);
     }
 
     @Test
     void encodeDecode() throws RadiusPacketException {
-        String sharedSecret = "secret";
-        String password = "myPassword";
+        var sharedSecret = "secret";
+        var password = "myPw";
         
-        AccessRequestArap request = (AccessRequestArap)
+        var request = (AccessRequestArap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withArapPassword(password);
 
-        RadiusRequest encoded = request.encodeRequest(sharedSecret);
-        RadiusRequest decoded = encoded.decodeRequest(sharedSecret);
+        var encoded = request.encodeRequest(sharedSecret);
+        var decoded = encoded.decodeRequest(sharedSecret);
 
         assertInstanceOf(AccessRequestArap.class, decoded);
         assertTrue(((AccessRequestArap) decoded).checkPassword(password));
