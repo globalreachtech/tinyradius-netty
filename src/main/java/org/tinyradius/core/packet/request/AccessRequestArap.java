@@ -74,11 +74,12 @@ public class AccessRequestArap extends AccessRequest {
     /**
      * Retrieves the 8-octet dial-in client challenge from the high-order octets of the ARAP-Password attribute.
      *
-     * @return 8-octet client challenge, or null if the ARAP-Password attribute is absent
+     * @return 8-octet client challenge, or null if the ARAP-Password attribute is absent or malformed
      */
     public byte @Nullable [] getClientChallenge() {
         return getAttribute(ARAP_PASSWORD)
                 .map(RadiusAttribute::getValue)
+                .filter(i -> i.length == 16)
                 .map(i -> Arrays.copyOfRange(i, 0, 8))
                 .orElse(null);
     }
@@ -110,8 +111,8 @@ public class AccessRequestArap extends AccessRequest {
         }
 
         byte[] auth = getAuthenticator();
-        if (auth == null) {
-            logger.warn("Request authenticator missing");
+        if (auth == null || auth.length < 16) {
+            logger.warn("Request authenticator missing or invalid length");
             return false;
         }
 

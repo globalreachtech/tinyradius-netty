@@ -8,6 +8,7 @@ import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.AttributeTypes.ARAP_PASSWORD;
@@ -70,6 +71,13 @@ class AccessRequestArapTest {
         byte[] response = request.getChallengeResponse("");
         assertNotNull(response);
         assertEquals(8, response.length);
+    }
+
+    @Test
+    void clientChallengeMalformedReturnsNull() throws RadiusPacketException {
+        var malformed = (AccessRequestArap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16],
+                List.of(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[8])));
+        assertNull(malformed.getClientChallenge());
     }
 
     @Test
