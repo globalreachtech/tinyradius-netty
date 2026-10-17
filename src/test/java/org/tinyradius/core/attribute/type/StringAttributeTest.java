@@ -57,6 +57,7 @@ class StringAttributeTest {
         // Decoded empty password produces 2 octets (Type + Length) and is allowed
         var userPassword = FACTORY.create(dictionary, -1, USER_PASSWORD, (byte) 0, "");
         assertEquals("", userPassword.getValueString());
+        assertEquals("User-Password=", userPassword.toString());
         assertEquals(0, userPassword.getValue().length);
         assertEquals(2, userPassword.getData().readableBytes());
     }

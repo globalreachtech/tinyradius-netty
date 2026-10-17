@@ -21,69 +21,81 @@ class AccessRequestPapTest {
 
     private static final byte USER_NAME = 1;
 
-    @ValueSource(strings = {"shortPw", "my16charPassword", "myMuchLongerPassword"})
+    @ValueSource(strings = {"", "shortPw", "my16charPassword", "myMuchLongerPassword"})
     @ParameterizedTest
     void encodeDecode(String password) throws RadiusPacketException {
-        String sharedSecret = "sharedSecret1";
-        String username = "myUsername";
+        var sharedSecret = "sharedSecret1";
+        var username = "myUsername";
 
-        AccessRequestPap request = (AccessRequestPap)
+        var request = (AccessRequestPap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withPapPassword(password)
                         .addAttribute(dictionary.createAttribute("User-Name", username));
         assertEquals(password, request.getPassword().get());
 
-        RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
+        var e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
         assertTrue(e.getMessage().contains("authenticator missing"));
 
-        RadiusRequest encoded = request.encodeRequest(sharedSecret);
+        var encoded = request.encodeRequest(sharedSecret);
         assertNotEquals(password, ((AccessRequestPap) encoded).getPassword().get());
         assertNotNull(encoded.getAuthenticator());
 
         // idempotence check
-        RadiusRequest encoded2 = encoded.encodeRequest(sharedSecret);
+        var encoded2 = encoded.encodeRequest(sharedSecret);
         assertArrayEquals(encoded.toBytes(), encoded2.toBytes());
 
-        RadiusRequest decoded = encoded2.decodeRequest(sharedSecret);
+        var decoded = encoded2.decodeRequest(sharedSecret);
         assertEquals(password, ((AccessRequestPap) decoded).getPassword().get());
         assertEquals(username, decoded.getAttribute("User-Name").get().getValueString());
 
         // idempotence check
-        RadiusRequest decoded2 = decoded.decodeRequest(sharedSecret);
+        var decoded2 = decoded.decodeRequest(sharedSecret);
         assertArrayEquals(decoded.toBytes(), decoded2.toBytes());
         assertEquals(password, ((AccessRequestPap) decoded2).getPassword().get());
         assertEquals(username, decoded2.getAttribute("User-Name").get().getValueString());
     }
 
     @Test
+    void emptyUserPassword() throws RadiusPacketException {
+        var sharedSecret = "sharedSecret1";
+        var request = ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
+                .withPapPassword("")
+                .encodeRequest(sharedSecret);
+
+        var decoded = (AccessRequestPap) request.decodeRequest(sharedSecret);
+        assertEquals("", decoded.getPassword().orElse(null));
+        assertEquals(0, decoded.getAttribute(USER_PASSWORD).orElseThrow().getValue().length);
+    }
+
+    @Test
     void decodeChecksAttributeCount() throws RadiusPacketException {
-        String sharedSecret = "sharedSecret1";
-        AccessRequestNoAuth request1 = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
+        var sharedSecret = "sharedSecret1";
+        var request1 = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one pw attribute
-        RadiusRequest request2 = request1.withPapPassword("myPassword")
+        var request2 = request1.withPapPassword("myPassword")
                 .encodeRequest(sharedSecret)
                 .decodeRequest(sharedSecret);
 
         // add one pw attribute
-        RadiusRequest request3 = request2.addAttribute(dictionary.createAttribute(-1, USER_PASSWORD, new byte[16]));
+        var request3 = request2.addAttribute(dictionary.createAttribute(-1, USER_PASSWORD, new byte[16]));
         assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
     }
 
     @ValueSource(strings = {"shortPw", "my16charPassword", "myMuchLongerPassword"})
     @ParameterizedTest
     void encodePapPassword(String password) throws RadiusPacketException {
-        String user = "myUser1";
-        String sharedSecret = "sharedSecret1";
+        var user = "myUser1";
+        var sharedSecret = "sharedSecret1";
 
-        AccessRequestPap request = (AccessRequestPap)
+        var request = (AccessRequestPap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 2, null, Collections.emptyList()))
                         .withPapPassword(password)
                         .addAttribute(USER_NAME, user);
 
         // encode
-        AccessRequestPap encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
+        var encoded = (AccessRequestPap) request.encodeRequest(sharedSecret);
 
         byte[] expectedEncodedPassword = RadiusUtils.encodePapPassword(
                 request.getPassword().get().getBytes(UTF_8), encoded.getAuthenticator(), sharedSecret);
