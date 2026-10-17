@@ -101,25 +101,42 @@ class AccessRequestChapTest {
 
     @Test
     void verifyChapPassword() throws NoSuchAlgorithmException, RadiusPacketException {
-        String plaintextPw = "password123456789";
+        var plaintextPw = "password123456789";
 
         int chapId = random.nextInt(256);
         byte[] challenge = random.generateSeed(16);
         byte[] password = CHAP.chapResponse((byte) chapId, plaintextPw.getBytes(UTF_8), challenge);
 
-        AccessRequestChap goodRequest = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Arrays.asList(
+        var goodRequest = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Arrays.asList(
                 dictionary.createAttribute(-1, 60, challenge),
                 dictionary.createAttribute(-1, 3, password)));
         assertTrue(goodRequest.checkPassword(plaintextPw));
         assertFalse(goodRequest.checkPassword("badPw"));
+        assertFalse(goodRequest.checkPassword(""));
+        assertThrows(IllegalArgumentException.class, () -> goodRequest.withChapPassword(""));
 
-        AccessRequestChap badChallenge = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Arrays.asList(
+        // Fallback to authenticator when CHAP-Challenge attribute is absent
+        var fallbackRequest = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, challenge,
+                Collections.singletonList(dictionary.createAttribute(-1, 3, password)));
+        assertTrue(fallbackRequest.checkPassword(plaintextPw));
+
+        // Null challenge and null authenticator
+        var noChallengeRequest = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null,
+                Collections.singletonList(dictionary.createAttribute(-1, 3, password)));
+        assertFalse(noChallengeRequest.checkPassword(plaintextPw));
+
+        // Invalid length CHAP-Password
+        var badLenPwRequest = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, challenge,
+                Collections.singletonList(dictionary.createAttribute(-1, 3, new byte[5])));
+        assertFalse(badLenPwRequest.checkPassword(plaintextPw));
+
+        var badChallenge = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Arrays.asList(
                 dictionary.createAttribute(-1, 60, random.generateSeed(16)),
                 dictionary.createAttribute(-1, 3, password)));
         assertFalse(badChallenge.checkPassword(plaintextPw));
 
         password[0] = (byte) ((chapId + 1) % 256);
-        AccessRequestChap badPassword = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Arrays.asList(
+        var badPassword = (AccessRequestChap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Arrays.asList(
                 dictionary.createAttribute(-1, 60, challenge),
                 dictionary.createAttribute(-1, 3, password)));
         assertFalse(badPassword.checkPassword(plaintextPw));

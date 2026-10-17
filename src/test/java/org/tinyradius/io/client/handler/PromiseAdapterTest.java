@@ -258,4 +258,34 @@ class PromiseAdapterTest {
         assertTrue(promise.cause().getMessage().contains("Packet too long"));
         assertEquals(0, out1.size());
     }
+
+    @Test
+    void requestRecordEqualsAndHashCode() throws RadiusPacketException {
+        byte[] auth1 = new byte[]{1, 2, 3};
+        byte[] auth1Copy = new byte[]{1, 2, 3};
+        byte[] auth2 = new byte[]{4, 5, 6};
+        var p1 = eventExecutor.<RadiusResponse>newPromise();
+        var p2 = eventExecutor.<RadiusResponse>newPromise();
+
+        var req1 = new PromiseAdapter.Request("secret1", auth1, 1, p1);
+        var req1Same = new PromiseAdapter.Request("secret1", auth1Copy, 1, p1);
+        var reqDiffId = new PromiseAdapter.Request("secret1", auth1, 2, p1);
+        var reqDiffAuth = new PromiseAdapter.Request("secret1", auth2, 1, p1);
+        var reqDiffSecret = new PromiseAdapter.Request("secret2", auth1, 1, p1);
+        var reqDiffPromise = new PromiseAdapter.Request("secret1", auth1, 1, p2);
+
+        assertEquals(req1, req1Same);
+        assertEquals(req1.hashCode(), req1Same.hashCode());
+        assertNotEquals(req1, "not a Request");
+        assertNotEquals(req1, null);
+        assertNotEquals(req1, reqDiffId);
+        assertNotEquals(req1, reqDiffAuth);
+        assertNotEquals(req1, reqDiffSecret);
+        assertNotEquals(req1, reqDiffPromise);
+
+        var radiusReq = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
+        var endpoint = new RadiusEndpoint(address, "secret1");
+        var pendingCtx = new PendingRequestCtx(radiusReq, endpoint, p1);
+        assertTrue(pendingCtx.toString().contains("PendingRequestCtx{"));
+    }
 }

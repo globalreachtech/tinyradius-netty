@@ -90,9 +90,56 @@ class BasicCachingHandlerTest {
         });
 
         // cache miss again if no response
-        ArrayList<Object> in7 = new ArrayList<>();
+        var in7 = new ArrayList<>();
         basicCachingHandler.decode(ctx, requestCtx, in7);
         assertEquals(1, in7.size());
         assertTrue(in7.contains(requestCtx));
+    }
+
+    @Test
+    void packetEqualsAndDiffFields() throws RadiusPacketException {
+        var basicCachingHandler = new BasicCachingHandler(timer, 5000);
+
+        var req1 = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 100, null, Collections.emptyList()).encodeRequest("test");
+        var reqDiffId = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 101, null, Collections.emptyList()).encodeRequest("test");
+        var reqDiffAuth = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 100, null, Collections.emptyList()).encodeRequest("test2");
+
+        var ep1 = new RadiusEndpoint(new InetSocketAddress(1000), "foo");
+        var ep2 = new RadiusEndpoint(new InetSocketAddress(2000), "foo");
+
+        var ctx1 = new RequestCtx(req1, ep1);
+        var resp1 = ctx1.withResponse(RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 100, null, Collections.emptyList()));
+        basicCachingHandler.encode(ctx, resp1, new ArrayList<>());
+
+        // diff id -> miss
+        var outDiffId = new ArrayList<>();
+        basicCachingHandler.decode(ctx, new RequestCtx(reqDiffId, ep1), outDiffId);
+        assertEquals(1, outDiffId.size());
+
+        // diff auth -> miss
+        var outDiffAuth = new ArrayList<>();
+        basicCachingHandler.decode(ctx, new RequestCtx(reqDiffAuth, ep1), outDiffAuth);
+        assertEquals(1, outDiffAuth.size());
+
+        // diff remoteAddress -> miss
+        var outDiffAddr = new ArrayList<>();
+        basicCachingHandler.decode(ctx, new RequestCtx(req1, ep2), outDiffAddr);
+        assertEquals(1, outDiffAddr.size());
+
+        // hash collision (Arrays.hashCode(new byte[]{-31}) == 0 == Arrays.hashCode(null)) -> triggers Packet.equals branches
+        var mockReqA = mock(RadiusRequest.class);
+        when(mockReqA.getId()).thenReturn((byte) 55);
+        when(mockReqA.getAuthenticator()).thenReturn(new byte[]{-31});
+
+        var mockReqB = mock(RadiusRequest.class);
+        when(mockReqB.getId()).thenReturn((byte) 55);
+        when(mockReqB.getAuthenticator()).thenReturn(null);
+
+        var ctxA = new RequestCtx(mockReqA, ep1);
+        basicCachingHandler.encode(ctx, ctxA.withResponse(resp1.getResponse()), new ArrayList<>());
+
+        var outCollision = new ArrayList<>();
+        basicCachingHandler.decode(ctx, new RequestCtx(mockReqB, ep1), outCollision);
+        assertEquals(1, outCollision.size());
     }
 }
