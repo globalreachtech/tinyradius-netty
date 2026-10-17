@@ -19,7 +19,7 @@ tasks.compileJava {
 }
 
 group = "com.globalreachtech"
-version = "3.3.0"
+version = "3.3.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
