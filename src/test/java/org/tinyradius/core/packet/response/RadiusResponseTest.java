@@ -29,10 +29,16 @@ class RadiusResponseTest {
 
     @Test
     void createResponse() throws RadiusPacketException {
-        AccessResponse accessAccept = (AccessResponse) RadiusResponse.create(dictionary, PacketType.ACCESS_ACCEPT, (byte) 1, null, Collections.emptyList());
+        var accessAccept = (AccessResponse.Accept) RadiusResponse.create(dictionary, PacketType.ACCESS_ACCEPT, (byte) 1, null, Collections.emptyList());
         assertEquals(PacketType.ACCESS_ACCEPT, accessAccept.getType());
 
-        GenericResponse accountingResponse = (GenericResponse) RadiusResponse.create(dictionary, PacketType.ACCOUNTING_RESPONSE, (byte) 2, null, Collections.emptyList());
+        var accessReject = (AccessResponse.Reject) RadiusResponse.create(dictionary, PacketType.ACCESS_REJECT, (byte) 1, null, Collections.emptyList());
+        assertEquals(PacketType.ACCESS_REJECT, accessReject.getType());
+
+        var accessChallenge = (AccessResponse.Challenge) RadiusResponse.create(dictionary, PacketType.ACCESS_CHALLENGE, (byte) 1, null, Collections.emptyList());
+        assertEquals(PacketType.ACCESS_CHALLENGE, accessChallenge.getType());
+
+        var accountingResponse = (GenericResponse) RadiusResponse.create(dictionary, PacketType.ACCOUNTING_RESPONSE, (byte) 2, null, Collections.emptyList());
         assertEquals(PacketType.ACCOUNTING_RESPONSE, accountingResponse.getType());
     }
 

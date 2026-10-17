@@ -6,12 +6,12 @@ import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.IntegerAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
+import org.tinyradius.core.packet.RadiusPacket;
 
 import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
 class AccountingRequestTest {
@@ -43,5 +43,12 @@ class AccountingRequestTest {
         assertEquals(user, encoded.getAttribute(USER_NAME).get().getValueString());
         assertEquals(7, ((IntegerAttribute) encoded.getAttribute(ACCT_STATUS_TYPE).get()).getValueInt());
         assertEquals(request.getAttribute(ACCT_STATUS_TYPE), encoded.getAttribute(ACCT_STATUS_TYPE));
+    }
+
+    @Test
+    void invalidHeaderType() throws RadiusPacketException {
+        var header = RadiusPacket.buildHeader((byte) 1, (byte) 1, null, Collections.emptyList());
+        assertThrows(IllegalArgumentException.class,
+                () -> new AccountingRequest(dictionary, header, Collections.emptyList()));
     }
 }
