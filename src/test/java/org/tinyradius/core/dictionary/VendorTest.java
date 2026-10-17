@@ -1,5 +1,6 @@
 package org.tinyradius.core.dictionary;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -37,10 +38,16 @@ class VendorTest {
         assertEquals("Vendor typeSize must be 1, 2, or 4", e.getMessage());
     }
 
-    @ValueSource(ints = {3, 4})
+    @ValueSource(ints = {-1, 3, 4})
     @ParameterizedTest
     void badLengthSize(int lengthSize) {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new Vendor(1, "foo", 1, lengthSize));
         assertEquals("Vendor lengthSize must be 0, 1, or 2", e.getMessage());
+    }
+
+    @Test
+    void emptyVendorNameThrows() {
+        var e = assertThrows(IllegalArgumentException.class, () -> new Vendor(1, "", 1, 1));
+        assertEquals("Vendor name empty:  (vendorId1)", e.getMessage());
     }
 }

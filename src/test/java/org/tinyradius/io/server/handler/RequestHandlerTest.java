@@ -40,6 +40,7 @@ class RequestHandlerTest {
         AccountingRequest acctRequest = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
         AccessRequestNoAuth authRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
 
+        assertFalse(requestHandler.acceptInboundMessage("not a RequestCtx"));
         assertFalse(requestHandler.acceptInboundMessage(new RequestCtx(acctRequest, new RadiusEndpoint(null, null))));
         assertTrue(requestHandler.acceptInboundMessage(new RequestCtx(authRequest, new RadiusEndpoint(null, null))));
     }

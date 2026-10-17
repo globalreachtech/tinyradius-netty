@@ -1,11 +1,13 @@
 package org.tinyradius.core.attribute;
 
+import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Test;
 import org.tinyradius.core.RadiusPacketException;
 import org.tinyradius.core.attribute.type.EncodedAttribute;
 import org.tinyradius.core.attribute.type.IntegerAttribute;
 import org.tinyradius.core.attribute.type.OctetsAttribute;
 import org.tinyradius.core.attribute.type.RadiusAttribute;
+import org.tinyradius.core.attribute.type.VendorSpecificAttribute;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.dictionary.MemoryDictionary;
@@ -13,6 +15,7 @@ import org.tinyradius.core.dictionary.WritableDictionary;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
@@ -161,5 +164,50 @@ class AttributeTemplateTest {
         assertArrayEquals(pw.getBytes(UTF_8), decode2.getValue());
         assertEquals(tag, attribute.getTag().get());
         assertEquals(tag, attribute.toByteArray()[2]);
+    }
+
+    @Test
+    void templateValidationToStringAndErrors() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new AttributeTemplate(-1, 1, "", "string", OctetsAttribute.FACTORY, NO_ENCRYPT, false));
+
+        var template = new AttributeTemplate(-1, 1, "Test-Attr", "string", OctetsAttribute.FACTORY, RFC2865_USER_PASSWORD, false);
+        assertThrows(IllegalArgumentException.class, () -> template.addEnumerationValue(1, ""));
+        assertEquals("1/Test-Attr: string", template.toString());
+
+        var vendorTemplate = new AttributeTemplate(14122, 1, "Vendor-Attr", "string", OctetsAttribute.FACTORY, NO_ENCRYPT, false);
+        assertEquals("1/Vendor-Attr: string (Vendor 14122)", vendorTemplate.toString());
+
+        // encode error when requestAuth is wrong length (not 16)
+        var attr = template.create(dictionary, (byte) 0, new byte[]{1, 2, 3});
+        assertThrows(RadiusPacketException.class, () -> template.encode(attr, new byte[5], "secret"));
+
+        // decode error when encoded attribute has invalid length or short requestAuth
+        var encodedAttr = template.createEncoded(dictionary, (byte) 0, new byte[]{1, 2, 3});
+        assertThrows(RadiusPacketException.class, () -> template.decode(encodedAttr, new byte[16], "secret"));
+    }
+
+    @Test
+    void attributeHolderEdgeCases() {
+        // 1 trailing byte after reading attributes
+        var buf1Byte = Unpooled.wrappedBuffer(new byte[]{1});
+        assertThrows(IllegalArgumentException.class, () -> AttributeHolder.readAttributes(dictionary, -1, buf1Byte));
+
+        // attribute length < typeSize + lengthSize (length = 1)
+        var bufShortAttr = Unpooled.wrappedBuffer(new byte[]{1, 1});
+        assertThrows(IllegalArgumentException.class, () -> AttributeHolder.readAttributes(dictionary, -1, bufShortAttr));
+
+        // attribute length > readableBytes (length = 10, readable = 3)
+        var bufLongAttr = Unpooled.wrappedBuffer(new byte[]{1, 10, 0});
+        assertThrows(IllegalArgumentException.class, () -> AttributeHolder.readAttributes(dictionary, -1, bufLongAttr));
+
+        // getAttributes(AttributeTemplate) on VendorSpecificAttribute
+        var subAttr = dictionary.createAttribute(14122, 1, "0102");
+        var vsa = new VendorSpecificAttribute(dictionary, 14122, List.of(subAttr));
+        var matchingTemplate = new AttributeTemplate(14122, 1, "Vendor-Attr", "octets", OctetsAttribute.FACTORY, NO_ENCRYPT, false);
+        var nonMatchingTemplate = dictionary.getAttributeTemplate(-1, 1).orElseThrow();
+        assertEquals(1, vsa.getAttributes(matchingTemplate).size());
+        assertTrue(vsa.getAttributes(nonMatchingTemplate).isEmpty());
+        assertThrows(IllegalArgumentException.class, () -> vsa.getAttributes("Non-Existent-Attr"));
     }
 }
