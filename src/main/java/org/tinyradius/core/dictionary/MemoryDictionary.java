@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- *
  * Default implementation
  * of <code>WritableDictionary</code>. It manages a dictionary held
  * in the RAM. This class is used together with the
@@ -29,6 +28,12 @@ public class MemoryDictionary implements WritableDictionary {
     private final Map<Integer, Vendor> vendorsByCode = new HashMap<>();
     private final Map<Integer, Map<Integer, AttributeTemplate>> attributesByCode = new HashMap<>();
     private final Map<String, AttributeTemplate> attributesByName = new HashMap<>();
+
+    /**
+     * Constructs a new empty {@code MemoryDictionary}.
+     */
+    public MemoryDictionary() {
+    }
 
     /**
      * Returns an AttributeTemplate for the given vendor code and type code.
