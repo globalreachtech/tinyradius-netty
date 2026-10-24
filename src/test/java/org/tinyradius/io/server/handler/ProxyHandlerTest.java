@@ -67,6 +67,11 @@ class ProxyHandlerTest {
 
         verify(ctx, timeout(200)).writeAndFlush(responseCaptor.capture());
         assertEquals(mockResponse, responseCaptor.getValue().getResponse());
+
+        reset(ctx);
+        when(client.communicate(any(RadiusRequest.class), any(RadiusEndpoint.class))).thenReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null));
+        proxyHandler.channelRead0(ctx, new RequestCtx(request, stubEndpoint));
+        verifyNoInteractions(ctx);
     }
 
     @Test

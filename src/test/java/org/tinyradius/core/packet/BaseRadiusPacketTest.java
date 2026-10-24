@@ -1,5 +1,7 @@
 package org.tinyradius.core.packet;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -217,6 +220,72 @@ class BaseRadiusPacketTest {
         assertEquals(vendorAttrName, request2.getAttribute(vendorAttrName).get().getAttributeName());
     }
 
+    @Test
+    void headerValidationVerifyAuthAndEquals() throws RadiusPacketException {
+        var shortHeader = Unpooled.buffer(10).writeZero(10);
+        assertThrows(IllegalArgumentException.class, () -> new StubPacket(shortHeader, Collections.emptyList()));
+
+        var mismatchHeader = RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[16], Collections.emptyList());
+        mismatchHeader.setShort(2, 99);
+        assertThrows(RadiusPacketException.class, () -> new StubPacket(mismatchHeader, Collections.emptyList()));
+
+        var p1 = new StubPacket();
+        var p1Same = new StubPacket();
+        var pDiffAttr = p1.addAttribute("User-Name", "alice");
+        var diffHeader = RadiusPacket.buildHeader((byte) 2, (byte) 1, new byte[16], Collections.emptyList());
+        var pDiffHeader = new StubPacket(diffHeader, Collections.emptyList());
+
+        assertEquals(p1, p1Same);
+        assertEquals(p1.hashCode(), p1Same.hashCode());
+        assertThat(p1)
+                .isNotEqualTo("not a packet")
+                .isNotEqualTo(null);
+        assertNotEquals(p1, pDiffAttr);
+        assertNotEquals(p1, pDiffHeader);
+
+        // verifyPacketAuth with short authenticator override
+        var shortAuthPacket = new StubPacket() {
+            @Override
+            public byte @Nullable [] getAuthenticator() {
+                return new byte[15];
+            }
+        };
+        assertThrows(RadiusPacketException.class, () -> shortAuthPacket.verifyPacketAuth("secret", new byte[16]));
+
+        // genHashedAuth with empty sharedSecret
+        assertThrows(IllegalArgumentException.class, () -> p1.genHashedAuth("", new byte[16]));
+    }
+
+    @Test
+    void nestedAttributeHolderEdgeCases() throws RadiusPacketException {
+        var vsa1 = new VendorSpecificAttribute(dictionary, 14122, List.of(
+                dictionary.createAttribute(14122, 1, "loc1"),
+                dictionary.createAttribute(14122, 2, "name1")
+        ));
+        var vsaOtherVendor = new VendorSpecificAttribute(dictionary, 4846, List.of(
+                dictionary.createAttribute(4846, 2, new byte[4])
+        ));
+        var topAttr = dictionary.createAttribute("User-Name", "bob");
+
+        var packet = new StubPacket(List.of(topAttr, vsa1, vsaOtherVendor));
+
+        // getAttributes(vendorId, type) with multiple VSAs and sub-attributes
+        assertEquals(1, packet.getAttributes(14122, 1).size());
+        assertEquals(0, packet.getAttributes(14122, 99).size());
+        assertEquals(0, packet.getAttributes(99999, 1).size());
+
+        // removeAttribute(subAttr) where VSA still has remaining sub-attributes and non-VSA attributes exist
+        var loc1Attr = vsa1.getAttributes().get(0);
+        var afterRemoveOneSub = packet.removeAttribute(loc1Attr);
+        assertEquals(3, afterRemoveOneSub.getAttributes().size());
+        assertEquals(1, afterRemoveOneSub.getVendorAttributes(14122).get(0).getAttributes().size());
+
+        // removeAttributes(vendorId, type) where VSA still has remaining sub-attributes and non-VSA attributes exist
+        var afterRemoveTypeSub = packet.removeAttributes(14122, 1);
+        assertEquals(3, afterRemoveTypeSub.getAttributes().size());
+        assertEquals(1, afterRemoveTypeSub.getVendorAttributes(14122).get(0).getAttributes().size());
+    }
+
     private static class StubPacket extends BaseRadiusPacket<StubPacket> {
 
         private StubPacket() throws RadiusPacketException {
@@ -224,7 +293,11 @@ class BaseRadiusPacketTest {
         }
 
         private StubPacket(List<RadiusAttribute> attributes) throws RadiusPacketException {
-            super(dictionary, RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[16], attributes), attributes);
+            this(RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[16], attributes), attributes);
+        }
+
+        private StubPacket(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+            super(dictionary, header, attributes);
         }
 
         @Override
