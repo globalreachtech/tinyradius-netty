@@ -44,11 +44,11 @@ class ServerPacketCodecTest {
 
     @Test
     void decodeUnknownSecret() throws RadiusPacketException {
-        ServerPacketCodec codec = new ServerPacketCodec(dictionary, address -> null);
-        List<Object> out = new ArrayList<>();
+        var codec = new ServerPacketCodec(dictionary, address -> null);
+        var out = new ArrayList<>();
 
         // malformed packet drops before secret lookup
-        DatagramPacket datagram = new DatagramPacket(Unpooled.buffer(0), address);
+        var datagram = new DatagramPacket(Unpooled.buffer(0), address);
         codec.decode(ctx, datagram, out);
         assertEquals(0, out.size());
 

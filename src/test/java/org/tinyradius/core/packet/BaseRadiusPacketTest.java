@@ -292,11 +292,11 @@ class BaseRadiusPacketTest {
             this(Collections.emptyList());
         }
 
-        private StubPacket(List<RadiusAttribute> attributes) throws RadiusPacketException {
+        private StubPacket(@NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
             this(RadiusPacket.buildHeader((byte) 1, (byte) 1, new byte[16], attributes), attributes);
         }
 
-        private StubPacket(ByteBuf header, List<RadiusAttribute> attributes) throws RadiusPacketException {
+        private StubPacket(@NonNull ByteBuf header, @NonNull List<RadiusAttribute> attributes) throws RadiusPacketException {
             super(dictionary, header, attributes);
         }
 

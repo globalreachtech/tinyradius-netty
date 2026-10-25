@@ -6,6 +6,7 @@ import io.netty.util.Timer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.tinyradius.io.server.RequestCtx;
 import org.tinyradius.io.server.ResponseCtx;
 
@@ -98,7 +99,7 @@ public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, Respo
      * @param remoteAddress remote address from which the packet was received
      * @param authenticator packet authenticator to differentiate between retransmissions and new requests
      */
-    private record Packet(int id, InetSocketAddress remoteAddress, byte[] authenticator) {
+    record Packet(int id, @Nullable InetSocketAddress remoteAddress, byte @Nullable [] authenticator) {
 
         /**
          * Creates a Packet record from a RequestCtx.
@@ -106,7 +107,7 @@ public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, Respo
          * @param ctx the request context
          * @return a new Packet record
          */
-        private static Packet from(RequestCtx ctx) {
+        private static @NonNull Packet from(@NonNull RequestCtx ctx) {
             return new Packet(ctx.getRequest().getId(), ctx.getEndpoint().address(), ctx.getRequest().getAuthenticator());
         }
 
@@ -114,7 +115,7 @@ public class BasicCachingHandler extends MessageToMessageCodec<RequestCtx, Respo
          * {@inheritDoc}
          */
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (!(o instanceof Packet packet)) return false;
             return id == packet.id
                     && Objects.deepEquals(authenticator, packet.authenticator)
