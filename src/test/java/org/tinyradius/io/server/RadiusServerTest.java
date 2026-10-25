@@ -69,4 +69,11 @@ class RadiusServerTest {
         assertEquals(List.of(TAIL_CONTEXT), accessChannel.pipeline().names());
         assertEquals(List.of(TAIL_CONTEXT), acctChannel.pipeline().names());
     }
+
+    @Test
+    void mismatchedListsThrows() {
+        var handlers = List.of(accessHandler);
+        var addresses = List.of(new InetSocketAddress(0), new InetSocketAddress(0));
+        assertThrows(IllegalArgumentException.class, () -> new RadiusServer(bootstrap, handlers, addresses));
+    }
 }

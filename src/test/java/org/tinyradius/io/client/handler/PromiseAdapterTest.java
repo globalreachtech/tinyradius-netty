@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.tinyradius.core.attribute.AttributeTypes.PROXY_STATE;
 import static org.tinyradius.core.packet.PacketType.*;
@@ -257,5 +258,31 @@ class PromiseAdapterTest {
         assertEquals(RadiusPacketException.class, promise.cause().getClass());
         assertTrue(promise.cause().getMessage().contains("Packet too long"));
         assertEquals(0, out1.size());
+    }
+
+    @Test
+    void requestRecordEqualsAndHashCode() {
+        byte[] auth1 = new byte[]{1, 2, 3};
+        byte[] auth1Copy = new byte[]{1, 2, 3};
+        byte[] auth2 = new byte[]{4, 5, 6};
+        var p1 = eventExecutor.<RadiusResponse>newPromise();
+        var p2 = eventExecutor.<RadiusResponse>newPromise();
+
+        var req1 = new PromiseAdapter.Request("secret1", auth1, 1, p1);
+        var req1Same = new PromiseAdapter.Request("secret1", auth1Copy, 1, p1);
+        var reqDiffId = new PromiseAdapter.Request("secret1", auth1, 2, p1);
+        var reqDiffAuth = new PromiseAdapter.Request("secret1", auth2, 1, p1);
+        var reqDiffSecret = new PromiseAdapter.Request("secret2", auth1, 1, p1);
+        var reqDiffPromise = new PromiseAdapter.Request("secret1", auth1, 1, p2);
+
+        assertEquals(req1, req1Same);
+        assertEquals(req1.hashCode(), req1Same.hashCode());
+        assertThat(req1)
+                .isNotEqualTo("not a Request")
+                .isNotEqualTo(null);
+        assertNotEquals(req1, reqDiffId);
+        assertNotEquals(req1, reqDiffAuth);
+        assertNotEquals(req1, reqDiffSecret);
+        assertNotEquals(req1, reqDiffPromise);
     }
 }

@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.tinyradius.core.attribute.AttributeTypes.MESSAGE_AUTHENTICATOR;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
 import static org.tinyradius.core.packet.RadiusPacket.buildHeader;
@@ -45,11 +46,41 @@ class MessageAuthSupportTest {
     void selfEncodeVerify() throws RadiusPacketException {
         byte[] auth = new byte[16];
         auth[0] = 1; // set auth to non-zeros
-        TestPacket testPacket = new TestPacket((byte) 1, (byte) 1, auth, Collections.emptyList());
+        var vAttr = dictionary.createAttribute(14122, MESSAGE_AUTHENTICATOR, new byte[]{1, 2, 3});
+        var testPacket = new TestPacket((byte) 1, (byte) 1, auth, List.of(vAttr));
 
-        TestPacket encodedPacket = testPacket.encodeMessageAuth(secret, null);
+        var encodedPacket = testPacket.encodeMessageAuth(secret, null);
         encodedPacket.verifyMessageAuth(secret, testPacket.getAuthenticator());
         encodedPacket.verifyMessageAuth(secret, null);
+    }
+
+    @Test
+    void verifyAndEncodeEdgeCases() throws RadiusPacketException {
+        byte[] auth = new byte[16];
+        auth[0] = 1;
+        var testPacket = new TestPacket((byte) 1, (byte) 1, auth, Collections.emptyList());
+
+        assertThrows(IllegalArgumentException.class, () -> testPacket.verifyMessageAuth("", null));
+        assertThrows(IllegalArgumentException.class, () -> testPacket.encodeMessageAuth("", null));
+
+        // multiple Message-Authenticator attributes
+        var msgAuth1 = dictionary.createAttribute(-1, MESSAGE_AUTHENTICATOR, new byte[16]);
+        var msgAuth2 = dictionary.createAttribute(-1, MESSAGE_AUTHENTICATOR, new byte[16]);
+        var multiPacket = new TestPacket((byte) 1, (byte) 1, auth, List.of(msgAuth1, msgAuth2));
+        assertThrows(RadiusPacketException.class, () -> multiPacket.verifyMessageAuth(secret, null));
+
+        // invalid length Message-Authenticator
+        var shortMsgAuth = dictionary.createAttribute(-1, MESSAGE_AUTHENTICATOR, new byte[8]);
+        var shortPacket = new TestPacket((byte) 1, (byte) 1, auth, List.of(shortMsgAuth));
+        assertThrows(RadiusPacketException.class, () -> shortPacket.verifyMessageAuth(secret, null));
+
+        // wrong secret fails when no decoded encrypted attribute
+        var encoded = testPacket.encodeMessageAuth(secret, null);
+        assertThrows(RadiusPacketException.class, () -> encoded.verifyMessageAuth("wrongSecret", null));
+
+        // replace existing Message-Authenticator when encoding again
+        var reEncoded = encoded.encodeMessageAuth(secret, null);
+        reEncoded.verifyMessageAuth(secret, null);
     }
 
     @Test

@@ -22,10 +22,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.tinyradius.core.packet.PacketType.ACCESS_ACCEPT;
 import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
@@ -90,9 +92,68 @@ class BasicCachingHandlerTest {
         });
 
         // cache miss again if no response
-        ArrayList<Object> in7 = new ArrayList<>();
+        var in7 = new ArrayList<>();
         basicCachingHandler.decode(ctx, requestCtx, in7);
         assertEquals(1, in7.size());
         assertTrue(in7.contains(requestCtx));
+    }
+
+    @Test
+    void cacheMissOnDifferentPacketFields() throws RadiusPacketException {
+        var basicCachingHandler = new BasicCachingHandler(timer, 5000);
+
+        var req1 = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 100, null, Collections.emptyList()).encodeRequest("test");
+        var reqDiffId = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 101, null, Collections.emptyList()).encodeRequest("test");
+        var reqDiffAuth = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 100, null, Collections.emptyList()).encodeRequest("test2");
+
+        var ep1 = new RadiusEndpoint(new InetSocketAddress(1000), "foo");
+        var ep2 = new RadiusEndpoint(new InetSocketAddress(2000), "foo");
+
+        var ctx1 = new RequestCtx(req1, ep1);
+        var resp1 = ctx1.withResponse(RadiusResponse.create(dictionary, ACCESS_ACCEPT, (byte) 100, null, Collections.emptyList()));
+        basicCachingHandler.encode(ctx, resp1, new ArrayList<>());
+
+        // diff id -> miss
+        var outDiffId = new ArrayList<>();
+        basicCachingHandler.decode(ctx, new RequestCtx(reqDiffId, ep1), outDiffId);
+        assertEquals(1, outDiffId.size());
+
+        // diff auth -> miss
+        var outDiffAuth = new ArrayList<>();
+        basicCachingHandler.decode(ctx, new RequestCtx(reqDiffAuth, ep1), outDiffAuth);
+        assertEquals(1, outDiffAuth.size());
+
+        // diff remoteAddress -> miss
+        var outDiffAddr = new ArrayList<>();
+        basicCachingHandler.decode(ctx, new RequestCtx(req1, ep2), outDiffAddr);
+        assertEquals(1, outDiffAddr.size());
+    }
+
+    @Test
+    void packetRecordEqualsHashCodeAndToString() {
+        var addr1 = new InetSocketAddress(1000);
+        var addr2 = new InetSocketAddress(2000);
+        byte[] auth1 = new byte[]{1, 2, 3};
+        byte[] auth1Copy = new byte[]{1, 2, 3};
+        byte[] auth2 = new byte[]{4, 5, 6};
+
+        var p1 = new BasicCachingHandler.Packet(1, addr1, auth1);
+        var p1Same = new BasicCachingHandler.Packet(1, addr1, auth1Copy);
+        var pDiffId = new BasicCachingHandler.Packet(2, addr1, auth1);
+        var pDiffAuth = new BasicCachingHandler.Packet(1, addr1, auth2);
+        var pDiffAddr = new BasicCachingHandler.Packet(1, addr2, auth1);
+
+        assertEquals(1, p1.id());
+        assertEquals(addr1, p1.remoteAddress());
+        assertArrayEquals(auth1, p1.authenticator());
+        assertEquals(p1, p1Same);
+        assertEquals(p1.hashCode(), p1Same.hashCode());
+        assertThat(p1)
+                .isNotEqualTo("not a Packet")
+                .isNotEqualTo(null);
+        assertNotEquals(p1, pDiffId);
+        assertNotEquals(p1, pDiffAuth);
+        assertNotEquals(p1, pDiffAddr);
+        assertTrue(p1.toString().contains("Packet{id=1"));
     }
 }

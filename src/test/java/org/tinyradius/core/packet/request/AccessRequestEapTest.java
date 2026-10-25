@@ -47,19 +47,22 @@ class AccessRequestEapTest {
 
     @Test
     void verifyAttributeCount() throws RadiusPacketException {
-        String sharedSecret = "sharedSecret1";
-        AccessRequestNoAuth request = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
+        var sharedSecret = "sharedSecret1";
+        var request = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
         assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));
 
-        AccessRequestEap request1 = (AccessRequestEap) request.addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, new byte[16]));
+        var emptyEap = new AccessRequestEap(dictionary, request.getHeader(), Collections.emptyList());
+        assertThrows(RadiusPacketException.class, emptyEap::validateAttributes);
+
+        var request1 = (AccessRequestEap) request.addAttribute(dictionary.createAttribute(-1, EAP_MESSAGE, new byte[16]));
         assertThrows(RadiusPacketException.class, () -> request1.decodeRequest(sharedSecret));
 
         // add one messageAuth
-        AccessRequestEap request2 = (AccessRequestEap) request1.encodeRequest(sharedSecret);
+        var request2 = (AccessRequestEap) request1.encodeRequest(sharedSecret);
         request2.decodeRequest(sharedSecret);
 
-        AccessRequestEap request3 = (AccessRequestEap) request2.addAttribute(dictionary.createAttribute(-1, MESSAGE_AUTHENTICATOR, new byte[16]));
-        RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
+        var request3 = (AccessRequestEap) request2.addAttribute(dictionary.createAttribute(-1, MESSAGE_AUTHENTICATOR, new byte[16]));
+        var e = assertThrows(RadiusPacketException.class, () -> request3.decodeRequest(sharedSecret));
         assertEquals("AccessRequest (EAP) should have exactly one Message-Authenticator attribute, has 2", e.getMessage());
     }
 }

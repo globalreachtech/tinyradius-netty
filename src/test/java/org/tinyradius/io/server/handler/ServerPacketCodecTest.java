@@ -14,6 +14,7 @@ import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.AccessRequestPap;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.core.packet.response.RadiusResponse;
+import org.tinyradius.io.RadiusEndpoint;
 import org.tinyradius.io.server.RequestCtx;
 
 import java.net.InetSocketAddress;
@@ -23,6 +24,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.tinyradius.core.packet.PacketType.ACCESS_REQUEST;
@@ -40,13 +43,19 @@ class ServerPacketCodecTest {
     private ChannelHandlerContext ctx;
 
     @Test
-    void decodeUnknownSecret() {
-        ServerPacketCodec codec = new ServerPacketCodec(dictionary, address -> null);
-        DatagramPacket datagram = new DatagramPacket(Unpooled.buffer(0), address);
+    void decodeUnknownSecret() throws RadiusPacketException {
+        var codec = new ServerPacketCodec(dictionary, address -> null);
+        var out = new ArrayList<>();
 
-        List<Object> out = new ArrayList<>();
+        // malformed packet drops before secret lookup
+        var datagram = new DatagramPacket(Unpooled.buffer(0), address);
         codec.decode(ctx, datagram, out);
+        assertEquals(0, out.size());
 
+        // valid packet drops when secretProvider returns null
+        var validEncodedReq = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList())
+                .encodeRequest("mySecret");
+        codec.decode(ctx, new DatagramPacket(validEncodedReq.toByteBuf(), address, address), out);
         assertEquals(0, out.size());
     }
 
@@ -100,5 +109,30 @@ class ServerPacketCodecTest {
         DatagramPacket response = (DatagramPacket) out2.get(0);
         assertArrayEquals(response.content().copy().array(),
                 new DatagramPacket(responsePacket.encodeResponse(secret, request.getAuthenticator()).toByteBuf(), remoteAddress, address).content().copy().array());
+    }
+
+    @Test
+    void encodeNullRequestAuthAndException() throws RadiusPacketException {
+        var secret = "mySecret";
+        var codec = new ServerPacketCodec(dictionary, addr -> secret);
+        var channel = mock(Channel.class);
+        when(ctx.channel()).thenReturn(channel);
+
+        var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
+        var endpoint = new RadiusEndpoint(address, secret);
+        var reqCtx = new RequestCtx(request, endpoint);
+
+        var respPacket = RadiusResponse.create(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList());
+        var out = new ArrayList<>();
+        codec.encode(ctx, reqCtx.withResponse(respPacket), out);
+        assertEquals(1, out.size());
+
+        // encode logs and drops packet on RadiusPacketException
+        var badResp = mock(RadiusResponse.class);
+        when(badResp.encodeResponse(anyString(), any()))
+                .thenThrow(new RadiusPacketException("encode error"));
+        var outErr = new ArrayList<>();
+        codec.encode(ctx, reqCtx.withResponse(badResp), outErr);
+        assertEquals(0, outErr.size());
     }
 }
