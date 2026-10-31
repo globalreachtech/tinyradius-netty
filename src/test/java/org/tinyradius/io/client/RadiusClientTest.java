@@ -106,9 +106,10 @@ class RadiusClientTest {
 
         // bind failure propagates to communicate future
         var unresolvedAddr = InetSocketAddress.createUnresolved("invalid.host", 1812);
-        var failedBindClient = new RadiusClient(bootstrap, unresolvedAddr, timeoutHandler, CapturingOutboundHandler.NOOP);
-        var failedFuture = failedBindClient.communicate(request, stubEndpoint).await();
-        assertFalse(failedFuture.isSuccess());
+        try (var failedBindClient = new RadiusClient(bootstrap, unresolvedAddr, timeoutHandler, CapturingOutboundHandler.NOOP)) {
+            var failedFuture = failedBindClient.communicate(request, stubEndpoint).await();
+            assertFalse(failedFuture.isSuccess());
+        }
     }
 
     @Test

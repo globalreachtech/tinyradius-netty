@@ -50,15 +50,15 @@ class ProxyHandlerTest {
 
     @Test
     void handleSuccess() throws RadiusPacketException {
-        ProxyHandler proxyHandler = new ProxyHandler(client) {
+        var proxyHandler = new ProxyHandler(client) {
             @Override
             public @NonNull Optional<RadiusEndpoint> getOriginServer(@NonNull RadiusRequest request, @NonNull RadiusEndpoint clientEndpoint) {
                 return Optional.of(stubEndpoint);
             }
         };
 
-        AccountingRequest request = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
-        RadiusResponse mockResponse = RadiusResponse.create(dictionary, ACCOUNTING_RESPONSE, (byte) 123, null,
+        var request = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
+        var mockResponse = RadiusResponse.create(dictionary, ACCOUNTING_RESPONSE, (byte) 123, null,
                 Collections.singletonList(dictionary.createAttribute(-1, (byte) 33, "state1".getBytes(UTF_8))));
 
         when(client.communicate(any(RadiusRequest.class), any(RadiusEndpoint.class))).thenReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(mockResponse));

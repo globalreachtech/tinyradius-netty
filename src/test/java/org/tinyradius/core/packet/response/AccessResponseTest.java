@@ -22,29 +22,29 @@ class AccessResponseTest {
 
     @Test
     void encodeDecode() throws RadiusPacketException {
-        String sharedSecret = "sharedSecret1";
-        String username = "myUsername";
-        String password = "myPassword";
+        var sharedSecret = "sharedSecret1";
+        var username = "myUsername";
+        var password = "myPassword";
 
         byte[] requestAuth = random.generateSeed(16);
 
-        AccessResponse.Accept response = (AccessResponse.Accept) RadiusResponse.create(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList())
+        var response = (AccessResponse.Accept) RadiusResponse.create(dictionary, (byte) 2, (byte) 1, null, Collections.emptyList())
                 .addAttribute(dictionary.createAttribute("User-Name", username))
                 .addAttribute(dictionary.createAttribute(-1, USER_PASSWORD, password.getBytes(UTF_8)));
 
-        RadiusPacketException e = assertThrows(RadiusPacketException.class, () -> response.decodeResponse(sharedSecret, requestAuth));
+        var e = assertThrows(RadiusPacketException.class, () -> response.decodeResponse(sharedSecret, requestAuth));
         assertTrue(e.getMessage().contains("authenticator missing"));
 
-        RadiusResponse encoded = response.encodeResponse(sharedSecret, requestAuth);
+        var encoded = response.encodeResponse(sharedSecret, requestAuth);
         assertNotNull(encoded.getAuthenticator());
         assertEquals(username, encoded.getAttribute("User-Name").get().getValueString());
         assertNotEquals(password, new String(encoded.getAttribute("User-Password").get().getValue(), UTF_8));
 
         // idempotence check
-        RadiusResponse encoded2 = encoded.encodeResponse(sharedSecret, requestAuth);
+        var encoded2 = encoded.encodeResponse(sharedSecret, requestAuth);
         assertArrayEquals(encoded.toBytes(), encoded2.toBytes());
 
-        RadiusResponse decoded = encoded2.decodeResponse(sharedSecret, requestAuth);
+        var decoded = encoded2.decodeResponse(sharedSecret, requestAuth);
         assertEquals(username, decoded.getAttribute("User-Name").get().getValueString());
         assertEquals(password, new String(decoded.getAttribute("User-Password").get().getValue(), UTF_8));
 

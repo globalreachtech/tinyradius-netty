@@ -56,7 +56,7 @@ class BlacklistHandlerTest {
 
     @Test
     void noBlacklist() throws RadiusPacketException {
-        PendingRequestCtx request = genRequest(0);
+        var request = genRequest(0);
         handler.write(handlerContext, request, channelPromise);
 
         verify(handlerContext).write(request, channelPromise);

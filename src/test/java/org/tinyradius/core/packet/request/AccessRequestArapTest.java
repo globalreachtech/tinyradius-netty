@@ -1,6 +1,7 @@
 package org.tinyradius.core.packet.request;
 
 import io.netty.buffer.Unpooled;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -91,7 +92,7 @@ class AccessRequestArapTest {
                 Unpooled.buffer(20).writeByte(ACCESS_REQUEST).writeByte(1).writeShort(38).writeZero(16),
                 List.of(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[16]))) {
             @Override
-            public byte[] getAuthenticator() {
+            public byte @Nullable [] getAuthenticator() {
                 return new byte[8];
             }
         };
