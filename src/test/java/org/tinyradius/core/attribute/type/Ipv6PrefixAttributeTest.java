@@ -17,12 +17,12 @@ class Ipv6PrefixAttributeTest {
     @Test
     void minAttributeLength() {
         // min
-        Ipv6PrefixAttribute prefixAttribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, new byte[2]);
+        var prefixAttribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, new byte[2]);
         assertEquals(2, prefixAttribute.getValue().length);
         assertEquals("0:0:0:0:0:0:0:0/0", prefixAttribute.getValueString());
 
         // min-1
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        var exception = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, new byte[1]));
         assertThat(exception).hasMessageContaining("should be 2-18 octets");
     }
@@ -30,39 +30,48 @@ class Ipv6PrefixAttributeTest {
     @Test
     void maxAttributeLength() {
         // max
-        Ipv6PrefixAttribute prefixAttribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, new byte[18]);
+        var prefixAttribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, new byte[18]);
         assertEquals(18, prefixAttribute.getValue().length); // intentionally don't trim, avoid changing incoming data
         assertEquals("0:0:0:0:0:0:0:0/0", prefixAttribute.getValueString());
 
         // max+1
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        var exception = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, new byte[20]));
         assertThat(exception).hasMessageContaining("should be 2-18 octets");
     }
 
     @Test
     void stringOk() {
-        Ipv6PrefixAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, "2001:db8:ac10:fe01:0:0:0:0/64");
+        var attribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, "2001:db8:ac10:fe01:0:0:0:0/64");
         assertEquals("2001:db8:ac10:fe01:0:0:0:0/64", attribute.getValueString());
     }
 
     @Test
     void string60bitsOk() {
-        Ipv6PrefixAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, "2001:0:0:1650:0:0:0:0/60");
+        var attribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, "2001:0:0:1650:0:0:0:0/60");
         assertEquals("2001:0:0:1650:0:0:0:0/60", attribute.getValueString());
     }
 
     @Test
     void stringEmpty() {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        var exception = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, ""));
         assertTrue(exception.getMessage().toLowerCase().contains("invalid ipv6 prefix"));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, "2001:db8::"));
+        assertThrows(IllegalArgumentException.class,
+                () -> FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, "2001:db8::/129"));
+        assertThrows(IllegalArgumentException.class,
+                () -> FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, "2001:db8::/-1"));
+        assertThrows(IllegalArgumentException.class,
+                () -> FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, "not_an_ipv6_addr/64"));
     }
 
     @Test
     void bitsOutsidePrefixLengthIsZero() {
         // string constructor
-        IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
+        var e1 = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, "fe80:fe80:fe80:fe80:fe80:fe80:fe80:fe80/64"));
 
         assertThat(e1).hasMessageContaining("bits outside of the Prefix-Length must be zero");
@@ -73,7 +82,7 @@ class Ipv6PrefixAttributeTest {
         bytes[2] = (byte) 0xff;
         bytes[3] = (byte) 0xff; // violates rfc requirement that "Bits outside of the Prefix-Length, if included, must be zero."
 
-        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
+        var e2 = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, bytes));
 
         assertThat(e2).hasMessageContaining("bits outside of the Prefix-Length must be zero");
@@ -87,7 +96,7 @@ class Ipv6PrefixAttributeTest {
         bytes[3] = 0; // set 8 bits to 0, but also part of prefix
         bytes[4] = 0; // empty octet as padding
 
-        RadiusAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, bytes);
+        var attribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, bytes);
         assertEquals("fe00:0:0:0:0:0:0:0/16", attribute.getValueString());
     }
 
@@ -97,11 +106,11 @@ class Ipv6PrefixAttributeTest {
         byte[] bytes = new byte[4]; // prefix capacity 2
         bytes[1] = 16; // 16 bits require 2 bytes
 
-        RadiusAttribute attribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, bytes);
+        var attribute = FACTORY.create(dictionary, -1, FRAMED_IPV6_PREFIX, (byte) 0, bytes);
         assertEquals("0:0:0:0:0:0:0:0/16", attribute.getValueString());
 
         bytes[1] = 17; // 17 bits require 3 bytes;
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        var exception = assertThrows(IllegalArgumentException.class,
                 () -> FACTORY.create(dictionary, -1, 97, (byte) 0, bytes));
         assertThat(exception)
                 .hasMessageContaining("actual byte array only has space for 16 bits")

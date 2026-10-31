@@ -69,7 +69,7 @@ class RadiusClientTest {
         var request = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of());
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.NOOP)) {
-            TimeoutException e = assertThrows(TimeoutException.class,
+            var e = assertThrows(TimeoutException.class,
                     () -> radiusClient.communicate(request, stubEndpoint).syncUninterruptibly());
 
             assertTrue(e.getMessage().toLowerCase().contains("max attempts reached"));
@@ -84,6 +84,7 @@ class RadiusClientTest {
         var response = RadiusResponse.create(DefaultDictionary.INSTANCE, (byte) 2, id, null, List.of());
 
         try (var radiusClient = new RadiusClient(bootstrap, address, timeoutHandler, CapturingOutboundHandler.of(response))) {
+            assertTrue(radiusClient.isReady().syncUninterruptibly().isSuccess());
             var future = radiusClient.communicate(request, stubEndpoint).await();
 
             assertTrue(future.isSuccess());
@@ -102,6 +103,12 @@ class RadiusClientTest {
             assertFalse(future.isSuccess());
             assertSame(exception, future.cause());
         }
+
+        // bind failure propagates to communicate future
+        var unresolvedAddr = InetSocketAddress.createUnresolved("invalid.host", 1812);
+        var failedBindClient = new RadiusClient(bootstrap, unresolvedAddr, timeoutHandler, CapturingOutboundHandler.NOOP);
+        var failedFuture = failedBindClient.communicate(request, stubEndpoint).await();
+        assertFalse(failedFuture.isSuccess());
     }
 
     @Test
@@ -200,6 +207,7 @@ class RadiusClientTest {
                 assertThat(sendCaptor.getValue()).isSameAs(receiveCaptor.getValue());
                 assertThat(sendCaptor.getValue().getRequest()).isEqualTo(request);
                 assertThat(sendCaptor.getValue().getResponse().get()).isEqualTo(response);
+                assertThat(sendCaptor.getValue().toString()).contains("PendingRequestCtx{packet=");
             });
         }
     }
@@ -268,7 +276,7 @@ class RadiusClientTest {
 
         @Override
         public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-            PendingRequestCtx reqCtx = (PendingRequestCtx) msg;
+            var reqCtx = (PendingRequestCtx) msg;
             requests.add(reqCtx);
             failFast.accept((reqCtx).getResponse());
 

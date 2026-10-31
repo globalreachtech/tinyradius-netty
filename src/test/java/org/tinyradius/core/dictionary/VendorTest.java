@@ -13,35 +13,35 @@ class VendorTest {
     @ValueSource(ints = {1, 2, 4})
     @ParameterizedTest
     void typeBytesSizeMatch(int typeSize) {
-        Vendor vendor = new Vendor(1, "foo", typeSize, 1);
+        var vendor = new Vendor(1, "foo", typeSize, 1);
         assertEquals(vendor.typeSize(), vendor.toTypeBytes(1).length);
     }
 
     @ValueSource(ints = {0, 1, 2})
     @ParameterizedTest
     void lengthBytesSizeMatch(int lengthSize) {
-        Vendor vendor = new Vendor(1, "foo", 1, lengthSize);
+        var vendor = new Vendor(1, "foo", 1, lengthSize);
         assertEquals(vendor.lengthSize(), vendor.toLengthBytes(1).length);
     }
 
     @CsvSource({"1,0", "2,1", "4,2"})
     @ParameterizedTest
     void headerSize(int typeSize, int lengthSize) {
-        Vendor vendor = new Vendor(1, "foo", typeSize, lengthSize);
+        var vendor = new Vendor(1, "foo", typeSize, lengthSize);
         assertEquals(typeSize + lengthSize, vendor.getHeaderSize());
     }
 
     @ValueSource(ints = {0, 3, 5, 6})
     @ParameterizedTest
     void badTypeSize(int typeSize) {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new Vendor(1, "foo", typeSize, 1));
+        var e = assertThrows(IllegalArgumentException.class, () -> new Vendor(1, "foo", typeSize, 1));
         assertEquals("Vendor typeSize must be 1, 2, or 4", e.getMessage());
     }
 
     @ValueSource(ints = {-1, 3, 4})
     @ParameterizedTest
     void badLengthSize(int lengthSize) {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new Vendor(1, "foo", 1, lengthSize));
+        var e = assertThrows(IllegalArgumentException.class, () -> new Vendor(1, "foo", 1, lengthSize));
         assertEquals("Vendor lengthSize must be 0, 1, or 2", e.getMessage());
     }
 

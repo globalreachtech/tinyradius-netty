@@ -87,6 +87,17 @@ class AccessRequestArapTest {
                 List.of(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[16])));
         assertFalse(nullAuth.checkPassword("pw"));
 
+        var shortAuth = new AccessRequestArap(dictionary,
+                Unpooled.buffer(20).writeByte(ACCESS_REQUEST).writeByte(1).writeShort(38).writeZero(16),
+                List.of(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[16]))) {
+            @Override
+            public byte[] getAuthenticator() {
+                return new byte[8];
+            }
+        };
+        assertFalse(shortAuth.checkPassword("pw"));
+        assertThrows(RadiusPacketException.class, () -> shortAuth.decodeRequest("secret"));
+
         var missingAttr = new AccessRequestArap(dictionary,
                 Unpooled.buffer(20).writeByte(ACCESS_REQUEST).writeByte(1).writeShort(20).writeZero(16),
                 List.of());
