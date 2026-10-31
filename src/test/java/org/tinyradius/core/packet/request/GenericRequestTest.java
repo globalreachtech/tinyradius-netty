@@ -76,4 +76,10 @@ class GenericRequestTest {
         assertEquals(7, ((IntegerAttribute) encoded.getAttribute(ACCT_STATUS_TYPE).get()).getValueInt());
         assertEquals(request.getAttribute(ACCT_STATUS_TYPE), encoded.getAttribute(ACCT_STATUS_TYPE));
     }
+
+    @Test
+    void emptySharedSecretThrows() throws RadiusPacketException {
+        var request = (GenericRequest) RadiusRequest.create(dictionary, ACCOUNTING_RESPONSE, (byte) 1, null, Collections.emptyList());
+        assertThrows(IllegalArgumentException.class, () -> request.encodeRequest(""));
+    }
 }

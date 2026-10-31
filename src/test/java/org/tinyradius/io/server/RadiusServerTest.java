@@ -1,7 +1,6 @@
 package org.tinyradius.io.server;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
@@ -33,14 +32,14 @@ class RadiusServerTest {
 
     @Test
     void serverStartStop() {
-        RadiusServer server = new RadiusServer(bootstrap, accessHandler, acctHandler, new InetSocketAddress(0), new InetSocketAddress(0));
+        var server = new RadiusServer(bootstrap, accessHandler, acctHandler, new InetSocketAddress(0), new InetSocketAddress(0));
 
         // registering event loop and adding handlers is almost instant
         // socket binding is variable, possible race condition, so we sync
         server.isReady().syncUninterruptibly();
 
-        Channel accessChannel = server.getChannels().get(0);
-        Channel acctChannel = server.getChannels().get(1);
+        var accessChannel = server.getChannels().get(0);
+        var acctChannel = server.getChannels().get(1);
 
         // registered with eventLoop
         assertTrue(accessChannel.isRegistered());
@@ -51,11 +50,11 @@ class RadiusServerTest {
         assertNotNull(acctChannel.localAddress());
 
         // handlers registered
-        String TAIL_CONTEXT = "DefaultChannelPipeline$TailContext#0";
-        List<String> accessPipeline = accessChannel.pipeline().names();
+        var TAIL_CONTEXT = "DefaultChannelPipeline$TailContext#0";
+        var accessPipeline = accessChannel.pipeline().names();
         assertEquals(TAIL_CONTEXT, accessPipeline.get(1));
         assertTrue(accessPipeline.get(0).contains("ChannelHandler$MockitoMock$"));
-        List<String> accountingPipeline = acctChannel.pipeline().names();
+        var accountingPipeline = acctChannel.pipeline().names();
         assertEquals(TAIL_CONTEXT, accountingPipeline.get(1));
         assertTrue(accountingPipeline.get(0).contains("ChannelHandler$MockitoMock$"));
 
@@ -68,5 +67,12 @@ class RadiusServerTest {
         // no handlers registered
         assertEquals(List.of(TAIL_CONTEXT), accessChannel.pipeline().names());
         assertEquals(List.of(TAIL_CONTEXT), acctChannel.pipeline().names());
+    }
+
+    @Test
+    void mismatchedListsThrows() {
+        var handlers = List.of(accessHandler);
+        var addresses = List.of(new InetSocketAddress(0), new InetSocketAddress(0));
+        assertThrows(IllegalArgumentException.class, () -> new RadiusServer(bootstrap, handlers, addresses));
     }
 }

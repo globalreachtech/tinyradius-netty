@@ -9,6 +9,7 @@ import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 
 import java.util.Collections;
+import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,10 +28,11 @@ class AccessRequestPapTest {
         var sharedSecret = "sharedSecret1";
         var username = "myUsername";
 
-        var request = (AccessRequestPap)
-                ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
-                        .withPapPassword(password)
-                        .addAttribute(dictionary.createAttribute("User-Name", username));
+        var vendorAttr = dictionary.createAttribute(14122, 1, new byte[4]);
+        var baseReq = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, List.of(vendorAttr));
+        var firstPap = AccessRequestPap.withPassword(baseReq, "initialPw");
+        var request = (AccessRequestPap) AccessRequestPap.withPassword(firstPap, password)
+                .addAttribute(dictionary.createAttribute("User-Name", username));
         assertEquals(password, request.getPassword().get());
 
         var e = assertThrows(RadiusPacketException.class, () -> request.decodeRequest(sharedSecret));

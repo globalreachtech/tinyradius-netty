@@ -1,5 +1,7 @@
 package org.tinyradius.core.packet.request;
 
+import io.netty.buffer.Unpooled;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -78,18 +80,45 @@ class AccessRequestArapTest {
         var malformed = (AccessRequestArap) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16],
                 List.of(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[8])));
         assertNull(malformed.getClientChallenge());
+        assertNull(malformed.getChallengeResponse("pw"));
+        assertFalse(malformed.checkPassword("pw"));
+
+        var nullAuth = new AccessRequestArap(dictionary,
+                Unpooled.buffer(20).writeByte(ACCESS_REQUEST).writeByte(1).writeShort(38).writeZero(16),
+                List.of(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[16])));
+        assertFalse(nullAuth.checkPassword("pw"));
+
+        var shortAuth = new AccessRequestArap(dictionary,
+                Unpooled.buffer(20).writeByte(ACCESS_REQUEST).writeByte(1).writeShort(38).writeZero(16),
+                List.of(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[16]))) {
+            @Override
+            public byte @Nullable [] getAuthenticator() {
+                return new byte[8];
+            }
+        };
+        assertFalse(shortAuth.checkPassword("pw"));
+        assertThrows(RadiusPacketException.class, () -> shortAuth.decodeRequest("secret"));
+
+        var missingAttr = new AccessRequestArap(dictionary,
+                Unpooled.buffer(20).writeByte(ACCESS_REQUEST).writeByte(1).writeShort(20).writeZero(16),
+                List.of());
+        assertFalse(missingAttr.checkPassword("pw"));
     }
 
     @Test
     void validateAttributes() throws RadiusPacketException {
-        var request = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], Collections.emptyList());
-        
+        var vendorAttr = dictionary.createAttribute(14122, 1, new byte[4]);
+        var userAttr = dictionary.createAttribute(-1, 1, "user".getBytes());
+        var request = (AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, new byte[16], List.of(vendorAttr, userAttr));
+
         // No ARAP-Password yet, should be AccessRequestNoAuth
         assertInstanceOf(AccessRequestNoAuth.class, request);
 
-        // Add ARAP-Password
-        var arapRequest = (AccessRequestArap) request.withArapPassword("testpw");
+        // Add ARAP-Password and replace it directly via AccessRequestArap.withPassword
+        var arapRequest1 = (AccessRequestArap) AccessRequestArap.withPassword(request, "testpw");
+        var arapRequest = (AccessRequestArap) AccessRequestArap.withPassword(arapRequest1, "testpw2");
         arapRequest.validateAttributes();
+        assertTrue(arapRequest.checkPassword("testpw2"));
 
         // Add another ARAP-Password, should fail validation
         var arapRequest2 = (AccessRequest) arapRequest.addAttribute(dictionary.createAttribute(-1, ARAP_PASSWORD, new byte[16]));
@@ -104,7 +133,7 @@ class AccessRequestArapTest {
     void encodeDecode() throws RadiusPacketException {
         var sharedSecret = "secret";
         var password = "myPw";
-        
+
         var request = (AccessRequestArap)
                 ((AccessRequest) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList()))
                         .withArapPassword(password);

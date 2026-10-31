@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.tinyradius.core.dictionary.DefaultDictionary;
 import org.tinyradius.core.dictionary.Dictionary;
 import org.tinyradius.core.packet.request.AccessRequest;
-import org.tinyradius.core.packet.request.AccessRequestNoAuth;
-import org.tinyradius.core.packet.request.AccountingRequest;
 import org.tinyradius.core.packet.request.RadiusRequest;
 import org.tinyradius.io.RadiusEndpoint;
 import org.tinyradius.io.server.RequestCtx;
@@ -21,11 +19,11 @@ import static org.tinyradius.core.packet.PacketType.ACCOUNTING_REQUEST;
 
 class RequestHandlerTest {
 
-    final private static Dictionary dictionary = DefaultDictionary.INSTANCE;
+    private static final Dictionary dictionary = DefaultDictionary.INSTANCE;
 
     @Test
     void acceptRejectMsg() throws Exception {
-        RequestHandler requestHandler = new RequestHandler() {
+        var requestHandler = new RequestHandler() {
 
             @Override
             protected @NonNull Class<? extends RadiusRequest> acceptedPacketType() {
@@ -37,9 +35,10 @@ class RequestHandlerTest {
             }
         };
 
-        AccountingRequest acctRequest = (AccountingRequest) RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
-        AccessRequestNoAuth authRequest = (AccessRequestNoAuth) RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
+        var acctRequest = RadiusRequest.create(dictionary, ACCOUNTING_REQUEST, (byte) 1, null, Collections.emptyList());
+        var authRequest = RadiusRequest.create(dictionary, ACCESS_REQUEST, (byte) 1, null, Collections.emptyList());
 
+        assertFalse(requestHandler.acceptInboundMessage("not a RequestCtx"));
         assertFalse(requestHandler.acceptInboundMessage(new RequestCtx(acctRequest, new RadiusEndpoint(null, null))));
         assertTrue(requestHandler.acceptInboundMessage(new RequestCtx(authRequest, new RadiusEndpoint(null, null))));
     }
